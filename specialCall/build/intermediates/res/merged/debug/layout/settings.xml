@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="Preferences">
+
+  <PreferenceCategory
+     android:title="Options">
+
+     <CheckBoxPreference
+       android:key="pref_opt1"
+       android:title="Option 1"
+       android:summary="Tick to set this option"
+       android:defaultValue="true"
+       />
+    <CheckBoxPreference
+       android:key="pref_opt2"
+       android:title="Option 2"
+       android:summary="Tick to set this option"
+       android:defaultValue="true"
+       />
+  </PreferenceCategory>
+
+  <PreferenceCategory
+     android:title="Selection">
+      
+    <ListPreference
+        android:key="pref_type"
+        android:title="Save Media"
+        android:summary="Set whether to save media on device"
+        android:entries="@array/save_media"
+        android:entryValues="@array/types_values"
+        android:defaultValue="1"
+        />
+
+    <EditTextPreference
+        android:key="pref_text"
+        android:title="Input text"
+        android:summary="Tap to enter some text"
+        android:dialogTitle="Enter text"
+    />
+     
+  </PreferenceCategory>
+
+  <Preference android:title="Select specific contacts"
+                android:key="select_spec_contacts_btn"
+                android:summary="Select specific contacts to get decorated calls from"/>
+   
+</PreferenceScreen><!-- From: file:/C:/Users/Mor/as_workspace/SpecialCall/specialCall/src/main/res/layout/settings.xml -->

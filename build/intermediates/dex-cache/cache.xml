@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="C:\Users\Mor\as_workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\appcompat-v7\19.1.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="3499ceba05ca1f6037c6a2fad73df8f636224a28">
+        <dex dex="C:\Users\Mor\as_workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-5b89a35be6bd8621b18443df6ff8219a0aa32774.jar" />
+    </item>
+    <item
+        jar="C:\Users\Mor\as_workspace\SpecialCall\specialCall\libs\httpmime-4.3.4.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="54ffde537682aea984c22fbcf0106f21397c5f9b">
+        <dex dex="C:\Users\Mor\as_workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\httpmime-4.3.4-2ee77cb9953033e56b443ae2aa2bb28f99002b1a.jar" />
+    </item>
+    <item
+        jar="C:\Users\Mor\as_workspace\SpecialCall\shared\build\libs\shared.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="e598150f03581eae6f32f2974d78b349ba7090b5">
+        <dex dex="C:\Users\Mor\as_workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\shared-e14533c82b108241d5a48eb1b32dc985e1b72dc9.jar" />
+    </item>
+    <item
+        jar="C:\Users\Mor\Downloads\adt-bundle-windows-x86_64-20131030\sdk\extras\android\m2repository\com\android\support\support-v4\19.1.0\support-v4-19.1.0.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67">
+        <dex dex="C:\Users\Mor\as_workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\support-v4-19.1.0-17db20df3c12ebcb0635ed5db8b52eb930ceea2a.jar" />
+    </item>
+
+</items>

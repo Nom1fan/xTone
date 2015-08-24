@@ -1,0 +1,36 @@
+<MediaController xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.special.specialcall.IncomingSpecialCall"
+    tools:ignore="MergeRootFrame" >
+
+    <ImageView
+        android:id="@+id/CallerImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="false"
+        android:cropToPadding="true"
+        android:fitsSystemWindows="true"
+        android:focusable="true"
+        android:minHeight="500dp"
+        android:minWidth="300dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/abc_ab_bottom_solid_dark_holo" />
+
+    <Button
+        android:id="@+id/Decline"
+        android:layout_width="125dp"
+        android:layout_height="98dp"
+        android:layout_gravity="right"
+        android:text="Decline" />
+
+    <Button
+        android:id="@+id/Answer"
+        android:layout_width="124dp"
+        android:layout_height="98dp"
+        android:text="Answer" />
+
+</MediaController>
+<!-- From: file:/C:/Users/Mor/as_workspace/SpecialCall/specialCall/src/main/res/layout/activity_incoming_special_call.xml -->

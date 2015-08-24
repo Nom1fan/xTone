@@ -1,0 +1,8 @@
+apply plugin: 'java'
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+dependencies {
+    compile files('lib/commons-io-2.4.jar')
+}

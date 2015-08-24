@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SpecialCall</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello">SimpleDialer</string>
+    <string name="main_label">My Friends</string>
+    <string name="title_activity_incoming_special_call">IncomingSpecialCall</string>
+    <string-array name="save_media">
+        <item >Always save</item>
+        <item >Ask me</item>
+        <item >Never save</item>        
+    </string-array>
+    <string-array name="types_values">
+     <item >"Always save"</item>
+     <item >"Ask me"</item>
+     <item >"Never save"</item>
+    </string-array>
+
+</resources>
