@@ -4,10 +4,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Logger;
-
-import com.sun.org.apache.bcel.internal.classfile.Constant;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
-
 import DataObjects.SharedConstants;
 import LogObjects.LogsManager;
 import ServerObjects.ClientsManager;
@@ -17,9 +13,11 @@ public class Server {
 
     private ClientsManager clientsManager;
     private static Logger logger = null;
+    private static boolean cont = true;
 
     public Server() throws IOException {
 
+        LogsManager.createServerLogsDir();
         LogsManager.clearLogs();
         logger = LogsManager.getServerLogger("Server");
         logger.info("Starting server...");
@@ -32,7 +30,7 @@ public class Server {
 
         clientsManager = new ClientsManager();
 
-        while(true)
+        while(cont)
         {
             Socket clientSocket = serverSocket.accept();
             System.out.println("Receiving client connection...");
@@ -50,6 +48,7 @@ public class Server {
         } catch (IOException e) {
 
             e.printStackTrace();
+            cont = false;
         }
     }
 }

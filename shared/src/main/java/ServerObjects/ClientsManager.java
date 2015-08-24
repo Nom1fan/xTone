@@ -68,7 +68,7 @@ public class ClientsManager {
 		clientHeartBeats.put(phone, timestamp);
 		onlineConnections.put(phone, ctc);
 		
-		hbLogger.info(phone);
+		//hbLogger.info(phone);
 	}
 	
 	public synchronized static UserStatus isLogin(String clientId) throws IOException, ClassNotFoundException {

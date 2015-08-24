@@ -17,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 public abstract class LogsManager {
 
 	private static Logger serverLogger = null;
+	private static final String LOG_DIR = Paths.get("").toAbsolutePath().toString() + "\\server_side\\logs\\";
 	
 	/**
 	 * Returns the global server side logger
@@ -29,14 +30,12 @@ public abstract class LogsManager {
 		{
 			try 
 			{
-				serverLogger = Logger.getLogger(name);			
-				Path currentRelativePath = Paths.get("");
-				String log_dir = currentRelativePath.toAbsolutePath().toString() + "\\logs\\";
-				FileHandler fh = null;
+				serverLogger = Logger.getLogger(name);
+				FileHandler fh;
 				int limit = 1000000; // 1 Mb
 				int numLogFiles = 3;
 				String pattern = name+"%g"+".log";
-				fh = new FileHandler(log_dir+pattern, limit ,numLogFiles, true);									
+				fh = new FileHandler(LOG_DIR +pattern, limit ,numLogFiles, true);
 				fh.setFormatter(new SingleLineFormatter());
 				serverLogger.addHandler(fh);
 				serverLogger.setUseParentHandlers(false);
@@ -61,14 +60,12 @@ public abstract class LogsManager {
 		Logger newLogger = null;
 		try 
 		{
-			newLogger = Logger.getLogger(name);			
-			Path currentRelativePath = Paths.get("");
-			String log_dir = currentRelativePath.toAbsolutePath().toString() + "\\logs\\";
-			FileHandler fh = null;
+			newLogger = Logger.getLogger(name);
+			FileHandler fh;
 			int limit = 1000000; // 1 Mb
 			int numLogFiles = 3;
 			String pattern = name+"%g"+".log";
-			fh = new FileHandler(log_dir+pattern, limit ,numLogFiles, true);									
+			fh = new FileHandler(LOG_DIR+pattern, limit ,numLogFiles, true);
 			fh.setFormatter(new SingleLineFormatter());
 			newLogger.addHandler(fh);
 			newLogger.setUseParentHandlers(false);
@@ -84,17 +81,16 @@ public abstract class LogsManager {
 	/**
 	 * Clears the log directory	
 	 */
-	public static void clearLogs() {
-		
-		Path currentRelativePath = Paths.get("");
-		String log_dir = currentRelativePath.toAbsolutePath().toString() + "\\logs\\"; 
-		File logFolder = new File(log_dir);
-		
-		try {
-			FileUtils.cleanDirectory(logFolder);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
+	public static void clearLogs() throws IOException {
+
+			FileUtils.cleanDirectory(new File(LOG_DIR));
+	}
+
+    /**
+     * Create the log directory
+     */
+	public static void createServerLogsDir() throws IOException {
+
+        FileUtils.forceMkdir(new File(LOG_DIR));
 	}
 }
