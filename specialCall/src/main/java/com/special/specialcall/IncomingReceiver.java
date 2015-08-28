@@ -2,6 +2,7 @@ package com.special.specialcall;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import data_objects.Constants;
 import data_objects.SharedPrefUtils;
@@ -139,39 +140,32 @@ public class IncomingReceiver extends BroadcastReceiver {
 						isSpecialCall = true;
 					}
 
+
 					String downloadFileExtension = SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA, incomingNumber);
 					downloadFileExtension = downloadFileExtension.toLowerCase();
-
-					if (Arrays.asList(Constants.videoFormats).contains((downloadFileExtension))) {
-
-
-						SharedPrefUtils.setInt(gcontext, SharedPrefUtils.GENERAL, "ringerState", ringerMode);
-						if(ringerMode == AudioManager.RINGER_MODE_NORMAL)
-						{
-							audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-						}
-
-					}
-
-//	                	if (ringerMode == AudioManager.RINGER_MODE_NORMAL)
-//	                	{
-//	                		if (!ringtoneIsLoad)
-//	                		  mOldUri = RingtoneManager.getActualDefaultRingtoneUri(gcontext, RingtoneManager.TYPE_RINGTONE);
-//
-//	                		SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, "mOldUri", mOldUri.toString());
-//	    		       	}
-
 					incomingCallNumber = incomingNumber;
-					// VIDEO OR IMAGE
+
+							// VIDEO OR IMAGE
 					String filePath = incomingNumber + "."+ SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA, incomingNumber);
 					File mediaFile = new File(Constants.specialCallPath+incomingNumber+"/" ,filePath);
 
 					if(mediaFile.exists())
 					{
+
+                        if (Arrays.asList(Constants.videoFormats).contains((downloadFileExtension))) {
+
+                            SharedPrefUtils.setInt(gcontext, SharedPrefUtils.GENERAL, "ringerState", ringerMode);
+                            if(ringerMode == AudioManager.RINGER_MODE_NORMAL)
+                            {
+                                audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                            }
+
+                        }
+
 						isSpecialCall = true;
 
-						SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, "incomingNumber",incomingNumber);
-						SharedPrefUtils.setInt(gcontext, SharedPrefUtils.GENERAL, "ringerState", ringerMode);
+						SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, "incomingNumber", incomingNumber);
+
 
 						ringtoneIsLoad = false;
 						IncomingSpecialCall.finishedIncomingCall = false;

@@ -112,7 +112,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 			{
 				setContentView(R.layout.activity_incoming_special_call);
 
-				String imageInSD = Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+incomingNumber+"/" + incomingNumber +"."+downloadFileExtension;
+				String imageInSD = Constants.specialCallPath+incomingNumber+"/" + incomingNumber +"."+downloadFileExtension;
 				Log.d("imageInSD ", imageInSD);
 				BitmapFactory.decodeFile(imageInSD);
 				ImageView myImageView = (ImageView)findViewById(R.id.CallerImage);
@@ -138,7 +138,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 				rlayout.setGravity(Gravity.CENTER_VERTICAL);
 
 
-				final File root = new File(Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+incomingNumber+"/" + incomingNumber +"."+downloadFileExtension);
+				final File root = new File(Constants.specialCallPath+incomingNumber+"/" + incomingNumber +"."+downloadFileExtension);
 				//root.mkdirs();
 
 				RelativeLayout.LayoutParams videoParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
@@ -163,24 +163,26 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 				final VideoView mVideoView  = new VideoView(getApplicationContext());
 				MediaController mediaController = new MediaController(this);
 				mediaController.setAnchorView(mVideoView);
+				mediaController.setMediaPlayer(mVideoView);//////////
 				mVideoView.setMediaController(mediaController);
+				mVideoView.setOnPreparedListener(PreparedListener);
 				mVideoView.setVideoURI(uri);
 				mVideoView.requestFocus();
 				mVideoView.setLayoutParams(videoParams);
 				mVideoView.setId(3);
-				mVideoView.start();
+			//	mVideoView.start();
 
 
-
-				mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-
-					@Override
-					public void onCompletion(MediaPlayer mp) {
-
-						mVideoView.start();
-
-					}
-				});
+//				//Looping the video
+//				mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//
+//					@Override
+//					public void onCompletion(MediaPlayer mp) {
+//
+//						mVideoView.start();
+//
+//					}
+//				});
 
 				RelativeLayout.LayoutParams b1Params = new RelativeLayout.LayoutParams(150, 150);
 				b1Params.addRule(RelativeLayout.ALIGN_LEFT,  mVideoView.getId());
@@ -358,6 +360,18 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
 	}
 
+	private MediaPlayer.OnPreparedListener PreparedListener = new MediaPlayer.OnPreparedListener(){
+
+		@Override
+		public void onPrepared(MediaPlayer m) {
+
+			Log.i("IncSpecialCall", "Starting OnPreparedListener");
+			//m.setVolume(1, 1);
+			m.setLooping(true);
+			m.start();
+			Log.i("IncSpecialCall", "Finishing OnPreparedListener");
+		}
+	};
 
 	private Bitmap loadImage(String imgPath) {
 		BitmapFactory.Options options;

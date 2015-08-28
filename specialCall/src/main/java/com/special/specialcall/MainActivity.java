@@ -164,7 +164,7 @@ public class MainActivity extends Activity implements OnClickListener,
 	 super.onDestroy();
 	// unbindService(mConnection);
 	// unregisterReceiver(serviceReceiver);
-	 unregisterReceiver(ringerModeReceiver);
+//	 unregisterReceiver(ringerModeReceiver);
 	 }
 
 	@Override
@@ -178,36 +178,36 @@ public class MainActivity extends Activity implements OnClickListener,
 		LoggedIn = SharedPrefUtils.getBoolean(getApplicationContext(),
 				SharedPrefUtils.GENERAL, "LoggedIn");
 
-		ringerModeReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-
-				switch (am.getRingerMode()) {
-				case AudioManager.RINGER_MODE_SILENT: {
-					absRingerState = AudioManager.RINGER_MODE_SILENT;
-					SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, "ringerState", absRingerState);
-					Log.i("MyApp", "Silent mode");
-					break;
-				}
-				case AudioManager.RINGER_MODE_VIBRATE: {
-					absRingerState = AudioManager.RINGER_MODE_VIBRATE;
-					SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, "ringerState", absRingerState);
-					Log.i("MyApp", "Vibrate mode");
-					break;
-				}
-				case AudioManager.RINGER_MODE_NORMAL: {
-					absRingerState = AudioManager.RINGER_MODE_NORMAL;
-					SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, "ringerState", absRingerState);
-					Log.i("MyApp", "Normal mode");
-					break;
-				}
-				}
-			}
-		};
-		IntentFilter filter = new IntentFilter(
-				AudioManager.RINGER_MODE_CHANGED_ACTION);
-		registerReceiver(ringerModeReceiver, filter);
+//		ringerModeReceiver = new BroadcastReceiver() {
+//			@Override
+//			public void onReceive(Context context, Intent intent) {
+//				am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+//
+//				switch (am.getRingerMode()) {
+//				case AudioManager.RINGER_MODE_SILENT: {
+//					absRingerState = AudioManager.RINGER_MODE_SILENT;
+//					SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, "ringerState", absRingerState);
+//					Log.i("MyApp", "Silent mode");
+//					break;
+//				}
+//				case AudioManager.RINGER_MODE_VIBRATE: {
+//					absRingerState = AudioManager.RINGER_MODE_VIBRATE;
+//					SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, "ringerState", absRingerState);
+//					Log.i("MyApp", "Vibrate mode");
+//					break;
+//				}
+//				case AudioManager.RINGER_MODE_NORMAL: {
+//					absRingerState = AudioManager.RINGER_MODE_NORMAL;
+//					SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, "ringerState", absRingerState);
+//					Log.i("MyApp", "Normal mode");
+//					break;
+//				}
+//				}
+//			}
+//		};
+	//	IntentFilter filter = new IntentFilter(
+	//			AudioManager.RINGER_MODE_CHANGED_ACTION);
+	//	registerReceiver(ringerModeReceiver, filter);
 		
 		
 		
