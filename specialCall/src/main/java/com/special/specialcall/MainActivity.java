@@ -11,16 +11,17 @@ import EventObjects.Event;
 import EventObjects.EventGenerator;
 import EventObjects.EventListener;
 import EventObjects.EventReport;
-import Exceptions.EmptyDestinationNumberException;
+import Exceptions.InvalidDestinationNumberException;
 import Exceptions.FileExceedsMaxSizeException;
+import Exceptions.FileInvalidFormatException;
 import FilesManager.FileManager;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
@@ -90,18 +91,23 @@ public class MainActivity extends Activity implements OnClickListener,
 
 	}
 
-
 	@Override
 	protected void onStart() {
 
 		super.onStart();
 
-
 		eventGenerator = new EventGenerator();
 		eventGenerator.addEventListener(this);
-
 		
 	}
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        saveInstanceState();
+    }
 
 	@Override
 	protected void onResume() {
@@ -117,9 +123,9 @@ public class MainActivity extends Activity implements OnClickListener,
 		{
 			if(serverProxy==null)
 			{
-				myPhoneNumber = SharedPrefUtils.getString(context,SharedPrefUtils.GENERAL,"myPhoneNumber");
+				myPhoneNumber = SharedPrefUtils.getString(context,SharedPrefUtils.GENERAL,SharedPrefUtils.MY_NUMBER);
 				SharedConstants.MY_ID = myPhoneNumber;
-				InitalizeConnection();				
+				InitializeConnection();
 			}
 		}				
 
@@ -132,19 +138,16 @@ public class MainActivity extends Activity implements OnClickListener,
 		} else {
 			initializeUI();
 
-			setDestPhoneNumber(SharedPrefUtils.getString(context,
-					SharedPrefUtils.GENERAL, "DestPhoneNumber"));
-			String destName = SharedPrefUtils.getString(context,
-					SharedPrefUtils.GENERAL, "DestName");
+
 
 			String mediaPath = lastULThumbsPerUser.get(destPhoneNumber);
 
-			settingCallNumberComplete = false;
-			EditText callNumberET = (EditText) findViewById(R.id.CallNumber);
-			if (callNumberET != null)
-				callNumberET.setText(destPhoneNumber,
-						EditText.BufferType.EDITABLE);
-			settingCallNumberComplete = true;
+//			settingCallNumberComplete = false;
+//			EditText callNumberET = (EditText) findViewById(R.id.CallNumber);
+//			if (callNumberET != null)
+//				callNumberET.setText(destPhoneNumber,
+//						EditText.BufferType.EDITABLE);
+//			settingCallNumberComplete = true;
 
 			((TextView) findViewById(R.id.destName)).setText(destName);
 
@@ -157,10 +160,13 @@ public class MainActivity extends Activity implements OnClickListener,
 				disableProgressBar();
 						
 		}
+
+        // Restoring instance state
+        restoreInstanceState();
 	}
 
-	 @Override
-	 protected void onDestroy() {
+	@Override
+	protected void onDestroy() {
 	 super.onDestroy();
 	// unbindService(mConnection);
 	// unregisterReceiver(serviceReceiver);
@@ -209,9 +215,7 @@ public class MainActivity extends Activity implements OnClickListener,
 	//			AudioManager.RINGER_MODE_CHANGED_ACTION);
 	//	registerReceiver(ringerModeReceiver, filter);
 		
-		
-		
-		
+
 		if (!LoggedIn) {
 			setContentView(R.layout.loginuser);
 
@@ -221,6 +225,135 @@ public class MainActivity extends Activity implements OnClickListener,
 			initializeUI();
 		}
 	}
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+
+            try {
+
+                restoreInstanceState();
+
+                if (requestCode == ActivityRequestCodes.SELECT_PICTURE) {
+                    final boolean isCamera;
+
+                    checkDestinationNumber();
+
+                    if (data == null) {
+                        isCamera = true;
+                    } else {
+                        final String action = data.getAction();
+                        if (action == null) {
+                            isCamera = false;
+                        } else {
+                            isCamera = action
+                                    .equals(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                        }
+                    }
+
+                    Uri selectedImageOrVideoUri;
+                    if (isCamera) {
+                        selectedImageOrVideoUri = outputFileUri;
+                    } else {
+                        selectedImageOrVideoUri = data.getData();
+                    }
+
+                    String imgOrVidPath = getRealPathFromURI(selectedImageOrVideoUri);
+                    FileManager fm = new FileManager(imgOrVidPath);
+                    fm.validateFileSize();
+
+                    lastULThumbsPerUser.put(destPhoneNumber, imgOrVidPath);
+
+                    serverProxy.uploadFileToServer(fm.getFileData(),fm.getExtension(), destPhoneNumber);
+                    loading = true;
+                    disableCallButton();
+                }
+
+                if (requestCode == ActivityRequestCodes.PICK_SONG) {
+
+                    checkDestinationNumber();
+
+                    Uri uriRingtone = data.getData();
+                    String ringTonePath = getRealPathFromURI(uriRingtone);
+                    FileManager fm = new FileManager(ringTonePath);
+                    fm.validateFileSize();
+                    fm.validateFileFormat(Constants.audioFormats);
+
+                    serverProxy.uploadFileToServer(fm.getFileData(), fm.getExtension(), destPhoneNumber);
+                    loading = true;
+                    disableCallButton();
+                }
+            }
+            catch(NullPointerException e)
+            {
+                e.printStackTrace();
+                Log.e(tag,"It seems there was a problem with the file path.");
+                callErrToast("It seems there was a problem with the file path");
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+                Log.e(tag,"A problem occured while reading the file.");
+                callErrToast("A problem occured while reading the file");
+            }
+            catch (FileExceedsMaxSizeException e)
+            {
+                callErrToast("Please select a file that weights less than:"+
+                        FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+            }
+            catch (InvalidDestinationNumberException e)
+            {
+                callErrToast("There was a problem with the destination number. Please try again");
+            }
+            catch (FileInvalidFormatException e)
+            {
+                e.printStackTrace();
+                callErrToast("Please select a valid format");
+            }
+
+            if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
+                try {
+                    if (data != null) {
+                        Uri uri = data.getData();
+
+                        if (uri != null) {
+                            Cursor c = null;
+                            try {
+                                c = getContentResolver()
+                                        .query(uri,
+                                                new String[] {
+                                                        ContactsContract.CommonDataKinds.Phone.NUMBER,
+                                                        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, },
+                                                null, null, null);
+
+                                if (c != null && c.moveToFirst()) {
+                                    String number = c.getString(0);
+                                    String name = c.getString(1);
+
+                                    destPhoneNumber = number;
+                                    destName = name;
+
+                                    // Refreshing the UI
+                                    saveInstanceState();
+                                    restoreInstanceState();
+                                }
+                            } finally {
+                                if (c != null) {
+                                    c.close();
+                                }
+                            }
+                        }
+                    } else
+                        throw new Exception("SELECT_CONTACT: data is null");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -285,8 +418,8 @@ public class MainActivity extends Activity implements OnClickListener,
 		final Intent chooserIntent = Intent.createChooser(galleryIntent,
 				"Select Source");
 
-		// Add the camera options.
-		chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,
+        // Add the camera options.
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,
 				cameraIntents.toArray(new Parcelable[] {}));
 
 		startActivityForResult(chooserIntent,
@@ -295,172 +428,43 @@ public class MainActivity extends Activity implements OnClickListener,
 
 	private void uploadRingtoneIntent() {
 
-		Intent intent_upload = new Intent();
-		intent_upload.setType("audio/*");
-		intent_upload.setAction(Intent.ACTION_GET_CONTENT);
 
-		startActivityForResult(intent_upload, ActivityRequestCodes.PICK_SONG);
-	}
+		Intent intent_selectRingTone = new Intent();
+		intent_selectRingTone.setType("audio/*");
+		intent_selectRingTone.setAction(Intent.ACTION_GET_CONTENT);
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if (resultCode == RESULT_OK) {
-			try {
-					setDestPhoneNumber(((EditText) findViewById(R.id.CallNumber))
-							.getText().toString());
-					destName = ((TextView) findViewById(R.id.destName)).getText()
-							.toString();
-				
-					if(destPhoneNumber==null)
-						throw new EmptyDestinationNumberException();
-					if(destPhoneNumber.equals("") || destPhoneNumber.length() < 10)
-						throw new EmptyDestinationNumberException();
-					
-					if (requestCode == ActivityRequestCodes.SELECT_PICTURE) {
-						final boolean isCamera;
-		
-						if (data == null) {
-							isCamera = true;
-						} else {
-							final String action = data.getAction();
-							if (action == null) {
-								isCamera = false;
-							} else {
-								isCamera = action
-										.equals(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-							}
-						}
-		
-						Uri selectedImageOrVideoUri;
-						if (isCamera) {
-							selectedImageOrVideoUri = outputFileUri;
-						} else {
-							selectedImageOrVideoUri = data.getData();
-						}
-		
-
-		
-						myPhoneNumber = SharedPrefUtils.getString(
-								getApplicationContext(), SharedPrefUtils.GENERAL,
-								"myPhoneNumber");
-						
-						SharedConstants.MY_ID = myPhoneNumber;
-		
-						String imgOrVidPath = getRealPathFromURI(selectedImageOrVideoUri);	
-						FileManager fm = new FileManager(imgOrVidPath);						
-						fm.validateFileSize();
-																	
-						lastULThumbsPerUser.put(destPhoneNumber, imgOrVidPath);
-						
-						SharedPrefUtils.setString(getApplicationContext(),
-								SharedPrefUtils.GENERAL, "DestPhoneNumber",
-								destPhoneNumber);
-						SharedPrefUtils.setString(getApplicationContext(),
-								SharedPrefUtils.GENERAL, "DestName", destName);
-						
-						serverProxy.uploadFileToServer(fm.getFileData(),fm.getExtension(), destPhoneNumber);
-						loading = true;
-						disableCallButton();							
-					}
-		
-					if (requestCode == ActivityRequestCodes.PICK_SONG) {
-		
-						Uri uriRingtone = data.getData();
-						String ringTonePath = getRealPathFromURI(uriRingtone);	
-						FileManager fm = new FileManager(ringTonePath);
-						fm.validateFileSize();
-						
-						serverProxy.uploadFileToServer(fm.getFileData(),fm.getExtension(), destPhoneNumber);
-						loading = true;
-						disableCallButton();
-					}
-			}
-			catch(NullPointerException e)
-			{
-				e.printStackTrace();
-				Log.e(tag,"It seems there was a problem with the file path.");
-				callErrToast("It seems there was a problem with the file path");
-			} 
-			catch (IOException e) 
-			{					
-				e.printStackTrace();
-				Log.e(tag,"A problem occured while reading the file.");
-				callErrToast("A problem occured while reading the file");										
-			} 
-			catch (FileExceedsMaxSizeException e) 
-			{					
-				callErrToast("Please select a file that weights less than:"+
-						FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
-			} 
-			catch (EmptyDestinationNumberException e) 
-			{	
-				callErrToast("There was a problem with the destination number. Please try again");
-			}
-
-			if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
-				try {
-					if (data != null) {
-						Uri uri = data.getData();
-
-						if (uri != null) {
-							Cursor c = null;
-							try {
-								c = getContentResolver()
-										.query(uri,
-												new String[] {
-														ContactsContract.CommonDataKinds.Phone.NUMBER,
-														ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, },
-												null, null, null);
-
-								if (c != null && c.moveToFirst()) {
-									String number = c.getString(0);
-									String name = c.getString(1);
-
-									SharedPrefUtils.setString(
-											getApplicationContext(),
-											SharedPrefUtils.GENERAL,
-											"DestPhoneNumber", number);
-									SharedPrefUtils.setString(
-											getApplicationContext(),
-											SharedPrefUtils.GENERAL,
-											"DestName", name);
-
-								}
-							} finally {
-								if (c != null) {
-									c.close();
-								}
-							}
-						}
-					} else
-						throw new Exception("SELECT_CONTACT: data is null");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-			}
-
+		try
+        {
+			startActivityForResult(intent_selectRingTone, ActivityRequestCodes.PICK_SONG);
 		}
-	}
+        catch(ActivityNotFoundException e)
+        {
 
-	private void setDestPhoneNumber(String destPhoneNumberAlphaNumeric) {
-		
-		destPhoneNumber = toNumeric(destPhoneNumberAlphaNumeric);		
-	}
-	
-	private String toNumeric(String str) {
-	
-		return str.replaceAll("[^0-9]","");
+            intent_selectRingTone.setType("*/*");
+
+            try
+            {
+                startActivityForResult(intent_selectRingTone, ActivityRequestCodes.PICK_SONG);
+            }
+            catch (ActivityNotFoundException e1)
+            {
+                e.printStackTrace();
+                String errMsg = "Failed to start activity to select a ringtone:"+e.getMessage();
+			    Log.e(tag,errMsg);
+                callErrToast(errMsg);
+            }
+		}
 	}
 
 	public void onClick(View v) {
 
+        // Saving instance state
+        saveInstanceState();
+
 		int id = v.getId();
 		if (id == R.id.CallNow) {
 
-			launchDialer(((EditText) findViewById(R.id.CallNumber)).getText()
-					.toString());
+			launchDialer(destPhoneNumber);
 
 		} else if (id == R.id.MyPic) {
 
@@ -491,9 +495,9 @@ public class MainActivity extends Activity implements OnClickListener,
 			SharedConstants.MY_ID = myPhoneNumber;
 
 			SharedPrefUtils.setString(getApplicationContext(),
-					SharedPrefUtils.GENERAL, "myPhoneNumber", myPhoneNumber);
+					SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, myPhoneNumber);
 
-			InitalizeConnection();
+			InitializeConnection();
 
 			File SpecialCallIncoming = new File(Constants.specialCallPath);
 			SpecialCallIncoming.mkdirs();
@@ -503,6 +507,9 @@ public class MainActivity extends Activity implements OnClickListener,
 		}
 
 		else if (id == R.id.settingsBtn) {
+
+            // Saving instance state
+            saveInstanceState();
 
 			Intent i = new Intent();
 			i.setClass(getApplicationContext(), Settings.class);
@@ -540,36 +547,39 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		edCN.addTextChangedListener(new TextWatcher() {
 
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-				if (!settingCallNumberComplete)
-					return;
-			}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                                          int after) {
+                if (!settingCallNumberComplete)
+                    return;
+            }
 
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before,
+                                      int count) {
 
-				String destPhone = s.toString();
+                String destPhone = s.toString();
 
-				if (10 == s.length()) {				
-					if (serverProxy!=null)	
-						serverProxy.isLogin(destPhone);
-				} else if (0 == s.length()) {
-					disableGuiComponents();
-				} else {
-					disableGuiComponents();
-				}
-			}
+                if (10 == s.length()) {
+                    if (serverProxy != null)
+                        serverProxy.isLogin(destPhone);
 
-			@Override
-			public void afterTextChanged(Editable s) {
-			}
-		});
+                    destPhoneNumber = destPhone;
+
+                } else if (0 == s.length()) {
+                    disableGuiComponents();
+                } else {
+                    disableGuiComponents();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
 
 		Button button1 = (Button) findViewById(R.id.CallNow);
-		button1.setText(buttonLabels[0]);
+       // button1.setText(buttonLabels[0]);
 		button1.setOnClickListener(this);
 
 		ImageButton button2 = (ImageButton) findViewById(R.id.MyPic);
@@ -581,7 +591,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		Button button3 = (Button) findViewById(R.id.MyRing);
 		button3.setText(buttonLabels[2]);
 		button3.getBackground().setColorFilter(0xFFFF0000,
-				PorterDuff.Mode.MULTIPLY);
+                PorterDuff.Mode.MULTIPLY);
 		button3.setOnClickListener(this);
 
 		ImageButton button6 = (ImageButton) findViewById(R.id.Select_Contact);
@@ -592,31 +602,6 @@ public class MainActivity extends Activity implements OnClickListener,
 		settingsBtn.setOnClickListener(this);
 
 		disableGuiComponents();
-	}
-
-	private String getRealPathFromURI(Uri contentURI) {
-
-		String result = null;
-		try {
-			Cursor cursor = getContentResolver().query(contentURI, null, null,
-					null, null);
-			if (cursor == null) { // Source is Dropbox or other similar local
-									// file path
-				result = contentURI.getPath();
-			} else {
-				cursor.moveToFirst();
-				int idx = cursor
-						.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-				result = cursor.getString(idx);
-				cursor.close();
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return result;
-
 	}
 
 	public void eventReceived(Event event) {
@@ -783,44 +768,124 @@ public class MainActivity extends Activity implements OnClickListener,
 
 	}
 
-	private void drawUploadedContent(final String fileExtension) {
-		
-		runOnUiThread(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				if (Arrays.asList(Constants.imageFormats).contains(fileExtension)) {
-					ImageButton picButton = (ImageButton) findViewById(R.id.MyPic);
-					picButton.getBackground().setColorFilter(0xFF00FF00,
-							PorterDuff.Mode.MULTIPLY);
-					picButton.refreshDrawableState();
-				}
-
-				else if (Arrays.asList(Constants.audioFormats).contains(fileExtension)) {
-					Button ringButton = (Button) findViewById(R.id.MyRing);
-					ringButton.getBackground().setColorFilter(0xFF00FF00,
-							PorterDuff.Mode.MULTIPLY);
-					ringButton.refreshDrawableState();
-				}	
-				
-				ViewGroup vg = (ViewGroup) findViewById(R.id.mainActivity);
-				vg.postInvalidate();
-			}
-		});
-	}
-
-	private void cleanAndTerminate() {
-
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-		};
-
-		this.finish();
-	}
 
 	/* -------------- Assisting methods -------------- */
+
+    private void saveInstanceState() {
+
+        // Saving destination number
+        if(destPhoneNumber!=null)
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, destPhoneNumber);
+
+        // Saving destination name
+        if(destName!=null)
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, destName);
+
+        // Saving my phone number
+        if(myPhoneNumber!=null)
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, myPhoneNumber);
+    }
+
+    private void restoreInstanceState() {
+
+        // Restoring destination number
+        final EditText ed_destinationNumber =
+                (EditText) findViewById(R.id.CallNumber);
+        destPhoneNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
+        if(ed_destinationNumber!=null && destPhoneNumber!=null)
+            ed_destinationNumber.setText(destPhoneNumber);
+
+        // Restoring destination name
+        final TextView tv_destName =
+                (TextView) findViewById(R.id.destName);
+        destName = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
+        if(tv_destName!=null && destName!=null)
+            tv_destName.setText(destName);
+
+        // Restoring my phone number
+        myPhoneNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
+        if(myPhoneNumber!=null)
+            SharedConstants.MY_ID = myPhoneNumber;
+
+    }
+
+    private void drawUploadedContent(final String fileExtension) {
+
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                if (Arrays.asList(Constants.imageFormats).contains(fileExtension)) {
+                    ImageButton picButton = (ImageButton) findViewById(R.id.MyPic);
+                    picButton.getBackground().setColorFilter(0xFF00FF00,
+                            PorterDuff.Mode.MULTIPLY);
+                    picButton.refreshDrawableState();
+                } else if (Arrays.asList(Constants.audioFormats).contains(fileExtension)) {
+                    Button ringButton = (Button) findViewById(R.id.MyRing);
+                    ringButton.getBackground().setColorFilter(0xFF00FF00,
+                            PorterDuff.Mode.MULTIPLY);
+                    ringButton.refreshDrawableState();
+                }
+
+                ViewGroup vg = (ViewGroup) findViewById(R.id.mainActivity);
+                vg.postInvalidate();
+            }
+        });
+    }
+
+    private void cleanAndTerminate() {
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+        };
+
+        this.finish();
+    }
+
+    private void checkDestinationNumber() throws InvalidDestinationNumberException {
+
+        if(destPhoneNumber==null)
+            throw new InvalidDestinationNumberException();
+        if(destPhoneNumber.equals("") || destPhoneNumber.length() < 10)
+            throw new InvalidDestinationNumberException();
+    }
+
+    private void setDestPhoneNumber(String destPhoneNumberAlphaNumeric) {
+
+        destPhoneNumber = toNumeric(destPhoneNumberAlphaNumeric);
+    }
+
+    private String toNumeric(String str) {
+
+        return str.replaceAll("[^0-9]","");
+    }
+
+    private String getRealPathFromURI(Uri contentURI) {
+
+        String result = null;
+        try {
+            Cursor cursor = getContentResolver().query(contentURI, null, null,
+                    null, null);
+            if (cursor == null) { // Source is Dropbox or other similar local
+                // file path
+                result = contentURI.getPath();
+            } else {
+                cursor.moveToFirst();
+                int idx = cursor
+                        .getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                result = cursor.getString(idx);
+                cursor.close();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return result;
+
+    }
 
 	private void disableCallButton() {
 
@@ -865,7 +930,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			@Override
 			public void run() {
 				pBar = (MyProgressBar) findViewById(R.id.progressBar);
-				pBar.startAnimation();
+                pBar.startAnimation();
 			}
 		});
 	}
@@ -885,7 +950,7 @@ public class MainActivity extends Activity implements OnClickListener,
 				else
 					myPic.setImageResource(R.drawable.defaultpic_enabled);
 				((Button) findViewById(R.id.MyRing)).setEnabled(true);
-				enableCallButton();
+                enableCallButton();
 
 			}
 		});
@@ -926,7 +991,7 @@ public class MainActivity extends Activity implements OnClickListener,
 
 	}
 
-	private void InitalizeConnection() {
+	private void InitializeConnection() {
 
 		// Starting service
 		// Intent serverProxyIntent = new Intent(this, ServerProxy.class);
@@ -935,7 +1000,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		// startService(serverProxyIntent);
 
 		serverProxy = new ServerProxy(eventGenerator);
-		serverProxy.connect();		
+        serverProxy.connect();
 	}
 
 	private void callErrToast(final String text) {
@@ -978,23 +1043,6 @@ public class MainActivity extends Activity implements OnClickListener,
 				toast.show();
 			}
 		});
-	}
-
-	public static boolean deleteDirectory(File path) {
-		if (path.exists()) {
-			File[] files = path.listFiles();
-			if (files == null) {
-				return true;
-			}
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].isDirectory()) {
-					deleteDirectory(files[i]);
-				} else {
-					files[i].delete();
-				}
-			}
-		}
-		return (path.delete());
 	}
 
 }
