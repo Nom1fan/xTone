@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 
 import Exceptions.FileExceedsMaxSizeException;
+import Exceptions.FileInvalidFormatException;
 
 
 /**
@@ -21,6 +23,7 @@ public class FileManager {
 	private File _file;
 	private String _extension;
 	public static final int MAX_FILE_SIZE = 5242880; // 5MB
+
 	
 	public FileManager(String filePath) throws NullPointerException {
 		
@@ -76,5 +79,11 @@ public class FileManager {
 	public String getExtension() {
 		
 		return _extension;
+	}
+
+	public void validateFileFormat(String[] validFormats) throws FileInvalidFormatException {
+
+		if(!Arrays.asList(validFormats).contains(_extension))
+            throw new FileInvalidFormatException();
 	}
 }
