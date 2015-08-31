@@ -29,7 +29,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.media.AudioManager;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
@@ -67,13 +66,10 @@ public class MainActivity extends Activity implements OnClickListener,
 	private String myPhoneNumber = "";
 	private String destPhoneNumber = "";
 	private String destName = "";	
-	private BroadcastReceiver ringerModeReceiver;
-	private String tag = "MAIN_ACTIVITY";
+    private String tag = "MAIN_ACTIVITY";
 	private Uri outputFileUri;
 	private boolean settingCallNumberComplete;
 	private boolean LoggedIn = false;
-	private AudioManager am;
-	private int absRingerState = 2;
 	private MyProgressBar pBar;
 	boolean VideoValid = false;
 	private boolean loading = false;
@@ -110,7 +106,7 @@ public class MainActivity extends Activity implements OnClickListener,
     }
 
 	@Override
-	protected void onResume() {
+    protected void onResume() {
 
 		super.onResume();
 
@@ -166,7 +162,7 @@ public class MainActivity extends Activity implements OnClickListener,
 	}
 
 	@Override
-	protected void onDestroy() {
+    protected void onDestroy() {
 	 super.onDestroy();
 	// unbindService(mConnection);
 	// unregisterReceiver(serviceReceiver);
@@ -184,37 +180,6 @@ public class MainActivity extends Activity implements OnClickListener,
 		LoggedIn = SharedPrefUtils.getBoolean(getApplicationContext(),
 				SharedPrefUtils.GENERAL, "LoggedIn");
 
-//		ringerModeReceiver = new BroadcastReceiver() {
-//			@Override
-//			public void onReceive(Context context, Intent intent) {
-//				am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-//
-//				switch (am.getRingerMode()) {
-//				case AudioManager.RINGER_MODE_SILENT: {
-//					absRingerState = AudioManager.RINGER_MODE_SILENT;
-//					SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, "ringerState", absRingerState);
-//					Log.i("MyApp", "Silent mode");
-//					break;
-//				}
-//				case AudioManager.RINGER_MODE_VIBRATE: {
-//					absRingerState = AudioManager.RINGER_MODE_VIBRATE;
-//					SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, "ringerState", absRingerState);
-//					Log.i("MyApp", "Vibrate mode");
-//					break;
-//				}
-//				case AudioManager.RINGER_MODE_NORMAL: {
-//					absRingerState = AudioManager.RINGER_MODE_NORMAL;
-//					SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, "ringerState", absRingerState);
-//					Log.i("MyApp", "Normal mode");
-//					break;
-//				}
-//				}
-//			}
-//		};
-	//	IntentFilter filter = new IntentFilter(
-	//			AudioManager.RINGER_MODE_CHANGED_ACTION);
-	//	registerReceiver(ringerModeReceiver, filter);
-		
 
 		if (!LoggedIn) {
 			setContentView(R.layout.loginuser);
@@ -331,12 +296,21 @@ public class MainActivity extends Activity implements OnClickListener,
                                     String number = c.getString(0);
                                     String name = c.getString(1);
 
-                                    destPhoneNumber = number;
+                                    setDestPhoneNumber(number);
                                     destName = name;
 
-                                    // Refreshing the UI
+                                    final EditText ed_destinationNumber = ((EditText) findViewById(R.id.CallNumber));
+                                    if(ed_destinationNumber!=null) {
+                                        ed_destinationNumber.setText(destPhoneNumber);
+                                    }
+
+                                    final TextView ed_destinationName = ((TextView) findViewById(R.id.destName));
+                                    if(ed_destinationName!=null) {
+                                        ed_destinationName.setText(destName);
+                                    }
+
                                     saveInstanceState();
-                                    restoreInstanceState();
+
                                 }
                             } finally {
                                 if (c != null) {
@@ -774,12 +748,18 @@ public class MainActivity extends Activity implements OnClickListener,
     private void saveInstanceState() {
 
         // Saving destination number
-        if(destPhoneNumber!=null)
+        final EditText ed_destinationNumber = ((EditText) findViewById(R.id.CallNumber));
+		if(ed_destinationNumber!=null) {
+            destPhoneNumber = ed_destinationNumber.getText().toString();
             SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, destPhoneNumber);
+        }
 
         // Saving destination name
-        if(destName!=null)
+        final TextView ed_destinationName = ((TextView) findViewById(R.id.destName));
+        if(ed_destinationName!=null) {
+            destName = ed_destinationName.getText().toString();
             SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, destName);
+        }
 
         // Saving my phone number
         if(myPhoneNumber!=null)
@@ -791,9 +771,9 @@ public class MainActivity extends Activity implements OnClickListener,
         // Restoring destination number
         final EditText ed_destinationNumber =
                 (EditText) findViewById(R.id.CallNumber);
-        destPhoneNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
-        if(ed_destinationNumber!=null && destPhoneNumber!=null)
-            ed_destinationNumber.setText(destPhoneNumber);
+        String destNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
+        if(ed_destinationNumber!=null && destNumber!=null)
+            ed_destinationNumber.setText(destNumber);
 
         // Restoring destination name
         final TextView tv_destName =

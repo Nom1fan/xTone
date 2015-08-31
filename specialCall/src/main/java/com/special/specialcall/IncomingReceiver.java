@@ -11,7 +11,6 @@ import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.provider.MediaStore;
@@ -41,7 +40,6 @@ public class IncomingReceiver extends BroadcastReceiver {
 	private Intent i = new Intent();
 	private static boolean mDismissed = false;
 	private ActivityManager mActivityManager;
-	private AudioManager am ;
 	private int ringerMode;
 	private static final long DELAY_INTERVAL = 100;
 	private Handler mHandler = new Handler() {
@@ -80,7 +78,6 @@ public class IncomingReceiver extends BroadcastReceiver {
 
 			activityRef = MainActivity.getInstance();
 			gcontext = context;
-			am =(AudioManager)gcontext.getSystemService(Context.AUDIO_SERVICE);
 
 			if (phoneListener==null){
 				Log.e("YAEL", "!!!phoneListener is been called !!!");
@@ -106,7 +103,6 @@ public class IncomingReceiver extends BroadcastReceiver {
 
 	public synchronized void syncOnCallStateChange(int state, String incomingNumber){
 
-		AudioManager audioManager = (AudioManager)gcontext.getSystemService(Context.AUDIO_SERVICE);
 
 
 		switch(state)
@@ -117,35 +113,32 @@ public class IncomingReceiver extends BroadcastReceiver {
 				{
 
 					InRingingSession = true;
-					ringerMode = audioManager.getRingerMode();
-
+					mOldUri = RingtoneManager.getActualDefaultRingtoneUri(gcontext, RingtoneManager.TYPE_RINGTONE);
 
 					// RINGTONE
 					File ringtoneFile = new File(Constants.specialCallPath+incomingNumber+"/" ,incomingNumber +"." + SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE, incomingNumber));
 					if(ringtoneFile.exists())
 					{
 
-						mOldUri = RingtoneManager.getActualDefaultRingtoneUri(gcontext, RingtoneManager.TYPE_RINGTONE);
-
 						// On call you replace the ringtone with your own mUri
 						RingtoneManager.setActualDefaultRingtoneUri(
 								gcontext,//MainActivity.this,
 								RingtoneManager.TYPE_RINGTONE,
-								Uri.parse( SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE_URI, incomingNumber)));
-
-						// Saving previous ringtone uri
-						SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, "mOldUri", mOldUri.toString());
+								Uri.parse(SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE_URI, incomingNumber)));
 
 						ringtoneIsLoad = true;
 						isSpecialCall = true;
 					}
+
+					// Saving previous ringtone uri
+					SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, "mOldUri", mOldUri.toString());
 
 
 					String downloadFileExtension = SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA, incomingNumber);
 					downloadFileExtension = downloadFileExtension.toLowerCase();
 					incomingCallNumber = incomingNumber;
 
-							// VIDEO OR IMAGE
+					// VIDEO OR IMAGE
 					String filePath = incomingNumber + "."+ SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA, incomingNumber);
 					File mediaFile = new File(Constants.specialCallPath+incomingNumber+"/" ,filePath);
 
@@ -154,11 +147,8 @@ public class IncomingReceiver extends BroadcastReceiver {
 
                         if (Arrays.asList(Constants.videoFormats).contains((downloadFileExtension))) {
 
-                            SharedPrefUtils.setInt(gcontext, SharedPrefUtils.GENERAL, "ringerState", ringerMode);
-                            if(ringerMode == AudioManager.RINGER_MODE_NORMAL)
-                            {
-                                audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                            }
+									// On call you replace the ringtone with a silent URI , defined as null
+								RingtoneManager.setActualDefaultRingtoneUri(gcontext,RingtoneManager.TYPE_RINGTONE,null);
 
                         }
 
@@ -191,7 +181,12 @@ public class IncomingReceiver extends BroadcastReceiver {
 
 
 				if (isSpecialCall)
-				{audioManager.setRingerMode(SharedPrefUtils.getInt(gcontext, SharedPrefUtils.GENERAL, "ringerState", AudioManager.RINGER_MODE_NORMAL));
+				{
+
+					RingtoneManager.setActualDefaultRingtoneUri(
+							gcontext,
+							RingtoneManager.TYPE_RINGTONE, mOldUri);
+
 
 					deleteDirectory( new File(Constants.specialCallPath+incomingCallNumber+"/"));
 					Toast.makeText(gcontext, "Removed :" + Constants.specialCallPath+incomingCallNumber+"/", Toast.LENGTH_LONG).show();
@@ -200,9 +195,7 @@ public class IncomingReceiver extends BroadcastReceiver {
 
 				if (ringtoneIsLoad)
 				{
-					RingtoneManager.setActualDefaultRingtoneUri(
-							gcontext,//MainActivity.this,
-							RingtoneManager.TYPE_RINGTONE,mOldUri);
+
 					gcontext.getContentResolver().delete( Uri.parse( SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE_URI, incomingCallNumber)),
 							MediaStore.MediaColumns.DATA + "=\"" + SharedPrefUtils.getString(gcontext, SharedPrefUtils.GENERAL, "mUriFilePath") + "\"",  null);
 					deleteDirectory( new File(Constants.specialCallPath+incomingNumber+"/"));

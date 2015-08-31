@@ -22,7 +22,6 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -149,17 +148,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 				Uri uri =Uri.fromFile(root);
 
 
-				AudioManager audioManager =  (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-				int previousRingerState = SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL, "ringerState", AudioManager.RINGER_MODE_NORMAL);
-
-				// if previously ringer was on, put it back on for video
-				if (previousRingerState == AudioManager.RINGER_MODE_NORMAL)
-				{
-					audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-				}
-
-				//Uri uri =Uri.parse("http://www.youtube.com/watch?v=RLZUKqpXYzU");
-
 				final VideoView mVideoView  = new VideoView(getApplicationContext());
 				MediaController mediaController = new MediaController(this);
 				mediaController.setAnchorView(mVideoView);
@@ -170,19 +158,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 				mVideoView.requestFocus();
 				mVideoView.setLayoutParams(videoParams);
 				mVideoView.setId(3);
-			//	mVideoView.start();
 
-
-//				//Looping the video
-//				mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-//
-//					@Override
-//					public void onCompletion(MediaPlayer mp) {
-//
-//						mVideoView.start();
-//
-//					}
-//				});
 
 				RelativeLayout.LayoutParams b1Params = new RelativeLayout.LayoutParams(150, 150);
 				b1Params.addRule(RelativeLayout.ALIGN_LEFT,  mVideoView.getId());
@@ -230,36 +206,8 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 						headSetUnPluggedintent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
 						headSetUnPluggedintent.putExtra("state", 0);
 						headSetUnPluggedintent.putExtra("name", "Headset");
-						try {
-							IncomingReceiver.DismissIncomingCallActivity(true);
-							finishedIncomingCall = true;
-							sendOrderedBroadcast(headSetUnPluggedintent, null);
-							// Restore the default ringtone
-
-							AudioManager am = (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
-
-							am.setRingerMode(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL, "ringerState",2));
-
-
-
-
-							if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL, "ringerState",2) == 2)
-								RingtoneManager.setActualDefaultRingtoneUri(
-										getApplicationContext(),//MainActivity.this,
-										RingtoneManager.TYPE_RINGTONE,
-										Uri.parse(SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mOldUri")));
-
-							deleteDirectory( new File(Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+incomingNumber+"/"));
-							Toast.makeText(getApplicationContext(), "Removed :" + Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+incomingNumber+"/", Toast.LENGTH_LONG).show();
-							finish();
-
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						finally{
-							finish();
-						}
+						sendOrderedBroadcast(headSetUnPluggedintent, null);
+						finishSpecialCall();
 					}
 				});
 				videoDecline.setOnClickListener(new OnClickListener() {
@@ -296,31 +244,14 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 							}
 							telephonyService.endCall();
 							Log.d("REjectByRony", "FinishDecline");
-							// dismissing our customized incoming call window
-
-							IncomingReceiver.DismissIncomingCallActivity(true);
-							finishedIncomingCall = true;
-							// Restore the default ringtone
-							AudioManager am = (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
-							am.setRingerMode(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL, "ringerState",2));
-
-
-							if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL, "ringerState",2) == 2)
-								RingtoneManager.setActualDefaultRingtoneUri(
-										getApplicationContext(),//MainActivity.this,
-										RingtoneManager.TYPE_RINGTONE,
-										Uri.parse(SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mOldUri")));
-							deleteDirectory( new File(Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+incomingNumber+"/"));
-							Toast.makeText(getApplicationContext(), "Removed :" + Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+incomingNumber+"/", Toast.LENGTH_LONG).show();
-							finish();
-
-
-						}catch (ClassNotFoundException e) {
+							finishSpecialCall();
+						}
+						catch (Exception e) {
+							Log.d("Exception", e.toString());
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-						} finally{
-							finish();
 						}
+
 					}
 
 				});
@@ -345,7 +276,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
 
 			// deleteDirectory( new File(Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+incomingNumber+"/"));
-			Toast.makeText(getApplicationContext(), "Removed :" + Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+incomingNumber+"/", Toast.LENGTH_LONG).show();
+			//Toast.makeText(getApplicationContext(), "Removed :" + Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+incomingNumber+"/", Toast.LENGTH_LONG).show();
 
 			Intent i = new Intent();
 
@@ -401,41 +332,8 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 			headSetUnPluggedintent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
 			headSetUnPluggedintent.putExtra("state", 0);
 			headSetUnPluggedintent.putExtra("name", "Headset");
-			try {
-				IncomingReceiver.DismissIncomingCallActivity(true);
-				finishedIncomingCall = true;
-				sendOrderedBroadcast(headSetUnPluggedintent, null);
-
-				Uri uri = Uri.parse(SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mUri"));
-
-
-				getContentResolver().delete(uri,MediaStore.MediaColumns.DATA + "=\"" +
-						SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mUriFilePath")  + "\"",  null);
-
-
-
-				AudioManager am = (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
-				am.setRingerMode(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL, "ringerState",2));
-
-
-
-				if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL, "ringerState",2) == 2)
-					RingtoneManager.setActualDefaultRingtoneUri(
-							getApplicationContext(),//MainActivity.this,
-							RingtoneManager.TYPE_RINGTONE,
-							Uri.parse(SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mOldUri")));
-
-				deleteDirectory( new File(Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "incomingNumber")+"/"));
-				Toast.makeText(getApplicationContext(), "Removed :" + Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "incomingNumber")+"/", Toast.LENGTH_LONG).show();
-
-
-
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			finally
-			{this.finish();}
+			sendOrderedBroadcast(headSetUnPluggedintent, null);
+			finishSpecialCall();
 		}
 
 		else if (id == R.id.Decline ) {   /// DECLINE
@@ -449,38 +347,41 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 				telephonyService = (ITelephony) m.invoke(tm);
 				telephonyService.endCall();
 				Log.d("REjectByRony", "FinishDecline");
-				// dismissing our customized incoming call window
-				IncomingReceiver.DismissIncomingCallActivity(true);
-				finishedIncomingCall = true;
-
-
-
-				Uri uri = Uri.parse(SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mUri"));
-				getContentResolver().delete(uri,
-						MediaStore.MediaColumns.DATA + "=\"" +  SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mUriFilePath") + "\"",
-						null);
-
-				AudioManager am = (AudioManager) getBaseContext().getSystemService(Context.AUDIO_SERVICE);
-				am.setRingerMode(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL, "ringerState",2));
-
-
-				if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL, "ringerState",2) == 2)
-					RingtoneManager.setActualDefaultRingtoneUri(
-							getApplicationContext(),//MainActivity.this,
-							RingtoneManager.TYPE_RINGTONE,
-							Uri.parse(SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mOldUri")));
-
-				deleteDirectory( new File(Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "incomingNumber")+"/"));
-				Toast.makeText(getApplicationContext(), "Removed :" + Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "incomingNumber")+"/", Toast.LENGTH_LONG).show();
-
-				this.finish();
-
+				finishSpecialCall();
 			} catch (Exception e)
 			{
 				e.printStackTrace();
 			}
 		}
 	}
+
+	private void finishSpecialCall(){
+
+		try {
+			// dismissing our customized incoming call window
+
+		IncomingReceiver.DismissIncomingCallActivity(true);
+		finishedIncomingCall = true;
+
+		Uri uri = Uri.parse(SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mUri"));
+		getContentResolver().delete(uri,
+				MediaStore.MediaColumns.DATA + "=\"" +  SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mUriFilePath") + "\"",
+				null);
+
+			RingtoneManager.setActualDefaultRingtoneUri(
+					getApplicationContext(),
+					RingtoneManager.TYPE_RINGTONE,
+					Uri.parse(SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mOldUri")));
+
+		deleteDirectory( new File(Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "incomingNumber")+"/"));
+		Toast.makeText(getApplicationContext(), "Removed :" + Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "incomingNumber")+"/", Toast.LENGTH_LONG).show();
+		this.finish();
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
