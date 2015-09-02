@@ -22,6 +22,8 @@ import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
@@ -33,6 +35,7 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.IBinder;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
@@ -62,18 +65,20 @@ public class MainActivity extends Activity implements OnClickListener,
 	private String buttonLabels[];
 	private HashMap<String, String> lastULThumbsPerUser = new HashMap<String, String>();
 	private ServerProxy serverProxy;
-	private EventGenerator eventGenerator;
+//	private EventGenerator eventGenerator;
 	private String myPhoneNumber = "";
 	private String destPhoneNumber = "";
 	private String destName = "";	
     private String tag = "MAIN_ACTIVITY";
 	private Uri outputFileUri;
-	private boolean settingCallNumberComplete;
 	private boolean LoggedIn = false;
 	private MyProgressBar pBar;
 	boolean VideoValid = false;
 	private boolean loading = false;
+	private boolean mIsBound = false;
 	private static MainActivity singleton;
+	private BroadcastReceiver serviceReceiver;
+	private IntentFilter serviceReceiverIntentFilter = new IntentFilter(Event.EVENT_ACTION);
 
 	public static MainActivity getInstance() {
 		return singleton;
@@ -92,9 +97,18 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		super.onStart();
 
-		eventGenerator = new EventGenerator();
-		eventGenerator.addEventListener(this);
-		
+//		eventGenerator = new EventGenerator();
+//		eventGenerator.addEventListener(this);
+		serviceReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+
+					EventReport report = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
+					eventReceived(new Event(this,report));
+			}
+		};
+		registerReceiver(serviceReceiver,serviceReceiverIntentFilter);
+
 	}
 
     @Override
@@ -114,27 +128,20 @@ public class MainActivity extends Activity implements OnClickListener,
 		
 		LoggedIn = SharedPrefUtils.getBoolean(context, SharedPrefUtils.GENERAL,
 				"LoggedIn");
+
+		IncomingSpecialCall.finishedIncomingCall = false;
 		
-		if(LoggedIn)
+		if (LoggedIn)
 		{
+
 			if(serverProxy==null)
 			{
 				myPhoneNumber = SharedPrefUtils.getString(context,SharedPrefUtils.GENERAL,SharedPrefUtils.MY_NUMBER);
 				SharedConstants.MY_ID = myPhoneNumber;
 				InitializeConnection();
 			}
-		}				
 
-		IncomingSpecialCall.finishedIncomingCall = false;
-		
-		if (!LoggedIn) {
-			setContentView(R.layout.loginuser);
-			Button login = (Button) findViewById(R.id.login);
-			login.setOnClickListener(this);
-		} else {
 			initializeUI();
-
-
 
 			String mediaPath = lastULThumbsPerUser.get(destPhoneNumber);
 
@@ -154,7 +161,12 @@ public class MainActivity extends Activity implements OnClickListener,
 				enableProgressBar();
 			else
 				disableProgressBar();
-						
+		}
+		else
+		{
+			setContentView(R.layout.loginuser);
+			Button login = (Button) findViewById(R.id.login);
+			login.setOnClickListener(this);
 		}
 
         // Restoring instance state
@@ -164,8 +176,8 @@ public class MainActivity extends Activity implements OnClickListener,
 	@Override
     protected void onDestroy() {
 	 super.onDestroy();
-	// unbindService(mConnection);
-	// unregisterReceiver(serviceReceiver);
+	 doUnbindService();
+	 unregisterReceiver(serviceReceiver);
 //	 unregisterReceiver(ringerModeReceiver);
 	 }
 
@@ -174,6 +186,8 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		super.onCreate(savedInstanceState);
 		singleton = this;
+
+		doBindService();
 
 		IncomingSpecialCall.finishedIncomingCall = false;
 
@@ -524,8 +538,8 @@ public class MainActivity extends Activity implements OnClickListener,
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count,
                                           int after) {
-                if (!settingCallNumberComplete)
-                    return;
+//                if (!settingCallNumberComplete)
+//                    return;
             }
 
             @Override
@@ -553,7 +567,6 @@ public class MainActivity extends Activity implements OnClickListener,
         });
 
 		Button button1 = (Button) findViewById(R.id.CallNow);
-       // button1.setText(buttonLabels[0]);
 		button1.setOnClickListener(this);
 
 		ImageButton button2 = (ImageButton) findViewById(R.id.MyPic);
@@ -706,7 +719,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			break;
 
 		case RECEIVER_DOWNLOAD_COMPLETE:
-			callInfoToast(report.desc());
+			//callInfoToast(report.desc());
 			disableProgressBar();
 			enableCallButton();
 			break;
@@ -742,6 +755,46 @@ public class MainActivity extends Activity implements OnClickListener,
 
 	}
 
+
+	/* -------------- ServerProxy service methods -------------- */
+
+	private ServiceConnection mConnection = new ServiceConnection() {
+		public void onServiceConnected(ComponentName className, IBinder service) {
+			// This is called when the connection with the service has been
+			// established, giving us the service object we can use to
+			// interact with the service.  Because we have bound to a explicit
+			// service that we know is running in our own process, we can
+			// cast its IBinder to a concrete class and directly access it.
+			serverProxy = ((ServerProxy.MyBinder)service).getService();
+
+		}
+
+		public void onServiceDisconnected(ComponentName className) {
+			// This is called when the connection with the service has been
+			// unexpectedly disconnected -- that is, its process crashed.
+			// Because it is running in our same process, we should never
+			// see this happen.
+			serverProxy = null;
+		}
+	};
+
+	void doBindService() {
+		// Establish a connection with the service.  We use an explicit
+		// class name because we want a specific service implementation that
+		// we know will be running in our own process (and thus won't be
+		// supporting component replacement by other applications).
+		bindService(new Intent(this,
+				ServerProxy.class), mConnection, Context.BIND_AUTO_CREATE);
+		mIsBound = true;
+	}
+
+	void doUnbindService() {
+		if (mIsBound) {
+			// Detach our existing connection.
+			unbindService(mConnection);
+			mIsBound = false;
+		}
+	}
 
 	/* -------------- Assisting methods -------------- */
 
@@ -977,10 +1030,10 @@ public class MainActivity extends Activity implements OnClickListener,
 		// Intent serverProxyIntent = new Intent(this, ServerProxy.class);
 		// serverProxyIntent.putExtra("myphonenumber", myPhoneNumber);
 		// serverProxyIntent.putExtra("workingdir", workingDir);
-		// startService(serverProxyIntent);
+		 startService(new Intent(this, ServerProxy.class));
 
-		serverProxy = new ServerProxy(eventGenerator);
-        serverProxy.connect();
+//		serverProxy = new ServerProxy(eventGenerator);
+//        serverProxy.connect();
 	}
 
 	private void callErrToast(final String text) {

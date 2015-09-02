@@ -40,7 +40,8 @@ public class MessageDownloadFile extends MessageToClient {
 		  {
 				// Creating file and directories for downloaded file
 		        File specialCallIncomingDir = new File(SharedConstants.specialCallPath+_sourceId);
-				specialCallIncomingDir.mkdirs();			
+				specialCallIncomingDir.mkdirs();
+
 		        String fileStoragePath =  specialCallIncomingDir.getAbsolutePath() +"/"+ _fileName;
 		        File dlFile = new File(fileStoragePath);
 		        dlFile.createNewFile();
@@ -60,7 +61,8 @@ public class MessageDownloadFile extends MessageToClient {
 				errMsg = "DOWNLOAD_FAILURE:"+e.getMessage();
 			else
 				errMsg = "DOWNLOAD_FAILURE";
-			return new EventReport(EventType.DOWNLOAD_SUCCESS,errMsg,_fileName);
+
+			return new EventReport(EventType.DOWNLOAD_FAILURE,errMsg,_fileName);
 		  }
 		  
 		  // Informing source (uploader) that file received by user (downloader)
