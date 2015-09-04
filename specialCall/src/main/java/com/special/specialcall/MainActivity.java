@@ -202,6 +202,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			login.setOnClickListener(this);
 		} else {
 			initializeUI();
+
 		}
 	}
 
@@ -477,6 +478,9 @@ public class MainActivity extends Activity implements OnClickListener,
 
 			LoggedIn = true;
 
+
+            startService(new Intent(this, IncomingReceiver.class));
+
 			myPhoneNumber = ((EditText) findViewById(R.id.CallNumber))
 					.getText().toString();
 			
@@ -590,6 +594,7 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		disableGuiComponents();
 	}
+
 
 	public void eventReceived(Event event) {
 

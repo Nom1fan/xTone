@@ -66,6 +66,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+        Log.e("RONY", "IncomingSpecialCall Welcome !!");
 		try {
 			Intent intent = getIntent();
 			String VideoOrPic = intent.getStringExtra("videoORpic");
@@ -83,11 +84,9 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
 			if(Arrays.asList(Constants.videoFormats).contains(downloadFileExtension))
 				VideoValid = true;
-
 			CallStateListener stateListener = new CallStateListener();
 			tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
 			tm.listen(stateListener, PhoneStateListener.LISTEN_CALL_STATE);
-
 
 
 			final String incomingNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "incomingNumber");
@@ -106,7 +105,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 					WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
 			//      Log.d("IncomingCallActivity: onCreate: ", "flagy");
 
-
 			if (imageValid)
 			{
 				setContentView(R.layout.activity_incoming_special_call);
@@ -116,7 +114,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 				BitmapFactory.decodeFile(imageInSD);
 				ImageView myImageView = (ImageView)findViewById(R.id.CallerImage);
 				myImageView.setImageBitmap(loadImage(imageInSD));
-
 				//  Log.d("IncomingCallActivity: onCreate: ", "flagz");
 
 				Button Answer = (Button)findViewById(R.id.Answer);
@@ -124,7 +121,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
 				Button Decline = (Button)findViewById(R.id.Decline);
 				Decline.setOnClickListener(this);
-
 			}
 			if (VideoValid)
 			{
@@ -256,6 +252,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
 				});
 			}
+            Log.e("RONY", "IncomingSpecialCall !! 7 END !!");
 		}
 		catch (Exception e) {
 			Log.d("Exception", e.toString());
@@ -271,7 +268,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 		if (finishedIncomingCall)
 		{
 
-
+            Log.e("RONY", "IncomingSpecialCall !! OnResume !!");
 			final String incomingNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "incomingNumber");
 
 
@@ -449,6 +446,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 				case TelephonyManager.DATA_DISCONNECTED:
 
 				{  //Toast.makeText(getApplicationContext(), "CALL_STATE_IDLE BITCH: "+incomingNumber,Toast.LENGTH_LONG).show();
+                    Log.e("RONY", "IncomingSpecialCall !! DATA_DISCONNECTED !!");
 					IncomingReceiver.DismissIncomingCallActivity(true);
 					finishedIncomingCall = true;
 					finish();
