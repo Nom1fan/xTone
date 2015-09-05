@@ -598,8 +598,6 @@ public class MainActivity extends Activity implements OnClickListener,
 			callInfoToast(report.desc(), Color.YELLOW);
 			enableGuiComponents();
 			disableProgressBar();
-			TransferDetails td = (TransferDetails) report.data();
-			drawUploadedContent(td.getFileType());
 			loading = false;
 
 			break;
@@ -644,9 +642,11 @@ public class MainActivity extends Activity implements OnClickListener,
 			break;
 
 		case RECEIVER_DOWNLOAD_COMPLETE:
-			//callInfoToast(report.desc());
+			callInfoToast(report.desc());
 			disableProgressBar();
 			enableCallButton();
+            TransferDetails td = (TransferDetails) report.data();
+            drawUploadedContent(td.getFileType());
 			break;
 
 //		case PENDING_DOWNLOAD:
