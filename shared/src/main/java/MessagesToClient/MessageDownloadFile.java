@@ -72,7 +72,7 @@ public class MessageDownloadFile extends MessageToClient {
 				  new EventReport(EventType.DISPLAY_MESSAGE, infoMsg, null)));
 				
 		  String desc = "DOWNLOAD_SUCCESS. Filename:"+_fileName;
-		  return new EventReport(EventType.DOWNLOAD_SUCCESS,desc,_fileName);	
+		  return new EventReport(EventType.DOWNLOAD_SUCCESS,desc,_td);
 	}
 
 }

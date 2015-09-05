@@ -1,31 +1,17 @@
 package com.special.specialcall;
 
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-
-import android.media.MediaPlayer;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.PendingIntent;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.media.RingtoneManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -33,68 +19,49 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
-import android.os.Build;
-import android.provider.MediaStore;
-import android.telephony.TelephonyManager;
-
 import com.android.internal.telephony.ITelephony;
-import com.special.specialcall.R;
-import com.special.specialcall.IncomingReceiver.CallStateListener;
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-import data_objects.Constants;
-import data_objects.SharedPrefUtils;
+import FilesManager.FileManager;
 
 public class IncomingSpecialCall extends ActionBarActivity implements OnClickListener {
 
 	private ITelephony telephonyService;
-	static boolean finishedIncomingCall = false;
-	TelephonyManager tm;
-	@Override
+    private TelephonyManager tm;
+	public static final String TAG = "IncomingSpecialCall";
+    public static final String SPECIAL_CALL_FILEPATH = "SpecialCallFilePath";
+
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-        Log.e("RONY", "IncomingSpecialCall Welcome !!");
+
+        Log.i(TAG, "Entering " + TAG);
+
 		try {
+
+            CallStateListener stateListener = new CallStateListener();
+            tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+            tm.listen(stateListener, PhoneStateListener.LISTEN_CALL_STATE);
+
 			Intent intent = getIntent();
-			String VideoOrPic = intent.getStringExtra("videoORpic");
+			String mediaFilePath = intent.getStringExtra(SPECIAL_CALL_FILEPATH);
+            Log.i(TAG, "Preparing to display:"+mediaFilePath);
 
-			String tmp_arr[] = VideoOrPic.split("\\.");
-			String downloadFileExtension = tmp_arr[1];
-			downloadFileExtension = downloadFileExtension.toLowerCase();
-
-			boolean imageValid = false;
-
-			if(Arrays.asList(Constants.imageFormats).contains(downloadFileExtension))
-				imageValid = true;
-
-			boolean VideoValid = false;
-
-			if(Arrays.asList(Constants.videoFormats).contains(downloadFileExtension))
-				VideoValid = true;
-			CallStateListener stateListener = new CallStateListener();
-			tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-			tm.listen(stateListener, PhoneStateListener.LISTEN_CALL_STATE);
-
-
-			final String incomingNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "incomingNumber");
+	        FileManager.FileType fileType = FileManager.getFileType(new File(mediaFilePath));
 
 
 
-
-			//    Log.d("IncomingCallActivity: onCreate: ", "flag2");
 			//  */ After this line, the code is not executed in Android 4.1 (Jelly Bean) only/*
 			// TODO Auto-generated method stub
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
@@ -103,28 +70,28 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 			//getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 			getWindow().addFlags(
 					WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
-			//      Log.d("IncomingCallActivity: onCreate: ", "flagy");
 
-			if (imageValid)
+			if (fileType == FileManager.FileType.IMAGE)
 			{
+                Log.i(TAG, "In IMAGE");
 				setContentView(R.layout.activity_incoming_special_call);
-
-				String imageInSD = Constants.specialCallPath+incomingNumber+"/" + incomingNumber +"."+downloadFileExtension;
-				Log.d("imageInSD ", imageInSD);
-				BitmapFactory.decodeFile(imageInSD);
+				BitmapFactory.decodeFile(mediaFilePath);
 				ImageView myImageView = (ImageView)findViewById(R.id.CallerImage);
-				myImageView.setImageBitmap(loadImage(imageInSD));
+				myImageView.setImageBitmap(loadImage(mediaFilePath));
 				//  Log.d("IncomingCallActivity: onCreate: ", "flagz");
 
-				Button Answer = (Button)findViewById(R.id.Answer);
-				Answer.setOnClickListener(this);
+				//Button Answer = (Button)findViewById(R.id.Answer);
+				//Answer.setOnClickListener(this);
 
-				Button Decline = (Button)findViewById(R.id.Decline);
-				Decline.setOnClickListener(this);
+				//Button Decline = (Button)findViewById(R.id.Decline);
+				//Decline.setOnClickListener(this);
 			}
-			if (VideoValid)
+			if (fileType == FileManager.FileType.VIDEO)
 			{
-				/////////////////   video view
+			    Log.i(TAG, "In VIDEO");
+
+                // Special ringtone in video case is silent
+                IncomingReceiver.wasSpecialRingTone = true;
 
 				RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 				RelativeLayout rlayout  = new RelativeLayout(this);
@@ -132,54 +99,44 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 				rlayout.setBackgroundColor(Color.CYAN);
 				rlayout.setGravity(Gravity.CENTER_VERTICAL);
 
-
-				final File root = new File(Constants.specialCallPath+incomingNumber+"/" + incomingNumber +"."+downloadFileExtension);
-				//root.mkdirs();
+				final File root = new File(mediaFilePath);
 
 				RelativeLayout.LayoutParams videoParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
 				videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 				videoParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 				videoParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 				videoParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-				Uri uri =Uri.fromFile(root);
-
+				Uri uri = Uri.fromFile(root);
 
 				final VideoView mVideoView  = new VideoView(getApplicationContext());
 				MediaController mediaController = new MediaController(this);
 				mediaController.setAnchorView(mVideoView);
-				mediaController.setMediaPlayer(mVideoView);//////////
+				mediaController.setMediaPlayer(mVideoView);
 				mVideoView.setMediaController(mediaController);
 				mVideoView.setOnPreparedListener(PreparedListener);
 				mVideoView.setVideoURI(uri);
 				mVideoView.requestFocus();
 				mVideoView.setLayoutParams(videoParams);
-				mVideoView.setId(3);
-
 
 				RelativeLayout.LayoutParams b1Params = new RelativeLayout.LayoutParams(150, 150);
 				b1Params.addRule(RelativeLayout.ALIGN_LEFT,  mVideoView.getId());
 				b1Params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-				//	b1Params.setMargins(0, 50, 50, 0);
+                b1Params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 
-				Button videoAnswer = new Button(this);
+				Button videoAnswer = new AutoSizeButton(this);
+                videoAnswer.setBackgroundColor(Color.GRAY);
 				videoAnswer.setText("Answer");
 				videoAnswer.setLayoutParams(b1Params);
-				videoAnswer.setId(10000);
-
-
-
-
-				//****************************************************************************
 
 				RelativeLayout.LayoutParams b2Params = new RelativeLayout.LayoutParams(150, 150);
 				b2Params.addRule(RelativeLayout.ALIGN_RIGHT,  videoAnswer.getId());
 				b2Params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-				//	b2Params.setMargins(50, 50, 0, 0);
+                b2Params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 
-				Button videoDecline = new Button(this);
+				Button videoDecline = new AutoSizeButton(this);
 				videoDecline.setText("Decline");
+                videoDecline.setBackgroundColor(Color.GRAY);
 				videoDecline.setLayoutParams(b2Params);
-				videoDecline.setId(10001);
 
 				rlayout.addView(mVideoView);
 				rlayout.addView(videoAnswer);
@@ -192,7 +149,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 					public void onClick(View arg0) {
 
 						mVideoView.stopPlayback();
-						Log.d("AnswerPlease", "InSecond Method Ans Call");
+						Log.i(TAG, "InSecond Method Ans Call");
 						// froyo and beyond trigger on buttonUp instead of buttonDown
 						Intent buttonUp = new Intent(Intent.ACTION_MEDIA_BUTTON);
 						buttonUp.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(
@@ -212,7 +169,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
 						try {
 							mVideoView.stopPlayback();
-							Log.d("REjectByRony", "OnRejectButton: " + "Reject OnClick");
+							Log.i(TAG, "OnRejectButton: " + "Reject OnClick");
 							TelephonyManager tm = (TelephonyManager) getApplicationContext().getSystemService(getApplicationContext().TELEPHONY_SERVICE);
 							Class c;
 
@@ -239,12 +196,11 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 								e.printStackTrace();
 							}
 							telephonyService.endCall();
-							Log.d("REjectByRony", "FinishDecline");
+							Log.i(TAG, "FinishDecline");
 							finishSpecialCall();
 						}
 						catch (Exception e) {
-							Log.d("Exception", e.toString());
-							// TODO Auto-generated catch block
+							Log.e(TAG, e.toString());
 							e.printStackTrace();
 						}
 
@@ -252,10 +208,9 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
 				});
 			}
-            Log.e("RONY", "IncomingSpecialCall !! 7 END !!");
 		}
 		catch (Exception e) {
-			Log.d("Exception", e.toString());
+			Log.e(TAG, e.toString());
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -265,27 +220,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 	protected void onResume() {
 		super.onResume();
 
-		if (finishedIncomingCall)
-		{
-
-            Log.e("RONY", "IncomingSpecialCall !! OnResume !!");
-			final String incomingNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "incomingNumber");
-
-
-			// deleteDirectory( new File(Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+incomingNumber+"/"));
-			//Toast.makeText(getApplicationContext(), "Removed :" + Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+incomingNumber+"/", Toast.LENGTH_LONG).show();
-
-			Intent i = new Intent();
-
-			SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, "LoggedIn",true);
-
-			i.setClass(getApplicationContext(), MainActivity.class);
-			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			i.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-			startActivity(i);
-			this.finish();
-		}
-
+        Log.i(TAG, "Entering OnResume");
 	}
 
 	private MediaPlayer.OnPreparedListener PreparedListener = new MediaPlayer.OnPreparedListener(){
@@ -293,11 +228,10 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 		@Override
 		public void onPrepared(MediaPlayer m) {
 
-			Log.i("IncSpecialCall", "Starting OnPreparedListener");
-			//m.setVolume(1, 1);
+			Log.i(TAG, "Entering OnPreparedListener");
 			m.setLooping(true);
 			m.start();
-			Log.i("IncSpecialCall", "Finishing OnPreparedListener");
+			Log.i(TAG, "Finishing OnPreparedListener");
 		}
 	};
 
@@ -319,7 +253,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
 		int id = v.getId();
 		if (id == R.id.Answer) {   /// ANSWER
-			Log.d("AnswerPlease", "InSecond Method Ans Call");
+			Log.i(TAG, "InSecond Method Ans Call");
 			// froyo and beyond trigger on buttonUp instead of buttonDown
 			Intent buttonUp = new Intent(Intent.ACTION_MEDIA_BUTTON);
 			buttonUp.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(
@@ -334,7 +268,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 		}
 
 		else if (id == R.id.Decline ) {   /// DECLINE
-			Log.d("REjectByRony", "OnRejectButton: " + "Reject OnClick");
+			Log.i(TAG, "OnRejectButton: " + "Reject OnClick");
 
 			TelephonyManager tm = (TelephonyManager) getApplicationContext().getSystemService(getApplicationContext().TELEPHONY_SERVICE);
 			try {
@@ -343,10 +277,11 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 				m.setAccessible(true);
 				telephonyService = (ITelephony) m.invoke(tm);
 				telephonyService.endCall();
-				Log.d("REjectByRony", "FinishDecline");
+				Log.i(TAG, "FinishDecline");
 				finishSpecialCall();
 			} catch (Exception e)
 			{
+                Log.e(TAG,"Decline error:"+e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -355,30 +290,13 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 	private void finishSpecialCall(){
 
 		try {
-			// dismissing our customized incoming call window
 
-		IncomingReceiver.DismissIncomingCallActivity(true);
-		finishedIncomingCall = true;
-
-		Uri uri = Uri.parse(SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mUri"));
-		getContentResolver().delete(uri,
-				MediaStore.MediaColumns.DATA + "=\"" +  SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mUriFilePath") + "\"",
-				null);
-
-			RingtoneManager.setActualDefaultRingtoneUri(
-					getApplicationContext(),
-					RingtoneManager.TYPE_RINGTONE,
-					Uri.parse(SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "mOldUri")));
-
-		deleteDirectory( new File(Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "incomingNumber")+"/"));
-		Toast.makeText(getApplicationContext(), "Removed :" + Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/"+SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, "incomingNumber")+"/", Toast.LENGTH_LONG).show();
 		this.finish();
 		} catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
-
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -387,25 +305,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 		getMenuInflater().inflate(R.menu.incoming_special_call, menu);
 		return true;
 	}
-
-	public static boolean deleteDirectory(File path) {
-		if( path.exists() ) {
-			File[] files = path.listFiles();
-			if (files == null) {
-				return true;
-			}
-			for(int i=0; i<files.length; i++) {
-				if(files[i].isDirectory()) {
-					deleteDirectory(files[i]);
-				}
-				else {
-					files[i].delete();
-				}
-			}
-		}
-		return( path.delete() );
-	}
-
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -441,17 +340,13 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 		public void onCallStateChanged(int state, String incomingNumber) {
 			switch (state) {
 
-
-
 				case TelephonyManager.DATA_DISCONNECTED:
-
-				{  //Toast.makeText(getApplicationContext(), "CALL_STATE_IDLE BITCH: "+incomingNumber,Toast.LENGTH_LONG).show();
-                    Log.e("RONY", "IncomingSpecialCall !! DATA_DISCONNECTED !!");
-					IncomingReceiver.DismissIncomingCallActivity(true);
-					finishedIncomingCall = true;
+				{
+                    Log.i(TAG, "TelephonyManager.DATA_DISCONNECTED");
 					finish();
 
-					break;}
+					break;
+                }
 
 
 			}

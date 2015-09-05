@@ -34,7 +34,7 @@ public class MessageUploadFile extends MessageToServer {
 			
 		// Informing source (uploader) that the file is on the way
 		String infoMsg = "Sending file to:"+_destPhone+"...";
-		cont = ClientsManager.sendEventToClient(_messageInitiaterId,new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, _td.getExtension()));
+		cont = ClientsManager.sendEventToClient(_messageInitiaterId,new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, _td));
 			
 		if(!cont)
 			return cont;

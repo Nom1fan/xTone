@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Binder;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.TextView;
@@ -19,13 +18,14 @@ import ClientObjects.IServerProxy;
 import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
 import EventObjects.Event;
-import EventObjects.EventGenerator;
 import EventObjects.EventReport;
 import EventObjects.EventType;
+import FilesManager.FileManager;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.MessageHeartBeat;
 import MessagesToServer.MessageIsLogin;
 import MessagesToServer.MessageLogin;
+import MessagesToServer.MessageLogout;
 import MessagesToServer.MessageUploadFile;
 import data_objects.Constants;
 import data_objects.SharedPrefUtils;
@@ -48,13 +48,12 @@ import data_objects.SharedPrefUtils;
 //          private EventGenerator _eventGenerator;        // Used to fire events to listeners
           private ConnectionToServer connectionToServer;
           private ServerProxy serverProxy = this;
-          private final int HEARTBEAT_INTERVAL = 20 * 1000; // 20 seconds
+          private final int HEARTBEAT_INTERVAL = SharedConstants.HEARTBEAT_INTERVAL;
           private final int RECONNECT_INTERVAL = 5000; // 5 seconds
-          private static volatile boolean connected = false;
           private static volatile boolean _locked = false;
           private final IBinder mBinder = new MyBinder();
 
-          private final String tag = "SERVER_PROXY";
+          private final String TAG = "SERVER_PROXY";
 
 //          public ServerProxy(EventGenerator eventGenerator) {
 //
@@ -70,8 +69,11 @@ import data_objects.SharedPrefUtils;
 //              Intent i = new Intent(Event.EVENT_ACTION);
 //              i.putExtra("eventreport", new EventReport(EventType.SERVICE_STARTED, null, null));
 //              sendBroadcast(i);
-              Log.i(tag, "ServerProxy service started");
-              connect();
+              Log.i(TAG, "ServerProxy service started");
+//              if(!isConnected()) {
+//                  Log.i(TAG, "Connecting from onStartCommand...connected=" + isConnected());
+//                  connect();
+//              }
               return Service.START_STICKY;
           }
 
@@ -84,21 +86,24 @@ import data_objects.SharedPrefUtils;
           @Override
           public void onCreate() {
 
-             Log.i(tag, "ServerProxy service created");
+             Log.i(TAG, "ServerProxy service created");
              callInfoToast("ServerProxy service created");
              SharedConstants.MY_ID = SharedPrefUtils.getString(getApplicationContext(),SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
              SharedConstants.specialCallPath = Constants.specialCallPath;
 
-             if(!SharedConstants.MY_ID.equals(""))
-              connect();
+             if(SharedConstants.MY_ID.equals(""))
+                callErrToast("Can't login using phone number:"+SharedConstants.MY_ID);
+             else
+                connect();
 
           }
 
           @Override
           public void onDestroy() {
 
-              Log.e(tag, "ServerProxy service is being destroyed");
+              Log.e(TAG, "ServerProxy service is being destroyed");
               callErrToast("ServerProxy service is being destroyed");
+              gracefullyDisconnect();
           }
 
           public class MyBinder extends Binder {
@@ -126,7 +131,7 @@ import data_objects.SharedPrefUtils;
                           login();
                       } catch (IOException e) {
                           String infoMsg = "Failed connect to server:" + e.getMessage();
-                          Log.e(tag, infoMsg);
+                          Log.e(TAG, infoMsg);
                           sendEventReportBroadcast(new EventReport(EventType.DISPLAY_ERROR, infoMsg, null));
                           //sendEventReport(new EventReport(EventType.DISPLAY_ERROR, infoMsg, null));
                           attemptToReconnect();
@@ -139,17 +144,17 @@ import data_objects.SharedPrefUtils;
            * Enables to login to the server
            */
           private void login() {
-              Log.i(tag, "Initiating login sequence...");
+              Log.i(TAG, "Initiating login sequence...");
 
               new Thread() {
                   @Override
                   public void run() {
                       try {
                           MessageLogin msgLogin = new MessageLogin(SharedConstants.MY_ID);
-                          Log.i(tag, "Sending login message to server...");
+                          Log.i(TAG, "Sending login message to server...");
                           connectionToServer.sendMessage(msgLogin);
                       } catch (Exception e1) {
-                          Log.e(tag, "Login failed:" + e1.getMessage());
+                          Log.e(TAG, "Login failed:" + e1.getMessage());
                           String errMsg = "LOGIN_FAILURE. Exception:" + e1.getMessage();
                           //sendEventReport(new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
                           sendEventReportBroadcast(new EventReport(EventType.DISPLAY_ERROR,errMsg,null));
@@ -191,12 +196,12 @@ import data_objects.SharedPrefUtils;
            * @param extension  - The extension/file type of the file being uploaded
            * @param destNumber - The destination number to whom the file is for
            */
-          public void uploadFileToServer(final byte[] fileData, final String extension, final String destNumber) {
+          public void uploadFileToServer(final byte[] fileData, final String extension, final FileManager.FileType fileType, final String destNumber) {
               new Thread() {
                   @Override
                   public void run() {
 
-                      TransferDetails td = new TransferDetails(SharedConstants.MY_ID, destNumber, fileData.length, extension);
+                      TransferDetails td = new TransferDetails(SharedConstants.MY_ID, destNumber, fileData.length, extension, fileType);
 
                       try {
 
@@ -248,46 +253,103 @@ import data_objects.SharedPrefUtils;
           public ConnectionToServer getConnectionToServer() {
               return connectionToServer;
           }
+
+          public void gracefullyDisconnect()
+          {
+
+              new Thread() {
+
+                  @Override
+                  public void run() {
+                      if(!isConnected())
+                      {
+                          setDisconnected();
+
+                          if (connectionToServer != null)
+                          {
+                              MessageLogout messageLogout = new MessageLogout(SharedConstants.MY_ID);
+
+                              try {
+                                  connectionToServer.sendMessage(messageLogout);
+                              } catch (IOException e) {
+                                  Log.e(TAG, "Failed to log off:" + e.getMessage());
+                                  e.printStackTrace();
+                              }
+
+                              Socket s = connectionToServer.getSocket();
+                              if (s != null) {
+                                  try {
+                                      s.close();
+                                  } catch (IOException e) {
+                                      e.printStackTrace();
+                                  }
+                              }
+                          }
+                      }
+                  }
+
+              }.start();
+          }
 	  	
 	  	/* Internal server operations methods */
 
+          private synchronized boolean isConnected() { return
+                  SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.CONNECTED);
+          }
+
           private synchronized void setConnected() {
-              connected = true;
+              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.CONNECTED, true);
           }
 
           private synchronized void setDisconnected() {
-              connected = false;
+              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.CONNECTED, false);
+          }
+
+          private synchronized boolean isReconnecting() {
+
+              return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.RECONNECTING);
+          }
+
+          private synchronized void setReconnecting() {
+
+              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.RECONNECTING, true);
+          }
+
+          private synchronized void setDoneReconnecting() {
+
+              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.RECONNECTING, false);
           }
 
           private void openSocket() throws UnknownHostException, IOException {
-              Log.i(tag, "Opening socket...");
+              Log.i(TAG, "Opening socket...");
               Socket socketToServer = new Socket(SharedConstants.HOST, SharedConstants.PORT);
               connectionToServer = new ConnectionToServer(socketToServer);
-              Log.i(tag, "Socket is open");
+              Log.i(TAG, "Socket is open");
               setConnected();
           }
 
           private void startClientActionListener() {
-              Log.i(tag, "Starting client action listener...");
+              Log.i(TAG, "Starting client action listener...");
 
               new Thread() {
                   public void run() {
 
                       MessageToClient msgTC = null;
 
-                      while (connected) {
+                      while (isConnected()) {
                           try {
                               msgTC = connectionToServer.getMessage();
                               if (msgTC != null) {
                                   EventReport eventReport = msgTC
                                           .doClientAction(serverProxy);
 
-                                  sendEventReportBroadcast(eventReport);
+                                  if(eventReport.status()!=EventType.NO_ACTION_REQUIRED)
+                                    sendEventReportBroadcast(eventReport);
 
                                   //sendEventReport(eventReport);
                               }
                           } catch (ClassNotFoundException | IOException e) {
-                              Log.e(tag, "Client action failure:" + e.getMessage());
+                              Log.e(TAG, "Client action failure:" + e.getMessage());
                               //String errMsg = "CLIENT_ACTION_FAILURE. Exception:"+e.getMessage();
                               //sendEventReport(new EventReport(EventType.CLIENT_ACTION_FAILURE, errMsg,null));
                               e.printStackTrace();
@@ -300,14 +362,14 @@ import data_objects.SharedPrefUtils;
           }
 
           public void startHeartBeatThread() {
-              Log.i(tag, "Starting heartbeat thread...");
+              Log.i(TAG, "Starting heartbeat thread...");
 
               new Thread() {
                   @Override
                   public void run() {
                       MessageHeartBeat msgHB = new MessageHeartBeat(SharedConstants.MY_ID);
 
-                      while (connected)
+                      while (isConnected())
                           sendHeartBeat(msgHB);
                   }
 
@@ -315,11 +377,11 @@ import data_objects.SharedPrefUtils;
 
                       try {
                           connectionToServer.sendMessage(msgHB);
-                          Log.i(tag, "Heartbeat sent to server");
+                          Log.i(TAG, "Heartbeat sent to server");
 
                           Thread.sleep(HEARTBEAT_INTERVAL);
                       } catch (IOException | InterruptedException e) {
-                          Log.e(tag, "Heartbeat failure:" + e.getMessage());
+                          Log.e(TAG, "Heartbeat failure:" + e.getMessage());
                           String errMsg = "HEARTBEAT_FAILURE. Exception:" + e.getMessage();
                           sendEventReportBroadcast(new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
                           //sendEventReport(new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
@@ -336,14 +398,14 @@ import data_objects.SharedPrefUtils;
               new Thread() {
                   @Override
                   public void run() {
-                      if (!_locked) {
-                          _locked = true;
+                      if (!isReconnecting()) {
+                          setReconnecting();
                           setDisconnected();
 
-                          while (!connected) {
+                          while (!isConnected()) {
                               try {
                                   String infoMsg = "Reconnecting...";
-                                  Log.i(tag, infoMsg);
+                                  Log.i(TAG, infoMsg);
                                   sendEventReportBroadcast(new EventReport(EventType.DISPLAY_ERROR, infoMsg, null));
                                   //sendEventReport(new EventReport(EventType.DISPLAY_ERROR, infoMsg, null));
 
@@ -353,27 +415,30 @@ import data_objects.SharedPrefUtils;
                                   startHeartBeatThread();
                                   login();
                               } catch (IOException | InterruptedException e) {
-                                  Log.e(tag, e.getMessage());
+                                  Log.e(TAG, e.getMessage());
                                   e.printStackTrace();
                               }
 
                           }
-                          _locked = false;
+                          setDoneReconnecting();
                       }
                   }
 
               }.start();
           }
 
+
+
+
 //          private void sendEventReport(EventReport report) {
 //
-//              Log.i(tag, "Firing event:" + report.status().toString());
+//              Log.i(TAG, "Firing event:" + report.status().toString());
 //              _eventGenerator.fireEvent(report);
 //          }
 
           private void sendEventReportBroadcast(EventReport report) {
 
-              Log.i(tag, "Broadcasting event:" + report.status().toString());
+              Log.i(TAG, "Broadcasting event:" + report.status().toString());
               Intent broadcastEvent = new Intent(Event.EVENT_ACTION);
               broadcastEvent.putExtra(Event.EVENT_REPORT, report);
               sendBroadcast(broadcastEvent);

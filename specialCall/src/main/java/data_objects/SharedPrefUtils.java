@@ -6,13 +6,18 @@ import android.content.SharedPreferences;
 public class SharedPrefUtils {
 
 	public static final String GENERAL = "general"; 
-	public static final String RINGTONE = "ringtone";
-	public static final String MEDIA = "media";
+	public static final String RINGTONE_EXTENSION = "ringtone";
+	public static final String MEDIA_EXTENSION = "media";
 	public static final String RINGTONE_URI = "ringtoneUri";
+	public static final String RINGTONE_FILEPATH = "ringToneFilePath";
+	public static final String OLD_RINGTONE_URI = "oldRingtoneUri";
 	public static final String DESTINATION_NUMBER = "DestinationNumber";
 	public static final String DESTINATION_NAME = "DestinationName";
 	public static final String MY_NUMBER = "MyPhoneNumber";
-	
+	public static final String CONNECTED = "Connected";
+	public static final String RECONNECTING = "Reconnecting";
+
+
 	public static int getInt(Context context, String prefsName, String key){
 		SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
 		return prefs.getInt(key, 0);

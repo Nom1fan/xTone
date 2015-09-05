@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import ClientObjects.UserStatus;
+import DataObjects.SharedConstants;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import LogObjects.LogsManager;
@@ -24,7 +25,7 @@ public class ClientsManager {
 	private static HashMap<String,ConnectionToClient> onlineConnections = new HashMap<>(); // All online connections
 	// NOTE: <String,Long> means phone is key and (UNIX timestamp * 1000) is the value	
 	private static HashMap<String,Long> clientHeartBeats = new HashMap<>(); // all online client heart beats
-	private static final int HEARTBEAT_TIMEOUT = 25*1000; // 25 seconds - 5 seconds more than client's heartbeat rate
+	private static final int HEARTBEAT_TIMEOUT = SharedConstants.HEARTBEAT_TIMEOUT; // 5 seconds more than client's heartbeat rate
 	private static Logger serverLogger = null;
 	private static Logger hbLogger = null;
 

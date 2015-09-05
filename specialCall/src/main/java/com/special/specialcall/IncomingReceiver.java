@@ -1,101 +1,69 @@
 package com.special.specialcall;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import data_objects.Constants;
-import data_objects.SharedPrefUtils;
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.MediaPlayer;
 import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.Window;
 import android.view.WindowManager;
-import android.net.Uri;
-import android.os.Handler;
-import android.widget.Toast;
+import java.io.File;
+import java.util.List;
+import DataObjects.TransferDetails;
+import EventObjects.Event;
+import EventObjects.EventReport;
+import EventObjects.EventType;
+import Exceptions.FileDoesNotExistException;
+import Exceptions.FileExceedsMaxSizeException;
+import Exceptions.FileInvalidFormatException;
+import FilesManager.FileManager;
+import data_objects.Constants;
+import data_objects.SharedPrefUtils;
+
 
 public class IncomingReceiver extends Service {
-	static CallStateListener phoneListener;
 
-	private String incomingCallNumber;
+    public static boolean wasSpecialRingTone = false;
+    private static CallStateListener phoneListener;
+    private String incomingCallNumber;
 	private Context gcontext;
-	private Activity activityRef;
-	private Uri mOldUri;
-	private boolean ringtoneIsLoad;
 	private static volatile boolean InRingingSession = false;
-	private boolean isSpecialCall = false;
-	private static final int MSG_ID_CHECK_TOP_ACTIVITY = 1;
-	private Intent i = new Intent();
-	private static boolean mDismissed = false;
+	private Intent specialCallIntent = new Intent();
 	private ActivityManager mActivityManager;
-    private final int MAX_TOP_ACTIVITY_RETRIES = 5;
-	private static final long DELAY_INTERVAL = 100;
-	private Handler mHandler = new Handler() {
-
-		public void handleMessage(android.os.Message msg) {
-			Log.e("RONY", "before If in Handler");
-			if (msg.what == MSG_ID_CHECK_TOP_ACTIVITY && !mDismissed) {
-
-				Log.e("RONY", "before Getrunningtasks");
-				List<ActivityManager.RunningTaskInfo> tasks = mActivityManager.getRunningTasks(1);
-
-				Log.e("RONY", "before getclassname");
-				String topActivityName = tasks.get(0).topActivity.getClassName();
-				Log.e("RONY", "topActivityName: " + topActivityName);
-				Log.e("RONY", "MyClass: " + IncomingSpecialCall.class.getSimpleName());
-
-				if (!topActivityName.equals(IncomingSpecialCall.class.getSimpleName()))
-				{// Try to show on top until user dismiss this activity
-
-					i.setClass(gcontext, IncomingSpecialCall.class);
-					i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-					i.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-
-					// video view
-					i.putExtra("videoORpic", incomingCallNumber + "." + SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA, incomingCallNumber));
-					//       i.putExtra("videoORpic",incomingCallNumber +"."+ "jpg");
-					gcontext.startActivity(i);
-					//activityRef.finish();
-				}
-				sendEmptyMessageDelayed(MSG_ID_CHECK_TOP_ACTIVITY,DELAY_INTERVAL);
-			}
-
-		};
-	};
+    private final int TOP_ACTIVITY_RETRIES = 5;
+    private IntentFilter intentFilter = new IntentFilter(Event.EVENT_ACTION);
+	private static final String TAG = "IncomingReceiver";
 
 
+    /* Service operations methods */
 
 	@Override
 	public void onCreate() {
-		Log.e("RONY", "Service onCreate");
+		Log.i(TAG, "Service onCreate");
+
+        registerReceiver(downloadReceiver,intentFilter);
 
 		try
 		{
-			activityRef = MainActivity.getInstance();
 			gcontext = getApplicationContext();
 
 			if (phoneListener==null){
-				Log.e("YAEL", "!!!phoneListener is been called !!!");
 				phoneListener = new CallStateListener();
 				TelephonyManager tm = (TelephonyManager) gcontext.getSystemService(Context.TELEPHONY_SERVICE);
 				tm.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
 			}
 		}
 		catch (Exception e) {
-			Log.e("Phone Receive Error", " " + e);
+            e.printStackTrace();
+			Log.e(TAG, e.getMessage());
 		}
 
 	}
@@ -104,26 +72,143 @@ public class IncomingReceiver extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 
 
-		Log.e("RONY", "onStartCommand Start_sticky");
+		Log.i(TAG, "onStartCommand START_STICKY");
 		return START_STICKY;
 
 	}
 
-
 	@Override
 	public void onDestroy() {
-		Log.e("RONY", "Service onDestroy");
+        Log.e(TAG, "Service onDestroy");
+        if(downloadReceiver!=null)
+            unregisterReceiver(downloadReceiver);
 
 	}
-
 
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
 	}
 
-	// Listener to detect incoming calls.
-	public class CallStateListener extends PhoneStateListener {
+    /* Assisting methods and listeners */
+
+    /**
+     * Listener for downloads
+     * Responsible for setting/deleting files and preparing for later media display after a new successful download event is received
+     */
+    private BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            EventReport eventReport = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
+
+            if (eventReport.status() == EventType.DOWNLOAD_SUCCESS)
+            {
+                Log.i(TAG, "In: DOWNLOAD_SUCCESS");
+                TransferDetails td = (TransferDetails) eventReport.data();
+                FileManager.FileType fType = td.getFileType();
+                String extension = td.getExtension();
+                String fFullName = td.getSourceWithExtension();
+                String source = td.getSourceId();
+
+                switch (fType) {
+                    case RINGTONE:
+                        setNewRingTone(fFullName, source, extension);
+                        deleteFilesIfNecessary(fFullName, fType, source);
+                        break;
+
+                    case VIDEO:
+                    case IMAGE:
+                        SharedPrefUtils.setString(getApplicationContext(),
+                                SharedPrefUtils.MEDIA_EXTENSION, source,
+                                extension);
+                        deleteFilesIfNecessary(fFullName, fType, source);
+                        break;
+                }
+
+
+            }
+        }
+
+        /**
+         * Deletes files in the source's designated directory by an algorithm based on the new downloaded file type:
+         * This method does not delete the new downloaded file.
+         * lets mark newDownloadedFileType as nDFT.
+         * nDFT = IMAGE --> deletes images and videos
+         * nDFT = RINGTONE --> deletes ringtones and videos
+         * nDFT = VIDEO --> deletes all
+         *
+         * @param newDownloadedFileType The type of the files just downloaded and should be created in the source designated folder
+         * @param source The source number of the sender of the file
+         */
+        private void deleteFilesIfNecessary(String addedFileName, FileManager.FileType newDownloadedFileType, String source) {
+
+            File spDir = new File(Constants.specialCallPath+source);
+            File[] files = spDir.listFiles();
+            try
+            {
+                switch (newDownloadedFileType)
+                {
+                    case RINGTONE:
+
+                        for (int i = 0; i < files.length; ++i)
+                        {
+                            File file = files[i];
+                            String fileName = file.getName(); // This includes extension
+                            FileManager.FileType fileType = FileManager.getFileType(file);
+
+                            if (!fileName.equals(addedFileName) &&
+                                    (fileType == FileManager.FileType.VIDEO ||
+                                            fileType == FileManager.FileType.RINGTONE)) {
+                                FileManager.delete(file);
+                            }
+                        }
+                        break;
+                    case IMAGE:
+
+                        for (int i = 0; i < files.length; ++i)
+                        {
+                            File file = files[i];
+                            String fileName = file.getName(); // This includes extension
+                            FileManager.FileType fileType = FileManager.getFileType(file);
+
+                            if (!fileName.equals(addedFileName) &&
+                                    (fileType == FileManager.FileType.VIDEO ||
+                                            fileType == FileManager.FileType.IMAGE)) {
+                                FileManager.delete(file);
+                            }
+                        }
+                        break;
+
+                    case VIDEO:
+
+                        for (int i = 0; i < files.length; ++i)
+                        {
+                            File file = files[i];
+                            String fileName = file.getName(); // This includes extension
+                            if(!fileName.equals(addedFileName))
+                                FileManager.delete(file);
+                        }
+                        break;
+                }
+
+            }
+            catch (FileInvalidFormatException e)
+            {
+                e.printStackTrace();
+                Log.e(TAG, "Invalid file type:"+e.getMessage()+" in SpecialCall directory of source:"+source);
+
+            }
+
+        }
+
+    };
+
+    /**
+     * Listener for call states
+     * Responsible for setting and starting special data on call and restoring previous data once call is terminated
+     */
+	private class CallStateListener extends PhoneStateListener {
 
 
 		@Override
@@ -134,245 +219,204 @@ public class IncomingReceiver extends Service {
 
 	public synchronized void syncOnCallStateChange(int state, String incomingNumber){
 
-
-
 		switch(state)
 		{
 
 			case TelephonyManager.CALL_STATE_RINGING:
 				if (!InRingingSession)
 				{
-					Log.e("RONY", "TelephonyManager.CALL_STATE_RINGING");
-					InRingingSession = true;
-					mOldUri = RingtoneManager.getActualDefaultRingtoneUri(gcontext, RingtoneManager.TYPE_RINGTONE);
+					Log.i(TAG, "TelephonyManager.CALL_STATE_RINGING");
 
-					// RINGTONE
-					File ringtoneFile = new File(Constants.specialCallPath+incomingNumber+"/" ,incomingNumber +"." + SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE, incomingNumber));
-					if(ringtoneFile.exists())
-					{
+                    InRingingSession = true;
+                    incomingCallNumber = incomingNumber;
 
-						// On call you replace the ringtone with your own mUri
-						RingtoneManager.setActualDefaultRingtoneUri(
-								gcontext,//MainActivity.this,
-								RingtoneManager.TYPE_RINGTONE,
-								Uri.parse(SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE_URI, incomingNumber)));
-
-						ringtoneIsLoad = true;
-						isSpecialCall = true;
-					}
-
-					// Saving previous ringtone uri
-					SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, "mOldUri", mOldUri.toString());
-
-
-					String downloadFileExtension = SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA, incomingNumber);
-					downloadFileExtension = downloadFileExtension.toLowerCase();
-					incomingCallNumber = incomingNumber;
-
-					// VIDEO OR IMAGE
-					String filePath = incomingNumber + "."+ SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA, incomingNumber);
-					File mediaFile = new File(Constants.specialCallPath+incomingNumber+"/" ,filePath);
-
-					if(mediaFile.exists())
-					{
-
-                        if (Arrays.asList(Constants.videoFormats).contains((downloadFileExtension))) {
-
-									// On call you replace the ringtone with a silent URI , defined as null
-								RingtoneManager.setActualDefaultRingtoneUri(gcontext,RingtoneManager.TYPE_RINGTONE,null);
-
-                        }
-
-						isSpecialCall = true;
-
-						SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, "incomingNumber", incomingNumber);
-
-
-						ringtoneIsLoad = false;
-						IncomingSpecialCall.finishedIncomingCall = false;
-						Log.e("RONY", "Ringing!! RONY !! RINGING!!");
-
-
-						i.setClass(gcontext, IncomingSpecialCall.class);
-						i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-						i.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-						// video view
-						i.putExtra("videoORpic", incomingCallNumber + "." + SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA, incomingCallNumber));
-						//       i.putExtra("videoORpic",incomingCallNumber +"."+ "jpg");
-
-
-						Log.e("RONY", "START ACTIVITY before while");
-						mDismissed = true;
-						gcontext.startActivity(i);
-
-
-						//activityRef.finish();
-						try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-
-
-					//	mDismissed = false;
-
-                        int count = 0;
-
-						while (count<MAX_TOP_ACTIVITY_RETRIES) {
-                            count++;
-							mActivityManager = (ActivityManager) gcontext.getSystemService(Context.ACTIVITY_SERVICE);
-							List<ActivityManager.RunningTaskInfo> tasks = mActivityManager.getRunningTasks(1);
-							String topActivityName = tasks.get(0).topActivity.getClassName();
-
-							Log.e("RONY", "Into the While");
-							if (!topActivityName.equals(IncomingSpecialCall.class.getName())) {// Try to show on top until user dismiss this activity
-
-                                i.setClass(gcontext, IncomingSpecialCall.class);
-								i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-								i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                                i.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-								// video view
-                                i.putExtra("videoORpic", incomingCallNumber + "." + SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA, incomingCallNumber));
-								//       i.putExtra("videoORpic",incomingCallNumber +"."+ "jpg");
-
-
-                                Log.e("RONY", "START ACTIVITY");
-								gcontext.startActivity(i);
-
-
-								//activityRef.finish();
-								try {
-									Thread.sleep(1000);
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
-
-							}
-
-						}
-
-
-/*
-
-						new Thread(){
-
-							@Override
-							public void run() {
-							//	Log.e("RONY", "activityRef.getWindow BEFORE");
-							//	Window window = activityRef.getWindow();
-							//	Log.e("RONY", "activityRef.getWindow AFTER");
-							//	window.addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-								mActivityManager = (ActivityManager) gcontext.getSystemService(Context.ACTIVITY_SERVICE);
-							//	boolean isSuccess = mHandler.sendEmptyMessageDelayed(MSG_ID_CHECK_TOP_ACTIVITY, DELAY_INTERVAL);
-							//	Log.e("RONY", "mHandler.sendEmptyMessageDelayed Result:"+isSuccess);
-								mDismissed = false;  // returning the IncomingCall Handler to always check when the incoming call window pop up so we can override it
-
-								while (!mDismissed){
-
-									List<ActivityManager.RunningTaskInfo> tasks = mActivityManager.getRunningTasks(1);
-									String topActivityName = tasks.get(0).topActivity.getClassName();
-
-
-									if (!topActivityName.equals(IncomingSpecialCall.class.getName()))
-									{// Try to show on top until user dismiss this activity
-
-										i.setClass(gcontext, IncomingSpecialCall.class);
-										i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-										i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-										i.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-										// video view
-										i.putExtra("videoORpic", incomingCallNumber + "." + SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA, incomingCallNumber));
-										//       i.putExtra("videoORpic",incomingCallNumber +"."+ "jpg");
-
-										new Thread() {
-
-											public void run() {
-												Log.e("RONY", "START ACTIVITY");
-												gcontext.startActivity(i);
-												mDismissed = true;
-												Log.e("RONY", "After Dismissed");
-											}
-										}.run();
-										//activityRef.finish();
-										try {
-											Thread.sleep(2000);
-										} catch (InterruptedException e) {
-											e.printStackTrace();
-										}
-										Log.e("RONY", "After Sleep");
-									}
-
-								}
-							}
-						}.run();  // must place run(); here and not start(); , priority higher for run();
-*/
-						Log.e("RONY", "Exited after Thread ");
-
-					}
-				}
-				break;
+                    saveOldRingToneUri();
+	                startRingToneSpecialCall();
+                    startMediaSpecialCall();
+                }
+            break;
 
 			case TelephonyManager.CALL_STATE_IDLE:
 
-				Log.e("RONY", "CALL_STATE_IDLE ");
-				if (isSpecialCall)
+				Log.i(TAG, "TelephonyManager.CALL_STATE_IDLE");
+				if (wasSpecialRingTone)
 				{
-
+                    String oldUri = SharedPrefUtils.getString(gcontext, SharedPrefUtils.GENERAL, SharedPrefUtils.OLD_RINGTONE_URI);
 					RingtoneManager.setActualDefaultRingtoneUri(
-							gcontext,
-							RingtoneManager.TYPE_RINGTONE, mOldUri);
+                            gcontext,
+                            RingtoneManager.TYPE_RINGTONE, Uri.parse(oldUri));
 
-
-					deleteDirectory( new File(Constants.specialCallPath+incomingCallNumber+"/"));
-					Toast.makeText(gcontext, "Removed :" + Constants.specialCallPath+incomingCallNumber+"/", Toast.LENGTH_LONG).show();
-					isSpecialCall = false;
+					wasSpecialRingTone = false;
 				}
 
-				if (ringtoneIsLoad)
-				{
-
-					gcontext.getContentResolver().delete( Uri.parse( SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE_URI, incomingCallNumber)),
-							MediaStore.MediaColumns.DATA + "=\"" + SharedPrefUtils.getString(gcontext, SharedPrefUtils.GENERAL, "mUriFilePath") + "\"",  null);
-					deleteDirectory( new File(Constants.specialCallPath+incomingNumber+"/"));
-					ringtoneIsLoad = false;
-
-
-				}
 				if  (InRingingSession)
 				{
 					InRingingSession = false;
-					DismissIncomingCallActivity(true);
-					Log.e("RONY", "Dismiss is TRUE !! ");
 				}
-				break;
-
-
+            break;
 
 		}
 
 	}
 
-	public static boolean deleteDirectory(File path) {
-		if(path.exists()) {
-			File[] files = path.listFiles();
-			if (files == null) {
-				return true;
-			}
-			for(int i=0; i<files.length; i++) {
-				if(files[i].isDirectory()) {
-					deleteDirectory(files[i]);
-				}
-				else {
-					files[i].delete();
-				}
-			}
-		}
-		return(path.delete());
-	}
+    private void displaySpecialCallActivity(FileManager.FileType fType, String mediaFilePath) {
 
-	public static synchronized void DismissIncomingCallActivity(Boolean dismiss) {
+        if (fType == FileManager.FileType.VIDEO) {
 
-		mDismissed = dismiss;
-	}
+            // On call you replace the ringtone with a silent URI , defined as null
+            RingtoneManager.setActualDefaultRingtoneUri(gcontext,RingtoneManager.TYPE_RINGTONE,null);
+
+        }
+
+        specialCallIntent.setClass(gcontext, IncomingSpecialCall.class);
+        specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        specialCallIntent.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_FILEPATH, mediaFilePath);
+
+        Log.i(TAG, "START ACTIVITY before For");
+        gcontext.startActivity(specialCallIntent);
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        int count;
+        int numFailures = 0;
+        for(count=0;count<TOP_ACTIVITY_RETRIES;++count)
+        {
+            count++;
+            mActivityManager = (ActivityManager) gcontext.getSystemService(Context.ACTIVITY_SERVICE);
+            List<ActivityManager.RunningTaskInfo> tasks = mActivityManager.getRunningTasks(1);
+            String topActivityName = tasks.get(0).topActivity.getClassName();
+
+            Log.i(TAG, "Into the For");
+            if (!topActivityName.equals(IncomingSpecialCall.class.getName())) {// Try to show on top TOP_ACTIVITY_RETRIES times user dismiss this activity
+                numFailures++;
+
+                Log.i(TAG, "START ACTIVITY");
+                gcontext.startActivity(specialCallIntent);
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }
+        Log.i(TAG, "Exited after For ");
+
+        if(numFailures==count)
+        {
+            Log.e(TAG, "Failed to set IncomingSpecialCall activity to top after:"+TOP_ACTIVITY_RETRIES+" retries");
+        }
+
+    }
+
+    /**
+     * Saves previous ringtone URI to restore later
+     */
+    private void saveOldRingToneUri() {
+
+        Uri oldOri = RingtoneManager.getActualDefaultRingtoneUri(gcontext, RingtoneManager.TYPE_RINGTONE);
+        SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, SharedPrefUtils.OLD_RINGTONE_URI, oldOri.toString());
+    }
+
+    private void setNewRingTone(String fFullName, String source, String extension) {
+
+        Log.i(TAG,"In: setNewRingTone");
+        File newSoundFile = new File(Constants.specialCallPath + source
+                + "/", fFullName);
+
+        if (newSoundFile.exists()) {
+            // Setting up new ringtone in user's ringtones list
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.MediaColumns.DATA,
+                    newSoundFile.getAbsolutePath());
+            values.put(MediaStore.MediaColumns.TITLE, source);
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/"
+                    + extension);
+            values.put(MediaStore.Audio.Media.ARTIST, "SpecialCallUI");
+            values.put(MediaStore.MediaColumns.SIZE, 215454); // ///
+            // what
+            // to do
+            // here
+            // !!!!!!!!!!!!
+            // ->
+            // WTF
+            // Rony?
+            // LOL
+            values.put(MediaStore.Audio.Media.IS_RINGTONE, true);
+
+            Uri uri = MediaStore.Audio.Media
+                    .getContentUriForPath(newSoundFile
+                            .getAbsolutePath());
+            getContentResolver().delete(
+                    uri,
+                    MediaStore.MediaColumns.DATA + "=\""
+                            + newSoundFile.getAbsolutePath() + "\"",
+                    null);
+            Uri newUri = getContentResolver().insert(uri, values);
+
+            // Backing up uri, extension and filepath in shared prefs
+            SharedPrefUtils.setString(getApplicationContext(),
+                    SharedPrefUtils.RINGTONE_URI, source,
+                    newUri.toString());
+            SharedPrefUtils.setString(getApplicationContext(),
+                    SharedPrefUtils.RINGTONE_EXTENSION, source,
+                    extension);
+            SharedPrefUtils.setString(getApplicationContext(),
+                    SharedPrefUtils.RINGTONE_FILEPATH, source,
+                    newSoundFile.getAbsolutePath());
+
+        }
+        else
+            Log.e(TAG,"File not found:" + newSoundFile.getAbsolutePath());
+    }
+
+    private void startRingToneSpecialCall() {
+
+        String ringToneFileExtension = SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE_EXTENSION, incomingCallNumber);
+        String ringToneFileName = incomingCallNumber+"."+ringToneFileExtension;
+
+        File ringtoneFile = new File(Constants.specialCallPath+incomingCallNumber+"/" ,ringToneFileName);
+        if(ringtoneFile.exists())
+        {
+            // Saving previous ringtone uri
+            Uri oldOri = RingtoneManager.getActualDefaultRingtoneUri(gcontext, RingtoneManager.TYPE_RINGTONE);
+            SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, SharedPrefUtils.OLD_RINGTONE_URI, oldOri.toString());
+
+            // The new special ringtone uri
+            String newUri = SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE_URI, incomingCallNumber);
+
+            // On call ringtone uri is replaced with the special uri
+            RingtoneManager.setActualDefaultRingtoneUri(
+                    gcontext,//MainActivity.this,
+                    RingtoneManager.TYPE_RINGTONE,
+                    Uri.parse(newUri));
+
+            wasSpecialRingTone = true;
+        }
+    }
+
+    private void startMediaSpecialCall() {
+
+        String mediaFileExtension = SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA_EXTENSION, incomingCallNumber);
+        String mediaFileName = incomingCallNumber+"."+mediaFileExtension;
+        String mediaFilePath = Constants.specialCallPath + incomingCallNumber + "/" + mediaFileName;
+        try {
+            FileManager fm = new FileManager(mediaFilePath);
+            displaySpecialCallActivity(fm.getFileType(), fm.getFileFullPath());
+
+        } catch (FileInvalidFormatException e) {
+            e.printStackTrace();
+        } catch (FileExceedsMaxSizeException e) {
+            e.printStackTrace();
+        } catch (FileDoesNotExistException e) {
+            e.printStackTrace();
+        }
+    }
 }
