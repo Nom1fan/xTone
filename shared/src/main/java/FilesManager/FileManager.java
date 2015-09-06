@@ -11,6 +11,7 @@ import java.util.Arrays;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
+import Exceptions.FileMissingExtensionException;
 
 
 /**
@@ -38,7 +39,24 @@ public class FileManager {
      * @param filePath - Receives the full path to the file to manage
      * @throws NullPointerException - Thrown if path to file is null
      */
-	public FileManager(String filePath) throws NullPointerException,FileInvalidFormatException,FileExceedsMaxSizeException, FileDoesNotExistException {
+    public FileManager(File file) throws NullPointerException,FileInvalidFormatException,FileExceedsMaxSizeException, FileDoesNotExistException, FileMissingExtensionException {
+
+        if(file!=null)
+        {
+            _file = file;
+            if(doesFileExist()) {
+                validateFileSize();
+                _extension = extractExtension(file.getAbsolutePath());
+                fileType = validateFileFormat();
+            }
+            else
+                throw new FileDoesNotExistException("File does not exist:"+file.getAbsolutePath());
+        }
+        else
+            throw new NullPointerException("The file is null");
+    }
+
+    public FileManager(String filePath) throws NullPointerException,FileInvalidFormatException,FileExceedsMaxSizeException, FileDoesNotExistException, FileMissingExtensionException {
 		
 		if(filePath!=null)
 		{
@@ -122,7 +140,7 @@ public class FileManager {
            return fileType;
     }
 
-    public static FileType getFileType(String filePath) throws FileInvalidFormatException, FileDoesNotExistException {
+    public static FileType getFileType(String filePath) throws FileInvalidFormatException, FileDoesNotExistException, FileMissingExtensionException {
 
         File file = new File(filePath);
         if(file.exists()) {
@@ -144,7 +162,7 @@ public class FileManager {
 
     }
 
-    public static FileType getFileType(File file) throws FileInvalidFormatException, FileDoesNotExistException {
+    public static FileType getFileType(File file) throws FileInvalidFormatException, FileDoesNotExistException, FileMissingExtensionException {
 
 
         if(file.exists()) {
@@ -186,9 +204,11 @@ public class FileManager {
         throw new FileInvalidFormatException(_extension);
 	}
 
-    private static String extractExtension(String filePath) {
+    private static String extractExtension(String filePath) throws FileMissingExtensionException{
 
         String tmp_str[] = filePath.split("\\.");
+        if(tmp_str.length<2)
+            throw new FileMissingExtensionException("File is missing extension:"+filePath);
         String ext = tmp_str[1];
         return ext;
     }

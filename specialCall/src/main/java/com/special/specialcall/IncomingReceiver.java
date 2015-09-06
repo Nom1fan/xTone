@@ -24,6 +24,7 @@ import EventObjects.EventType;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
+import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
 import data_objects.Constants;
 import data_objects.SharedPrefUtils;
@@ -193,12 +194,13 @@ public class IncomingReceiver extends Service {
                 }
 
             }
-            catch (FileInvalidFormatException e)
-            {
+            catch (FileInvalidFormatException e) {
                 e.printStackTrace();
                 Log.e(TAG, "Invalid file type:"+e.getMessage()+" in SpecialCall directory of source:"+source);
-
             } catch (FileDoesNotExistException e) {
+                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
+            } catch (FileMissingExtensionException e) {
                 e.printStackTrace();
                 Log.e(TAG, e.getMessage());
             }
@@ -325,7 +327,8 @@ public class IncomingReceiver extends Service {
     private void saveOldRingToneUri() {
 
         Uri oldOri = RingtoneManager.getActualDefaultRingtoneUri(gcontext, RingtoneManager.TYPE_RINGTONE);
-        SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, SharedPrefUtils.OLD_RINGTONE_URI, oldOri.toString());
+        if(oldOri!=null)
+            SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, SharedPrefUtils.OLD_RINGTONE_URI, oldOri.toString());
     }
 
     private void setNewRingTone(String fFullName, String source, String extension) {
@@ -419,6 +422,8 @@ public class IncomingReceiver extends Service {
         } catch (FileExceedsMaxSizeException e) {
             e.printStackTrace();
         } catch (FileDoesNotExistException e) {
+            e.printStackTrace();
+        } catch (FileMissingExtensionException e) {
             e.printStackTrace();
         }
     }

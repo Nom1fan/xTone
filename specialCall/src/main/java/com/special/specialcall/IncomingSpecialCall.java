@@ -80,11 +80,11 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 				myImageView.setImageBitmap(loadImage(mediaFilePath));
 				//  Log.d("IncomingCallActivity: onCreate: ", "flagz");
 
-				//Button Answer = (Button)findViewById(R.id.Answer);
-				//Answer.setOnClickListener(this);
+				Button Answer = (Button)findViewById(R.id.Answer);
+				Answer.setOnClickListener(this);
 
-				//Button Decline = (Button)findViewById(R.id.Decline);
-				//Decline.setOnClickListener(this);
+				Button Decline = (Button)findViewById(R.id.Decline);
+				Decline.setOnClickListener(this);
 			}
 			if (fileType == FileManager.FileType.VIDEO)
 			{

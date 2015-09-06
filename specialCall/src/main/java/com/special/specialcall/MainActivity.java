@@ -10,6 +10,7 @@ import EventObjects.Event;
 import EventObjects.EventListener;
 import EventObjects.EventReport;
 import Exceptions.FileDoesNotExistException;
+import Exceptions.FileMissingExtensionException;
 import Exceptions.InvalidDestinationNumberException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
@@ -48,6 +49,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,8 +71,7 @@ public class MainActivity extends Activity implements OnClickListener,
     private String tag = "MAIN_ACTIVITY";
 	private Uri outputFileUri;
 	private boolean LoggedIn = false;
-	private MyProgressBar pBar;
-	boolean VideoValid = false;
+	private ProgressBar pBar;
 	private boolean loading = false;
 	private boolean mIsBound = false;
 	private static MainActivity singleton;
@@ -113,6 +114,9 @@ public class MainActivity extends Activity implements OnClickListener,
     {
         super.onPause();
 
+        doUnbindService();
+        if(serviceReceiver!=null)
+            unregisterReceiver(serviceReceiver);
         saveInstanceState();
     }
 
@@ -136,14 +140,11 @@ public class MainActivity extends Activity implements OnClickListener,
 				InitializeConnection();
 			}
             doBindService();
+            registerReceiver(serviceReceiver,serviceReceiverIntentFilter);
 			initializeUI();
 
 			((TextView) findViewById(R.id.destName)).setText(destName);
 
-			if (loading)
-				enableProgressBar();
-			else
-				disableProgressBar();
 		}
 		else
 		{
@@ -159,8 +160,6 @@ public class MainActivity extends Activity implements OnClickListener,
 	@Override
     protected void onDestroy() {
 	 super.onDestroy();
-     cleanBeforeDestroy();
-//	 unregisterReceiver(ringerModeReceiver);
 	 }
 
 	@Override
@@ -220,6 +219,14 @@ public class MainActivity extends Activity implements OnClickListener,
                     }
 
                     String imgOrVidPath = getRealPathFromURI(selectedImageOrVideoUri);
+
+                    if(isCamera)
+                    {
+                        File file = new File(imgOrVidPath);
+                        file.renameTo(new File(imgOrVidPath+=".jpeg"));
+
+                    }
+
                     fm = new FileManager(imgOrVidPath);
                 }
 
@@ -264,6 +271,9 @@ public class MainActivity extends Activity implements OnClickListener,
                 e.printStackTrace();
                 callErrToast("Please select a valid format");
             } catch (FileDoesNotExistException e) {
+                e.printStackTrace();
+                callErrToast(e.getMessage());
+            } catch (FileMissingExtensionException e) {
                 e.printStackTrace();
                 callErrToast(e.getMessage());
             }
@@ -568,6 +578,11 @@ public class MainActivity extends Activity implements OnClickListener,
 		ImageButton settingsBtn = (ImageButton) findViewById(R.id.settingsBtn);
 		settingsBtn.setOnClickListener(this);
 
+        if (loading)
+            enableProgressBar();
+        else
+            disableProgressBar();
+
 		disableGuiComponents();
 	}
 
@@ -647,7 +662,7 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		case CLOSE_APP:
 			callErrToast(report.desc());
-			cleanBeforeDestroy();
+			finish();
 			break;
 
 		case DISPLAY_ERROR:
@@ -767,13 +782,6 @@ public class MainActivity extends Activity implements OnClickListener,
                 vg.postInvalidate();
             }
         });
-    }
-
-    private void cleanBeforeDestroy() {
-        //serverProxy.gracefullyDisconnect();
-        doUnbindService();
-        if(serviceReceiver!=null)
-            unregisterReceiver(serviceReceiver);
     }
 
     private void checkDestinationNumber() throws InvalidDestinationNumberException {
@@ -899,8 +907,8 @@ public class MainActivity extends Activity implements OnClickListener,
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				pBar = (MyProgressBar) findViewById(R.id.progressBar);
-				pBar.dismiss();
+				pBar = (ProgressBar) findViewById(R.id.progressBar);
+				pBar.setVisibility(ProgressBar.GONE);
 			}
 		});
 	}
@@ -912,8 +920,8 @@ public class MainActivity extends Activity implements OnClickListener,
 		runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                pBar = (MyProgressBar) findViewById(R.id.progressBar);
-                pBar.startAnimation();
+                pBar = (ProgressBar) findViewById(R.id.progressBar);
+                pBar.setVisibility(ProgressBar.VISIBLE);
             }
         });
 	}
@@ -973,11 +981,9 @@ public class MainActivity extends Activity implements OnClickListener,
             else
                 selectMediaBtn.setImageResource(R.drawable.defaultpic_enabled);
 
-        } catch (FileInvalidFormatException e) {
+        } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
             SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
-        } catch (FileDoesNotExistException e) {
-            SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
-        }
+            }
 
 
     }
@@ -1037,9 +1043,7 @@ public class MainActivity extends Activity implements OnClickListener,
                     if (prevType == FileManager.FileType.VIDEO)
                         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
 
-                } catch (FileInvalidFormatException e) {
-                    e.printStackTrace();
-                } catch (FileDoesNotExistException e) {
+                } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
                     e.printStackTrace();
                 }
                 break;
