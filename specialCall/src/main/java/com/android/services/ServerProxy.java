@@ -196,12 +196,12 @@ import data_objects.SharedPrefUtils;
            * @param extension  - The extension/file type of the file being uploaded
            * @param destNumber - The destination number to whom the file is for
            */
-          public void uploadFileToServer(final byte[] fileData, final String extension, final FileManager.FileType fileType, final String destNumber) {
+          public void uploadFileToServer(final byte[] fileData, final String extension, final FileManager.FileType fileType, final String destNumber, final String fullFilePath) {
               new Thread() {
                   @Override
                   public void run() {
 
-                      TransferDetails td = new TransferDetails(SharedConstants.MY_ID, destNumber, fileData.length, extension, fileType);
+                      TransferDetails td = new TransferDetails(SharedConstants.MY_ID, destNumber, fileData.length, extension, fileType, fullFilePath);
 
                       try {
 

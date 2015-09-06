@@ -3,10 +3,8 @@ package com.special.specialcall;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import DataObjects.SharedConstants;
-import DataObjects.Thumbnail;
 import DataObjects.TransferDetails;
 import EventObjects.Event;
 import EventObjects.EventListener;
@@ -63,7 +61,6 @@ public class MainActivity extends Activity implements OnClickListener,
 
 	private int entries = 6;
 	private String buttonLabels[];
-	private HashMap<String, Thumbnail> lastULThumbsPerUser = new HashMap<String, Thumbnail>();
 	private ServerProxy serverProxy;
 //	private EventGenerator eventGenerator;
 	private String myPhoneNumber = "";
@@ -140,10 +137,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			}
             doBindService();
 			initializeUI();
-
-			Thumbnail thumbnail = lastULThumbsPerUser.get(destPhoneNumber);
-
-//			settingCallNumberComplete = false;
+            //			settingCallNumberComplete = false;
 //			EditText callNumberET = (EditText) findViewById(R.id.CallNumber);
 //			if (callNumberET != null)
 //				callNumberET.setText(destPhoneNumber,
@@ -151,9 +145,6 @@ public class MainActivity extends Activity implements OnClickListener,
 //			settingCallNumberComplete = true;
 
 			((TextView) findViewById(R.id.destName)).setText(destName);
-
-			if (thumbnail != null)
-				setMediaSelectButtonThumbnail(thumbnail.getFileType(), thumbnail.getThumbPath());
 
 			if (loading)
 				enableProgressBar();
@@ -236,8 +227,6 @@ public class MainActivity extends Activity implements OnClickListener,
 
                     String imgOrVidPath = getRealPathFromURI(selectedImageOrVideoUri);
                     fm = new FileManager(imgOrVidPath);
-
-                    lastULThumbsPerUser.put(destPhoneNumber, new Thumbnail(fm.getFileType(), imgOrVidPath));
                 }
 
                 if (requestCode == ActivityRequestCodes.PICK_SONG) {
@@ -250,7 +239,7 @@ public class MainActivity extends Activity implements OnClickListener,
                 }
 
                 if(fm!=null) {
-                    serverProxy.uploadFileToServer(fm.getFileData(), fm.getExtension(), fm.getFileType(), destPhoneNumber);
+                    serverProxy.uploadFileToServer(fm.getFileData(), fm.getExtension(), fm.getFileType(), destPhoneNumber, fm.getFileFullPath());
                     loading = true;
                     disableCallButton();
                 }
@@ -618,6 +607,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			break;
 
 		case ISLOGIN_ONLINE:
+            setMediaSelectButtonThumbnail((String) report.data());
 			callInfoToast(report.desc());
 			enableGuiComponents();
 			break;
@@ -628,6 +618,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			break;
 
 		case ISLOGIN_OFFLINE:
+            setMediaSelectButtonThumbnail((String) report.data());
 			callErrToast(report.desc());
 			disableGuiComponents();
 			break;
@@ -641,12 +632,13 @@ public class MainActivity extends Activity implements OnClickListener,
 			callErrToast(report.desc());
 			break;
 
-		case RECEIVER_DOWNLOAD_COMPLETE:
+		case DESTINATION_DOWNLOAD_COMPLETE:
 			callInfoToast(report.desc());
 			disableProgressBar();
 			enableCallButton();
             TransferDetails td = (TransferDetails) report.data();
-            drawUploadedContent(td.getFileType());
+            saveUploadedPerNumber(td.getDestinationId(), td.getFileType(), td.get_fullFilePathSrcSD());
+            drawUploadedContent(td.getDestinationId());
 			break;
 
 //		case PENDING_DOWNLOAD:
@@ -767,32 +759,15 @@ public class MainActivity extends Activity implements OnClickListener,
 
     }
 
-    private void drawUploadedContent(final FileManager.FileType fileType) {
+    private void drawUploadedContent(final String destPhoneNumber) {
 
         runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
 
-                switch (fileType) {
-                    case IMAGE:
-                        ImageButton picButton = (ImageButton) findViewById(R.id.MyPic);
-                        Thumbnail thumbnail = lastULThumbsPerUser.get(destPhoneNumber);
-                        if (thumbnail != null)
-                            setMediaSelectButtonThumbnail(fileType, thumbnail.getThumbPath());
-                        else
-                            picButton.setImageResource(R.drawable.defaultpic_enabled);
-                        picButton.getBackground().setColorFilter(0xFF00FF00,
-                                PorterDuff.Mode.MULTIPLY);
-                        picButton.refreshDrawableState();
-                        break;
-                    case RINGTONE:
-                        Button ringButton = (Button) findViewById(R.id.MyRing);
-                        ringButton.getBackground().setColorFilter(0xFF00FF00,
-                                PorterDuff.Mode.MULTIPLY);
-                        ringButton.refreshDrawableState();
-                        break;
-                }
+                setMediaSelectButtonThumbnail(destPhoneNumber);
+                setRingToneSelectButtonBg(destPhoneNumber);
 
                 ViewGroup vg = (ViewGroup) findViewById(R.id.mainActivity);
                 vg.postInvalidate();
@@ -900,8 +875,11 @@ public class MainActivity extends Activity implements OnClickListener,
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Button myRing = ((Button) findViewById(R.id.MyRing));
-                myRing.setClickable(true);
+                Button ringButton = ((Button) findViewById(R.id.MyRing));
+                ringButton.setClickable(true);
+                ringButton.getBackground().setColorFilter(Color.LTGRAY,
+                        PorterDuff.Mode.MULTIPLY);
+                ringButton.refreshDrawableState();
             }
         });
     }
@@ -911,8 +889,11 @@ public class MainActivity extends Activity implements OnClickListener,
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Button myRing = ((Button) findViewById(R.id.MyRing));
-                myRing.setClickable(false);
+                Button ringButton = ((Button) findViewById(R.id.MyRing));
+                ringButton.setClickable(false);
+                ringButton.getBackground().setColorFilter(Color.DKGRAY,
+                        PorterDuff.Mode.MULTIPLY);
+                ringButton.refreshDrawableState();
             }
         });
     }
@@ -947,6 +928,8 @@ public class MainActivity extends Activity implements OnClickListener,
 
         enableSelectMediaButton();
         enableSelectRingToneButton();
+        if(destPhoneNumber!=null)
+            drawUploadedContent(destPhoneNumber);
         enableCallButton();
 	}
 
@@ -954,42 +937,120 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		runOnUiThread(new Runnable() {
 
-			@Override
-			public void run() {
+            @Override
+            public void run() {
 
-				disableSelectMediaButton();
-
+                disableSelectMediaButton();
                 disableSelectRingToneButton();
-				disableCallButton();
+                disableCallButton();
 
-			}
-		});
+            }
+        });
 	}
 
-	private void setMediaSelectButtonThumbnail(FileManager.FileType fileType, String thumbPath)
+	private void setMediaSelectButtonThumbnail(String destPhoneNumber)
     {
-        Bitmap tmp_bitmap;
-        Bitmap bitmap;
+        try {
+            Bitmap tmp_bitmap;
+            Bitmap bitmap;
+            FileManager.FileType fType = null;
+            ImageButton selectMediaBtn = (ImageButton) findViewById(R.id.MyPic);
 
-        switch(fileType)
-        {
-            case IMAGE:
-               tmp_bitmap = BitmapFactory.decodeFile(thumbPath);
-               bitmap = Bitmap.createScaledBitmap(tmp_bitmap, 200, 200, false);
-                ((ImageButton) findViewById(R.id.MyPic)).setImageBitmap(bitmap);
-            break;
+            String lastUploadedMediaPath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
+            if (!lastUploadedMediaPath.equals("")) {
+                fType = FileManager.getFileType(lastUploadedMediaPath);
 
-            case VIDEO:
-                tmp_bitmap = ThumbnailUtils.createVideoThumbnail(thumbPath,
-                        MediaStore.Images.Thumbnails.MINI_KIND);
-               bitmap = Bitmap.createScaledBitmap(tmp_bitmap, 200, 200,
-                       false);
-                ((ImageButton) findViewById(R.id.MyPic)).setImageBitmap(bitmap);
-            break;
+                switch (fType) {
+                    case IMAGE:
+                        tmp_bitmap = BitmapFactory.decodeFile(lastUploadedMediaPath);
+                        bitmap = Bitmap.createScaledBitmap(tmp_bitmap, 200, 200, false);
+                        selectMediaBtn.setImageBitmap(bitmap);
+                        break;
+
+                    case VIDEO:
+                        tmp_bitmap = ThumbnailUtils.createVideoThumbnail(lastUploadedMediaPath,
+                                MediaStore.Images.Thumbnails.MINI_KIND);
+                        bitmap = Bitmap.createScaledBitmap(tmp_bitmap, 200, 200,
+                                false);
+                        selectMediaBtn.setImageBitmap(bitmap);
+                        break;
+                }
+            }
+            else
+                selectMediaBtn.setImageResource(R.drawable.defaultpic_enabled);
+
+        } catch (FileInvalidFormatException e) {
+            SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
+        } catch (FileDoesNotExistException e) {
+            SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
         }
 
-	}
 
+    }
+
+    private void setRingToneSelectButtonBg(String destPhoneNumber) {
+
+        boolean wasRingToneUploaded = SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.WAS_RINGTONE_UPLOADED, destPhoneNumber);
+        Button ringButton = (Button) findViewById(R.id.MyRing);
+        if(wasRingToneUploaded)
+        {
+            ringButton.getBackground().setColorFilter(0xFF00FF00,
+                    PorterDuff.Mode.MULTIPLY);
+        }
+        else
+        {
+            ringButton.getBackground().setColorFilter(Color.LTGRAY,
+                    PorterDuff.Mode.MULTIPLY);
+        }
+        ringButton.refreshDrawableState();
+
+    }
+
+    private void saveUploadedMediaPerNumber(String destPhoneNumber, String mediaPath) {
+        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber, mediaPath);
+    }
+
+    private void removeUploadedMediaPerNumber(String destPhoneNumber) {
+        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.WAS_RINGTONE_UPLOADED, destPhoneNumber);
+    }
+
+    private void saveUploadedRingTonePerNumber(String destPhoneNumber, boolean wasUploaded) {
+        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.WAS_RINGTONE_UPLOADED, destPhoneNumber, wasUploaded);
+    }
+
+    private void removeUploadedRingTonePerNumber(String destPhoneNumber) {
+        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.WAS_RINGTONE_UPLOADED, destPhoneNumber);
+    }
+
+    private void saveUploadedPerNumber(String destPhoneNumber, FileManager.FileType fileType, String mediaPath) {
+
+        switch (fileType) {
+            case IMAGE:
+                saveUploadedMediaPerNumber(destPhoneNumber, mediaPath);
+                break;
+            case VIDEO:
+                saveUploadedMediaPerNumber(destPhoneNumber, mediaPath);
+                removeUploadedRingTonePerNumber(destPhoneNumber);
+                break;
+            case RINGTONE:
+                saveUploadedRingTonePerNumber(destPhoneNumber, true);
+
+
+                // Checking if video was marked as last uploaded, if so need to delete (ringtone cannot co-exist with video)
+                String thumbPath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
+                try {
+                    FileManager.FileType prevType = FileManager.getFileType(thumbPath);
+                    if (prevType == FileManager.FileType.VIDEO)
+                        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
+
+                } catch (FileInvalidFormatException e) {
+                    e.printStackTrace();
+                } catch (FileDoesNotExistException e) {
+                    e.printStackTrace();
+                }
+                break;
+        }
+    }
 	private void InitializeConnection() {
 
 		// Starting service

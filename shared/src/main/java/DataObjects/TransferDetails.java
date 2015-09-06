@@ -11,16 +11,25 @@ public class TransferDetails implements Serializable {
 		private String _extension;
 		private double _fileSize;
 		private FileManager.FileType _fileType;
-		
-		public TransferDetails(String source, String destination, 
-				long fileSize, String extension, FileManager.FileType fileType) {
+
+
+
+    private String _fullFilePathSrcSD;
+
+		public TransferDetails(String source, String destination,
+				long fileSize, String extension, FileManager.FileType fileType, String fullFilePathSrcSD) {
 			
 			_sourceId = source;
 			_destinationId = destination;	
 			_extension = extension;
 			_fileSize = fileSize;
 			_fileType = fileType;
+            _fullFilePathSrcSD = fullFilePathSrcSD;
 		}
+
+        public String get_fullFilePathSrcSD() {
+            return _fullFilePathSrcSD;
+        }
 		
 		public String getSourceId() { return _sourceId; }
 		

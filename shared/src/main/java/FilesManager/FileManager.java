@@ -122,19 +122,49 @@ public class FileManager {
            return fileType;
     }
 
-    public static FileType getFileType(File file) throws FileInvalidFormatException {
+    public static FileType getFileType(String filePath) throws FileInvalidFormatException, FileDoesNotExistException {
 
-        String extension = extractExtension(file.getAbsolutePath());
-        if(Arrays.asList(imageFormats).contains(extension))
-            return FileType.IMAGE;
-        else if(Arrays.asList(audioFormats).contains(extension))
-            return FileType.RINGTONE;
-        else if (Arrays.asList(videoFormats).contains(extension))
-            return FileType.VIDEO;
+        File file = new File(filePath);
+        if(file.exists()) {
+            String extension = extractExtension(filePath);
+            if (Arrays.asList(imageFormats).contains(extension))
+                return FileType.IMAGE;
+            else if (Arrays.asList(audioFormats).contains(extension))
+                return FileType.RINGTONE;
+            else if (Arrays.asList(videoFormats).contains(extension))
+                return FileType.VIDEO;
+            else
+            {
+                delete(file);
+                throw new FileInvalidFormatException(extension);
+            }
+        }
+        else
+            throw new FileDoesNotExistException("File does not exist:"+file.getAbsolutePath());
 
-        delete(file);
+    }
 
-        throw new FileInvalidFormatException(extension);
+    public static FileType getFileType(File file) throws FileInvalidFormatException, FileDoesNotExistException {
+
+
+        if(file.exists()) {
+            String extension = extractExtension(file.getAbsolutePath());
+            if (Arrays.asList(imageFormats).contains(extension))
+                return FileType.IMAGE;
+            else if (Arrays.asList(audioFormats).contains(extension))
+                return FileType.RINGTONE;
+            else if (Arrays.asList(videoFormats).contains(extension))
+                return FileType.VIDEO;
+            else
+            {
+                delete(file);
+                throw new FileInvalidFormatException(extension);
+            }
+        }
+        else
+            throw new FileDoesNotExistException("File does not exist:"+file.getAbsolutePath());
+
+
     }
 
     /**

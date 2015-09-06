@@ -69,7 +69,7 @@ public class MessageDownloadFile extends MessageToClient {
 		  ConnectionToServer cts = serverProxy.getConnectionToServer();
 		  String infoMsg = "TRANSFER_SUCCESS: to "+_myId+". Filename:"+_fileName;
 		  cts.sendMessage(new MessageTriggerEventForRemoteUser(_myId, _sourceId, 
-				  new EventReport(EventType.RECEIVER_DOWNLOAD_COMPLETE, infoMsg, _td)));
+				  new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, infoMsg, _td)));
 				
 		  String desc = "DOWNLOAD_SUCCESS. Filename:"+_fileName;
 		  return new EventReport(EventType.DOWNLOAD_SUCCESS,desc,_td);

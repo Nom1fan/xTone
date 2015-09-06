@@ -198,6 +198,9 @@ public class IncomingReceiver extends Service {
                 e.printStackTrace();
                 Log.e(TAG, "Invalid file type:"+e.getMessage()+" in SpecialCall directory of source:"+source);
 
+            } catch (FileDoesNotExistException e) {
+                e.printStackTrace();
+                Log.e(TAG, e.getMessage());
             }
 
         }
