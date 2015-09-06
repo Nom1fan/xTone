@@ -137,12 +137,6 @@ public class MainActivity extends Activity implements OnClickListener,
 			}
             doBindService();
 			initializeUI();
-            //			settingCallNumberComplete = false;
-//			EditText callNumberET = (EditText) findViewById(R.id.CallNumber);
-//			if (callNumberET != null)
-//				callNumberET.setText(destPhoneNumber,
-//						EditText.BufferType.EDITABLE);
-//			settingCallNumberComplete = true;
 
 			((TextView) findViewById(R.id.destName)).setText(destName);
 
@@ -963,14 +957,14 @@ public class MainActivity extends Activity implements OnClickListener,
                 switch (fType) {
                     case IMAGE:
                         tmp_bitmap = BitmapFactory.decodeFile(lastUploadedMediaPath);
-                        bitmap = Bitmap.createScaledBitmap(tmp_bitmap, 200, 200, false);
+                        bitmap = Bitmap.createScaledBitmap(tmp_bitmap, selectMediaBtn.getWidth(), selectMediaBtn.getHeight(), false);
                         selectMediaBtn.setImageBitmap(bitmap);
                         break;
 
                     case VIDEO:
                         tmp_bitmap = ThumbnailUtils.createVideoThumbnail(lastUploadedMediaPath,
                                 MediaStore.Images.Thumbnails.MINI_KIND);
-                        bitmap = Bitmap.createScaledBitmap(tmp_bitmap, 200, 200,
+                        bitmap = Bitmap.createScaledBitmap(tmp_bitmap, selectMediaBtn.getWidth(), selectMediaBtn.getWidth(),
                                 false);
                         selectMediaBtn.setImageBitmap(bitmap);
                         break;
