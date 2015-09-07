@@ -249,33 +249,41 @@ public class MainActivity extends Activity implements OnClickListener,
             {
                 e.printStackTrace();
                 Log.e(tag,"It seems there was a problem with the file path.");
-                callErrToast("It seems there was a problem with the file path");
+                //callErrToast("It seems there was a problem with the file path");
+                writeErrStatBar("It seems there was a problem with the file path");
             }
             catch (IOException e)
             {
                 e.printStackTrace();
-                Log.e(tag,"A problem occured while reading the file.");
-                callErrToast("A problem occured while reading the file");
+                Log.e(tag, "A problem occured while reading the file.");
+                //callErrToast("A problem occured while reading the file");
+                writeErrStatBar("A problem occured while reading the file");
             }
             catch (FileExceedsMaxSizeException e)
             {
-                callErrToast("Please select a file that weights less than:"+
+//                callErrToast("Please select a file that weights less than:"+
+//                        FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+                writeErrStatBar("Please select a file that weights less than:"+
                         FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
             }
             catch (InvalidDestinationNumberException e)
             {
-                callErrToast("There was a problem with the destination number. Please try again");
+                //callErrToast("There was a problem with the destination number. Please try again");
+                writeErrStatBar("There was a problem with the destination number. Please try again");
             }
             catch (FileInvalidFormatException e)
             {
                 e.printStackTrace();
-                callErrToast("Please select a valid format");
+                //callErrToast("Please select a valid format");
+                writeErrStatBar("Please select a valid format");
             } catch (FileDoesNotExistException e) {
                 e.printStackTrace();
-                callErrToast(e.getMessage());
+                //callErrToast(e.getMessage());
+                writeErrStatBar(e.getMessage());
             } catch (FileMissingExtensionException e) {
                 e.printStackTrace();
-                callErrToast(e.getMessage());
+                //callErrToast(e.getMessage());
+                writeErrStatBar(e.getMessage());
             }
 
             if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
@@ -426,7 +434,8 @@ public class MainActivity extends Activity implements OnClickListener,
                 e.printStackTrace();
                 String errMsg = "Failed to start activity to select a ringtone:"+e.getMessage();
 			    Log.e(tag,errMsg);
-                callErrToast(errMsg);
+                //callErrToast(errMsg);
+                writeErrStatBar(errMsg);
             }
 		}
 	}
@@ -593,7 +602,7 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		switch (report.status()) {
 		case UPLOAD_SUCCESS:
-			callInfoToast(report.desc(), Color.YELLOW);
+			writeInfoStatBar(report.desc(), Color.YELLOW);
 			enableGuiComponents();
 			disableProgressBar();
 			loading = false;
@@ -601,48 +610,54 @@ public class MainActivity extends Activity implements OnClickListener,
 			break;
 
 		case UPLOAD_FAILURE:
-			callErrToast(report.desc());
+			//callErrToast(report.desc());
+            writeErrStatBar(report.desc());
 			disableProgressBar();
 			break;
 
 		case DOWNLOAD_SUCCESS:
-			callInfoToast(report.desc());
+			//callInfoToast(report.desc());
+            writeInfoStatBar(report.desc());
 			disableProgressBar();
 			break;
 
 		case DOWNLOAD_FAILURE:
 			disableProgressBar();
-			callErrToast(report.desc());
+			//callErrToast(report.desc());
+            writeErrStatBar(report.desc());
 			break;
 
 		case ISLOGIN_ONLINE:
             setMediaSelectButtonThumbnail((String) report.data());
-			callInfoToast(report.desc());
+			//callInfoToast(report.desc());
+            writeInfoStatBar(report.desc());
 			enableGuiComponents();
 			break;
 
 		case ISLOGIN_ERROR:
-			callErrToast(report.desc());
+			//callErrToast(report.desc());
+            writeErrStatBar(report.desc());
 			disableGuiComponents();
 			break;
 
 		case ISLOGIN_OFFLINE:
             setMediaSelectButtonThumbnail((String) report.data());
-			callErrToast(report.desc());
+			//callErrToast(report.desc());
+            writeErrStatBar(report.desc());
 			disableGuiComponents();
 			break;
 
 		case ISLOGIN_UNREGISTERED:
-			callErrToast(report.desc());
+			writeErrStatBar(report.desc());
 			disableGuiComponents();
 			break;
 			
 		case RESPONSE_FAILURE:
-			callErrToast(report.desc());
+			writeErrStatBar(report.desc());
 			break;
 
 		case DESTINATION_DOWNLOAD_COMPLETE:
-			callInfoToast(report.desc());
+			writeInfoStatBar(report.desc());
 			disableProgressBar();
 			enableCallButton();
             TransferDetails td = (TransferDetails) report.data();
@@ -652,25 +667,26 @@ public class MainActivity extends Activity implements OnClickListener,
 
 //		case PENDING_DOWNLOAD:
 //			enableProgressBar();
-//			callInfoToast(report.desc());
+//			writeInfoStatBar(report.desc());
 //			serverProxy.downloadFileFromServer((TransferDetails) report.data());
 //			break;
 
 //		case CLIENT_ACTION_FAILURE:
-//			callErrToast(report.desc());
+//			writeErrStatBar(report.desc());
 //			break;
 
 		case CLOSE_APP:
-			callErrToast(report.desc());
+			writeErrStatBar(report.desc());
 			finish();
 			break;
 
 		case DISPLAY_ERROR:
-			callErrToast(report.desc());
+			writeErrStatBar(report.desc());
 			break;
 			
 		case DISPLAY_MESSAGE:
-			callInfoToast(report.desc());
+			//writeInfoStatBar(report.desc());
+            ((TextView)findViewById(R.id.statusBar)).setText(report.desc());
 			break;
 		
 
@@ -710,7 +726,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		// we know will be running in our own process (and thus won't be
 		// supporting component replacement by other applications).
 		bindService(new Intent(this,
-				ServerProxy.class), mConnection, 0);
+                ServerProxy.class), mConnection, 0);
 		mIsBound = true;
 	}
 
@@ -842,11 +858,11 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		runOnUiThread(new Runnable() {
 
-			public void run() {
-				((Button) findViewById(R.id.CallNow)).setEnabled(true);
-			}
+            public void run() {
+                ((Button) findViewById(R.id.CallNow)).setEnabled(true);
+            }
 
-		});
+        });
 	}
 
     private void disableSelectMediaButton() {
@@ -1103,5 +1119,26 @@ public class MainActivity extends Activity implements OnClickListener,
 			}
 		});
 	}
+
+    private void writeErrStatBar(final String text) {
+
+        TextView statusBar = (TextView)findViewById(R.id.statusBar);
+        statusBar.setTextColor(Color.RED);
+        statusBar.setText(text);
+    }
+
+    private void writeInfoStatBar(final String text) {
+
+        TextView statusBar = (TextView)findViewById(R.id.statusBar);
+        statusBar.setTextColor(Color.GREEN);
+        statusBar.setText(text);
+    }
+
+    private void writeInfoStatBar(final String text, final int g) {
+
+        TextView statusBar = (TextView)findViewById(R.id.statusBar);
+        statusBar.setTextColor(g);
+        statusBar.setText(text);
+    }
 
 }

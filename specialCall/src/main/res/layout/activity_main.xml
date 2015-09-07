@@ -49,10 +49,7 @@
         android:clickable="true"
         android:src="@drawable/defaultpic_enabled"
         android:textSize="18sp"
-        android:layout_below="@+id/settingsBtn"
-        android:layout_toEndOf="@+id/settingsBtn"
-        android:layout_marginTop="25dp"
-        android:layout_marginBottom="15dp"
+        android:layout_below="@+id/statusBar"
         android:layout_alignLeft="@+id/CallNumber"
         android:layout_alignStart="@+id/CallNumber" />
 
@@ -79,13 +76,11 @@
         android:id="@+id/CallNow"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
         android:enabled="true"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="20dp"
         android:textSize="18sp"
-        android:text="Call Now" />
+        android:text="Call Now"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
     <ImageButton
         android:id="@+id/settingsBtn"
@@ -100,7 +95,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
-        android:layout_above="@+id/MyPic"
+        android:layout_alignBottom="@+id/settingsBtn"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="500dp"
+        android:layout_height="35dp"
+        android:id="@+id/statusBar"
+        android:textStyle="normal|bold"
+        android:textColor="#027f00"
+        android:singleLine="false"
+        android:background="@android:color/black"
+        android:layout_below="@+id/settingsBtn"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>
