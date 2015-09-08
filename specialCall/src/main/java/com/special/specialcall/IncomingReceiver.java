@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.IBinder;
@@ -15,6 +16,9 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import java.io.File;
 import java.util.List;
 import DataObjects.TransferDetails;
@@ -33,6 +37,7 @@ import data_objects.SharedPrefUtils;
 public class IncomingReceiver extends Service {
 
     public static boolean wasSpecialRingTone = false;
+    public static boolean isInFront = false;
     private static CallStateListener phoneListener;
     private String incomingCallNumber;
 	private Context gcontext;
@@ -49,7 +54,7 @@ public class IncomingReceiver extends Service {
 	@Override
 	public void onCreate() {
 		Log.i(TAG, "Service onCreate");
-
+        callInfoToast("IncomingSpecialCall Service created", Color.CYAN);
         registerReceiver(downloadReceiver,intentFilter);
 
 		try
@@ -60,6 +65,7 @@ public class IncomingReceiver extends Service {
 				phoneListener = new CallStateListener();
 				TelephonyManager tm = (TelephonyManager) gcontext.getSystemService(Context.TELEPHONY_SERVICE);
 				tm.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
+
 			}
 		}
 		catch (Exception e) {
@@ -264,6 +270,8 @@ public class IncomingReceiver extends Service {
 
 	}
 
+
+
     private void displaySpecialCallActivity(FileManager.FileType fType, String mediaFilePath) {
 
         if (fType == FileManager.FileType.VIDEO) {
@@ -275,8 +283,15 @@ public class IncomingReceiver extends Service {
 
         specialCallIntent.setClass(gcontext, IncomingSpecialCall.class);
         specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         specialCallIntent.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+        specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+     //  specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+
+
         specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_FILEPATH, mediaFilePath);
 
         Log.i(TAG, "START ACTIVITY before For");
@@ -287,24 +302,28 @@ public class IncomingReceiver extends Service {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+
         int count;
         int numFailures = 0;
-        for(count=0;count<TOP_ACTIVITY_RETRIES;++count)
+        for(count=0;count<10;++count)
         {
             count++;
             mActivityManager = (ActivityManager) gcontext.getSystemService(Context.ACTIVITY_SERVICE);
             List<ActivityManager.RunningTaskInfo> tasks = mActivityManager.getRunningTasks(1);
             String topActivityName = tasks.get(0).topActivity.getClassName();
 
-            Log.i(TAG, "Into the For");
-            if (!topActivityName.equals(IncomingSpecialCall.class.getName())) {// Try to show on top TOP_ACTIVITY_RETRIES times user dismiss this activity
-                numFailures++;
+            Log.i(TAG, "Into the For isInFront: " + isInFront);
+           // if (!topActivityName.equals(IncomingSpecialCall.class.getName())) {// Try to show on top TOP_ACTIVITY_RETRIES times user dismiss this activity
+            if(!isInFront)
+            {   numFailures++;
 
                 Log.i(TAG, "START ACTIVITY");
                 gcontext.startActivity(specialCallIntent);
+               // isInFront = true;
 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -426,5 +445,37 @@ public class IncomingReceiver extends Service {
         } catch (FileMissingExtensionException e) {
             e.printStackTrace();
         }
+    }
+
+            /* UI methods */
+
+    private void callErrToast(final String text) {
+
+        Toast toast = Toast.makeText(getApplicationContext(), text,
+                Toast.LENGTH_LONG);
+        TextView v = (TextView) toast.getView().findViewById(
+                android.R.id.message);
+        v.setTextColor(Color.RED);
+        toast.show();
+    }
+
+    private void callInfoToast(final String text) {
+
+        Toast toast = Toast.makeText(getApplicationContext(), text,
+                Toast.LENGTH_LONG);
+        TextView v = (TextView) toast.getView().findViewById(
+                android.R.id.message);
+        v.setTextColor(Color.GREEN);
+        toast.show();
+    }
+
+    private void callInfoToast(final String text, final int g) {
+
+        Toast toast = Toast.makeText(getApplicationContext(), text,
+                Toast.LENGTH_LONG);
+        TextView v = (TextView) toast.getView().findViewById(
+                android.R.id.message);
+        v.setTextColor(g);
+        toast.show();
     }
 }

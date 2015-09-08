@@ -33,20 +33,19 @@
             android:name="com.special.specialcall.MainActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name" >
+            <category android:name="android.intent.category.LAUNCHER" />
             <intent-filter android:priority="995">
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-             
-            
-            
+
         </activity>
         <activity            
             android:name="com.special.specialcall.IncomingSpecialCall"
             android:screenOrientation="portrait"
-
+            android:excludeFromRecents="true"
             android:label="@string/title_activity_incoming_special_call" >
-
+            <category android:name="android.intent.category.LAUNCHER" />
             <intent-filter android:priority="999">
 
                 <category android:name="android.intent.category.LAUNCHER" />

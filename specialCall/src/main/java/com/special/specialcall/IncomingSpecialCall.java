@@ -45,7 +45,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-
         Log.i(TAG, "Entering " + TAG);
 
 		try {
@@ -70,6 +69,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 			//getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 			getWindow().addFlags(
 					WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+
 
 			if (fileType == FileManager.FileType.IMAGE)
 			{
@@ -143,6 +143,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 				rlayout.addView(videoDecline);
 
 				setContentView(rlayout);
+                //setVisible(true);
 
 				videoAnswer.setOnClickListener(new OnClickListener() {
 					@Override
@@ -219,7 +220,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 	@Override
 	protected void onResume() {
 		super.onResume();
-
+		IncomingReceiver.isInFront = true;
         Log.i(TAG, "Entering OnResume");
 	}
 
@@ -290,7 +291,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 	private void finishSpecialCall(){
 
 		try {
-
 		this.finish();
 		} catch (Exception e)
 		{
@@ -338,20 +338,31 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 	public class CallStateListener extends PhoneStateListener {
 		@Override
 		public void onCallStateChanged(int state, String incomingNumber) {
-			switch (state) {
+            switch (state) {
 
 				case TelephonyManager.DATA_DISCONNECTED:
 				{
                     Log.i(TAG, "TelephonyManager.DATA_DISCONNECTED");
-					finish();
-
-					break;
+                    finishSpecialCall();
+                    break;
                 }
 
 
 			}
 		}
 	}
+
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+        Log.i(TAG, "Entering OnPause");
+        IncomingReceiver.isInFront = false;
+
+	}
+
+
+
 
 
 
