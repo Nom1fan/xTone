@@ -28,6 +28,8 @@ import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.VideoView;
 import com.android.internal.telephony.ITelephony;
+import com.android.services.IncomingReceiver;
+
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
