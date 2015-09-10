@@ -410,10 +410,6 @@ public class IncomingReceiver extends Service {
         File ringtoneFile = new File(Constants.specialCallPath+incomingCallNumber+"/" ,ringToneFileName);
         if(ringtoneFile.exists())
         {
-            // Saving previous ringtone uri
-            Uri oldOri = RingtoneManager.getActualDefaultRingtoneUri(gcontext, RingtoneManager.TYPE_RINGTONE);
-            SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, SharedPrefUtils.OLD_RINGTONE_URI, oldOri.toString());
-
             // The new special ringtone uri
             String newUri = SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE_URI, incomingCallNumber);
 
