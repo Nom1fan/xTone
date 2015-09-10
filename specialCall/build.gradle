@@ -27,4 +27,6 @@ dependencies {
     compile 'com.android.support:support-v4:19.1.0'
     compile 'com.android.support:appcompat-v7:19.1.0'
     compile files('libs/httpmime-4.3.4.jar')
+    compile 'com.parse.bolts:bolts-android:1.+'
+    compile fileTree(dir: 'libs', include: 'Parse-*.jar')
 }

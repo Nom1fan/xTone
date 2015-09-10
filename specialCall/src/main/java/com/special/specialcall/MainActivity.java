@@ -52,13 +52,15 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.android.services.IncomingReceiver;
 import com.android.services.ServerProxy;
+import com.parse.Parse;
+import com.parse.ParseInstallation;
 
 import data_objects.Constants;
 import data_objects.LUT_Manager;
 import data_objects.SharedPrefUtils;
+
 
 public class MainActivity extends Activity implements OnClickListener,
 		EventListener {
