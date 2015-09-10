@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="Preferences">
+    android:title="Preferences"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
   <PreferenceCategory
      android:title="Options">
@@ -44,4 +46,4 @@
                 android:key="select_spec_contacts_btn"
                 android:summary="Select specific contacts to get decorated calls from"/>
    
-</PreferenceScreen><!-- From: file:/C:/Users/Mor/as_workspace/SpecialCall/specialCall/src/main/res/layout/settings.xml -->
+</PreferenceScreen><!-- From: file:/C:/git_workspace/SpecialCall/specialCall/src/main/res/layout/settings.xml -->

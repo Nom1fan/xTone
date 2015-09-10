@@ -52,11 +52,15 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.android.services.IncomingReceiver;
 import com.android.services.ServerProxy;
+import com.parse.Parse;
+import com.parse.ParseInstallation;
 
 import data_objects.Constants;
+import data_objects.LUT_Manager;
 import data_objects.SharedPrefUtils;
+
 
 public class MainActivity extends Activity implements OnClickListener,
 		EventListener {
@@ -74,13 +78,10 @@ public class MainActivity extends Activity implements OnClickListener,
 	private ProgressBar pBar;
 	private boolean loading = false;
 	private boolean mIsBound = false;
-	private static MainActivity singleton;
+    private Context context;
+    private LUT_Manager lutManager;
 	private BroadcastReceiver serviceReceiver;
 	private IntentFilter serviceReceiverIntentFilter = new IntentFilter(Event.EVENT_ACTION);
-
-	public static MainActivity getInstance() {
-		return singleton;
-	}
 
 	private abstract class ActivityRequestCodes {
 
@@ -125,7 +126,7 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		super.onResume();
 
-		Context context = getApplicationContext();
+        context = getApplicationContext();
 		
 		LoggedIn = SharedPrefUtils.getBoolean(context, SharedPrefUtils.GENERAL,
 				"LoggedIn");
@@ -166,9 +167,11 @@ public class MainActivity extends Activity implements OnClickListener,
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
-		singleton = this;
 
-		LoggedIn = SharedPrefUtils.getBoolean(getApplicationContext(),
+        context = getApplicationContext();
+        lutManager = new LUT_Manager(context);
+
+		LoggedIn = SharedPrefUtils.getBoolean(context,
 				SharedPrefUtils.GENERAL, "LoggedIn");
 
 
@@ -468,7 +471,7 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		else if (id == R.id.login) {
 
-			SharedPrefUtils.setBoolean(getApplicationContext(),
+			SharedPrefUtils.setBoolean(context,
 					SharedPrefUtils.GENERAL, "LoggedIn", true);
 
 			LoggedIn = true;
@@ -481,7 +484,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			
 			SharedConstants.MY_ID = myPhoneNumber;
 
-			SharedPrefUtils.setString(getApplicationContext(),
+			SharedPrefUtils.setString(context,
 					SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, myPhoneNumber);
 
 			InitializeConnection();
@@ -499,7 +502,7 @@ public class MainActivity extends Activity implements OnClickListener,
             saveInstanceState();
 
 			Intent i = new Intent();
-			i.setClass(getApplicationContext(), Settings.class);
+			i.setClass(context, Settings.class);
 
 			startActivity(i);
 
@@ -661,7 +664,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			disableProgressBar();
 			enableCallButton();
             TransferDetails td = (TransferDetails) report.data();
-            saveUploadedPerNumber(td.getDestinationId(), td.getFileType(), td.get_fullFilePathSrcSD());
+            lutManager.saveUploadedPerNumber(td.getDestinationId(), td.getFileType(), td.get_fullFilePathSrcSD());
             drawUploadedContent(td.getDestinationId());
 			break;
 
@@ -746,19 +749,19 @@ public class MainActivity extends Activity implements OnClickListener,
         final EditText ed_destinationNumber = ((EditText) findViewById(R.id.CallNumber));
 		if(ed_destinationNumber!=null) {
             destPhoneNumber = ed_destinationNumber.getText().toString();
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, destPhoneNumber);
+            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, destPhoneNumber);
         }
 
         // Saving destination name
         final TextView ed_destinationName = ((TextView) findViewById(R.id.destName));
         if(ed_destinationName!=null) {
             destName = ed_destinationName.getText().toString();
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, destName);
+            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, destName);
         }
 
         // Saving my phone number
         if(myPhoneNumber!=null)
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, myPhoneNumber);
+            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, myPhoneNumber);
     }
 
     private void restoreInstanceState() {
@@ -766,19 +769,19 @@ public class MainActivity extends Activity implements OnClickListener,
         // Restoring destination number
         final EditText ed_destinationNumber =
                 (EditText) findViewById(R.id.CallNumber);
-        String destNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
+        String destNumber = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
         if(ed_destinationNumber!=null && destNumber!=null)
             ed_destinationNumber.setText(destNumber);
 
         // Restoring destination name
         final TextView tv_destName =
                 (TextView) findViewById(R.id.destName);
-        destName = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
+        destName = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
         if(tv_destName!=null && destName!=null)
             tv_destName.setText(destName);
 
         // Restoring my phone number
-        myPhoneNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
+        myPhoneNumber = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
         if(myPhoneNumber!=null)
             SharedConstants.MY_ID = myPhoneNumber;
 
@@ -921,12 +924,12 @@ public class MainActivity extends Activity implements OnClickListener,
 		loading = false;
 
 		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				pBar = (ProgressBar) findViewById(R.id.progressBar);
-				pBar.setVisibility(ProgressBar.GONE);
-			}
-		});
+            @Override
+            public void run() {
+                pBar = (ProgressBar) findViewById(R.id.progressBar);
+                pBar.setVisibility(ProgressBar.GONE);
+            }
+        });
 	}
 
 	private void enableProgressBar() {
@@ -974,7 +977,7 @@ public class MainActivity extends Activity implements OnClickListener,
             FileManager.FileType fType = null;
             ImageButton selectMediaBtn = (ImageButton) findViewById(R.id.MyPic);
 
-            String lastUploadedMediaPath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
+            String lastUploadedMediaPath = lutManager.getUploadedMediaPerNumber(destPhoneNumber);
             if (!lastUploadedMediaPath.equals("")) {
                 fType = FileManager.getFileType(lastUploadedMediaPath);
 
@@ -998,7 +1001,7 @@ public class MainActivity extends Activity implements OnClickListener,
                 selectMediaBtn.setImageResource(R.drawable.defaultpic_enabled);
 
         } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
-            SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
+            SharedPrefUtils.remove(context, SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
             }
 
 
@@ -1006,7 +1009,7 @@ public class MainActivity extends Activity implements OnClickListener,
 
     private void setRingToneSelectButtonBg(String destPhoneNumber) {
 
-        boolean wasRingToneUploaded = SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.WAS_RINGTONE_UPLOADED, destPhoneNumber);
+        boolean wasRingToneUploaded = lutManager.getUploadedRingTonePerNumber(destPhoneNumber);
         Button ringButton = (Button) findViewById(R.id.MyRing);
         if(wasRingToneUploaded)
         {
@@ -1022,50 +1025,7 @@ public class MainActivity extends Activity implements OnClickListener,
 
     }
 
-    private void saveUploadedMediaPerNumber(String destPhoneNumber, String mediaPath) {
-        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber, mediaPath);
-    }
-
-    private void removeUploadedMediaPerNumber(String destPhoneNumber) {
-        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.WAS_RINGTONE_UPLOADED, destPhoneNumber);
-    }
-
-    private void saveUploadedRingTonePerNumber(String destPhoneNumber, boolean wasUploaded) {
-        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.WAS_RINGTONE_UPLOADED, destPhoneNumber, wasUploaded);
-    }
-
-    private void removeUploadedRingTonePerNumber(String destPhoneNumber) {
-        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.WAS_RINGTONE_UPLOADED, destPhoneNumber);
-    }
-
-    private void saveUploadedPerNumber(String destPhoneNumber, FileManager.FileType fileType, String mediaPath) {
-
-        switch (fileType) {
-            case IMAGE:
-                saveUploadedMediaPerNumber(destPhoneNumber, mediaPath);
-                break;
-            case VIDEO:
-                saveUploadedMediaPerNumber(destPhoneNumber, mediaPath);
-                removeUploadedRingTonePerNumber(destPhoneNumber);
-                break;
-            case RINGTONE:
-                saveUploadedRingTonePerNumber(destPhoneNumber, true);
-
-
-                // Checking if video was marked as last uploaded, if so need to delete (ringtone cannot co-exist with video)
-                String thumbPath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
-                try {
-                    FileManager.FileType prevType = FileManager.getFileType(thumbPath);
-                    if (prevType == FileManager.FileType.VIDEO)
-                        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
-
-                } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
-                    e.printStackTrace();
-                }
-                break;
-        }
-    }
-	private void InitializeConnection() {
+    private void InitializeConnection() {
 
 		// Starting service
 		// Intent serverProxyIntent = new Intent(this, ServerProxy.class);
@@ -1082,7 +1042,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast toast = Toast.makeText(getApplicationContext(), text,
+				Toast toast = Toast.makeText(context, text,
 						Toast.LENGTH_LONG);
 				TextView v = (TextView) toast.getView().findViewById(
 						android.R.id.message);
@@ -1096,7 +1056,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast toast = Toast.makeText(getApplicationContext(), text,
+				Toast toast = Toast.makeText(context, text,
 						Toast.LENGTH_LONG);
 				TextView v = (TextView) toast.getView().findViewById(
 						android.R.id.message);
@@ -1110,7 +1070,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast toast = Toast.makeText(getApplicationContext(), text,
+				Toast toast = Toast.makeText(context, text,
 						Toast.LENGTH_LONG);
 				TextView v = (TextView) toast.getView().findViewById(
 						android.R.id.message);

@@ -23,14 +23,15 @@
         android:id="@+id/Decline"
         android:layout_width="125dp"
         android:layout_height="98dp"
-        android:layout_gravity="right"
+        android:layout_gravity="bottom|right"
         android:text="Decline" />
 
     <Button
         android:id="@+id/Answer"
         android:layout_width="124dp"
         android:layout_height="98dp"
+        android:layout_gravity="bottom"
         android:text="Answer" />
 
 </MediaController>
-<!-- From: file:/C:/Users/Mor/as_workspace/SpecialCall/specialCall/src/main/res/layout/activity_incoming_special_call.xml -->
+<!-- From: file:/C:/git_workspace/SpecialCall/specialCall/src/main/res/layout/activity_incoming_special_call.xml -->
