@@ -9,6 +9,8 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.ParseInstallation;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -150,6 +152,7 @@ import data_objects.SharedPrefUtils;
                   @Override
                   public void run() {
                       try {
+
                           MessageLogin msgLogin = new MessageLogin(SharedConstants.MY_ID);
                           Log.i(TAG, "Sending login message to server...");
                           connectionToServer.sendMessage(msgLogin);
