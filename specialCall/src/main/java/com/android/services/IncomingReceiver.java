@@ -58,7 +58,7 @@ public class IncomingReceiver extends Service {
     @Override
     public void onCreate() {
         Log.i(TAG, "Service onCreate");
-        callInfoToast("IncomingSpecialCall Service created", Color.CYAN);
+        callInfoToast("IncomingReceiver Service created", Color.CYAN);
         registerReceiver(downloadReceiver,intentFilter);
 
         try

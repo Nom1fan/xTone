@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 
 import ClientObjects.IServerProxy;
-import EventObjects.EventGenerator;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 
