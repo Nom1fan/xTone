@@ -1,0 +1,10 @@
+.gradle/
+.idea/
+build/
+gradle/
+gradlew
+gradlew.bat
+import-summary.txt
+local.properties
+settings.gradle
+SpecialCall.iml

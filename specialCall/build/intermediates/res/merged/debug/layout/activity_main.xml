@@ -4,62 +4,59 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:background="@drawable/background"
-    android:padding="15dip" >         
-    
-    <com.special.specialcall.MyProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:layout_marginLeft="40dp"      
-        android:text="@+id/TextView01" />    
+    android:padding="15dip" >
 
     <ImageButton
         android:id="@+id/Select_Contact"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/CallNumber"
-        android:layout_toRightOf="@+id/MyRing"
         android:contentDescription="contacts"
         android:src="@drawable/iphonecontacts"      
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:layout_alignBottom="@+id/CallNumber"
+        android:layout_alignRight="@+id/MyPic"
+        android:layout_alignEnd="@+id/MyPic"
+        android:layout_alignTop="@+id/MyRing" />
 
     <TextView
         android:id="@+id/destName"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/CallNow"
-        android:layout_alignRight="@+id/CallNumber"
-        android:layout_marginRight="15dp" />
+        android:layout_below="@+id/CallNumber"
+        android:layout_toRightOf="@+id/settingsBtn"
+        android:layout_toEndOf="@+id/settingsBtn" />
 
     <Button
         android:id="@+id/MyRing"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:layout_above="@+id/Select_Contact"
-        android:layout_alignLeft="@+id/MyPic"
-        android:layout_alignRight="@+id/MyPic"
-        android:enabled="true"        
+        android:enabled="true"
         android:layout_marginBottom="14dp"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:text="Select Ringtone"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentRight="false"
+        android:layout_alignParentLeft="false"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/MyPic" />
 
     <ImageButton
         android:id="@+id/MyPic"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/MyRing"
-        android:layout_centerHorizontal="true"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
         android:contentDescription="mypic"
         android:clickable="true"
         android:src="@drawable/defaultpic_enabled"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:layout_below="@+id/statusBar"
+        android:layout_alignLeft="@+id/CallNumber"
+        android:layout_alignStart="@+id/CallNumber" />
 
     <EditText
         android:id="@+id/CallNumber"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/destName"
-        android:layout_alignRight="@+id/CallNow"
         android:ems="10"
         android:enabled="true"
         android:hint="Destination number"
@@ -67,7 +64,10 @@
         android:focusable="false"
         android:phoneNumber="true"
         android:maxLength="10"
-        android:singleLine="true" >
+        android:singleLine="true"
+        android:layout_alignRight="@+id/CallNow"
+        android:layout_alignEnd="@+id/CallNow"
+        android:layout_below="@+id/MyRing">
 
         <requestFocus />
     </EditText>
@@ -76,12 +76,11 @@
         android:id="@+id/CallNow"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
         android:enabled="true"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="20dp"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:text="Call Now"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
     <ImageButton
         android:id="@+id/settingsBtn"
@@ -91,5 +90,24 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:src="@drawable/settings" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_alignBottom="@+id/settingsBtn"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="500dp"
+        android:layout_height="35dp"
+        android:id="@+id/statusBar"
+        android:textStyle="normal|bold"
+        android:textColor="#027f00"
+        android:singleLine="false"
+        android:background="@android:color/black"
+        android:layout_below="@+id/settingsBtn"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout><!-- From: file:/C:/Users/Mor/as_workspace/SpecialCall/specialCall/src/main/res/layout/activity_main.xml -->
