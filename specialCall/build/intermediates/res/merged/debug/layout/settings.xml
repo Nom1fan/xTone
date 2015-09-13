@@ -46,4 +46,4 @@
                 android:key="select_spec_contacts_btn"
                 android:summary="Select specific contacts to get decorated calls from"/>
    
-</PreferenceScreen><!-- From: file:/C:/Users/Mor/as_workspace/SpecialCall/specialCall/src/main/res/layout/settings.xml -->
+</PreferenceScreen><!-- From: file:/C:/git_workspace/SpecialCall/specialCall/src/main/res/layout/settings.xml -->

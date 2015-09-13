@@ -7,7 +7,6 @@ import java.util.List;
 import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
 import EventObjects.Event;
-import EventObjects.EventListener;
 import EventObjects.EventReport;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileMissingExtensionException;
@@ -54,21 +53,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.android.services.IncomingReceiver;
 import com.android.services.ServerProxy;
-import com.parse.Parse;
-import com.parse.ParseInstallation;
 
 import data_objects.Constants;
 import data_objects.LUT_Manager;
 import data_objects.SharedPrefUtils;
 
 
-public class MainActivity extends Activity implements OnClickListener,
-		EventListener {
+public class MainActivity extends Activity implements OnClickListener {
 
 	private int entries = 6;
 	private String buttonLabels[];
 	private ServerProxy serverProxy;
-//	private EventGenerator eventGenerator;
 	private String myPhoneNumber = "";
 	private String destPhoneNumber = "";
 	private String destName = "";	
@@ -96,8 +91,6 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		super.onStart();
 
-//		eventGenerator = new EventGenerator();
-//		eventGenerator.addEventListener(this);
 		serviceReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
@@ -279,11 +272,7 @@ public class MainActivity extends Activity implements OnClickListener,
                 e.printStackTrace();
                 //callErrToast("Please select a valid format");
                 writeErrStatBar("Please select a valid format");
-            } catch (FileDoesNotExistException e) {
-                e.printStackTrace();
-                //callErrToast(e.getMessage());
-                writeErrStatBar(e.getMessage());
-            } catch (FileMissingExtensionException e) {
+            } catch (FileDoesNotExistException | FileMissingExtensionException e) {
                 e.printStackTrace();
                 //callErrToast(e.getMessage());
                 writeErrStatBar(e.getMessage());
@@ -689,7 +678,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			
 		case DISPLAY_MESSAGE:
 			//writeInfoStatBar(report.desc());
-            ((TextView)findViewById(R.id.statusBar)).setText(report.desc());
+            writeInfoStatBar(report.desc());
 			break;
 		
 

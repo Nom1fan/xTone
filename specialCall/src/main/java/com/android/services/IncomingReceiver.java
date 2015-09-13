@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.IBinder;
@@ -40,64 +41,65 @@ public class IncomingReceiver extends Service {
 
     public static boolean wasSpecialRingTone = false;
     public static boolean isInFront = false;
+    public static boolean VideoStreamOn = false;
     private static CallStateListener phoneListener;
     private String incomingCallNumber;
-	private Context gcontext;
-	private static volatile boolean InRingingSession = false;
-	private Intent specialCallIntent = new Intent();
-	private ActivityManager mActivityManager;
+    private Context gcontext;
+    private static volatile boolean InRingingSession = false;
+    private Intent specialCallIntent = new Intent();
+    private ActivityManager mActivityManager;
     private final int TOP_ACTIVITY_RETRIES = 5;
     private IntentFilter intentFilter = new IntentFilter(Event.EVENT_ACTION);
-	private static final String TAG = "IncomingReceiver";
-
+    private static final String TAG = "IncomingReceiver";
+    Uri oldOri = null;
 
     /* Service operations methods */
 
-	@Override
-	public void onCreate() {
-		Log.i(TAG, "Service onCreate");
-        callInfoToast("IncomingSpecialCall Service created", Color.CYAN);
+    @Override
+    public void onCreate() {
+        Log.i(TAG, "Service onCreate");
+        callInfoToast("IncomingReceiver Service created", Color.CYAN);
         registerReceiver(downloadReceiver,intentFilter);
 
-		try
-		{
-			gcontext = getApplicationContext();
+        try
+        {
+            gcontext = getApplicationContext();
 
-			if (phoneListener==null){
-				phoneListener = new CallStateListener();
-				TelephonyManager tm = (TelephonyManager) gcontext.getSystemService(Context.TELEPHONY_SERVICE);
-				tm.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
+            if (phoneListener==null){
+                phoneListener = new CallStateListener();
+                TelephonyManager tm = (TelephonyManager) gcontext.getSystemService(Context.TELEPHONY_SERVICE);
+                tm.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
 
-			}
-		}
-		catch (Exception e) {
+            }
+        }
+        catch (Exception e) {
             e.printStackTrace();
-			Log.e(TAG, e.getMessage());
-		}
+            Log.e(TAG, e.getMessage());
+        }
 
-	}
+    }
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
 
 
-		Log.i(TAG, "onStartCommand START_STICKY");
-		return START_STICKY;
+        Log.i(TAG, "onStartCommand START_STICKY");
+        return START_STICKY;
 
-	}
+    }
 
-	@Override
-	public void onDestroy() {
+    @Override
+    public void onDestroy() {
         Log.e(TAG, "Service onDestroy");
         if(downloadReceiver!=null)
             unregisterReceiver(downloadReceiver);
 
-	}
+    }
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
-	}
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
     /* Assisting methods and listeners */
 
@@ -221,67 +223,80 @@ public class IncomingReceiver extends Service {
      * Listener for call states
      * Responsible for setting and starting special data on call and restoring previous data once call is terminated
      */
-	private class CallStateListener extends PhoneStateListener {
+    private class CallStateListener extends PhoneStateListener {
 
 
-		@Override
-		public void onCallStateChanged(int state, String incomingNumber) {
-			syncOnCallStateChange(state,incomingNumber);
-		}
-	}
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+            syncOnCallStateChange(state,incomingNumber);
+        }
+    }
 
-	public synchronized void syncOnCallStateChange(int state, String incomingNumber){
+    public synchronized void syncOnCallStateChange(int state, String incomingNumber){
 
-		switch(state)
-		{
+        switch(state)
+        {
 
-			case TelephonyManager.CALL_STATE_RINGING:
-				if (!InRingingSession)
-				{
-					Log.i(TAG, "TelephonyManager.CALL_STATE_RINGING");
+            case TelephonyManager.CALL_STATE_RINGING:
+                if (!InRingingSession)
+                {
+                    Log.i(TAG, "TelephonyManager.CALL_STATE_RINGING");
+
+
+
+                    saveOldRingToneUri();
+                    startRingToneSpecialCall();
 
                     InRingingSession = true;
                     incomingCallNumber = incomingNumber;
 
-                    saveOldRingToneUri();
-	                startRingToneSpecialCall();
                     startMediaSpecialCall();
                 }
-            break;
+                break;
 
-			case TelephonyManager.CALL_STATE_IDLE:
+            case TelephonyManager.CALL_STATE_IDLE:
 
-				Log.i(TAG, "TelephonyManager.CALL_STATE_IDLE");
-				if (wasSpecialRingTone)
-				{
-                    String oldUri = SharedPrefUtils.getString(gcontext, SharedPrefUtils.GENERAL, SharedPrefUtils.OLD_RINGTONE_URI);
-					RingtoneManager.setActualDefaultRingtoneUri(
+                Log.i(TAG, "TelephonyManager.CALL_STATE_IDLE");
+                if (wasSpecialRingTone)
+                {
+                    String _oldUri = SharedPrefUtils.getString(gcontext, SharedPrefUtils.GENERAL, SharedPrefUtils.OLD_RINGTONE_URI);
+                    RingtoneManager.setActualDefaultRingtoneUri(
                             gcontext,
-                            RingtoneManager.TYPE_RINGTONE, Uri.parse(oldUri));
+                            RingtoneManager.TYPE_RINGTONE, Uri.parse(_oldUri));
 
-					wasSpecialRingTone = false;
-				}
+                    wasSpecialRingTone = false;
+                }
 
-				if  (InRingingSession)
-				{
-					InRingingSession = false;
-				}
-            break;
+                if  (InRingingSession) {
+                    if (VideoStreamOn)
+                    {       AudioManager audioManager = (AudioManager) gcontext.getSystemService(Context.AUDIO_SERVICE);
+                        audioManager.setStreamMute(AudioManager.STREAM_RING, false);
+                        VideoStreamOn = false;
+                    }
+                    InRingingSession = false;
+                }
+                break;
 
-		}
+        }
 
-	}
+    }
 
 
 
     private void displaySpecialCallActivity(FileManager.FileType fType, String mediaFilePath) {
+
 
         if (fType == FileManager.FileType.VIDEO) {
 
             // On call you replace the ringtone with a silent URI , defined as null
             RingtoneManager.setActualDefaultRingtoneUri(gcontext,RingtoneManager.TYPE_RINGTONE,null);
 
+            AudioManager audioManager = (AudioManager)gcontext.getSystemService(Context.AUDIO_SERVICE);
+            audioManager.setStreamMute(AudioManager.STREAM_RING, true);
+            VideoStreamOn = true;
         }
+
+
 
         specialCallIntent.setClass(gcontext, IncomingSpecialCall.class);
         specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -290,7 +305,7 @@ public class IncomingReceiver extends Service {
         specialCallIntent.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
         specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-     //  specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        //  specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
 
 
@@ -316,13 +331,13 @@ public class IncomingReceiver extends Service {
             String topActivityName = tasks.get(0).topActivity.getClassName();
 
             Log.i(TAG, "Into the For isInFront: " + isInFront);
-           // if (!topActivityName.equals(IncomingSpecialCall.class.getName())) {// Try to show on top TOP_ACTIVITY_RETRIES times user dismiss this activity
+            // if (!topActivityName.equals(IncomingSpecialCall.class.getName())) {// Try to show on top TOP_ACTIVITY_RETRIES times user dismiss this activity
             if(!isInFront)
             {   numFailures++;
 
                 Log.i(TAG, "START ACTIVITY");
                 gcontext.startActivity(specialCallIntent);
-               // isInFront = true;
+                // isInFront = true;
 
                 try {
                     Thread.sleep(100);
@@ -347,9 +362,84 @@ public class IncomingReceiver extends Service {
      */
     private void saveOldRingToneUri() {
 
-        Uri oldOri = RingtoneManager.getActualDefaultRingtoneUri(gcontext, RingtoneManager.TYPE_RINGTONE);
+        oldOri = RingtoneManager.getActualDefaultRingtoneUri(gcontext, RingtoneManager.TYPE_RINGTONE);
+        RingtoneManager.setActualDefaultRingtoneUri(gcontext,RingtoneManager.TYPE_RINGTONE,null);
         if(oldOri!=null)
             SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, SharedPrefUtils.OLD_RINGTONE_URI, oldOri.toString());
+
+
+//        String mediaFileExtension = SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA_EXTENSION, incomingCallNumber);
+//        String mediaFileName = incomingCallNumber+"."+mediaFileExtension;
+//        String mediaFilePath = Constants.specialCallPath + incomingCallNumber + "/" + mediaFileName;
+//        try {
+//            FileManager fm = new FileManager(mediaFilePath);
+//            if (fm.getFileType() == FileManager.FileType.VIDEO) {
+//
+//                // On call you replace the ringtone with a silent URI , defined as null
+//                RingtoneManager.setActualDefaultRingtoneUri(gcontext,RingtoneManager.TYPE_RINGTONE,null);
+//
+//            }
+//
+//
+//        } catch (FileInvalidFormatException e) {
+//            e.printStackTrace();
+//        } catch (FileExceedsMaxSizeException e) {
+//            e.printStackTrace();
+//        } catch (FileDoesNotExistException e) {
+//            e.printStackTrace();
+//        } catch (FileMissingExtensionException e) {
+//            e.printStackTrace();
+//        }
+//
+
+    }
+
+    private void startRingToneSpecialCall() {
+
+        String ringToneFileExtension = SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE_EXTENSION, incomingCallNumber);
+        String ringToneFileName = incomingCallNumber+"."+ringToneFileExtension;
+
+        File ringtoneFile = new File(Constants.specialCallPath+incomingCallNumber+"/" ,ringToneFileName);
+        if(ringtoneFile.exists())
+        {
+            // The new special ringtone uri
+            String newUri = SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE_URI, incomingCallNumber);
+
+            // On call ringtone uri is replaced with the special uri
+            RingtoneManager.setActualDefaultRingtoneUri(
+                    gcontext,//MainActivity.this,
+                    RingtoneManager.TYPE_RINGTONE,
+                    Uri.parse(newUri));
+
+            wasSpecialRingTone = true;
+        }
+        else
+        {
+            RingtoneManager.setActualDefaultRingtoneUri(
+                    gcontext,//MainActivity.this,
+                    RingtoneManager.TYPE_RINGTONE,
+                    oldOri);
+        }
+    }
+
+    private void startMediaSpecialCall() {
+
+        String mediaFileExtension = SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA_EXTENSION, incomingCallNumber);
+        String mediaFileName = incomingCallNumber+"."+mediaFileExtension;
+        String mediaFilePath = Constants.specialCallPath + incomingCallNumber + "/" + mediaFileName;
+        try {
+            FileManager fm = new FileManager(mediaFilePath);
+            displaySpecialCallActivity(fm.getFileType(), fm.getFileFullPath());
+
+        } catch (FileInvalidFormatException e) {
+            e.printStackTrace();
+        } catch (FileExceedsMaxSizeException e) {
+            e.printStackTrace();
+        } catch (FileDoesNotExistException e) {
+            e.printStackTrace();
+        } catch (FileMissingExtensionException e) {
+            e.printStackTrace();
+        }
     }
 
     private void setNewRingTone(String fFullName, String source, String extension) {
@@ -403,52 +493,6 @@ public class IncomingReceiver extends Service {
         else
             Log.e(TAG,"File not found:" + newSoundFile.getAbsolutePath());
     }
-
-    private void startRingToneSpecialCall() {
-
-        String ringToneFileExtension = SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE_EXTENSION, incomingCallNumber);
-        String ringToneFileName = incomingCallNumber+"."+ringToneFileExtension;
-
-        File ringtoneFile = new File(Constants.specialCallPath+incomingCallNumber+"/" ,ringToneFileName);
-        if(ringtoneFile.exists())
-        {
-            // Saving previous ringtone uri
-            Uri oldOri = RingtoneManager.getActualDefaultRingtoneUri(gcontext, RingtoneManager.TYPE_RINGTONE);
-            SharedPrefUtils.setString(gcontext, SharedPrefUtils.GENERAL, SharedPrefUtils.OLD_RINGTONE_URI, oldOri.toString());
-
-            // The new special ringtone uri
-            String newUri = SharedPrefUtils.getString(gcontext, SharedPrefUtils.RINGTONE_URI, incomingCallNumber);
-
-            // On call ringtone uri is replaced with the special uri
-            RingtoneManager.setActualDefaultRingtoneUri(
-                    gcontext,//MainActivity.this,
-                    RingtoneManager.TYPE_RINGTONE,
-                    Uri.parse(newUri));
-
-            wasSpecialRingTone = true;
-        }
-    }
-
-    private void startMediaSpecialCall() {
-
-        String mediaFileExtension = SharedPrefUtils.getString(gcontext, SharedPrefUtils.MEDIA_EXTENSION, incomingCallNumber);
-        String mediaFileName = incomingCallNumber+"."+mediaFileExtension;
-        String mediaFilePath = Constants.specialCallPath + incomingCallNumber + "/" + mediaFileName;
-        try {
-            FileManager fm = new FileManager(mediaFilePath);
-            displaySpecialCallActivity(fm.getFileType(), fm.getFileFullPath());
-
-        } catch (FileInvalidFormatException e) {
-            e.printStackTrace();
-        } catch (FileExceedsMaxSizeException e) {
-            e.printStackTrace();
-        } catch (FileDoesNotExistException e) {
-            e.printStackTrace();
-        } catch (FileMissingExtensionException e) {
-            e.printStackTrace();
-        }
-    }
-
             /* UI methods */
 
     private void callErrToast(final String text) {
@@ -480,4 +524,5 @@ public class IncomingReceiver extends Service {
         v.setTextColor(g);
         toast.show();
     }
+
 }

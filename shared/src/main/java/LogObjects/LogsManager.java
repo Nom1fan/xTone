@@ -43,6 +43,7 @@ public abstract class LogsManager {
 			catch (SecurityException | IOException e) {
 				
 				e.printStackTrace();
+				System.out.println("ERROR: failed to get server logger");
 			}		
 		}
 		

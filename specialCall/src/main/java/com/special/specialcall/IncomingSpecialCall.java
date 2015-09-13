@@ -63,14 +63,18 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
 
 
-			//  */ After this line, the code is not executed in Android 4.1 (Jelly Bean) only/*
-			// TODO Auto-generated method stub
-			getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-			getWindow().addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-			getWindow().addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			//getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-			getWindow().addFlags(
-					WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+            this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
+                            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                            | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL  // <<< flags added by RONY
+                            | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED, // <<< flags added by RONY
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN |
+                            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+
+
 
 
 			if (fileType == FileManager.FileType.IMAGE)
