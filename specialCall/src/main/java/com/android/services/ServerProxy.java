@@ -47,20 +47,15 @@ import data_objects.SharedPrefUtils;
 	   */
 	  public class ServerProxy extends Service implements IServerProxy {
 
-//          private EventGenerator _eventGenerator;        // Used to fire events to listeners
           private ConnectionToServer connectionToServer;
           private ServerProxy serverProxy = this;
           private final int HEARTBEAT_INTERVAL = SharedConstants.HEARTBEAT_INTERVAL;
           private final int RECONNECT_INTERVAL = 5000; // 5 seconds
+          private MessageHeartBeat msgHB;
           private static volatile boolean _locked = false;
           private final IBinder mBinder = new MyBinder();
-
           private final String TAG = "SERVER_PROXY";
 
-//          public ServerProxy(EventGenerator eventGenerator) {
-//
-//              _eventGenerator = eventGenerator;
-//          }
 
 		/* Service operations methods */
 
@@ -68,14 +63,22 @@ import data_objects.SharedPrefUtils;
           public int onStartCommand(Intent intent, int flags, int startId) {
               super.onStartCommand(intent, flags, startId);
 
-//              Intent i = new Intent(Event.EVENT_ACTION);
-//              i.putExtra("eventreport", new EventReport(EventType.SERVICE_STARTED, null, null));
-//              sendBroadcast(i);
+
               Log.i(TAG, "ServerProxy service started");
-//              if(!isConnected()) {
-//                  Log.i(TAG, "Connecting from onStartCommand...connected=" + isConnected());
-//                  connect();
-//              }
+              callInfoToast("ServerProxy service started");
+
+
+              if(connectionToServer!=null) {
+
+                  new Thread() {
+
+                      @Override
+                      public void run() {
+                          sendHeartBeat();
+                      }
+                  }.start();
+              }
+
               return Service.START_STICKY;
           }
 
@@ -266,7 +269,7 @@ import data_objects.SharedPrefUtils;
                   public void run() {
                       if(!isConnected())
                       {
-                          setDisconnected();
+                          setConnected(false);
 
                           if (connectionToServer != null)
                           {
@@ -296,16 +299,12 @@ import data_objects.SharedPrefUtils;
 	  	
 	  	/* Internal server operations methods */
 
-          private synchronized boolean isConnected() { return
-                  SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.CONNECTED);
+          private synchronized boolean isConnected() {
+              return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.CONNECTED);
           }
 
-          private synchronized void setConnected() {
-              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.CONNECTED, true);
-          }
-
-          private synchronized void setDisconnected() {
-              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.CONNECTED, false);
+          private synchronized void setConnected(boolean state) {
+              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.CONNECTED, state);
           }
 
           private synchronized boolean isReconnecting() {
@@ -313,22 +312,19 @@ import data_objects.SharedPrefUtils;
               return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.RECONNECTING);
           }
 
-          private synchronized void setReconnecting() {
+          private synchronized void setReconnecting(boolean state) {
 
-              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.RECONNECTING, true);
+              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.RECONNECTING, state);
           }
 
-          private synchronized void setDoneReconnecting() {
-
-              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.RECONNECTING, false);
-          }
 
           private void openSocket() throws UnknownHostException, IOException {
               Log.i(TAG, "Opening socket...");
               Socket socketToServer = new Socket(SharedConstants.HOST, SharedConstants.PORT);
               connectionToServer = new ConnectionToServer(socketToServer);
               Log.i(TAG, "Socket is open");
-              setConnected();
+              setConnected(true);
+
           }
 
           private void startClientActionListener() {
@@ -353,8 +349,6 @@ import data_objects.SharedPrefUtils;
                               }
                           } catch (ClassNotFoundException | IOException e) {
                               Log.e(TAG, "Client action failure:" + e.getMessage());
-                              //String errMsg = "CLIENT_ACTION_FAILURE. Exception:"+e.getMessage();
-                              //sendEventReport(new EventReport(EventType.CLIENT_ACTION_FAILURE, errMsg,null));
                               e.printStackTrace();
 
                               attemptToReconnect();
@@ -370,29 +364,11 @@ import data_objects.SharedPrefUtils;
               new Thread() {
                   @Override
                   public void run() {
-                      MessageHeartBeat msgHB = new MessageHeartBeat(SharedConstants.MY_ID);
 
                       while (isConnected())
-                          sendHeartBeat(msgHB);
+                          sendHeartBeat();
                   }
 
-                  private void sendHeartBeat(MessageHeartBeat msgHB) {
-
-                      try {
-                          connectionToServer.sendMessage(msgHB);
-                          Log.i(TAG, "Heartbeat sent to server");
-
-                          Thread.sleep(HEARTBEAT_INTERVAL);
-                      } catch (IOException | InterruptedException e) {
-                          Log.e(TAG, "Heartbeat failure:" + e.getMessage());
-                          String errMsg = "HEARTBEAT_FAILURE. Exception:" + e.getMessage();
-                          sendEventReportBroadcast(new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
-                          //sendEventReport(new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
-                          e.printStackTrace();
-
-                          attemptToReconnect();
-                      }
-                  }
 
               }.start();
           }
@@ -402,8 +378,8 @@ import data_objects.SharedPrefUtils;
                   @Override
                   public void run() {
                       if (!isReconnecting()) {
-                          setReconnecting();
-                          setDisconnected();
+                          setReconnecting(true);
+                          setConnected(false);
 
                           while (!isConnected()) {
                               try {
@@ -423,7 +399,8 @@ import data_objects.SharedPrefUtils;
                               }
 
                           }
-                          setDoneReconnecting();
+                          // Done reconnecting
+                          setReconnecting(false);
                       }
                   }
 
@@ -438,6 +415,26 @@ import data_objects.SharedPrefUtils;
 //              Log.i(TAG, "Firing event:" + report.status().toString());
 //              _eventGenerator.fireEvent(report);
 //          }
+          private void sendHeartBeat() {
+
+              try {
+                  if(msgHB==null)
+                     msgHB = new MessageHeartBeat(SharedConstants.MY_ID);
+
+                  connectionToServer.sendMessage(msgHB);
+                  Log.i(TAG, "Heartbeat sent to server");
+
+                  Thread.sleep(HEARTBEAT_INTERVAL);
+              } catch (IOException | InterruptedException e) {
+                  Log.e(TAG, "Heartbeat failure:" + e.getMessage());
+                  String errMsg = "HEARTBEAT_FAILURE. Exception:" + e.getMessage();
+                  sendEventReportBroadcast(new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
+                  //sendEventReport(new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
+                  e.printStackTrace();
+
+                  attemptToReconnect();
+              }
+          }
 
           private void sendEventReportBroadcast(EventReport report) {
 

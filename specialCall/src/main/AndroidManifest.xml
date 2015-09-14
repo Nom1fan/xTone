@@ -129,6 +129,11 @@
                 <category android:name="com.special.specialcall" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".BootCompletedBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
