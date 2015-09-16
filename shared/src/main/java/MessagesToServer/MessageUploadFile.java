@@ -11,7 +11,7 @@ import FilesManager.FileManager;
 public class MessageUploadFile extends MessageToServer {
 
 	private static final long serialVersionUID = 2356276507283427913L;
-	private String _destPhone;
+	private String _destId;
 	private TransferDetails _td;
 	private double _fileSize; // in bytes
 	private byte[] _fileData; 	
@@ -19,7 +19,7 @@ public class MessageUploadFile extends MessageToServer {
 	public MessageUploadFile(String srcId, TransferDetails td, byte[] fileData) {
 		super(srcId);
 		_td = td;		
-		_destPhone = _td.getDestinationId();		
+		_destId = _td.getDestinationId();
 		_fileData = fileData;
 		_fileSize = td.getFileSize();
 	}
@@ -30,21 +30,21 @@ public class MessageUploadFile extends MessageToServer {
 		
 		initLogger();
 		
-		logger.info("Initiating file send from user:"+_messageInitiaterId+" to user:"+_destPhone+"."+" File size:"+FileManager.getFileSizeFormat(_fileSize));
+		logger.info("Initiating file send from user:"+_messageInitiaterId+" to user:"+ _destId +"."+" File size:"+FileManager.getFileSizeFormat(_fileSize));
 			
 		// Informing source (uploader) that the file is on the way
-		String infoMsg = "Sending file to:"+_destPhone+"...";
+		String infoMsg = "Sending file to:"+ _destId +"...";
 		cont = ClientsManager.sendEventToClient(_messageInitiaterId,new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, _td));
 			
 		if(!cont)
 			return cont;
 			
 		// Sending file to destination	
-		boolean sent = ClientsManager.sendMessageToClient(_destPhone,new MessageDownloadFile(_td, _fileData));
+		boolean sent = ClientsManager.sendMessageToClient(_destId,new MessageDownloadFile(_td, _fileData));
 			
 		if(!sent)
 		{
-			String errMsg = "TRANSFER_FAILURE: "+_destPhone+" did not receive upload";
+			String errMsg = "TRANSFER_FAILURE: "+ _destId +" did not receive upload";
 			cont = ClientsManager.sendEventToClient(_messageInitiaterId, new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
 		}
 		
@@ -61,7 +61,7 @@ public class MessageUploadFile extends MessageToServer {
 //				// Creating file to upload
 //				Path currentRelativePath = Paths.get("");
 //				String path = currentRelativePath.toAbsolutePath().toString();
-//				File newFile = new File(path+"\\uploads\\"+_destPhone+"\\"+_messageInitiaterId+"."+_extension);
+//				File newFile = new File(path+"\\uploads\\"+_destId+"\\"+_messageInitiaterId+"."+_extension);
 //				newFile.getParentFile().mkdirs();
 //				newFile.createNewFile();
 //				fos = new FileOutputStream(newFile);		
@@ -69,7 +69,7 @@ public class MessageUploadFile extends MessageToServer {
 //			}	
 //			catch(Exception e)
 //			{
-//				logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destPhone+" Failed:"+e.getMessage());		
+//				logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destId+" Failed:"+e.getMessage());
 //				String errMsg = "UPLOAD_FAILED:"+e.getMessage();
 //				cont = ClientsManager.informClient(_messageInitiaterId,errMsg, EventType.UPLOAD_FAILURE);
 //				
@@ -87,7 +87,7 @@ public class MessageUploadFile extends MessageToServer {
 //			}
 //			catch(Exception e)
 //			{
-//				logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destPhone+" Failed:"+e.getMessage());			
+//				logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destId+" Failed:"+e.getMessage());
 //				cont = false;
 //				return cont;
 //			}

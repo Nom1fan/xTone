@@ -32,20 +32,18 @@ import com.android.internal.telephony.ITelephony;
 import com.android.services.IncomingReceiver;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import FilesManager.FileManager;
-import data_objects.Constants;
-import data_objects.SharedPrefUtils;
+
+
 public class IncomingSpecialCall extends ActionBarActivity implements OnClickListener {
 
     private ITelephony telephonyService;
     private TelephonyManager tm;
     public static final String TAG = "IncomingSpecialCall";
     public static final String SPECIAL_CALL_FILEPATH = "SpecialCallFilePath";
-    public static  boolean Ringtone = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,20 +53,15 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
         try {
 
             Intent intent = getIntent();
-            String incomingCallNumber = intent.getStringExtra("IncomingNumber");
-
+            String mediaFilePath = intent.getStringExtra(SPECIAL_CALL_FILEPATH);
 
             CallStateListener stateListener = new CallStateListener();
             tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
             tm.listen(stateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
-
-            String mediaFilePath = intent.getStringExtra(SPECIAL_CALL_FILEPATH);
             Log.i(TAG, "Preparing to display:"+mediaFilePath);
 
             FileManager.FileType fileType = FileManager.getFileType(new File(mediaFilePath));
-
-
 
             this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
                             WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
@@ -197,13 +190,9 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                             m.setAccessible(true);
                             try {
                                 telephonyService = (ITelephony) m.invoke(tm);
-                            } catch (IllegalAccessException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            } catch (IllegalArgumentException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            } catch (InvocationTargetException e) {
+                            } catch (IllegalAccessException   |
+                                     IllegalArgumentException |
+                                     InvocationTargetException e) {
                                 // TODO Auto-generated catch block
                                 e.printStackTrace();
                             }
@@ -358,7 +347,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                 {
                     Log.i(TAG, "TelephonyManager.DATA_DISCONNECTED");
                     finishSpecialCall();
-                    Ringtone = false;
 
                     break;
                 }

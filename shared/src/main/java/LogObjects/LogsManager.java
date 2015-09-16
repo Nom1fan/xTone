@@ -20,21 +20,19 @@ public abstract class LogsManager {
 	private static final String LOG_DIR = Paths.get("").toAbsolutePath().toString() + "\\server_side\\logs\\";
 	
 	/**
-	 * Returns the global server side logger
-	 * @param name - The name in which the server side logger will be called
 	 * @return The global server side logger
 	 */
-	public static Logger getServerLogger(String name) {
+	public static Logger getServerLogger() {
 		
 		if(serverLogger==null)
 		{
 			try 
 			{
-				serverLogger = Logger.getLogger(name);
+				serverLogger = Logger.getLogger("Server");
 				FileHandler fh;
 				int limit = 1000000; // 1 Mb
 				int numLogFiles = 3;
-				String pattern = name+"%g"+".log";
+				String pattern = "Server"+"%g"+".log";
 				fh = new FileHandler(LOG_DIR +pattern, limit ,numLogFiles, true);
 				fh.setFormatter(new SingleLineFormatter());
 				serverLogger.addHandler(fh);

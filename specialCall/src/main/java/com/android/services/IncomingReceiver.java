@@ -51,7 +51,7 @@ public class IncomingReceiver extends Service {
     private final int TOP_ACTIVITY_RETRIES = 5;
     private IntentFilter intentFilter = new IntentFilter(Event.EVENT_ACTION);
     private static final String TAG = "IncomingReceiver";
-   public static int ringVolume;
+    public static int ringVolume;
     public static int oldMediaVolume;
     public static int oldAlarmVolume;
     private MediaPlayer mMediaPlayer;
@@ -241,7 +241,7 @@ public class IncomingReceiver extends Service {
         switch(state)
         {
 
-            case TelephonyManager.CALL_STATE_RINGING:  ////////////////////////// RINGING ///////////////////////////////////////
+            case TelephonyManager.CALL_STATE_RINGING:
                 if (!InRingingSession)
                 {
                     incomingCallNumber = incomingNumber;
@@ -267,8 +267,6 @@ public class IncomingReceiver extends Service {
                         try {
                             audioManager.setStreamMute(AudioManager.STREAM_RING, true);
                         } catch(Exception e) {  e.printStackTrace();  }
-
-
                     }
                     else
                     {
@@ -430,13 +428,10 @@ private void startRingtoneSpecialCall(){
             FileManager fm = new FileManager(mediaFilePath);
             displaySpecialCallActivity(fm.getFileType(), fm.getFileFullPath());
 
-        } catch (FileInvalidFormatException e) {
-            e.printStackTrace();
-        } catch (FileExceedsMaxSizeException e) {
-            e.printStackTrace();
-        } catch (FileDoesNotExistException e) {
-            e.printStackTrace();
-        } catch (FileMissingExtensionException e) {
+        } catch (FileInvalidFormatException  |
+                 FileExceedsMaxSizeException |
+                 FileDoesNotExistException   |
+                 FileMissingExtensionException e) {
             e.printStackTrace();
         }
     }

@@ -5,8 +5,9 @@ import android.os.Environment;
 
 public class Constants {
 
+	public static final String APPLICATION_ID = "7CL97UlX4EtpMyRJYshNlIQ3T12EEZ0OaZWxZjvR";
+	public static final String CLIENT_KEY = "7Elu6v6XVyQRzxIqnlyIG9YGyzXuh65hD42ZUqZa";
 	public static final String specialCallPath = setSpeciallCallPath();
-	public static String DEVICE_TOKEN;
 	
 	private static String setSpeciallCallPath() {
 		

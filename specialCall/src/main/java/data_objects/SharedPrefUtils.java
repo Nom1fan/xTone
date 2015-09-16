@@ -14,10 +14,12 @@ public class SharedPrefUtils {
 	public static final String DESTINATION_NUMBER = "DestinationNumber";
 	public static final String DESTINATION_NAME = "DestinationName";
 	public static final String MY_NUMBER = "MyPhoneNumber";
+	public static final String MY_DEVICE_TOKEN = "MyDeviceToken";
 	public static final String CONNECTED = "Connected";
 	public static final String RECONNECTING = "Reconnecting";
 	public static final String UPLOADED_MEDIA_THUMBNAIL = "UploadedMediaThumbnail";
 	public static final String WAS_RINGTONE_UPLOADED ="WasRingToneUploaded";
+
 
 
 	public static int getInt(Context context, String prefsName, String key){

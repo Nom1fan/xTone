@@ -22,8 +22,8 @@ public abstract class MessageToServer implements Serializable  {
 	
 	public MessageToServer(String messageInitiaterId) { _messageInitiaterId = messageInitiaterId; }
 	
-	protected void initLogger() { logger = LogsManager.getServerLogger("Server"); }		
-	abstract public boolean doServerAction() throws UnknownHostException, IOException, ClassNotFoundException;	
+	protected void initLogger() { logger = LogsManager.getServerLogger(); }
+	abstract public boolean doServerAction() throws IOException, ClassNotFoundException;
 	public void setClientConnection(ConnectionToClient cc) { clientConnection = cc; }
 		
 }

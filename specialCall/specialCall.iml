@@ -89,11 +89,26 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="spring-core-2.5.4" level="project" />
+    <orderEntry type="library" exported="" name="json-lib-2.2.2-jdk15" level="project" />
+    <orderEntry type="library" exported="" name="json-lib-ext-spring-1.0.2" level="project" />
+    <orderEntry type="library" exported="" name="org.jbundle.util.osgi.wrapped.org.apache.http.client-4.1.2" level="project" />
     <orderEntry type="library" exported="" name="Parse-1.10.1" level="project" />
-    <orderEntry type="library" exported="" name="httpmime-4.3.4" level="project" />
-    <orderEntry type="library" exported="" name="support-v4-19.1.0" level="project" />
+    <orderEntry type="library" exported="" name="spring-webmvc-2.5.4" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-19.1.0" level="project" />
+    <orderEntry type="library" exported="" name="support-v4-19.1.0" level="project" />
     <orderEntry type="library" exported="" name="bolts-android-1.2.0" level="project" />
+    <orderEntry type="library" exported="" name="aopalliance-1.0" level="project" />
+    <orderEntry type="library" exported="" name="ezmorph-1.0.4" level="project" />
+    <orderEntry type="library" exported="" name="spring-web-2.5.4" level="project" />
+    <orderEntry type="library" exported="" name="servlet-api-2.4" level="project" />
+    <orderEntry type="library" exported="" name="commons-beanutils-1.7.0" level="project" />
+    <orderEntry type="library" exported="" name="httpmime-4.3.4" level="project" />
+    <orderEntry type="library" exported="" name="log4j-1.2.14" level="project" />
+    <orderEntry type="library" exported="" name="spring-beans-2.5.4" level="project" />
+    <orderEntry type="library" exported="" name="spring-context-2.5.4" level="project" />
+    <orderEntry type="library" exported="" name="spring-context-support-2.5.4" level="project" />
+    <orderEntry type="library" exported="" name="commons-lang-2.4" level="project" />
     <orderEntry type="module" module-name="shared" exported="" />
   </component>
 </module>

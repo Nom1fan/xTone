@@ -657,12 +657,6 @@ public class MainActivity extends Activity implements OnClickListener {
             drawUploadedContent(td.getDestinationId());
 			break;
 
-//		case PENDING_DOWNLOAD:
-//			enableProgressBar();
-//			writeInfoStatBar(report.desc());
-//			serverProxy.downloadFileFromServer((TransferDetails) report.data());
-//			break;
-
 //		case CLIENT_ACTION_FAILURE:
 //			writeErrStatBar(report.desc());
 //			break;
@@ -677,7 +671,6 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 			
 		case DISPLAY_MESSAGE:
-			//writeInfoStatBar(report.desc());
             writeInfoStatBar(report.desc());
 			break;
 		

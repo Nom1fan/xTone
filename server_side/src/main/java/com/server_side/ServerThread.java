@@ -1,5 +1,6 @@
 package com.server_side;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.logging.Logger;
 import LogObjects.LogsManager;
@@ -19,7 +20,7 @@ import ServerObjects.ConnectionToClient;
 public class ServerThread extends Thread {
 
     private ConnectionToClient _ctc;
-    private Logger logger = LogsManager.getServerLogger("Server");
+    private Logger logger = LogsManager.getServerLogger();
 
     public ServerThread(ConnectionToClient ctc) {
 
@@ -37,12 +38,18 @@ public class ServerThread extends Thread {
             try
             {
 
-                inputMsg = (MessageToServer) _ctc.getClientMessage();
+                inputMsg = _ctc.getClientMessage();
                 if(inputMsg!=null)
                 {
                     inputMsg.setClientConnection(_ctc);
                     cont = inputMsg.doServerAction();
                 }
+            }
+            catch(EOFException e)
+            {
+                logger.info("Client closed the connection. logging off client...");
+                ClientsManager.removeClientConnection(_ctc);
+                cont = false;
             }
             catch(IOException e)
             {

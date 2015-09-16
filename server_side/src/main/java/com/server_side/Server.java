@@ -1,6 +1,7 @@
 package com.server_side;
 
 import java.io.IOException;
+import java.io.StreamCorruptedException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Logger;
@@ -22,7 +23,7 @@ public class Server {
         try {
             LogsManager.createServerLogsDir();
             LogsManager.clearLogs();
-            _logger = LogsManager.getServerLogger("Server");
+            _logger = LogsManager.getServerLogger();
             _clientsManager = new ClientsManager();
 
             System.out.println("Starting server...");
@@ -50,6 +51,12 @@ public class Server {
                 System.out.println("Receiving client connection...");
                 ConnectionToClient ctc = new ConnectionToClient(clientSocket);
                 new ServerThread(ctc).start();
+            }
+            catch(StreamCorruptedException e)
+            {
+                _countFailures++;
+                e.printStackTrace();
+                _logger.severe("Failed to receive client connection. # of Failures:" + _countFailures + " Exception:" + e.getMessage());
             }
             catch(IOException e) {
                 _countFailures++;
