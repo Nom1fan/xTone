@@ -1,6 +1,5 @@
 package com.android.services;
 
-import android.app.ActivityManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
@@ -42,21 +41,21 @@ public class IncomingReceiver extends Service {
 
     public static boolean wasSpecialRingTone = false;
     public static boolean isInFront = false;
-    public static boolean VideoStreamOn = false;
+    public static boolean videoStreamOn = false;
+    public static int ringVolume;
+    public static int oldMediaVolume;
+    public static int oldAlarmVolume;
+    public static AudioManager audioManager;
+
     private static CallStateListener phoneListener;
     private String incomingCallNumber;
-
     private static volatile boolean InRingingSession = false;
     private Intent specialCallIntent = new Intent();
     private final int TOP_ACTIVITY_RETRIES = 5;
     private IntentFilter intentFilter = new IntentFilter(Event.EVENT_ACTION);
     private static final String TAG = "IncomingReceiver";
-    public static int ringVolume;
-    public static int oldMediaVolume;
-    public static int oldAlarmVolume;
     private MediaPlayer mMediaPlayer;
-    Ringtone r;
-    public static AudioManager audioManager;
+
     /* Service operations methods */
 
     @Override
@@ -125,7 +124,8 @@ public class IncomingReceiver extends Service {
                 String fFullName = td.getSourceWithExtension();
                 String source = td.getSourceId();
 
-                switch (fType) {
+                switch (fType)
+                {
                     case RINGTONE:
                         setNewRingTone(fFullName, source, extension);
                         deleteFilesIfNecessary(fFullName, fType, source);
@@ -210,10 +210,7 @@ public class IncomingReceiver extends Service {
             catch (FileInvalidFormatException e) {
                 e.printStackTrace();
                 Log.e(TAG, "Invalid file type:"+e.getMessage()+" in SpecialCall directory of source:"+source);
-            } catch (FileDoesNotExistException e) {
-                e.printStackTrace();
-                Log.e(TAG, e.getMessage());
-            } catch (FileMissingExtensionException e) {
+            } catch (FileDoesNotExistException | FileMissingExtensionException e) {
                 e.printStackTrace();
                 Log.e(TAG, e.getMessage());
             }
@@ -235,7 +232,7 @@ public class IncomingReceiver extends Service {
         }
     }
 
-    public synchronized void syncOnCallStateChange(int state, String incomingNumber){
+    private synchronized void syncOnCallStateChange(int state, String incomingNumber){
 
 
         switch(state)
@@ -244,47 +241,63 @@ public class IncomingReceiver extends Service {
             case TelephonyManager.CALL_STATE_RINGING:
                 if (!InRingingSession)
                 {
-                    incomingCallNumber = incomingNumber;
-                    String ringToneFileExtension = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_EXTENSION, incomingCallNumber);
-                    String ringToneFileName = incomingCallNumber+"."+ringToneFileExtension;
-                    File ringtoneFile = new File(Constants.specialCallPath+incomingCallNumber+"/" ,ringToneFileName);
-
-                    try {
-                        ringVolume= audioManager.getStreamVolume(AudioManager.STREAM_RING);
-                    } catch(Exception e) {  e.printStackTrace();  }
-                    try {
-                        oldMediaVolume= audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                        oldAlarmVolume= audioManager.getStreamVolume(AudioManager.STREAM_ALARM);
-                    } catch(Exception e) {  e.printStackTrace();  }
-
-                    try {
-                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume, 0);
-                        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, ringVolume,  0);
-                    } catch(Exception e) {  e.printStackTrace();  }
-
-                    if(ringtoneFile.exists()) {
-                        Log.i(TAG, "AudioManager.STREAM_RING, true");
-                        try {
-                            audioManager.setStreamMute(AudioManager.STREAM_RING, true);
-                        } catch(Exception e) {  e.printStackTrace();  }
-                    }
-                    else
+                    try
                     {
-                        Log.i(TAG, "AudioManager.STREAM_RING, false");
-                        try {
-                            audioManager.setStreamMute(AudioManager.STREAM_RING, false);
-                        } catch(Exception e) {  e.printStackTrace();  }
+                        incomingCallNumber = incomingNumber;
+                        String ringToneFileExtension = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_EXTENSION, incomingCallNumber);
+                        String ringToneFileName = incomingCallNumber + "." + ringToneFileExtension;
+                        File ringtoneFile = new File(Constants.specialCallPath + incomingCallNumber + "/", ringToneFileName);
+
+                        try
+                        {
+                            // Retrieving the ringtone volume
+                            ringVolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
+
+                            // Backing up the music and alarm volume
+                            oldMediaVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                            oldAlarmVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM);
+
+                            // Setting music and alarm volume to equal the ringtone volume
+                            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume, 0);
+                            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, ringVolume, 0);
+                        }
+                        catch(Exception e)
+                        {
+                            e.printStackTrace();
+                            Log.e(TAG, "Failed to set stream volume:"+e.getMessage());
+                        }
+
+                        if (ringtoneFile.exists())
+                        {
+                            Log.i(TAG, "AudioManager.STREAM_RING, true");
+                            audioManager.setStreamMute(AudioManager.STREAM_RING, true);
+
+                        }
+                        else
+                        {
+                            Log.i(TAG, "AudioManager.STREAM_RING, false");
+                            try {
+                                audioManager.setStreamMute(AudioManager.STREAM_RING, false);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        InRingingSession = true;
+
+                        startRingtoneSpecialCall();
+                        startMediaSpecialCall();
                     }
-
-                    InRingingSession = true;
-
-                    startRingtoneSpecialCall();
-                    startMediaSpecialCall();
+                    catch(Exception e)
+                    {
+                        e.printStackTrace();
+                        Log.e(TAG, "CALL_STATE_RINGING failed:"+e.getMessage());
+                    }
 
                 }
                 break;
 
-            case TelephonyManager.CALL_STATE_IDLE:  /////////////////////////////// IDLE ////////////////////////////////////////
+            case TelephonyManager.CALL_STATE_IDLE:
                 Log.i(TAG, "TelephonyManager.CALL_STATE_IDLE");
                 if (wasSpecialRingTone)
                 {
@@ -295,7 +308,8 @@ public class IncomingReceiver extends Service {
                 if  (InRingingSession) {
                     Log.i(TAG, "AudioManager.STREAM_RING, false");
                     try {
-                        mMediaPlayer.stop();
+                        if(mMediaPlayer!=null)   //TODO Check in advance the file type and act accordingly
+                            mMediaPlayer.stop();
                     } catch(Exception e) {  e.printStackTrace();  }
 
                     try {
@@ -323,7 +337,7 @@ public class IncomingReceiver extends Service {
             try {
                 audioManager.setStreamMute(AudioManager.STREAM_RING, true);
             } catch(Exception e) {  e.printStackTrace();  }
-            VideoStreamOn = true;
+            videoStreamOn = true;
         }
 
         specialCallIntent.setClass(getApplicationContext(), IncomingSpecialCall.class);
@@ -335,8 +349,6 @@ public class IncomingReceiver extends Service {
         specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         //  specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-
-        specialCallIntent.putExtra("IncomingNumber", incomingCallNumber);
         specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_FILEPATH, mediaFilePath);
 
         Log.i(TAG, "START ACTIVITY before For");
@@ -379,8 +391,7 @@ public class IncomingReceiver extends Service {
 
     }
 
-
-private void startRingtoneSpecialCall(){
+    private void startRingtoneSpecialCall(){
 
     String ringToneFileExtension = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_EXTENSION, incomingCallNumber);
     String ringToneFileName = incomingCallNumber+"."+ringToneFileExtension;
@@ -391,14 +402,17 @@ private void startRingtoneSpecialCall(){
         // The new special ringtone uri
         String ringtonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, incomingCallNumber);
 
-        Log.i(TAG, "Play Ringtone Sound");
         playSound(getApplicationContext(), Uri.parse(ringtonePath));
 
     }
 }
+
     private void playSound(Context context, Uri alert) {
+
+        Log.i(TAG, "Playing ringtone sound");
         mMediaPlayer = new MediaPlayer();
-        try {
+        try
+        {
             try {
                 mMediaPlayer.setDataSource(context, alert);
             } catch (IOException e) {
@@ -413,11 +427,10 @@ private void startRingtoneSpecialCall(){
                 mMediaPlayer.start();
             }
         } catch (IOException e) {
-            System.out.println("OOPS");
+            e.printStackTrace();
+            Log.e(TAG, "Failed to play sound. Exception:"+e.getMessage());
         }
     }
-
-
 
     private void startMediaSpecialCall() {
 
@@ -487,8 +500,8 @@ private void startRingtoneSpecialCall(){
         else
             Log.e(TAG,"File not found:" + newSoundFile.getAbsolutePath());
     }
-            /* UI methods */
 
+    /* UI methods */
 
     private void callInfoToast(final String text, final int g) {
 
