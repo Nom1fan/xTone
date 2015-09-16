@@ -52,7 +52,7 @@ import data_objects.SharedPrefUtils;
           private ServerProxy serverProxy = this;
           private final int HEARTBEAT_INTERVAL = SharedConstants.HEARTBEAT_INTERVAL;
           private final int RECONNECT_INTERVAL = 5000; // milliseconds
-          private final int PUSH_SLEEP_TIME = 1000; // milliseconds
+//          private final int PUSH_SLEEP_TIME = 1000; // milliseconds
           private MessageHeartBeat msgHB;
           private final IBinder mBinder = new MyBinder();
           private final String TAG = "SERVER_PROXY";
@@ -69,16 +69,19 @@ import data_objects.SharedPrefUtils;
               callInfoToast("ServerProxy service started");
 
 
-              if(connectionToServer!=null) {
+              new Thread() {
 
-                  new Thread() {
+                  @Override
+                  public void run() {
+                      if(SharedConstants.MY_ID.equals(""))
+                          callErrToast("Can't login using empty phone number");
+                      else if(SharedConstants.DEVICE_TOKEN.equals(""))
+                          callErrToast("Can't login using empty device token");
+                      else
+                          connect();
+                  }
+              }.start();
 
-                      @Override
-                      public void run() {
-                          sendHeartBeat();
-                      }
-                  }.start();
-              }
 
               return Service.START_STICKY;
           }
@@ -97,13 +100,6 @@ import data_objects.SharedPrefUtils;
              SharedConstants.MY_ID = SharedPrefUtils.getString(getApplicationContext(),SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
              SharedConstants.DEVICE_TOKEN = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
              SharedConstants.specialCallPath = Constants.specialCallPath;
-
-             if(SharedConstants.MY_ID.equals(""))
-                callErrToast("Can't login using empty phone number");
-             else if(SharedConstants.DEVICE_TOKEN.equals(""))
-                callErrToast("Can't login using empty device token");
-             else
-                connect();
 
           }
 
@@ -246,16 +242,16 @@ import data_objects.SharedPrefUtils;
                       try {
                           if (connectionToServer != null)
                           {
-                              MessageSendPush msgSendPush = new MessageSendPush(SharedConstants.MY_ID, destinationId);
-                              connectionToServer.sendMessage(msgSendPush);
-
-                              Thread.sleep(PUSH_SLEEP_TIME);
+//                              MessageSendPush msgSendPush = new MessageSendPush(SharedConstants.MY_ID, destinationId);
+//                              connectionToServer.sendMessage(msgSendPush);
+//
+//                              Thread.sleep(PUSH_SLEEP_TIME);
 
                               MessageIsLogin msgIsLogin = new MessageIsLogin(SharedConstants.MY_ID, destinationId);
                               connectionToServer.sendMessage(msgIsLogin);
                           }
 
-                      } catch (IOException | InterruptedException e) {
+                      } catch (IOException e) {
                           String errMsg = "ISLOGIN_ERROR. Exception:" + e.getMessage();
                           //sendEventReport(new EventReport(EventType.ISLOGIN_ERROR, errMsg, destinationId));
                           sendEventReportBroadcast(new EventReport(EventType.ISLOGIN_ERROR, errMsg, destinationId));
