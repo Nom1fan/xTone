@@ -1,0 +1,111 @@
+package com.android.services;
+
+import android.app.IntentService;
+import android.content.Intent;
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.parse.ParseInstallation;
+
+import DataObjects.SharedConstants;
+import data_objects.SharedPrefUtils;
+
+/**
+ * An {@link IntentService} subclass for handling asynchronous task requests in
+ * a service on a separate handler thread.
+ * <p/>
+ * TODO: Customize class - update intent actions, extra parameters and static
+ * helper methods.
+ */
+public class GetTokenIntentService extends IntentService {
+
+    public static final String ACTION_GET_TOKEN = "com.android.services.action.GET_TOKEN";
+    private static final int TOKEN_RETRIEVE_RETIRES = 10;
+    private static final int TOKEN_RETRY_SLEEP = 1000;
+    private static final String TAG = GetTokenIntentService.class.getSimpleName();
+
+
+    /**
+     * Starts this service to perform action GET_TOKEN. If
+     * the service is already performing a task this action will be queued.
+     *
+     * @see IntentService
+     */
+    // TODO: Customize helper method
+    public static void startActionFoo(Context context, String param1, String param2) {
+        Intent intent = new Intent(context, GetTokenIntentService.class);
+        intent.setAction(ACTION_GET_TOKEN);
+        context.startService(intent);
+    }
+
+    public GetTokenIntentService() {
+        super("GetTokenIntentService");
+    }
+
+    @Override
+    protected void onHandleIntent(Intent intent) {
+        if (intent != null) {
+            final String action = intent.getAction();
+            if (ACTION_GET_TOKEN.equals(action)) {
+                handleActionGetToken();
+            }
+        }
+    }
+
+    /**
+     * Handle action GET_TOKEN in the provided background thread with the provided
+     * parameters.
+     */
+    private void handleActionGetToken() {
+
+        int retries = 0;
+        while ((retries < TOKEN_RETRIEVE_RETIRES) && SharedConstants.DEVICE_TOKEN == null)
+        {
+            retries++;
+            String errMsg = "Failed to retrieve device token, retrying...";
+            Log.e(TAG, errMsg);
+            callToast(errMsg, Color.RED);
+
+            SharedConstants.DEVICE_TOKEN = (String) ParseInstallation.getCurrentInstallation().get("deviceToken");
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN, SharedConstants.DEVICE_TOKEN);
+
+            try {
+                Thread.sleep(TOKEN_RETRY_SLEEP);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+        }
+
+        if (SharedConstants.DEVICE_TOKEN == null) {
+            String errMsg = "Failed to retrieve device token, check your internet connection...";
+            Log.e(TAG, errMsg);
+            callToast(errMsg, Color.RED);
+        }
+        else {
+            String infoMsg =  "Device token retrieved";
+            Log.i(TAG, infoMsg);
+            callToast(infoMsg,Color.GREEN);
+        }
+    }
+
+    private void callToast(final String text, final int g) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+
+            @Override
+            public void run() {
+                Toast toast = Toast.makeText(getApplicationContext(), text,
+                        Toast.LENGTH_LONG);
+                TextView v = (TextView) toast.getView().findViewById(
+                        android.R.id.message);
+                v.setTextColor(g);
+                toast.show();
+            }
+        });
+
+    }
+}

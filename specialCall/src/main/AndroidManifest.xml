@@ -3,14 +3,14 @@
     package="com.special.specialcall"
     android:versionCode="1"
     android:versionName="1.0" >
+
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="19" />
 
-    
-    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" ></uses-permission>
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" ></uses-permission>    
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
@@ -18,9 +18,9 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.PROCESS_INCOMING_CALLS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.MODIFY_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.CALL_PRIVILEGED"/>
-    <uses-permission android:name="android.permission.GET_TASKS" ></uses-permission>
+    <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CALL_PRIVILEGED" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -32,84 +32,77 @@
       IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
       to match your app's package name + ".permission.C2D_MESSAGE".
     -->
-    <permission android:protectionLevel="signature"
-        android:name="com.special.specialcall.permission.C2D_MESSAGE" />
+    <permission
+        android:name="com.special.specialcall.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
     <uses-permission android:name="com.special.specialcall.permission.C2D_MESSAGE" />
-    
-    
+
+    <android:uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
+        android:name=".SpecialCallApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:name=".SpecialCallApp">
-        <activity             
-            android:name="com.special.specialcall.MainActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/app_name" >
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
             <category android:name="android.intent.category.LAUNCHER" />
-            <intent-filter android:priority="995">
+
+            <intent-filter android:priority="995" >
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-        <activity            
-            android:name="com.special.specialcall.IncomingSpecialCall"
-            android:screenOrientation="portrait"
+        <activity
+            android:name=".IncomingSpecialCall"
             android:excludeFromRecents="true"
-            android:label="@string/title_activity_incoming_special_call" >
+            android:label="@string/title_activity_incoming_special_call"
+            android:screenOrientation="portrait" >
             <category android:name="android.intent.category.LAUNCHER" />
-            <intent-filter android:priority="999">
 
+            <intent-filter android:priority="999" >
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-
         </activity>
         <activity
-            android:name="com.special.specialcall.Settings"
-            android:theme="@android:style/Theme.Light" >   
-            
+            android:name=".Settings"
+            android:theme="@android:style/Theme.Light" >
         </activity>
         <activity
-            android:name="com.special.specialcall.SelectSpecificContacts"
-             android:theme="@android:style/Theme.Light" >
-           
+            android:name=".SelectSpecificContacts"
+            android:theme="@android:style/Theme.Light" >
         </activity>
-
 
         <service
-            android:enabled="true"
             android:name="com.android.services.IncomingReceiver"
-            android:priority="998">
+            android:enabled="true"
+            android:priority="998" >
+        </service>
+        <service
+            android:name="com.android.services.ServerProxy"
+            android:enabled="true"
+            android:priority="998" >
         </service>
 
-        <service            
-            android:enabled="true"
-            android:name="com.android.services.ServerProxy"
-            android:priority="998">                
-        </service>  
-        
-        <intent-filter>          	
-        	<action android:name="com.android.services.ServerProxy" />        	         	
+        <intent-filter>
+            <action android:name="com.android.services.ServerProxy" />
         </intent-filter>
+
         <service android:name="com.parse.PushService" />
-        <receiver android:name="com.parse.ParseBroadcastReceiver">
+
+        <receiver android:name="com.parse.ParseBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
-<!--        <receiver android:name="com.parse.ParsePushBroadcastReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.parse.push.intent.RECEIVE" />
-                <action android:name="com.parse.push.intent.DELETE" />
-                <action android:name="com.parse.push.intent.OPEN" />
-            </intent-filter>
-        </receiver>-->
-        <receiver android:name=".PushBroadcastReceiver"
+        <!--
+            <receiver android:name="com.parse.ParsePushBroadcastReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />
@@ -117,23 +110,37 @@
                 <action android:name="com.parse.push.intent.OPEN" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.parse.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
+        -->
+        <receiver
+            android:name=".PushBroadcastReceiver"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.parse.push.intent.RECEIVE" />
+                <action android:name="com.parse.push.intent.DELETE" />
+                <action android:name="com.parse.push.intent.OPEN" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.parse.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <!--
-                  IMPORTANT: Change "com.parse.starter" to match your app's package name.
-                -->
+                <!-- IMPORTANT: Change "com.parse.starter" to match your app's package name. -->
                 <category android:name="com.special.specialcall" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".BootCompletedBroadcastReceiver">
+        <receiver android:name=".BootCompletedBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name="com.android.services.GetTokenIntentService"
+            android:exported="false" >
+        </service>
     </application>
 
 </manifest>
