@@ -11,11 +11,15 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,6 +59,7 @@ public class IncomingReceiver extends Service {
     private IntentFilter intentFilter = new IntentFilter(Event.EVENT_ACTION);
     private static final String TAG = "IncomingReceiver";
     private MediaPlayer mMediaPlayer;
+    private final IBinder mBinder = new MyBinder();
 
     /* Service operations methods */
 
@@ -95,15 +100,34 @@ public class IncomingReceiver extends Service {
         Log.e(TAG, "Service onDestroy");
         if(downloadReceiver!=null)
             unregisterReceiver(downloadReceiver);
-
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
-        return null;
+    public IBinder onBind(Intent arg0) {
+        return mBinder;
+    }
+
+
+    public class MyBinder extends Binder {
+        public IncomingReceiver getService() {
+            return IncomingReceiver.this;
+        }
     }
 
     /* Assisting methods and listeners */
+
+    public void stopSound() {
+
+        Log.i(TAG, "Stop ringtone sound");
+
+        try
+        {
+            mMediaPlayer.stop();
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Failed to Stop sound. Exception:" + e.getMessage());
+        }
+    }
 
     /**
      * Listener for downloads
@@ -219,6 +243,7 @@ public class IncomingReceiver extends Service {
 
     };
 
+
     /**
      * Listener for call states
      * Responsible for setting and starting special data on call and restoring previous data once call is terminated
@@ -323,7 +348,32 @@ public class IncomingReceiver extends Service {
                     InRingingSession = false;
                 }
                 break;
+            case TelephonyManager.CALL_STATE_OFFHOOK:
+                Log.i(TAG, "TelephonyManager.CALL_STATE_IDLE");
+                if (wasSpecialRingTone)
+                {
 
+                    wasSpecialRingTone = false;
+                }
+
+                if  (InRingingSession) {
+                    Log.i(TAG, "AudioManager.STREAM_RING, false");
+                    try {
+                        if(mMediaPlayer!=null)   //TODO Check in advance the file type and act accordingly
+                            mMediaPlayer.stop();
+                    } catch(Exception e) {  e.printStackTrace();  }
+
+                    try {
+                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, oldMediaVolume, 0);
+                        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, oldAlarmVolume, 0);
+                    } catch(Exception e) {  e.printStackTrace();  }
+
+                    try {
+                        audioManager.setStreamMute(AudioManager.STREAM_RING, false);
+                    } catch(Exception e) {  e.printStackTrace();  }
+                    InRingingSession = false;
+                }
+                break;
         }
 
     }
@@ -341,7 +391,7 @@ public class IncomingReceiver extends Service {
         }
 
         specialCallIntent.setClass(getApplicationContext(), IncomingSpecialCall.class);
-        specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        /*specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);*/
         specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         specialCallIntent.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
@@ -363,7 +413,7 @@ public class IncomingReceiver extends Service {
 
         int count;
         int numFailures = 0;
-        for(count=0;count<10;++count)
+        for(count=0;count<20;++count)
         {
             count++;
             Log.i(TAG, "Into the For isInFront: " + isInFront);
@@ -371,6 +421,10 @@ public class IncomingReceiver extends Service {
             {   numFailures++;
 
                 Log.i(TAG, "START ACTIVITY");
+
+                Intent i=new Intent(getApplicationContext(),IncomingSpecialCall.class);
+                specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 getApplicationContext().startActivity(specialCallIntent);
 
                 try {
@@ -428,7 +482,7 @@ public class IncomingReceiver extends Service {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            Log.e(TAG, "Failed to play sound. Exception:"+e.getMessage());
+            Log.e(TAG, "Failed to play sound. Exception:" + e.getMessage());
         }
     }
 
@@ -501,6 +555,8 @@ public class IncomingReceiver extends Service {
             Log.e(TAG,"File not found:" + newSoundFile.getAbsolutePath());
     }
 
+
+
     /* UI methods */
 
     private void callInfoToast(final String text, final int g) {
@@ -512,5 +568,9 @@ public class IncomingReceiver extends Service {
         v.setTextColor(g);
         toast.show();
     }
+
+
+
+
 
 }
