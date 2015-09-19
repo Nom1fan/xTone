@@ -30,8 +30,6 @@ public class ClientsManager {
 	private static ConcurrentHashMap<String,String> clientsTokens = new ConcurrentHashMap<>();
 
 	private static final int HEARTBEAT_TIMEOUT = SharedConstants.HEARTBEAT_TIMEOUT; // 5 seconds more than client's heartbeat rate
-	private static final int ISLOGIN_RETRIES = 3;
-	private static final int ISLOGIN_SLEEP_INTERVAL = 200; // milliseconds
 	private static Logger serverLogger = null;
 	private static Logger hbLogger = null;
 
@@ -101,12 +99,13 @@ public class ClientsManager {
         }
 
         Long hbTimestamp = clientHeartBeats.get(clientId);
+        Long timeout;
 
         if (hbTimestamp == null)
             serverLogger.severe("Unable to get heartbeat from user:" + clientId);
          else {
-            if (now - hbTimestamp > HEARTBEAT_TIMEOUT) {
-                serverLogger.severe("Heartbeat timeout from user:" + clientId);
+            if ((timeout = now - hbTimestamp) > HEARTBEAT_TIMEOUT) {
+                serverLogger.severe("Heartbeat timeout from user:" + clientId+" Timeout="+timeout);
             } else {
                 serverLogger.info(clientId + " is " + UserStatus.ONLINE.toString());
                 return UserStatus.ONLINE;

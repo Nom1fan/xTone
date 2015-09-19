@@ -30,6 +30,7 @@ public class MessageDownloadFile extends MessageToClient {
 		_sourceId = _td.getSourceId();
 		_myId = _td.getDestinationId();
 		_fileData = fileData;
+
 	}
 	
 	@Override

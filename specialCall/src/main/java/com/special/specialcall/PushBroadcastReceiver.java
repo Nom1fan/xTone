@@ -23,11 +23,11 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
     @Override
     protected void onPushReceive(Context context, Intent intent) {
 
-        callInfoToast(context, "Push notification received", Color.RED);
+        //callInfoToast(context, "Push notification received", Color.RED);
         Log.i(TAG, "Push notification received");
 
-        Intent i = new Intent(context.getApplicationContext(), ServerProxy.class);
-        context.startService(i);
+//        Intent i = new Intent(context.getApplicationContext(), ServerProxy.class);
+//        context.startService(i);
 
 
     }

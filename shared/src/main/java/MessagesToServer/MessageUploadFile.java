@@ -1,5 +1,6 @@
 package MessagesToServer;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
@@ -13,15 +14,15 @@ public class MessageUploadFile extends MessageToServer {
 	private static final long serialVersionUID = 2356276507283427913L;
 	private String _destId;
 	private TransferDetails _td;
-	private double _fileSize; // in bytes
-	private byte[] _fileData; 	
+	private byte[] _fileData;
+
 	
-	public MessageUploadFile(String srcId, TransferDetails td, byte[] fileData) {
+	public MessageUploadFile(String srcId, TransferDetails td, byte[] fileData) throws IOException {
 		super(srcId);
-		_td = td;		
-		_destId = _td.getDestinationId();
+		_destId = td.getDestinationId();
+		_td = td;
 		_fileData = fileData;
-		_fileSize = td.getFileSize();
+
 	}
 
 	@Override
@@ -30,17 +31,17 @@ public class MessageUploadFile extends MessageToServer {
 		
 		initLogger();
 		
-		logger.info("Initiating file send from user:"+_messageInitiaterId+" to user:"+ _destId +"."+" File size:"+FileManager.getFileSizeFormat(_fileSize));
+		logger.info("Initiating file send from user:"+_messageInitiaterId+" to user:"+ _destId +"."+" File size:"+FileManager.getFileSizeFormat(_td.getFileSize()));
 			
 		// Informing source (uploader) that the file is on the way
 		String infoMsg = "Sending file to:"+ _destId +"...";
-		cont = ClientsManager.sendEventToClient(_messageInitiaterId,new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, _td));
+		cont = ClientsManager.sendEventToClient(_messageInitiaterId,new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, null));
 			
 		if(!cont)
 			return cont;
 			
 		// Sending file to destination	
-		boolean sent = ClientsManager.sendMessageToClient(_destId,new MessageDownloadFile(_td, _fileData));
+		boolean sent = ClientsManager.sendMessageToClient(_destId,new MessageDownloadFile(_td,_fileData));
 			
 		if(!sent)
 		{

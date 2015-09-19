@@ -1,19 +1,23 @@
 package com.android.services;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.ParseInstallation;
-
 import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
@@ -28,7 +32,6 @@ import MessagesToServer.MessageHeartBeat;
 import MessagesToServer.MessageIsLogin;
 import MessagesToServer.MessageLogin;
 import MessagesToServer.MessageLogout;
-import MessagesToServer.MessageSendPush;
 import MessagesToServer.MessageUploadFile;
 import data_objects.Constants;
 import data_objects.SharedPrefUtils;
@@ -48,41 +51,61 @@ import data_objects.SharedPrefUtils;
 	   */
 	  public class ServerProxy extends Service implements IServerProxy {
 
+          public static final String ACTION_HEARTBEAT = "com.android.services.HEARTBEAT";
+          public static final String ACTION_START = "com.android.services.START";
+          public static final String ACTION_STOP = "com.android.services.STOP";
+          public static final String ACTION_RECONNECT = "com.android.services.RECONNECT";
+
           private ConnectionToServer connectionToServer;
           private ServerProxy serverProxy = this;
-          private final int HEARTBEAT_INTERVAL = SharedConstants.HEARTBEAT_INTERVAL;
-          private final int RECONNECT_INTERVAL = 5000; // milliseconds
-//          private final int PUSH_SLEEP_TIME = 1000; // milliseconds
+          private ConnectivityManager connManager;
+          private static final int HEARTBEAT_INTERVAL = SharedConstants.HEARTBEAT_INTERVAL;
+          private static final long INITIAL_RETRY_INTERVAL = 1000 * 5;
+          private static final long MAXIMUM_RETRY_INTERVAL = 1000 * 60 * 30;
           private MessageHeartBeat msgHB;
+          private boolean started = false;
           private final IBinder mBinder = new MyBinder();
-          private final String TAG = "SERVER_PROXY";
+          private static final String TAG = "SERVER_PROXY";
 
 
-		/* Service operations methods */
+          /* Service overriding methods */
 
           @Override
           public int onStartCommand(Intent intent, int flags, int startId) {
               super.onStartCommand(intent, flags, startId);
 
+              if(intent!=null) {
+                  String action = intent.getAction();
+                  Log.i(TAG, "ServerProxy service started. Action:" + action);
+                  //callInfoToast("ServerProxy service started");
 
-              Log.i(TAG, "ServerProxy service started");
-              callInfoToast("ServerProxy service started");
+                  switch (action)
+                  {
+                      case ACTION_START:
+                          if (SharedConstants.MY_ID.equals("")) {
+                              callErrToast("Can't login using empty phone number. Try restarting the app.");
+                              stop();
+                          } else if (SharedConstants.DEVICE_TOKEN.equals("")) {
+                              callErrToast("Can't login using empty device token. Try restarting the app.");
+                              stop();
+                          } else
+                              start();
+                          break;
 
+                      case ACTION_STOP:
+                          stop();
+                          break;
 
-              new Thread() {
+                      case ACTION_HEARTBEAT:
+                          sendHeartBeat();
+                          break;
 
-                  @Override
-                  public void run() {
-                      if(SharedConstants.MY_ID.equals(""))
-                          callErrToast("Can't login using empty phone number");
-                      else if(SharedConstants.DEVICE_TOKEN.equals(""))
-                          callErrToast("Can't login using empty device token");
-                      else
-                          connect();
+                      case ACTION_RECONNECT:
+                          reconnectIfNecessary();
+                          break;
+
                   }
-              }.start();
-
-
+              }
               return Service.START_STICKY;
           }
 
@@ -90,7 +113,6 @@ import data_objects.SharedPrefUtils;
           public IBinder onBind(Intent arg0) {
               return mBinder;
           }
-
 
           @Override
           public void onCreate() {
@@ -101,6 +123,11 @@ import data_objects.SharedPrefUtils;
              SharedConstants.DEVICE_TOKEN = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
              SharedConstants.specialCallPath = Constants.specialCallPath;
 
+              connManager =
+                      (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+
+             handleCrashedService();
+
           }
 
           @Override
@@ -108,7 +135,7 @@ import data_objects.SharedPrefUtils;
 
               Log.e(TAG, "ServerProxy service is being destroyed");
               callErrToast("ServerProxy service is being destroyed");
-              gracefullyDisconnect();
+              stop();
           }
 
           public class MyBinder extends Binder {
@@ -117,63 +144,7 @@ import data_objects.SharedPrefUtils;
               }
           }
 
-
-	  	/* General server operations methods */
-
-          /**
-           * Enables initial connection to the server
-           */
-          public void connect() {
-
-              new Thread() {
-
-                  @Override
-                  public void run() {
-                      try {
-                          openSocket();
-                          startClientActionListener();
-                          startHeartBeatThread();
-                          login();
-                      } catch (IOException e) {
-                          String infoMsg = "Failed connect to server:" + e.getMessage();
-                          Log.e(TAG, infoMsg);
-                          sendEventReportBroadcast(new EventReport(EventType.DISPLAY_ERROR, infoMsg, null));
-                          //sendEventReport(new EventReport(EventType.DISPLAY_ERROR, infoMsg, null));
-                          attemptToReconnect();
-                      }
-                  }
-              }.start();
-          }
-
-          /**
-           * Enables to login to the server
-           */
-          private void login() {
-              Log.i(TAG, "Initiating login sequence...");
-
-              new Thread() {
-                  @Override
-                  public void run() {
-                      try {
-
-                          MessageLogin msgLogin = new MessageLogin(SharedConstants.MY_ID, SharedConstants.DEVICE_TOKEN);
-                          Log.i(TAG, "Sending login message to server...");
-                          connectionToServer.sendMessage(msgLogin);
-                      } catch (Exception e1) {
-                          Log.e(TAG, "Login failed:" + e1.getMessage());
-                          String errMsg = "LOGIN_FAILURE. Exception:" + e1.getMessage();
-                          //sendEventReport(new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
-                          sendEventReportBroadcast(new EventReport(EventType.DISPLAY_ERROR,errMsg,null));
-                          e1.printStackTrace();
-
-                          attemptToReconnect();
-                      }
-
-                  }
-
-              }.start();
-          }
-
+          /* IServerProxy operations methods */
 //	  	/**
 //	  	 * Enables to download a file from the server
 //	  	 * @param td - The transfer details contain: Source, Destination, Extension, File size
@@ -191,38 +162,39 @@ import data_objects.SharedPrefUtils;
 //  				sendEventReport(new EventReport(EventType.DOWNLOAD_FAILURE, errMsg, null));	  				
 //  				e.printStackTrace();
 //	  				
-//  				attemptToReconnect();
+//  				reconnectIfNecessary();
 //  			}
 //	  	}
 
           /**
            * Enables to upload a file to the server, sending it to a destination number
-           *
-           * @param fileData   - The data of the file being uploaded
-           * @param extension  - The extension/file type of the file being uploaded
+           * @param managedFile   - The file to upload inside a manager wrapper
            * @param destNumber - The destination number to whom the file is for
            */
-          public void uploadFileToServer(final byte[] fileData, final String extension, final FileManager.FileType fileType, final String destNumber, final String fullFilePath) {
+          public void uploadFileToServer(final String destNumber, final FileManager managedFile) {
               new Thread() {
                   @Override
                   public void run() {
 
-                      TransferDetails td = new TransferDetails(SharedConstants.MY_ID, destNumber, fileData.length, extension, fileType, fullFilePath);
-
                       try {
-
-
-                          MessageUploadFile msgUF = new MessageUploadFile(SharedConstants.MY_ID, td, fileData);
+                          TransferDetails td = new TransferDetails(SharedConstants.MY_ID, destNumber, managedFile);
+                          MessageUploadFile msgUF = new MessageUploadFile(SharedConstants.MY_ID,td, managedFile.getFileData());
 
                           // Sending message upload file
                           connectionToServer.sendMessage(msgUF);
-                      } catch (Exception e) {
+                      }
+                      catch(IOException e) {
+                          e.printStackTrace();
+                          String errMsg = "UPLOAD_FAILURE. Upload to user:" + destNumber + " failed. Exception:" + e.getMessage();
+                          handleDisconnection(errMsg, EventType.UPLOAD_FAILURE);
+                      }
+                      catch (Exception e) {
+                          e.printStackTrace();
                           String errMsg = "UPLOAD_FAILURE. Upload to user:" + destNumber + " failed. Exception:" + e.getMessage();
                           sendEventReportBroadcast(new EventReport(EventType.UPLOAD_FAILURE, errMsg, null));
                           //sendEventReport(new EventReport(EventType.UPLOAD_FAILURE, errMsg, null));
-                          e.printStackTrace();
 
-                          attemptToReconnect();
+
                       }
                   }
 
@@ -242,22 +214,14 @@ import data_objects.SharedPrefUtils;
                       try {
                           if (connectionToServer != null)
                           {
-//                              MessageSendPush msgSendPush = new MessageSendPush(SharedConstants.MY_ID, destinationId);
-//                              connectionToServer.sendMessage(msgSendPush);
-//
-//                              Thread.sleep(PUSH_SLEEP_TIME);
-
                               MessageIsLogin msgIsLogin = new MessageIsLogin(SharedConstants.MY_ID, destinationId);
                               connectionToServer.sendMessage(msgIsLogin);
                           }
 
                       } catch (IOException e) {
-                          String errMsg = "ISLOGIN_ERROR. Exception:" + e.getMessage();
-                          //sendEventReport(new EventReport(EventType.ISLOGIN_ERROR, errMsg, destinationId));
-                          sendEventReportBroadcast(new EventReport(EventType.ISLOGIN_ERROR, errMsg, destinationId));
                           e.printStackTrace();
-
-                          attemptToReconnect();
+                          String errMsg = "ISLOGIN_ERROR. Exception:" + e.getMessage();
+                          handleDisconnection(errMsg, EventType.ISLOGIN_ERROR);
                       }
                   }
 
@@ -268,14 +232,39 @@ import data_objects.SharedPrefUtils;
               return connectionToServer;
           }
 
-          public void gracefullyDisconnect()
-          {
+          /* Internal server operations methods */
+
+          /**
+           * Enables initial connection to the server
+           */
+          private void connect() {
 
               new Thread() {
 
                   @Override
                   public void run() {
-                      if(!isConnected())
+                      try {
+                          openSocket();
+                          registerConnectivityReceiver();
+                          startClientActionListener();
+                          startKeepAlives();
+                          login();
+                      } catch (IOException e) {
+                          e.printStackTrace();
+                          String errMsg = "Failed connect to server:" + e.getMessage();
+                          handleDisconnection(errMsg, EventType.DISPLAY_ERROR);
+                      }
+                  }
+              }.start();
+          }
+
+          private void gracefullyDisconnect()
+          {
+              new Thread() {
+
+                  @Override
+                  public void run() {
+                      if(isConnected())
                       {
                           setConnected(false);
 
@@ -285,18 +274,11 @@ import data_objects.SharedPrefUtils;
 
                               try {
                                   connectionToServer.sendMessage(messageLogout);
+                                  connectionToServer.closeConnection();
+                                  connectionToServer = null;
                               } catch (IOException e) {
                                   Log.e(TAG, "Failed to log off:" + e.getMessage());
                                   e.printStackTrace();
-                              }
-
-                              Socket s = connectionToServer.getSocket();
-                              if (s != null) {
-                                  try {
-                                      s.close();
-                                  } catch (IOException e) {
-                                      e.printStackTrace();
-                                  }
                               }
                           }
                       }
@@ -304,29 +286,60 @@ import data_objects.SharedPrefUtils;
 
               }.start();
           }
-	  	
-	  	/* Internal server operations methods */
+
+          /**
+           * Enables to login to the server
+           */
+          private void login() {
+              Log.i(TAG, "Initiating login sequence...");
+
+              new Thread() {
+                  @Override
+                  public void run() {
+                      try {
+
+                          MessageLogin msgLogin = new MessageLogin(SharedConstants.MY_ID, SharedConstants.DEVICE_TOKEN);
+                          Log.i(TAG, "Sending login message to server...");
+                          connectionToServer.sendMessage(msgLogin);
+                      } catch (IOException e) {
+                          e.printStackTrace();
+                          String errMsg = "LOGIN_FAILURE. Exception:" + e.getMessage();
+                          handleDisconnection(errMsg, EventType.DISPLAY_ERROR);
+                      }
+
+                  }
+
+              }.start();
+          }
 
           private synchronized boolean isConnected() {
-              return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.CONNECTED);
+              return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.CONNECTED);
           }
 
           private synchronized void setConnected(boolean state) {
-              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.CONNECTED, state);
+              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.CONNECTED, state);
           }
 
-          private synchronized boolean isReconnecting() {
+//          private synchronized boolean isReconnecting() {
+//
+//              return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECTING);
+//          }
+//
+//          private synchronized void setReconnecting(boolean state) {
+//
+//              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECTING, state);
+//          }
 
-              return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.RECONNECTING);
+          private boolean wasStarted() {
+              return SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_STARTED);
           }
 
-          private synchronized void setReconnecting(boolean state) {
-
-              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.RECONNECTING, state);
+          private void setStarted(boolean started) {
+              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_STARTED, started);
+              this.started = started;
           }
 
-
-          private void openSocket() throws UnknownHostException, IOException {
+          private void openSocket() throws IOException {
               Log.i(TAG, "Opening socket...");
               Socket socketToServer = new Socket(SharedConstants.HOST, SharedConstants.PORT);
               connectionToServer = new ConnectionToServer(socketToServer);
@@ -355,92 +368,69 @@ import data_objects.SharedPrefUtils;
 
                                   //sendEventReport(eventReport);
                               }
-                          } catch (ClassNotFoundException | IOException e) {
-                              Log.e(TAG, "Client action failure:" + e.getMessage());
+                          } catch (IOException e) {
                               e.printStackTrace();
+                              String errMsg = "Client action failure. Exception:"+e.getMessage();
+                              handleDisconnection(errMsg, EventType.CLIENT_ACTION_FAILURE);
+                          }
+                          catch(ClassNotFoundException e) {
 
-                              attemptToReconnect();
+                              String errMsg = "Client action failure. Exception:"+e.getMessage();
+                              Log.e(TAG, "Client action failure:" + e.getMessage());
+                              sendEventReportBroadcast(new EventReport(EventType.CLIENT_ACTION_FAILURE, errMsg, null));
                           }
                       }
                   }
               }.start();
           }
 
-          public void startHeartBeatThread() {
-              Log.i(TAG, "Starting heartbeat thread...");
+          private synchronized void reconnectIfNecessary() {
 
               new Thread() {
+
                   @Override
                   public void run() {
 
-                      while (isConnected())
-                          sendHeartBeat();
-                  }
+                      if (started && connectionToServer == null) {
 
+                          try {
+                              String infoMsg = "Reconnecting...";
+                              Log.i(TAG, infoMsg);
+                              sendEventReportBroadcast(new EventReport(EventType.RECONNECT_ATTEMPT, infoMsg, null));
 
-              }.start();
-          }
-
-          private void attemptToReconnect() {
-              new Thread() {
-                  @Override
-                  public void run() {
-                      if (!isReconnecting()) {
-                          setReconnecting(true);
-                          setConnected(false);
-
-                          while (!isConnected()) {
-                              try {
-                                  String infoMsg = "Reconnecting...";
-                                  Log.i(TAG, infoMsg);
-                                  sendEventReportBroadcast(new EventReport(EventType.DISPLAY_ERROR, infoMsg, null));
-                                  //sendEventReport(new EventReport(EventType.DISPLAY_ERROR, infoMsg, null));
-
-                                  Thread.sleep(RECONNECT_INTERVAL);
-                                  openSocket();
-                                  startClientActionListener();
-                                  startHeartBeatThread();
-                                  login();
-                              } catch (IOException | InterruptedException e) {
-                                  Log.e(TAG, e.getMessage());
-                                  e.printStackTrace();
-                              }
-
+                              openSocket();
+                              startClientActionListener();
+                              startKeepAlives();
+                              login();
+                          } catch (IOException e) {
+                              e.printStackTrace();
+                              String errMsg = "Reconnect failed. Exception:"+e.getMessage();
+                              handleDisconnection(errMsg, EventType.DISPLAY_ERROR);
                           }
-                          // Done reconnecting
-                          setReconnecting(false);
                       }
-                  }
 
+                      // Done reconnecting. Resetting reconnect interval
+                      if(isConnected())
+                          SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
+                  }
               }.start();
           }
 
-
-
-
-//          private void sendEventReport(EventReport report) {
-//
-//              Log.i(TAG, "Firing event:" + report.status().toString());
-//              _eventGenerator.fireEvent(report);
-//          }
-          private void sendHeartBeat() {
+          private synchronized void sendHeartBeat() {
 
               try {
-                  if(msgHB==null)
-                     msgHB = new MessageHeartBeat(SharedConstants.MY_ID);
+                  if(msgHB==null) {
+                      String myId = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
+                      msgHB = new MessageHeartBeat(myId);
+                  }
+                      if(connectionToServer!=null)
+                            connectionToServer.sendMessage(msgHB);
+                      Log.i(TAG, "Heartbeat sent to server");
 
-                  connectionToServer.sendMessage(msgHB);
-                  Log.i(TAG, "Heartbeat sent to server");
-
-                  Thread.sleep(HEARTBEAT_INTERVAL);
-              } catch (IOException | InterruptedException e) {
-                  Log.e(TAG, "Heartbeat failure:" + e.getMessage());
-                  String errMsg = "HEARTBEAT_FAILURE. Exception:" + e.getMessage();
-                  sendEventReportBroadcast(new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
-                  //sendEventReport(new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
+              } catch (IOException e) {
                   e.printStackTrace();
-
-                  attemptToReconnect();
+                  String errMsg = "HEARTBEAT_FAILURE. Exception:" + e.getMessage();
+                  handleDisconnection(errMsg, EventType.DISPLAY_ERROR);
               }
           }
 
@@ -452,8 +442,156 @@ import data_objects.SharedPrefUtils;
               sendBroadcast(broadcastEvent);
           }
 
+          private void startKeepAlives()
+          {
+              Intent i = new Intent();
+              i.setClass(this, ServerProxy.class);
+              i.setAction(ACTION_HEARTBEAT);
+              PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
+              AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
+              alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP,
+                      System.currentTimeMillis() + HEARTBEAT_INTERVAL,
+                      HEARTBEAT_INTERVAL, pi);
+          }
 
-        /* UI methods */
+          private void stopKeepAlives()
+          {
+              Intent i = new Intent();
+              i.setClass(this, ServerProxy.class);
+              i.setAction(ACTION_HEARTBEAT);
+              PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
+              AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
+              alarmMgr.cancel(pi);
+          }
+
+          private boolean isNetworkAvailable() {
+
+              NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+              boolean wifiConnected = (wifiInfo != null && wifiInfo.isConnected());
+
+              NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+              boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
+
+             return wifiConnected || mobileConnected;
+          }
+
+          private void handleCrashedService() {
+
+              if(wasStarted() == true) {
+
+                  stopKeepAlives();
+
+                  connect();
+              }
+          }
+
+          private void handleDisconnection(String errMsg, EventType eventType) {
+
+              Log.e(TAG, errMsg);
+              setConnected(false);
+              sendEventReportBroadcast(new EventReport(eventType, errMsg, null));
+              connectionToServer=null;
+              stopKeepAlives();
+
+              if(isNetworkAvailable())
+                  scheduleReconnect(System.currentTimeMillis());
+          }
+
+          /* Broadcast Receivers */
+
+          private BroadcastReceiver mConnectivityChanged = new BroadcastReceiver()
+          {
+              @Override
+              public void onReceive(Context context, Intent intent)
+              {
+                  NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                  boolean wifiConnected = (wifiInfo != null && wifiInfo.isConnected());
+
+                  NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+                  boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
+
+                  Log.i(TAG, "Connectivity changed. Wifi=" + wifiConnected + ". Mobile=" + mobileConnected);
+
+                  if (wifiConnected || mobileConnected)
+                    reconnectIfNecessary();
+                  else
+                      setConnected(false);
+              }
+          };
+
+          private void registerConnectivityReceiver() {
+              registerReceiver(mConnectivityChanged, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+          }
+
+          /* Internal operations methods */
+
+          private synchronized void start()
+          {
+              if (started)
+              {
+                  Log.i(TAG, "Attempt to start connection that is already active");
+                  return;
+              }
+
+              setStarted(true);
+
+              connect();
+          }
+
+          private synchronized void stop() {
+
+              if (!started)
+              {
+                  Log.w(TAG, "Attempt to stop connection not active.");
+                  return;
+              }
+
+              setStarted(false);
+
+              unregisterReceiver(mConnectivityChanged);
+              cancelReconnect();
+
+              gracefullyDisconnect();
+              stopSelf();
+          }
+
+          private void cancelReconnect()
+          {
+              Intent i = new Intent();
+              i.setClass(this, ServerProxy.class);
+              i.setAction(ACTION_RECONNECT);
+              PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
+              AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
+              alarmMgr.cancel(pi);
+          }
+
+          private void scheduleReconnect(long startTime)
+          {
+              long interval =
+                      SharedPrefUtils.getLong(getApplicationContext(),SharedPrefUtils.SERVER_PROXY,SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
+
+              long now = System.currentTimeMillis();
+              long elapsed = now - startTime;
+
+              if (elapsed < interval)
+                  interval = Math.min(interval * 4, MAXIMUM_RETRY_INTERVAL);
+              else
+                  interval = INITIAL_RETRY_INTERVAL;
+
+              Log.i(TAG, "Rescheduling connection in " + interval + "ms.");
+
+              SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, interval);
+
+
+              Intent i = new Intent();
+              i.setClass(this, ServerProxy.class);
+              i.setAction(ACTION_RECONNECT);
+              PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
+              AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
+              alarmMgr.set(AlarmManager.RTC_WAKEUP, now + interval, pi);
+          }
+
+          /* UI methods */
 
           private void callErrToast(final String text) {
 
