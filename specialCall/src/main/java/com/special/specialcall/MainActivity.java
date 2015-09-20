@@ -954,30 +954,18 @@ public class MainActivity extends Activity implements OnClickListener {
 	private void setMediaSelectButtonThumbnail(String destPhoneNumber)
     {
         try {
-            Bitmap tmp_bitmap;
-            Bitmap bitmap;
-            FileManager.FileType fType = null;
+            FileManager.FileType fType;
             ImageButton selectMediaBtn = (ImageButton) findViewById(R.id.MyPic);
 
             String lastUploadedMediaPath = lutManager.getUploadedMediaPerNumber(destPhoneNumber);
             if (!lastUploadedMediaPath.equals("")) {
                 fType = FileManager.getFileType(lastUploadedMediaPath);
 
-                switch (fType) {
-                    case IMAGE:
-                        tmp_bitmap = BitmapFactory.decodeFile(lastUploadedMediaPath);
-                        bitmap = Bitmap.createScaledBitmap(tmp_bitmap, selectMediaBtn.getWidth(), selectMediaBtn.getHeight(), false);
-                        selectMediaBtn.setImageBitmap(bitmap);
-                        break;
-
-                    case VIDEO:
-                        tmp_bitmap = ThumbnailUtils.createVideoThumbnail(lastUploadedMediaPath,
-                                MediaStore.Images.Thumbnails.MINI_KIND);
-                        bitmap = Bitmap.createScaledBitmap(tmp_bitmap, selectMediaBtn.getWidth(), selectMediaBtn.getWidth(),
-                                false);
-                        selectMediaBtn.setImageBitmap(bitmap);
-                        break;
-                }
+				BitmapWorkerTask task = new BitmapWorkerTask(selectMediaBtn);
+				task.set_width(selectMediaBtn.getWidth());
+				task.set_height(selectMediaBtn.getHeight());
+				task.set_fileType(fType);
+				task.execute(lastUploadedMediaPath);
             }
             else
                 selectMediaBtn.setImageResource(R.drawable.defaultpic_enabled);
