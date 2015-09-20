@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -48,8 +49,9 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
     public static final String TAG = "IncomingSpecialCall";
     public static final String SPECIAL_CALL_FILEPATH = "SpecialCallFilePath";
     private boolean mIsBound = false;
+    private boolean videoMedia = false;
     private IncomingReceiver incomingReceiver;
-
+    AudioManager audioManager = null ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +91,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                 ImageView myImageView = (ImageView)findViewById(R.id.CallerImage);
                 myImageView.setImageBitmap(loadImage(mediaFilePath));
                 //  Log.d("IncomingCallActivity: onCreate: ", "flagz");
-
+                videoMedia = false;
                 Button Answer = (Button)findViewById(R.id.Answer);
                 Answer.setOnClickListener(this);
 
@@ -99,7 +101,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
             if (fileType == FileManager.FileType.VIDEO)
             {
                 Log.i(TAG, "In VIDEO");
-
+                videoMedia = true;
                 // Special ringtone in video case is silent
                 IncomingReceiver.wasSpecialRingTone = true;
 
@@ -304,6 +306,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
         try {
           this.finish();
+            videoMedia = false;
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -355,6 +358,8 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                 case TelephonyManager.DATA_DISCONNECTED: {
                     Log.i(TAG, "TelephonyManager.DATA_DISCONNECTED");
                     finishSpecialCall();
+                  if (audioManager!=null)
+                    audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
 
                     break;
                 }
@@ -382,6 +387,13 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
             keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
             keyCode == KeyEvent.KEYCODE_VOLUME_MUTE ) {
             incomingReceiver.stopSound();
+
+            if (videoMedia)
+            {
+                audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                videoMedia = false;
+            }
             return true;
         }
         return false;

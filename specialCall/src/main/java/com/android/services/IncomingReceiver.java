@@ -122,6 +122,7 @@ public class IncomingReceiver extends Service {
 
         try
         {
+
             mMediaPlayer.stop();
         } catch(Exception e) {
             e.printStackTrace();
@@ -349,7 +350,7 @@ public class IncomingReceiver extends Service {
                 }
                 break;
             case TelephonyManager.CALL_STATE_OFFHOOK:
-                Log.i(TAG, "TelephonyManager.CALL_STATE_IDLE");
+                Log.i(TAG, "TelephonyManager.CALL_STATE_OFFHOOK");
                 if (wasSpecialRingTone)
                 {
 
