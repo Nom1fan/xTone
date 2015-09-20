@@ -236,9 +236,10 @@ public class MainActivity extends Activity implements OnClickListener {
                 }
 
                 if(fm!=null) {
-                    serverProxy.uploadFileToServer(fm.getFileData(), fm.getExtension(), fm.getFileType(), destPhoneNumber, fm.getFileFullPath());
+                    serverProxy.uploadFileToServer(destPhoneNumber,fm);
                     loading = true;
                     disableCallButton();
+                    enableProgressBar();
                 }
             }
             catch(NullPointerException e)
@@ -247,13 +248,6 @@ public class MainActivity extends Activity implements OnClickListener {
                 Log.e(tag,"It seems there was a problem with the file path.");
                 //callErrToast("It seems there was a problem with the file path");
                 writeErrStatBar("It seems there was a problem with the file path");
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-                Log.e(tag, "A problem occured while reading the file.");
-                //callErrToast("A problem occured while reading the file");
-                writeErrStatBar("A problem occured while reading the file");
             }
             catch (FileExceedsMaxSizeException e)
             {
@@ -619,6 +613,11 @@ public class MainActivity extends Activity implements OnClickListener {
             writeErrStatBar(report.desc());
 			break;
 
+        case LOGIN_SUCCESS:
+            writeInfoStatBar(report.desc());
+            disableProgressBar();
+            break;
+
 		case ISLOGIN_ONLINE:
             setMediaSelectButtonThumbnail((String) report.data());
 			//callInfoToast(report.desc());
@@ -657,9 +656,10 @@ public class MainActivity extends Activity implements OnClickListener {
             drawUploadedContent(td.getDestinationId());
 			break;
 
-//		case CLIENT_ACTION_FAILURE:
-//			writeErrStatBar(report.desc());
-//			break;
+        case RECONNECT_ATTEMPT:
+            writeErrStatBar(report.desc());
+            enableProgressBar();
+            break;
 
 		case CLOSE_APP:
 			writeErrStatBar(report.desc());
@@ -1013,7 +1013,11 @@ public class MainActivity extends Activity implements OnClickListener {
 		// Intent serverProxyIntent = new Intent(this, ServerProxy.class);
 		// serverProxyIntent.putExtra("myphonenumber", myPhoneNumber);
 		// serverProxyIntent.putExtra("workingdir", workingDir);
-		 startService(new Intent(getBaseContext(), ServerProxy.class));
+
+		 Intent i = new Intent();
+		 i.setClass(getBaseContext(), ServerProxy.class);
+		 i.setAction(ServerProxy.ACTION_START);
+		 startService(i);
          doBindService();
 
 //		serverProxy = new ServerProxy(eventGenerator);
