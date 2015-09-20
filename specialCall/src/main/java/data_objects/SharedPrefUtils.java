@@ -5,12 +5,14 @@ import android.content.SharedPreferences;
 
 public class SharedPrefUtils {
 
-	public static final String GENERAL = "general"; 
+	/* Shared pref names */
+	public static final String GENERAL = "general";
+	public static final String SERVER_PROXY = "ServerProxy";
+
+	/* Shared pref keys */
 	public static final String RINGTONE_EXTENSION = "ringtone";
 	public static final String MEDIA_EXTENSION = "media";
-	public static final String RINGTONE_URI = "ringtoneUri";
 	public static final String RINGTONE_FILEPATH = "ringToneFilePath";
-	public static final String OLD_RINGTONE_URI = "oldRingtoneUri";
 	public static final String DESTINATION_NUMBER = "DestinationNumber";
 	public static final String DESTINATION_NAME = "DestinationName";
 	public static final String MY_NUMBER = "MyPhoneNumber";
@@ -19,7 +21,8 @@ public class SharedPrefUtils {
 	public static final String RECONNECTING = "Reconnecting";
 	public static final String UPLOADED_MEDIA_THUMBNAIL = "UploadedMediaThumbnail";
 	public static final String WAS_RINGTONE_UPLOADED ="WasRingToneUploaded";
-
+	public static final String WAS_STARTED = "ServerProxy.WAS_STARTED";
+	public static final String RECONNECT_INTERVAL = "ServerProxy.RECONNECT_INTERVAL";
 
 
 	public static int getInt(Context context, String prefsName, String key){
@@ -31,7 +34,11 @@ public class SharedPrefUtils {
 		SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
 		return prefs.getInt(key, DefaultValue);
 	}
-	
+
+	public static Long getLong(Context context, String prefsName, String key, Long DefaultValue){
+		SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
+		return prefs.getLong(key, DefaultValue);
+	}
 	
 	public static String getString(Context context, String prefsName, String key){
 		SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
@@ -46,6 +53,11 @@ public class SharedPrefUtils {
 	public static void setInt(Context context, String prefsName, String key, int value){
 		SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
 		prefs.edit().putInt(key, value).apply();
+	}
+
+	public static void setLong(Context context, String prefsName, String key, Long value){
+		SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
+		prefs.edit().putLong(key, value).apply();
 	}
 	
 	public static void setString(Context context, String prefsName, String key, String value){

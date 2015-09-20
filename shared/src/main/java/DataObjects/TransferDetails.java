@@ -1,30 +1,31 @@
 package DataObjects;
 
+import java.io.IOException;
 import java.io.Serializable;
 import FilesManager.FileManager;
 
 public class TransferDetails implements Serializable {
 
-		private static final long serialVersionUID = 7408472793374531808L;
-		private String _sourceId;
-		private String _destinationId;		
-		private String _extension;
-		private double _fileSize;
-		private FileManager.FileType _fileType;
+	private static final long serialVersionUID = 7408472793374531808L;
+	private String _sourceId;
+	private String _destinationId;
+	private String _extension;
+	private double _fileSize;
+	private FileManager.FileType _fileType;
 
 
 
     private String _fullFilePathSrcSD;
 
-		public TransferDetails(String source, String destination,
-				long fileSize, String extension, FileManager.FileType fileType, String fullFilePathSrcSD) {
-			
+		public TransferDetails(String source, String destination, FileManager managedFile) throws IOException {
+
 			_sourceId = source;
 			_destinationId = destination;	
-			_extension = extension;
-			_fileSize = fileSize;
-			_fileType = fileType;
-            _fullFilePathSrcSD = fullFilePathSrcSD;
+			_extension = managedFile.getFileExtension();
+			_fileSize = managedFile.getFileSize();
+			_fileType = managedFile.getFileType();
+            _fullFilePathSrcSD = managedFile.getFileFullPath();
+
 		}
 
         public String get_fullFilePathSrcSD() {

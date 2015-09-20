@@ -16,6 +16,8 @@ public class MessageLogout extends MessageToServer {
     @Override
     public boolean doServerAction() throws UnknownHostException, IOException, ClassNotFoundException {
 
+        initLogger();
+
         logger.info("User logging out:"+_messageInitiaterId);
         ClientsManager.removeClientConnection(_messageInitiaterId);
 

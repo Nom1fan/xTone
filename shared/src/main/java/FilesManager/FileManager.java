@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.NoSuchFileException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
@@ -28,15 +27,16 @@ public class FileManager {
     private static final String[] videoFormats = { "avi", "mpeg", "mp4" };
     private File _file;
 	private String _extension;
+    private int _size;
 	public static final int MAX_FILE_SIZE = 5242880; // 5MB
-	private FileType fileType;
+	private FileType _fileType;
 
     public enum FileType { IMAGE, VIDEO, RINGTONE }
 
 
     /**
      *
-     * @param filePath - Receives the full path to the file to manage
+     * @param file - The file to manage
      * @throws NullPointerException - Thrown if path to file is null
      */
     public FileManager(File file) throws NullPointerException,FileInvalidFormatException,FileExceedsMaxSizeException, FileDoesNotExistException, FileMissingExtensionException {
@@ -46,11 +46,12 @@ public class FileManager {
             _file = file;
             if(doesFileExist()) {
                 validateFileSize();
-                _extension = extractExtension(file.getAbsolutePath());
-                fileType = validateFileFormat();
+                _extension = extractExtension(_file.getAbsolutePath());
+                _fileType = validateFileFormat();
+                _size = (int) _file.length();
             }
             else
-                throw new FileDoesNotExistException("File does not exist:"+file.getAbsolutePath());
+                throw new FileDoesNotExistException("File does not exist:"+_file.getAbsolutePath());
         }
         else
             throw new NullPointerException("The file is null");
@@ -64,7 +65,8 @@ public class FileManager {
             if(doesFileExist()) {
                 validateFileSize();
                 _extension = extractExtension(filePath);
-                fileType = validateFileFormat();
+                _fileType = validateFileFormat();
+                _size = (int) _file.length();
             }
             else
                 throw new FileDoesNotExistException("File does not exist:"+filePath);
@@ -83,7 +85,6 @@ public class FileManager {
 		if(fileSize >= MAX_FILE_SIZE)
 			throw new FileExceedsMaxSizeException();		
 	}
-
 
 	public byte[] getFileData() throws IOException {
 		
@@ -126,10 +127,14 @@ public class FileManager {
 		return df.format(_fileSize)+"B";	
 	}
 
-	public String getExtension() {
+	public String getFileExtension() {
 		
 		return _extension;
 	}
+
+    public int getFileSize() {
+        return _size;
+    }
 
     /**
      *
@@ -137,7 +142,7 @@ public class FileManager {
      */
 	public FileType getFileType() {
 
-           return fileType;
+           return _fileType;
     }
 
     public static FileType getFileType(String filePath) throws FileInvalidFormatException, FileDoesNotExistException, FileMissingExtensionException {
@@ -212,6 +217,7 @@ public class FileManager {
         String ext = tmp_str[1];
         return ext;
     }
+
 //    /**
 //     * Deleting a directory recursively
 //     * @param directory - The directory to delete
