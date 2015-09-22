@@ -1,14 +1,18 @@
 package com.special.specialcall;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.PhoneStateListener;
@@ -31,6 +35,7 @@ import android.widget.VideoView;
 import com.android.internal.telephony.ITelephony;
 import com.android.services.IncomingReceiver;
 
+
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -43,7 +48,10 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
     private TelephonyManager tm;
     public static final String TAG = "IncomingSpecialCall";
     public static final String SPECIAL_CALL_FILEPATH = "SpecialCallFilePath";
-
+    private boolean mIsBound = false;
+    private boolean videoMedia = false;
+    private IncomingReceiver incomingReceiver;
+    AudioManager audioManager = null ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +75,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                             WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                             WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                            | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_CLEAR_TOP | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL  // <<< flags added by RONY
+                            | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT /*| Intent.FLAG_ACTIVITY_CLEAR_TOP*/ | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL  // <<< flags added by RONY
                             | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED, // <<< flags added by RONY
                     WindowManager.LayoutParams.FLAG_FULLSCREEN |
                             WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
@@ -83,7 +91,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                 ImageView myImageView = (ImageView)findViewById(R.id.CallerImage);
                 myImageView.setImageBitmap(loadImage(mediaFilePath));
                 //  Log.d("IncomingCallActivity: onCreate: ", "flagz");
-
+                videoMedia = false;
                 Button Answer = (Button)findViewById(R.id.Answer);
                 Answer.setOnClickListener(this);
 
@@ -93,7 +101,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
             if (fileType == FileManager.FileType.VIDEO)
             {
                 Log.i(TAG, "In VIDEO");
-
+                videoMedia = true;
                 // Special ringtone in video case is silent
                 IncomingReceiver.wasSpecialRingTone = true;
 
@@ -155,17 +163,8 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
                         mVideoView.stopPlayback();
                         Log.i(TAG, "InSecond Method Ans Call");
-                        // froyo and beyond trigger on buttonUp instead of buttonDown
-                        Intent buttonUp = new Intent(Intent.ACTION_MEDIA_BUTTON);
-                        buttonUp.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(
-                                KeyEvent.ACTION_UP, KeyEvent.KEYCODE_HEADSETHOOK));
-                        sendOrderedBroadcast(buttonUp, "android.permission.CALL_PRIVILEGED");
-                        Intent headSetUnPluggedintent = new Intent(Intent.ACTION_HEADSET_PLUG);
-                        headSetUnPluggedintent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-                        headSetUnPluggedintent.putExtra("state", 0);
-                        headSetUnPluggedintent.putExtra("name", "Headset");
-                        sendOrderedBroadcast(headSetUnPluggedintent, null);
-                        finishSpecialCall();
+                        answerSpecialCall();
+
                     }
                 });
                 videoDecline.setOnClickListener(new OnClickListener() {
@@ -222,8 +221,10 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
     @Override
     protected void onResume() {
         super.onResume();
-        IncomingReceiver.isInFront = true;
         Log.i(TAG, "Entering OnResume");
+        IncomingReceiver.isInFront = true;
+        doBindService();
+
     }
 
     private MediaPlayer.OnPreparedListener PreparedListener = new MediaPlayer.OnPreparedListener(){
@@ -252,23 +253,15 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
         return null;
     }
 
+
+
     @Override
     public void onClick(View v) {
 
         int id = v.getId();
         if (id == R.id.Answer) {   /// ANSWER
             Log.i(TAG, "InSecond Method Ans Call");
-            // froyo and beyond trigger on buttonUp instead of buttonDown
-            Intent buttonUp = new Intent(Intent.ACTION_MEDIA_BUTTON);
-            buttonUp.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(
-                    KeyEvent.ACTION_UP, KeyEvent.KEYCODE_HEADSETHOOK));
-            sendOrderedBroadcast(buttonUp, "android.permission.CALL_PRIVILEGED");
-            Intent headSetUnPluggedintent = new Intent(Intent.ACTION_HEADSET_PLUG);
-            headSetUnPluggedintent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-            headSetUnPluggedintent.putExtra("state", 0);
-            headSetUnPluggedintent.putExtra("name", "Headset");
-            sendOrderedBroadcast(headSetUnPluggedintent, null);
-            finishSpecialCall();
+            answerSpecialCall();
         }
 
         else if (id == R.id.Decline ) {   /// DECLINE
@@ -291,10 +284,29 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
         }
     }
 
+
+    public void answerSpecialCall()
+    {
+        // froyo and beyond trigger on buttonUp instead of buttonDown
+        Intent buttonUp = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        buttonUp.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(
+                KeyEvent.ACTION_UP, KeyEvent.KEYCODE_HEADSETHOOK));
+        try { sendOrderedBroadcast(buttonUp, "android.permission.CALL_PRIVILEGED"); }
+        catch (Exception e) { e.printStackTrace();}
+        Intent headSetUnPluggedintent = new Intent(Intent.ACTION_HEADSET_PLUG);
+        headSetUnPluggedintent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
+        headSetUnPluggedintent.putExtra("state", 0);
+        headSetUnPluggedintent.putExtra("name", "Headset");
+        try {  sendOrderedBroadcast(headSetUnPluggedintent, null); }
+        catch (Exception e) { e.printStackTrace();}
+        finishSpecialCall();
+    }
+
     private void finishSpecialCall(){
 
         try {
           this.finish();
+            videoMedia = false;
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -343,10 +355,11 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
         public void onCallStateChanged(int state, String incomingNumber) {
             switch (state) {
 
-                case TelephonyManager.DATA_DISCONNECTED:
-                {
+                case TelephonyManager.DATA_DISCONNECTED: {
                     Log.i(TAG, "TelephonyManager.DATA_DISCONNECTED");
                     finishSpecialCall();
+                  if (audioManager!=null)
+                    audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
 
                     break;
                 }
@@ -362,7 +375,71 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
         super.onPause();
         Log.i(TAG, "Entering OnPause");
         IncomingReceiver.isInFront = false;
+        doUnbindService();
 
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        super.onKeyDown(keyCode, event);
+        Log.i(TAG, "Entering onKeyDown");
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
+            keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
+            keyCode == KeyEvent.KEYCODE_VOLUME_MUTE ) {
+            incomingReceiver.stopSound();
+
+            if (videoMedia)
+            {
+                audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                videoMedia = false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // This is called when the connection with the service has been
+            // established, giving us the service object we can use to
+            // interact with the service.  Because we have bound to a explicit
+            // service that we know is running in our own process, we can
+            // cast its IBinder to a concrete class and directly access it.
+            incomingReceiver = ((IncomingReceiver.MyBinder)service).getService();
+
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            // This is called when the connection with the service has been
+            // unexpectedly disconnected -- that is, its process crashed.
+            // Because it is running in our same process, we should never
+            // see this happen.
+            incomingReceiver = null;
+        }
+    };
+
+    void doBindService() {
+        // Establish a connection with the service.  We use an explicit
+        // class name because we want a specific service implementation that
+        // we know will be running in our own process (and thus won't be
+        // supporting component replacement by other applications).
+        Log.i(TAG, "Entering doBindService");
+        bindService(new Intent(this,
+                IncomingReceiver.class), mConnection, 0);
+        mIsBound = true;
+    }
+
+    void doUnbindService() {
+
+        if (mIsBound) {
+            // Detach our existing connection.
+            Log.i(TAG, "Entering doBindService");
+            unbindService(mConnection);
+            mIsBound = false;
+        }
     }
 
 

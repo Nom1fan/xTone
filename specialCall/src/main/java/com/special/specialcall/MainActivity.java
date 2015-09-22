@@ -251,8 +251,8 @@ public class MainActivity extends Activity implements OnClickListener {
             }
             catch (FileExceedsMaxSizeException e)
             {
-//                callErrToast("Please select a file that weights less than:"+
-//                        FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+                callErrToast("Please select a file that weights less than:"+
+                        FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
                 writeErrStatBar("Please select a file that weights less than:"+
                         FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
             }

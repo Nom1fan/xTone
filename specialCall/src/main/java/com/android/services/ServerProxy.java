@@ -15,10 +15,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.IOException;
-import java.net.Socket;
-
+import java.net.Socket
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
 import DataObjects.SharedConstants;
@@ -74,9 +72,11 @@ import data_objects.SharedPrefUtils;
           public int onStartCommand(Intent intent, int flags, int startId) {
               super.onStartCommand(intent, flags, startId);
 
+              Log.i(TAG, "ServerProxy service started");
+
               if(intent!=null) {
                   String action = intent.getAction();
-                  Log.i(TAG, "ServerProxy service started. Action:" + action);
+                  Log.i(TAG, "Action:"+action);
                   //callInfoToast("ServerProxy service started");
 
                   switch (action)
@@ -355,7 +355,7 @@ import data_objects.SharedPrefUtils;
               new Thread() {
                   public void run() {
 
-                      MessageToClient msgTC = null;
+                      MessageToClient msgTC;
 
                       while (isConnected()) {
                           try {
@@ -445,13 +445,14 @@ import data_objects.SharedPrefUtils;
 
           private void startKeepAlives()
           {
+              Log.i(TAG, "Starting keep alives");
               Intent i = new Intent();
               i.setClass(this, ServerProxy.class);
               i.setAction(ACTION_HEARTBEAT);
               PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
               AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
-              alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP,
-                      System.currentTimeMillis() + HEARTBEAT_INTERVAL,
+              alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                      SystemClock.elapsedRealtime() + HEARTBEAT_INTERVAL,
                       HEARTBEAT_INTERVAL, pi);
           }
 
@@ -460,7 +461,7 @@ import data_objects.SharedPrefUtils;
               Intent i = new Intent();
               i.setClass(this, ServerProxy.class);
               i.setAction(ACTION_HEARTBEAT);
-              PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
+              PendingIntent pi = PendingIntent.getService(getApplicationContext(), 0, i, 0);
               AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
               alarmMgr.cancel(pi);
           }
@@ -473,15 +474,14 @@ import data_objects.SharedPrefUtils;
               NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
               boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
 
-             return wifiConnected || mobileConnected;
+              return wifiConnected || mobileConnected;
           }
 
           private void handleCrashedService() {
 
+              Log.i(TAG, "Handling crashed service");
               if(wasStarted() == true) {
-
                   stopKeepAlives();
-
                   connect();
               }
           }
@@ -515,8 +515,10 @@ import data_objects.SharedPrefUtils;
 
                   if (wifiConnected || mobileConnected)
                     reconnectIfNecessary();
-                  else
+                  else {
+                      connectionToServer = null;
                       setConnected(false);
+                  }
               }
           };
 
@@ -558,16 +560,18 @@ import data_objects.SharedPrefUtils;
 
           private void cancelReconnect()
           {
+              Log.i(TAG, "Cancelling reconnect");
               Intent i = new Intent();
               i.setClass(this, ServerProxy.class);
               i.setAction(ACTION_RECONNECT);
-              PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
+              PendingIntent pi = PendingIntent.getService(getApplicationContext(), 0, i, 0);
               AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
               alarmMgr.cancel(pi);
           }
 
           private void scheduleReconnect(long startTime)
           {
+              Log.i(TAG, "Scheduling reconnect");
               long interval =
                       SharedPrefUtils.getLong(getApplicationContext(),SharedPrefUtils.SERVER_PROXY,SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
 
@@ -587,7 +591,7 @@ import data_objects.SharedPrefUtils;
               Intent i = new Intent();
               i.setClass(this, ServerProxy.class);
               i.setAction(ACTION_RECONNECT);
-              PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
+              PendingIntent pi = PendingIntent.getService(getApplicationContext(), 0, i, 0);
               AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
               alarmMgr.set(AlarmManager.RTC_WAKEUP, now + interval, pi);
           }
