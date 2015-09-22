@@ -8,19 +8,20 @@ public class SharedPrefUtils {
 	/* Shared pref names */
 	public static final String GENERAL = "general";
 	public static final String SERVER_PROXY = "ServerProxy";
-
-	/* Shared pref keys */
+	public static final String UPLOADED_MEDIA_THUMBNAIL = "UploadedMediaThumbnail";
+	public static final String WAS_RINGTONE_UPLOADED ="WasRingToneUploaded";
 	public static final String RINGTONE_EXTENSION = "ringtone";
 	public static final String MEDIA_EXTENSION = "media";
 	public static final String RINGTONE_FILEPATH = "ringToneFilePath";
+	public static final String MY_DEVICE_TOKEN = "MyDeviceToken";
+
+	/* Shared pref keys under GENERAL */
 	public static final String DESTINATION_NUMBER = "DestinationNumber";
 	public static final String DESTINATION_NAME = "DestinationName";
 	public static final String MY_NUMBER = "MyPhoneNumber";
-	public static final String MY_DEVICE_TOKEN = "MyDeviceToken";
-	public static final String CONNECTED = "Connected";
-	public static final String RECONNECTING = "Reconnecting";
-	public static final String UPLOADED_MEDIA_THUMBNAIL = "UploadedMediaThumbnail";
-	public static final String WAS_RINGTONE_UPLOADED ="WasRingToneUploaded";
+
+	/* Shared pref keys under SERVER_PROXY */
+	public static final String CONNECTED = "ServerProxy.Connected";
 	public static final String WAS_STARTED = "ServerProxy.WAS_STARTED";
 	public static final String RECONNECT_INTERVAL = "ServerProxy.RECONNECT_INTERVAL";
 

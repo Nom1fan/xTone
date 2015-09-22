@@ -218,6 +218,7 @@ import data_objects.SharedPrefUtils;
                               connectionToServer.sendMessage(msgIsLogin);
                           }
 
+
                       } catch (IOException e) {
                           e.printStackTrace();
                           String errMsg = "ISLOGIN_ERROR. Exception:" + e.getMessage();
@@ -423,11 +424,11 @@ import data_objects.SharedPrefUtils;
                       String myId = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
                       msgHB = new MessageHeartBeat(myId);
                   }
-                      if(connectionToServer!=null)
-                            connectionToServer.sendMessage(msgHB);
-                      Log.i(TAG, "Heartbeat sent to server");
 
-              } catch (IOException e) {
+                  connectionToServer.sendMessage(msgHB);
+                  Log.i(TAG, "Heartbeat sent to server");
+
+              } catch (IOException | NullPointerException e) {
                   e.printStackTrace();
                   String errMsg = "HEARTBEAT_FAILURE. Exception:" + e.getMessage();
                   handleDisconnection(errMsg, EventType.DISPLAY_ERROR);

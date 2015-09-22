@@ -619,7 +619,8 @@ public class MainActivity extends Activity implements OnClickListener {
             break;
 
 		case ISLOGIN_ONLINE:
-            setMediaSelectButtonThumbnail((String) report.data());
+            destPhoneNumber = (String) report.data();
+            drawUploadedContent(destPhoneNumber);
 			//callInfoToast(report.desc());
             writeInfoStatBar(report.desc());
 			enableGuiComponents();
@@ -632,7 +633,8 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 
 		case ISLOGIN_OFFLINE:
-            setMediaSelectButtonThumbnail((String) report.data());
+            destPhoneNumber = (String) report.data();
+            drawUploadedContent(destPhoneNumber);
 			//callErrToast(report.desc());
             writeErrStatBar(report.desc());
 			disableGuiComponents();
@@ -779,8 +781,8 @@ public class MainActivity extends Activity implements OnClickListener {
                 setMediaSelectButtonThumbnail(destPhoneNumber);
                 setRingToneSelectButtonBg(destPhoneNumber);
 
-                ViewGroup vg = (ViewGroup) findViewById(R.id.mainActivity);
-                vg.postInvalidate();
+//                ViewGroup vg = (ViewGroup) findViewById(R.id.mainActivity);
+//                vg.invalidate();
             }
         });
     }
