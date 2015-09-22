@@ -12,11 +12,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.IOException;
-import java.net.Socket
+import java.net.Socket;
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
 import DataObjects.SharedConstants;
