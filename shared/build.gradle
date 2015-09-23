@@ -5,8 +5,9 @@ targetCompatibility = "1.7"
 
 dependencies {
     compile files('lib/commons-io-2.4.jar')
-    compile ('net.sf.json-lib:json-lib-ext-spring:1.0.2') {
+    compile('net.sf.json-lib:json-lib-ext-spring:1.0.2') {
         exclude group: 'commons-collections'
     }
     compile 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
+    compile files('lib/ocsf.jar')
 }

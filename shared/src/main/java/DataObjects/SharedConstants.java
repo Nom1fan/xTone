@@ -8,7 +8,7 @@ public abstract class SharedConstants {
   	public static final String HOST = "epicall.no-ip.biz";
   	public static final int PORT = 8888;
 	public static final int HEARTBEAT_INTERVAL = 60*1000;
-	public static final int HEARTBEAT_TIMEOUT = HEARTBEAT_INTERVAL + 5000;
+	public static final int HEARTBEAT_TIMEOUT = HEARTBEAT_INTERVAL + 30*1000;
 
 
 }

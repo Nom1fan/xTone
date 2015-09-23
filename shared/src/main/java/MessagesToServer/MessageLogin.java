@@ -1,10 +1,6 @@
 package MessagesToServer;
 
-
 import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
 import MessagesToClient.MessageLoginRes;
 import ServerObjects.ClientsManager;
 
@@ -32,7 +28,7 @@ public class MessageLogin extends MessageToServer {
 		ClientsManager.addClientConnection(_messageInitiaterId, clientConnection);
 		ClientsManager.markClientHeartBeat(_messageInitiaterId, clientConnection);
 		MessageLoginRes msg = new MessageLoginRes();		
-		clientConnection.writeToClient(msg);	
+		ClientsManager.sendMessageToClient(_messageInitiaterId, msg);
 		
 		return cont;
 	}

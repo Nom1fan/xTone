@@ -31,7 +31,7 @@ public class MessageIsLogin extends MessageToServer {
 
 		MessageIsLoginRes res = new MessageIsLoginRes(_id, userStatus);
 
-		clientConnection.writeToClient(res);
+		clientConnection.sendToClient(res);
 		
 		logger.info("Sent response to client:"+_messageInitiaterId);
 		

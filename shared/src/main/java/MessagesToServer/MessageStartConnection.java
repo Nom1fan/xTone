@@ -19,13 +19,13 @@ public class MessageStartConnection extends MessageToServer {
 	}
 	
 	@Override
-	public boolean doServerAction() throws UnknownHostException, IOException,
+	public boolean doServerAction() throws IOException,
 			ClassNotFoundException {
 		
 		initLogger();
 		
 		MessageStartConnectionRes res = new MessageStartConnectionRes();
-		clientConnection.writeToClient(res);
+		clientConnection.sendToClient(res);
 		return true;
 	}
 

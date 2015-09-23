@@ -1,8 +1,10 @@
 package ServerObjects;
 
+import com.lloseng.ocsf.server.*;
+import com.lloseng.ocsf.server.ConnectionToClient;
+
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -20,8 +22,8 @@ import MessagesToClient.MessageTriggerEventOnly;
  */
 public class ClientsManager {
 
-	// NOTE: <String,ConnectionToClient> means clientId is key and a connection to the client is the value
-	private static ConcurrentHashMap<String,ConnectionToClient> onlineConnections = new ConcurrentHashMap<>(); // All online connections
+	// NOTE: <String,SocketWrapper> means clientId is key and a connection to the client is the value
+	private static ConcurrentHashMap<String, ConnectionToClient> onlineConnections = new ConcurrentHashMap<>(); // All online connections
 
 	// NOTE: <String,Long> means clientId is key and (UNIX timestamp * 1000) is the value
 	private static ConcurrentHashMap<String,Long> clientHeartBeats = new ConcurrentHashMap<>(); // all online client heart beats
@@ -150,7 +152,7 @@ public class ClientsManager {
 				throw(new NullPointerException("Could not get client connection for user:"+clientId));
 			
 			serverLogger.info("[Sending event to user]:"+clientId+" with message:"+"\""+eventReport.desc()+"\""+" [Event Type]:"+eventReport.status().toString());
-			ctc.writeToClient(new MessageTriggerEventOnly(eventReport));
+			ctc.sendToClient(new MessageTriggerEventOnly(eventReport));
 			return true;
 		} 
 		catch (IOException | NullPointerException e) 
@@ -179,7 +181,7 @@ public class ClientsManager {
 			if(ctc==null)
 				throw(new NullPointerException("Could not get client connection for user:"+clientId));
 			
-			ctc.writeToClient(msgToClient);
+			ctc.sendToClient(msgToClient);
 			return true;
 		} 
 		catch (IOException | NullPointerException e) 

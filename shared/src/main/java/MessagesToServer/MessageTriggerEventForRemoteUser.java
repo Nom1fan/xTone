@@ -20,7 +20,7 @@ public class MessageTriggerEventForRemoteUser extends MessageToServer {
 	}
 
 	@Override
-	public boolean doServerAction() throws UnknownHostException, IOException, ClassNotFoundException {
+	public boolean doServerAction() throws IOException, ClassNotFoundException {
 		
 		ClientsManager.sendEventToClient(_remoteUserId, _eventReport);
 		return true;
