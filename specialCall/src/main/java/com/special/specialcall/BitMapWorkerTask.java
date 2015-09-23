@@ -30,32 +30,39 @@ class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
     // Decode image in background.
     @Override
     protected Bitmap doInBackground(String ... params) {
-        _filePath = params[0];
 
-        if(membersOK()) {
-            Bitmap tmp_bitmap;
-            switch (_fileType) {
+        try {
 
-                case IMAGE:
-                    final BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(_filePath, options);
+            _filePath = params[0];
 
-                    // Calculate inSampleSize
-                    options.inSampleSize = calculateInSampleSize(options, _width, _height);
-                    if(options.inSampleSize > 1)
+            if (membersOK()) {
+                Bitmap tmp_bitmap;
+                switch (_fileType) {
+
+                    case IMAGE:
+                        final BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inJustDecodeBounds = true;
+                        BitmapFactory.decodeFile(_filePath, options);
+                        options.inSampleSize = calculateInSampleSize(options, _width, _height);
+
+                        options.inJustDecodeBounds = false;
                         tmp_bitmap = BitmapFactory.decodeFile(_filePath, options);
-                    else
-                        tmp_bitmap = BitmapFactory.decodeFile(_filePath);
-                    return Bitmap.createScaledBitmap(tmp_bitmap, _width, _height, false);
+                        if(tmp_bitmap!=null)
+                            return Bitmap.createScaledBitmap(tmp_bitmap, _width, _height, false);
+                        else
+                            tmp_bitmap = BitmapFactory.decodeFile(_filePath);
+                        return Bitmap.createScaledBitmap(tmp_bitmap, _width, _height, false);
 
-                case VIDEO:
-                    tmp_bitmap = ThumbnailUtils.createVideoThumbnail(_filePath, MediaStore.Images.Thumbnails.MINI_KIND);
-                    return Bitmap.createScaledBitmap(tmp_bitmap, _width, _height, false);
+                    case VIDEO:
+                        tmp_bitmap = ThumbnailUtils.createVideoThumbnail(_filePath, MediaStore.Images.Thumbnails.MINI_KIND);
+                        return Bitmap.createScaledBitmap(tmp_bitmap, _width, _height, false);
+                }
             }
         }
-
+        catch (NullPointerException | OutOfMemoryError e) {
             return null;
+        }
+        return null;
     }
 
     private boolean membersOK() {
