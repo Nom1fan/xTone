@@ -6,7 +6,6 @@ import java.io.IOException;
 import ClientObjects.UserStatus;
 import MessagesToClient.MessageIsLoginRes;
 import ServerObjects.ClientsManager;
-import ServerObjects.PushSender;
 
 public class MessageIsLogin extends MessageToServer {
 		
@@ -28,12 +27,8 @@ public class MessageIsLogin extends MessageToServer {
 		logger.info(_messageInitiaterId + " is checking if " + _id + " is logged in...");
 
         userStatus = ClientsManager.isLogin(_id);
-
-		MessageIsLoginRes res = new MessageIsLoginRes(_id, userStatus);
-
-		clientConnection.sendToClient(res);
-		
-		logger.info("Sent response to client:"+_messageInitiaterId);
+		MessageIsLoginRes msgReply = new MessageIsLoginRes(_id, userStatus);
+		replyToClient(msgReply);
 		
 		return cont;
 		

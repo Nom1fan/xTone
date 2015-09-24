@@ -51,7 +51,9 @@ public class NewServer extends AbstractServer {
 
         try {
             msg.setClientConnection(ctc);
-            msg.doServerAction();
+            boolean cont = msg.doServerAction();
+            if(!cont)
+                closeConnectionToClient(ctc);
         }
         catch(EOFException e) {
             _logger.info("Client closed the connection. logging off client...");
@@ -83,6 +85,7 @@ public class NewServer extends AbstractServer {
     }
 
     /* Assisting methods */
+
     private void closeConnectionToClient(ConnectionToClient ctc) {
 
         ClientsManager.removeClientConnection(ctc);

@@ -17,7 +17,7 @@ public class MessageHeartBeat extends MessageToServer {
 	}
 
 	@Override
-	public boolean doServerAction() throws UnknownHostException, IOException,
+	public boolean doServerAction() throws IOException,
 			ClassNotFoundException {				
 		
 		ClientsManager.markClientHeartBeat(_messageInitiaterId, clientConnection);
