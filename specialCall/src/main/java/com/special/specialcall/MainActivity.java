@@ -246,15 +246,15 @@ public class MainActivity extends Activity implements OnClickListener {
             {
                 e.printStackTrace();
                 Log.e(tag,"It seems there was a problem with the file path.");
-                //callErrToast("It seems there was a problem with the file path");
-                writeErrStatBar("It seems there was a problem with the file path");
+                callErrToast("It seems there was a problem with the file path");
+                //writeErrStatBar("It seems there was a problem with the file path");
             }
             catch (FileExceedsMaxSizeException e)
             {
                 callErrToast("Please select a file that weights less than:"+
                         FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
-                writeErrStatBar("Please select a file that weights less than:"+
-                        FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+//                writeErrStatBar("Please select a file that weights less than:"+
+//                        FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
             }
             catch (InvalidDestinationNumberException e)
             {
@@ -264,12 +264,12 @@ public class MainActivity extends Activity implements OnClickListener {
             catch (FileInvalidFormatException e)
             {
                 e.printStackTrace();
-                //callErrToast("Please select a valid format");
-                writeErrStatBar("Please select a valid format");
+                callErrToast("Please select a valid format");
+                //writeErrStatBar("Please select a valid format");
             } catch (FileDoesNotExistException | FileMissingExtensionException e) {
                 e.printStackTrace();
-                //callErrToast(e.getMessage());
-                writeErrStatBar(e.getMessage());
+                callErrToast(e.getMessage());
+                //writeErrStatBar(e.getMessage());
             }
 
             if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {

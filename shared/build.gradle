@@ -9,5 +9,4 @@ dependencies {
         exclude group: 'commons-collections'
     }
     compile 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
-    compile files('lib/ocsf.jar')
 }

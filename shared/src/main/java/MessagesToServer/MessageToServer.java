@@ -1,12 +1,12 @@
 package MessagesToServer;
 
-import com.lloseng.ocsf.server.ConnectionToClient;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.logging.Logger;
 import LogObjects.LogsManager;
 import MessagesToClient.MessageToClient;
 import ServerObjects.ClientsManager;
+import ServerObjects.ConnectionToClient;
 
 /**
  * Abstract message to the server, containing information of the source client and enables generic interface for server actions corresponding to the message

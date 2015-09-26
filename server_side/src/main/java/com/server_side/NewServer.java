@@ -1,14 +1,15 @@
 package com.server_side;
 
-import com.lloseng.ocsf.server.AbstractServer;
-import com.lloseng.ocsf.server.ConnectionToClient;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.logging.Logger;
 import DataObjects.SharedConstants;
 import LogObjects.LogsManager;
 import MessagesToServer.MessageToServer;
+import ServerObjects.AbstractServer;
 import ServerObjects.ClientsManager;
+import ServerObjects.ConnectionToClient;
 
 /**
  * Created by Mor on 23/09/2015.
