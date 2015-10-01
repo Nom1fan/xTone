@@ -29,20 +29,6 @@ public class GetTokenIntentService extends IntentService {
     private static final int TOKEN_RETRY_SLEEP = 1000;
     private static final String TAG = GetTokenIntentService.class.getSimpleName();
 
-
-    /**
-     * Starts this service to perform action GET_TOKEN. If
-     * the service is already performing a task this action will be queued.
-     *
-     * @see IntentService
-     */
-    // TODO: Customize helper method
-    public static void startActionFoo(Context context, String param1, String param2) {
-        Intent intent = new Intent(context, GetTokenIntentService.class);
-        intent.setAction(ACTION_GET_TOKEN);
-        context.startService(intent);
-    }
-
     public GetTokenIntentService() {
         super("GetTokenIntentService");
     }
@@ -99,7 +85,7 @@ public class GetTokenIntentService extends IntentService {
             @Override
             public void run() {
                 Toast toast = Toast.makeText(getApplicationContext(), text,
-                        Toast.LENGTH_LONG);
+                        Toast.LENGTH_SHORT);
                 TextView v = (TextView) toast.getView().findViewById(
                         android.R.id.message);
                 v.setTextColor(g);

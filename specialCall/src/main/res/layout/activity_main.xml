@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="contacts"
-        android:src="@drawable/iphonecontacts"      
+        android:src="@drawable/contacts_enabled"
         android:textSize="18sp"
         android:layout_alignBottom="@+id/CallNumber"
         android:layout_alignRight="@+id/MyPic"

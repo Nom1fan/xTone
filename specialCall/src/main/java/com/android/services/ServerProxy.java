@@ -57,17 +57,22 @@ import data_objects.SharedPrefUtils;
 
           private ConnectionToServer connectionToServer;
           private ServerProxy serverProxy = this;
-          private ConnectivityManager connManager;
+          //private ConnectivityManager connManager;
           private static final int HEARTBEAT_INTERVAL = SharedConstants.HEARTBEAT_INTERVAL;
           private static final long INITIAL_RETRY_INTERVAL = 1000 * 5;
           private static final long MAXIMUM_RETRY_INTERVAL = 1000 * 60 * 30;
           private MessageHeartBeat msgHB;
           private boolean started = false;
           private final IBinder mBinder = new MyBinder();
-          private static final String TAG = "SERVER_PROXY";
+          private static final String TAG = ServerProxy.class.getSimpleName();
 
 
           /* Service overriding methods */
+
+          @Override
+          public IBinder onBind(Intent arg0) {
+              return mBinder;
+          }
 
           @Override
           public int onStartCommand(Intent intent, int flags, int startId) {
@@ -111,11 +116,6 @@ import data_objects.SharedPrefUtils;
           }
 
           @Override
-          public IBinder onBind(Intent arg0) {
-              return mBinder;
-          }
-
-          @Override
           public void onCreate() {
 
              Log.i(TAG, "ServerProxy service created");
@@ -124,8 +124,7 @@ import data_objects.SharedPrefUtils;
              SharedConstants.DEVICE_TOKEN = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
              SharedConstants.specialCallPath = Constants.specialCallPath;
 
-              connManager =
-                      (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+             sendEventReportBroadcast(new EventReport(EventType.SERVER_PROXY_CREATED, null, null));
 
              handleCrashedService();
 
@@ -247,7 +246,7 @@ import data_objects.SharedPrefUtils;
                   public void run() {
                       try {
                           openSocket();
-                          registerConnectivityReceiver();
+//                          registerConnectivityReceiver();
                           startClientActionListener();
                           startKeepAlives();
                           login();
@@ -268,6 +267,7 @@ import data_objects.SharedPrefUtils;
                   public void run() {
                       if(isConnected())
                       {
+                          Log.i(TAG, "Gracefully disconnecting...");
                           setConnected(false);
 
                           if (connectionToServer != null)
@@ -467,16 +467,16 @@ import data_objects.SharedPrefUtils;
               alarmMgr.cancel(pi);
           }
 
-          private boolean isNetworkAvailable() {
-
-              NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-              boolean wifiConnected = (wifiInfo != null && wifiInfo.isConnected());
-
-              NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-              boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
-
-              return wifiConnected || mobileConnected;
-          }
+//          private boolean isNetworkAvailable() {
+//
+//              NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+//              boolean wifiConnected = (wifiInfo != null && wifiInfo.isConnected());
+//
+//              NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+//              boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
+//
+//              return wifiConnected || mobileConnected;
+//          }
 
           private void handleCrashedService() {
 
@@ -495,37 +495,37 @@ import data_objects.SharedPrefUtils;
               connectionToServer=null;
               stopKeepAlives();
 
-              if(isNetworkAvailable())
+//              if(isNetworkAvailable())
                   scheduleReconnect(System.currentTimeMillis());
           }
 
           /* Broadcast Receivers */
 
-          private BroadcastReceiver mConnectivityChanged = new BroadcastReceiver()
-          {
-              @Override
-              public void onReceive(Context context, Intent intent)
-              {
-                  NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                  boolean wifiConnected = (wifiInfo != null && wifiInfo.isConnected());
+//          private BroadcastReceiver mConnectivityChanged = new BroadcastReceiver()
+//          {
+//              @Override
+//              public void onReceive(Context context, Intent intent)
+//              {
+//                  NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+//                  boolean wifiConnected = (wifiInfo != null && wifiInfo.isConnected());
+//
+//                  NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+//                  boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
+//
+//                  Log.i(TAG, "Connectivity changed. Wifi=" + wifiConnected + ". Mobile=" + mobileConnected);
+//
+//                  if (wifiConnected || mobileConnected)
+//                    reconnectIfNecessary();
+//                  else {
+//                      connectionToServer = null;
+//                      setConnected(false);
+//                  }
+//              }
+//          };
 
-                  NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-                  boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
-
-                  Log.i(TAG, "Connectivity changed. Wifi=" + wifiConnected + ". Mobile=" + mobileConnected);
-
-                  if (wifiConnected || mobileConnected)
-                    reconnectIfNecessary();
-                  else {
-                      connectionToServer = null;
-                      setConnected(false);
-                  }
-              }
-          };
-
-          private void registerConnectivityReceiver() {
-              registerReceiver(mConnectivityChanged, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-          }
+//          private void registerConnectivityReceiver() {
+//              registerReceiver(mConnectivityChanged, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+//          }
 
           /* Internal operations methods */
 
@@ -533,7 +533,7 @@ import data_objects.SharedPrefUtils;
           {
               if (started)
               {
-                  Log.i(TAG, "Attempt to start connection that is already active");
+                  Log.w(TAG, "Attempt to start connection that is already active");
                   return;
               }
 
@@ -552,10 +552,11 @@ import data_objects.SharedPrefUtils;
 
               setStarted(false);
 
-              unregisterReceiver(mConnectivityChanged);
+//              unregisterReceiver(mConnectivityChanged);
               cancelReconnect();
 
               gracefullyDisconnect();
+              sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, "Disconnected. Check your internet connection", null));
               stopSelf();
           }
 

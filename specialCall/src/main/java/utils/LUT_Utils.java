@@ -1,4 +1,4 @@
-package data_objects;
+package utils;
 
 import android.content.Context;
 
@@ -6,16 +6,17 @@ import Exceptions.FileDoesNotExistException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
+import data_objects.SharedPrefUtils;
 
 /**
  * Last Uploads Thumbnails Manager. Manages the last upload that was made per user using SharedPreferences
  * @author mor
  */
-public class LUT_Manager {
+public class LUT_Utils {
 
     private Context _context;
 
-    public LUT_Manager(Context context) {
+    public LUT_Utils(Context context) {
         _context = context;
     }
 

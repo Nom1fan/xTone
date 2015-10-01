@@ -1,19 +1,5 @@
 package com.special.specialcall;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import DataObjects.SharedConstants;
-import DataObjects.TransferDetails;
-import EventObjects.Event;
-import EventObjects.EventReport;
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileMissingExtensionException;
-import Exceptions.InvalidDestinationNumberException;
-import Exceptions.FileExceedsMaxSizeException;
-import Exceptions.FileInvalidFormatException;
-import FilesManager.FileManager;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -25,11 +11,8 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -44,7 +27,6 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -53,9 +35,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.android.services.IncomingReceiver;
 import com.android.services.ServerProxy;
-
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import DataObjects.SharedConstants;
+import DataObjects.TransferDetails;
+import EventObjects.Event;
+import EventObjects.EventReport;
+import Exceptions.FileDoesNotExistException;
+import Exceptions.FileExceedsMaxSizeException;
+import Exceptions.FileInvalidFormatException;
+import Exceptions.FileMissingExtensionException;
+import Exceptions.InvalidDestinationNumberException;
+import FilesManager.FileManager;
 import data_objects.Constants;
-import data_objects.LUT_Manager;
+import utils.AppStateUtils;
+import utils.LUT_Utils;
 import data_objects.SharedPrefUtils;
 
 
@@ -67,14 +62,13 @@ public class MainActivity extends Activity implements OnClickListener {
 	private String myPhoneNumber = "";
 	private String destPhoneNumber = "";
 	private String destName = "";	
-    private String tag = "MAIN_ACTIVITY";
+    private String tag = MainActivity.class.getSimpleName();
 	private Uri outputFileUri;
-	private boolean LoggedIn = false;
 	private ProgressBar pBar;
 	private boolean loading = false;
 	private boolean mIsBound = false;
     private Context context;
-    private LUT_Manager lutManager;
+    private LUT_Utils lutManager;
 	private BroadcastReceiver serviceReceiver;
 	private IntentFilter serviceReceiverIntentFilter = new IntentFilter(Event.EVENT_ACTION);
 
@@ -120,35 +114,44 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onResume();
 
         context = getApplicationContext();
-		
-		LoggedIn = SharedPrefUtils.getBoolean(context, SharedPrefUtils.GENERAL,
-				"LoggedIn");
-		
-		if (LoggedIn)
-		{
+        String appState = AppStateUtils.getAppState(context);
+        Log.i(tag, "App State:" + appState);
 
-			if(serverProxy==null)
-			{
-				myPhoneNumber = SharedPrefUtils.getString(context,SharedPrefUtils.GENERAL,SharedPrefUtils.MY_NUMBER);
-				SharedConstants.MY_ID = myPhoneNumber;
-				InitializeConnection();
-			}
-            doBindService();
-            registerReceiver(serviceReceiver,serviceReceiverIntentFilter);
-			initializeUI();
+        if(!appState.equals(SharedPrefUtils.STATE_LOGGED_OUT) && !appState.equals(SharedPrefUtils.STATE_DISABLED)) {
+            if (serverProxy == null) {
+                myPhoneNumber = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
+                SharedConstants.MY_ID = myPhoneNumber;
+                initializeConnection();
+            }
+            else
+                doBindService();
+            registerReceiver(serviceReceiver, serviceReceiverIntentFilter);
+        }
 
-			((TextView) findViewById(R.id.destName)).setText(destName);
+        switch (appState)
+        {
+            case SharedPrefUtils.STATE_LOGGED_OUT:
+                setContentView(R.layout.loginuser);
+                Button login = (Button) findViewById(R.id.login);
+                login.setOnClickListener(this);
+            break;
 
-		}
-		else
-		{
-			setContentView(R.layout.loginuser);
-			Button login = (Button) findViewById(R.id.login);
-			login.setOnClickListener(this);
-		}
+            case SharedPrefUtils.STATE_IDLE:
+                stateIdle();
+                restoreInstanceState();
+            break;
 
-        // Restoring instance state
-        restoreInstanceState();
+            case SharedPrefUtils.STATE_READY:
+                stateReady();
+                restoreInstanceState();
+            break;
+
+            case SharedPrefUtils.STATE_DISABLED:
+                stateDisabled();
+                restoreInstanceState();
+            break;
+
+        }
 	}
 
 	@Override
@@ -162,20 +165,18 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 
         context = getApplicationContext();
-        lutManager = new LUT_Manager(context);
+        lutManager = new LUT_Utils(context);
 
-		LoggedIn = SharedPrefUtils.getBoolean(context,
-				SharedPrefUtils.GENERAL, "LoggedIn");
-
-
-		if (!LoggedIn) {
+		if (AppStateUtils.getAppState(context).equals(SharedPrefUtils.STATE_LOGGED_OUT)) {
 			setContentView(R.layout.loginuser);
 
 			Button login = (Button) findViewById(R.id.login);
 			login.setOnClickListener(this);
 		} else {
 			initializeUI();
-
+            if (AppStateUtils.getAppState(context).equals(SharedPrefUtils.STATE_LOGGED_IN)) {
+                stateIdle();
+            }
 		}
 	}
 
@@ -350,7 +351,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		buttonLabels[5] = "Select Contact";
 	}
 
-	private void openImageIntent() {
+	private void selectVisualMedia() {
 
 		// Determine Uri of camera image to save.
 		final File root = new File(Environment.getExternalStorageDirectory()
@@ -395,7 +396,7 @@ public class MainActivity extends Activity implements OnClickListener {
 				ActivityRequestCodes.SELECT_PICTURE);
 	}
 
-	private void uploadRingtoneIntent() {
+	private void selectRingtone() {
 
 
 		Intent intent_selectRingTone = new Intent();
@@ -439,12 +440,12 @@ public class MainActivity extends Activity implements OnClickListener {
 		} else if (id == R.id.MyPic) {
 
 			((Button) findViewById(R.id.CallNow)).setEnabled(false);
-			openImageIntent();
+			selectVisualMedia();
 
 		} else if (id == R.id.MyRing) {
 
 			((Button) findViewById(R.id.CallNow)).setEnabled(false);
-			uploadRingtoneIntent();
+			selectRingtone();
 		} else if (id == R.id.Select_Contact) {
 
 			Intent intent = new Intent(Intent.ACTION_PICK);
@@ -454,11 +455,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		else if (id == R.id.login) {
 
-			SharedPrefUtils.setBoolean(context,
-					SharedPrefUtils.GENERAL, "LoggedIn", true);
-
-			LoggedIn = true;
-
+            AppStateUtils.setAppState(context, tag, SharedPrefUtils.STATE_LOGGED_IN);
 
             startService(new Intent(this, IncomingReceiver.class));
 
@@ -470,13 +467,13 @@ public class MainActivity extends Activity implements OnClickListener {
 			SharedPrefUtils.setString(context,
 					SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, myPhoneNumber);
 
-			InitializeConnection();
+			initializeConnection();
 
 			File SpecialCallIncoming = new File(Constants.specialCallPath);
 			SpecialCallIncoming.mkdirs();
 
 			initializeUI();
-			disableGuiComponents();
+			stateIdle();
 		}
 
 		else if (id == R.id.settingsBtn) {
@@ -538,11 +535,11 @@ public class MainActivity extends Activity implements OnClickListener {
                         serverProxy.isLogin(destPhone);
 
                     destPhoneNumber = destPhone;
-
-                } else if (0 == s.length()) {
-                    disableGuiComponents();
+                    drawUploadedContent(destPhoneNumber);
                 } else {
-                    disableGuiComponents();
+
+                    if(AppStateUtils.getAppState(context).equals(SharedPrefUtils.STATE_READY))
+                        stateIdle();
                 }
             }
 
@@ -572,50 +569,57 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		ImageButton settingsBtn = (ImageButton) findViewById(R.id.settingsBtn);
 		settingsBtn.setOnClickListener(this);
-
-        if (loading)
-            enableProgressBar();
-        else
-            disableProgressBar();
-
-		disableGuiComponents();
 	}
-
 
 	public void eventReceived(Event event) {
 
 		final EventReport report = event.report();
 
 		switch (report.status()) {
+
+        case SERVER_PROXY_CREATED:
+            if(serverProxy==null)
+                doBindService();
+            break;
+
 		case UPLOAD_SUCCESS:
 			writeInfoStatBar(report.desc(), Color.YELLOW);
-			enableGuiComponents();
-			disableProgressBar();
-			loading = false;
-
+			if(isContactSelected())
+                serverProxy.isLogin(destPhoneNumber);
+            else
+                stateIdle();
 			break;
 
 		case UPLOAD_FAILURE:
 			//callErrToast(report.desc());
             writeErrStatBar(report.desc());
-			disableProgressBar();
+			if(isContactSelected())
+                serverProxy.isLogin(destPhoneNumber);
+            else
+                stateIdle();
 			break;
 
 		case DOWNLOAD_SUCCESS:
 			//callInfoToast(report.desc());
             writeInfoStatBar(report.desc());
-			disableProgressBar();
+			if(isContactSelected())
+                serverProxy.isLogin(destPhoneNumber);
+            else
+                stateIdle();
 			break;
 
 		case DOWNLOAD_FAILURE:
-			disableProgressBar();
 			//callErrToast(report.desc());
             writeErrStatBar(report.desc());
+            if(isContactSelected())
+                serverProxy.isLogin(destPhoneNumber);
+            else
+                stateIdle();
 			break;
 
         case LOGIN_SUCCESS:
             writeInfoStatBar(report.desc());
-            disableProgressBar();
+            stateIdle();
             break;
 
 		case ISLOGIN_ONLINE:
@@ -623,46 +627,45 @@ public class MainActivity extends Activity implements OnClickListener {
             drawUploadedContent(destPhoneNumber);
 			//callInfoToast(report.desc());
             writeInfoStatBar(report.desc());
-			enableGuiComponents();
+			stateReady();
 			break;
 
 		case ISLOGIN_ERROR:
 			//callErrToast(report.desc());
             writeErrStatBar(report.desc());
-			disableGuiComponents();
+			stateIdle();
 			break;
 
 		case ISLOGIN_OFFLINE:
             destPhoneNumber = (String) report.data();
-            drawUploadedContent(destPhoneNumber);
+            //drawUploadedContent(destPhoneNumber);
 			//callErrToast(report.desc());
             writeErrStatBar(report.desc());
-			disableGuiComponents();
+			stateIdle();
 			break;
 
 		case ISLOGIN_UNREGISTERED:
 			writeErrStatBar(report.desc());
-			disableGuiComponents();
-			break;
-			
-		case RESPONSE_FAILURE:
-			writeErrStatBar(report.desc());
+			stateIdle();
 			break;
 
 		case DESTINATION_DOWNLOAD_COMPLETE:
 			writeInfoStatBar(report.desc());
-			disableProgressBar();
-			enableCallButton();
             TransferDetails td = (TransferDetails) report.data();
             lutManager.saveUploadedPerNumber(td.getDestinationId(), td.getFileType(), td.get_fullFilePathSrcSD());
-            drawUploadedContent(td.getDestinationId());
+            if(isContactSelected())
+                serverProxy.isLogin(destPhoneNumber);
 			break;
 
         case RECONNECT_ATTEMPT:
             writeErrStatBar(report.desc());
-            enableProgressBar();
+            stateLoading();
             break;
 
+        case DISCONNECTED:
+            writeErrStatBar(report.desc());
+            stateDisabled();
+            break;
 		case CLOSE_APP:
 			writeErrStatBar(report.desc());
 			finish();
@@ -830,6 +833,101 @@ public class MainActivity extends Activity implements OnClickListener {
 
     }
 
+    private void initializeConnection() {
+
+        // Starting service
+        // Intent serverProxyIntent = new Intent(this, ServerProxy.class);
+        // serverProxyIntent.putExtra("myphonenumber", myPhoneNumber);
+        // serverProxyIntent.putExtra("workingdir", workingDir);
+
+        Intent i = new Intent();
+        i.setClass(getBaseContext(), ServerProxy.class);
+        i.setAction(ServerProxy.ACTION_START);
+        startService(i);
+        doBindService();
+
+//		serverProxy = new ServerProxy(eventGenerator);
+//        serverProxy.connect();
+    }
+
+    private boolean isContactSelected() {
+
+        EditText edCN = (EditText) findViewById(R.id.CallNumber);
+        String s = edCN.getText().toString();
+        if(10 == s.length())
+            return true;
+        return false;
+    }
+
+    /* -------------- UI methods -------------- */
+
+    /* --- UI States --- */
+
+    private void stateReady() {
+
+        AppStateUtils.setAppState(context, tag, SharedPrefUtils.STATE_READY);
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                disableProgressBar();
+                enableSelectMediaButton();
+                enableContactEditText();
+                enableSelectRingToneButton();
+                enableSelectContactButton();
+                enableCallButton();
+            }
+        });
+    }
+
+    private void stateIdle() {
+
+        AppStateUtils.setAppState(context, tag, SharedPrefUtils.STATE_IDLE);
+
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                enableSelectContactButton();
+                enableContactEditText();
+                disableProgressBar();
+                disableSelectMediaButton();
+                disableSelectRingToneButton();
+                disableCallButton();
+            }
+        });
+    }
+
+    private void stateDisabled() {
+
+        AppStateUtils.setAppState(context, tag, SharedPrefUtils.STATE_DISABLED);
+
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                writeErrStatBar("Disconnected. Check your internet connection");
+                disableSelectMediaButton();
+                disableSelectRingToneButton();
+                disableSelectContactButton();
+                disableContactEditText();
+                disableCallButton();
+            }
+        });
+    }
+
+    private void stateLoading() {
+
+        AppStateUtils.setAppState(context, tag, SharedPrefUtils.STATE_LOADING);
+
+        enableProgressBar();
+        stateDisabled();
+    }
+
+
+
+    /* --- UI elements controls --- */
+
 	private void disableCallButton() {
 
 		runOnUiThread(new Runnable() {
@@ -903,6 +1001,30 @@ public class MainActivity extends Activity implements OnClickListener {
         });
     }
 
+    private void disableSelectContactButton() {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ImageButton ringButton = ((ImageButton) findViewById(R.id.Select_Contact));
+                ringButton.setClickable(false);
+                ringButton.setImageResource(R.drawable.contacts_disabled);
+            }
+        });
+    }
+
+    private void enableSelectContactButton() {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ImageButton ringButton = ((ImageButton) findViewById(R.id.Select_Contact));
+                ringButton.setClickable(true);
+                ringButton.setImageResource(R.drawable.contacts_enabled);
+            }
+        });
+    }
+
 	private void disableProgressBar() {
 
 		loading = false;
@@ -929,29 +1051,17 @@ public class MainActivity extends Activity implements OnClickListener {
         });
 	}
 
-	private void enableGuiComponents() {
+    private void disableContactEditText() {
 
-        enableSelectMediaButton();
-        enableSelectRingToneButton();
-        if(destPhoneNumber!=null)
-            drawUploadedContent(destPhoneNumber);
-        enableCallButton();
-	}
+        EditText editText = (EditText)findViewById(R.id.CallNumber);
+        editText.setEnabled(false);
+    }
 
-	private void disableGuiComponents() {
+    private void enableContactEditText() {
 
-		runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-
-                disableSelectMediaButton();
-                disableSelectRingToneButton();
-                disableCallButton();
-
-            }
-        });
-	}
+        EditText editText = (EditText)findViewById(R.id.CallNumber);
+        editText.setEnabled(true);
+    }
 
 	private void setMediaSelectButtonThumbnail(String destPhoneNumber)
     {
@@ -969,8 +1079,13 @@ public class MainActivity extends Activity implements OnClickListener {
 				task.set_fileType(fType);
 				task.execute(lastUploadedMediaPath);
             }
-            else
-                selectMediaBtn.setImageResource(R.drawable.defaultpic_enabled);
+            else {
+                if(selectMediaBtn.isClickable())
+                    selectMediaBtn.setImageResource(R.drawable.defaultpic_enabled);
+                else
+                    selectMediaBtn.setImageResource(R.drawable.defaultpic_disabled);
+            }
+
 
         } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
             SharedPrefUtils.remove(context, SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
@@ -990,29 +1105,16 @@ public class MainActivity extends Activity implements OnClickListener {
         }
         else
         {
-            ringButton.getBackground().setColorFilter(Color.LTGRAY,
-                    PorterDuff.Mode.MULTIPLY);
+            if(ringButton.isClickable())
+                ringButton.getBackground().setColorFilter(Color.LTGRAY,
+                        PorterDuff.Mode.MULTIPLY);
+            else
+                ringButton.getBackground().setColorFilter(Color.DKGRAY,
+                        PorterDuff.Mode.MULTIPLY);
         }
         ringButton.refreshDrawableState();
 
     }
-
-    private void InitializeConnection() {
-
-		// Starting service
-		// Intent serverProxyIntent = new Intent(this, ServerProxy.class);
-		// serverProxyIntent.putExtra("myphonenumber", myPhoneNumber);
-		// serverProxyIntent.putExtra("workingdir", workingDir);
-
-		 Intent i = new Intent();
-		 i.setClass(getBaseContext(), ServerProxy.class);
-		 i.setAction(ServerProxy.ACTION_START);
-		 startService(i);
-         doBindService();
-
-//		serverProxy = new ServerProxy(eventGenerator);
-//        serverProxy.connect();
-	}
 
 	private void callErrToast(final String text) {
 		runOnUiThread(new Runnable() {
@@ -1044,16 +1146,16 @@ public class MainActivity extends Activity implements OnClickListener {
 	
 	private void callInfoToast(final String text, final int g) {
 		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Toast toast = Toast.makeText(context, text,
-						Toast.LENGTH_LONG);
-				TextView v = (TextView) toast.getView().findViewById(
-						android.R.id.message);
-				v.setTextColor(g);
-				toast.show();
-			}
-		});
+            @Override
+            public void run() {
+                Toast toast = Toast.makeText(context, text,
+                        Toast.LENGTH_LONG);
+                TextView v = (TextView) toast.getView().findViewById(
+                        android.R.id.message);
+                v.setTextColor(g);
+                toast.show();
+            }
+        });
 	}
 
     private void writeErrStatBar(final String text) {
@@ -1076,5 +1178,4 @@ public class MainActivity extends Activity implements OnClickListener {
         statusBar.setTextColor(g);
         statusBar.setText(text);
     }
-
 }
