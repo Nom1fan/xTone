@@ -156,7 +156,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	@Override
     protected void onDestroy() {
-	 super.onDestroy();
+	    super.onDestroy();
+        Log.i(tag, tag+" is being destroyed");
 	 }
 
 	@Override
@@ -552,9 +553,6 @@ public class MainActivity extends Activity implements OnClickListener {
 		button1.setOnClickListener(this);
 
 		ImageButton button2 = (ImageButton) findViewById(R.id.MyPic);
-		// button2.setText(buttonLabels[1]);
-		// button2.getBackground().setColorFilter(0xFFFF0000,
-		// PorterDuff.Mode.MULTIPLY);
 		button2.setOnClickListener(this);
 
 		Button button3 = (Button) findViewById(R.id.MyRing);
@@ -584,37 +582,18 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		case UPLOAD_SUCCESS:
 			writeInfoStatBar(report.desc(), Color.YELLOW);
-			if(isContactSelected())
-                serverProxy.isLogin(destPhoneNumber);
-            else
-                stateIdle();
 			break;
 
 		case UPLOAD_FAILURE:
-			//callErrToast(report.desc());
             writeErrStatBar(report.desc());
-			if(isContactSelected())
-                serverProxy.isLogin(destPhoneNumber);
-            else
-                stateIdle();
 			break;
 
 		case DOWNLOAD_SUCCESS:
-			//callInfoToast(report.desc());
             writeInfoStatBar(report.desc());
-			if(isContactSelected())
-                serverProxy.isLogin(destPhoneNumber);
-            else
-                stateIdle();
 			break;
 
 		case DOWNLOAD_FAILURE:
-			//callErrToast(report.desc());
             writeErrStatBar(report.desc());
-            if(isContactSelected())
-                serverProxy.isLogin(destPhoneNumber);
-            else
-                stateIdle();
 			break;
 
         case LOGIN_SUCCESS:
@@ -624,8 +603,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		case ISLOGIN_ONLINE:
             destPhoneNumber = (String) report.data();
-            drawUploadedContent(destPhoneNumber);
-			//callInfoToast(report.desc());
             writeInfoStatBar(report.desc());
 			stateReady();
 			break;
@@ -638,8 +615,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		case ISLOGIN_OFFLINE:
             destPhoneNumber = (String) report.data();
-            //drawUploadedContent(destPhoneNumber);
-			//callErrToast(report.desc());
             writeErrStatBar(report.desc());
 			stateIdle();
 			break;
@@ -666,6 +641,7 @@ public class MainActivity extends Activity implements OnClickListener {
             writeErrStatBar(report.desc());
             stateDisabled();
             break;
+
 		case CLOSE_APP:
 			writeErrStatBar(report.desc());
 			finish();
@@ -968,7 +944,11 @@ public class MainActivity extends Activity implements OnClickListener {
             public void run() {
                 ImageButton myPic = ((ImageButton) findViewById(R.id.MyPic));
                 myPic.setClickable(true);
-                myPic.setImageResource(R.drawable.defaultpic_enabled);
+                String mediaThumbnail = lutManager.getUploadedMediaPerNumber(destPhoneNumber);
+                if(mediaThumbnail.equals(""))
+                    myPic.setImageResource(R.drawable.defaultpic_enabled);
+                else
+                    drawUploadedContent(destPhoneNumber);
             }
         });
     }
@@ -1040,9 +1020,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	private void enableProgressBar() {
 
-		loading = true;
+        loading = true;
 
-		runOnUiThread(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 pBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -1053,7 +1033,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private void disableContactEditText() {
 
-        EditText editText = (EditText)findViewById(R.id.CallNumber);
+        EditText editText = (EditText) findViewById(R.id.CallNumber);
         editText.setEnabled(false);
     }
 

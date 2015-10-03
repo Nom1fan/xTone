@@ -34,7 +34,9 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
         if (wifiConnected || mobileConnected) {
 
             String appState = AppStateUtils.getAppState(context);
+            Log.i(TAG, "App State:"+appState);
             if(!appState.equals(SharedPrefUtils.STATE_LOGGED_OUT)) {
+                Log.i(TAG, "Starting ServerProxy...");
                 Intent i = new Intent(context, ServerProxy.class);
                 i.setAction(ServerProxy.ACTION_START);
                 context.startService(i);

@@ -3,13 +3,8 @@ package com.android.services;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -336,9 +331,9 @@ import data_objects.SharedPrefUtils;
               return SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_STARTED);
           }
 
-          private void setStarted(boolean started) {
-              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_STARTED, started);
-              this.started = started;
+          private void setStarted(boolean state) {
+              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_STARTED, state);
+              this.started = state;
           }
 
           private void openSocket() throws IOException {
@@ -481,7 +476,7 @@ import data_objects.SharedPrefUtils;
           private void handleCrashedService() {
 
               Log.i(TAG, "Handling crashed service");
-              if(wasStarted() == true) {
+              if(wasStarted()) {
                   stopKeepAlives();
                   connect();
               }
