@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -52,10 +54,10 @@ import data_objects.SharedPrefUtils;
 
           private ConnectionToServer connectionToServer;
           private ServerProxy serverProxy = this;
-          //private ConnectivityManager connManager;
+          private ConnectivityManager connManager;
           private static final int HEARTBEAT_INTERVAL = SharedConstants.HEARTBEAT_INTERVAL;
           private static final long INITIAL_RETRY_INTERVAL = 1000 * 5;
-          private static final long MAXIMUM_RETRY_INTERVAL = 1000 * 60 * 30;
+          private static final long MAXIMUM_RETRY_INTERVAL = 1000 * 60;
           private MessageHeartBeat msgHB;
           private boolean started = false;
           private final IBinder mBinder = new MyBinder();
@@ -98,7 +100,7 @@ import data_objects.SharedPrefUtils;
                           break;
 
                       case ACTION_HEARTBEAT:
-                          sendHeartBeat();
+                            sendHeartBeat();
                           break;
 
                       case ACTION_RECONNECT:
@@ -119,6 +121,8 @@ import data_objects.SharedPrefUtils;
              SharedConstants.DEVICE_TOKEN = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
              SharedConstants.specialCallPath = Constants.specialCallPath;
 
+             connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+
              sendEventReportBroadcast(new EventReport(EventType.SERVER_PROXY_CREATED, null, null));
 
              handleCrashedService();
@@ -130,7 +134,9 @@ import data_objects.SharedPrefUtils;
 
               Log.e(TAG, "ServerProxy service is being destroyed");
               callErrToast("ServerProxy service is being destroyed");
+              gracefullyDisconnect();
               stop();
+
           }
 
           public class MyBinder extends Binder {
@@ -180,8 +186,8 @@ import data_objects.SharedPrefUtils;
                       }
                       catch(IOException e) {
                           e.printStackTrace();
-                          String errMsg = "UPLOAD_FAILURE. Upload to user:" + destNumber + " failed. Exception:" + e.getMessage();
-                          handleDisconnection(errMsg, EventType.UPLOAD_FAILURE);
+                          String errMsg = "Upload to user:" + destNumber + " failed. Exception:" + e.getMessage()+". Check your internet connection";
+                          handleDisconnection(errMsg);
                       }
                       catch (Exception e) {
                           e.printStackTrace();
@@ -216,8 +222,8 @@ import data_objects.SharedPrefUtils;
 
                       } catch (IOException e) {
                           e.printStackTrace();
-                          String errMsg = "ISLOGIN_ERROR. Exception:" + e.getMessage();
-                          handleDisconnection(errMsg, EventType.ISLOGIN_ERROR);
+                          String errMsg = "ISLOGIN_ERROR. Exception:" + e.getMessage()+". Check your internet connection";
+                          handleDisconnection(errMsg);
                       }
                   }
 
@@ -248,8 +254,12 @@ import data_objects.SharedPrefUtils;
                       } catch (IOException e) {
                           e.printStackTrace();
                           String errMsg = "Failed connect to server:" + e.getMessage();
-                          handleDisconnection(errMsg, EventType.DISPLAY_ERROR);
+                          handleDisconnection(errMsg);
                       }
+
+                      // Done reconnecting. Resetting reconnect interval
+                      if(isConnected())
+                          SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
                   }
               }.start();
           }
@@ -300,8 +310,8 @@ import data_objects.SharedPrefUtils;
                           connectionToServer.sendMessage(msgLogin);
                       } catch (IOException e) {
                           e.printStackTrace();
-                          String errMsg = "LOGIN_FAILURE. Exception:" + e.getMessage();
-                          handleDisconnection(errMsg, EventType.DISPLAY_ERROR);
+                          String errMsg = "LOGIN_FAILURE. Exception:" + e.getMessage()+". Check your internet connection";
+                          handleDisconnection(errMsg);
                       }
 
                   }
@@ -367,8 +377,8 @@ import data_objects.SharedPrefUtils;
                               }
                           } catch (IOException e) {
                               e.printStackTrace();
-                              String errMsg = "Client action failure. Exception:"+e.getMessage();
-                              handleDisconnection(errMsg, EventType.CLIENT_ACTION_FAILURE);
+                              String errMsg = "Client action failure. Exception:"+e.getMessage()+". Check your internet connection";
+                              handleDisconnection(errMsg);
                           }
                           catch(ClassNotFoundException e) {
 
@@ -388,7 +398,7 @@ import data_objects.SharedPrefUtils;
                   @Override
                   public void run() {
 
-                      if (started && connectionToServer == null) {
+                      if (isNetworkAvailable() && started && connectionToServer == null) {
 
                           try {
                               String infoMsg = "Reconnecting...";
@@ -401,8 +411,6 @@ import data_objects.SharedPrefUtils;
                               login();
                           } catch (IOException e) {
                               e.printStackTrace();
-                              String errMsg = "Reconnect failed. Exception:"+e.getMessage();
-                              handleDisconnection(errMsg, EventType.DISPLAY_ERROR);
                           }
                       }
 
@@ -426,8 +434,8 @@ import data_objects.SharedPrefUtils;
 
               } catch (IOException | NullPointerException e) {
                   e.printStackTrace();
-                  String errMsg = "HEARTBEAT_FAILURE. Exception:" + e.getMessage();
-                  handleDisconnection(errMsg, EventType.DISPLAY_ERROR);
+                  String errMsg = "HEARTBEAT_FAILURE. Exception:" + e.getMessage()+". Check your internet connection";
+                  handleDisconnection(errMsg);
               }
           }
 
@@ -462,16 +470,16 @@ import data_objects.SharedPrefUtils;
               alarmMgr.cancel(pi);
           }
 
-//          private boolean isNetworkAvailable() {
-//
-//              NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-//              boolean wifiConnected = (wifiInfo != null && wifiInfo.isConnected());
-//
-//              NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-//              boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
-//
-//              return wifiConnected || mobileConnected;
-//          }
+          private boolean isNetworkAvailable() {
+
+              NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+              boolean wifiConnected = (wifiInfo != null && wifiInfo.isConnected());
+
+              NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+              boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
+
+              return wifiConnected || mobileConnected;
+          }
 
           private void handleCrashedService() {
 
@@ -482,16 +490,14 @@ import data_objects.SharedPrefUtils;
               }
           }
 
-          private void handleDisconnection(String errMsg, EventType eventType) {
+          private void handleDisconnection(String errMsg) {
 
               Log.e(TAG, errMsg);
               setConnected(false);
-              sendEventReportBroadcast(new EventReport(eventType, errMsg, null));
+              sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, errMsg, null));
               connectionToServer=null;
               stopKeepAlives();
-
-//              if(isNetworkAvailable())
-                  scheduleReconnect(System.currentTimeMillis());
+              scheduleReconnect(System.currentTimeMillis());
           }
 
           /* Broadcast Receivers */
@@ -548,11 +554,11 @@ import data_objects.SharedPrefUtils;
               setStarted(false);
 
 //              unregisterReceiver(mConnectivityChanged);
-              cancelReconnect();
+//              cancelReconnect();
 
-              gracefullyDisconnect();
+//              gracefullyDisconnect();
               sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, "Disconnected. Check your internet connection", null));
-              stopSelf();
+//              stopSelf();
           }
 
           private void cancelReconnect()

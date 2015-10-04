@@ -438,16 +438,16 @@ public class MainActivity extends Activity implements OnClickListener {
 
 			launchDialer(destPhoneNumber);
 
-		} else if (id == R.id.MyPic) {
+		} else if (id == R.id.selectMediaBtn) {
 
 			((Button) findViewById(R.id.CallNow)).setEnabled(false);
 			selectVisualMedia();
 
-		} else if (id == R.id.MyRing) {
+		} else if (id == R.id.selectRingtoneBtn) {
 
 			((Button) findViewById(R.id.CallNow)).setEnabled(false);
 			selectRingtone();
-		} else if (id == R.id.Select_Contact) {
+		} else if (id == R.id.selectContactBtn) {
 
 			Intent intent = new Intent(Intent.ACTION_PICK);
 			intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
@@ -521,8 +521,6 @@ public class MainActivity extends Activity implements OnClickListener {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count,
                                           int after) {
-//                if (!settingCallNumberComplete)
-//                    return;
             }
 
             @Override
@@ -532,13 +530,16 @@ public class MainActivity extends Activity implements OnClickListener {
                 String destPhone = s.toString();
 
                 if (10 == s.length()) {
+
+                    destPhoneNumber = destPhone;
+                    drawSelectMediaButton(false);
+                    drawSelectRingToneButton();
+
                     if (serverProxy != null)
                         serverProxy.isLogin(destPhone);
 
-                    destPhoneNumber = destPhone;
-                    drawUploadedContent(destPhoneNumber);
                 } else {
-
+                    destPhoneNumber="";
                     if(AppStateUtils.getAppState(context).equals(SharedPrefUtils.STATE_READY))
                         stateIdle();
                 }
@@ -552,16 +553,16 @@ public class MainActivity extends Activity implements OnClickListener {
 		Button button1 = (Button) findViewById(R.id.CallNow);
 		button1.setOnClickListener(this);
 
-		ImageButton button2 = (ImageButton) findViewById(R.id.MyPic);
+		ImageButton button2 = (ImageButton) findViewById(R.id.selectMediaBtn);
 		button2.setOnClickListener(this);
 
-		Button button3 = (Button) findViewById(R.id.MyRing);
+		Button button3 = (Button) findViewById(R.id.selectRingtoneBtn);
 		button3.setText(buttonLabels[2]);
 		button3.getBackground().setColorFilter(0xFFFF0000,
                 PorterDuff.Mode.MULTIPLY);
 		button3.setOnClickListener(this);
 
-		ImageButton button6 = (ImageButton) findViewById(R.id.Select_Contact);
+		ImageButton button6 = (ImageButton) findViewById(R.id.selectContactBtn);
 		// button6.setText(buttonLabels[5]);
 		button6.setOnClickListener(this);
 
@@ -750,22 +751,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
     }
 
-    private void drawUploadedContent(final String destPhoneNumber) {
-
-        runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-
-                setMediaSelectButtonThumbnail(destPhoneNumber);
-                setRingToneSelectButtonBg(destPhoneNumber);
-
-//                ViewGroup vg = (ViewGroup) findViewById(R.id.mainActivity);
-//                vg.invalidate();
-            }
-        });
-    }
-
     private void checkDestinationNumber() throws InvalidDestinationNumberException {
 
         if(destPhoneNumber==null)
@@ -864,11 +849,15 @@ public class MainActivity extends Activity implements OnClickListener {
 
             @Override
             public void run() {
+
                 enableSelectContactButton();
                 enableContactEditText();
                 disableProgressBar();
                 disableSelectMediaButton();
                 disableSelectRingToneButton();
+
+
+                // Call button
                 disableCallButton();
             }
         });
@@ -909,7 +898,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		runOnUiThread(new Runnable() {
 
 			public void run() {
-				((Button) findViewById(R.id.CallNow)).setEnabled(false);
+				    findViewById(R.id.CallNow).setEnabled(false);
 			}
 
 		});
@@ -919,36 +908,31 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		runOnUiThread(new Runnable() {
 
+            @Override
             public void run() {
-                ((Button) findViewById(R.id.CallNow)).setEnabled(true);
+                findViewById(R.id.CallNow).setEnabled(true);
             }
-
         });
 	}
 
     private void disableSelectMediaButton() {
 
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ImageButton myPic = ((ImageButton) findViewById(R.id.MyPic));
-                    myPic.setClickable(false);
-                    myPic.setImageResource(R.drawable.defaultpic_disabled);
-                }
-            });
-    }
-
-    private void enableSelectMediaButton() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ImageButton myPic = ((ImageButton) findViewById(R.id.MyPic));
-                myPic.setClickable(true);
-                String mediaThumbnail = lutManager.getUploadedMediaPerNumber(destPhoneNumber);
-                if(mediaThumbnail.equals(""))
-                    myPic.setImageResource(R.drawable.defaultpic_enabled);
-                else
-                    drawUploadedContent(destPhoneNumber);
+                findViewById(R.id.selectMediaBtn).setClickable(false);
+                drawSelectMediaButton(false);
+            }
+        });
+    }
+
+    private void enableSelectMediaButton() {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                findViewById(R.id.selectMediaBtn).setClickable(true);
+                drawSelectMediaButton(true);
             }
         });
     }
@@ -958,11 +942,8 @@ public class MainActivity extends Activity implements OnClickListener {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Button ringButton = ((Button) findViewById(R.id.MyRing));
-                ringButton.setClickable(true);
-                ringButton.getBackground().setColorFilter(Color.LTGRAY,
-                        PorterDuff.Mode.MULTIPLY);
-                ringButton.refreshDrawableState();
+                findViewById(R.id.selectRingtoneBtn).setEnabled(true);
+                drawSelectRingToneButton();
             }
         });
     }
@@ -972,11 +953,8 @@ public class MainActivity extends Activity implements OnClickListener {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Button ringButton = ((Button) findViewById(R.id.MyRing));
-                ringButton.setClickable(false);
-                ringButton.getBackground().setColorFilter(Color.DKGRAY,
-                        PorterDuff.Mode.MULTIPLY);
-                ringButton.refreshDrawableState();
+                findViewById(R.id.selectRingtoneBtn).setEnabled(false);
+                drawSelectRingToneButton();
             }
         });
     }
@@ -986,9 +964,8 @@ public class MainActivity extends Activity implements OnClickListener {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ImageButton ringButton = ((ImageButton) findViewById(R.id.Select_Contact));
-                ringButton.setClickable(false);
-                ringButton.setImageResource(R.drawable.contacts_disabled);
+               findViewById(R.id.selectContactBtn).setEnabled(false);
+               drawSelectContactButton(false);
             }
         });
     }
@@ -998,9 +975,8 @@ public class MainActivity extends Activity implements OnClickListener {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ImageButton ringButton = ((ImageButton) findViewById(R.id.Select_Contact));
-                ringButton.setClickable(true);
-                ringButton.setImageResource(R.drawable.contacts_enabled);
+                findViewById(R.id.selectContactBtn).setEnabled(true);
+                drawSelectContactButton(true);
             }
         });
     }
@@ -1033,21 +1009,19 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private void disableContactEditText() {
 
-        EditText editText = (EditText) findViewById(R.id.CallNumber);
-        editText.setEnabled(false);
+        findViewById(R.id.CallNumber).setEnabled(false);
     }
 
     private void enableContactEditText() {
 
-        EditText editText = (EditText)findViewById(R.id.CallNumber);
-        editText.setEnabled(true);
+       findViewById(R.id.CallNumber).setEnabled(true);
     }
 
-	private void setMediaSelectButtonThumbnail(String destPhoneNumber)
+	private void drawSelectMediaButton(boolean enabled)
     {
         try {
             FileManager.FileType fType;
-            ImageButton selectMediaBtn = (ImageButton) findViewById(R.id.MyPic);
+            ImageButton selectMediaBtn = (ImageButton) findViewById(R.id.selectMediaBtn);
 
             String lastUploadedMediaPath = lutManager.getUploadedMediaPerNumber(destPhoneNumber);
             if (!lastUploadedMediaPath.equals("")) {
@@ -1060,7 +1034,7 @@ public class MainActivity extends Activity implements OnClickListener {
 				task.execute(lastUploadedMediaPath);
             }
             else {
-                if(selectMediaBtn.isClickable())
+                if(enabled)
                     selectMediaBtn.setImageResource(R.drawable.defaultpic_enabled);
                 else
                     selectMediaBtn.setImageResource(R.drawable.defaultpic_disabled);
@@ -1074,10 +1048,10 @@ public class MainActivity extends Activity implements OnClickListener {
 
     }
 
-    private void setRingToneSelectButtonBg(String destPhoneNumber) {
+    private void drawSelectRingToneButton() {
 
         boolean wasRingToneUploaded = lutManager.getUploadedRingTonePerNumber(destPhoneNumber);
-        Button ringButton = (Button) findViewById(R.id.MyRing);
+        Button ringButton = (Button) findViewById(R.id.selectRingtoneBtn);
         if(wasRingToneUploaded)
         {
             ringButton.getBackground().setColorFilter(0xFF00FF00,
@@ -1085,15 +1059,22 @@ public class MainActivity extends Activity implements OnClickListener {
         }
         else
         {
-            if(ringButton.isClickable())
+            if(ringButton.isEnabled())
                 ringButton.getBackground().setColorFilter(Color.LTGRAY,
                         PorterDuff.Mode.MULTIPLY);
             else
                 ringButton.getBackground().setColorFilter(Color.DKGRAY,
                         PorterDuff.Mode.MULTIPLY);
         }
-        ringButton.refreshDrawableState();
+    }
 
+    private void drawSelectContactButton(boolean enabled) {
+
+        ImageButton selectContactButton = (ImageButton) findViewById(R.id.selectContactBtn);
+        if(enabled)
+            selectContactButton.setImageResource(R.drawable.select_contact_enabled);
+        else
+            selectContactButton.setImageResource(R.drawable.select_contact_disabled);
     }
 
 	private void callErrToast(final String text) {
