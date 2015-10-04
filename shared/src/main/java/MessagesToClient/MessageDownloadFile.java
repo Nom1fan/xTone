@@ -4,7 +4,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
 import DataObjects.SharedConstants;
@@ -34,8 +33,7 @@ public class MessageDownloadFile extends MessageToClient {
 	}
 	
 	@Override
-	public EventReport doClientAction(IServerProxy serverProxy) throws UnknownHostException,
-			IOException {
+	public EventReport doClientAction(IServerProxy serverProxy) throws IOException {
 							
 		  try 
 		  {

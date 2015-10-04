@@ -24,8 +24,8 @@ public class MessageStartConnection extends MessageToServer {
 		
 		initLogger();
 		
-		MessageStartConnectionRes res = new MessageStartConnectionRes();
-		clientConnection.sendToClient(res);
+		MessageStartConnectionRes msgReply = new MessageStartConnectionRes();
+		replyToClient(msgReply);
 		return true;
 	}
 

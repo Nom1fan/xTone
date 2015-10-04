@@ -18,6 +18,7 @@ public class BootCompletedBroadcastReceiver extends BroadcastReceiver {
         public void onReceive(Context context, Intent intent) {
             if (ACTION.equals(intent.getAction())) {
                 Intent serverProxyIntent = new Intent(context, ServerProxy.class);
+                serverProxyIntent.setAction(ServerProxy.ACTION_START);
                 context.startService(serverProxyIntent);
                 Intent incomingReceiverIntent = new Intent(context, IncomingReceiver.class);
                 context.startService(incomingReceiverIntent);

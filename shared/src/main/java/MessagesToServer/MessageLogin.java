@@ -27,8 +27,8 @@ public class MessageLogin extends MessageToServer {
 		ClientsManager.addClientPushToken(_messageInitiaterId, pushToken);
 		ClientsManager.addClientConnection(_messageInitiaterId, clientConnection);
 		ClientsManager.markClientHeartBeat(_messageInitiaterId, clientConnection);
-		MessageLoginRes msg = new MessageLoginRes();		
-		ClientsManager.sendMessageToClient(_messageInitiaterId, msg);
+		MessageLoginRes msgReply = new MessageLoginRes();
+		replyToClient(msgReply);
 		
 		return cont;
 	}

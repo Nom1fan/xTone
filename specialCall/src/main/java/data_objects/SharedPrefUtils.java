@@ -6,12 +6,12 @@ import android.content.SharedPreferences;
 public class SharedPrefUtils {
 
 	/* Shared pref names */
-	public static final String GENERAL = "general";
+	public static final String GENERAL = "General";
 	public static final String SERVER_PROXY = "ServerProxy";
 	public static final String UPLOADED_MEDIA_THUMBNAIL = "UploadedMediaThumbnail";
 	public static final String WAS_RINGTONE_UPLOADED ="WasRingToneUploaded";
-	public static final String RINGTONE_EXTENSION = "ringtone";
-	public static final String MEDIA_EXTENSION = "media";
+	public static final String RINGTONE_EXTENSION = "Ringtone";
+	public static final String MEDIA_EXTENSION = "Media";
 	public static final String RINGTONE_FILEPATH = "ringToneFilePath";
 	public static final String MY_DEVICE_TOKEN = "MyDeviceToken";
 
@@ -19,6 +19,15 @@ public class SharedPrefUtils {
 	public static final String DESTINATION_NUMBER = "DestinationNumber";
 	public static final String DESTINATION_NAME = "DestinationName";
 	public static final String MY_NUMBER = "MyPhoneNumber";
+	public static final String APP_STATE = "AppState";
+
+	/* Shared pref values under APP_STATE */
+	public static final String STATE_LOGGED_OUT = "LoggedOut";
+	public static final String STATE_LOGGED_IN = "LoggedIn";
+	public static final String STATE_DISABLED = "Disabled";
+	public static final String STATE_READY = "Ready";
+	public static final String STATE_IDLE = "Idle";
+	public static final String STATE_LOADING = "Loading";
 
 	/* Shared pref keys under SERVER_PROXY */
 	public static final String CONNECTED = "ServerProxy.Connected";

@@ -7,16 +7,16 @@
     android:padding="15dip" >
 
     <ImageButton
-        android:id="@+id/Select_Contact"
+        android:id="@+id/selectContactBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="contacts"
-        android:src="@drawable/iphonecontacts"      
+        android:src="@drawable/select_contact_enabled"
         android:textSize="18sp"
         android:layout_alignBottom="@+id/CallNumber"
-        android:layout_alignRight="@+id/MyPic"
-        android:layout_alignEnd="@+id/MyPic"
-        android:layout_alignTop="@+id/MyRing" />
+        android:layout_alignRight="@+id/selectMediaBtn"
+        android:layout_alignEnd="@+id/selectMediaBtn"
+        android:layout_alignTop="@+id/selectRingtoneBtn" />
 
     <TextView
         android:id="@+id/destName"
@@ -27,7 +27,7 @@
         android:layout_toEndOf="@+id/settingsBtn" />
 
     <Button
-        android:id="@+id/MyRing"
+        android:id="@+id/selectRingtoneBtn"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:enabled="true"
@@ -39,10 +39,10 @@
         android:layout_alignParentRight="false"
         android:layout_alignParentLeft="false"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/MyPic" />
+        android:layout_below="@+id/selectMediaBtn" />
 
     <ImageButton
-        android:id="@+id/MyPic"
+        android:id="@+id/selectMediaBtn"
         android:layout_width="300dp"
         android:layout_height="200dp"
         android:contentDescription="mypic"
@@ -67,7 +67,7 @@
         android:singleLine="true"
         android:layout_alignRight="@+id/CallNow"
         android:layout_alignEnd="@+id/CallNow"
-        android:layout_below="@+id/MyRing">
+        android:layout_below="@+id/selectRingtoneBtn">
 
         <requestFocus />
     </EditText>

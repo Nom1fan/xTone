@@ -3,10 +3,7 @@ package com.android.services;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -60,14 +57,19 @@ import data_objects.SharedPrefUtils;
           private ConnectivityManager connManager;
           private static final int HEARTBEAT_INTERVAL = SharedConstants.HEARTBEAT_INTERVAL;
           private static final long INITIAL_RETRY_INTERVAL = 1000 * 5;
-          private static final long MAXIMUM_RETRY_INTERVAL = 1000 * 60 * 30;
+          private static final long MAXIMUM_RETRY_INTERVAL = 1000 * 60;
           private MessageHeartBeat msgHB;
           private boolean started = false;
           private final IBinder mBinder = new MyBinder();
-          private static final String TAG = "SERVER_PROXY";
+          private static final String TAG = ServerProxy.class.getSimpleName();
 
 
           /* Service overriding methods */
+
+          @Override
+          public IBinder onBind(Intent arg0) {
+              return mBinder;
+          }
 
           @Override
           public int onStartCommand(Intent intent, int flags, int startId) {
@@ -98,7 +100,7 @@ import data_objects.SharedPrefUtils;
                           break;
 
                       case ACTION_HEARTBEAT:
-                          sendHeartBeat();
+                            sendHeartBeat();
                           break;
 
                       case ACTION_RECONNECT:
@@ -111,11 +113,6 @@ import data_objects.SharedPrefUtils;
           }
 
           @Override
-          public IBinder onBind(Intent arg0) {
-              return mBinder;
-          }
-
-          @Override
           public void onCreate() {
 
              Log.i(TAG, "ServerProxy service created");
@@ -124,8 +121,9 @@ import data_objects.SharedPrefUtils;
              SharedConstants.DEVICE_TOKEN = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
              SharedConstants.specialCallPath = Constants.specialCallPath;
 
-              connManager =
-                      (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+             connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+
+             sendEventReportBroadcast(new EventReport(EventType.SERVER_PROXY_CREATED, null, null));
 
              handleCrashedService();
 
@@ -136,7 +134,9 @@ import data_objects.SharedPrefUtils;
 
               Log.e(TAG, "ServerProxy service is being destroyed");
               callErrToast("ServerProxy service is being destroyed");
+              gracefullyDisconnect();
               stop();
+
           }
 
           public class MyBinder extends Binder {
@@ -186,8 +186,8 @@ import data_objects.SharedPrefUtils;
                       }
                       catch(IOException e) {
                           e.printStackTrace();
-                          String errMsg = "UPLOAD_FAILURE. Upload to user:" + destNumber + " failed. Exception:" + e.getMessage();
-                          handleDisconnection(errMsg, EventType.UPLOAD_FAILURE);
+                          String errMsg = "Upload to user:" + destNumber + " failed. Exception:" + e.getMessage()+". Check your internet connection";
+                          handleDisconnection(errMsg);
                       }
                       catch (Exception e) {
                           e.printStackTrace();
@@ -222,8 +222,8 @@ import data_objects.SharedPrefUtils;
 
                       } catch (IOException e) {
                           e.printStackTrace();
-                          String errMsg = "ISLOGIN_ERROR. Exception:" + e.getMessage();
-                          handleDisconnection(errMsg, EventType.ISLOGIN_ERROR);
+                          String errMsg = "ISLOGIN_ERROR. Exception:" + e.getMessage()+". Check your internet connection";
+                          handleDisconnection(errMsg);
                       }
                   }
 
@@ -247,15 +247,19 @@ import data_objects.SharedPrefUtils;
                   public void run() {
                       try {
                           openSocket();
-                          registerConnectivityReceiver();
+//                          registerConnectivityReceiver();
                           startClientActionListener();
                           startKeepAlives();
                           login();
                       } catch (IOException e) {
                           e.printStackTrace();
                           String errMsg = "Failed connect to server:" + e.getMessage();
-                          handleDisconnection(errMsg, EventType.DISPLAY_ERROR);
+                          handleDisconnection(errMsg);
                       }
+
+                      // Done reconnecting. Resetting reconnect interval
+                      if(isConnected())
+                          SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
                   }
               }.start();
           }
@@ -268,6 +272,7 @@ import data_objects.SharedPrefUtils;
                   public void run() {
                       if(isConnected())
                       {
+                          Log.i(TAG, "Gracefully disconnecting...");
                           setConnected(false);
 
                           if (connectionToServer != null)
@@ -305,8 +310,8 @@ import data_objects.SharedPrefUtils;
                           connectionToServer.sendMessage(msgLogin);
                       } catch (IOException e) {
                           e.printStackTrace();
-                          String errMsg = "LOGIN_FAILURE. Exception:" + e.getMessage();
-                          handleDisconnection(errMsg, EventType.DISPLAY_ERROR);
+                          String errMsg = "LOGIN_FAILURE. Exception:" + e.getMessage()+". Check your internet connection";
+                          handleDisconnection(errMsg);
                       }
 
                   }
@@ -336,9 +341,9 @@ import data_objects.SharedPrefUtils;
               return SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_STARTED);
           }
 
-          private void setStarted(boolean started) {
-              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_STARTED, started);
-              this.started = started;
+          private void setStarted(boolean state) {
+              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_STARTED, state);
+              this.started = state;
           }
 
           private void openSocket() throws IOException {
@@ -372,8 +377,8 @@ import data_objects.SharedPrefUtils;
                               }
                           } catch (IOException e) {
                               e.printStackTrace();
-                              String errMsg = "Client action failure. Exception:"+e.getMessage();
-                              handleDisconnection(errMsg, EventType.CLIENT_ACTION_FAILURE);
+                              String errMsg = "Client action failure. Exception:"+e.getMessage()+". Check your internet connection";
+                              handleDisconnection(errMsg);
                           }
                           catch(ClassNotFoundException e) {
 
@@ -393,7 +398,7 @@ import data_objects.SharedPrefUtils;
                   @Override
                   public void run() {
 
-                      if (started && connectionToServer == null) {
+                      if (isNetworkAvailable() && started && connectionToServer == null) {
 
                           try {
                               String infoMsg = "Reconnecting...";
@@ -406,8 +411,6 @@ import data_objects.SharedPrefUtils;
                               login();
                           } catch (IOException e) {
                               e.printStackTrace();
-                              String errMsg = "Reconnect failed. Exception:"+e.getMessage();
-                              handleDisconnection(errMsg, EventType.DISPLAY_ERROR);
                           }
                       }
 
@@ -431,8 +434,8 @@ import data_objects.SharedPrefUtils;
 
               } catch (IOException | NullPointerException e) {
                   e.printStackTrace();
-                  String errMsg = "HEARTBEAT_FAILURE. Exception:" + e.getMessage();
-                  handleDisconnection(errMsg, EventType.DISPLAY_ERROR);
+                  String errMsg = "HEARTBEAT_FAILURE. Exception:" + e.getMessage()+". Check your internet connection";
+                  handleDisconnection(errMsg);
               }
           }
 
@@ -481,51 +484,49 @@ import data_objects.SharedPrefUtils;
           private void handleCrashedService() {
 
               Log.i(TAG, "Handling crashed service");
-              if(wasStarted() == true) {
+              if(wasStarted()) {
                   stopKeepAlives();
                   connect();
               }
           }
 
-          private void handleDisconnection(String errMsg, EventType eventType) {
+          private void handleDisconnection(String errMsg) {
 
               Log.e(TAG, errMsg);
               setConnected(false);
-              sendEventReportBroadcast(new EventReport(eventType, errMsg, null));
+              sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, errMsg, null));
               connectionToServer=null;
               stopKeepAlives();
-
-              if(isNetworkAvailable())
-                  scheduleReconnect(System.currentTimeMillis());
+              scheduleReconnect(System.currentTimeMillis());
           }
 
           /* Broadcast Receivers */
 
-          private BroadcastReceiver mConnectivityChanged = new BroadcastReceiver()
-          {
-              @Override
-              public void onReceive(Context context, Intent intent)
-              {
-                  NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                  boolean wifiConnected = (wifiInfo != null && wifiInfo.isConnected());
+//          private BroadcastReceiver mConnectivityChanged = new BroadcastReceiver()
+//          {
+//              @Override
+//              public void onReceive(Context context, Intent intent)
+//              {
+//                  NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+//                  boolean wifiConnected = (wifiInfo != null && wifiInfo.isConnected());
+//
+//                  NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+//                  boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
+//
+//                  Log.i(TAG, "Connectivity changed. Wifi=" + wifiConnected + ". Mobile=" + mobileConnected);
+//
+//                  if (wifiConnected || mobileConnected)
+//                    reconnectIfNecessary();
+//                  else {
+//                      connectionToServer = null;
+//                      setConnected(false);
+//                  }
+//              }
+//          };
 
-                  NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-                  boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
-
-                  Log.i(TAG, "Connectivity changed. Wifi=" + wifiConnected + ". Mobile=" + mobileConnected);
-
-                  if (wifiConnected || mobileConnected)
-                    reconnectIfNecessary();
-                  else {
-                      connectionToServer = null;
-                      setConnected(false);
-                  }
-              }
-          };
-
-          private void registerConnectivityReceiver() {
-              registerReceiver(mConnectivityChanged, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-          }
+//          private void registerConnectivityReceiver() {
+//              registerReceiver(mConnectivityChanged, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+//          }
 
           /* Internal operations methods */
 
@@ -533,7 +534,7 @@ import data_objects.SharedPrefUtils;
           {
               if (started)
               {
-                  Log.i(TAG, "Attempt to start connection that is already active");
+                  Log.w(TAG, "Attempt to start connection that is already active");
                   return;
               }
 
@@ -552,11 +553,12 @@ import data_objects.SharedPrefUtils;
 
               setStarted(false);
 
-              unregisterReceiver(mConnectivityChanged);
-              cancelReconnect();
+//              unregisterReceiver(mConnectivityChanged);
+//              cancelReconnect();
 
-              gracefullyDisconnect();
-              stopSelf();
+//              gracefullyDisconnect();
+              sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, "Disconnected. Check your internet connection", null));
+//              stopSelf();
           }
 
           private void cancelReconnect()
