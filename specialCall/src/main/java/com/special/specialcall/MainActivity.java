@@ -113,19 +113,27 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onResume();
 
         context = getApplicationContext();
-        String appState = AppStateUtils.getAppState(context);
+        String appState = getState();
         Log.i(tag, "App State:" + appState);
 
-        if(!appState.equals(SharedPrefUtils.STATE_LOGGED_OUT) && !appState.equals(SharedPrefUtils.STATE_DISABLED)) {
-            if (serverProxy == null) {
-                myPhoneNumber = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
-                SharedConstants.MY_ID = myPhoneNumber;
-                initializeConnection();
-            }
-            else
-                doBindService();
+        if(!appState.equals(SharedPrefUtils.STATE_LOGGED_OUT)) {
+
+            startService(new Intent(this, IncomingReceiver.class));
+
             registerReceiver(serviceReceiver, serviceReceiverIntentFilter);
+
+            if(!appState.equals(SharedPrefUtils.STATE_DISABLED)) {
+                if (serverProxy == null) {
+                    myPhoneNumber = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
+                    SharedConstants.MY_ID = myPhoneNumber;
+                    initializeConnection();
+                }
+                else
+                    doBindService();
+            }
+
         }
+
 
         switch (appState)
         {
@@ -134,27 +142,26 @@ public class MainActivity extends Activity implements OnClickListener {
             break;
 
             case SharedPrefUtils.STATE_IDLE:
-                stateIdle();
+                stateIdle(tag + "::onResume() STATE_IDLE");
                 restoreInstanceState();
             break;
 
             case SharedPrefUtils.STATE_READY:
-                stateReady();
+                stateReady(tag + "::onResume() STATE_READY");
                 restoreInstanceState();
             break;
 
             case SharedPrefUtils.STATE_LOADING:
                 String loadingMsg = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE);
-                stateLoading(loadingMsg, Color.YELLOW);
+                stateLoading(tag + "::onResume() STATE_LOADING", loadingMsg, Color.YELLOW);
                 restoreInstanceState();
             break;
 
             case SharedPrefUtils.STATE_DISABLED:
                 writeErrStatBar("Disconnected. Check your internet connection.");
-                stateDisabled();
+                stateDisabled(tag + "::onResume() STATE_DISABLED");
                 restoreInstanceState();
             break;
-
         }
 	}
 
@@ -172,14 +179,14 @@ public class MainActivity extends Activity implements OnClickListener {
         context = getApplicationContext();
         lut_utils = new LUT_Utils(context);
 
-		if (AppStateUtils.getAppState(context).equals(SharedPrefUtils.STATE_LOGGED_OUT)) {
+		if (getState().equals(SharedPrefUtils.STATE_LOGGED_OUT)) {
 
             initializeLoginUI();
 
 		} else {
 			initializeUI();
-            if (AppStateUtils.getAppState(context).equals(SharedPrefUtils.STATE_LOGGED_IN)) {
-                stateIdle();
+            if (getState().equals(SharedPrefUtils.STATE_LOGGED_IN)) {
+                stateIdle(tag+"::onCreate()");
             }
 		}
 	}
@@ -241,8 +248,9 @@ public class MainActivity extends Activity implements OnClickListener {
                 }
 
                 if(fm!=null) {
-                    serverProxy.uploadFileToServer(destPhoneNumber,fm);
-                    stateLoading("Uploading file to server...", Color.YELLOW);
+                    serverProxy.uploadFileToServer(destPhoneNumber, fm);
+                    setState(tag + "::onActivityResult upload file", SharedPrefUtils.STATE_LOADING);
+                            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, "Uploading file to server...");
                 }
             }
             catch(NullPointerException e)
@@ -441,13 +449,12 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		} else if (id == R.id.selectMediaBtn) {
 
-			((Button) findViewById(R.id.CallNow)).setEnabled(false);
 			selectVisualMedia();
 
 		} else if (id == R.id.selectRingtoneBtn) {
 
-			((Button) findViewById(R.id.CallNow)).setEnabled(false);
 			selectRingtone();
+
 		} else if (id == R.id.selectContactBtn) {
 
 			Intent intent = new Intent(Intent.ACTION_PICK);
@@ -456,10 +463,6 @@ public class MainActivity extends Activity implements OnClickListener {
 		}
 
 		else if (id == R.id.login) {
-
-            AppStateUtils.setAppState(context, tag, SharedPrefUtils.STATE_LOGGED_IN);
-
-            startService(new Intent(this, IncomingReceiver.class));
 
 			myPhoneNumber = ((EditText) findViewById(R.id.LoginNumber))
 					.getText().toString();
@@ -475,7 +478,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			SpecialCallIncoming.mkdirs();
 
 			initializeUI();
-			stateIdle();
+			stateIdle(tag+"::onClick() R.id.login");
 		}
 
 		else if (id == R.id.settingsBtn) {
@@ -500,38 +503,38 @@ public class MainActivity extends Activity implements OnClickListener {
 
         runOnUiThread(new Runnable() {
 
-              @Override
-              public void run() {
+                          @Override
+                          public void run() {
 
-                  Button loginBtn = (Button)findViewById(R.id.login);
-                  loginBtn.setEnabled(false);
-                    loginBtn.setText("Login");
+                              Button loginBtn = (Button) findViewById(R.id.login);
+                              loginBtn.setEnabled(false);
+                              loginBtn.setText("Login");
 
-                  EditText loginNumberET = (EditText) findViewById(R.id.LoginNumber);
+                              EditText loginNumberET = (EditText) findViewById(R.id.LoginNumber);
 
-                  loginNumberET.addTextChangedListener(new TextWatcher() {
-                      @Override
-                      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                              loginNumberET.addTextChangedListener(new TextWatcher() {
+                                  @Override
+                                  public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+                                  }
+
+                                  @Override
+                                  public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                                      if (10 == s.length())
+                                          findViewById(R.id.login).setEnabled(true);
+                                      else
+
+                                          findViewById(R.id.login).setEnabled(false);
+                                  }
+
+                                  @Override
+                                  public void afterTextChanged(Editable s) {
+
+                                  }
+                              });
+                          }
                       }
-
-                      @Override
-                      public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                          if (10 == s.length())
-                              findViewById(R.id.login).setEnabled(true);
-                          else
-
-                              findViewById(R.id.login).setEnabled(false);
-                      }
-
-                      @Override
-                      public void afterTextChanged(Editable s) {
-
-                      }
-                  });
-              }
-          }
         );
 
 
@@ -581,13 +584,18 @@ public class MainActivity extends Activity implements OnClickListener {
                     drawSelectMediaButton(false);
                     drawSelectRingToneButton();
 
-                    if (serverProxy != null && !AppStateUtils.getAppState(context).equals(SharedPrefUtils.STATE_DISABLED))
+                    if ((serverProxy != null) &&
+                            !getState().equals(SharedPrefUtils.STATE_DISABLED) &&
+                            !getState().equals(SharedPrefUtils.STATE_LOADING))
                         serverProxy.isLogin(destPhone);
 
                 } else {
                     destPhoneNumber="";
-                    if(AppStateUtils.getAppState(context).equals(SharedPrefUtils.STATE_READY))
-                        stateIdle();
+                    destName="";
+                    setDestNameTextView();
+                    saveInstanceState();
+                    if(!getState().equals(SharedPrefUtils.STATE_IDLE))
+                        stateIdle(tag +"::onTextChanged()");
                 }
             }
 
@@ -616,7 +624,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		settingsBtn.setOnClickListener(this);
 	}
 
-	public void eventReceived(Event event) {
+
+    public void eventReceived(Event event) {
 
 		final EventReport report = event.report();
 
@@ -630,23 +639,14 @@ public class MainActivity extends Activity implements OnClickListener {
 		case UPLOAD_SUCCESS:
 			writeInfoStatBar(report.desc(), Color.YELLOW);
             if(isContactSelected())
-            {
-                if(serverProxy!=null)
-                    serverProxy.isLogin(destPhoneNumber);
-            }
+                stateReady(tag + "EVENT: UPLOAD_SUCCESS");
             else
-                stateIdle();
+                stateIdle(tag +" EVENT: UPLOAD_SUCCESS");
 			break;
 
 		case UPLOAD_FAILURE:
             writeErrStatBar(report.desc());
-            if(isContactSelected())
-            {
-                if(serverProxy!=null)
-                    serverProxy.isLogin(destPhoneNumber);
-            }
-            else
-                stateIdle();
+            stateIdle(tag +" EVENT: UPLOAD_FAILURE");
             break;
 
 		case DOWNLOAD_SUCCESS:
@@ -659,31 +659,35 @@ public class MainActivity extends Activity implements OnClickListener {
 
         case LOGIN_SUCCESS:
             writeInfoStatBar(report.desc());
-            stateIdle();
+            stateIdle(tag+"EVENT: LOGIN_SUCCESS");
             break;
 
 		case ISLOGIN_ONLINE:
             destPhoneNumber = (String) report.data();
-            writeInfoStatBar(report.desc());
-			stateReady();
+
+            if(!getState().equals(SharedPrefUtils.STATE_LOADING) &&
+               !getState().equals(SharedPrefUtils.STATE_DISABLED)) {
+                writeInfoStatBar(report.desc());
+                stateReady(tag + " EVENT: ISLOGIN_ONLINE");
+            }
 			break;
 
 		case ISLOGIN_ERROR:
             destPhoneNumber = (String) report.data();
             writeErrStatBar(report.desc());
-			stateIdle();
+			stateIdle(tag + "EVENT: ISLOGIN_ERROR");
 			break;
 
 		case ISLOGIN_OFFLINE:
             destPhoneNumber = (String) report.data();
             writeErrStatBar(report.desc());
-			stateIdle();
+			stateIdle(tag+" EVENT: ISLOGIN_OFFLINE");
 			break;
 
 		case ISLOGIN_UNREGISTERED:
             destPhoneNumber = (String) report.data();
 			writeErrStatBar(report.desc());
-			stateIdle();
+			stateIdle(tag+" EVENT: ISLOGIN_UNREGISTERED");
 			break;
 
 		case DESTINATION_DOWNLOAD_COMPLETE:
@@ -695,13 +699,16 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 
         case RECONNECT_ATTEMPT:
-            writeErrStatBar(report.desc());
-            stateLoading("Reconnecting...", Color.RED);
+            stateLoading(tag+" EVENT: RECONNECT_ATTEMPT", report.desc(), Color.RED);
+            break;
+
+        case CONNECTING:
+            stateLoading(tag +" EVENT: CONNECTING", report.desc(), Color.YELLOW);
             break;
 
         case DISCONNECTED:
             writeErrStatBar(report.desc());
-            stateDisabled();
+            stateDisabled(tag+" EVENT: DISCONNECTED");
             break;
 
 		case CLOSE_APP:
@@ -799,11 +806,8 @@ public class MainActivity extends Activity implements OnClickListener {
             ed_destinationNumber.setText(destNumber);
 
         // Restoring destination name
-        final TextView tv_destName =
-                (TextView) findViewById(R.id.destName);
         destName = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
-        if(tv_destName!=null && destName!=null)
-            tv_destName.setText(destName);
+        setDestNameTextView();
 
         // Restoring my phone number
         myPhoneNumber = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
@@ -824,6 +828,21 @@ public class MainActivity extends Activity implements OnClickListener {
 
         destPhoneNumber = toNumeric(destPhoneNumberAlphaNumeric);
     }
+
+    private void setDestNameTextView() {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final TextView tv_destName =
+                        (TextView) findViewById(R.id.destName);
+                if(tv_destName!=null && destName!=null)
+                    tv_destName.setText(destName);
+            }
+        });
+
+    }
+
 
     private String toNumeric(String str) {
 
@@ -885,9 +904,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
     /* --- UI States --- */
 
-    private void stateReady() {
+    private void stateReady(String tag) {
 
-        AppStateUtils.setAppState(context, tag, SharedPrefUtils.STATE_READY);
+        setState(tag, SharedPrefUtils.STATE_READY);
 
         runOnUiThread(new Runnable() {
             @Override
@@ -903,9 +922,9 @@ public class MainActivity extends Activity implements OnClickListener {
         });
     }
 
-    private void stateIdle() {
+    private void stateIdle(String tag) {
 
-        AppStateUtils.setAppState(context, tag, SharedPrefUtils.STATE_IDLE);
+        setState(tag, SharedPrefUtils.STATE_IDLE);
 
         runOnUiThread(new Runnable() {
 
@@ -922,9 +941,9 @@ public class MainActivity extends Activity implements OnClickListener {
         });
     }
 
-    private void stateDisabled() {
+    private void stateDisabled(String tag) {
 
-        AppStateUtils.setAppState(context, tag, SharedPrefUtils.STATE_DISABLED);
+        setState(tag, SharedPrefUtils.STATE_DISABLED);
 
         runOnUiThread(new Runnable() {
 
@@ -939,9 +958,9 @@ public class MainActivity extends Activity implements OnClickListener {
         });
     }
 
-    private void stateLoading(String msg, int color) {
+    private void stateLoading(String tag, String msg, int color) {
 
-        AppStateUtils.setAppState(context, tag, SharedPrefUtils.STATE_LOADING);
+        setState(tag, SharedPrefUtils.STATE_LOADING);
         SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, msg);
 
         enableProgressBar();
@@ -959,6 +978,15 @@ public class MainActivity extends Activity implements OnClickListener {
         });
     }
 
+    private String getState() {
+
+        return AppStateUtils.getAppState(context);
+    }
+
+    private void setState(String tag, String state) {
+
+        AppStateUtils.setAppState(context, tag, state);
+    }
 
 
     /* --- UI elements controls --- */

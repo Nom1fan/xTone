@@ -29,6 +29,12 @@ public class AppStateBroadcastReceiver extends BroadcastReceiver {
 
             case RECONNECT_ATTEMPT:
                 AppStateUtils.setAppState(context, TAG, SharedPrefUtils.STATE_LOADING);
+                SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, "Reconnecting...");
+            break;
+
+            case CONNECTING:
+                AppStateUtils.setAppState(context, TAG, SharedPrefUtils.STATE_LOADING);
+                SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, "Connecting...");
             break;
 
             case DISCONNECTED:

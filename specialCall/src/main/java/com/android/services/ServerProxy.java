@@ -246,6 +246,7 @@ import data_objects.SharedPrefUtils;
                   @Override
                   public void run() {
                       try {
+                          sendEventReportBroadcast(new EventReport(EventType.CONNECTING, "Connecting...", null));
                           openSocket();
 //                          registerConnectivityReceiver();
                           startClientActionListener();
