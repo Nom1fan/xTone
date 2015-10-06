@@ -65,10 +65,9 @@ public class MainActivity extends Activity implements OnClickListener {
     private String tag = MainActivity.class.getSimpleName();
 	private Uri outputFileUri;
 	private ProgressBar pBar;
-	private boolean loading = false;
 	private boolean mIsBound = false;
     private Context context;
-    private LUT_Utils lutManager;
+    private LUT_Utils lut_utils;
 	private BroadcastReceiver serviceReceiver;
 	private IntentFilter serviceReceiverIntentFilter = new IntentFilter(Event.EVENT_ACTION);
 
@@ -131,9 +130,7 @@ public class MainActivity extends Activity implements OnClickListener {
         switch (appState)
         {
             case SharedPrefUtils.STATE_LOGGED_OUT:
-                setContentView(R.layout.loginuser);
-                Button login = (Button) findViewById(R.id.login);
-                login.setOnClickListener(this);
+                initializeLoginUI();
             break;
 
             case SharedPrefUtils.STATE_IDLE:
@@ -146,7 +143,14 @@ public class MainActivity extends Activity implements OnClickListener {
                 restoreInstanceState();
             break;
 
+            case SharedPrefUtils.STATE_LOADING:
+                String loadingMsg = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE);
+                stateLoading(loadingMsg, Color.YELLOW);
+                restoreInstanceState();
+            break;
+
             case SharedPrefUtils.STATE_DISABLED:
+                writeErrStatBar("Disconnected. Check your internet connection.");
                 stateDisabled();
                 restoreInstanceState();
             break;
@@ -166,13 +170,12 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 
         context = getApplicationContext();
-        lutManager = new LUT_Utils(context);
+        lut_utils = new LUT_Utils(context);
 
 		if (AppStateUtils.getAppState(context).equals(SharedPrefUtils.STATE_LOGGED_OUT)) {
-			setContentView(R.layout.loginuser);
 
-			Button login = (Button) findViewById(R.id.login);
-			login.setOnClickListener(this);
+            initializeLoginUI();
+
 		} else {
 			initializeUI();
             if (AppStateUtils.getAppState(context).equals(SharedPrefUtils.STATE_LOGGED_IN)) {
@@ -239,9 +242,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
                 if(fm!=null) {
                     serverProxy.uploadFileToServer(destPhoneNumber,fm);
-                    loading = true;
-                    disableCallButton();
-                    enableProgressBar();
+                    stateLoading("Uploading file to server...", Color.YELLOW);
                 }
             }
             catch(NullPointerException e)
@@ -460,7 +461,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
             startService(new Intent(this, IncomingReceiver.class));
 
-			myPhoneNumber = ((EditText) findViewById(R.id.CallNumber))
+			myPhoneNumber = ((EditText) findViewById(R.id.LoginNumber))
 					.getText().toString();
 			
 			SharedConstants.MY_ID = myPhoneNumber;
@@ -490,6 +491,51 @@ public class MainActivity extends Activity implements OnClickListener {
 		}
 
 	}
+
+    private void initializeLoginUI() {
+
+        setContentView(R.layout.loginuser);
+        findViewById(R.id.login).setOnClickListener(this);
+
+
+        runOnUiThread(new Runnable() {
+
+              @Override
+              public void run() {
+
+                  Button loginBtn = (Button)findViewById(R.id.login);
+                  loginBtn.setEnabled(false);
+                    loginBtn.setText("Login");
+
+                  EditText loginNumberET = (EditText) findViewById(R.id.LoginNumber);
+
+                  loginNumberET.addTextChangedListener(new TextWatcher() {
+                      @Override
+                      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                      }
+
+                      @Override
+                      public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                          if (10 == s.length())
+                              findViewById(R.id.login).setEnabled(true);
+                          else
+
+                              findViewById(R.id.login).setEnabled(false);
+                      }
+
+                      @Override
+                      public void afterTextChanged(Editable s) {
+
+                      }
+                  });
+              }
+          }
+        );
+
+
+    }
 
 	private void initializeUI() {
 
@@ -535,7 +581,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     drawSelectMediaButton(false);
                     drawSelectRingToneButton();
 
-                    if (serverProxy != null)
+                    if (serverProxy != null && !AppStateUtils.getAppState(context).equals(SharedPrefUtils.STATE_DISABLED))
                         serverProxy.isLogin(destPhone);
 
                 } else {
@@ -583,11 +629,25 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		case UPLOAD_SUCCESS:
 			writeInfoStatBar(report.desc(), Color.YELLOW);
+            if(isContactSelected())
+            {
+                if(serverProxy!=null)
+                    serverProxy.isLogin(destPhoneNumber);
+            }
+            else
+                stateIdle();
 			break;
 
 		case UPLOAD_FAILURE:
             writeErrStatBar(report.desc());
-			break;
+            if(isContactSelected())
+            {
+                if(serverProxy!=null)
+                    serverProxy.isLogin(destPhoneNumber);
+            }
+            else
+                stateIdle();
+            break;
 
 		case DOWNLOAD_SUCCESS:
             writeInfoStatBar(report.desc());
@@ -609,7 +669,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 
 		case ISLOGIN_ERROR:
-			//callErrToast(report.desc());
+            destPhoneNumber = (String) report.data();
             writeErrStatBar(report.desc());
 			stateIdle();
 			break;
@@ -621,6 +681,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 
 		case ISLOGIN_UNREGISTERED:
+            destPhoneNumber = (String) report.data();
 			writeErrStatBar(report.desc());
 			stateIdle();
 			break;
@@ -628,14 +689,14 @@ public class MainActivity extends Activity implements OnClickListener {
 		case DESTINATION_DOWNLOAD_COMPLETE:
 			writeInfoStatBar(report.desc());
             TransferDetails td = (TransferDetails) report.data();
-            lutManager.saveUploadedPerNumber(td.getDestinationId(), td.getFileType(), td.get_fullFilePathSrcSD());
+            lut_utils.saveUploadedPerNumber(td.getDestinationId(), td.getFileType(), td.get_fullFilePathSrcSD());
             if(isContactSelected())
                 serverProxy.isLogin(destPhoneNumber);
 			break;
 
         case RECONNECT_ATTEMPT:
             writeErrStatBar(report.desc());
-            stateLoading();
+            stateLoading("Reconnecting...", Color.RED);
             break;
 
         case DISCONNECTED:
@@ -831,6 +892,7 @@ public class MainActivity extends Activity implements OnClickListener {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
                 disableProgressBar();
                 enableSelectMediaButton();
                 enableContactEditText();
@@ -850,14 +912,11 @@ public class MainActivity extends Activity implements OnClickListener {
             @Override
             public void run() {
 
+                disableProgressBar();
                 enableSelectContactButton();
                 enableContactEditText();
-                disableProgressBar();
                 disableSelectMediaButton();
                 disableSelectRingToneButton();
-
-
-                // Call button
                 disableCallButton();
             }
         });
@@ -871,7 +930,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
             @Override
             public void run() {
-                writeErrStatBar("Disconnected. Check your internet connection");
                 disableSelectMediaButton();
                 disableSelectRingToneButton();
                 disableSelectContactButton();
@@ -881,12 +939,24 @@ public class MainActivity extends Activity implements OnClickListener {
         });
     }
 
-    private void stateLoading() {
+    private void stateLoading(String msg, int color) {
 
         AppStateUtils.setAppState(context, tag, SharedPrefUtils.STATE_LOADING);
+        SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, msg);
 
         enableProgressBar();
-        stateDisabled();
+        writeInfoStatBar(msg, color);
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                disableSelectMediaButton();
+                disableSelectRingToneButton();
+                disableSelectContactButton();
+                disableContactEditText();
+                disableCallButton();
+            }
+        });
     }
 
 
@@ -983,8 +1053,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	private void disableProgressBar() {
 
-		loading = false;
-
 		runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -995,8 +1063,6 @@ public class MainActivity extends Activity implements OnClickListener {
 	}
 
 	private void enableProgressBar() {
-
-        loading = true;
 
         runOnUiThread(new Runnable() {
             @Override
@@ -1023,7 +1089,7 @@ public class MainActivity extends Activity implements OnClickListener {
             FileManager.FileType fType;
             ImageButton selectMediaBtn = (ImageButton) findViewById(R.id.selectMediaBtn);
 
-            String lastUploadedMediaPath = lutManager.getUploadedMediaPerNumber(destPhoneNumber);
+            String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(destPhoneNumber);
             if (!lastUploadedMediaPath.equals("")) {
                 fType = FileManager.getFileType(lastUploadedMediaPath);
 
@@ -1050,7 +1116,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private void drawSelectRingToneButton() {
 
-        boolean wasRingToneUploaded = lutManager.getUploadedRingTonePerNumber(destPhoneNumber);
+        boolean wasRingToneUploaded = lut_utils.getUploadedRingTonePerNumber(destPhoneNumber);
         Button ringButton = (Button) findViewById(R.id.selectRingtoneBtn);
         if(wasRingToneUploaded)
         {

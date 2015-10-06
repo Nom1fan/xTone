@@ -24,7 +24,7 @@ public class FileManager {
 
     private static final String[] imageFormats = { "jpg", "png", "jpeg", "bmp", "gif", "tiff" };
     private static final String[] audioFormats = { "mp3", "ogg" };
-    private static final String[] videoFormats = { "avi", "mpeg", "mp4" };
+    private static final String[] videoFormats = { "avi", "mpeg", "mp4", "3gp", "wmv" };
     private File _file;
 	private String _extension;
     private int _size;
