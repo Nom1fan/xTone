@@ -594,8 +594,8 @@ public class MainActivity extends Activity implements OnClickListener {
                     destName="";
                     setDestNameTextView();
                     saveInstanceState();
-                    if(!getState().equals(SharedPrefUtils.STATE_IDLE))
-                        stateIdle(tag +"::onTextChanged()");
+                    if(getState().equals(SharedPrefUtils.STATE_READY))
+                        stateIdle(tag + "::onTextChanged()");
                 }
             }
 
@@ -659,7 +659,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
         case LOGIN_SUCCESS:
             writeInfoStatBar(report.desc());
-            stateIdle(tag+"EVENT: LOGIN_SUCCESS");
+            stateIdle(tag + " EVENT: LOGIN_SUCCESS");
             break;
 
 		case ISLOGIN_ONLINE:
@@ -699,7 +699,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 
         case RECONNECT_ATTEMPT:
-            stateLoading(tag+" EVENT: RECONNECT_ATTEMPT", report.desc(), Color.RED);
+            stateLoading(tag + " EVENT: RECONNECT_ATTEMPT", report.desc(), Color.RED);
             break;
 
         case CONNECTING:
