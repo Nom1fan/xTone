@@ -79,36 +79,42 @@
         </activity>
 
         <service
-            android:name="com.android.services.IncomingReceiver"
+            android:name="com.android.services.IncomingService"
             android:enabled="true"
             android:priority="998" >
         </service>
         <service
-            android:name="com.android.services.ServerProxy"
+            android:name="com.android.services.ServerProxyService"
             android:enabled="true"
             android:priority="998" >
         </service>
 
         <intent-filter>
-            <action android:name="com.android.services.ServerProxy" />
+            <action android:name="com.android.services.ServerProxyService" />
         </intent-filter>
 
         <service android:name="com.parse.PushService" />
 
-        <receiver android:name="com.special.specialcall.ConnectivityBroadcastReceiver">
+        <receiver android:name="com.receivers.ConnectivityBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.special.specialcall.AppStateBroadcastReceiver">
+        <receiver android:name="com.receivers.AppStateBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.android.special.specialcall.EVENT_ACTION"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.receivers.DownloadReceiver">
             <intent-filter>
                 <action android:name="com.android.special.specialcall.EVENT_ACTION"/>
             </intent-filter>
         </receiver>
 
         <receiver
-            android:name=".PushBroadcastReceiver"
+            android:name="com.receivers.PushBroadcastReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />
@@ -127,7 +133,7 @@
                 <category android:name="com.special.specialcall" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".BootCompletedBroadcastReceiver" >
+        <receiver android:name="com.receivers.BootCompletedBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

@@ -1,4 +1,4 @@
-package com.special.specialcall;
+package com.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
-import com.android.services.ServerProxy;
+import com.android.services.ServerProxyService;
 
 import data_objects.SharedPrefUtils;
 import utils.AppStateUtils;
@@ -36,15 +36,15 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
             String appState = AppStateUtils.getAppState(context);
             Log.i(TAG, "App State:"+appState);
             if(!appState.equals(SharedPrefUtils.STATE_LOGGED_OUT)) {
-                Log.i(TAG, "Starting ServerProxy...");
-                Intent i = new Intent(context, ServerProxy.class);
-                i.setAction(ServerProxy.ACTION_START);
+                Log.i(TAG, "Starting ServerProxyService...");
+                Intent i = new Intent(context, ServerProxyService.class);
+                i.setAction(ServerProxyService.ACTION_START);
                 context.startService(i);
             }
         }
         else {
-            Intent i = new Intent(context, ServerProxy.class);
-            i.setAction(ServerProxy.ACTION_STOP);
+            Intent i = new Intent(context, ServerProxyService.class);
+            i.setAction(ServerProxyService.ACTION_STOP);
             context.startService(i);
         }
     }

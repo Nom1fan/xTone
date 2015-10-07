@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -33,7 +32,7 @@ import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.VideoView;
 import com.android.internal.telephony.ITelephony;
-import com.android.services.IncomingReceiver;
+import com.android.services.IncomingService;
 
 
 import java.io.File;
@@ -50,7 +49,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
     public static final String SPECIAL_CALL_FILEPATH = "SpecialCallFilePath";
     private boolean mIsBound = false;
     private boolean videoMedia = false;
-    private IncomingReceiver incomingReceiver;
+    private IncomingService incomingReceiver;
     AudioManager audioManager = null ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +61,9 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
             Intent intent = getIntent();
             String mediaFilePath = intent.getStringExtra(SPECIAL_CALL_FILEPATH);
+
+
+
 
             CallStateListener stateListener = new CallStateListener();
             tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
@@ -100,10 +102,16 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
             }
             if (fileType == FileManager.FileType.VIDEO)
             {
+
+                AudioManager audioManager_tmp = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                int RingerVolume = intent.getIntExtra("Ringervolume", audioManager_tmp.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+                audioManager_tmp.setStreamVolume(AudioManager.STREAM_MUSIC, RingerVolume, 0);
+                audioManager_tmp.setStreamVolume(AudioManager.STREAM_ALARM, RingerVolume, 0);
+
                 Log.i(TAG, "In VIDEO");
                 videoMedia = true;
                 // Special ringtone in video case is silent
-                IncomingReceiver.wasSpecialRingTone = true;
+                IncomingService.wasSpecialRingTone = true;
 
                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
                 RelativeLayout rlayout  = new RelativeLayout(this);
@@ -120,7 +128,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                 videoParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
                 Uri uri = Uri.fromFile(root);
 
-                final VideoView mVideoView  = new VideoView(getApplicationContext());
+                final VideoView mVideoView  = new VideoView(IncomingSpecialCall.this);
                 MediaController mediaController = new MediaController(this);
                 mediaController.setAnchorView(mVideoView);
                 mediaController.setMediaPlayer(mVideoView);
@@ -222,7 +230,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "Entering OnResume");
-        IncomingReceiver.isInFront = true;
+        IncomingService.isInFront = true;
         doBindService();
 
     }
@@ -234,6 +242,9 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
             Log.i(TAG, "Entering OnPreparedListener");
             m.setLooping(true);
+          //  m.setScreenOnWhilePlaying(true);
+            m.setVolume(1.0f, 1.0f);
+       //     m.setAudioStreamType(AudioManager.STREAM_ALARM);
             m.start();
             Log.i(TAG, "Finishing OnPreparedListener");
         }
@@ -374,7 +385,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
     protected void onPause() {
         super.onPause();
         Log.i(TAG, "Entering OnPause");
-        IncomingReceiver.isInFront = false;
+        IncomingService.isInFront = false;
         doUnbindService();
 
     }
@@ -408,7 +419,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
             // interact with the service.  Because we have bound to a explicit
             // service that we know is running in our own process, we can
             // cast its IBinder to a concrete class and directly access it.
-            incomingReceiver = ((IncomingReceiver.MyBinder)service).getService();
+            incomingReceiver = ((IncomingService.MyBinder)service).getService();
 
         }
 
@@ -428,7 +439,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
         // supporting component replacement by other applications).
         Log.i(TAG, "Entering doBindService");
         bindService(new Intent(this,
-                IncomingReceiver.class), mConnection, 0);
+                IncomingService.class), mConnection, 0);
         mIsBound = true;
     }
 

@@ -1,16 +1,11 @@
-package com.special.specialcall;
+package com.receivers;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.PowerManager;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.services.ServerProxy;
 import com.parse.ParsePushBroadcastReceiver;
 
 /**
@@ -26,7 +21,7 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
         //callInfoToast(context, "Push notification received", Color.RED);
         Log.i(TAG, "Push notification received");
 
-//        Intent i = new Intent(context.getApplicationContext(), ServerProxy.class);
+//        Intent i = new Intent(context.getApplicationContext(), ServerProxyService.class);
 //        context.startService(i);
 
 

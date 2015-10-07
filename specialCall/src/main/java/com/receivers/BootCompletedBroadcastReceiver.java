@@ -1,11 +1,11 @@
-package com.special.specialcall;
+package com.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.android.services.IncomingReceiver;
-import com.android.services.ServerProxy;
+import com.android.services.IncomingService;
+import com.android.services.ServerProxyService;
 
 /**
  * Created by Mor on 12/09/2015.
@@ -17,10 +17,10 @@ public class BootCompletedBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (ACTION.equals(intent.getAction())) {
-                Intent serverProxyIntent = new Intent(context, ServerProxy.class);
-                serverProxyIntent.setAction(ServerProxy.ACTION_START);
+                Intent serverProxyIntent = new Intent(context, ServerProxyService.class);
+                serverProxyIntent.setAction(ServerProxyService.ACTION_START);
                 context.startService(serverProxyIntent);
-                Intent incomingReceiverIntent = new Intent(context, IncomingReceiver.class);
+                Intent incomingReceiverIntent = new Intent(context, IncomingService.class);
                 context.startService(incomingReceiverIntent);
             }
         }

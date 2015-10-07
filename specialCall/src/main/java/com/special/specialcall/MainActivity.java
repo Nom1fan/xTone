@@ -33,8 +33,9 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.android.services.IncomingReceiver;
-import com.android.services.ServerProxy;
+import com.android.services.IncomingService;
+import com.android.services.ServerProxyService;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	private int entries = 6;
 	private String buttonLabels[];
-	private ServerProxy serverProxy;
+	private ServerProxyService serverProxy;
 	private String myPhoneNumber = "";
 	private String destPhoneNumber = "";
 	private String destName = "";	
@@ -116,9 +117,10 @@ public class MainActivity extends Activity implements OnClickListener {
         String appState = getState();
         Log.i(tag, "App State:" + appState);
 
-        if(!appState.equals(SharedPrefUtils.STATE_LOGGED_OUT)) {
+        startService(new Intent(this, IncomingService.class));
+        Log.i(tag, "startService: IncomingService");
 
-            startService(new Intent(this, IncomingReceiver.class));
+        if(!appState.equals(SharedPrefUtils.STATE_LOGGED_OUT)) {
 
             registerReceiver(serviceReceiver, serviceReceiverIntentFilter);
 
@@ -733,7 +735,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	}
 
 
-	/* -------------- ServerProxy service methods -------------- */
+	/* -------------- ServerProxyService service methods -------------- */
 
 	private ServiceConnection mConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder service) {
@@ -742,7 +744,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			// interact with the service.  Because we have bound to a explicit
 			// service that we know is running in our own process, we can
 			// cast its IBinder to a concrete class and directly access it.
-			serverProxy = ((ServerProxy.MyBinder)service).getService();
+			serverProxy = ((ServerProxyService.MyBinder)service).getService();
 
 		}
 
@@ -761,7 +763,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		// we know will be running in our own process (and thus won't be
 		// supporting component replacement by other applications).
 		bindService(new Intent(this,
-                ServerProxy.class), mConnection, 0);
+                ServerProxyService.class), mConnection, 0);
 		mIsBound = true;
 	}
 
@@ -792,7 +794,7 @@ public class MainActivity extends Activity implements OnClickListener {
         }
 
         // Saving my phone number
-        if(myPhoneNumber!=null)
+        if(SharedConstants.MY_ID!=null && !SharedConstants.MY_ID.equals(""))
             SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, myPhoneNumber);
     }
 
@@ -877,17 +879,17 @@ public class MainActivity extends Activity implements OnClickListener {
     private void initializeConnection() {
 
         // Starting service
-        // Intent serverProxyIntent = new Intent(this, ServerProxy.class);
+        // Intent serverProxyIntent = new Intent(this, ServerProxyService.class);
         // serverProxyIntent.putExtra("myphonenumber", myPhoneNumber);
         // serverProxyIntent.putExtra("workingdir", workingDir);
 
         Intent i = new Intent();
-        i.setClass(getBaseContext(), ServerProxy.class);
-        i.setAction(ServerProxy.ACTION_START);
+        i.setClass(getBaseContext(), ServerProxyService.class);
+        i.setAction(ServerProxyService.ACTION_START);
         startService(i);
         doBindService();
 
-//		serverProxy = new ServerProxy(eventGenerator);
+//		serverProxy = new ServerProxyService(eventGenerator);
 //        serverProxy.connect();
     }
 
@@ -1136,6 +1138,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 
         } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
+            e.printStackTrace();
             SharedPrefUtils.remove(context, SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
             }
 

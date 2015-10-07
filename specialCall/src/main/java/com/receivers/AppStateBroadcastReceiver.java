@@ -1,4 +1,4 @@
-package com.special.specialcall;
+package com.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
