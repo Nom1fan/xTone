@@ -103,11 +103,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
             if (fileType == FileManager.FileType.VIDEO)
             {
 
-                AudioManager audioManager_tmp = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                int RingerVolume = intent.getIntExtra("Ringervolume", audioManager_tmp.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
-                audioManager_tmp.setStreamVolume(AudioManager.STREAM_MUSIC, RingerVolume, 0);
-                audioManager_tmp.setStreamVolume(AudioManager.STREAM_ALARM, RingerVolume, 0);
-
                 Log.i(TAG, "In VIDEO");
                 videoMedia = true;
                 // Special ringtone in video case is silent
@@ -242,9 +237,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
             Log.i(TAG, "Entering OnPreparedListener");
             m.setLooping(true);
-          //  m.setScreenOnWhilePlaying(true);
             m.setVolume(1.0f, 1.0f);
-       //     m.setAudioStreamType(AudioManager.STREAM_ALARM);
             m.start();
             Log.i(TAG, "Finishing OnPreparedListener");
         }

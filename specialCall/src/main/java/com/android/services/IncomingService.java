@@ -160,7 +160,7 @@ public class IncomingService extends Service {
                             oldAlarmVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM);
 
                             // Setting music and alarm volume to equal the ringtone volume
-                            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume, 0);
+                            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume*2+1, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
                             audioManager.setStreamVolume(AudioManager.STREAM_ALARM, ringVolume, 0);
                         }
                         catch(Exception e)
@@ -277,7 +277,6 @@ public class IncomingService extends Service {
         //  specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_FILEPATH, mediaFilePath);
-        specialCallIntent.putExtra("Ringervolume", ringVolume);
 
         Log.i(TAG, "START ACTIVITY before For");
         getApplicationContext().startActivity(specialCallIntent);
