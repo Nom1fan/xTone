@@ -73,18 +73,18 @@ public class ClientsManager {
 		logActiveConns();
 	}
 
-	public synchronized static void markClientHeartBeat(String clientId, ConnectionToClient ctc) {
-		
-		Date date = new Date();
-		Long timestamp = date.getTime();
-		
-		clientHeartBeats.put(clientId, timestamp);
-		onlineConnections.put(clientId, ctc);
-		
-		hbLogger.info(clientId);
-	}
+//	public synchronized static void markClientHeartBeat(String clientId, ConnectionToClient ctc) {
+//
+//		Date date = new Date();
+//		Long timestamp = date.getTime();
+//
+//		clientHeartBeats.put(clientId, timestamp);
+//		onlineConnections.put(clientId, ctc);
+//
+//		hbLogger.info(clientId);
+//	}
 	
-	public synchronized static UserStatus isLogin(String clientId) throws IOException, ClassNotFoundException {
+	public synchronized static UserStatus isRegistered(String clientId) throws IOException, ClassNotFoundException {
 
 		Date date = new Date();
 		Long now = date.getTime();
@@ -98,23 +98,23 @@ public class ClientsManager {
             return UserStatus.UNREGISTERED;
         }
 
-        Long hbTimestamp = clientHeartBeats.get(clientId);
-        Long timeout;
-
-        if (hbTimestamp == null)
-            serverLogger.severe("Unable to get heartbeat from user:" + clientId);
-         else {
-            if ((timeout = now - hbTimestamp) > HEARTBEAT_TIMEOUT) {
-                serverLogger.severe("Heartbeat timeout from user:" + clientId+" Timeout="+timeout);
-            } else {
-                serverLogger.info(clientId + " is " + UserStatus.ONLINE.toString());
-                return UserStatus.ONLINE;
-            }
-        }
-
-		removeClientConnection(clientId);
-		serverLogger.info(clientId + " is " + UserStatus.OFFLINE.toString());
-		return UserStatus.OFFLINE;
+//        Long hbTimestamp = clientHeartBeats.get(clientId);
+//        Long timeout;
+//
+//        if (hbTimestamp == null)
+//            serverLogger.severe("Unable to get heartbeat from user:" + clientId);
+//         else {
+//            if ((timeout = now - hbTimestamp) > HEARTBEAT_TIMEOUT) {
+//                serverLogger.severe("Heartbeat timeout from user:" + clientId+" Timeout="+timeout);
+//            } else {
+//                serverLogger.info(clientId + " is " + UserStatus.ONLINE.toString());
+//                return UserStatus.ONLINE;
+//            }
+//        }
+//
+//		removeClientConnection(clientId);
+//		serverLogger.info(clientId + " is " + UserStatus.OFFLINE.toString());
+		return UserStatus.REGISTERED;
 		
 	}
 

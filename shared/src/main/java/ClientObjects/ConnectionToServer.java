@@ -39,7 +39,9 @@ public class ConnectionToServer {
 	}
 	
 	public void closeConnection() throws IOException {
-		
+
+		out.close();
+		in.close();
 		_socketToServer.close();
 	}
 	

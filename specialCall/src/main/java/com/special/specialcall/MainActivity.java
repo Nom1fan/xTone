@@ -589,7 +589,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     if ((serverProxy != null) &&
                             !getState().equals(SharedPrefUtils.STATE_DISABLED) &&
                             !getState().equals(SharedPrefUtils.STATE_LOADING))
-                        serverProxy.isLogin(destPhone);
+                        serverProxy.isRegistered(destPhone);
 
                 } else {
                     destPhoneNumber="";
@@ -659,9 +659,9 @@ public class MainActivity extends Activity implements OnClickListener {
             writeErrStatBar(report.desc());
 			break;
 
-        case LOGIN_SUCCESS:
+        case REGISTER_SUCCESS:
             writeInfoStatBar(report.desc());
-            stateIdle(tag + " EVENT: LOGIN_SUCCESS");
+            stateIdle(tag + " EVENT: REGISTER_SUCCESS");
             break;
 
 		case ISLOGIN_ONLINE:
@@ -697,7 +697,7 @@ public class MainActivity extends Activity implements OnClickListener {
             TransferDetails td = (TransferDetails) report.data();
             lut_utils.saveUploadedPerNumber(td.getDestinationId(), td.getFileType(), td.get_fullFilePathSrcSD());
             if(isContactSelected())
-                serverProxy.isLogin(destPhoneNumber);
+                serverProxy.isRegistered(destPhoneNumber);
 			break;
 
         case RECONNECT_ATTEMPT:

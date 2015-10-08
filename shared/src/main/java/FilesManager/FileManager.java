@@ -1,12 +1,15 @@
 package FilesManager;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.Arrays;
-
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
@@ -25,19 +28,25 @@ public class FileManager {
     private static final String[] imageFormats = { "jpg", "png", "jpeg", "bmp", "gif", "tiff" };
     private static final String[] audioFormats = { "mp3", "ogg" };
     private static final String[] videoFormats = { "avi", "mpeg", "mp4", "3gp", "wmv" };
+
     private File _file;
 	private String _extension;
     private int _size;
-	public static final int MAX_FILE_SIZE = 5242880; // 5MB
 	private FileType _fileType;
 
+    public static final int MAX_FILE_SIZE = 5242880; // 5MB
+    public static final String UPLOAD_FOLDER = "\\uploads\\";
     public enum FileType { IMAGE, VIDEO, RINGTONE }
 
 
     /**
-     *
+     * Constructor
      * @param file - The file to manage
-     * @throws NullPointerException - Thrown if path to file is null
+     * @throws NullPointerException
+     * @throws FileInvalidFormatException
+     * @throws FileExceedsMaxSizeException
+     * @throws FileDoesNotExistException
+     * @throws FileMissingExtensionException
      */
     public FileManager(File file) throws NullPointerException,FileInvalidFormatException,FileExceedsMaxSizeException, FileDoesNotExistException, FileMissingExtensionException {
 
@@ -57,6 +66,15 @@ public class FileManager {
             throw new NullPointerException("The file is null");
     }
 
+    /**
+     * Constructor
+     * @param filePath - The path to the file to manage
+     * @throws NullPointerException
+     * @throws FileInvalidFormatException
+     * @throws FileExceedsMaxSizeException
+     * @throws FileDoesNotExistException
+     * @throws FileMissingExtensionException
+     */
     public FileManager(String filePath) throws NullPointerException,FileInvalidFormatException,FileExceedsMaxSizeException, FileDoesNotExistException, FileMissingExtensionException {
 		
 		if(filePath!=null)
@@ -75,31 +93,90 @@ public class FileManager {
 			throw new NullPointerException("The file path is null");
 	}
 
-    /**
-     * Validates the the file size does not exceeds FileManager.MAX_FILE_SIZE
-     * @throws FileExceedsMaxSizeException - Thrown if file size exceeds FileManager.MAX_FILE_SIZE
-     */
-	private void validateFileSize() throws FileExceedsMaxSizeException {
-		
-		long fileSize = _file.length();		
-		if(fileSize >= MAX_FILE_SIZE)
-			throw new FileExceedsMaxSizeException();		
-	}
+    /* Public instance methods */
 
-	public byte[] getFileData() throws IOException {
-		
- 		 // Reading the file from the disk
- 		 FileInputStream fis = new FileInputStream(_file);
-		 BufferedInputStream bis = new BufferedInputStream(fis);
- 		 byte[] fileData = new byte[(int)_file.length()];	  				 		 
- 		 bis.read(fileData);
- 		 bis.close();
- 		 return fileData;
-	}
+    public byte[] getFileData() throws IOException {
+
+        // Reading the file from the disk
+        FileInputStream fis = new FileInputStream(_file);
+        BufferedInputStream bis = new BufferedInputStream(fis);
+        byte[] fileData = new byte[(int)_file.length()];
+        bis.read(fileData);
+        bis.close();
+        return fileData;
+    }
 
     public String getFileFullPath() {
         return _file.getAbsolutePath();
     }
+
+    public String getFileExtension() {
+
+        return _extension;
+    }
+
+    public int getFileSize() {
+        return _size;
+    }
+
+    /**
+     * Delete the file safely (rename first)
+     */
+    public void delete() {
+
+        final File to = new File(_file.getAbsolutePath() + System.currentTimeMillis());
+        _file.renameTo(to);
+        to.delete();
+    }
+
+    public boolean doesFileExist() {
+
+        return _file.exists();
+    }
+
+    /**
+     *
+     * @return FileType - The type of the file of the supported formats: VIDEO/RINGTONE/IMAGE
+     */
+    public FileType getFileType() {
+
+        return _fileType;
+    }
+
+
+    /* Private instance methods */
+
+    /**
+     * Validates if the file is among the valid file formats
+     * @throws FileInvalidFormatException - Thrown if the file is not found in valid file formats lists
+     * @return FileType - The valid file type found
+     */
+    private FileType validateFileFormat() throws FileInvalidFormatException {
+
+        if(Arrays.asList(imageFormats).contains(_extension))
+            return FileType.IMAGE;
+        else if(Arrays.asList(audioFormats).contains(_extension))
+            return FileType.RINGTONE;
+        else if (Arrays.asList(videoFormats).contains(_extension))
+            return FileType.VIDEO;
+
+        delete();
+
+        throw new FileInvalidFormatException(_extension);
+    }
+
+    /**
+     * Validates the the file size does not exceeds FileManager.MAX_FILE_SIZE
+     * @throws FileExceedsMaxSizeException - Thrown if file size exceeds FileManager.MAX_FILE_SIZE
+     */
+    private void validateFileSize() throws FileExceedsMaxSizeException {
+
+        long fileSize = _file.length();
+        if(fileSize >= MAX_FILE_SIZE)
+            throw new FileExceedsMaxSizeException();
+    }
+
+    /* Public static methods */
 
     /**
      *
@@ -126,24 +203,6 @@ public class FileManager {
 		// File size in Bytes		
 		return df.format(_fileSize)+"B";	
 	}
-
-	public String getFileExtension() {
-		
-		return _extension;
-	}
-
-    public int getFileSize() {
-        return _size;
-    }
-
-    /**
-     *
-     * @return FileType - The type of the file of the supported formats: VIDEO/RINGTONE/IMAGE
-     */
-	public FileType getFileType() {
-
-           return _fileType;
-    }
 
     public static FileType getFileType(String filePath) throws FileInvalidFormatException, FileDoesNotExistException, FileMissingExtensionException {
 
@@ -191,75 +250,29 @@ public class FileManager {
     }
 
     /**
-     * Validates if the file is among the valid file formats
-     * @throws FileInvalidFormatException - Thrown if the file is not found in valid file formats lists
-     * @return FileType - The valid file type found
+     * Creates a new file on the File System from given bytes array
+     * @param filePath
+     * @param fileData
+     * @throws IOException
      */
-	private FileType validateFileFormat() throws FileInvalidFormatException {
+    public static void createNewFile(String filePath, byte[] fileData) throws IOException {
 
-		if(Arrays.asList(imageFormats).contains(_extension))
-                return FileType.IMAGE;
-        else if(Arrays.asList(audioFormats).contains(_extension))
-                return FileType.RINGTONE;
-        else if (Arrays.asList(videoFormats).contains(_extension))
-                return FileType.VIDEO;
+        FileOutputStream fos;
+        BufferedOutputStream bos;
 
-        delete();
+        // Creating file
+        Path currentRelativePath = Paths.get("");
+        String path = currentRelativePath.toAbsolutePath().toString();
+        File newFile = new File(path+filePath);
+        newFile.getParentFile().mkdirs();
+        newFile.createNewFile();
+        fos = new FileOutputStream(newFile);
+        bos = new BufferedOutputStream(fos);
 
-        throw new FileInvalidFormatException(_extension);
-	}
-
-    private static String extractExtension(String filePath) throws FileMissingExtensionException{
-
-        String tmp_str[] = filePath.split("\\.");
-        if(tmp_str.length<2)
-            throw new FileMissingExtensionException("File is missing extension:"+filePath);
-        String ext = tmp_str[1];
-        return ext;
-    }
-
-//    /**
-//     * Deleting a directory recursively
-//     * @param directory - The directory to delete
-//     * @return
-//     * @throws NullPointerException
-//     * @throws FileNotFoundException
-//     */
-    /*
-	public static boolean deleteDirectory(File directory) throws NullPointerException, FileNotFoundException {
-
-		if(directory == null)
-			throw new NullPointerException("The file parameter cannot be null");
-
-		if (directory.exists()) {
-			File[] files = directory.listFiles();
-			if (files == null) {
-				return true;
-			}
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].isDirectory()) {
-					deleteDirectory(files[i]);
-				} else {
-					files[i].delete();
-				}
-			}
-		}
-		else
-			throw new FileNotFoundException();
-
-		return(directory.delete());
-
-	}
-	*/
-
-    /**
-     * Allows to delete the file safely (renaming first)
-     */
-    public void delete() {
-
-        final File to = new File(_file.getAbsolutePath() + System.currentTimeMillis());
-        _file.renameTo(to);
-        to.delete();
+        // Writing file to disk
+        bos.write(fileData);
+        bos.flush();
+        bos.close();
     }
 
     /**
@@ -273,9 +286,54 @@ public class FileManager {
         to.delete();
     }
 
+    /* Private static methods*/
 
-    public boolean doesFileExist() {
+    private static String extractExtension(String filePath) throws FileMissingExtensionException{
 
-        return _file.exists();
+        String tmp_str[] = filePath.split("\\.");
+        if(tmp_str.length<2)
+            throw new FileMissingExtensionException("File is missing extension:"+filePath);
+        String ext = tmp_str[1];
+        return ext;
     }
+
+
+
+//    /**
+//     * Deleting a directory recursively
+//     * @param directory - The directory to delete
+//     * @return
+//     * @throws NullPointerException
+//     * @throws FileNotFoundException
+//     */
+
+//	public static boolean deleteDirectory(File directory) throws NullPointerException, FileNotFoundException {
+//
+//		if(directory == null)
+//			throw new NullPointerException("The file parameter cannot be null");
+//
+//		if (directory.exists()) {
+//			File[] files = directory.listFiles();
+//			if (files == null) {
+//				return true;
+//			}
+//			for (int i = 0; i < files.length; i++) {
+//				if (files[i].isDirectory()) {
+//					deleteDirectory(files[i]);
+//				} else {
+//					files[i].delete();
+//				}
+//			}
+//		}
+//		else
+//			throw new FileNotFoundException();
+//
+//		return(directory.delete());
+//
+//	}
+
+
+
+
+
 }

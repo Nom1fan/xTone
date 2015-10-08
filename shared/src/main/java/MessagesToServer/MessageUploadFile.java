@@ -1,13 +1,23 @@
 package MessagesToServer;
 
+import com.sun.deploy.util.SessionState;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import DataObjects.PushEventKeys;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import MessagesToClient.MessageDownloadFile;
 import ServerObjects.ClientsManager;
 import FilesManager.FileManager;
+import ServerObjects.PushSender;
 
 public class MessageUploadFile extends MessageToServer {
 
@@ -31,67 +41,44 @@ public class MessageUploadFile extends MessageToServer {
 		
 		initLogger();
 		
-		logger.info("Initiating file send from user:"+_messageInitiaterId+" to user:"+ _destId +"."+" File size:"+FileManager.getFileSizeFormat(_td.getFileSize()));
-			
+		logger.info("Initiating file upload from user:" + _messageInitiaterId + ". Destination user:" + _destId + "." + " File size:" + FileManager.getFileSizeFormat(_td.getFileSize()));
+		Path currentRelativePath = Paths.get("");
+		String workingDir = currentRelativePath.toAbsolutePath().toString();
+		String fileFullPath = workingDir+FileManager.UPLOAD_FOLDER+_destId+"\\"+_messageInitiaterId+"."+_td.getExtension();
+
+		try {
+			FileManager.createNewFile(fileFullPath,_fileData);
+		} catch (IOException e) {
+			e.printStackTrace();
+			logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destId+" Failed:"+e.getMessage());
+			String errMsg = "UPLOAD_FAILED:"+e.getMessage();
+			cont = ClientsManager.sendEventToClient(_messageInitiaterId, new EventReport(EventType.UPLOAD_FAILURE, errMsg, null));
+
+			return cont;
+		}
+
+
 		// Informing source (uploader) that the file is on the way
-		String infoMsg = "Sending file to:"+ _destId +"...";
+		String infoMsg = "File uploaded to server";
 		cont = ClientsManager.sendEventToClient(_messageInitiaterId,new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, null));
 			
 		if(!cont)
 			return cont;
 			
 		// Sending file to destination	
-		boolean sent = ClientsManager.sendMessageToClient(_destId,new MessageDownloadFile(_td,_fileData));
-			
+		String destToken = ClientsManager.getClientPushToken(_destId);
+		String pushEventAction = PushEventKeys.PENDING_DOWNLOAD;
+		boolean sent = PushSender.sendPush(destToken, pushEventAction, fileFullPath);
+
 		if(!sent)
 		{
-			String errMsg = "TRANSFER_FAILURE: "+ _destId +" did not receive upload";
-			cont = ClientsManager.sendEventToClient(_messageInitiaterId, new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
+			String errMsg = "TRANSFER_FAILURE: "+ _destId +" did not receive pending download push for file:"+_td.getSourceWithExtension();
+			String initiaterToken = ClientsManager.getClientPushToken(_messageInitiaterId);
+			cont = PushSender.sendPush(initiaterToken, PushEventKeys.SHOW_MESSAGE, errMsg);
 		}
-		
+
+
 		return cont;
-		
-//		*** All the remark zone here is for saving the file to the server. 
-//		***	Currently the file is being sent directly to destination without being saved on the server.
-//		***	To undo this, remove these remarks
-			
-//			FileOutputStream fos;
-//			BufferedOutputStream bos;
-//			try 
-//			{		
-//				// Creating file to upload
-//				Path currentRelativePath = Paths.get("");
-//				String path = currentRelativePath.toAbsolutePath().toString();
-//				File newFile = new File(path+"\\uploads\\"+_destId+"\\"+_messageInitiaterId+"."+_extension);
-//				newFile.getParentFile().mkdirs();
-//				newFile.createNewFile();
-//				fos = new FileOutputStream(newFile);		
-//				bos = new BufferedOutputStream(fos);			
-//			}	
-//			catch(Exception e)
-//			{
-//				logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destId+" Failed:"+e.getMessage());
-//				String errMsg = "UPLOAD_FAILED:"+e.getMessage();
-//				cont = ClientsManager.informClient(_messageInitiaterId,errMsg, EventType.UPLOAD_FAILURE);
-//				
-//				return cont;
-//			}
-//			
-//			try 
-//			{				 		    		
-//			    logger.info("Writing file to disk...");
-//			    
-//			    // Writing file to disk
-//			    bos.write(_file);
-//			    bos.flush();
-//				bos.close();	
-//			}
-//			catch(Exception e)
-//			{
-//				logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destId+" Failed:"+e.getMessage());
-//				cont = false;
-//				return cont;
-//			}
 		
 	}
 }

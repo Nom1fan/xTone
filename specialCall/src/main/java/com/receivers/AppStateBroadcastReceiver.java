@@ -23,7 +23,7 @@ public class AppStateBroadcastReceiver extends BroadcastReceiver {
 
         switch(report.status())
         {
-            case LOGIN_SUCCESS:
+            case REGISTER_SUCCESS:
                 AppStateUtils.setAppState(context, TAG, SharedPrefUtils.STATE_IDLE);
             break;
 

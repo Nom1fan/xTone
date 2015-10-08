@@ -9,7 +9,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.SystemClock;
+import android.os.PowerManager.WakeLock;
+import android.os.PowerManager;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.net.Socket;
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
+import DataObjects.PushEventKeys;
 import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
 import EventObjects.Event;
@@ -26,7 +28,7 @@ import FilesManager.FileManager;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.MessageHeartBeat;
 import MessagesToServer.MessageIsLogin;
-import MessagesToServer.MessageLogin;
+import MessagesToServer.MessageRegister;
 import MessagesToServer.MessageLogout;
 import MessagesToServer.MessageUploadFile;
 import data_objects.Constants;
@@ -38,29 +40,30 @@ import data_objects.SharedPrefUtils;
 	   * <pre>
 	   * A Proxy that manages all server operations.
 	   * Provided operations:
-	   * - Login
+	   * - Register
 	   * - Upload file
-	   * - Check if user is online 
-	   * - Periodically perform heartbeats
-	   * - Listen for messages from server
+       * - Download file
+	   * - Check if user is registered
 	   * @author Mor
 	   */
 	  public class ServerProxyService extends Service implements IServerProxy {
 
-          public static final String ACTION_HEARTBEAT = "com.android.services.HEARTBEAT";
+          //public static final String ACTION_HEARTBEAT = "com.android.services.HEARTBEAT";
           public static final String ACTION_START = "com.android.services.START";
           public static final String ACTION_STOP = "com.android.services.STOP";
           public static final String ACTION_RECONNECT = "com.android.services.RECONNECT";
+          public static final String ACTION_DOWNLOAD = "com.android.services.DOWNLOAD";
 
           private ConnectionToServer connectionToServer;
           private ServerProxyService serverProxy = this;
           private ConnectivityManager connManager;
-          private static final int HEARTBEAT_INTERVAL = SharedConstants.HEARTBEAT_INTERVAL;
+          //private static final int HEARTBEAT_INTERVAL = SharedConstants.HEARTBEAT_INTERVAL;
           private static final long INITIAL_RETRY_INTERVAL = 1000 * 5;
           private static final long MAXIMUM_RETRY_INTERVAL = 1000 * 60;
           private MessageHeartBeat msgHB;
           private boolean started = false;
           private final IBinder mBinder = new MyBinder();
+          private WakeLock wakeLock;
           private static final String TAG = ServerProxyService.class.getSimpleName();
 
 
@@ -80,16 +83,15 @@ import data_objects.SharedPrefUtils;
               if(intent!=null) {
                   String action = intent.getAction();
                   Log.i(TAG, "Action:"+action);
-                  //callInfoToast("ServerProxyService started");
 
                   switch (action)
                   {
                       case ACTION_START:
                           if (SharedConstants.MY_ID.equals("")) {
-                              callErrToast("Can't login using empty phone number. Try restarting the app.");
+                              callErrToast("Can't register using empty phone number. Try restarting the app.");
                               stop();
                           } else if (SharedConstants.DEVICE_TOKEN.equals("")) {
-                              callErrToast("Can't login using empty device token. Try restarting the app.");
+                              callErrToast("Can't register using empty device token. Try restarting the app.");
                               stop();
                           } else
                               start();
@@ -99,12 +101,19 @@ import data_objects.SharedPrefUtils;
                           stop();
                           break;
 
-                      case ACTION_HEARTBEAT:
-                            sendHeartBeat();
-                          break;
+//                      case ACTION_HEARTBEAT:
+//                            sendHeartBeat();
+//                          break;
 
                       case ACTION_RECONNECT:
                           reconnectIfNecessary();
+                          break;
+
+                      case ACTION_DOWNLOAD:
+                          wakeLock.acquire();
+                          String fPathOnServer = intent.getStringExtra(PushEventKeys.PUSH_DATA);
+                          //MessageDownloadFile msgDF = new MessageDownloadFile(fPathOnServer);
+
                           break;
 
                   }
@@ -122,6 +131,8 @@ import data_objects.SharedPrefUtils;
              SharedConstants.specialCallPath = Constants.specialCallPath;
 
              connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+             PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+             wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG+"_wakeLock");
 
              sendEventReportBroadcast(new EventReport(EventType.SERVER_PROXY_CREATED, null, null));
 
@@ -207,7 +218,7 @@ import data_objects.SharedPrefUtils;
            *
            * @param destinationId - The number of whom to check is logged-in
            */
-          public void isLogin(final String destinationId) {
+          public void isRegistered(final String destinationId) {
               new Thread() {
                   @Override
                   public void run() {
@@ -222,7 +233,7 @@ import data_objects.SharedPrefUtils;
 
                       } catch (IOException e) {
                           e.printStackTrace();
-                          String errMsg = "ISLOGIN_ERROR. Exception:" + e.getMessage()+". Check your internet connection";
+                          String errMsg = "ISREGISTERED_FAILURE. Exception:" + e.getMessage()+". Check your internet connection";
                           handleDisconnection(errMsg);
                       }
                   }
@@ -248,10 +259,8 @@ import data_objects.SharedPrefUtils;
                       try {
                           sendEventReportBroadcast(new EventReport(EventType.CONNECTING, "Connecting...", null));
                           openSocket();
-//                          registerConnectivityReceiver();
-                          startClientActionListener();
-                          startKeepAlives();
-                          login();
+                          //startKeepAlives();
+                          register();
                       } catch (IOException e) {
                           e.printStackTrace();
                           String errMsg = "Failed connect to server:" + e.getMessage();
@@ -296,22 +305,22 @@ import data_objects.SharedPrefUtils;
           }
 
           /**
-           * Enables to login to the server
+           * Enables to register to the server
            */
-          private void login() {
-              Log.i(TAG, "Initiating login sequence...");
+          private void register() {
+              Log.i(TAG, "Initiating register sequence...");
 
               new Thread() {
                   @Override
                   public void run() {
                       try {
 
-                          MessageLogin msgLogin = new MessageLogin(SharedConstants.MY_ID, SharedConstants.DEVICE_TOKEN);
-                          Log.i(TAG, "Sending login message to server...");
-                          connectionToServer.sendMessage(msgLogin);
+                          MessageRegister msgRegister = new MessageRegister(SharedConstants.MY_ID, SharedConstants.DEVICE_TOKEN);
+                          Log.i(TAG, "Sending register message to server...");
+                          connectionToServer.sendMessage(msgRegister);
                       } catch (IOException e) {
                           e.printStackTrace();
-                          String errMsg = "LOGIN_FAILURE. Exception:" + e.getMessage()+". Check your internet connection";
+                          String errMsg = "REGISTER_FAILURE. Exception:" + e.getMessage()+". Check your internet connection";
                           handleDisconnection(errMsg);
                       }
 
@@ -372,17 +381,19 @@ import data_objects.SharedPrefUtils;
                                           .doClientAction(serverProxy);
 
                                   if(eventReport.status()!=EventType.NO_ACTION_REQUIRED)
-                                    sendEventReportBroadcast(eventReport);
+                                      sendEventReportBroadcast(eventReport);
 
+                                  wakeLock.release();
                                   //sendEventReport(eventReport);
                               }
                           } catch (IOException e) {
                               e.printStackTrace();
+                              wakeLock.release();
                               String errMsg = "Client action failure. Exception:"+e.getMessage()+". Check your internet connection";
                               handleDisconnection(errMsg);
                           }
                           catch(ClassNotFoundException e) {
-
+                              wakeLock.release();
                               String errMsg = "Client action failure. Exception:"+e.getMessage();
                               Log.e(TAG, "Client action failure:" + e.getMessage());
                               sendEventReportBroadcast(new EventReport(EventType.CLIENT_ACTION_FAILURE, errMsg, null));
@@ -408,8 +419,8 @@ import data_objects.SharedPrefUtils;
 
                               openSocket();
                               startClientActionListener();
-                              startKeepAlives();
-                              login();
+                              //startKeepAlives();
+                              register();
                           } catch (IOException e) {
                               e.printStackTrace();
                           }
@@ -448,28 +459,28 @@ import data_objects.SharedPrefUtils;
               sendBroadcast(broadcastEvent);
           }
 
-          private void startKeepAlives()
-          {
-              Log.i(TAG, "Starting keep alives");
-              Intent i = new Intent();
-              i.setClass(this, ServerProxyService.class);
-              i.setAction(ACTION_HEARTBEAT);
-              PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
-              AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
-              alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                      SystemClock.elapsedRealtime() + HEARTBEAT_INTERVAL,
-                      HEARTBEAT_INTERVAL, pi);
-          }
-
-          private void stopKeepAlives()
-          {
-              Intent i = new Intent();
-              i.setClass(this, ServerProxyService.class);
-              i.setAction(ACTION_HEARTBEAT);
-              PendingIntent pi = PendingIntent.getService(getApplicationContext(), 0, i, 0);
-              AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
-              alarmMgr.cancel(pi);
-          }
+//          private void startKeepAlives()
+//          {
+//              Log.i(TAG, "Starting keep alives");
+//              Intent i = new Intent();
+//              i.setClass(this, ServerProxyService.class);
+//              i.setAction(ACTION_HEARTBEAT);
+//              PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
+//              AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
+//              alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+//                      SystemClock.elapsedRealtime() + HEARTBEAT_INTERVAL,
+//                      HEARTBEAT_INTERVAL, pi);
+//          }
+//
+//          private void stopKeepAlives()
+//          {
+//              Intent i = new Intent();
+//              i.setClass(this, ServerProxyService.class);
+//              i.setAction(ACTION_HEARTBEAT);
+//              PendingIntent pi = PendingIntent.getService(getApplicationContext(), 0, i, 0);
+//              AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
+//              alarmMgr.cancel(pi);
+//          }
 
           private boolean isNetworkAvailable() {
 
@@ -486,7 +497,7 @@ import data_objects.SharedPrefUtils;
 
               Log.i(TAG, "Handling crashed service");
               if(wasStarted()) {
-                  stopKeepAlives();
+                  //stopKeepAlives();
                   connect();
               }
           }
@@ -497,7 +508,7 @@ import data_objects.SharedPrefUtils;
               setConnected(false);
               sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, errMsg, null));
               connectionToServer=null;
-              stopKeepAlives();
+              //stopKeepAlives();
               scheduleReconnect(System.currentTimeMillis());
           }
 
@@ -554,12 +565,10 @@ import data_objects.SharedPrefUtils;
 
               setStarted(false);
 
-//              unregisterReceiver(mConnectivityChanged);
-//              cancelReconnect();
+              gracefullyDisconnect();
 
-//              gracefullyDisconnect();
               sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, "Disconnected. Check your internet connection", null));
-//              stopSelf();
+              stopSelf();
           }
 
           private void cancelReconnect()

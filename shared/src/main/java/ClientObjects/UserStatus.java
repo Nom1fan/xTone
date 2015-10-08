@@ -2,7 +2,8 @@ package ClientObjects;
 
 public enum UserStatus {
 
-	ONLINE,
-	OFFLINE,
-	UNREGISTERED
+//	ONLINE,
+//	OFFLINE,
+	UNREGISTERED,
+	REGISTERED,
 }

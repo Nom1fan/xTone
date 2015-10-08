@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import DataObjects.PushEventKeys;
 import LogObjects.LogsManager;
 
 /**
@@ -26,15 +27,21 @@ public abstract class PushSender {
     private static final String PUSH_URL = "https://api.parse.com/1/push";
     private static Logger _logger = LogsManager.getServerLogger();
 
-    public static boolean sendPush(final String deviceToken) {
+    public static boolean sendPush(final String deviceToken, final String pushEventAction, final String value) {
 
         JSONObject jo = new JSONObject();
+
+        // Initializing data
         Map<String, String> data = new HashMap();
-        data.put("alert", "Mandatory push data");
+        data.put(PushEventKeys.PUSH_EVENT_ACTION, pushEventAction);
+        data.put(PushEventKeys.PUSH_DATA, value);
+
+        // Initializing where
         HashMap where = new HashMap() {{
             put("channels", "SpecialCall");
             put("deviceToken", deviceToken);
         }};
+
         jo.put("where", where);
         jo.put("data", data);
 

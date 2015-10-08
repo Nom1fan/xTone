@@ -26,7 +26,7 @@ public class MessageIsLogin extends MessageToServer {
 
 		logger.info(_messageInitiaterId + " is checking if " + _id + " is logged in...");
 
-        userStatus = ClientsManager.isLogin(_id);
+        userStatus = ClientsManager.isRegistered(_id);
 		MessageIsLoginRes msgReply = new MessageIsLoginRes(_id, userStatus);
 		replyToClient(msgReply);
 		
