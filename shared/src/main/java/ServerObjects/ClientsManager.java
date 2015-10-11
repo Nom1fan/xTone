@@ -10,6 +10,7 @@ import ClientObjects.UserStatus;
 import DataObjects.SharedConstants;
 import EventObjects.EventReport;
 import LogObjects.LogsManager;
+import MessagesToClient.MessageHeartBeatAck;
 import MessagesToClient.MessageToClient;
 import MessagesToClient.MessageTriggerEventOnly;
 
@@ -80,6 +81,8 @@ public class ClientsManager {
 		
 		clientHeartBeats.put(clientId, timestamp);
 		onlineConnections.put(clientId, ctc);
+
+		sendMessageToClient(clientId,new MessageHeartBeatAck());
 		
 		hbLogger.info(clientId);
 	}

@@ -33,21 +33,22 @@ public class SharedPrefUtils {
 	public static final String CONNECTED = "ServerProxyService.Connected";
 	public static final String WAS_STARTED = "ServerProxyService.WAS_STARTED";
 	public static final String RECONNECT_INTERVAL = "ServerProxyService.RECONNECT_INTERVAL";
+	public static final String HEARTBEAT_ACK ="ServerProxyService.HEARTBEAT_ACK";
 
 
 	public static int getInt(Context context, String prefsName, String key){
 		SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
 		return prefs.getInt(key, 0);
 	}
-	
-	public static int getInt(Context context, String prefsName, String key, int DefaultValue){
+
+	public static Long getLong(Context context, String prefsName, String key){
 		SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
-		return prefs.getInt(key, DefaultValue);
+		return prefs.getLong(key, new Long(0));
 	}
 
-	public static Long getLong(Context context, String prefsName, String key, Long DefaultValue){
+	public static Long getLong(Context context, String prefsName, String key, Long defaultValue){
 		SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
-		return prefs.getLong(key, DefaultValue);
+		return prefs.getLong(key, defaultValue);
 	}
 	
 	public static String getString(Context context, String prefsName, String key){
@@ -84,6 +85,7 @@ public class SharedPrefUtils {
 		SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
 		prefs.edit().remove(key).apply();
 	}
-	
-	
+
+
+
 }

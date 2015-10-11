@@ -15,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Date;
+
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
 import DataObjects.SharedConstants;
@@ -58,6 +60,7 @@ import data_objects.SharedPrefUtils;
           private static final int HEARTBEAT_INTERVAL = SharedConstants.HEARTBEAT_INTERVAL;
           private static final long INITIAL_RETRY_INTERVAL = 1000 * 5;
           private static final long MAXIMUM_RETRY_INTERVAL = 1000 * 60;
+          private static final long HEARTBEAT_ACK_TIMEOUT = HEARTBEAT_INTERVAL + 5000;
           private MessageHeartBeat msgHB;
           private boolean started = false;
           private final IBinder mBinder = new MyBinder();
@@ -172,6 +175,7 @@ import data_objects.SharedPrefUtils;
            * @param managedFile   - The file to upload inside a manager wrapper
            * @param destNumber - The destination number to whom the file is for
            */
+          @Override
           public void uploadFileToServer(final String destNumber, final FileManager managedFile) {
               new Thread() {
                   @Override
@@ -207,6 +211,7 @@ import data_objects.SharedPrefUtils;
            *
            * @param destinationId - The number of whom to check is logged-in
            */
+          @Override
           public void isLogin(final String destinationId) {
               new Thread() {
                   @Override
@@ -230,8 +235,15 @@ import data_objects.SharedPrefUtils;
               }.start();
           }
 
+          @Override
           public ConnectionToServer getConnectionToServer() {
               return connectionToServer;
+          }
+
+          @Override
+          public void markHeartBeatAck(Long timestamp) {
+              Log.i(TAG, "Marking heartbeat ack");
+              setHeartBeatAck(timestamp);
           }
 
           /* Internal server operations methods */
@@ -248,7 +260,6 @@ import data_objects.SharedPrefUtils;
                       try {
                           sendEventReportBroadcast(new EventReport(EventType.CONNECTING, "Connecting...", null));
                           openSocket();
-//                          registerConnectivityReceiver();
                           startClientActionListener();
                           startKeepAlives();
                           login();
@@ -258,7 +269,7 @@ import data_objects.SharedPrefUtils;
                           handleDisconnection(errMsg);
                       }
 
-                      // Done reconnecting. Resetting reconnect interval
+                      // Done connecting. Resetting reconnect interval
                       if(isConnected())
                           SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
                   }
@@ -318,33 +329,6 @@ import data_objects.SharedPrefUtils;
                   }
 
               }.start();
-          }
-
-          private synchronized boolean isConnected() {
-              return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.CONNECTED);
-          }
-
-          private synchronized void setConnected(boolean state) {
-              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.CONNECTED, state);
-          }
-
-//          private synchronized boolean isReconnecting() {
-//
-//              return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECTING);
-//          }
-//
-//          private synchronized void setReconnecting(boolean state) {
-//
-//              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECTING, state);
-//          }
-
-          private boolean wasStarted() {
-              return SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_STARTED);
-          }
-
-          private void setStarted(boolean state) {
-              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_STARTED, state);
-              this.started = state;
           }
 
           private void openSocket() throws IOException {
@@ -424,28 +408,31 @@ import data_objects.SharedPrefUtils;
 
           private synchronized void sendHeartBeat() {
 
-              try {
-                  if(msgHB==null) {
-                      String myId = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
-                      msgHB = new MessageHeartBeat(myId);
+                  // Checking last heartbeat ack
+                  Date date = new Date();
+                  Long now = date.getTime();
+                  Long elapsed = now-getHeartBeatAck();
+                  Log.i(TAG, "Checking HB ack. now-heartBeatAck="+elapsed+ " HEARTBEAT_ACK_TIMEOUT="+HEARTBEAT_ACK_TIMEOUT);
+                  if(elapsed > HEARTBEAT_ACK_TIMEOUT) {
+                      stopKeepAlives();
+                      connect();
                   }
+                  else {
+                      try {
+                          if (msgHB == null) {
+                              String myId = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
+                              msgHB = new MessageHeartBeat(myId);
+                          }
 
-                  connectionToServer.sendMessage(msgHB);
-                  Log.i(TAG, "Heartbeat sent to server");
+                          connectionToServer.sendMessage(msgHB);
+                          Log.i(TAG, "Heartbeat sent to server");
 
-              } catch (IOException | NullPointerException e) {
-                  e.printStackTrace();
-                  String errMsg = "HEARTBEAT_FAILURE. Exception:" + e.getMessage()+". Check your internet connection";
-                  handleDisconnection(errMsg);
-              }
-          }
-
-          private void sendEventReportBroadcast(EventReport report) {
-
-              Log.i(TAG, "Broadcasting event:" + report.status().toString());
-              Intent broadcastEvent = new Intent(Event.EVENT_ACTION);
-              broadcastEvent.putExtra(Event.EVENT_REPORT, report);
-              sendBroadcast(broadcastEvent);
+                      } catch (IOException | NullPointerException e) {
+                          e.printStackTrace();
+                          String errMsg = "HEARTBEAT_FAILURE. Exception:" + e.getMessage() + ". Check your internet connection";
+                          handleDisconnection(errMsg);
+                      }
+                  }
           }
 
           private void startKeepAlives()
@@ -501,33 +488,44 @@ import data_objects.SharedPrefUtils;
               scheduleReconnect(System.currentTimeMillis());
           }
 
-          /* Broadcast Receivers */
+          /* Shared pref helper methods */
 
-//          private BroadcastReceiver mConnectivityChanged = new BroadcastReceiver()
-//          {
-//              @Override
-//              public void onReceive(Context context, Intent intent)
-//              {
-//                  NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-//                  boolean wifiConnected = (wifiInfo != null && wifiInfo.isConnected());
-//
-//                  NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-//                  boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
-//
-//                  Log.i(TAG, "Connectivity changed. Wifi=" + wifiConnected + ". Mobile=" + mobileConnected);
-//
-//                  if (wifiConnected || mobileConnected)
-//                    reconnectIfNecessary();
-//                  else {
-//                      connectionToServer = null;
-//                      setConnected(false);
-//                  }
-//              }
-//          };
+          private synchronized boolean isConnected() {
+              return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.CONNECTED);
+          }
 
-//          private void registerConnectivityReceiver() {
-//              registerReceiver(mConnectivityChanged, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-//          }
+          private synchronized void setConnected(boolean state) {
+              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.CONNECTED, state);
+          }
+
+          private boolean wasStarted() {
+              return SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_STARTED);
+          }
+
+          private void setHeartBeatAck(Long timestemp) {
+
+              SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.HEARTBEAT_ACK, timestemp);
+          }
+
+          private Long getHeartBeatAck() {
+
+              return SharedPrefUtils.getLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.HEARTBEAT_ACK);
+          }
+
+          private void setStarted(boolean state) {
+              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_STARTED, state);
+              this.started = state;
+          }
+
+          /* Broadcast Receivers methods */
+
+          private void sendEventReportBroadcast(EventReport report) {
+
+              Log.i(TAG, "Broadcasting event:" + report.status().toString());
+              Intent broadcastEvent = new Intent(Event.EVENT_ACTION);
+              broadcastEvent.putExtra(Event.EVENT_REPORT, report);
+              sendBroadcast(broadcastEvent);
+          }
 
           /* Internal operations methods */
 
