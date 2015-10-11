@@ -243,7 +243,7 @@ import data_objects.SharedPrefUtils;
           @Override
           public void markHeartBeatAck(Long timestamp) {
               Log.i(TAG, "Marking heartbeat ack");
-              setHeartBeatAck(timestamp);
+              setHeartBeatAck(true);
           }
 
           /* Internal server operations methods */
@@ -409,15 +409,12 @@ import data_objects.SharedPrefUtils;
           private synchronized void sendHeartBeat() {
 
                   // Checking last heartbeat ack
-                  Date date = new Date();
-                  Long now = date.getTime();
-                  Long elapsed = now-getHeartBeatAck();
-                  Log.i(TAG, "Checking HB ack. now-heartBeatAck="+elapsed+ " HEARTBEAT_ACK_TIMEOUT="+HEARTBEAT_ACK_TIMEOUT);
-                  if(elapsed > HEARTBEAT_ACK_TIMEOUT) {
+                  if(!wasHeartBeatAck()) {
                       stopKeepAlives();
                       connect();
                   }
                   else {
+                      setHeartBeatAck(false);
                       try {
                           if (msgHB == null) {
                               String myId = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
@@ -437,6 +434,9 @@ import data_objects.SharedPrefUtils;
 
           private void startKeepAlives()
           {
+              stopKeepAlives();
+              setHeartBeatAck(true);
+
               Log.i(TAG, "Starting keep alives");
               Intent i = new Intent();
               i.setClass(this, ServerProxyService.class);
@@ -444,7 +444,7 @@ import data_objects.SharedPrefUtils;
               PendingIntent pi = PendingIntent.getService(this, 0, i, 0);
               AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
               alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                      SystemClock.elapsedRealtime() + HEARTBEAT_INTERVAL,
+                      SystemClock.elapsedRealtime(),
                       HEARTBEAT_INTERVAL, pi);
           }
 
@@ -502,14 +502,14 @@ import data_objects.SharedPrefUtils;
               return SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_STARTED);
           }
 
-          private void setHeartBeatAck(Long timestemp) {
+          private void setHeartBeatAck(boolean val) {
 
-              SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.HEARTBEAT_ACK, timestemp);
+              SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.HEARTBEAT_ACK, val);
           }
 
-          private Long getHeartBeatAck() {
+          private boolean wasHeartBeatAck() {
 
-              return SharedPrefUtils.getLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.HEARTBEAT_ACK);
+              return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.HEARTBEAT_ACK);
           }
 
           private void setStarted(boolean state) {
@@ -552,6 +552,7 @@ import data_objects.SharedPrefUtils;
 
               setStarted(false);
 
+              stopKeepAlives();
 //              unregisterReceiver(mConnectivityChanged);
 //              cancelReconnect();
 

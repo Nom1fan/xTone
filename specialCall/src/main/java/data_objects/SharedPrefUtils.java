@@ -34,6 +34,7 @@ public class SharedPrefUtils {
 	public static final String WAS_STARTED = "ServerProxyService.WAS_STARTED";
 	public static final String RECONNECT_INTERVAL = "ServerProxyService.RECONNECT_INTERVAL";
 	public static final String HEARTBEAT_ACK ="ServerProxyService.HEARTBEAT_ACK";
+	public static final String HEARTBEAT_PREV_ACK ="ServerProxyService.HEARTBEAT_PREV_ACK";
 
 
 	public static int getInt(Context context, String prefsName, String key){
