@@ -14,11 +14,13 @@ public class MessageSendPushToRemoteUser extends MessageToServer {
 	private static final long serialVersionUID = 3684945085673011673L;
 	private String _remoteUserId;
 	private String _msg;
+	private String _pushEventAction;
 
 	public MessageSendPushToRemoteUser(String messageInitiaterId, String remoteUserId, String pushEventAction, String msg) {
 		super(messageInitiaterId);
 		_remoteUserId = remoteUserId;
 		_msg = msg;
+		_pushEventAction = pushEventAction;
 		
 	}
 
@@ -28,7 +30,7 @@ public class MessageSendPushToRemoteUser extends MessageToServer {
 		initLogger();
 
 		String remoteToken = ClientsManager.getClientPushToken(_remoteUserId);
-		boolean sent =PushSender.sendPush(remoteToken, PushEventKeys.SHOW_MESSAGE, _msg);
+		boolean sent = PushSender.sendPush(remoteToken, _pushEventAction, _msg);
 
 		if(sent)
 			logger.info("Push sent successfully to:"+_remoteUserId);
