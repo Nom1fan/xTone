@@ -8,6 +8,9 @@ import android.net.NetworkInfo;
 import android.util.Log;
 import com.android.services.ServerProxyService;
 
+import EventObjects.Event;
+import EventObjects.EventReport;
+import EventObjects.EventType;
 import data_objects.SharedPrefUtils;
 import utils.AppStateUtils;
 
@@ -17,10 +20,13 @@ import utils.AppStateUtils;
 public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = ConnectivityBroadcastReceiver.class.getSimpleName();
+    private Context _context;
 
     @Override
     public void onReceive(Context context, Intent intent)
     {
+        _context = context;
+
         ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -38,14 +44,20 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
             if(!appState.equals(SharedPrefUtils.STATE_LOGGED_OUT)) {
                 Log.i(TAG, "Starting ServerProxyService...");
                 Intent i = new Intent(context, ServerProxyService.class);
-                i.setAction(ServerProxyService.ACTION_START);
+                i.setAction(ServerProxyService.ACTION_RECONNECT);
                 context.startService(i);
             }
         }
         else {
-            Intent i = new Intent(context, ServerProxyService.class);
-            i.setAction(ServerProxyService.ACTION_STOP);
-            context.startService(i);
+            sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, "Disconnected. Check your internet connection", null));
         }
+    }
+
+    private void sendEventReportBroadcast(EventReport report) {
+
+        Log.i(TAG, "Broadcasting event:" + report.status().toString());
+        Intent broadcastEvent = new Intent(Event.EVENT_ACTION);
+        broadcastEvent.putExtra(Event.EVENT_REPORT, report);
+        _context.sendBroadcast(broadcastEvent);
     }
 }

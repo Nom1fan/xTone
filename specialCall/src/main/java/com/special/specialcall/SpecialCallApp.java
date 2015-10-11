@@ -39,8 +39,8 @@ public class SpecialCallApp extends Application {
 //        DAL_Manager.initialize(getApplicationContext());
 
         // Initializing Parse for push notifications. NOTE: Also currently using device token as registration token
+        Parse.initialize(this, Constants.APPLICATION_ID, Constants.CLIENT_KEY);
         if(getDeviceToken().equals("")) {
-            Parse.initialize(this, Constants.APPLICATION_ID, Constants.CLIENT_KEY);
             ParsePush.subscribeInBackground("SpecialCall");
             ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
                 @Override

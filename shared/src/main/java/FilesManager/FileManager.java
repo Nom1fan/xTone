@@ -261,9 +261,7 @@ public class FileManager {
         BufferedOutputStream bos;
 
         // Creating file
-        Path currentRelativePath = Paths.get("");
-        String path = currentRelativePath.toAbsolutePath().toString();
-        File newFile = new File(path+filePath);
+        File newFile = new File(filePath);
         newFile.getParentFile().mkdirs();
         newFile.createNewFile();
         fos = new FileOutputStream(newFile);

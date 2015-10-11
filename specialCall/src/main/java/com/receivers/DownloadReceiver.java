@@ -29,7 +29,6 @@ public class DownloadReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "BroadcastReceiver downloadReceiver");
             EventReport eventReport = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
             _context = context;
             if (eventReport.status() == EventType.DOWNLOAD_SUCCESS) {

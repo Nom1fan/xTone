@@ -6,11 +6,12 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.android.services.ServerProxyService;
+import com.google.gson.Gson;
 import com.parse.ParsePushBroadcastReceiver;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import DataObjects.PushEventKeys;
+import DataObjects.TransferDetails;
 import EventObjects.Event;
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -37,24 +38,27 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
             {
                 case PushEventKeys.PENDING_DOWNLOAD:
                     Log.i(TAG, "In:" + PushEventKeys.PENDING_DOWNLOAD);
-                    String filePath = pushData.getString(PushEventKeys.PUSH_DATA);
+                    String jsonExtra = pushData.getString(PushEventKeys.PUSH_DATA);
+                    Gson gson = new Gson();
+                    TransferDetails td = gson.fromJson(jsonExtra, TransferDetails.class);
 
                     Intent i = new Intent(_context.getApplicationContext(), ServerProxyService.class);
                     i.setAction(ServerProxyService.ACTION_DOWNLOAD);
-                    i.putExtra(PushEventKeys.PUSH_DATA, filePath);
+                    i.putExtra(PushEventKeys.PUSH_DATA, td);
+
                     _context.startService(i);
                 break;
 
                 case PushEventKeys.TRANSFER_SUCCESS:
                     Log.i(TAG, "In:" + PushEventKeys.TRANSFER_SUCCESS);
                     String msg = pushData.getString(PushEventKeys.PUSH_DATA);
-                    sendEventReportBroadcast(new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE,msg ,null));
-
+                    sendEventReportBroadcast(new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, msg , null));
+                    super.onPushReceive(context, intent);
                     break;
 
                 case PushEventKeys.SHOW_MESSAGE:
                     Log.i(TAG, "In:" + PushEventKeys.SHOW_MESSAGE);
-                    super.onPushReceive(context,intent);
+                    super.onPushReceive(context, intent);
                 break;
             }
 

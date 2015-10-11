@@ -1,22 +1,18 @@
 package MessagesToServer;
 
-import com.sun.deploy.util.SessionState;
+import com.google.gson.Gson;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import DataObjects.PushEventKeys;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
-import MessagesToClient.MessageDownloadFile;
-import ServerObjects.ClientsManager;
 import FilesManager.FileManager;
+import MessagesToClient.MessageTriggerEventOnly;
+import ServerObjects.ClientsManager;
 import ServerObjects.PushSender;
 
 public class MessageUploadFile extends MessageToServer {
@@ -44,15 +40,15 @@ public class MessageUploadFile extends MessageToServer {
 		logger.info("Initiating file upload from user:" + _messageInitiaterId + ". Destination user:" + _destId + "." + " File size:" + FileManager.getFileSizeFormat(_td.getFileSize()));
 		Path currentRelativePath = Paths.get("");
 		String workingDir = currentRelativePath.toAbsolutePath().toString();
-		String fileFullPath = workingDir+FileManager.UPLOAD_FOLDER+_destId+"\\"+_messageInitiaterId+"."+_td.getExtension();
+		String fileFullPath = workingDir+FileManager.UPLOAD_FOLDER+_destId+"\\"+_td.getSourceWithExtension();
 
 		try {
-			FileManager.createNewFile(fileFullPath,_fileData);
+			FileManager.createNewFile(fileFullPath, _fileData);
 		} catch (IOException e) {
 			e.printStackTrace();
 			logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destId+" Failed:"+e.getMessage());
-			String errMsg = "UPLOAD_FAILED:"+e.getMessage();
-			cont = ClientsManager.sendEventToClient(_messageInitiaterId, new EventReport(EventType.UPLOAD_FAILURE, errMsg, null));
+			String errMsg = "UPLOAD_FAILED: Server failed to create the file";
+			cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_FAILURE, errMsg, null)));
 
 			return cont;
 		}
@@ -60,15 +56,16 @@ public class MessageUploadFile extends MessageToServer {
 
 		// Informing source (uploader) that the file is on the way
 		String infoMsg = "File uploaded to server";
-		cont = ClientsManager.sendEventToClient(_messageInitiaterId,new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, null));
+		cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, null)));
 			
 		if(!cont)
 			return cont;
 			
-		// Sending file to destination	
+		// Sending file to destination
+        _td.set_filePathOnServer(fileFullPath);
 		String destToken = ClientsManager.getClientPushToken(_destId);
 		String pushEventAction = PushEventKeys.PENDING_DOWNLOAD;
-		boolean sent = PushSender.sendPush(destToken, pushEventAction, fileFullPath);
+        boolean sent = PushSender.sendPush(destToken, pushEventAction, new Gson().toJson(_td));
 
 		if(!sent)
 		{
@@ -76,7 +73,6 @@ public class MessageUploadFile extends MessageToServer {
 			String initiaterToken = ClientsManager.getClientPushToken(_messageInitiaterId);
 			cont = PushSender.sendPush(initiaterToken, PushEventKeys.SHOW_MESSAGE, errMsg);
 		}
-
 
 		return cont;
 		

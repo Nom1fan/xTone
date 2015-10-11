@@ -103,6 +103,7 @@ public class MainActivity extends Activity implements OnClickListener {
         super.onPause();
 
         doUnbindService();
+
         if(serviceReceiver!=null)
             unregisterReceiver(serviceReceiver);
         saveInstanceState();
@@ -170,6 +171,10 @@ public class MainActivity extends Activity implements OnClickListener {
 	@Override
     protected void onDestroy() {
 	    super.onDestroy();
+        Intent i = new Intent(context, ServerProxyService.class);
+        i.setAction(ServerProxyService.ACTION_STOP);
+        startService(i);
+        serverProxy = null;
         Log.i(tag, tag+" is being destroyed");
 	 }
 
@@ -664,32 +669,26 @@ public class MainActivity extends Activity implements OnClickListener {
             stateIdle(tag + " EVENT: REGISTER_SUCCESS");
             break;
 
-		case ISLOGIN_ONLINE:
-            destPhoneNumber = (String) report.data();
+        case ISREGISTERED_TRUE:
+        destPhoneNumber = (String) report.data();
 
-            if(!getState().equals(SharedPrefUtils.STATE_LOADING) &&
-               !getState().equals(SharedPrefUtils.STATE_DISABLED)) {
-                writeInfoStatBar(report.desc());
-                stateReady(tag + " EVENT: ISLOGIN_ONLINE");
-            }
-			break;
+        if(!getState().equals(SharedPrefUtils.STATE_LOADING) &&
+           !getState().equals(SharedPrefUtils.STATE_DISABLED)) {
+            writeInfoStatBar(report.desc());
+            stateReady(tag + " EVENT: ISREGISTERED_TRUE");
+        }
+        break;
 
-		case ISLOGIN_ERROR:
-            destPhoneNumber = (String) report.data();
-            writeErrStatBar(report.desc());
-			stateIdle(tag + "EVENT: ISLOGIN_ERROR");
-			break;
-
-		case ISLOGIN_OFFLINE:
+        case ISREGISTERED_FALSE:
             destPhoneNumber = (String) report.data();
             writeErrStatBar(report.desc());
-			stateIdle(tag+" EVENT: ISLOGIN_OFFLINE");
-			break;
+            stateIdle(tag+" EVENT: ISREGISTERED_FALSE");
+        break;
 
-		case ISLOGIN_UNREGISTERED:
+		case ISREGISTERED_ERROR:
             destPhoneNumber = (String) report.data();
-			writeErrStatBar(report.desc());
-			stateIdle(tag+" EVENT: ISLOGIN_UNREGISTERED");
+            writeErrStatBar(report.desc());
+			stateIdle(tag + "EVENT: ISREGISTERED_ERROR");
 			break;
 
 		case DESTINATION_DOWNLOAD_COMPLETE:

@@ -25,8 +25,15 @@ public class MessageSendPushToRemoteUser extends MessageToServer {
 	@Override
 	public boolean doServerAction() throws IOException, ClassNotFoundException {
 
+		initLogger();
+
 		String remoteToken = ClientsManager.getClientPushToken(_remoteUserId);
-		PushSender.sendPush(remoteToken, PushEventKeys.SHOW_MESSAGE, _msg);
+		boolean sent =PushSender.sendPush(remoteToken, PushEventKeys.SHOW_MESSAGE, _msg);
+
+		if(sent)
+			logger.info("Push sent successfully to:"+_remoteUserId);
+		else
+			logger.severe("Failed to send push to:"+_remoteUserId);
 
 		return true;
 	}

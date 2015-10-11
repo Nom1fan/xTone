@@ -16,7 +16,7 @@ import ServerObjects.ConnectionToClient;
 public abstract class MessageToServer implements Serializable  {
 
 	private static final long serialVersionUID = -6478414954653475710L;
-    protected ConnectionToClient clientConnection;
+    private ConnectionToClient clientConnection;
 	protected String _messageInitiaterId;
 	protected boolean cont = true;
 	protected Logger logger = null;
@@ -35,7 +35,7 @@ public abstract class MessageToServer implements Serializable  {
 
             try
             {
-                logger.info("[Sending reply to user]:" + _messageInitiaterId + " with message:" + msg.getClass().getSimpleName());
+                logger.info(_messageInitiaterId + " with message:" + msg.getClass().getSimpleName());
 
                 if(clientConnection==null)
                     throw(new NullPointerException("Could not get client connection for user:"+_messageInitiaterId));
@@ -47,7 +47,7 @@ public abstract class MessageToServer implements Serializable  {
             {
                 logger.severe("[Failed to send reply to user]:"+_messageInitiaterId+" of message:"+msg.getClass().getSimpleName()+" [Exception]:"+e.getMessage()+ "Terminating client connection...");
                 e.printStackTrace();
-                ClientsManager.removeClientConnection(_messageInitiaterId);
+                //ClientsManager.removeClientConnection(_messageInitiaterId);
                 return false;
             }
 

@@ -3,6 +3,7 @@ package com.server_side;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import DataObjects.SharedConstants;
 import LogObjects.LogsManager;
@@ -67,7 +68,7 @@ public class NewServer extends AbstractServer {
         }
         catch (Exception e) {
             e.printStackTrace();
-            _logger.severe("Error received:" + e.getMessage() + " Attempting to continue...");
+            _logger.severe("Error received:"+e.getStackTrace());
         }
     }
 
@@ -85,11 +86,17 @@ public class NewServer extends AbstractServer {
         _logger.info("Server stopped");
     }
 
+    @Override
+     synchronized protected void clientException(ConnectionToClient client, Throwable exception) {
+        exception.printStackTrace();
+        _logger.severe("Client thread:"+client.toString()+" Threw an exception:"+ exception.getMessage());
+    }
+
     /* Assisting methods */
 
     private void closeConnectionToClient(ConnectionToClient ctc) {
 
-        ClientsManager.removeClientConnection(ctc);
+        //ClientsManager.removeClientConnection(ctc);
         try {
             ctc.close();
         } catch (IOException e) {

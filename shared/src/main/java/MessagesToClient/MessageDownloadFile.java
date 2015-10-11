@@ -35,7 +35,7 @@ public class MessageDownloadFile extends MessageToClient {
 	@Override
 	public EventReport doClientAction(IServerProxy serverProxy) throws IOException {
 							
-		  try 
+		  try
 		  {
 			// Creating file and directories for downloaded file
 			File specialCallIncomingDir = new File(SharedConstants.specialCallPath+_sourceId);
@@ -43,7 +43,7 @@ public class MessageDownloadFile extends MessageToClient {
 			String fileStoragePath =  specialCallIncomingDir.getAbsolutePath() +"/"+ _fileName;
 			FileManager.createNewFile(fileStoragePath,_fileData);
 		  }
-		  catch(Exception e)
+		  catch(IOException e)
 		  {
 			String errMsg;
 			e.printStackTrace();
