@@ -116,7 +116,7 @@ import data_objects.SharedPrefUtils;
 
                   }
               }
-              return Service.START_REDELIVER_INTENT;
+              return Service.START_NOT_STICKY;
           }
 
           @Override
@@ -527,12 +527,14 @@ import data_objects.SharedPrefUtils;
 
           private void handleDisconnection(String errMsg) {
 
-              Log.e(TAG, errMsg);
-              setConnected(false);
-              sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, errMsg, null));
-              connectionToServer=null;
-              //stopKeepAlives();
-              scheduleReconnect(System.currentTimeMillis());
+              if(isConnected()) {
+                  Log.e(TAG, errMsg);
+                  setConnected(false);
+                  sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, errMsg, null));
+                  connectionToServer = null;
+                  //stopKeepAlives();
+                  scheduleReconnect(System.currentTimeMillis());
+              }
           }
 
           /* Internal operations methods */
@@ -559,9 +561,9 @@ import data_objects.SharedPrefUtils;
               }
 
               setStarted(false);
+              setConnected(false);
               cancelReconnect();
               gracefullyDisconnect();
-
               stopSelf();
           }
 
