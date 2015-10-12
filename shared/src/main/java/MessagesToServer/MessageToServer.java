@@ -54,6 +54,9 @@ public abstract class MessageToServer implements Serializable  {
     }
 
 	abstract public boolean doServerAction() throws IOException, ClassNotFoundException;
-	public final void setClientConnection(ConnectionToClient cc) { clientConnection = cc; }
+	public final void setClientConnection(ConnectionToClient cc) { clientConnection = cc; setId(); }
+    private void setId() {
+        clientConnection.setInfo("id", _messageInitiaterId);
+    }
 		
 }

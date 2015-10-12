@@ -43,6 +43,21 @@ public abstract class PushSender {
 
         }
 
+        public PushObject(final String token, final String pushEventAction, final String value, final String jsonExtra) {
+
+            data = new HashMap() {{
+                put(PushEventKeys.PUSH_EVENT_ACTION, pushEventAction);
+                put(PushEventKeys.PUSH_DATA, value);
+                put(PushEventKeys.PUSH_DATA_EXTRA, jsonExtra);
+            }};
+
+            where = new HashMap() {{
+                put("channels", "SpecialCall");
+                put("deviceToken", token);
+            }};
+
+        }
+
         public Map<String, String> getData() {
             return data;
         }
@@ -56,7 +71,7 @@ public abstract class PushSender {
     public static boolean sendPush(final String deviceToken, final String pushEventAction, final String value) {
 
         try {
-            pushData(new Gson().toJson(new PushObject(deviceToken,pushEventAction,value)));
+            pushData(new Gson().toJson(new PushObject(deviceToken, pushEventAction, value)));
         } catch (Exception e) {
             e.printStackTrace();
             _logger.severe("Failed to send push to token:"+deviceToken+". Exception:"+e.getMessage());
@@ -66,35 +81,19 @@ public abstract class PushSender {
         return true;
     }
 
-//    public static boolean sendPush(final String deviceToken, final String pushEventAction, final JSONObject value) {
-//
-//        JSONObject jo = new JSONObject();
-//
-//        // Initializing data
-//        Map<String, String> data = new HashMap();
-//        data.put(PushEventKeys.PUSH_EVENT_ACTION, pushEventAction);
-//        data.put(PushEventKeys.PUSH_DATA, "Mandatory");
-//        data.put(PushEventKeys.PUSH_DATA_EXTRA, value.toString());
-//
-//        // Initializing where
-//        HashMap where = new HashMap() {{
-//            put("channels", "SpecialCall");
-//            put("deviceToken", deviceToken);
-//        }};
-//
-//        jo.put("where", where);
-//        jo.put("data", data);
-//
-//        try {
-//            pushData(jo.toString());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            _logger.severe("Failed to send push to token:"+deviceToken+". Exception:"+e.getMessage());
-//            return false;
-//        }
-//
-//        return true;
-//    }
+    public static boolean sendPush(final String deviceToken, final String pushEventAction, final String value, final String jsonExtra) {
+
+        try {
+            pushData(new Gson().toJson(new PushObject(deviceToken, pushEventAction, value, jsonExtra)));
+        } catch (Exception e) {
+            e.printStackTrace();
+            _logger.severe("Failed to send push to token:"+deviceToken+". Exception:"+e.getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
 
     private static void pushData(String postData) throws Exception {
         DefaultHttpClient httpclient = new DefaultHttpClient();

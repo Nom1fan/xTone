@@ -10,6 +10,9 @@ import com.google.gson.Gson;
 import com.parse.ParsePushBroadcastReceiver;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
+
 import DataObjects.PushEventKeys;
 import DataObjects.TransferDetails;
 import EventObjects.Event;
@@ -23,6 +26,7 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
 
     private static final String TAG = PushBroadcastReceiver.class.getSimpleName();
     private Context _context;
+    private Gson gson = new Gson();
 
     @Override
     protected void onPushReceive(Context context, Intent intent) {
@@ -30,6 +34,9 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
         _context = context;
 
         JSONObject pushData = getPushData(intent);
+        String jsonData;
+        TransferDetails td;
+
 
         try {
             String eventActionCode = pushData.getString(PushEventKeys.PUSH_EVENT_ACTION);
@@ -38,9 +45,8 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
             {
                 case PushEventKeys.PENDING_DOWNLOAD:
                     Log.i(TAG, "In:" + PushEventKeys.PENDING_DOWNLOAD);
-                    String jsonExtra = pushData.getString(PushEventKeys.PUSH_DATA);
-                    Gson gson = new Gson();
-                    TransferDetails td = gson.fromJson(jsonExtra, TransferDetails.class);
+                    jsonData = pushData.getString(PushEventKeys.PUSH_DATA);
+                    td = gson.fromJson(jsonData, TransferDetails.class);
 
                     Intent i = new Intent(_context.getApplicationContext(), ServerProxyService.class);
                     i.setAction(ServerProxyService.ACTION_DOWNLOAD);
@@ -52,7 +58,10 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
                 case PushEventKeys.TRANSFER_SUCCESS:
                     Log.i(TAG, "In:" + PushEventKeys.TRANSFER_SUCCESS);
                     String msg = pushData.getString(PushEventKeys.PUSH_DATA);
-                    sendEventReportBroadcast(new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, msg , null));
+                    jsonData = pushData.getString(PushEventKeys.PUSH_DATA_EXTRA);
+                    td = gson.fromJson(jsonData, TransferDetails.class);
+
+                    sendEventReportBroadcast(new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, msg , td));
                     super.onPushReceive(context, intent);
                     break;
 

@@ -88,8 +88,14 @@ public class NewServer extends AbstractServer {
 
     @Override
      synchronized protected void clientException(ConnectionToClient client, Throwable exception) {
-        exception.printStackTrace();
-        _logger.severe("Client thread:"+client.toString()+" Threw an exception:"+ exception.getMessage());
+
+        try {
+            throw(exception);
+        } catch (EOFException e) {
+            _logger.info("Client "+client.getInfo("id")+" closed the connection. logging off client...");
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
     }
 
     /* Assisting methods */

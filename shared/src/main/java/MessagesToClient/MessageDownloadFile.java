@@ -1,5 +1,7 @@
 package MessagesToClient;
 
+import com.google.gson.Gson;
+
 import java.io.File;
 import java.io.IOException;
 import ClientObjects.ConnectionToServer;
@@ -57,8 +59,8 @@ public class MessageDownloadFile extends MessageToClient {
 		  
 		  // Informing source (uploader) that file received by user (downloader)
 		  ConnectionToServer cts = serverProxy.getConnectionToServer();
-		  String infoMsg = "TRANSFER_SUCCESS: to "+_myId+". Filename:"+_fileName;
-		  cts.sendMessage(new MessageSendPushToRemoteUser(_myId, _sourceId, PushEventKeys.TRANSFER_SUCCESS, infoMsg));
+          String msg = "TRANSFER_SUCCESS: to "+_td.getDestinationId()+". Filename:"+new File(_td.get_fullFilePathSrcSD()).getName();
+		  cts.sendMessage(new MessageSendPushToRemoteUser(_myId, _sourceId, PushEventKeys.TRANSFER_SUCCESS, msg , new Gson().toJson(_td)));
 				
 		  String desc = "DOWNLOAD_SUCCESS. Filename:"+_fileName;
 		  return new EventReport(EventType.DOWNLOAD_SUCCESS,desc,_td);

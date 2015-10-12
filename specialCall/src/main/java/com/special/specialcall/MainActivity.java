@@ -692,7 +692,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 
 		case DESTINATION_DOWNLOAD_COMPLETE:
-			writeInfoStatBar(report.desc());
+			writeInfoStatBar(report.desc()); //TODO Change notification from status bar to something cooler that won't be run over by isRegistered() response text
             TransferDetails td = (TransferDetails) report.data();
             lut_utils.saveUploadedPerNumber(td.getDestinationId(), td.getFileType(), td.get_fullFilePathSrcSD());
             if(isContactSelected())
