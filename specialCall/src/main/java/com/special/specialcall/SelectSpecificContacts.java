@@ -77,7 +77,6 @@ public class SelectSpecificContacts extends Activity implements OnItemClickListe
     }
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        // TODO Auto-generated method stub
          ma.toggle(arg2);
     }
 
@@ -106,26 +105,22 @@ public class SelectSpecificContacts extends Activity implements OnItemClickListe
         }
         @Override
         public int getCount() {
-            // TODO Auto-generated method stub
             return names.size();
         }
 
         @Override
         public Object getItem(int position) {
-            // TODO Auto-generated method stub
             return position;
         }
 
         @Override
         public long getItemId(int position) {
-            // TODO Auto-generated method stub
 
             return 0;
         }
 
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
-            // TODO Auto-generated method stub
             View vi=convertView;
             if(convertView==null)
              vi = mInflater.inflate(R.layout.row, null); 
@@ -154,7 +149,6 @@ public class SelectSpecificContacts extends Activity implements OnItemClickListe
         @Override
         public void onCheckedChanged(CompoundButton buttonView,
                 boolean isChecked) {
-            // TODO Auto-generated method stub
 
              mCheckStates.put((Integer) buttonView.getTag(), isChecked);         
         }   

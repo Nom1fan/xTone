@@ -186,7 +186,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                             try {
                                 m = c.getDeclaredMethod("getITelephony");
                             } catch (NoSuchMethodException e1) {
-                                // TODO Auto-generated catch block
                                 e1.printStackTrace();
                             }
                             m.setAccessible(true);
@@ -195,7 +194,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                             } catch (IllegalAccessException   |
                                      IllegalArgumentException |
                                      InvocationTargetException e) {
-                                // TODO Auto-generated catch block
                                 e.printStackTrace();
                             }
                             telephonyService.endCall();
@@ -214,7 +212,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
         }
         catch (Exception e) {
             Log.e(TAG, e.toString());
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
