@@ -13,8 +13,7 @@ import EventObjects.EventReport;
 public abstract class MessageToClient implements Serializable {
 	
 	private static final long serialVersionUID = -3563686195376300090L;
-	abstract public EventReport doClientAction(IServerProxy serverProxy) throws UnknownHostException, IOException;
+	abstract public EventReport doClientAction(IServerProxy serverProxy) throws IOException;
 	
-
 
 }

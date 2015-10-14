@@ -30,11 +30,11 @@ public class MessageIsRegisteredRes extends MessageToClient {
 		{
 			case REGISTERED:
 				desc = "User "+_phone+" is registered";
-				return new EventReport(EventType.ISREGISTERED_TRUE, desc, _phone);
+				return new EventReport(EventType.USER_REGISTERED_TRUE, desc, _phone);
 
 			case UNREGISTERED:
 				desc = "User "+_phone+" is unregistered";
-				return new EventReport(EventType.ISREGISTERED_FALSE, desc, _phone);
+				return new EventReport(EventType.USER_REGISTERED_FALSE, desc, _phone);
 			
 			default: 
 					desc = "Unable to retrieve user "+_phone+" status";

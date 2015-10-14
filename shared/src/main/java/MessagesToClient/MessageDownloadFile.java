@@ -60,7 +60,7 @@ public class MessageDownloadFile extends MessageToClient {
 		  // Informing source (uploader) that file received by user (downloader)
 		  ConnectionToServer cts = serverProxy.getConnectionToServer();
           String msg = "TRANSFER_SUCCESS: to "+_td.getDestinationId()+". Filename:"+new File(_td.get_fullFilePathSrcSD()).getName();
-		  cts.sendMessage(new MessageSendPushToRemoteUser(_myId, _sourceId, PushEventKeys.TRANSFER_SUCCESS, msg , new Gson().toJson(_td)));
+		  cts.sendToServer(new MessageSendPushToRemoteUser(_myId, _sourceId, PushEventKeys.TRANSFER_SUCCESS, msg , new Gson().toJson(_td)));
 				
 		  String desc = "DOWNLOAD_SUCCESS. Filename:"+_fileName;
 		  return new EventReport(EventType.DOWNLOAD_SUCCESS,desc,_td);

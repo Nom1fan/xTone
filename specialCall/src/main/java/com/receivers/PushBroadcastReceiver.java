@@ -5,13 +5,11 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.android.services.ServerProxyService;
+import com.services.ServerProxyService;
 import com.google.gson.Gson;
 import com.parse.ParsePushBroadcastReceiver;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.File;
 
 import DataObjects.PushEventKeys;
 import DataObjects.TransferDetails;

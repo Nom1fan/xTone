@@ -1,4 +1,4 @@
-package com.android.services;
+package com.services;
 
 import android.app.Service;
 import android.content.Context;
@@ -16,7 +16,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.special.specialcall.IncomingSpecialCall;
+import com.ui.activities.IncomingSpecialCall;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,8 +26,7 @@ import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
-import data_objects.Constants;
-import data_objects.SharedPrefUtils;
+import com.utils.SharedPrefUtils;
 
 
 public class IncomingService extends Service {

@@ -1,4 +1,4 @@
-package com.android.services;
+package com.services;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -14,9 +14,9 @@ import android.os.PowerManager.WakeLock;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.data_objects.Constants;
+import com.utils.SharedPrefUtils;
 import java.io.IOException;
-import java.net.Socket;
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
 import DataObjects.PushEventKeys;
@@ -32,8 +32,6 @@ import MessagesToServer.MessageLogout;
 import MessagesToServer.MessageRegister;
 import MessagesToServer.MessageRequestDownload;
 import MessagesToServer.MessageUploadFile;
-import data_objects.Constants;
-import data_objects.SharedPrefUtils;
 
 //import MessagesToServer.MessageHeartBeat;
 
@@ -50,14 +48,13 @@ import data_objects.SharedPrefUtils;
 	   */
 	  public class ServerProxyService extends Service implements IServerProxy {
 
-          //public static final String ACTION_HEARTBEAT = "com.android.services.HEARTBEAT";
-          public static final String ACTION_START = "com.android.services.START";
-          public static final String ACTION_STOP = "com.android.services.STOP";
-          public static final String ACTION_RECONNECT = "com.android.services.RECONNECT";
-          public static final String ACTION_DOWNLOAD = "com.android.services.DOWNLOAD";
+          //public static final String ACTION_HEARTBEAT = "com.services.HEARTBEAT";
+          public static final String ACTION_START = "com.services.START";
+          public static final String ACTION_STOP = "com.services.STOP";
+          public static final String ACTION_RECONNECT = "com.services.RECONNECT";
+          public static final String ACTION_DOWNLOAD = "com.services.DOWNLOAD";
 
           private ConnectionToServer connectionToServer;
-          private ServerProxyService serverProxy = this;
           private ConnectivityManager connManager;
           //private static final int HEARTBEAT_INTERVAL = SharedConstants.HEARTBEAT_INTERVAL;
           private static final long INITIAL_RETRY_INTERVAL = 1000 * 5;
@@ -175,7 +172,7 @@ import data_objects.SharedPrefUtils;
                           MessageUploadFile msgUF = new MessageUploadFile(SharedConstants.MY_ID,td, managedFile.getFileData());
 
                           // Sending message upload file
-                          connectionToServer.sendMessage(msgUF);
+                          connectionToServer.sendToServer(msgUF);
                       }
                       catch(IOException e) {
                           e.printStackTrace();
@@ -206,7 +203,7 @@ import data_objects.SharedPrefUtils;
                       MessageRequestDownload msgRD = new MessageRequestDownload(td);
                       try {
                             reconnectIfNecessary();
-                            connectionToServer.sendMessage(msgRD);
+                            connectionToServer.sendToServer(msgRD);
                       } catch (IOException e) {
                           e.printStackTrace();
                       }
@@ -215,6 +212,30 @@ import data_objects.SharedPrefUtils;
           }
 
 
+         /**
+          *
+          * @param msg - The message to handle
+          */
+          @Override
+          public void handleMessageFromServer(MessageToClient msg) {
+
+              try
+              {
+                EventReport eventReport = msg
+                                          .doClientAction(this);
+
+                if(eventReport.status()!=EventType.NO_ACTION_REQUIRED)
+                      sendEventReportBroadcast(eventReport);
+
+                releaseLockIfNecessary();
+
+              } catch(Exception e) {
+                  String errMsg = "ClientAction stopped. Reason:"+e.getMessage();
+                  Log.i(TAG, errMsg);
+                  releaseLockIfNecessary();
+                  handleDisconnection(errMsg);
+              }
+          }
 
 
           /**
@@ -231,7 +252,7 @@ import data_objects.SharedPrefUtils;
                           if (connectionToServer != null)
                           {
                               MessageIsRegistered msgIsLogin = new MessageIsRegistered(SharedConstants.MY_ID, destinationId);
-                              connectionToServer.sendMessage(msgIsLogin);
+                              connectionToServer.sendToServer(msgIsLogin);
                           }
 
 
@@ -264,7 +285,7 @@ import data_objects.SharedPrefUtils;
                           sendEventReportBroadcast(new EventReport(EventType.CONNECTING, "Connecting...", null));
                           openSocket();
                           //startKeepAlives();
-                          startClientActionListener();
+                          //startClientActionListener();
                           register();
                       } catch (IOException e) {
                           e.printStackTrace();
@@ -295,7 +316,7 @@ import data_objects.SharedPrefUtils;
                               MessageLogout messageLogout = new MessageLogout(SharedConstants.MY_ID);
 
                               try {
-                                  connectionToServer.sendMessage(messageLogout);
+                                  connectionToServer.sendToServer(messageLogout);
                                   connectionToServer.closeConnection();
                                   connectionToServer = null;
                               } catch (IOException e) {
@@ -322,7 +343,7 @@ import data_objects.SharedPrefUtils;
 
                           MessageRegister msgRegister = new MessageRegister(SharedConstants.MY_ID, SharedConstants.DEVICE_TOKEN);
                           Log.i(TAG, "Sending register message to server...");
-                          connectionToServer.sendMessage(msgRegister);
+                          connectionToServer.sendToServer(msgRegister);
                       } catch (IOException e) {
                           e.printStackTrace();
                           String errMsg = "REGISTER_FAILURE. Exception:" + e.getMessage()+". Check your internet connection";
@@ -352,52 +373,52 @@ import data_objects.SharedPrefUtils;
 
           private void openSocket() throws IOException {
               Log.i(TAG, "Opening socket...");
-              Socket socketToServer = new Socket(SharedConstants.HOST, SharedConstants.PORT);
-              connectionToServer = new ConnectionToServer(socketToServer);
+              connectionToServer = new ConnectionToServer(SharedConstants.HOST, SharedConstants.PORT, this);
+              connectionToServer.openConnection();
               Log.i(TAG, "Socket is open");
               setConnected(true);
-
           }
 
-          private void startClientActionListener() {
-              Log.i(TAG, "Starting client action listener...");
 
-              new Thread() {
-                  public void run() {
-
-                      MessageToClient msgTC;
-
-                      while (isConnected()) {
-                          try {
-                              msgTC = connectionToServer.getMessage();
-                              if (msgTC != null) {
-                                  EventReport eventReport = msgTC
-                                          .doClientAction(serverProxy);
-
-                                  if(eventReport.status()!=EventType.NO_ACTION_REQUIRED)
-                                      sendEventReportBroadcast(eventReport);
-
-                                  releaseLockIfNecessary();
-                              }
-                          }
-                          catch(ClassNotFoundException e) {
-                              e.printStackTrace();
-                              String errMsg = "Client action failure. Exception:"+e.getMessage();
-                              Log.e(TAG, "Client action failure:" + e.getMessage());
-                              sendEventReportBroadcast(new EventReport(EventType.CLIENT_ACTION_FAILURE, errMsg, null));
-                              releaseLockIfNecessary();
-                              setConnected(false);
-                          }
-                          catch(Exception e) {
-                              String errMsg = "ClientActionListener stopped. Reason:"+e.getMessage();
-                              Log.i(TAG, errMsg);
-                              releaseLockIfNecessary();
-                              handleDisconnection(errMsg);
-                          }
-                      }
-                  }
-              }.start();
-          }
+//          private void startClientActionListener() {
+//              Log.i(TAG, "Starting client action listener...");
+//
+//              new Thread() {
+//                  public void run() {
+//
+//                      MessageToClient msgTC;
+//
+//                      while (isConnected()) {
+//                          try {
+//                              msgTC = connectionToServer.getMessage();
+//                              if (msgTC != null) {
+//                                  EventReport eventReport = msgTC
+//                                          .doClientAction(serverProxy);
+//
+//                                  if(eventReport.status()!=EventType.NO_ACTION_REQUIRED)
+//                                      sendEventReportBroadcast(eventReport);
+//
+//                                  releaseLockIfNecessary();
+//                              }
+//                          }
+//                          catch(ClassNotFoundException e) {
+//                              e.printStackTrace();
+//                              String errMsg = "Client action failure. Exception:"+e.getMessage();
+//                              Log.e(TAG, "Client action failure:" + e.getMessage());
+//                              sendEventReportBroadcast(new EventReport(EventType.CLIENT_ACTION_FAILURE, errMsg, null));
+//                              releaseLockIfNecessary();
+//                              setConnected(false);
+//                          }
+//                          catch(Exception e) {
+//                              String errMsg = "ClientActionListener stopped. Reason:"+e.getMessage();
+//                              Log.i(TAG, errMsg);
+//                              releaseLockIfNecessary();
+//                              handleDisconnection(errMsg);
+//                          }
+//                      }
+//                  }
+//              }.start();
+//          }
 
           private void releaseLockIfNecessary() {
 
@@ -417,7 +438,7 @@ import data_objects.SharedPrefUtils;
                       sendEventReportBroadcast(new EventReport(EventType.RECONNECT_ATTEMPT, infoMsg, null));
 
                       openSocket();
-                      startClientActionListener();
+                      //startClientActionListener();
                       //startKeepAlives();
                       register();
                   } catch (IOException e) {

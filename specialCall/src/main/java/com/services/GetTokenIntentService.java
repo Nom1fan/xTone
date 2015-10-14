@@ -1,8 +1,7 @@
-package com.android.services;
+package com.services;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,7 +12,7 @@ import android.widget.Toast;
 import com.parse.ParseInstallation;
 
 import DataObjects.SharedConstants;
-import data_objects.SharedPrefUtils;
+import com.utils.SharedPrefUtils;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -24,7 +23,7 @@ import data_objects.SharedPrefUtils;
  */
 public class GetTokenIntentService extends IntentService {
 
-    public static final String ACTION_GET_TOKEN = "com.android.services.action.GET_TOKEN";
+    public static final String ACTION_GET_TOKEN = "com.services.action.GET_TOKEN";
     private static final int TOKEN_RETRIEVE_RETIRES = 10;
     private static final int TOKEN_RETRY_SLEEP = 1000;
     private static final String TAG = GetTokenIntentService.class.getSimpleName();

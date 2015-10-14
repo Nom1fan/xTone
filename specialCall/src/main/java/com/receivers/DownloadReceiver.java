@@ -15,8 +15,8 @@ import Exceptions.FileDoesNotExistException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
-import data_objects.Constants;
-import data_objects.SharedPrefUtils;
+import com.data_objects.Constants;
+import com.utils.SharedPrefUtils;
 
 public class DownloadReceiver extends BroadcastReceiver {
 

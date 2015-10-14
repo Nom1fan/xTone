@@ -1,6 +1,4 @@
-package dal_objects;
-
-import java.sql.ResultSet;
+package com.dal_objects;
 
 /**
  * Created by mor on 29/09/2015.

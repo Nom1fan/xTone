@@ -1,4 +1,4 @@
-package dal_objects;
+package com.dal_objects;
 
 import android.content.ContentValues;
 import android.content.Context;

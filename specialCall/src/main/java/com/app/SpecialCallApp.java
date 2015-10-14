@@ -1,22 +1,19 @@
-package com.special.specialcall;
+package com.app;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
-import com.android.services.GetTokenIntentService;
+import com.services.GetTokenIntentService;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParsePush;
 import com.parse.SaveCallback;
-import DataObjects.SharedConstants;
-import dal_objects.DAL_Manager;
-import dal_objects.SQLiteManager;
-import data_objects.Constants;
-import data_objects.SharedPrefUtils;
-import utils.AppStateUtils;
+
+import com.data_objects.Constants;
+import com.utils.SharedPrefUtils;
+import com.utils.AppStateUtils;
 
 /**
  * Created by mor on 10/09/2015.
@@ -33,7 +30,7 @@ public class SpecialCallApp extends Application {
 
         // Initializing app state
         if(AppStateUtils.getAppState(context).equals(""))
-            AppStateUtils.setAppState(context, TAG, SharedPrefUtils.STATE_LOGGED_OUT);
+            AppStateUtils.setAppState(context, TAG, AppStateUtils.STATE_LOGGED_OUT);
 
         // Initializing SQLite db
 //        DAL_Manager.initialize(getApplicationContext());

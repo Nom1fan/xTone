@@ -1,4 +1,4 @@
-package com.special.specialcall;
+package com.ui.components;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -15,7 +15,7 @@ import FilesManager.FileManager;
 /**
  * Created by mor on 20/09/2015.
  */
-class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
+public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
     private final WeakReference<ImageButton> imageButtonWeakReference;
     private String _filePath;
     private FileManager.FileType _fileType;

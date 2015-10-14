@@ -1,4 +1,4 @@
-package utils;
+package com.utils;
 
 import android.content.Context;
 
@@ -6,7 +6,6 @@ import Exceptions.FileDoesNotExistException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
-import data_objects.SharedPrefUtils;
 
 /**
  * Last Uploads Thumbnails Manager. Manages the last upload that was made per user using SharedPreferences

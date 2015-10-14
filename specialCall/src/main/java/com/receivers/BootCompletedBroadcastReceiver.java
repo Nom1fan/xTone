@@ -4,8 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.android.services.IncomingService;
-import com.android.services.ServerProxyService;
+import com.services.IncomingService;
 
 /**
  * Created by Mor on 12/09/2015.

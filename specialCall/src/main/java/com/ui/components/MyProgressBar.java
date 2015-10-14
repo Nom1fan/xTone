@@ -1,4 +1,4 @@
-package com.special.specialcall;
+package com.ui.components;
 
 import java.util.ArrayList;
 
@@ -10,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import com.special.app.R;
 
 public class MyProgressBar extends LinearLayout implements Runnable {
 
