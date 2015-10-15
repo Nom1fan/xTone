@@ -20,20 +20,20 @@ public class MessageUploadFile extends MessageToServer {
 	private static final long serialVersionUID = 2356276507283427913L;
 	private String _destId;
 	private TransferDetails _td;
-	private byte[] _fileData;
+		private byte[] _fileData;
 
-	
-	public MessageUploadFile(String srcId, TransferDetails td, byte[] fileData) throws IOException {
-		super(srcId);
-		_destId = td.getDestinationId();
-		_td = td;
-		_fileData = fileData;
 
-	}
+		public MessageUploadFile(String srcId, TransferDetails td, byte[] fileData) throws IOException {
+			super(srcId);
+			_destId = td.getDestinationId();
+			_td = td;
+			_fileData = fileData;
 
-	@Override
-	public boolean doServerAction() throws UnknownHostException,
-			ClassNotFoundException {
+		}
+
+		@Override
+		public boolean doServerAction() throws UnknownHostException,
+				ClassNotFoundException {
 		
 		initLogger();
 		

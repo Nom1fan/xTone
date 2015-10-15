@@ -11,4 +11,5 @@ public interface IServerProxy {
 	public void isRegistered(final String phoneNumber);
 	public ConnectionToServer getConnectionToServer();
 	public void handleMessageFromServer(MessageToClient msg);
+	public void handleDisconnection(String msg);
 }

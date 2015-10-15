@@ -26,4 +26,11 @@ public class ConnectionToServer extends AbstractClient {
 
 		_serverProxy.handleMessageFromServer((MessageToClient)msg);
 	}
+
+
+	@Override
+	protected void connectionException(Exception e) {
+
+		_serverProxy.handleDisconnection("Connection error:"+e.getMessage());
+	}
 }

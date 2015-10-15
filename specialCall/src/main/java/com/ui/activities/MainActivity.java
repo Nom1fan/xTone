@@ -151,6 +151,7 @@ public class MainActivity extends Activity implements OnClickListener {
             case AppStateUtils.STATE_IDLE:
                 stateIdle(tag + "::onResume() STATE_IDLE");
                 restoreInstanceState();
+                writeInfoStatBar("");
             break;
 
             case AppStateUtils.STATE_READY:
@@ -587,6 +588,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     if ((serverProxy != null) &&
                             !getState().equals(AppStateUtils.STATE_DISABLED) &&
                             !getState().equals(AppStateUtils.STATE_LOADING))
+                        stateLoading(tag+" onTextchanged()", "Fetching user data...", Color.GREEN);
                         serverProxy.isRegistered(destPhone);
 
                 } else {
@@ -663,12 +665,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
         case USER_REGISTERED_TRUE:
         destPhoneNumber = (String) report.data();
-
-        if(!getState().equals(AppStateUtils.STATE_LOADING) &&
-           !getState().equals(AppStateUtils.STATE_DISABLED)) {
-            writeInfoStatBar(report.desc());
-            stateReady(tag + " EVENT: USER_REGISTERED_TRUE");
-        }
+        writeInfoStatBar(report.desc());
+        stateReady(tag + " EVENT: USER_REGISTERED_TRUE");
         break;
 
         case USER_REGISTERED_FALSE:
@@ -731,8 +729,13 @@ public class MainActivity extends Activity implements OnClickListener {
 			// service that we know is running in our own process, we can
 			// cast its IBinder to a concrete class and directly access it.
 			serverProxy = ((ServerProxyService.MyBinder)service).getService();
-            if(isContactSelected())
-                serverProxy.isRegistered(destPhoneNumber);
+            if(isContactSelected()) {
+                if(!getState().equals(AppStateUtils.STATE_DISABLED) &&
+                        !getState().equals(AppStateUtils.STATE_LOADING)) {
+                             stateLoading(tag + " onServiceConnected()", "Fetching user data...", Color.GREEN);
+                             serverProxy.isRegistered(destPhoneNumber);
+                }
+            }
 		}
 
 		public void onServiceDisconnected(ComponentName className) {
@@ -937,6 +940,7 @@ public class MainActivity extends Activity implements OnClickListener {
             @Override
             public void run() {
                 disableSelectMediaButton();
+                disableProgressBar();
                 disableSelectRingToneButton();
                 disableSelectContactButton();
                 disableContactEditText();

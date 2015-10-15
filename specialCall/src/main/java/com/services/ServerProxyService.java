@@ -430,26 +430,33 @@ import MessagesToServer.MessageUploadFile;
 
           private synchronized void reconnectIfNecessary() {
 
-              if (isNetworkAvailable() && connectionToServer == null) {
-
-                  try {
-                      String infoMsg = "Reconnecting...";
-                      Log.i(TAG, infoMsg);
-                      sendEventReportBroadcast(new EventReport(EventType.RECONNECT_ATTEMPT, infoMsg, null));
-
-                      openSocket();
-                      //startClientActionListener();
-                      //startKeepAlives();
-                      register();
-                  } catch (IOException e) {
-                      e.printStackTrace();
+              if (isNetworkAvailable())
+              {
+                  if(connectionToServer==null)
+                  {
+                      try {
+                          String infoMsg = "Reconnecting...";
+                          Log.i(TAG, infoMsg);
+                          sendEventReportBroadcast(new EventReport(EventType.RECONNECT_ATTEMPT, infoMsg, null));
+                          openSocket();
+                          register();
+                      } catch (IOException e) {
+                          e.printStackTrace();
+                      }
+                  }
+                  else {
+                      Log.w(TAG, "No need to reconnect. connectionToServer not null");
+                      cancelReconnect();
                   }
               }
-              else
-                scheduleReconnect(System.currentTimeMillis());
+              else {
+                  scheduleReconnect(System.currentTimeMillis());
+                  sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, "Disconnected. Check your internet connection", null));
+              }
 
               // Done reconnecting.
               if(isConnected()) {
+                  Log.i(TAG, "Done reconnecting. Cancelling reconnect.");
                   SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
                   cancelReconnect();
               }
@@ -479,18 +486,18 @@ import MessagesToServer.MessageUploadFile;
 
               Log.i(TAG, "Handling crashed service");
               if(wasStarted()) {
-                  //stopKeepAlives();
+
                   connect();
               }
           }
 
-          private void handleDisconnection(String errMsg) {
+          public void handleDisconnection(String errMsg) {
 
               if(isConnected()) {
                   Log.e(TAG, errMsg);
                   setConnected(false);
-                  sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, errMsg, null));
                   connectionToServer = null;
+                  sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, errMsg, null));
                   //stopKeepAlives();
                   scheduleReconnect(System.currentTimeMillis());
               }
@@ -513,6 +520,7 @@ import MessagesToServer.MessageUploadFile;
 
           private synchronized void stop() {
 
+              Log.i(TAG, "stop()");
               if (!wasStarted())
               {
                   Log.w(TAG, "Attempt to stop connection not active.");

@@ -41,7 +41,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
             String appState = AppStateUtils.getAppState(context);
             Log.i(TAG, "App State:"+appState);
-            if(!appState.equals(AppStateUtils.STATE_LOGGED_OUT)) {
+            if(!appState.equals(AppStateUtils.STATE_LOGGED_OUT) && appState.equals(AppStateUtils.STATE_DISABLED)) {
                 Log.i(TAG, "Starting ServerProxyService...");
                 Intent i = new Intent(context, ServerProxyService.class);
                 i.setAction(ServerProxyService.ACTION_RECONNECT);
