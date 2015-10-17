@@ -26,4 +26,5 @@ public enum EventType implements Serializable {
 	CONNECTED,
 	SERVER_PROXY_CREATED,
 	REFRESH_UI,
+	LOADING_TIMEOUT,
 }

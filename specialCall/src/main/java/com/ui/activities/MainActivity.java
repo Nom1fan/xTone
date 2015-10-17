@@ -248,9 +248,9 @@ public class MainActivity extends Activity implements OnClickListener {
                     context.startService(i);
 //                      TransferDetails td = new TransferDetails(SharedConstants.MY_ID, destPhoneNumber, fm);
 //                      new UploadTask(context).execute(td);
-
-                    setState(tag + "::onActivityResult upload file", AppStateUtils.STATE_LOADING);
-                            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, "Uploading file to server...");
+//
+//                    setState(tag + "::onActivityResult upload file", AppStateUtils.STATE_LOADING);
+//                            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, "Uploading file to server...");
                 }
                 else
                     writeErrStatBar("An unknown error occured during file upload");
@@ -706,8 +706,10 @@ public class MainActivity extends Activity implements OnClickListener {
 		case DISPLAY_MESSAGE:
             writeInfoStatBar(report.desc());
 			break;
-		
 
+        case LOADING_TIMEOUT:
+            stateIdle(tag+" EVENT: LOADING_TIMEOUT", "", Color.BLACK);
+            break;
 
 		default:
 			Log.e(tag, "Undefined event status on EventReceived");

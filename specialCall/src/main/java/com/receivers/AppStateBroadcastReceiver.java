@@ -58,6 +58,10 @@ public class AppStateBroadcastReceiver extends BroadcastReceiver {
                 BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, report.desc(), null));
             break;
 
+            case LOADING_TIMEOUT:
+                AppStateUtils.setAppState(context, TAG+ " LOADING_TIMEOUT", AppStateUtils.STATE_IDLE);
+            break;
+
         }
     }
 
