@@ -94,7 +94,7 @@ public class LogicServerProxyService extends Service implements IServerProxy {
                         e.printStackTrace();
                         String errMsg = "Action failed:"+action+" Exception:"+e.getMessage();
                         Log.e(TAG, errMsg);
-                        //handleDisconnection(errMsg);
+                        handleDisconnection(errMsg);
                     }
                 } else
                     Log.w(TAG, "Service started with missing action");

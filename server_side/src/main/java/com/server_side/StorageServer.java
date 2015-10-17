@@ -97,9 +97,16 @@ public class StorageServer extends AbstractServer {
         System.out.println("Storage server stopped");
         _logger.info("Storage server stopped");
 
-        System.out.println("Attempting to restart storage server...");
+        try {
+            close();
+            System.out.println("Attempting to restart storage server...");
 
-        repeatedlyTryToRestart();
+            repeatedlyTryToRestart();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            _logger.severe("Failed to close storage server:"+e.getMessage());
+        }
     }
 
     @Override

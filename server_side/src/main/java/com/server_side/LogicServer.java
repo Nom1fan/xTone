@@ -103,9 +103,18 @@ public class LogicServer extends AbstractServer {
         System.out.println("Logic server stopped");
         _logger.severe("Logic server stopped");
 
-        System.out.println("Attempting to restart logic server...");
+        try {
+            close();
+            System.out.println("Attempting to restart logic server...");
 
-        repeatedlyTryToRestart();
+            repeatedlyTryToRestart();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            _logger.severe("Failed to close logic server:"+e.getMessage());
+        }
+
+
     }
 
     @Override
