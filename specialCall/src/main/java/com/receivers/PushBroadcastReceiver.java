@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.services.ServerProxyService;
+import com.services.LogicServerProxyService;
 import com.google.gson.Gson;
 import com.parse.ParsePushBroadcastReceiver;
+import com.services.StorageServerProxyService;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,15 +48,13 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
                     jsonData = pushData.getString(PushEventKeys.PUSH_DATA);
                     td = gson.fromJson(jsonData, TransferDetails.class);
 
-                    Intent i = new Intent(_context.getApplicationContext(), ServerProxyService.class);
-                    i.setAction(ServerProxyService.ACTION_DOWNLOAD);
+                    Intent i = new Intent(_context.getApplicationContext(), StorageServerProxyService.class);
+                    i.setAction(StorageServerProxyService.ACTION_DOWNLOAD);
                     i.putExtra(PushEventKeys.PUSH_DATA, td);
-
                     _context.startService(i);
                 break;
 
                 case PushEventKeys.TRANSFER_SUCCESS:
-                    Log.i(TAG, "In:" + PushEventKeys.TRANSFER_SUCCESS);
                     String msg = pushData.getString(PushEventKeys.PUSH_DATA);
                     jsonData = pushData.getString(PushEventKeys.PUSH_DATA_EXTRA);
                     td = gson.fromJson(jsonData, TransferDetails.class);

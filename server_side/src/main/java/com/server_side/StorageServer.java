@@ -3,7 +3,6 @@ package com.server_side;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import DataObjects.SharedConstants;
 import LogObjects.LogsManager;
@@ -15,27 +14,26 @@ import ServerObjects.ConnectionToClient;
 /**
  * Created by Mor on 23/09/2015.
  */
-public class NewServer extends AbstractServer {
+public class StorageServer extends AbstractServer {
 
-    private ClientsManager _clientsManager;
     private static Logger _logger = null;
 
-    public NewServer() {
-        super(SharedConstants.PORT);
+    public StorageServer() {
+        super(SharedConstants.STORAGE_SERVER_PORT);
 
         try {
             LogsManager.createServerLogsDir();
             LogsManager.clearLogs();
             _logger = LogsManager.getServerLogger();
-            _clientsManager = new ClientsManager();
+            ClientsManager.initialize();
 
-            System.out.println("Starting server...");
+            System.out.println("Starting storage server...");
 
             listen();
         }
         catch (IOException e ) {
             e.printStackTrace();
-            _logger.severe("Failed to initialize server components. Exception:" + e.getMessage());
+            _logger.severe("Failed to initialize storage server components. Exception:" + e.getMessage());
             try {
                 this.close();
             } catch (IOException e1) {
@@ -73,30 +71,56 @@ public class NewServer extends AbstractServer {
     }
 
     @Override
+    protected void repeatedlyTryToRestart() {
+        new Thread() {
+
+            @Override
+            public void run() {
+
+                StorageServer restartedStorageServer = new StorageServer();
+                while(!restartedStorageServer.isListening())
+                    restartedStorageServer = new StorageServer();
+            }
+        }.start();
+    }
+
+    @Override
     protected void serverStarted() {
 
-        System.out.println("Server running on port:" + SharedConstants.PORT + "...");
-        _logger.info("Server running on port:" + SharedConstants.PORT + "...");
+        System.out.println("Storage server running on port:" + SharedConstants.STORAGE_SERVER_PORT + "...");
+        _logger.info("Storage server running on port:" + SharedConstants.STORAGE_SERVER_PORT + "...");
     }
 
     @Override
     protected void serverStopped() {
 
-        System.out.println("Server stopped");
-        _logger.info("Server stopped");
+        System.out.println("Storage server stopped");
+        _logger.info("Storage server stopped");
+
+        System.out.println("Attempting to restart storage server...");
+
+        repeatedlyTryToRestart();
     }
 
     @Override
-     synchronized protected void clientException(ConnectionToClient client, Throwable exception) {
+    protected void listeningException(Throwable exception) {
 
-        try {
-            throw(exception);
-        } catch (EOFException e) {
-            _logger.info("Client "+client.getInfo("id")+" closed the connection. logging off client...");
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        }
+        exception.printStackTrace();
+        _logger.severe("Listening exception:" + exception.getMessage());
     }
+
+    @Override
+    synchronized protected void clientException(ConnectionToClient client, Throwable exception) {
+
+        _logger.severe("Client " + client.getInfo("id") + " threw an exception:" + exception.getMessage());
+    }
+
+    @Override
+    synchronized protected void clientDisconnected(ConnectionToClient client) {
+
+        _logger.warning("Client " + client.getInfo("id") + " disconnected");
+    }
+
 
     /* Assisting methods */
 
@@ -108,10 +132,5 @@ public class NewServer extends AbstractServer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void main(String args[]) {
-
-        new NewServer();
     }
 }

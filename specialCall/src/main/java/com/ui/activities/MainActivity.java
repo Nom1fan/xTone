@@ -7,7 +7,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
@@ -16,7 +15,6 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.IBinder;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
@@ -34,21 +32,21 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
-import com.receivers.AppStateBroadcastReceiver;
 import com.services.IncomingService;
-import com.services.ServerProxyService;
+import com.services.LogicServerProxyService;
+import com.services.StorageServerProxyService;
 import com.special.app.R;
 import com.ui.components.BitmapWorkerTask;
 import com.utils.AppStateUtils;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import DataObjects.SharedConstants;
+import DataObjects.TransferDetails;
 import EventObjects.Event;
 import EventObjects.EventReport;
 import Exceptions.FileDoesNotExistException;
@@ -62,21 +60,17 @@ import FilesManager.FileManager;
 public class MainActivity extends Activity implements OnClickListener {
 
     private String buttonLabels[];
-	private ServerProxyService serverProxy;
 	private String myPhoneNumber = "";
 	private String destPhoneNumber = "";
 	private String destName = "";	
     private String tag = MainActivity.class.getSimpleName();
 	private Uri outputFileUri;
 	private ProgressBar pBar;
-	private boolean mIsBound = false;
     private Context context;
     private LUT_Utils lut_utils;
 	private BroadcastReceiver serviceReceiver;
 	private IntentFilter serviceReceiverIntentFilter = new IntentFilter(Event.EVENT_ACTION);
-
-
-	private abstract class ActivityRequestCodes {
+    private abstract class ActivityRequestCodes {
 
 		public static final int PICK_SONG = 1;
 		public static final int SELECT_CONTACT = 2;
@@ -106,8 +100,6 @@ public class MainActivity extends Activity implements OnClickListener {
         super.onPause();
         Log.i(tag, "onPause()");
 
-        doUnbindService();
-
         if(serviceReceiver!=null)
             unregisterReceiver(serviceReceiver);
         saveInstanceState();
@@ -129,14 +121,12 @@ public class MainActivity extends Activity implements OnClickListener {
 
             registerReceiver(serviceReceiver, serviceReceiverIntentFilter);
 
-            if(!appState.equals(AppStateUtils.STATE_DISABLED)) {
-                if (serverProxy == null) {
-                    myPhoneNumber = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
-                    SharedConstants.MY_ID = myPhoneNumber;
-                    initializeConnection();
-                }
-                else
-                    doBindService();
+            if(appState.equals(AppStateUtils.STATE_DISABLED)) {
+
+                myPhoneNumber = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
+                SharedConstants.MY_ID = myPhoneNumber;
+                initializeConnection();
+
             }
 
         }
@@ -149,13 +139,13 @@ public class MainActivity extends Activity implements OnClickListener {
             break;
 
             case AppStateUtils.STATE_IDLE:
-                stateIdle(tag + "::onResume() STATE_IDLE");
+                stateIdle(tag + "::onResume() STATE_IDLE", "", Color.BLACK);
                 restoreInstanceState();
                 writeInfoStatBar("");
             break;
 
             case AppStateUtils.STATE_READY:
-                stateReady(tag + "::onResume() STATE_READY");
+                stateReady(tag + "::onResume() STATE_READY", "");
                 restoreInstanceState();
             break;
 
@@ -177,10 +167,6 @@ public class MainActivity extends Activity implements OnClickListener {
     protected void onDestroy() {
 	    super.onDestroy();
         Log.i(tag, "onDestroy()");
-        Intent i = new Intent(context, ServerProxyService.class);
-        i.setAction(ServerProxyService.ACTION_STOP);
-        startService(i);
-        serverProxy = null;
 	 }
 
 	@Override
@@ -198,7 +184,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		} else {
 			initializeUI();
             if (getState().equals(AppStateUtils.STATE_LOGGED_IN)) {
-                stateIdle(tag+"::onCreate()");
+                stateIdle(tag+"::onCreate()", "", Color.BLACK);
             }
 		}
 	}
@@ -255,10 +241,19 @@ public class MainActivity extends Activity implements OnClickListener {
                 }
 
                 if(fm!=null) {
-                    serverProxy.uploadFileToServer(destPhoneNumber, fm);
+                    Intent i = new Intent(context, StorageServerProxyService.class);
+                    i.setAction(StorageServerProxyService.ACTION_UPLOAD);
+                    i.putExtra(StorageServerProxyService.DESTINATION_ID, destPhoneNumber);
+                    i.putExtra(StorageServerProxyService.FILE_TO_UPLOAD, fm);
+                    context.startService(i);
+//                      TransferDetails td = new TransferDetails(SharedConstants.MY_ID, destPhoneNumber, fm);
+//                      new UploadTask(context).execute(td);
+
                     setState(tag + "::onActivityResult upload file", AppStateUtils.STATE_LOADING);
                             SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, "Uploading file to server...");
                 }
+                else
+                    writeErrStatBar("An unknown error occured during file upload");
             }
             catch(NullPointerException e)
             {
@@ -478,7 +473,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			SpecialCallIncoming.mkdirs();
 
 			initializeUI();
-			stateIdle(tag+"::onClick() R.id.login");
+			stateIdle(tag+"::onClick() R.id.login", "", Color.BLACK);
 		}
 
 		else if (id == R.id.settingsBtn) {
@@ -585,19 +580,22 @@ public class MainActivity extends Activity implements OnClickListener {
                     drawSelectMediaButton(false);
                     drawSelectRingToneButton();
 
-                    if ((serverProxy != null) &&
-                            !getState().equals(AppStateUtils.STATE_DISABLED) &&
-                            !getState().equals(AppStateUtils.STATE_LOADING))
-                        stateLoading(tag+" onTextchanged()", "Fetching user data...", Color.GREEN);
-                        serverProxy.isRegistered(destPhone);
+                    if (!getState().equals(AppStateUtils.STATE_DISABLED) &&
+                        !getState().equals(AppStateUtils.STATE_LOADING)) {
+                        stateLoading(tag + " onTextchanged()", "Fetching user data...", Color.GREEN);
 
+                        Intent i = new Intent(context, LogicServerProxyService.class);
+                        i.setAction(LogicServerProxyService.ACTION_ISREGISTERED);
+                        i.putExtra(LogicServerProxyService.DESTINATION_ID, destPhone);
+                        context.startService(i);
+                    }
                 } else {
                     destPhoneNumber="";
                     destName="";
                     setDestNameTextView();
                     saveInstanceState();
                     if(getState().equals(AppStateUtils.STATE_READY))
-                        stateIdle(tag + "::onTextChanged()");
+                        stateIdle(tag + "::onTextChanged()", "", Color.BLACK);
                 }
             }
 
@@ -632,22 +630,16 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		switch (report.status()) {
 
-//        case SERVER_PROXY_CREATED:
-//            if(serverProxy==null)
-//                doBindService();
-//            break;
-
 		case UPLOAD_SUCCESS:
-			writeInfoStatBar(report.desc(), Color.YELLOW);
             if(isContactSelected())
-                stateReady(tag + "EVENT: UPLOAD_SUCCESS");
+                stateReady(tag + "EVENT: UPLOAD_SUCCESS", report.desc());
             else
-                stateIdle(tag +" EVENT: UPLOAD_SUCCESS");
+                stateIdle(tag +" EVENT: UPLOAD_SUCCESS", report.desc(), Color.GREEN);
 			break;
 
 		case UPLOAD_FAILURE:
+            stateIdle(tag +" EVENT: UPLOAD_FAILURE", "", Color.RED);
             writeErrStatBar(report.desc());
-            stateIdle(tag +" EVENT: UPLOAD_FAILURE");
             break;
 
 		case DOWNLOAD_SUCCESS:
@@ -659,31 +651,32 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 
         case REGISTER_SUCCESS:
-            writeInfoStatBar(report.desc());
-            stateIdle(tag + " EVENT: REGISTER_SUCCESS");
+            stateIdle(tag + " EVENT: REGISTER_SUCCESS", report.desc(), Color.GREEN);
             break;
 
         case USER_REGISTERED_TRUE:
         destPhoneNumber = (String) report.data();
-        writeInfoStatBar(report.desc());
-        stateReady(tag + " EVENT: USER_REGISTERED_TRUE");
+        stateReady(tag + " EVENT: USER_REGISTERED_TRUE", report.desc());
         break;
 
         case USER_REGISTERED_FALSE:
             destPhoneNumber = (String) report.data();
-            writeErrStatBar(report.desc());
-            stateIdle(tag+" EVENT: USER_REGISTERED_FALSE");
+            stateIdle(tag+" EVENT: USER_REGISTERED_FALSE", report.desc(), Color.RED);
         break;
 
 		case ISREGISTERED_ERROR:
             destPhoneNumber = (String) report.data();
+			stateIdle(tag + "EVENT: ISREGISTERED_ERROR", "", Color.BLACK);
             writeErrStatBar(report.desc());
-			stateIdle(tag + "EVENT: ISREGISTERED_ERROR");
 			break;
 
-		case DESTINATION_DOWNLOAD_COMPLETE:
-			writeInfoStatBar(report.desc());
-			break;
+        case REFRESH_UI:
+            String msg = report.desc();
+            if(isContactSelected())
+                stateReady(tag + "EVENT: REFRESH_UI", msg);
+            else
+                stateIdle(tag + "EVENT: REFRESH_UI", msg, Color.GREEN);
+            break;
 
         case RECONNECT_ATTEMPT:
             stateLoading(tag + " EVENT: RECONNECT_ATTEMPT", report.desc(), Color.RED);
@@ -691,6 +684,10 @@ public class MainActivity extends Activity implements OnClickListener {
 
         case CONNECTING:
             stateLoading(tag +" EVENT: CONNECTING", report.desc(), Color.YELLOW);
+            break;
+
+        case CONNECTED:
+            stateIdle(tag +"EVENT: CONNECTED", report.desc(), Color.GREEN);
             break;
 
         case DISCONNECTED:
@@ -718,52 +715,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	}
 
-
-	/* -------------- ServerProxyService service methods -------------- */
-
-	private ServiceConnection mConnection = new ServiceConnection() {
-		public void onServiceConnected(ComponentName className, IBinder service) {
-			// This is called when the connection with the service has been
-			// established, giving us the service object we can use to
-			// interact with the service.  Because we have bound to a explicit
-			// service that we know is running in our own process, we can
-			// cast its IBinder to a concrete class and directly access it.
-			serverProxy = ((ServerProxyService.MyBinder)service).getService();
-            if(isContactSelected()) {
-                if(!getState().equals(AppStateUtils.STATE_DISABLED) &&
-                        !getState().equals(AppStateUtils.STATE_LOADING)) {
-                             stateLoading(tag + " onServiceConnected()", "Fetching user data...", Color.GREEN);
-                             serverProxy.isRegistered(destPhoneNumber);
-                }
-            }
-		}
-
-		public void onServiceDisconnected(ComponentName className) {
-			// This is called when the connection with the service has been
-			// unexpectedly disconnected -- that is, its process crashed.
-			// Because it is running in our same process, we should never
-			// see this happen.
-			serverProxy = null;
-		}
-	};
-
-	void doBindService() {
-		// Establish a connection with the service.  We use an explicit
-		// class name because we want a specific service implementation that
-		// we know will be running in our own process (and thus won't be
-		// supporting component replacement by other applications).
-		bindService(new Intent(this,
-                ServerProxyService.class), mConnection, 0);
-		mIsBound = true;
-	}
-
-	void doUnbindService() {
-		if (mIsBound) {
-			// Detach our existing connection.
-			unbindService(mConnection);
-			mIsBound = false;
-		}
-	}
 
 	/* -------------- Assisting methods -------------- */
 
@@ -867,19 +818,15 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private void initializeConnection() {
 
-        // Starting service
-        // Intent serverProxyIntent = new Intent(this, ServerProxyService.class);
-        // serverProxyIntent.putExtra("myphonenumber", myPhoneNumber);
-        // serverProxyIntent.putExtra("workingdir", workingDir);
-
         Intent i = new Intent();
-        i.setClass(getBaseContext(), ServerProxyService.class);
-        i.setAction(ServerProxyService.ACTION_START);
-        startService(i);
-        doBindService();
+        i.setClass(getBaseContext(), LogicServerProxyService.class);
+        if(AppStateUtils.getAppState(context).equals(AppStateUtils.STATE_LOGGED_OUT))
+            i.setAction(LogicServerProxyService.ACTION_REGISTER);
+        else
+           i.setAction(LogicServerProxyService.ACTION_RECONNECT);
 
-//		serverProxy = new ServerProxyService(eventGenerator);
-//        serverProxy.connect();
+        startService(i);
+
     }
 
     private boolean isContactSelected() {
@@ -891,11 +838,13 @@ public class MainActivity extends Activity implements OnClickListener {
 
     /* -------------- UI methods -------------- */
 
+
     /* --- UI States --- */
 
-    public void stateReady(String tag) {
+    public void stateReady(String tag, String msg) {
 
         setState(tag, AppStateUtils.STATE_READY);
+        writeInfoStatBar(msg);
 
         runOnUiThread(new Runnable() {
             @Override
@@ -911,8 +860,9 @@ public class MainActivity extends Activity implements OnClickListener {
         });
     }
 
-    public void stateIdle(String tag) {
+    public void stateIdle(String tag, String msg, int color) {
 
+        writeInfoStatBar(msg, color);
         setState(tag, AppStateUtils.STATE_IDLE);
 
         runOnUiThread(new Runnable() {

@@ -23,5 +23,7 @@ public enum EventType implements Serializable {
 	RECONNECT_ATTEMPT,
 	DISCONNECTED,
 	CONNECTING,
+	CONNECTED,
 	SERVER_PROXY_CREATED,
+	REFRESH_UI,
 }

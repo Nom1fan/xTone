@@ -65,6 +65,10 @@ public abstract class AbstractClient implements Runnable
 
 // INSTANCE VARIABLES ***********************************************
 
+    public Socket getClientSocket() {
+        return clientSocket;
+    }
+
     /**
      * Sockets are used in the operating system as channels
      * of communication between two processes.
@@ -139,6 +143,10 @@ public abstract class AbstractClient implements Runnable
             clientSocket= new Socket(host, port);
             output = new ObjectOutputStream(clientSocket.getOutputStream());
             input = new ObjectInputStream(clientSocket.getInputStream());
+
+            clientReader = new Thread(this);  //Create the data reader thread
+            readyToStop = false;
+            clientReader.start();  //Start the thread
         }
         catch (IOException ex)
         // All three of the above must be closed when there is a failure
@@ -152,10 +160,6 @@ public abstract class AbstractClient implements Runnable
 
             throw ex; // Rethrow the exception.
         }
-
-        clientReader = new Thread(this);  //Create the data reader thread
-        readyToStop = false;
-        clientReader.start();  //Start the thread
     }
 
     /**
@@ -185,7 +189,6 @@ public abstract class AbstractClient implements Runnable
      */
     final public void closeConnection() throws IOException
     {
-
         readyToStop= true;
         closeAll();
     }

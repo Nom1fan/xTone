@@ -6,12 +6,13 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
-import com.services.ServerProxyService;
+
+import com.services.LogicServerProxyService;
 
 import EventObjects.Event;
 import EventObjects.EventReport;
 import EventObjects.EventType;
-import com.utils.SharedPrefUtils;
+
 import com.utils.AppStateUtils;
 
 /**
@@ -42,9 +43,9 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
             String appState = AppStateUtils.getAppState(context);
             Log.i(TAG, "App State:"+appState);
             if(!appState.equals(AppStateUtils.STATE_LOGGED_OUT) && appState.equals(AppStateUtils.STATE_DISABLED)) {
-                Log.i(TAG, "Starting ServerProxyService...");
-                Intent i = new Intent(context, ServerProxyService.class);
-                i.setAction(ServerProxyService.ACTION_RECONNECT);
+                Log.i(TAG, "Starting LogicServerProxyService...");
+                Intent i = new Intent(context, LogicServerProxyService.class);
+                i.setAction(LogicServerProxyService.ACTION_RECONNECT);
                 context.startService(i);
             }
         }

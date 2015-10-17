@@ -16,9 +16,7 @@ public class ConnectionToServer extends AbstractClient {
 	 */
 	public ConnectionToServer(String host, int port, IServerProxy serverProxy) {
 		super(host, port);
-
 		_serverProxy = serverProxy;
-
 	}
 
 	@Override
@@ -31,6 +29,7 @@ public class ConnectionToServer extends AbstractClient {
 	@Override
 	protected void connectionException(Exception e) {
 
-		_serverProxy.handleDisconnection("Connection error:"+e.getMessage());
+		String errMsg = "Connection error";
+		_serverProxy.handleDisconnection(e !=null ? errMsg+":"+e.toString() : errMsg);
 	}
 }

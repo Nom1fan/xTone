@@ -8,84 +8,89 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+// End of ConnectionToClient class
 /**
-* An instance of this class is created by the server when a client
-* connects. It accepts messages coming from the client and is
-* responsible for sending data to the client since the socket is
-* private to this class. The AbstractServer contains a set of
-* instances of this class and is responsible for adding and deleting
-* them.<p>
-*
-* Several public service methods are provided to applications that use
-* this framework, and several hook methods are also available<p>
-*
-* The modifications made to this class in version 2.2 are:
-* <ul>
-* <li> A new hook method called <code>handleMessageFromClient()</code>
-* has been added. It allows to handle messages inside the client
-* thread when possible.
-* <li> Constructor is now protected.
-* <li> Method <code>sendToClient()</code> is not
-* declared final anymore. This allows user of the
-* framework to override it, perhaps to perform some
-* filtering before sending the message to the client.
-* However, any overriden version of this method
-* should include a call to the original one.
-* <li> A test is made before calling the
-* <code>handleMessageFromClient</code> method such that
-* when <code>closeConnection</code> returns, it
-* is garanteed that no new messages will be handled.
-* </ul>
-* The modifications made to this class in version 2.31 are:
-* <ul>
-* <li> The <code>run()</code> method now calls the <code>clientException</code> 
-* server callback when an object of unknown class is received from the input stream
-* or when the message handler throw a <code>RuntimeException</code>
-* <li> The <code>clientDisconnected</code> callback might be called after
-* <code>clientException</code> if the exception causes the end of te thread.
-* <li> The call to <code>clientDisconnected</code> has been moved from
-* <code>close</code> to <code>run</code> method to garantee
-* that connection is really closed when this callback is called.
-* </ul><p>
-*
-* Project Name: OCSF (Object Client-Server Framework)<p>
-*
-* @author Dr Robert Lagani&egrave;re
-* @author Dr Timothy C. Lethbridge
-* @author Fran&ccedil;ois B&eacute;langer
-* @author Paul Holden
-* @version December 2003 (2.31)
-*/
+ * An instance of this class is created by the server when a client
+ * connects. It accepts messages coming from the client and is
+ * responsible for sending data to the client since the socket is
+ * private to this class. The AbstractServer contains a set of
+ * instances of this class and is responsible for adding and deleting
+ * them.<p>
+ *
+ * Several public service methods are provided to applications that use
+ * this framework, and several hook methods are also available<p>
+ *
+ * The modifications made to this class in version 2.2 are:
+ * <ul>
+ * <li> A new hook method called <code>handleMessageFromClient()</code>
+ * has been added. It allows to handle messages inside the client
+ * thread when possible.
+ * <li> Constructor is now protected.
+ * <li> Method <code>sendToClient()</code> is not
+ * declared final anymore. This allows user of the
+ * framework to override it, perhaps to perform some
+ * filtering before sending the message to the client.
+ * However, any overriden version of this method
+ * should include a call to the original one.
+ * <li> A test is made before calling the
+ * <code>handleMessageFromClient</code> method such that
+ * when <code>closeConnection</code> returns, it
+ * is garanteed that no new messages will be handled.
+ * </ul>
+ * The modifications made to this class in version 2.31 are:
+ * <ul>
+ * <li> The <code>run()</code> method now calls the <code>clientException</code>
+ * server callback when an object of unknown class is received from the input stream
+ * or when the message handler throw a <code>RuntimeException</code>
+ * <li> The <code>clientDisconnected</code> callback might be called after
+ * <code>clientException</code> if the exception causes the end of te thread.
+ * <li> The call to <code>clientDisconnected</code> has been moved from
+ * <code>close</code> to <code>run</code> method to garantee
+ * that connection is really closed when this callback is called.
+ * </ul><p>
+ *
+ * Project Name: OCSF (Object Client-Server Framework)<p>
+ *
+ * @author Dr Robert Lagani&egrave;re
+ * @author Dr Timothy C. Lethbridge
+ * @author Fran&ccedil;ois B&eacute;langer
+ * @author Paul Holden
+ * @version December 2003 (2.31)
+ */
 public class ConnectionToClient extends Thread
 {
 // INSTANCE VARIABLES ***********************************************
 
   /**
-  * A reference to the Server that created this instance.
-  */
+   * A reference to the Server that created this instance.
+   */
   private AbstractServer server;
 
+  public Socket getClientSocket() {
+    return clientSocket;
+  }
+
   /**
-  * Sockets are used in the operating system as channels
-  * of communication between two processes.
-  * @see java.net.Socket
-  */
+   * Sockets are used in the operating system as channels
+   * of communication between two processes.
+   * @see java.net.Socket
+   */
   private Socket clientSocket;
 
   /**
-  * Stream used to read from the client.
-  */
+   * Stream used to read from the client.
+   */
   private ObjectInputStream input;
 
   /**
-  * Stream used to write to the client.
-  */
+   * Stream used to write to the client.
+   */
   private ObjectOutputStream output;
 
   /**
-  * Indicates if the thread is ready to stop. Set to true when closing
-  * of the connection is initiated.
-  */
+   * Indicates if the thread is ready to stop. Set to true when closing
+   * of the connection is initiated.
+   */
   private boolean readyToStop;
 
   /**
@@ -111,7 +116,7 @@ public class ConnectionToClient extends Thread
    *        the connection.
    */
   protected ConnectionToClient(ThreadGroup group, Socket clientSocket,
-    AbstractServer server) throws IOException
+                               AbstractServer server) throws IOException
   {
     super(group,(Runnable)null);
     // Initialize variables
@@ -123,8 +128,10 @@ public class ConnectionToClient extends Thread
     //Initialize the objects streams
     try
     {
-      input = new ObjectInputStream(clientSocket.getInputStream());
       output = new ObjectOutputStream(clientSocket.getOutputStream());
+      output.flush();
+      input = new ObjectInputStream(clientSocket.getInputStream());
+
     }
     catch (IOException ex)
     {
@@ -160,6 +167,7 @@ public class ConnectionToClient extends Thread
       throw new SocketException("socket does not exist");
 
     output.writeObject(msg);
+    output.flush();
   }
 
   /**
@@ -171,7 +179,7 @@ public class ConnectionToClient extends Thread
    */
   final public void close() throws IOException
   {
-  
+
     readyToStop = true; // Set the flag that tells the thread to stop
     closeAll();
   }
@@ -196,8 +204,8 @@ public class ConnectionToClient extends Thread
   public String toString()
   {
     return clientSocket == null ? null :
-      clientSocket.getInetAddress().getHostName()
-        +" (" + clientSocket.getInetAddress().getHostAddress() + ")";
+            clientSocket.getInetAddress().getHostName()
+                    +" (" + clientSocket.getInetAddress().getHostAddress() + ")";
   }
 
   /**
@@ -245,23 +253,23 @@ public class ConnectionToClient extends Thread
       {
         // This block waits until it reads a message from the client
         // and then sends it for handling by the server
-        
+
         try { // Added in version 2.31
-        
+
           // wait to receive an object
           msg = input.readObject();
-                  
+
           if (!readyToStop && handleMessageFromClient(msg)) // Added in version 2.2
           {
             server.receiveMessageFromClient(msg, this);
           }
-          
+
         } catch(ClassNotFoundException ex) { // when an unknown class is received
-        
+
           server.clientException(this, ex);
-          
+
         } catch (RuntimeException ex) { // thrown by handleMessageFromClient or receiveMessageFromClient
-        
+
           server.clientException(this, ex);
         }
       }
@@ -279,8 +287,8 @@ public class ConnectionToClient extends Thread
         server.clientException(this, exception);
       }
     } finally {
-    
-        server.clientDisconnected(this);   // moved here in version 2.31
+
+      server.clientDisconnected(this);   // moved here in version 2.31
     }
   }
 
@@ -350,4 +358,3 @@ public class ConnectionToClient extends Thread
     catch(IOException e) {}
   }
 }
-// End of ConnectionToClient class

@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -23,7 +24,7 @@ import Exceptions.FileMissingExtensionException;
  * @author Mor
  *
  */
-public class FileManager {
+public class FileManager implements Serializable {
 
     private static final String[] imageFormats = { "jpg", "png", "jpeg", "bmp", "gif", "tiff" };
     private static final String[] audioFormats = { "mp3", "ogg" };
@@ -31,7 +32,7 @@ public class FileManager {
 
     private File _file;
 	private String _extension;
-    private int _size;
+    private long _size;
 	private FileType _fileType;
 
     public static final int MAX_FILE_SIZE = 5242880; // 5MB
@@ -57,7 +58,7 @@ public class FileManager {
                 validateFileSize();
                 _extension = extractExtension(_file.getAbsolutePath());
                 _fileType = validateFileFormat();
-                _size = (int) _file.length();
+                _size = _file.length();
             }
             else
                 throw new FileDoesNotExistException("File does not exist:"+_file.getAbsolutePath());
@@ -95,6 +96,10 @@ public class FileManager {
 
     /* Public instance methods */
 
+    public File getFile() {
+        return _file;
+    }
+
     public byte[] getFileData() throws IOException {
 
         // Reading the file from the disk
@@ -115,7 +120,7 @@ public class FileManager {
         return _extension;
     }
 
-    public int getFileSize() {
+    public long getFileSize() {
         return _size;
     }
 
@@ -250,6 +255,17 @@ public class FileManager {
     }
 
     /**
+     * Allows to delete a file safely (renaming first)
+     * @param file - The file to delete
+     */
+    public static void delete(File file) {
+
+        final File to = new File(file.getAbsolutePath() + System.currentTimeMillis());
+        file.renameTo(to);
+        to.delete();
+    }
+
+    /**
      * Creates a new file on the File System from given bytes array
      * @param filePath
      * @param fileData
@@ -271,17 +287,6 @@ public class FileManager {
         bos.write(fileData);
         bos.flush();
         bos.close();
-    }
-
-    /**
-     * Allows to delete a file safely (renaming first)
-     * @param file - The file to delete
-     */
-    public static void delete(File file) {
-
-        final File to = new File(file.getAbsolutePath() + System.currentTimeMillis());
-        file.renameTo(to);
-        to.delete();
     }
 
     /* Private static methods*/

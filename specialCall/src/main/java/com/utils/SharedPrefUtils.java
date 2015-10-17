@@ -7,7 +7,7 @@ public class SharedPrefUtils {
 
 	/* Shared pref names */
 	public static final String GENERAL = "General";
-	public static final String SERVER_PROXY = "ServerProxyService";
+	public static final String SERVER_PROXY = "LogicServerProxyService";
 	public static final String UPLOADED_MEDIA_THUMBNAIL = "UploadedMediaThumbnail";
 	public static final String WAS_RINGTONE_UPLOADED ="WasRingToneUploaded";
 	public static final String MEDIA_FILEPATH = "Media";
@@ -22,9 +22,9 @@ public class SharedPrefUtils {
 	public static final String LOADING_MESSAGE = "LoadingMessage";
 
 	/* Shared pref keys under SERVER_PROXY */
-	public static final String CONNECTED = "ServerProxyService.Connected";
-	public static final String WAS_STARTED = "ServerProxyService.WAS_STARTED";
-	public static final String RECONNECT_INTERVAL = "ServerProxyService.RECONNECT_INTERVAL";
+	public static final String CONNECTED = "LogicServerProxyService.Connected";
+	public static final String WAS_STARTED = "LogicServerProxyService.WAS_STARTED";
+	public static final String RECONNECT_INTERVAL = "LogicServerProxyService.RECONNECT_INTERVAL";
 
 
 	public static int getInt(Context context, String prefsName, String key){

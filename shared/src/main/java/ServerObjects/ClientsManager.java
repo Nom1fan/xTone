@@ -15,7 +15,7 @@ import MessagesToClient.MessageTriggerEventOnly;
 
 
 /**
- * This class manages all client connections
+ * This class is a singleton that manages all client connections
  * @author Mor
  */
 public class ClientsManager {
@@ -23,19 +23,22 @@ public class ClientsManager {
 	// NOTE: <String,SocketWrapper> means clientId is key and a connection to the client is the value
 	private static ConcurrentHashMap<String, ConnectionToClient> onlineConnections = new ConcurrentHashMap<>(); // All online connections
 
-	// NOTE: <String,Long> means clientId is key and (UNIX timestamp * 1000) is the value
-	private static ConcurrentHashMap<String,Long> clientHeartBeats = new ConcurrentHashMap<>(); // all online client heart beats
-
 	// NOTE: <String,String> means clientId is key and push deviceToken is the value
 	private static ConcurrentHashMap<String,String> clientsTokens = new ConcurrentHashMap<>();
 
-	private static final int HEARTBEAT_TIMEOUT = SharedConstants.HEARTBEAT_TIMEOUT; // 5 seconds more than client's heartbeat rate
-	private static Logger serverLogger = null;
-//	private static Logger hbLogger = null;
+	private static ClientsManager instance;
 
-	public ClientsManager() {
+	private static Logger serverLogger = null;
+
+	private ClientsManager() {
 		
 		initLoggers();
+	}
+
+	public static void initialize() {
+
+		if(instance==null)
+			instance = new ClientsManager();
 	}
 	
 	private static void logActiveConns() { 
@@ -49,8 +52,6 @@ public class ClientsManager {
 	private void initLoggers() {
 		
 		serverLogger = LogsManager.getServerLogger();
-//		hbLogger = LogsManager.getNewLogger("heartbeats");
-	
 	}
 
 	public synchronized static void addClientPushToken(String clientId, String token) {

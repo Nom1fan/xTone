@@ -10,12 +10,13 @@ public class TransferDetails implements Serializable {
 	private String _sourceId;
 	private String _destinationId;
 	private String _extension;
-	private double _fileSize;
+	private long _fileSize;
 	private FileManager.FileType _fileType;
 	private String _filePathOnServer;
     private String _fullFilePathSrcSD;
+    private FileManager _managedFile;
 
-    public TransferDetails(String source, String destination, FileManager managedFile) throws IOException {
+    public TransferDetails(String source, String destination, FileManager managedFile) {
 
         _sourceId = source;
         _destinationId = destination;
@@ -23,6 +24,7 @@ public class TransferDetails implements Serializable {
         _fileSize = managedFile.getFileSize();
         _fileType = managedFile.getFileType();
         _fullFilePathSrcSD = managedFile.getFileFullPath();
+        _managedFile = managedFile;
 
     }
 
@@ -36,7 +38,7 @@ public class TransferDetails implements Serializable {
         return _destinationId;
     }
 
-    public double getFileSize() {
+    public long getFileSize() {
         return _fileSize;
     }
 
@@ -56,5 +58,9 @@ public class TransferDetails implements Serializable {
 
     public void set_filePathOnServer(String _filePathOnServer) {
         this._filePathOnServer = _filePathOnServer;
+    }
+
+    public FileManager get_managedFile() {
+        return _managedFile;
     }
 }

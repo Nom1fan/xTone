@@ -37,6 +37,8 @@ public class MessageRequestDownload extends MessageToServer {
 
         initLogger();
 
+        logger.info(_messageInitiaterId + " is requesting download from:"+_td.getSourceId()+" of file type:"+_td.getExtension()+"...");
+
         try {
             FileManager managedFile = new FileManager(_filePathOnServer);
             MessageDownloadFile msgDF = new MessageDownloadFile(_td, managedFile.getFileData());

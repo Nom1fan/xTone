@@ -58,5 +58,8 @@ public abstract class MessageToServer implements Serializable  {
     private void setId() {
         clientConnection.setInfo("id", _messageInitiaterId);
     }
+    protected ConnectionToClient getClientConnection() {
+        return clientConnection;
+    }
 		
 }
