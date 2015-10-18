@@ -55,9 +55,13 @@ public class LogicServerProxyService extends AbstractServerProxy {
                     Log.i(TAG, "Action:" + action);
 
                     try {
-                        connectIfNecessary();
+                        reconnectIfNecessary();
 
                         switch (action) {
+
+                            case ACTION_REGISTER:
+                                register(openSocket());
+                            break;
 
                             case ACTION_ISREGISTERED: {
                                 String destId = intentForThread.getStringExtra(DESTINATION_ID);
@@ -65,8 +69,13 @@ public class LogicServerProxyService extends AbstractServerProxy {
                             }
                             break;
 
+
+                            case ACTION_RECONNECT:
+                                reconnectIfNecessary();
+                            break;
+
                             default:
-                                Log.w(TAG, "Service started with action:" + action);
+                                Log.w(TAG, "Service started with invalid action:" + action);
 
                         }
                     } catch (IOException e) {
@@ -116,16 +125,15 @@ public class LogicServerProxyService extends AbstractServerProxy {
         connectionToServer.sendToServer(msgRegister);
     }
 
-    private synchronized void connectIfNecessary() throws IOException {
+    private synchronized void reconnectIfNecessary() throws IOException {
 
         if (isNetworkAvailable())
         {
-            if(AppStateUtils.getAppState(mContext).equals(AppStateUtils.STATE_DISABLED))
-                register(openSocket());
-            else {
-                cancelReconnect();
-                SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
-            }
+            register(openSocket());
+
+            cancelReconnect();
+            SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
+
         }
         else {
             scheduleReconnect(System.currentTimeMillis());

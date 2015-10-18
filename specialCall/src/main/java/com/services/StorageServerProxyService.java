@@ -85,8 +85,9 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
                             }
                             break;
 
+
                             default:
-                                Log.w(TAG, "Service started with action:" + action);
+                                Log.w(TAG, "Service started with invalid action:" + action);
 
                         }
                     } catch (IOException e) {
