@@ -97,6 +97,15 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	}
 
+    private static final String[] PROJECTION = new String[] {
+            ContactsContract.Contacts.DISPLAY_NAME,
+            ContactsContract.CommonDataKinds.Phone.NUMBER
+           // ContactsContract.CommonDataKinds.Phone.TYPE
+
+    };
+
+
+
 	@Override
 	protected void onStart() {
 
@@ -942,78 +951,47 @@ public class MainActivity extends Activity implements OnClickListener {
     public void PopulatePeopleList()
     {
 
+             mPeopleList.clear();
+             Cursor people = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, PROJECTION, null, null, null);
 
-            mPeopleList.clear();
+        if (people != null) {
+            try {
+                final int displayNameIndex = people.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+                final int phonesIndex = people.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+               // final int phoneTypeIndex = people.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
 
+                String contactName, phoneNumber, numberType;
 
-          //  CursorLoader peoplecurloader = new CursorLoader(getApplicationContext(), ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-          //  Cursor people = peoplecurloader.loadInBackground();
+                while (people.moveToNext()) {
 
+                    contactName = people.getString(displayNameIndex);
+                    phoneNumber = people.getString(phonesIndex);
+                   // numberType = people.getString(phoneTypeIndex);
 
-             Cursor people = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+                    Map<String, String> NamePhoneType = new HashMap<String, String>();
 
-            while (people.moveToNext()) {
-                String contactName = people.getString(people.getColumnIndex(
-                        ContactsContract.Contacts.DISPLAY_NAME));
+                    NamePhoneType.put("Name", contactName);
+                    NamePhoneType.put("Phone", phoneNumber);
 
-                String contactId = people.getString(people.getColumnIndex(
-                        ContactsContract.Contacts._ID));
-                String hasPhone = people.getString(people.getColumnIndex(
-                        ContactsContract.Contacts.HAS_PHONE_NUMBER));
+                   /* if (numberType.equals("0"))
+                        NamePhoneType.put("Type", "Work");
+                    else if (numberType.equals("1"))
+                        NamePhoneType.put("Type", "Home");
+                    else if (numberType.equals("2"))
+                        NamePhoneType.put("Type", "Mobile");
+                    else
+                        NamePhoneType.put("Type", "Other");*/
 
-                if ((Integer.parseInt(hasPhone) > 0)) {
-
-                   /* CursorLoader phonescurloader = new CursorLoader(getApplicationContext(),
-                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                            null,
-                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId,
-                            null, null);
-                    Cursor phones = phonescurloader.loadInBackground();*/
-
-                    // You know have the number so now query it like this
-
-               Cursor phones = getContentResolver().query(
-                        ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                        null,
-                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ contactId,
-                        null, null);
-
-
-                    while (phones.moveToNext()) {
-
-                        //store numbers and display a dialog letting the user select which.
-                        String phoneNumber = phones.getString(
-                                phones.getColumnIndex(
-                                        ContactsContract.CommonDataKinds.Phone.NUMBER));
-
-                        String numberType = phones.getString(phones.getColumnIndex(
-                                ContactsContract.CommonDataKinds.Phone.TYPE));
-
-                        Map<String, String> NamePhoneType = new HashMap<String, String>();
-
-                        NamePhoneType.put("Name", contactName);
-                        NamePhoneType.put("Phone", phoneNumber);
-
-                        if (numberType.equals("0"))
-                            NamePhoneType.put("Type", "Work");
-                        else if (numberType.equals("1"))
-                            NamePhoneType.put("Type", "Home");
-                        else if (numberType.equals("2"))
-                            NamePhoneType.put("Type", "Mobile");
-                        else
-                            NamePhoneType.put("Type", "Other");
-
-                        //Then add this map to the list.
-                        mPeopleList.add(NamePhoneType);
-                    }
-
-                    //phonescurloader.reset();
-                    phones.close();
-
+                    //Then add this map to the list.
+                    mPeopleList.add(NamePhoneType);
                 }
+
+            } finally {
+                people.close();
             }
-          //  peoplecurloader.reset();
-            people.close();
+
+        }
+
 
         }
 
@@ -1024,7 +1002,7 @@ public class MainActivity extends Activity implements OnClickListener {
         protected SimpleAdapter doInBackground(URL... params) {
             mPeopleList = new ArrayList<Map<String, String>>();
             PopulatePeopleList();
-            mAdapter = new SimpleAdapter(getApplicationContext(), mPeopleList, R.layout.custcontview ,new String[] { "Name", "Phone" , "Type" }, new int[] { R.id.ccontName, R.id.ccontNo, R.id.ccontType });
+            mAdapter = new SimpleAdapter(getApplicationContext(), mPeopleList, R.layout.custcontview ,new String[] { "Name", "Phone" /*, "Type"*/ }, new int[] { R.id.ccontName, R.id.ccontNo/*, R.id.ccontType*/ });
             return mAdapter;
 
         }
