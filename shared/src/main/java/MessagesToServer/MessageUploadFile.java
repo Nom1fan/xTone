@@ -35,7 +35,7 @@ public class MessageUploadFile extends MessageToServer {
 			super(srcId);
 			_destId = td.getDestinationId();
 			_td = td;
-			//_fileData = fileData;
+			//_fileData = filedata;
 
 		}
 

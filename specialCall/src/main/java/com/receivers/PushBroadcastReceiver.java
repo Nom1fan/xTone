@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.services.LogicServerProxyService;
+
 import com.google.gson.Gson;
 import com.parse.ParsePushBroadcastReceiver;
 import com.services.StorageServerProxyService;

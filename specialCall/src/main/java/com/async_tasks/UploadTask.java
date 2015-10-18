@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.ui.components.NotificationHelper;
 import com.utils.BroadcastUtils;
+import com.utils.NotificationUtils;
 
 import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
@@ -28,14 +29,14 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
 
     public UploadTask(Context context, ConnectionToServer connectionToServer, TransferDetails td){
         _context = context;
-        mNotificationHelper = new NotificationHelper(_context);
+        mNotificationHelper = NotificationUtils.getNextHelper();
         _connectionToServer = connectionToServer;
         _td = td;
     }
 
     protected void onPreExecute(){
-        //Create the notification in the statusbar
-        mNotificationHelper.createUploadNotification("File upload to:"+_td.getDestinationId()+" is pending");
+        // Update initial notification message
+        //mNotificationHelper.createUploadNotification();
     }
 
     @Override
@@ -67,7 +68,7 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
                 bytesToRead -= bytesRead;
             }
 
-            _connectionToServer.closeConnection();
+            //_connectionToServer.closeConnection();
         }
          catch (IOException e) {
             e.printStackTrace();
@@ -86,6 +87,7 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
     protected void onPostExecute(Void result)    {
         //The task is complete, tell the status bar about it
         mNotificationHelper.completed();
+        NotificationUtils.freeHelperSpace();
     }
 
 }

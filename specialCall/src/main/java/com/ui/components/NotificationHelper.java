@@ -10,25 +10,23 @@ import com.special.app.R;
 
 public class NotificationHelper {
     private Context mContext;
-    private static int NOTIF_NUM;
     private int NOTIFICATION_ID;
     private Notification mNotification;
     private NotificationManager mNotificationManager;
     private PendingIntent mContentIntent;
     private CharSequence mContentTitle;
-    public NotificationHelper(Context context)
+
+    public NotificationHelper(Context context, int notificationId)
     {
         mContext = context;
+        NOTIFICATION_ID = notificationId;
     }
 
 
     /**
-     * Put the notification into the status bar
+     * Create and display upload notification
      */
     public void createUploadNotification(String initialMsg) {
-
-        NOTIF_NUM =(NOTIF_NUM +1)%5;
-        NOTIFICATION_ID= NOTIF_NUM;
 
         //get the notification manager
         mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -56,6 +54,7 @@ public class NotificationHelper {
 
         //show the notification
         mNotificationManager.notify(NOTIFICATION_ID, mNotification);
+
     }
 
     /**

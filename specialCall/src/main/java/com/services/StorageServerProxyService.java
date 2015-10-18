@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -18,6 +19,7 @@ import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
 import com.special.app.R;
 import com.utils.AppStateUtils;
+import com.utils.NotificationUtils;
 import com.utils.SharedPrefUtils;
 import java.io.IOException;
 import ClientObjects.ConnectionToServer;
@@ -55,9 +57,9 @@ public class StorageServerProxyService extends Service implements IServerProxy {
     private ConnectionToServer connectionToServer;
     private ConnectivityManager connManager;
     private WakeLock wakeLock;
+    private Context context;
     private static final long INITIAL_RETRY_INTERVAL = 1000 * 5;
     private static final long MAXIMUM_RETRY_INTERVAL = 1000 * 60;
-    private static final int ONGOING_NOTIFICATION_ID = 1337;
     private static final String TAG = StorageServerProxyService.class.getSimpleName();
 
     /* Service overriding methods */
@@ -86,22 +88,21 @@ public class StorageServerProxyService extends Service implements IServerProxy {
                         switch (action) {
 
                             case ACTION_DOWNLOAD:
-                                startServiceForeground();
+
                                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
                                 wakeLock.acquire();
                                 TransferDetails td = (TransferDetails) intentForThread.getSerializableExtra(PushEventKeys.PUSH_DATA);
                                 requestDownloadFromServer(td);
-                            break;
+                                break;
 
                             case ACTION_UPLOAD: {
-                                startServiceForeground();
+
                                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
                                 wakeLock.acquire();
                                 String destId = intentForThread.getStringExtra(DESTINATION_ID);
                                 FileManager managedFile = (FileManager) intentForThread.getSerializableExtra(FILE_TO_UPLOAD);
                                 uploadFileToServer(destId, managedFile);
                                 releaseLockIfNecessary();
-                                stopForeground(true);
                             }
                             break;
 
@@ -127,11 +128,11 @@ public class StorageServerProxyService extends Service implements IServerProxy {
 
     @Override
     public void onCreate() {
-
+        context = getApplicationContext();
         Log.i(TAG, "StorageServerProxyService created");
         callInfoToast("StorageServerProxyService created");
-        SharedConstants.MY_ID = SharedPrefUtils.getString(getApplicationContext(),SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
-        SharedConstants.DEVICE_TOKEN = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
+        SharedConstants.MY_ID = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
+        SharedConstants.DEVICE_TOKEN = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
         SharedConstants.specialCallPath = Constants.specialCallPath;
 
         connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
@@ -167,7 +168,8 @@ public class StorageServerProxyService extends Service implements IServerProxy {
     public void uploadFileToServer(final String destNumber, final FileManager managedFile) throws IOException {
 
         TransferDetails td = new TransferDetails(SharedConstants.MY_ID, destNumber, managedFile);
-        new UploadTask(getApplicationContext(), connectionToServer, td).execute();
+        NotificationUtils.createHelper(context, "File upload to:" + td.getDestinationId() + " is pending");
+        new UploadTask(context, connectionToServer, td).execute();
     }
 
     /**
@@ -236,12 +238,12 @@ public class StorageServerProxyService extends Service implements IServerProxy {
                 openSocket();
             else {
                 cancelReconnect();
-                SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
+                SharedPrefUtils.setLong(context, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
             }
         }
         else {
             scheduleReconnect(System.currentTimeMillis());
-            if(!AppStateUtils.getAppState(getApplicationContext()).equals(AppStateUtils.STATE_DISABLED))
+            if(!AppStateUtils.getAppState(context).equals(AppStateUtils.STATE_DISABLED))
                 sendEventReportBroadcast(new EventReport(EventType.DISCONNECTED, "Disconnected. Check your internet connection", null));
         }
     }
@@ -300,7 +302,7 @@ public class StorageServerProxyService extends Service implements IServerProxy {
         Intent i = new Intent();
         i.setClass(this, StorageServerProxyService.class);
         i.setAction(ACTION_RECONNECT);
-        PendingIntent pi = PendingIntent.getService(getApplicationContext(), 0, i, 0);
+        PendingIntent pi = PendingIntent.getService(context, 0, i, 0);
         AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
         alarmMgr.cancel(pi);
     }
@@ -309,7 +311,7 @@ public class StorageServerProxyService extends Service implements IServerProxy {
     {
         Log.i(TAG, "Scheduling reconnect");
         long interval =
-                SharedPrefUtils.getLong(getApplicationContext(),SharedPrefUtils.SERVER_PROXY,SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
+                SharedPrefUtils.getLong(context,SharedPrefUtils.SERVER_PROXY,SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
 
         long now = System.currentTimeMillis();
         long elapsed = now - startTime;
@@ -321,33 +323,22 @@ public class StorageServerProxyService extends Service implements IServerProxy {
 
         Log.i(TAG, "Rescheduling connection in " + interval + "ms.");
 
-        SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, interval);
+        SharedPrefUtils.setLong(context, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, interval);
 
 
         Intent i = new Intent();
         i.setClass(this, StorageServerProxyService.class);
         i.setAction(ACTION_RECONNECT);
-        PendingIntent pi = PendingIntent.getService(getApplicationContext(), 0, i, 0);
+        PendingIntent pi = PendingIntent.getService(context, 0, i, 0);
         AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
         alarmMgr.set(AlarmManager.RTC_WAKEUP, now + interval, pi);
-    }
-
-    private void startServiceForeground() {
-
-        Notification notification = new Notification(android.R.drawable.stat_sys_upload, getText(R.string.upload_ticker_text),
-                System.currentTimeMillis());
-        Intent notificationIntent = new Intent(this, StorageServerProxyService.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-        notification.setLatestEventInfo(this, getText(R.string.notification_title),
-                getText(R.string.notification_message), pendingIntent);
-        startForeground(ONGOING_NOTIFICATION_ID, notification);
     }
 
           /* UI methods */
 
     private void callErrToast(final String text) {
 
-        Toast toast = Toast.makeText(getApplicationContext(), text,
+        Toast toast = Toast.makeText(context, text,
                 Toast.LENGTH_LONG);
         TextView v = (TextView) toast.getView().findViewById(
                 android.R.id.message);
@@ -357,7 +348,7 @@ public class StorageServerProxyService extends Service implements IServerProxy {
 
     private void callInfoToast(final String text) {
 
-        Toast toast = Toast.makeText(getApplicationContext(), text,
+        Toast toast = Toast.makeText(context, text,
                 Toast.LENGTH_LONG);
         TextView v = (TextView) toast.getView().findViewById(
                 android.R.id.message);
@@ -367,7 +358,7 @@ public class StorageServerProxyService extends Service implements IServerProxy {
 
     private void callInfoToast(final String text, final int g) {
 
-        Toast toast = Toast.makeText(getApplicationContext(), text,
+        Toast toast = Toast.makeText(context, text,
                 Toast.LENGTH_LONG);
         TextView v = (TextView) toast.getView().findViewById(
                 android.R.id.message);

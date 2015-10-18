@@ -32,7 +32,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
 import com.services.IncomingService;
 import com.services.LogicServerProxyService;
@@ -46,7 +45,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import DataObjects.SharedConstants;
-import DataObjects.TransferDetails;
 import EventObjects.Event;
 import EventObjects.EventReport;
 import Exceptions.FileDoesNotExistException;
@@ -246,8 +244,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     i.putExtra(StorageServerProxyService.DESTINATION_ID, destPhoneNumber);
                     i.putExtra(StorageServerProxyService.FILE_TO_UPLOAD, fm);
                     context.startService(i);
-//                      TransferDetails td = new TransferDetails(SharedConstants.MY_ID, destPhoneNumber, fm);
-//                      new UploadTask(context).execute(td);
+
 //
 //                    setState(tag + "::onActivityResult upload file", AppStateUtils.STATE_LOADING);
 //                            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, "Uploading file to server...");
