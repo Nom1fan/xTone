@@ -2,7 +2,7 @@ package MessagesToClient;
 
 import java.io.IOException;
 
-import ClientObjects.IServerProxy;
+import ClientObjects.ConnectionToServer;
 import ClientObjects.UserStatus;
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -23,7 +23,7 @@ public class MessageIsRegisteredRes extends MessageToClient {
 	}
 	
 	@Override
-	public EventReport doClientAction(IServerProxy serverProxy) throws IOException {
+	public EventReport doClientAction(ConnectionToServer connectionToServer) throws IOException {
 		
 		String desc;
 		switch(_userStatus)

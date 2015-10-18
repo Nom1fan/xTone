@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
 import DataObjects.PushEventKeys;
@@ -35,7 +37,7 @@ public class MessageDownloadFile extends MessageToClient {
 	}
 	
 	@Override
-	public EventReport doClientAction(IServerProxy serverProxy) throws IOException {
+	public EventReport doClientAction(ConnectionToServer connectionToServer) throws IOException {
 							
 		  try
 		  {
@@ -58,9 +60,8 @@ public class MessageDownloadFile extends MessageToClient {
 		  }
 		  
 		  // Informing source (uploader) that file received by user (downloader)
-		  ConnectionToServer cts = serverProxy.getConnectionToServer();
           String msg = "TRANSFER_SUCCESS: to "+_td.getDestinationId()+". Filename:"+new File(_td.get_fullFilePathSrcSD()).getName();
-		  cts.sendToServer(new MessageSendPushToRemoteUser(_myId, _sourceId, PushEventKeys.TRANSFER_SUCCESS, msg , new Gson().toJson(_td)));
+		  connectionToServer.sendToServer(new MessageSendPushToRemoteUser(_myId, _sourceId, PushEventKeys.TRANSFER_SUCCESS, msg , new Gson().toJson(_td)));
 				
 		  String desc = "DOWNLOAD_SUCCESS. Filename:"+_fileName;
 		  return new EventReport(EventType.DOWNLOAD_SUCCESS,desc,_td);

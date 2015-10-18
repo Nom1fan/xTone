@@ -22,7 +22,7 @@ public class ConnectionToServer extends AbstractClient {
 	@Override
 	protected void handleMessageFromServer(Object msg) {
 
-		_serverProxy.handleMessageFromServer((MessageToClient)msg);
+		_serverProxy.handleMessageFromServer((MessageToClient)msg , this);
 	}
 
 
