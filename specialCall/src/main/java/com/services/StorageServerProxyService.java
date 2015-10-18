@@ -167,7 +167,7 @@ public class StorageServerProxyService extends Service implements IServerProxy {
     public void uploadFileToServer(final String destNumber, final FileManager managedFile) throws IOException {
 
         TransferDetails td = new TransferDetails(SharedConstants.MY_ID, destNumber, managedFile);
-        new UploadTask(getApplicationContext(), connectionToServer).execute(td);
+        new UploadTask(getApplicationContext(), connectionToServer, td).execute();
     }
 
     /**
