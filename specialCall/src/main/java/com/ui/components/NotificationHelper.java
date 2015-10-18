@@ -10,7 +10,8 @@ import com.special.app.R;
 
 public class NotificationHelper {
     private Context mContext;
-    private int NOTIFICATION_ID = 1;
+    private static int NOTIF_NUM;
+    private int NOTIFICATION_ID;
     private Notification mNotification;
     private NotificationManager mNotificationManager;
     private PendingIntent mContentIntent;
@@ -24,7 +25,11 @@ public class NotificationHelper {
     /**
      * Put the notification into the status bar
      */
-    public void createUploadNotification() {
+    public void createUploadNotification(String initialMsg) {
+
+        NOTIF_NUM =(NOTIF_NUM +1)%5;
+        NOTIFICATION_ID= NOTIF_NUM;
+
         //get the notification manager
         mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -36,7 +41,7 @@ public class NotificationHelper {
 
         //create the content which is shown in the notification pulldown
         mContentTitle = mContext.getString(R.string.content_title); //Full title of the notification in the pull down
-        CharSequence contentText = "0% complete"; //Text of the notification in the pull down
+        CharSequence contentText = initialMsg; //Text of the notification in the pull down
 
         //you have to set a PendingIntent on a notification to tell the system what you want it to do when the notification is selected
         //I don't want to use this here so I'm just creating a blank one

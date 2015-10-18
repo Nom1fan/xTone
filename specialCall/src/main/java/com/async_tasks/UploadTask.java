@@ -11,40 +11,36 @@ import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Connection;
 
 import ClientObjects.ConnectionToServer;
-import ClientObjects.IServerProxy;
-import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import FilesManager.FileManager;
-import MessagesToClient.MessageToClient;
 import MessagesToServer.MessageUploadFile;
 
-public class UploadTask extends AsyncTask<TransferDetails,String,Void> {
+public class UploadTask extends AsyncTask<Void,String,Void> {
     private NotificationHelper mNotificationHelper;
     private static final String TAG = UploadTask.class.getSimpleName();
     private ConnectionToServer _connectionToServer;
     private TransferDetails _td;
     private Context _context;
 
-    public UploadTask(Context context, ConnectionToServer connectionToServer){
+    public UploadTask(Context context, ConnectionToServer connectionToServer, TransferDetails td){
         _context = context;
         mNotificationHelper = new NotificationHelper(_context);
         _connectionToServer = connectionToServer;
+        _td = td;
     }
 
     protected void onPreExecute(){
         //Create the notification in the statusbar
-        mNotificationHelper.createUploadNotification();
+        mNotificationHelper.createUploadNotification("File upload to:"+_td.getDestinationId()+" is pending");
     }
 
     @Override
-    protected Void doInBackground(TransferDetails... details) {
+    protected Void doInBackground(Void... voids) {
 
-        _td = details[0];
         FileManager managedFile = _td.get_managedFile();
         MessageUploadFile msgUF = new MessageUploadFile(_td.getSourceId(),_td);
 
@@ -70,10 +66,14 @@ public class UploadTask extends AsyncTask<TransferDetails,String,Void> {
                 publishProgress(String.format(msg, percent));
                 bytesToRead -= bytesRead;
             }
+
+            _connectionToServer.closeConnection();
         }
          catch (IOException e) {
             e.printStackTrace();
             Log.e(TAG, "Failed:" + e.getMessage());
+             BroadcastUtils.sendEventReportBroadcast(_context, TAG,
+                     new EventReport(EventType.UPLOAD_FAILURE, "Upload to "+_td.getDestinationId()+" failed:"+e.getMessage(),null));
         }
 
         return null;

@@ -180,6 +180,7 @@ public abstract class AbstractClient implements Runnable
         }
 
         output.writeObject(msg);
+        output.flush();
     }
 
     /**
