@@ -9,6 +9,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -202,6 +203,7 @@ public class IncomingService extends Service {
                 Log.i(TAG, "TelephonyManager.CALL_STATE_IDLE");
                 if (wasSpecialRingTone)
                 {
+                    //  wakeLock.release();
 
                     wasSpecialRingTone = false;
                 }
@@ -228,7 +230,7 @@ public class IncomingService extends Service {
                 Log.i(TAG, "TelephonyManager.CALL_STATE_OFFHOOK");
                 if (wasSpecialRingTone)
                 {
-
+                    //  wakeLock.release();
                     wasSpecialRingTone = false;
                 }
 
@@ -273,6 +275,7 @@ public class IncomingService extends Service {
         specialCallIntent.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
         specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        specialCallIntent.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // added instead of FULL WAKE LOCKED as it's deprecated << if this doesn't work move to FULL WAKE LOCK
         //  specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_FILEPATH, mediaFilePath);
@@ -366,6 +369,12 @@ public class IncomingService extends Service {
     }
 
     private void startMediaSpecialCall() {
+
+//        PowerManager powerManager = (PowerManager) getApplicationContext().getSystemService(getApplicationContext().POWER_SERVICE);
+//        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, TAG+" WL_TAG");
+//        wakeLock.acquire();
+
+
 
         String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.MEDIA_FILEPATH, incomingCallNumber);
 

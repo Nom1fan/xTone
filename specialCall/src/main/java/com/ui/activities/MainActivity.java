@@ -4,31 +4,39 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.database.CursorJoiner;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,8 +50,13 @@ import com.utils.AppStateUtils;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import DataObjects.SharedConstants;
 import EventObjects.Event;
 import EventObjects.EventReport;
@@ -70,11 +83,24 @@ public class MainActivity extends Activity implements OnClickListener {
 	private IntentFilter serviceReceiverIntentFilter = new IntentFilter(Event.EVENT_ACTION);
     private abstract class ActivityRequestCodes {
 
-		public static final int PICK_SONG = 1;
-		public static final int SELECT_CONTACT = 2;
-		public static final int SELECT_PICTURE = 3;
+        public static final int PICK_SONG = 1;
+        public static final int SELECT_CONTACT = 2;
+        public static final int SELECT_PICTURE = 3;
 
-	}
+    }
+
+    private SimpleAdapter mAdapter;
+    private AutoCompleteTextView mTxtPhoneNo;
+    private ArrayList<Map<String, String>> mPeopleList;
+
+    private static final String[] PROJECTION = new String[] {
+            ContactsContract.Contacts.DISPLAY_NAME,
+            ContactsContract.CommonDataKinds.Phone.NUMBER
+           // ContactsContract.CommonDataKinds.Phone.TYPE
+
+    };
+
+
 
 	@Override
 	protected void onStart() {
@@ -304,7 +330,7 @@ public class MainActivity extends Activity implements OnClickListener {
                                     setDestPhoneNumber(number);
                                     destName = name;
 
-                                    final EditText ed_destinationNumber = ((EditText) findViewById(R.id.CallNumber));
+                                    final AutoCompleteTextView ed_destinationNumber = ((AutoCompleteTextView) findViewById(R.id.CallNumber));
                                     if(ed_destinationNumber!=null) {
                                         ed_destinationNumber.setText(destPhoneNumber);
                                     }
@@ -532,6 +558,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
     }
 
+
 	private void initializeUI() {
 
 		setContentView(R.layout.activity_main);
@@ -545,20 +572,37 @@ public class MainActivity extends Activity implements OnClickListener {
 		// Set up buttons and attach click listeners
 
 		// Solving bug that causes EditText to be unfocusable at startup
-		EditText edCN = (EditText) findViewById(R.id.CallNumber);
-		edCN.setOnTouchListener(new View.OnTouchListener() {
 
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
+        mTxtPhoneNo  = (AutoCompleteTextView) findViewById(R.id.CallNumber);
+        mTxtPhoneNo.setRawInputType(InputType.TYPE_CLASS_TEXT);
 
-				v.setFocusable(true);
-				v.setFocusableInTouchMode(true);
-				v.performClick();
-				return false;
-			}
-		});
 
-		edCN.addTextChangedListener(new TextWatcher() {
+        // ASYNC TASK To Populate all contacts , it can take long time and it delays the UI
+        new AutoCompletePopulateContactList().execute();
+
+        mTxtPhoneNo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> av, View arg1, int index, long arg3) {
+                Map<String, String> map = (Map<String, String>) av.getItemAtPosition(index);
+                String name = map.get("Name");
+                String number = map.get("Phone");
+                mTxtPhoneNo.setText(number);
+            }
+        });
+
+        mTxtPhoneNo.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                v.setFocusable(true);
+                v.setFocusableInTouchMode(true);
+                v.performClick();
+                return false;
+            }
+        });
+
+        mTxtPhoneNo.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count,
@@ -587,12 +631,14 @@ public class MainActivity extends Activity implements OnClickListener {
                         context.startService(i);
                     }
                 } else {
-                    destPhoneNumber="";
-                    destName="";
+                    destPhoneNumber = "";
+                    destName = "";
                     setDestNameTextView();
                     saveInstanceState();
                     if(getState().equals(AppStateUtils.STATE_READY))
                         stateIdle(tag + "::onTextChanged()", "", Color.BLACK);
+                    if (getState().equals(AppStateUtils.STATE_READY))
+                        stateIdle(tag + "::onTextChanged()");
                 }
             }
 
@@ -619,6 +665,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		ImageButton settingsBtn = (ImageButton) findViewById(R.id.settingsBtn);
 		settingsBtn.setOnClickListener(this);
+
+
 	}
 
     public void eventReceived(Event event) {
@@ -720,7 +768,7 @@ public class MainActivity extends Activity implements OnClickListener {
     private void saveInstanceState() {
 
         // Saving destination number
-        final EditText ed_destinationNumber = ((EditText) findViewById(R.id.CallNumber));
+        final AutoCompleteTextView ed_destinationNumber = ((AutoCompleteTextView) findViewById(R.id.CallNumber));
 		if(ed_destinationNumber!=null) {
             destPhoneNumber = ed_destinationNumber.getText().toString();
             SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, destPhoneNumber);
@@ -741,8 +789,8 @@ public class MainActivity extends Activity implements OnClickListener {
     private void restoreInstanceState() {
 
         // Restoring destination number
-        final EditText ed_destinationNumber =
-                (EditText) findViewById(R.id.CallNumber);
+        final AutoCompleteTextView ed_destinationNumber =
+                (AutoCompleteTextView) findViewById(R.id.CallNumber);
         String destNumber = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
         if(ed_destinationNumber!=null && destNumber!=null)
             ed_destinationNumber.setText(destNumber);
@@ -830,9 +878,77 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private boolean isContactSelected() {
 
-        EditText edCN = (EditText) findViewById(R.id.CallNumber);
+        AutoCompleteTextView edCN = (AutoCompleteTextView) findViewById(R.id.CallNumber);
         String s = edCN.getText().toString();
         return 10 == s.length();
+    }
+
+    public void PopulatePeopleList()
+    {
+
+             mPeopleList.clear();
+             Cursor people = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, PROJECTION, null, null, null);
+
+        if (people != null) {
+            try {
+                final int displayNameIndex = people.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+                final int phonesIndex = people.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+               // final int phoneTypeIndex = people.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE);
+
+                String contactName, phoneNumber, numberType;
+
+                while (people.moveToNext()) {
+
+                    contactName = people.getString(displayNameIndex);
+                    phoneNumber = people.getString(phonesIndex);
+                   // numberType = people.getString(phoneTypeIndex);
+
+                    Map<String, String> NamePhoneType = new HashMap<String, String>();
+
+                    NamePhoneType.put("Name", contactName);
+                    NamePhoneType.put("Phone", phoneNumber);
+
+                   /* if (numberType.equals("0"))
+                        NamePhoneType.put("Type", "Work");
+                    else if (numberType.equals("1"))
+                        NamePhoneType.put("Type", "Home");
+                    else if (numberType.equals("2"))
+                        NamePhoneType.put("Type", "Mobile");
+                    else
+                        NamePhoneType.put("Type", "Other");*/
+
+                    //Then add this map to the list.
+                    mPeopleList.add(NamePhoneType);
+                }
+
+            } finally {
+                people.close();
+            }
+
+        }
+
+
+        }
+
+    // ASYNC TASK To Populate all contacts , it can take long time and it delays the UI
+    private class AutoCompletePopulateContactList extends AsyncTask<URL, Integer, SimpleAdapter>{
+
+        @Override
+        protected SimpleAdapter doInBackground(URL... params) {
+            mPeopleList = new ArrayList<Map<String, String>>();
+            PopulatePeopleList();
+            mAdapter = new SimpleAdapter(getApplicationContext(), mPeopleList, R.layout.custcontview ,new String[] { "Name", "Phone" /*, "Type"*/ }, new int[] { R.id.ccontName, R.id.ccontNo/*, R.id.ccontType*/ });
+            return mAdapter;
+
+        }
+
+        @Override
+        protected void onPostExecute(SimpleAdapter mAdapter) {
+
+            mTxtPhoneNo.setAdapter(mAdapter);
+
+
+        }
     }
 
     /* -------------- UI methods -------------- */
