@@ -69,7 +69,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
                                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
                                 wakeLock.acquire();
                                 TransferDetails td = (TransferDetails) intentForThread.getSerializableExtra(PushEventKeys.PUSH_DATA);
-                                requestDownloadFromServer(openSocket(), td);
+                                requestDownloadFromServer(openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT), td);
                             }
                                 break;
 
@@ -78,7 +78,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
                                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
                                 wakeLock.acquire();
                                 String destId = intentForThread.getStringExtra(DESTINATION_ID);
-                                ConnectionToServer connectionToServer = openSocket();
+                                ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
                                 FileManager managedFile = (FileManager) intentForThread.getSerializableExtra(FILE_TO_UPLOAD);
                                 uploadFileToServer(connectionToServer, destId, managedFile);
                                 releaseLockIfNecessary();

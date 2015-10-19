@@ -69,10 +69,10 @@ public class AbstractServerProxy extends Service implements IServerProxy {
         }
     }
 
-    protected ConnectionToServer openSocket() throws IOException {
+    protected ConnectionToServer openSocket(String host, int port) throws IOException {
         Log.i(TAG, "Opening socket...");
         //sendEventReportBroadcast(new EventReport(EventType.CONNECTING, "Opening data port...", null));
-        ConnectionToServer connectionToServer = new ConnectionToServer(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT, this);
+        ConnectionToServer connectionToServer = new ConnectionToServer(host, port, this);
         connectionToServer.openConnection();
         //sendEventReportBroadcast(new EventReport(EventType.CONNECTED, "Connected", null));
         Log.i(TAG, "Socket is open");

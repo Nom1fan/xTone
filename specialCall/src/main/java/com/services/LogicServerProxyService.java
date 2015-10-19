@@ -60,12 +60,12 @@ public class LogicServerProxyService extends AbstractServerProxy {
                         switch (action) {
 
                             case ACTION_REGISTER:
-                                register(openSocket());
+                                register(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
                             break;
 
                             case ACTION_ISREGISTERED: {
                                 String destId = intentForThread.getStringExtra(DESTINATION_ID);
-                                isRegistered(openSocket(), destId);
+                                isRegistered(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), destId);
                             }
                             break;
 
@@ -129,7 +129,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
         if (isNetworkAvailable())
         {
-            register(openSocket());
+            register(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
 
             cancelReconnect();
             SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
