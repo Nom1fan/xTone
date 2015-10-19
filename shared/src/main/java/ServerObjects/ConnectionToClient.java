@@ -274,6 +274,17 @@ public class ConnectionToClient extends Thread
         }
       }
     }
+    catch(EOFException exception) {
+      if (!readyToStop)
+      {
+        try
+        {
+          closeAll();
+        }
+        catch (Exception ex) { }
+
+      }
+    }
     catch (Exception exception)
     {
       if (!readyToStop)
