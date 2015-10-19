@@ -15,8 +15,8 @@ import Exceptions.FileDoesNotExistException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
-import data_objects.Constants;
-import data_objects.SharedPrefUtils;
+import com.data_objects.Constants;
+import com.utils.SharedPrefUtils;
 
 public class DownloadReceiver extends BroadcastReceiver {
 
@@ -29,7 +29,6 @@ public class DownloadReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i(TAG, "BroadcastReceiver downloadReceiver");
             EventReport eventReport = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
             _context = context;
             if (eventReport.status() == EventType.DOWNLOAD_SUCCESS) {

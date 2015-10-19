@@ -14,12 +14,11 @@ public class MessageLogout extends MessageToServer {
     }
 
     @Override
-    public boolean doServerAction() throws UnknownHostException, IOException, ClassNotFoundException {
+    public boolean doServerAction() throws IOException, ClassNotFoundException {
 
         initLogger();
 
         logger.info("User logging out:"+_messageInitiaterId);
-        ClientsManager.removeClientConnection(_messageInitiaterId);
 
         cont = false;
         return cont;

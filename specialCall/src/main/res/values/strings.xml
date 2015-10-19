@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="initial_upload_text">Pending upload</string>
     <string name="app_name">SpecialCall</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="hello">SimpleDialer</string>
     <string name="main_label">My Friends</string>
     <string name="title_activity_incoming_special_call">IncomingSpecialCall</string>
+    <string name="upload_ticker">File upload in progress</string>
+    <string name="content_title">File upload</string>
     <string-array name="save_media">
         <item >Always save</item>
         <item >Ask me</item>

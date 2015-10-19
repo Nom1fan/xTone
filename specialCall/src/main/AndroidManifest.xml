@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.special.specialcall"
+    package="com.special.app"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -33,7 +33,7 @@
       to match your app's package name + ".permission.C2D_MESSAGE".
     -->
     <permission
-        android:name="com.special.specialcall.permission.C2D_MESSAGE"
+        android:name="com.special.app.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
 
     <uses-permission android:name="com.special.specialcall.permission.C2D_MESSAGE" />
@@ -41,13 +41,13 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".SpecialCallApp"
+        android:name="com.app.SpecialCallApp"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name="com.ui.activities.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
             <category android:name="android.intent.category.LAUNCHER" />
@@ -59,7 +59,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".IncomingSpecialCall"
+            android:name="com.ui.activities.IncomingSpecialCall"
             android:excludeFromRecents="true"
             android:label="@string/title_activity_incoming_special_call"
             android:screenOrientation="portrait" >
@@ -70,27 +70,32 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Settings"
+            android:name="com.ui.activities.Settings"
             android:theme="@android:style/Theme.Light" >
         </activity>
         <activity
-            android:name=".SelectSpecificContacts"
+            android:name="com.ui.activities.SelectSpecificContacts"
             android:theme="@android:style/Theme.Light" >
         </activity>
 
         <service
-            android:name="com.android.services.IncomingService"
+            android:name="com.services.IncomingService"
             android:enabled="true"
             android:priority="998" >
         </service>
         <service
-            android:name="com.android.services.ServerProxyService"
+            android:name="com.services.LogicServerProxyService"
+            android:enabled="true"
+            android:priority="998" >
+        </service>
+        <service
+            android:name="com.services.StorageServerProxyService"
             android:enabled="true"
             android:priority="998" >
         </service>
 
         <intent-filter>
-            <action android:name="com.android.services.ServerProxyService" />
+            <action android:name="com.services.LogicServerProxyService" />
         </intent-filter>
 
         <service android:name="com.parse.PushService" />
@@ -140,7 +145,7 @@
         </receiver>
 
         <service
-            android:name="com.android.services.GetTokenIntentService"
+            android:name="com.services.GetTokenIntentService"
             android:exported="false" >
         </service>
     </application>

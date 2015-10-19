@@ -2,7 +2,8 @@ package MessagesToClient;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import ClientObjects.IServerProxy;
+
+import ClientObjects.ConnectionToServer;
 import EventObjects.EventReport;
 
 public class MessageTriggerEventOnly extends MessageToClient {
@@ -15,7 +16,7 @@ public class MessageTriggerEventOnly extends MessageToClient {
 	}
 
 	@Override
-	public EventReport doClientAction(IServerProxy serverProxy) throws UnknownHostException, IOException 
+	public EventReport doClientAction(ConnectionToServer connectionToServer) throws UnknownHostException, IOException
 	{
 		return _eventReport;
 	}

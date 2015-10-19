@@ -80,9 +80,14 @@ public abstract class LogsManager {
 	/**
 	 * Clears the log directory	
 	 */
-	public static void clearLogs() throws IOException {
+	public static void clearLogs() {
 
+		try {
 			FileUtils.cleanDirectory(new File(LOG_DIR));
+		}
+		catch(IOException e) {
+			System.out.println("Did not clean logs dir:"+e.getMessage());
+		}
 	}
 
     /**

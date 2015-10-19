@@ -1,16 +1,20 @@
 package MessagesToClient;
 
-import java.io.BufferedOutputStream;
+import com.google.gson.Gson;
+
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
+import DataObjects.PushEventKeys;
 import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
-import MessagesToServer.MessageTriggerEventForRemoteUser;
+import FilesManager.FileManager;
+import MessagesToServer.MessageSendPushToRemoteUser;
 
 public class MessageDownloadFile extends MessageToClient {
 
@@ -33,26 +37,17 @@ public class MessageDownloadFile extends MessageToClient {
 	}
 	
 	@Override
-	public EventReport doClientAction(IServerProxy serverProxy) throws IOException {
+	public EventReport doClientAction(ConnectionToServer connectionToServer) throws IOException {
 							
-		  try 
+		  try
 		  {
-				// Creating file and directories for downloaded file
-		        File specialCallIncomingDir = new File(SharedConstants.specialCallPath+_sourceId);
-				specialCallIncomingDir.mkdirs();
-
-		        String fileStoragePath =  specialCallIncomingDir.getAbsolutePath() +"/"+ _fileName;
-		        File dlFile = new File(fileStoragePath);
-		        dlFile.createNewFile();
-		        FileOutputStream fos = new FileOutputStream(dlFile);
-		        BufferedOutputStream bos = new BufferedOutputStream(fos);	        	        	      
-			    		    					
-			    // Writing file to disk
-			    bos.write(_fileData);
-			    bos.flush();
-				bos.close();
+			// Creating file and directories for downloaded file
+			File specialCallIncomingDir = new File(SharedConstants.specialCallPath+_sourceId);
+			specialCallIncomingDir.mkdirs();
+			String fileStoragePath =  specialCallIncomingDir.getAbsolutePath() +"/"+ _fileName;
+			FileManager.createNewFile(fileStoragePath,_fileData);
 		  }
-		  catch(Exception e)
+		  catch(IOException e)
 		  {
 			String errMsg;
 			e.printStackTrace();
@@ -65,10 +60,8 @@ public class MessageDownloadFile extends MessageToClient {
 		  }
 		  
 		  // Informing source (uploader) that file received by user (downloader)
-		  ConnectionToServer cts = serverProxy.getConnectionToServer();
-		  String infoMsg = "TRANSFER_SUCCESS: to "+_myId+". Filename:"+_fileName;
-		  cts.sendMessage(new MessageTriggerEventForRemoteUser(_myId, _sourceId, 
-				  new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, infoMsg, _td)));
+          String msg = "TRANSFER_SUCCESS: to "+_td.getDestinationId()+". Filename:"+new File(_td.get_fullFilePathSrcSD()).getName();
+		  connectionToServer.sendToServer(new MessageSendPushToRemoteUser(_myId, _sourceId, PushEventKeys.TRANSFER_SUCCESS, msg , new Gson().toJson(_td)));
 				
 		  String desc = "DOWNLOAD_SUCCESS. Filename:"+_fileName;
 		  return new EventReport(EventType.DOWNLOAD_SUCCESS,desc,_td);

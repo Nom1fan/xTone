@@ -1,6 +1,6 @@
 package ServerObjects;
 
-import net.sf.json.JSONObject;
+import com.google.gson.Gson;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -9,11 +9,10 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-
+import DataObjects.PushEventKeys;
 import LogObjects.LogsManager;
 
 /**
@@ -25,21 +24,54 @@ public abstract class PushSender {
     private static final String REST_API_KEY = "XzVRYR8d6IiuKbZE0dYBdjxoyoEwP2ONJFxxHOPW";
     private static final String PUSH_URL = "https://api.parse.com/1/push";
     private static Logger _logger = LogsManager.getServerLogger();
+    private static class PushObject {
 
-    public static boolean sendPush(final String deviceToken) {
+        private Map<String,String> data;
+        private Map<String,String> where;
 
-        JSONObject jo = new JSONObject();
-        Map<String, String> data = new HashMap();
-        data.put("alert", "Mandatory push data");
-        HashMap where = new HashMap() {{
-            put("channels", "SpecialCall");
-            put("deviceToken", deviceToken);
-        }};
-        jo.put("where", where);
-        jo.put("data", data);
+        public PushObject(final String token, final String pushEventAction, final String value) {
+
+            data = new HashMap() {{
+                    put(PushEventKeys.PUSH_EVENT_ACTION, pushEventAction);
+                    put(PushEventKeys.PUSH_DATA, value);
+                }};
+
+            where = new HashMap() {{
+                put("channels", "SpecialCall");
+                put("deviceToken", token);
+            }};
+
+        }
+
+        public PushObject(final String token, final String pushEventAction, final String value, final String jsonExtra) {
+
+            data = new HashMap() {{
+                put(PushEventKeys.PUSH_EVENT_ACTION, pushEventAction);
+                put(PushEventKeys.PUSH_DATA, value);
+                put(PushEventKeys.PUSH_DATA_EXTRA, jsonExtra);
+            }};
+
+            where = new HashMap() {{
+                put("channels", "SpecialCall");
+                put("deviceToken", token);
+            }};
+
+        }
+
+        public Map<String, String> getData() {
+            return data;
+        }
+
+        public Map<String, String> getWhere() {
+            return where;
+        }
+    }
+
+
+    public static boolean sendPush(final String deviceToken, final String pushEventAction, final String value) {
 
         try {
-            pushData(jo.toString());
+            pushData(new Gson().toJson(new PushObject(deviceToken, pushEventAction, value)));
         } catch (Exception e) {
             e.printStackTrace();
             _logger.severe("Failed to send push to token:"+deviceToken+". Exception:"+e.getMessage());
@@ -48,6 +80,20 @@ public abstract class PushSender {
 
         return true;
     }
+
+    public static boolean sendPush(final String deviceToken, final String pushEventAction, final String value, final String jsonExtra) {
+
+        try {
+            pushData(new Gson().toJson(new PushObject(deviceToken, pushEventAction, value, jsonExtra)));
+        } catch (Exception e) {
+            e.printStackTrace();
+            _logger.severe("Failed to send push to token:"+deviceToken+". Exception:"+e.getMessage());
+            return false;
+        }
+
+        return true;
+    }
+
 
     private static void pushData(String postData) throws Exception {
         DefaultHttpClient httpclient = new DefaultHttpClient();

@@ -1,11 +1,14 @@
 package ClientObjects;
 
+import java.io.IOException;
+import java.sql.Connection;
+
+import DataObjects.TransferDetails;
 import FilesManager.FileManager;
+import MessagesToClient.MessageToClient;
 
 public interface IServerProxy {
 
-//	public void downloadFileFromServer(TransferDetails td);
-	public void uploadFileToServer(final String destNumber, final FileManager managedFile);
-	public void isLogin(final String phoneNumber);
-	public ConnectionToServer getConnectionToServer();
+	public void handleMessageFromServer(MessageToClient msg, ConnectionToServer connectionToServer);
+	public void handleDisconnection(String msg);
 }

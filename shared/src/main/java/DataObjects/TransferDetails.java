@@ -10,46 +10,57 @@ public class TransferDetails implements Serializable {
 	private String _sourceId;
 	private String _destinationId;
 	private String _extension;
-	private double _fileSize;
+	private long _fileSize;
 	private FileManager.FileType _fileType;
-
-
-
+	private String _filePathOnServer;
     private String _fullFilePathSrcSD;
+    private FileManager _managedFile;
 
-		public TransferDetails(String source, String destination, FileManager managedFile) throws IOException {
+    public TransferDetails(String source, String destination, FileManager managedFile) {
 
-			_sourceId = source;
-			_destinationId = destination;	
-			_extension = managedFile.getFileExtension();
-			_fileSize = managedFile.getFileSize();
-			_fileType = managedFile.getFileType();
-            _fullFilePathSrcSD = managedFile.getFileFullPath();
+        _sourceId = source;
+        _destinationId = destination;
+        _extension = managedFile.getFileExtension();
+        _fileSize = managedFile.getFileSize();
+        _fileType = managedFile.getFileType();
+        _fullFilePathSrcSD = managedFile.getFileFullPath();
+        _managedFile = managedFile;
 
-		}
+    }
 
-        public String get_fullFilePathSrcSD() {
-            return _fullFilePathSrcSD;
-        }
-		
-		public String getSourceId() { return _sourceId; }
-		
-		public String getDestinationId() {
-			return _destinationId;
-		}
-		
-		public double getFileSize() {
-			return _fileSize;		
-		}
-		
-		public String getSourceWithExtension() {
-			return _sourceId+"."+_extension;
-		}
-		
-		public String getExtension() {
-			return _extension;
-		}
+    public String get_fullFilePathSrcSD() {
+        return _fullFilePathSrcSD;
+    }
 
-		public FileManager.FileType getFileType() { return _fileType; }
+    public String getSourceId() { return _sourceId; }
 
+    public String getDestinationId() {
+        return _destinationId;
+    }
+
+    public long getFileSize() {
+        return _fileSize;
+    }
+
+    public String getSourceWithExtension() {
+        return _sourceId+"."+_extension;
+    }
+
+    public String getExtension() {
+        return _extension;
+    }
+
+    public FileManager.FileType getFileType() { return _fileType; }
+
+    public String get_filePathOnServer() {
+        return _filePathOnServer;
+    }
+
+    public void set_filePathOnServer(String _filePathOnServer) {
+        this._filePathOnServer = _filePathOnServer;
+    }
+
+    public FileManager get_managedFile() {
+        return _managedFile;
+    }
 }

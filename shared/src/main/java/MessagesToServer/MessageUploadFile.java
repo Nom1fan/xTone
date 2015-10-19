@@ -1,97 +1,109 @@
 package MessagesToServer;
 
+import com.google.gson.Gson;
+
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import DataObjects.PushEventKeys;
+import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
-import MessagesToClient.MessageDownloadFile;
-import ServerObjects.ClientsManager;
 import FilesManager.FileManager;
+import MessagesToClient.MessageTriggerEventOnly;
+import ServerObjects.ClientsManager;
+import ServerObjects.PushSender;
 
 public class MessageUploadFile extends MessageToServer {
 
 	private static final long serialVersionUID = 2356276507283427913L;
 	private String _destId;
 	private TransferDetails _td;
-	private byte[] _fileData;
+	//private byte[] _fileData;
 
-	
-	public MessageUploadFile(String srcId, TransferDetails td, byte[] fileData) throws IOException {
-		super(srcId);
-		_destId = td.getDestinationId();
-		_td = td;
-		_fileData = fileData;
 
-	}
+		public MessageUploadFile(String srcId, TransferDetails td) {
+			super(srcId);
+			_destId = td.getDestinationId();
+			_td = td;
+			//_fileData = filedata;
 
-	@Override
-	public boolean doServerAction() throws UnknownHostException,
-			ClassNotFoundException {
+		}
+
+		@Override
+		public boolean doServerAction() throws UnknownHostException,
+				ClassNotFoundException {
 		
 		initLogger();
 		
-		logger.info("Initiating file send from user:"+_messageInitiaterId+" to user:"+ _destId +"."+" File size:"+FileManager.getFileSizeFormat(_td.getFileSize()));
-			
+		logger.info("Initiating file upload from user:" + _messageInitiaterId + ". Destination user:" + _destId + "." + " File size:" + FileManager.getFileSizeFormat(_td.getFileSize()));
+		Path currentRelativePath = Paths.get("");
+		String workingDir = currentRelativePath.toAbsolutePath().toString();
+		String fileFullPath = workingDir+FileManager.UPLOAD_FOLDER+_destId+"\\"+_td.getSourceWithExtension();
+
+		try {
+
+			// Preparing file placeholder
+			File newFile = new File(fileFullPath);
+			newFile.getParentFile().mkdirs();
+			newFile.createNewFile();
+
+			FileOutputStream fos = new FileOutputStream(newFile);
+			BufferedOutputStream bos = new BufferedOutputStream(fos);
+			DataInputStream dis = new DataInputStream(getClientConnection().getClientSocket().getInputStream());
+
+			logger.info("Reading data...");
+			byte[] buf = new byte[1024*8];
+			long fileSize = _td.getFileSize();
+			int bytesRead;
+			while (fileSize > 0 && (bytesRead = dis.read(buf, 0, (int)Math.min(buf.length, fileSize))) != -1)
+			{
+				bos.write(buf,0,bytesRead);
+				fileSize -= bytesRead;
+			}
+
+            bos.close();
+		}
+	 	catch (IOException e) {
+			e.printStackTrace();
+			logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destId+" Failed:"+e.getMessage());
+			String errMsg = "UPLOAD_FAILED: Server failed to create the file";
+			cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_FAILURE, errMsg, null)));
+
+			return cont;
+		}
+
+
 		// Informing source (uploader) that the file is on the way
-		String infoMsg = "Sending file to:"+ _destId +"...";
-		cont = ClientsManager.sendEventToClient(_messageInitiaterId,new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, null));
+		String infoMsg = "File:"+_td.get_fullFilePathSrcSD()+" uploaded to server";
+		cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, null)));
 			
 		if(!cont)
 			return cont;
 			
-		// Sending file to destination	
-		boolean sent = ClientsManager.sendMessageToClient(_destId,new MessageDownloadFile(_td,_fileData));
-			
+		// Sending file to destination
+        _td.set_filePathOnServer(fileFullPath);
+		String destToken = ClientsManager.getClientPushToken(_destId);
+		String pushEventAction = PushEventKeys.PENDING_DOWNLOAD;
+        boolean sent = PushSender.sendPush(destToken, pushEventAction, new Gson().toJson(_td));
+
 		if(!sent)
 		{
-			String errMsg = "TRANSFER_FAILURE: "+ _destId +" did not receive upload";
-			cont = ClientsManager.sendEventToClient(_messageInitiaterId, new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
+			String errMsg = "TRANSFER_FAILURE: "+ _destId +" did not receive pending download push for file:"+_td.getSourceWithExtension();
+			String initiaterToken = ClientsManager.getClientPushToken(_messageInitiaterId);
+			cont = PushSender.sendPush(initiaterToken, PushEventKeys.SHOW_MESSAGE, errMsg);
 		}
-		
+
 		return cont;
-		
-//		*** All the remark zone here is for saving the file to the server. 
-//		***	Currently the file is being sent directly to destination without being saved on the server.
-//		***	To undo this, remove these remarks
-			
-//			FileOutputStream fos;
-//			BufferedOutputStream bos;
-//			try 
-//			{		
-//				// Creating file to upload
-//				Path currentRelativePath = Paths.get("");
-//				String path = currentRelativePath.toAbsolutePath().toString();
-//				File newFile = new File(path+"\\uploads\\"+_destId+"\\"+_messageInitiaterId+"."+_extension);
-//				newFile.getParentFile().mkdirs();
-//				newFile.createNewFile();
-//				fos = new FileOutputStream(newFile);		
-//				bos = new BufferedOutputStream(fos);			
-//			}	
-//			catch(Exception e)
-//			{
-//				logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destId+" Failed:"+e.getMessage());
-//				String errMsg = "UPLOAD_FAILED:"+e.getMessage();
-//				cont = ClientsManager.informClient(_messageInitiaterId,errMsg, EventType.UPLOAD_FAILURE);
-//				
-//				return cont;
-//			}
-//			
-//			try 
-//			{				 		    		
-//			    logger.info("Writing file to disk...");
-//			    
-//			    // Writing file to disk
-//			    bos.write(_file);
-//			    bos.flush();
-//				bos.close();	
-//			}
-//			catch(Exception e)
-//			{
-//				logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destId+" Failed:"+e.getMessage());
-//				cont = false;
-//				return cont;
-//			}
 		
 	}
 }
