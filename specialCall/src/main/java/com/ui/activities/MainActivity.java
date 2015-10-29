@@ -23,6 +23,7 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -198,7 +199,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		} else {
 			initializeUI();
             if (getState().equals(AppStateUtils.STATE_LOGGED_IN)) {
-                stateIdle(tag+"::onCreate()", "", Color.BLACK);
+                stateIdle(tag + "::onCreate()", "", Color.BLACK);
             }
 		}
 	}
@@ -459,7 +460,13 @@ public class MainActivity extends Activity implements OnClickListener {
 
 			selectVisualMedia();
 
-		} else if (id == R.id.selectRingtoneBtn) {
+		}
+        else if (id == R.id.selectProfileMediaBtn) {
+
+            selectVisualMedia();
+
+        }
+        else if (id == R.id.selectRingtoneBtn) {
 
 			selectRingtone();
 
@@ -490,19 +497,42 @@ public class MainActivity extends Activity implements OnClickListener {
 			stateIdle(tag + "::onClick() R.id.login", "", Color.BLACK);
 		}
 
-		else if (id == R.id.settingsBtn) {
 
-            // Saving instance state
-            saveInstanceState();
 
-			Intent i = new Intent();
-			i.setClass(context, Settings.class);
 
-			startActivity(i);
+    }
 
-		}
 
-	}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+
+                saveInstanceState();
+
+                Intent y = new Intent();
+                y.setClass(context, Settings.class);
+
+                startActivity(y);
+
+                break;
+
+            default:
+
+                saveInstanceState();
+
+                Intent o = new Intent();
+                o.setClass(context, Settings.class);
+
+                startActivity(o);
+
+                break;
+        }
+
+        return true;
+    }
+
+
 
     private void initializeLoginUI() {
 
@@ -653,8 +683,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		// button6.setText(buttonLabels[5]);
 		button6.setOnClickListener(this);
 
-		ImageButton settingsBtn = (ImageButton) findViewById(R.id.settingsBtn);
-		settingsBtn.setOnClickListener(this);
+        ImageButton button7 = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
+        button7.setOnClickListener(this);
 
 	}
 

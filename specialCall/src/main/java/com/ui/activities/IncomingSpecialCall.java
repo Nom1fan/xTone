@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -25,11 +26,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.VideoView;
 import com.interfaces.ITelephony;
 import com.services.IncomingService;
@@ -49,6 +52,8 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
     private TelephonyManager tm;
     public static final String TAG = "IncomingSpecialCall";
     public static final String SPECIAL_CALL_FILEPATH = "SpecialCallFilePath";
+    public static final String SPECIAL_CALL_CALLER = "SpecialCallCaller";
+    private String callerNumber ;
     private boolean mIsBound = false;
     private boolean videoMedia = false;
     private IncomingService incomingReceiver;
@@ -61,8 +66,19 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
         try {
 
+
+            ActionBar actionBar = getSupportActionBar();
+            actionBar.hide();
+
+            //Remove title bar
+          //  this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            //Remove notification bar
+           // this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
             Intent intent = getIntent();
             String mediaFilePath = intent.getStringExtra(SPECIAL_CALL_FILEPATH);
+            callerNumber = intent.getStringExtra(SPECIAL_CALL_CALLER);
 
 
 
@@ -94,13 +110,13 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                 BitmapFactory.decodeFile(mediaFilePath);
                 ImageView myImageView = (ImageView)findViewById(R.id.CallerImage);
                 myImageView.setImageBitmap(loadImage(mediaFilePath));
+
+                TextView myTextView = (TextView)findViewById(R.id.IncomingCallNumber);
+                myTextView.setText(callerNumber);
+
                 //  Log.d("IncomingCallActivity: onCreate: ", "flagz");
                 videoMedia = false;
-                Button Answer = (Button)findViewById(R.id.Answer);
-                Answer.setOnClickListener(this);
 
-                Button Decline = (Button)findViewById(R.id.Decline);
-                Decline.setOnClickListener(this);
             }
             if (fileType == FileManager.FileType.VIDEO)
             {
@@ -135,81 +151,26 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                 mVideoView.requestFocus();
                 mVideoView.setLayoutParams(videoParams);
 
-                RelativeLayout.LayoutParams b1Params = new RelativeLayout.LayoutParams(150, 150);
-                b1Params.addRule(RelativeLayout.ALIGN_LEFT,  mVideoView.getId());
-                b1Params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                b1Params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 
-                Button videoAnswer = new AutoSizeButton(this);
-                videoAnswer.setBackgroundColor(Color.GRAY);
-                videoAnswer.setText("Answer");
-                videoAnswer.setLayoutParams(b1Params);
+                RelativeLayout.LayoutParams textViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                textViewParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 
-                RelativeLayout.LayoutParams b2Params = new RelativeLayout.LayoutParams(150, 150);
-                b2Params.addRule(RelativeLayout.ALIGN_RIGHT,  videoAnswer.getId());
-                b2Params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                b2Params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-
-                Button videoDecline = new AutoSizeButton(this);
-                videoDecline.setText("Decline");
-                videoDecline.setBackgroundColor(Color.GRAY);
-                videoDecline.setLayoutParams(b2Params);
+                TextView incomingCallNumber = new TextView(IncomingSpecialCall.this);
+                incomingCallNumber.setBackgroundColor(getResources().getColor(R.color.black));
+                incomingCallNumber.setText(callerNumber);
+                incomingCallNumber.setPadding(10, 10, 10, 10);
+                incomingCallNumber.setTextColor(getResources().getColor(R.color.white));
+                incomingCallNumber.setLayoutParams(textViewParams);
+                incomingCallNumber.bringToFront();
 
                 rlayout.addView(mVideoView);
-                rlayout.addView(videoAnswer);
-                rlayout.addView(videoDecline);
+                rlayout.addView(incomingCallNumber);
 
                 setContentView(rlayout);
+
                 //setVisible(true);
 
-                videoAnswer.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View arg0) {
 
-                        mVideoView.stopPlayback();
-                        Log.i(TAG, "InSecond Method Ans Call");
-                        answerSpecialCall();
-
-                    }
-                });
-                videoDecline.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View arg0) {
-
-                        try {
-                            mVideoView.stopPlayback();
-                            Log.i(TAG, "OnRejectButton: " + "Reject OnClick");
-                            TelephonyManager tm = (TelephonyManager) getApplicationContext().getSystemService(getApplicationContext().TELEPHONY_SERVICE);
-                            Class c;
-
-                            c = Class.forName(tm.getClass().getName());
-
-                            Method m = null;
-                            try {
-                                m = c.getDeclaredMethod("getITelephony");
-                            } catch (NoSuchMethodException e1) {
-                                e1.printStackTrace();
-                            }
-                            m.setAccessible(true);
-                            try {
-                                telephonyService = (ITelephony) m.invoke(tm);
-                            } catch (IllegalAccessException   |
-                                     IllegalArgumentException |
-                                     InvocationTargetException e) {
-                                e.printStackTrace();
-                            }
-                            telephonyService.endCall();
-                            Log.i(TAG, "FinishDecline");
-                            finishSpecialCall();
-                        }
-                        catch (Exception e) {
-                            Log.e(TAG, e.toString());
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                });
             }
         }
         catch (Exception e) {
@@ -262,47 +223,12 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
     public void onClick(View v) {
 
         int id = v.getId();
-        if (id == R.id.Answer) {   /// ANSWER
+        /*if (id == R.id.Answer) {   /// ANSWER
             Log.i(TAG, "InSecond Method Ans Call");
             answerSpecialCall();
-        }
-
-        else if (id == R.id.Decline ) {   /// DECLINE
-            Log.i(TAG, "OnRejectButton: " + "Reject OnClick");
-
-            TelephonyManager tm = (TelephonyManager) getApplicationContext().getSystemService(getApplicationContext().TELEPHONY_SERVICE);
-            try {
-                Class c = Class.forName(tm.getClass().getName());
-                Method m = c.getDeclaredMethod("getITelephony");
-                m.setAccessible(true);
-                telephonyService = (ITelephony) m.invoke(tm);
-                telephonyService.endCall();
-                Log.i(TAG, "FinishDecline");
-                finishSpecialCall();
-            } catch (Exception e)
-            {
-                Log.e(TAG,"Decline error:"+e.getMessage());
-                e.printStackTrace();
-            }
-        }
-    }
+        }*/
 
 
-    public void answerSpecialCall()
-    {
-        // froyo and beyond trigger on buttonUp instead of buttonDown
-        Intent buttonUp = new Intent(Intent.ACTION_MEDIA_BUTTON);
-        buttonUp.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(
-                KeyEvent.ACTION_UP, KeyEvent.KEYCODE_HEADSETHOOK));
-        try { sendOrderedBroadcast(buttonUp, "android.permission.CALL_PRIVILEGED"); }
-        catch (Exception e) { e.printStackTrace();}
-        Intent headSetUnPluggedintent = new Intent(Intent.ACTION_HEADSET_PLUG);
-        headSetUnPluggedintent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-        headSetUnPluggedintent.putExtra("state", 0);
-        headSetUnPluggedintent.putExtra("name", "Headset");
-        try {  sendOrderedBroadcast(headSetUnPluggedintent, null); }
-        catch (Exception e) { e.printStackTrace();}
-        finishSpecialCall();
     }
 
     private void finishSpecialCall(){
@@ -316,25 +242,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.incoming_special_call, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     /**
      * A placeholder fragment containing a simple view.
@@ -360,10 +267,26 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
                 case TelephonyManager.DATA_DISCONNECTED: {
                     Log.i(TAG, "TelephonyManager.DATA_DISCONNECTED");
-                    finishSpecialCall();
-                  if (audioManager!=null)
-                    audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
 
+                    finishSpecialCall();
+                    if (audioManager != null){
+
+                        Runnable r = new Runnable() {
+                            public void run() {
+                                try {
+                                    Thread.sleep(2000,0);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+                            }
+                        };
+
+                        new Thread(r).start();
+
+
+
+                }
                     break;
                 }
 
@@ -371,7 +294,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
             }
         }
     }
-
 
     @Override
     protected void onPause() {
@@ -401,8 +323,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
         }
         return false;
     }
-
-
 
     private ServiceConnection mConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -444,10 +364,6 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
             mIsBound = false;
         }
     }
-
-
-
-
 
 
 }

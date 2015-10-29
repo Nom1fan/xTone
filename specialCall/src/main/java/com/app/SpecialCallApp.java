@@ -3,6 +3,8 @@ package com.app;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
+import android.view.ViewConfiguration;
 
 import com.services.GetTokenIntentService;
 import com.parse.Parse;
@@ -14,6 +16,8 @@ import com.parse.SaveCallback;
 import com.data_objects.Constants;
 import com.utils.SharedPrefUtils;
 import com.utils.AppStateUtils;
+
+import java.lang.reflect.Field;
 
 /**
  * Created by mor on 10/09/2015.
@@ -27,6 +31,9 @@ public class SpecialCallApp extends Application {
         super.onCreate();
 
         final Context context = getApplicationContext();
+
+        //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
+        makeActionOverflowMenuShown();
 
         // Initializing app state
         if(AppStateUtils.getAppState(context).equals(""))
@@ -56,5 +63,21 @@ public class SpecialCallApp extends Application {
 
         return SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
     }
+
+    private void makeActionOverflowMenuShown() {
+        //devices with hardware menu button (e.g. Samsung Note) don't show action overflow menu
+        try {
+            ViewConfiguration config = ViewConfiguration.get(this);
+            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            if (menuKeyField != null) {
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
+            }
+        } catch (Exception e) {
+            Log.d(TAG, e.getLocalizedMessage());
+        }
+    }
+
+
 
 }

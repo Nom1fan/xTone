@@ -3,6 +3,7 @@ package com.services;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -10,6 +11,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.provider.Contacts;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -160,7 +162,13 @@ public class IncomingService extends Service {
                             oldAlarmVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM);
 
                             // Setting music and alarm volume to equal the ringtone volume
+
+                         if (ringVolume==0)
+                             audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
+                             else
                             audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume*2+1, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
+
+
                             audioManager.setStreamVolume(AudioManager.STREAM_ALARM, ringVolume, 0);
                         }
                         catch(Exception e)
@@ -187,6 +195,7 @@ public class IncomingService extends Service {
 
                         InRingingSession = true;
 
+
                         startRingtoneSpecialCall();
                         startMediaSpecialCall();
                     }
@@ -209,21 +218,38 @@ public class IncomingService extends Service {
                 }
 
                 if  (InRingingSession) {
-                    Log.i(TAG, "AudioManager.STREAM_RING, false");
-                    try {
-                        if(mMediaPlayer!=null)   //TODO Check in advance the file type and act accordingly
-                            mMediaPlayer.stop();
-                    } catch(Exception e) {  e.printStackTrace();  }
 
-                    try {
-                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, oldMediaVolume, 0);
-                        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, oldAlarmVolume, 0);
-                    } catch(Exception e) {  e.printStackTrace();  }
+                    Runnable r = new Runnable() {
+                        public void run() {
 
-                    try {
-                        audioManager.setStreamMute(AudioManager.STREAM_RING, false);
-                    } catch(Exception e) {  e.printStackTrace();  }
-                    InRingingSession = false;
+
+                            Log.i(TAG, "AudioManager.STREAM_RING, false");
+                            try {
+                                if(mMediaPlayer!=null)   //TODO Check in advance the file type and act accordingly
+                                    mMediaPlayer.stop();
+                            } catch(Exception e) {  e.printStackTrace();  }
+
+                            try {
+
+                                try {
+                                    Thread.sleep(2000,0);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, oldMediaVolume, 0);
+                                audioManager.setStreamVolume(AudioManager.STREAM_ALARM, oldAlarmVolume, 0);
+                            } catch(Exception e) {  e.printStackTrace();  }
+
+                            try {
+                                audioManager.setStreamMute(AudioManager.STREAM_RING, false);
+                            } catch(Exception e) {  e.printStackTrace();  }
+                            InRingingSession = false;
+
+                        }
+                    };
+
+                    new Thread(r).start();
+
                 }
                 break;
             case TelephonyManager.CALL_STATE_OFFHOOK:
@@ -235,21 +261,37 @@ public class IncomingService extends Service {
                 }
 
                 if  (InRingingSession) {
-                    Log.i(TAG, "AudioManager.STREAM_RING, false");
-                    try {
-                        if(mMediaPlayer!=null)
-                            mMediaPlayer.stop();
-                    } catch(Exception e) {  e.printStackTrace();  }
 
-                    try {
-                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, oldMediaVolume, 0);
-                        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, oldAlarmVolume, 0);
-                    } catch(Exception e) {  e.printStackTrace();  }
+                    Runnable r = new Runnable() {
+                        public void run() {
 
-                    try {
-                        audioManager.setStreamMute(AudioManager.STREAM_RING, false);
-                    } catch(Exception e) {  e.printStackTrace();  }
-                    InRingingSession = false;
+
+                            Log.i(TAG, "AudioManager.STREAM_RING, false");
+                            try {
+                                if(mMediaPlayer!=null)
+                                    mMediaPlayer.stop();
+                            } catch(Exception e) {  e.printStackTrace();  }
+
+                            try {
+                                try {
+                                    Thread.sleep(2000,0);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, oldMediaVolume, 0);
+                                audioManager.setStreamVolume(AudioManager.STREAM_ALARM, oldAlarmVolume, 0);
+                            } catch(Exception e) {  e.printStackTrace();  }
+
+                            try {
+                                audioManager.setStreamMute(AudioManager.STREAM_RING, false);
+                            } catch(Exception e) {  e.printStackTrace();  }
+                            InRingingSession = false;
+
+                        }
+                    };
+
+                    new Thread(r).start();
+
                 }
                 break;
         }
@@ -280,6 +322,10 @@ public class IncomingService extends Service {
 
         specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_FILEPATH, mediaFilePath);
 
+        String contactname = getContactName(incomingCallNumber);
+        specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_CALLER, contactname+": "+ incomingCallNumber);
+
+
         Log.i(TAG, "START ACTIVITY before For");
         getApplicationContext().startActivity(specialCallIntent);
 
@@ -288,6 +334,7 @@ public class IncomingService extends Service {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
 
 
         int count;
@@ -408,7 +455,36 @@ public class IncomingService extends Service {
         toast.show();
     }
 
+    public String getContactName(final String phoneNumber)
+    {
+        Uri uri;
+        String[] projection;
+        Uri mBaseUri = Contacts.Phones.CONTENT_FILTER_URL;
+        projection = new String[] { android.provider.Contacts.People.NAME };
+        try {
+            Class<?> c =Class.forName("android.provider.ContactsContract$PhoneLookup");
+            mBaseUri = (Uri) c.getField("CONTENT_FILTER_URI").get(mBaseUri);
+            projection = new String[] { "display_name" };
+        }
+        catch (Exception e) {
+        }
 
+
+        uri = Uri.withAppendedPath(mBaseUri, Uri.encode(phoneNumber));
+        Cursor cursor = this.getContentResolver().query(uri, projection, null, null, null);
+
+        String contactName = "";
+
+        if (cursor.moveToFirst())
+        {
+            contactName = cursor.getString(0);
+        }
+
+        cursor.close();
+        cursor = null;
+
+        return contactName;
+    }
 
 
 

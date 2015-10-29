@@ -23,8 +23,8 @@
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/CallNumber"
-        android:layout_toRightOf="@+id/settingsBtn"
-        android:layout_toEndOf="@+id/settingsBtn" />
+        android:layout_toRightOf="@+id/selectProfileMediaBtn"
+        android:layout_toEndOf="@+id/selectProfileMediaBtn" />
 
     <Button
         android:id="@+id/selectRingtoneBtn"
@@ -60,7 +60,8 @@
         android:ems="10"
         android:enabled="true"
         android:hint="To...."
-        android:focusable="false"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:phoneNumber="true"
         android:maxLength="10"
         android:singleLine="true"
@@ -84,19 +85,20 @@
         android:layout_centerHorizontal="true" />
 
     <ImageButton
-        android:id="@+id/settingsBtn"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/selectProfileMediaBtn"
+        android:contentDescription="mypic"
+        android:clickable="true"
+        android:src="@drawable/defaultpic_enabled"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:src="@drawable/settings" />
+        android:layout_alignParentTop="true" />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
-        android:layout_alignBottom="@+id/settingsBtn"
+        android:layout_alignBottom="@+id/selectProfileMediaBtn"
         android:layout_centerHorizontal="true" />
 
     <TextView
@@ -107,7 +109,7 @@
         android:textColor="#027f00"
         android:singleLine="false"
         android:background="@android:color/black"
-        android:layout_below="@+id/settingsBtn"
+        android:layout_below="@+id/selectProfileMediaBtn"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
