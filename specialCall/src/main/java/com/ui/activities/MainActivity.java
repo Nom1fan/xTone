@@ -477,7 +477,7 @@ public class MainActivity extends Activity implements OnClickListener {
 			startActivityForResult(intent, ActivityRequestCodes.SELECT_CONTACT);
 		}
 
-		else if (id == R.id.login) {
+		else if (id == R.id.login_btn) {
 
 			myPhoneNumber = ((EditText) findViewById(R.id.LoginNumber))
 					.getText().toString();
@@ -537,15 +537,14 @@ public class MainActivity extends Activity implements OnClickListener {
     private void initializeLoginUI() {
 
         setContentView(R.layout.loginuser);
-        findViewById(R.id.login).setOnClickListener(this);
-
+        findViewById(R.id.login_btn).setOnClickListener(this);
 
         runOnUiThread(new Runnable() {
 
                           @Override
                           public void run() {
 
-                              Button loginBtn = (Button) findViewById(R.id.login);
+                              Button loginBtn = (Button) findViewById(R.id.login_btn);
                               loginBtn.setEnabled(false);
                               loginBtn.setText("Login");
 
@@ -560,11 +559,14 @@ public class MainActivity extends Activity implements OnClickListener {
                                   @Override
                                   public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                                      if (10 == s.length())
-                                          findViewById(R.id.login).setEnabled(true);
-                                      else
+                                      if (10 == s.length()) {
 
-                                          findViewById(R.id.login).setEnabled(false);
+                                          String token = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
+                                          if(token!=null && !token.equals(""))
+                                            findViewById(R.id.login_btn).setEnabled(true);
+                                      }
+                                      else
+                                          findViewById(R.id.login_btn).setEnabled(false);
                                   }
 
                                   @Override
@@ -773,6 +775,15 @@ public class MainActivity extends Activity implements OnClickListener {
 
         case LOADING_TIMEOUT:
             stateIdle(tag+" EVENT: LOADING_TIMEOUT", "", Color.BLACK);
+            break;
+
+        case TOKEN_RETRIEVED:
+            findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
+            findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
+            EditText loginET = (EditText)findViewById(R.id.LoginNumber);
+            CharSequence loginNumber = loginET.getText();
+            if(10 == loginNumber.length())
+                findViewById(R.id.login_btn).setEnabled(true);
             break;
 
 		default:

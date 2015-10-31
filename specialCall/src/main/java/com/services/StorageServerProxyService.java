@@ -27,7 +27,6 @@ import MessagesToServer.MessageRequestDownload;
 public class StorageServerProxyService extends AbstractServerProxy implements IServerProxy {
 
     // Service actions
-//    public static final String ACTION_RECONNECT = "com.services.StorageServerProxyService.RECONNECT";
     public static final String ACTION_DOWNLOAD = "com.services.StorageServerProxyService.DOWNLOAD";
     public static final String ACTION_UPLOAD = "com.services.StorageServerProxyService.UPLOAD";
 

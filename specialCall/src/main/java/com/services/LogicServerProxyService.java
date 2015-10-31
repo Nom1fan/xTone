@@ -56,7 +56,6 @@ public class LogicServerProxyService extends AbstractServerProxy {
                     Log.i(TAG, "Action:" + action);
 
                     try {
-                        reconnectIfNecessary();
 
                         switch (action) {
 
@@ -69,7 +68,6 @@ public class LogicServerProxyService extends AbstractServerProxy {
                                 isRegistered(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), destId);
                             }
                             break;
-
 
                             case ACTION_RECONNECT:
                                 reconnectIfNecessary();
@@ -131,11 +129,12 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
         if (isNetworkAvailable())
         {
-            register(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
-
-            cancelReconnect();
-            SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
-
+            ConnectionToServer cts = openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT);
+            if(cts!=null) {
+                BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.CONNECTED, "Connected", null));
+                cancelReconnect();
+                SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
+            }
         }
         else {
             scheduleReconnect(System.currentTimeMillis());

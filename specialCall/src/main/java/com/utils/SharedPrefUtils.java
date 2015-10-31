@@ -12,7 +12,7 @@ public class SharedPrefUtils {
 	public static final String WAS_RINGTONE_UPLOADED ="WasRingToneUploaded";
 	public static final String MEDIA_FILEPATH = "Media";
 	public static final String RINGTONE_FILEPATH = "ringToneFilePath";
-	public static final String MY_DEVICE_TOKEN = "MyDeviceToken";
+
 
 	/* Shared pref keys under GENERAL */
 	public static final String DESTINATION_NUMBER = "DestinationNumber";
@@ -20,10 +20,9 @@ public class SharedPrefUtils {
 	public static final String MY_NUMBER = "MyPhoneNumber";
 	public static final String APP_STATE = "AppState";
 	public static final String LOADING_MESSAGE = "LoadingMessage";
+	public static final String MY_DEVICE_TOKEN = "MyDeviceToken";
 
 	/* Shared pref keys under SERVER_PROXY */
-	public static final String CONNECTED = "LogicServerProxyService.Connected";
-	public static final String WAS_STARTED = "LogicServerProxyService.WAS_STARTED";
 	public static final String RECONNECT_INTERVAL = "LogicServerProxyService.RECONNECT_INTERVAL";
 
 

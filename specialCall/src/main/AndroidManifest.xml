@@ -106,7 +106,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.receivers.AppStateBroadcastReceiver">
+        <receiver android:name="com.receivers.BackgroundBroadcastReceiver">
             <intent-filter>
                 <action android:name="com.android.special.specialcall.EVENT_ACTION"/>
             </intent-filter>

@@ -12,6 +12,10 @@ import android.widget.Toast;
 import com.parse.ParseInstallation;
 
 import DataObjects.SharedConstants;
+import EventObjects.EventReport;
+import EventObjects.EventType;
+
+import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 
 
@@ -67,6 +71,7 @@ public class GetTokenIntentService extends IntentService {
         }
         else {
             String infoMsg =  "Device token retrieved";
+            BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.TOKEN_RETRIEVED, null, null));
             Log.i(TAG, infoMsg+":"+SharedConstants.DEVICE_TOKEN);
             callToast(infoMsg,Color.GREEN);
         }

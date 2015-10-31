@@ -17,9 +17,9 @@ import com.utils.SharedPrefUtils;
 /**
  * Created by Mor on 01/10/2015.
  */
-public class AppStateBroadcastReceiver extends BroadcastReceiver {
+public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
-    private static final String TAG = AppStateBroadcastReceiver.class.getSimpleName();
+    private static final String TAG = BackgroundBroadcastReceiver.class.getSimpleName();
 
     @Override
     public void onReceive(Context context, Intent intent) {
