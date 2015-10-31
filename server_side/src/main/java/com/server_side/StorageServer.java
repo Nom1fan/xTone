@@ -19,7 +19,7 @@ public class StorageServer extends AbstractServer {
     private static Logger _logger = null;
 
     public StorageServer() {
-        super(SharedConstants.STORAGE_SERVER_PORT);
+        super(StorageServer.class.getSimpleName(), SharedConstants.STORAGE_SERVER_PORT);
 
         try {
             LogsManager.createServerLogsDir();
@@ -55,18 +55,19 @@ public class StorageServer extends AbstractServer {
             if(!cont)
                 closeConnectionToClient(ctc);
         }
-        catch(EOFException e) {
-            _logger.info("Client closed the connection. logging off client...");
-            closeConnectionToClient(ctc);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-            _logger.severe("Error received:" + e.getMessage() + ". Shutting down client connection...");
-            closeConnectionToClient(ctc);
-        }
+//        catch(EOFException e) {
+//            _logger.info("Client closed the connection in mid-action. logging off client...");
+//            closeConnectionToClient(ctc);
+//        }
+//        catch(IOException e) {
+//            e.printStackTrace();
+//            _logger.severe("Error received in mid-action:" + e.getMessage() + ". Shutting down client connection...");
+//            closeConnectionToClient(ctc);
+//        }
         catch (Exception e) {
             e.printStackTrace();
-            _logger.severe("Error received:"+e.getStackTrace());
+//            _logger.severe("Error received in mid-action:"+e.getStackTrace());
+            throw new RuntimeException(e);
         }
     }
 
@@ -80,9 +81,15 @@ public class StorageServer extends AbstractServer {
                 StorageServer restartedStorageServer = new StorageServer();
                 while(!restartedStorageServer.isListening())
                     restartedStorageServer = new StorageServer();
+                try {
+                    Thread.sleep(RESTART_INTERVAL);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }.start();
     }
+
 
     @Override
     protected void serverStarted() {
@@ -95,7 +102,7 @@ public class StorageServer extends AbstractServer {
     protected void serverStopped() {
 
         System.out.println("Storage server stopped");
-        _logger.info("Storage server stopped");
+        _logger.severe("Storage server stopped");
 
         try {
             close();
@@ -113,7 +120,8 @@ public class StorageServer extends AbstractServer {
     protected void listeningException(Throwable exception) {
 
         exception.printStackTrace();
-        _logger.severe("Listening exception:" + exception.getMessage());
+        String exMsg = exception.getMessage();
+        _logger.severe("Listening exception:" + (exMsg!=null ? exMsg : exception.toString()));
     }
 
     @Override
@@ -125,7 +133,7 @@ public class StorageServer extends AbstractServer {
     @Override
     synchronized protected void clientDisconnected(ConnectionToClient client) {
 
-        _logger.warning("Client " + client.getInfo("id") + " disconnected");
+//        _logger.warning("Client " + client.getInfo("id") + " disconnected");
     }
 
 

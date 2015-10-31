@@ -67,7 +67,7 @@ public class GetTokenIntentService extends IntentService {
         }
         else {
             String infoMsg =  "Device token retrieved";
-            Log.i(TAG, infoMsg);
+            Log.i(TAG, infoMsg+":"+SharedConstants.DEVICE_TOKEN);
             callToast(infoMsg,Color.GREEN);
         }
     }

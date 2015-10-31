@@ -9,10 +9,10 @@ import EventObjects.Event;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 
+import com.app.AppStateManager;
 import com.utils.BroadcastUtils;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
-import com.utils.AppStateUtils;
 
 /**
  * Created by Mor on 01/10/2015.
@@ -29,25 +29,25 @@ public class AppStateBroadcastReceiver extends BroadcastReceiver {
         switch(report.status())
         {
             case REGISTER_SUCCESS:
-                AppStateUtils.setAppState(context, TAG+ "STATE_IDLE", AppStateUtils.STATE_IDLE);
+                AppStateManager.setAppState(context, TAG + "STATE_IDLE", AppStateManager.STATE_IDLE);
             break;
 
             case RECONNECT_ATTEMPT:
-                AppStateUtils.setAppState(context, TAG+ " RECONNECT ATTEMPT", AppStateUtils.STATE_LOADING);
+                AppStateManager.setAppState(context, TAG + " RECONNECT ATTEMPT", AppStateManager.STATE_LOADING);
                 SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, "Reconnecting...");
             break;
 
             case CONNECTED:
-                AppStateUtils.setAppState(context, TAG+ " CONNECTED", AppStateUtils.STATE_IDLE);
+                AppStateManager.setAppState(context, TAG + " CONNECTED", AppStateManager.STATE_IDLE);
             break;
 
             case CONNECTING:
-                AppStateUtils.setAppState(context, TAG+" CONNECTING", AppStateUtils.STATE_LOADING);
+                AppStateManager.setAppState(context, TAG + " CONNECTING", AppStateManager.STATE_LOADING);
                 SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, "Connecting...");
             break;
 
             case DISCONNECTED:
-                AppStateUtils.setAppState(context, TAG+ " DISCONNECTED", AppStateUtils.STATE_DISABLED);
+                AppStateManager.setAppState(context, TAG + " DISCONNECTED", AppStateManager.STATE_DISABLED);
             break;
 
             case DESTINATION_DOWNLOAD_COMPLETE:
@@ -59,7 +59,7 @@ public class AppStateBroadcastReceiver extends BroadcastReceiver {
             break;
 
             case LOADING_TIMEOUT:
-                AppStateUtils.setAppState(context, TAG+ " LOADING_TIMEOUT", AppStateUtils.STATE_IDLE);
+                AppStateManager.setAppState(context, TAG + " LOADING_TIMEOUT", AppStateManager.STATE_IDLE);
             break;
 
         }

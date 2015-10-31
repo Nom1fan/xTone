@@ -43,7 +43,7 @@ import com.services.StorageServerProxyService;
 import com.special.app.R;
 import com.ui.components.AutoCompletePopulateListAsyncTask;
 import com.ui.components.BitmapWorkerTask;
-import com.utils.AppStateUtils;
+import com.app.AppStateManager;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
 
@@ -129,14 +129,14 @@ public class MainActivity extends Activity implements OnClickListener {
         startService(new Intent(this, IncomingService.class));
         Log.i(tag, "startService: IncomingService");
 
-        if(!appState.equals(AppStateUtils.STATE_LOGGED_OUT)) {
+        if(!appState.equals(AppStateManager.STATE_LOGGED_OUT)) {
 
             registerReceiver(serviceReceiver, serviceReceiverIntentFilter);
 
             // ASYNC TASK To Populate all contacts , it can take long time and it delays the UI
             new AutoCompletePopulateListAsyncTask(this, mTxtPhoneNo).execute();
 
-            if(appState.equals(AppStateUtils.STATE_DISABLED)) {
+            if(appState.equals(AppStateManager.STATE_DISABLED)) {
 
                 myPhoneNumber = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
                 SharedConstants.MY_ID = myPhoneNumber;
@@ -149,28 +149,28 @@ public class MainActivity extends Activity implements OnClickListener {
 
         switch (appState)
         {
-            case AppStateUtils.STATE_LOGGED_OUT:
+            case AppStateManager.STATE_LOGGED_OUT:
                 initializeLoginUI();
             break;
 
-            case AppStateUtils.STATE_IDLE:
+            case AppStateManager.STATE_IDLE:
                 stateIdle(tag + "::onResume() STATE_IDLE", "", Color.BLACK);
                 restoreInstanceState();
                 writeInfoStatBar("");
             break;
 
-            case AppStateUtils.STATE_READY:
+            case AppStateManager.STATE_READY:
                 stateReady(tag + "::onResume() STATE_READY", "");
                 restoreInstanceState();
             break;
 
-            case AppStateUtils.STATE_LOADING:
+            case AppStateManager.STATE_LOADING:
                 String loadingMsg = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE);
                 stateLoading(tag + "::onResume() STATE_LOADING", loadingMsg, Color.YELLOW);
                 restoreInstanceState();
             break;
 
-            case AppStateUtils.STATE_DISABLED:
+            case AppStateManager.STATE_DISABLED:
                 String errMsg = "Disconnected. Check your internet connection.";
                 stateDisabled(tag + "::onResume() STATE_DISABLED", errMsg);
                 restoreInstanceState();
@@ -192,13 +192,13 @@ public class MainActivity extends Activity implements OnClickListener {
         context = getApplicationContext();
         lut_utils = new LUT_Utils(context);
 
-		if (getState().equals(AppStateUtils.STATE_LOGGED_OUT)) {
+		if (getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
 
             initializeLoginUI();
 
 		} else {
 			initializeUI();
-            if (getState().equals(AppStateUtils.STATE_LOGGED_IN)) {
+            if (getState().equals(AppStateManager.STATE_LOGGED_IN)) {
                 stateIdle(tag + "::onCreate()", "", Color.BLACK);
             }
 		}
@@ -263,7 +263,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     context.startService(i);
 
 //
-//                    setState(tag + "::onActivityResult upload file", AppStateUtils.STATE_LOADING);
+//                    setState(tag + "::onActivityResult upload file", AppStateManager.STATE_LOADING);
 //                            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, "Uploading file to server...");
                 }
                 else
@@ -641,8 +641,8 @@ public class MainActivity extends Activity implements OnClickListener {
                     drawSelectMediaButton(false);
                     drawSelectRingToneButton();
 
-                    if (!getState().equals(AppStateUtils.STATE_DISABLED) &&
-                            !getState().equals(AppStateUtils.STATE_LOADING)) {
+                    if (!getState().equals(AppStateManager.STATE_DISABLED) &&
+                            !getState().equals(AppStateManager.STATE_LOADING)) {
                         stateLoading(tag + " onTextchanged()", "Fetching user data...", Color.GREEN);
 
                         Intent i = new Intent(context, LogicServerProxyService.class);
@@ -655,9 +655,9 @@ public class MainActivity extends Activity implements OnClickListener {
                     destName = "";
                     setDestNameTextView();
                     saveInstanceState();
-                    if (getState().equals(AppStateUtils.STATE_READY))
+                    if (getState().equals(AppStateManager.STATE_READY))
                         stateIdle(tag + "::onTextChanged()", "", Color.BLACK);
-                    if (getState().equals(AppStateUtils.STATE_READY))
+                    if (getState().equals(AppStateManager.STATE_READY))
                         stateIdle(tag + "::onTextChanged()", "", Color.BLACK);
                 }
             }
@@ -886,7 +886,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
         Intent i = new Intent();
         i.setClass(getBaseContext(), LogicServerProxyService.class);
-        if(AppStateUtils.getAppState(context).equals(AppStateUtils.STATE_LOGGED_OUT))
+        if(AppStateManager.getAppState(context).equals(AppStateManager.STATE_LOGGED_OUT))
             i.setAction(LogicServerProxyService.ACTION_REGISTER);
         else
            i.setAction(LogicServerProxyService.ACTION_RECONNECT);
@@ -912,7 +912,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
     public void stateReady(String tag, String msg) {
 
-        setState(tag, AppStateUtils.STATE_READY);
+        setState(tag, AppStateManager.STATE_READY);
         writeInfoStatBar(msg);
 
         runOnUiThread(new Runnable() {
@@ -932,7 +932,7 @@ public class MainActivity extends Activity implements OnClickListener {
     public void stateIdle(String tag, String msg, int color) {
 
         writeInfoStatBar(msg, color);
-        setState(tag, AppStateUtils.STATE_IDLE);
+        setState(tag, AppStateManager.STATE_IDLE);
 
         runOnUiThread(new Runnable() {
 
@@ -951,7 +951,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
     public void stateDisabled(String tag, String msg) {
 
-        setState(tag, AppStateUtils.STATE_DISABLED);
+        setState(tag, AppStateManager.STATE_DISABLED);
         writeErrStatBar(msg);
 
         runOnUiThread(new Runnable() {
@@ -970,7 +970,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
     public void stateLoading(String tag, String msg, int color) {
 
-        setState(tag, AppStateUtils.STATE_LOADING);
+        setState(tag, AppStateManager.STATE_LOADING);
         SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, msg);
 
         enableProgressBar();
@@ -990,12 +990,12 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private String getState() {
 
-        return AppStateUtils.getAppState(context);
+        return AppStateManager.getAppState(context);
     }
 
     private void setState(String tag, String state) {
 
-        AppStateUtils.setAppState(context, tag, state);
+        AppStateManager.setAppState(context, tag, state);
     }
 
 

@@ -1,7 +1,10 @@
-package com.utils;
+package com.app;
 
 import android.content.Context;
 import android.util.Log;
+
+import com.utils.BroadcastUtils;
+import com.utils.SharedPrefUtils;
 
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -9,9 +12,9 @@ import EventObjects.EventType;
 /**
  * Created by mor on 01/10/2015.
  */
-public class AppStateUtils {
+public class AppStateManager {
 
-    private static final String TAG = AppStateUtils.class.getSimpleName();
+    private static final String TAG = AppStateManager.class.getSimpleName();
     private static final int LOADING_TIMEOUT = 20*1000;
     private static Thread loadingTimeoutThread;
 

@@ -15,7 +15,6 @@ import com.parse.SaveCallback;
 
 import com.data_objects.Constants;
 import com.utils.SharedPrefUtils;
-import com.utils.AppStateUtils;
 
 import java.lang.reflect.Field;
 
@@ -36,8 +35,8 @@ public class SpecialCallApp extends Application {
         makeActionOverflowMenuShown();
 
         // Initializing app state
-        if(AppStateUtils.getAppState(context).equals(""))
-            AppStateUtils.setAppState(context, TAG, AppStateUtils.STATE_LOGGED_OUT);
+        if(AppStateManager.getAppState(context).equals(""))
+            AppStateManager.setAppState(context, TAG, AppStateManager.STATE_LOGGED_OUT);
 
         // Initializing SQLite db
 //        DAL_Manager.initialize(getApplicationContext());

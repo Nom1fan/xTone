@@ -19,6 +19,7 @@ import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
@@ -36,6 +37,7 @@ public class AbstractServerProxy extends Service implements IServerProxy {
     protected String TAG;
     protected PowerManager.WakeLock wakeLock;
     protected ConnectivityManager connManager;
+    protected ArrayList<ConnectionToServer> connections = new ArrayList<>();
 
     public static final String ACTION_RECONNECT = "com.services.LogicServerProxyService.RECONNECT";
 
@@ -44,6 +46,17 @@ public class AbstractServerProxy extends Service implements IServerProxy {
 
     public AbstractServerProxy(String tag) {
         TAG = tag;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        mContext = getApplicationContext();
+        SharedConstants.MY_ID = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
+        SharedConstants.DEVICE_TOKEN = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
+        SharedConstants.specialCallPath = Constants.specialCallPath;
+
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -60,9 +73,10 @@ public class AbstractServerProxy extends Service implements IServerProxy {
 
             // Finished handling request-response transaction
             connectionToServer.closeConnection();
+            connections.remove(connectionToServer);
 
         } catch(Exception e) {
-            String errMsg = "ClientAction failed. Reason:"+e.getMessage();
+            String errMsg = "Handling message from server failed. Reason:"+e.getMessage();
             Log.i(TAG, errMsg);
             releaseLockIfNecessary();
             //handleDisconnection(errMsg);
@@ -71,10 +85,9 @@ public class AbstractServerProxy extends Service implements IServerProxy {
 
     protected ConnectionToServer openSocket(String host, int port) throws IOException {
         Log.i(TAG, "Opening socket...");
-        //sendEventReportBroadcast(new EventReport(EventType.CONNECTING, "Opening data port...", null));
         ConnectionToServer connectionToServer = new ConnectionToServer(host, port, this);
         connectionToServer.openConnection();
-        //sendEventReportBroadcast(new EventReport(EventType.CONNECTED, "Connected", null));
+        connections.add(connectionToServer);
         Log.i(TAG, "Socket is open");
 
         return connectionToServer;
@@ -82,10 +95,6 @@ public class AbstractServerProxy extends Service implements IServerProxy {
 
     @Override
     public void onCreate() {
-        mContext = getApplicationContext();
-        SharedConstants.MY_ID = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
-        SharedConstants.DEVICE_TOKEN = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
-        SharedConstants.specialCallPath = Constants.specialCallPath;
 
         connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 

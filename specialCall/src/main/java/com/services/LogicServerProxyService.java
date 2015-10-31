@@ -3,7 +3,8 @@ package com.services;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
-import com.utils.AppStateUtils;
+
+import com.app.AppStateManager;
 import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 import java.io.IOException;
@@ -80,7 +81,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
-                        String errMsg = "Action failed:"+action+" Exception:"+e.getMessage();
+                        String errMsg = "Action:"+action+" failed. Exception:"+e.getMessage();
                         Log.e(TAG, errMsg);
                         handleDisconnection(errMsg);
                     }
@@ -120,6 +121,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
     private void register(ConnectionToServer connectionToServer) throws IOException {
 
         Log.i(TAG, "Initiating register sequence...");
+        BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.CONNECTING, "Connecting...", null));
         MessageRegister msgRegister = new MessageRegister(SharedConstants.MY_ID, SharedConstants.DEVICE_TOKEN);
         Log.i(TAG, "Sending register message to server...");
         connectionToServer.sendToServer(msgRegister);
@@ -137,7 +139,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
         }
         else {
             scheduleReconnect(System.currentTimeMillis());
-            if(!AppStateUtils.getAppState(getApplicationContext()).equals(AppStateUtils.STATE_DISABLED))
+            if(!AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_DISABLED))
                 BroadcastUtils.sendEventReportBroadcast(mContext,TAG, new EventReport(EventType.DISCONNECTED, "Disconnected. Check your internet connection", null));
         }
     }

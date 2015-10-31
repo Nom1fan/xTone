@@ -13,7 +13,7 @@ import EventObjects.Event;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 
-import com.utils.AppStateUtils;
+import com.app.AppStateManager;
 
 /**
  * Created by mor on 01/10/2015.
@@ -40,9 +40,9 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
 
         if (wifiConnected || mobileConnected) {
 
-            String appState = AppStateUtils.getAppState(context);
+            String appState = AppStateManager.getAppState(context);
             Log.i(TAG, "App State:"+appState);
-            if(!appState.equals(AppStateUtils.STATE_LOGGED_OUT) && appState.equals(AppStateUtils.STATE_DISABLED)) {
+            if(!appState.equals(AppStateManager.STATE_LOGGED_OUT) && appState.equals(AppStateManager.STATE_DISABLED)) {
                 Log.i(TAG, "Starting LogicServerProxyService...");
                 Intent i = new Intent(context, LogicServerProxyService.class);
                 i.setAction(LogicServerProxyService.ACTION_RECONNECT);

@@ -19,7 +19,7 @@ public class LogicServer extends AbstractServer {
     private static Logger _logger = null;
 
     public LogicServer() {
-        super(SharedConstants.LOGIC_SERVER_PORT);
+        super(LogicServer.class.getSimpleName(), SharedConstants.LOGIC_SERVER_PORT);
 
         try {
             LogsManager.createServerLogsDir();
@@ -55,18 +55,19 @@ public class LogicServer extends AbstractServer {
             if(!cont)
                 closeConnectionToClient(ctc);
         }
-        catch(EOFException e) {
-            _logger.info("Client closed the connection. logging off client...");
-            closeConnectionToClient(ctc);
-        }
-        catch(IOException e) {
-            e.printStackTrace();
-            _logger.severe("Error received:" + e.getMessage() + ". Shutting down client connection...");
-            closeConnectionToClient(ctc);
-        }
+//        catch(EOFException e) {
+//            _logger.info("Client closed the connection in mid-action. logging off client...");
+//            closeConnectionToClient(ctc);
+//        }
+//        catch(IOException e) {
+//            e.printStackTrace();
+//            _logger.severe("Error received in mid-action:" + e.getMessage() + ". Shutting down client connection...");
+//            closeConnectionToClient(ctc);
+//        }
         catch (Exception e) {
             e.printStackTrace();
-            _logger.severe("Error received:"+e.getStackTrace());
+//            _logger.severe("Error received in mid-action:"+e.getStackTrace());
+            throw new RuntimeException(e);
         }
     }
 
@@ -121,7 +122,8 @@ public class LogicServer extends AbstractServer {
     protected void listeningException(Throwable exception) {
 
         exception.printStackTrace();
-        _logger.severe("Listening exception:" + exception.getMessage());
+        String exMsg = exception.getMessage();
+        _logger.severe("Listening exception:" + (exMsg!=null ? exMsg : exception.toString()));
     }
 
     @Override
@@ -133,7 +135,7 @@ public class LogicServer extends AbstractServer {
     @Override
     synchronized protected void clientDisconnected(ConnectionToClient client) {
 
-        _logger.warning("Client " + client.getInfo("id") + " disconnected");
+//        _logger.warning("Client " + client.getInfo("id") + " disconnected");
     }
 
     /* Assisting methods */
