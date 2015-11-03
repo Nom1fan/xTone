@@ -138,8 +138,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
             if(appState.equals(AppStateManager.STATE_DISABLED)) {
 
-                myPhoneNumber = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
-                SharedConstants.MY_ID = myPhoneNumber;
+                myPhoneNumber = Constants.MY_ID(context);
                 initializeConnection();
 
             }
@@ -481,8 +480,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
 			myPhoneNumber = ((EditText) findViewById(R.id.LoginNumber))
 					.getText().toString();
-			
-			SharedConstants.MY_ID = myPhoneNumber;
 
 			SharedPrefUtils.setString(context,
                     SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, myPhoneNumber);
@@ -810,10 +807,6 @@ public class MainActivity extends Activity implements OnClickListener {
             destName = ed_destinationName.getText().toString();
             SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, destName);
         }
-
-        // Saving my phone number
-        if(SharedConstants.MY_ID!=null && !SharedConstants.MY_ID.equals(""))
-            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, myPhoneNumber);
     }
 
     private void restoreInstanceState() {
@@ -830,9 +823,7 @@ public class MainActivity extends Activity implements OnClickListener {
         setDestNameTextView();
 
         // Restoring my phone number
-        myPhoneNumber = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
-        if(myPhoneNumber!=null)
-            SharedConstants.MY_ID = myPhoneNumber;
+        myPhoneNumber = Constants.MY_ID(context);
 
     }
 

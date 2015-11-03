@@ -5,6 +5,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.app.AppStateManager;
+import com.data_objects.Constants;
 import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 import java.io.IOException;
@@ -107,7 +108,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
      * @param destinationId - The number of whom to check is logged-in
      */
     public void isRegistered(ConnectionToServer connectionToServer, String destinationId)  throws IOException {
-        MessageIsRegistered msgIsLogin = new MessageIsRegistered(SharedConstants.MY_ID, destinationId);
+        MessageIsRegistered msgIsLogin = new MessageIsRegistered(Constants.MY_ID(mContext), destinationId);
         connectionToServer.sendToServer(msgIsLogin);
     }
 
@@ -120,7 +121,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
         Log.i(TAG, "Initiating register sequence...");
         BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.CONNECTING, "Connecting...", null));
-        MessageRegister msgRegister = new MessageRegister(SharedConstants.MY_ID, SharedConstants.DEVICE_TOKEN);
+        MessageRegister msgRegister = new MessageRegister(Constants.MY_ID(mContext), Constants.MY_TOKEN(mContext));
         Log.i(TAG, "Sending register message to server...");
         connectionToServer.sendToServer(msgRegister);
     }

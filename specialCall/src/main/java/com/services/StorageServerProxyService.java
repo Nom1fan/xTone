@@ -5,6 +5,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 import com.async_tasks.UploadTask;
+import com.data_objects.Constants;
 import com.utils.NotificationUtils;
 import java.io.IOException;
 import ClientObjects.ConnectionToServer;
@@ -120,7 +121,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
      */
     public void uploadFileToServer(ConnectionToServer connectionToServer, final String destNumber, final FileManager managedFile) throws IOException {
 
-        TransferDetails td = new TransferDetails(SharedConstants.MY_ID, destNumber, managedFile);
+        TransferDetails td = new TransferDetails(Constants.MY_ID(mContext), destNumber, managedFile);
         NotificationUtils.createHelper(mContext, "File upload to:" + td.getDestinationId() + " is pending");
         new UploadTask(mContext, connectionToServer, td).execute();
     }

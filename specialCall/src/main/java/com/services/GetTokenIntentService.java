@@ -1,6 +1,7 @@
 package com.services;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.data_objects.Constants;
 import com.parse.ParseInstallation;
 
 import DataObjects.SharedConstants;
@@ -46,16 +48,19 @@ public class GetTokenIntentService extends IntentService {
      */
     private void handleActionGetToken() {
 
+        Context context = getApplicationContext();
+
+        String token = "";
         int retries = 0;
-        while ((retries < TOKEN_RETRIEVE_RETIRES) && SharedConstants.DEVICE_TOKEN == null)
+        while ((retries < TOKEN_RETRIEVE_RETIRES) && Constants.MY_TOKEN(context).equals(""))
         {
             retries++;
             String errMsg = "Failed to retrieve device token, retrying...";
             Log.e(TAG, errMsg);
             callToast(errMsg, Color.RED);
 
-            SharedConstants.DEVICE_TOKEN = (String) ParseInstallation.getCurrentInstallation().get("deviceToken");
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN, SharedConstants.DEVICE_TOKEN);
+            token = (String) ParseInstallation.getCurrentInstallation().get("deviceToken");
+            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN, token);
 
             try {
                 Thread.sleep(TOKEN_RETRY_SLEEP);
@@ -64,15 +69,15 @@ public class GetTokenIntentService extends IntentService {
             }
         }
 
-        if (SharedConstants.DEVICE_TOKEN == null) {
+        if (Constants.MY_TOKEN(context).equals("")) {
             String errMsg = "Failed to retrieve device token, check your internet connection...";
             Log.e(TAG, errMsg);
             callToast(errMsg, Color.RED);
         }
         else {
             String infoMsg =  "Device token retrieved";
-            BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.TOKEN_RETRIEVED, null, null));
-            Log.i(TAG, infoMsg+":"+SharedConstants.DEVICE_TOKEN);
+            BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.TOKEN_RETRIEVED, null, null));
+            Log.i(TAG, infoMsg+":"+token);
             callToast(infoMsg,Color.GREEN);
         }
     }
