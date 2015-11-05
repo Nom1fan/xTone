@@ -486,8 +486,11 @@ public class MainActivity extends Activity implements OnClickListener {
 
 			initializeConnection();
 
-			File SpecialCallIncoming = new File(Constants.specialCallPath);
+			File SpecialCallIncoming = new File(Constants.specialCallIncomingPath);
 			SpecialCallIncoming.mkdirs();
+
+            File SpecialCallOutgoing = new File(Constants.specialCallOutgoingPath);
+            SpecialCallOutgoing.mkdirs();
 
 			initializeUI();
             new AutoCompletePopulateListAsyncTask(this, mTxtPhoneNo).execute();

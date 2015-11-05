@@ -1,2 +1,2 @@
-include ':shared', ':server_side'
+include ':shared', ':server_side', 'ffmpeg4android_lib'
 include ':specialCall'

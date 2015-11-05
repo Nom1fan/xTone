@@ -11,6 +11,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+
+import DataObjects.SharedConstants;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
@@ -26,6 +28,7 @@ import Exceptions.FileMissingExtensionException;
  */
 public class FileManager implements Serializable {
 
+    private static final long serialVersionUID = -6478414954653475111L;
     private static final String[] imageFormats = { "jpg", "png", "jpeg", "bmp", "gif", "tiff" };
     private static final String[] audioFormats = { "mp3", "ogg" };
     private static final String[] videoFormats = { "avi", "mpeg", "mp4", "3gp", "wmv" };
@@ -55,7 +58,7 @@ public class FileManager implements Serializable {
         {
             _file = file;
             if(doesFileExist()) {
-                validateFileSize();
+                //validateFileSize();
                 _extension = extractExtension(_file.getAbsolutePath());
                 _fileType = validateFileFormat();
                 _size = _file.length();
@@ -82,7 +85,7 @@ public class FileManager implements Serializable {
 		{
 			_file = new File(filePath);
             if(doesFileExist()) {
-                validateFileSize();
+                //validateFileSize();
                 _extension = extractExtension(filePath);
                 _fileType = validateFileFormat();
                 _size = (int) _file.length();
@@ -95,6 +98,11 @@ public class FileManager implements Serializable {
 	}
 
     /* Public instance methods */
+
+    public String getNameWithoutExtension() {
+
+        return _file.getName().split("\\.")[0];
+    }
 
     public File getFile() {
         return _file;
@@ -147,7 +155,6 @@ public class FileManager implements Serializable {
 
         return _fileType;
     }
-
 
     /* Private instance methods */
 
