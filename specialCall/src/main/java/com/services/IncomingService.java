@@ -50,7 +50,8 @@ public class IncomingService extends Service {
     private static final String TAG = IncomingService.class.getSimpleName();
     private MediaPlayer mMediaPlayer;
     private final IBinder mBinder = new MyBinder();
-
+    public static final String STOP_RING = "com.services.IncomingService.STOPRING";
+    public static final String ServiceStart = "com.services.IncomingService.ServiceStart";
     /* Service operations methods */
 
     @Override
@@ -77,9 +78,42 @@ public class IncomingService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+        super.onStartCommand(intent, flags, startId);
         audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         Log.i(TAG, "onStartCommand START_STICKY");
+
+
+        final Intent intentForThread = intent;
+
+        new Thread() {
+
+            @Override
+            public void run() {
+                if (intentForThread != null) {
+                    String action = intentForThread.getAction();
+                    Log.i(TAG, "Action:" + action);
+                    switch (action) {
+
+                        case STOP_RING: {
+                            stopSound();
+                        }
+                        break;
+                        case ServiceStart: {
+                        }break;
+                    }
+                }
+
+
+
+
+
+
+            }
+
+
+        }.start();
+
+
         return START_STICKY;
 
     }
@@ -163,10 +197,10 @@ public class IncomingService extends Service {
 
                             // Setting music and alarm volume to equal the ringtone volume
 
-                         if (ringVolume==0)
-                             audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
-                             else
-                            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume*2+1, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
+                            if (ringVolume==0)
+                                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
+                            else
+                                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume*2+1, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
 
 
                             audioManager.setStreamVolume(AudioManager.STREAM_ALARM, ringVolume, 0);

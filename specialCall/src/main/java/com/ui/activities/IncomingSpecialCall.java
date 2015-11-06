@@ -1,5 +1,6 @@
 package com.ui.activities;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -13,10 +14,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
+
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.internal.widget.ActionBarOverlayLayout;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.transition.TransitionManager;
+import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -26,9 +32,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
@@ -46,7 +54,7 @@ import java.lang.reflect.Method;
 import FilesManager.FileManager;
 
 
-public class IncomingSpecialCall extends ActionBarActivity implements OnClickListener {
+public class IncomingSpecialCall extends Activity implements OnClickListener {
 
     private ITelephony telephonyService;
     private TelephonyManager tm;
@@ -56,8 +64,17 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
     private String callerNumber ;
     private boolean mIsBound = false;
     private boolean videoMedia = false;
-    private IncomingService incomingReceiver;
+
     AudioManager audioManager = null ;
+    RelativeLayout rlayout;
+    VideoViewCustom mVideoView;
+    MediaController mediaController;
+    ImageView myImageView;
+    String mediaFilePath;
+    boolean FullScreen = true;
+    int videoTransitionID ;
+    int imageTransitionID ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,24 +84,12 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
         try {
 
 
-            ActionBar actionBar = getSupportActionBar();
-            actionBar.hide();
-
-            //Remove title bar
-          //  this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-            //Remove notification bar
-           // this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-
             Intent intent = getIntent();
-            String mediaFilePath = intent.getStringExtra(SPECIAL_CALL_FILEPATH);
+            mediaFilePath = intent.getStringExtra(SPECIAL_CALL_FILEPATH);
             callerNumber = intent.getStringExtra(SPECIAL_CALL_CALLER);
 
-
-
-
             CallStateListener stateListener = new CallStateListener();
-            tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+            tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
             tm.listen(stateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
             Log.i(TAG, "Preparing to display:"+mediaFilePath);
@@ -96,19 +101,20 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                             WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                             | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT /*| Intent.FLAG_ACTIVITY_CLEAR_TOP*/ | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL  // <<< flags added by RONY
-                            | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED, // <<< flags added by RONY
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN |
+                            | /*Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP |*/ Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED // <<< flags added by RONY
+                    , WindowManager.LayoutParams.FLAG_FULLSCREEN |
                             WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                             WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
             if (fileType == FileManager.FileType.IMAGE)
             {
                 Log.i(TAG, "In IMAGE");
                 setContentView(R.layout.activity_incoming_special_call);
                 BitmapFactory.decodeFile(mediaFilePath);
-                ImageView myImageView = (ImageView)findViewById(R.id.CallerImage);
+                myImageView = (ImageView)findViewById(R.id.CallerImage);
                 myImageView.setImageBitmap(loadImage(mediaFilePath));
 
                 TextView myTextView = (TextView)findViewById(R.id.IncomingCallNumber);
@@ -116,6 +122,16 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
                 //  Log.d("IncomingCallActivity: onCreate: ", "flagz");
                 videoMedia = false;
+
+
+                Button Transition = (Button)findViewById(R.id.Transition);
+                imageTransitionID = Transition.getId();
+                Transition.setOnClickListener(this);
+
+                // Transition.setOnClickListener(this);
+
+
+
 
             }
             if (fileType == FileManager.FileType.VIDEO)
@@ -126,35 +142,41 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                 // Special ringtone in video case is silent
                 IncomingService.wasSpecialRingTone = true;
 
+                // setting Relative Layout Paramaters
                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-                RelativeLayout rlayout  = new RelativeLayout(this);
+                /*RelativeLayout*/ rlayout  = new RelativeLayout(this);
                 rlayout.setLayoutParams(params);
-                rlayout.setBackgroundColor(Color.CYAN);
+                //  rlayout.setBackgroundColor(Color.TRANSPARENT);
                 rlayout.setGravity(Gravity.CENTER_VERTICAL);
 
-                final File root = new File(mediaFilePath);
 
+                // VideoView on Relative Layout
+                final File root = new File(mediaFilePath);
                 RelativeLayout.LayoutParams videoParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
                 videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 videoParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
                 videoParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
                 videoParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
                 Uri uri = Uri.fromFile(root);
-
-                final VideoView mVideoView  = new VideoView(IncomingSpecialCall.this);
-                MediaController mediaController = new MediaController(this);
+                // final VideoView mVideoView  = new VideoView(IncomingSpecialCall.this);
+                mVideoView  = new VideoViewCustom(IncomingSpecialCall.this);
+                //  mVideoView.setBackgroundColor(Color.TRANSPARENT);
+                // MediaController mediaController = new MediaController(this);
+                mediaController = new MediaController(this);
                 mediaController.setAnchorView(mVideoView);
                 mediaController.setMediaPlayer(mVideoView);
+                //  mediaController.setBackgroundColor(Color.TRANSPARENT);
+
+
                 mVideoView.setMediaController(mediaController);
                 mVideoView.setOnPreparedListener(PreparedListener);
                 mVideoView.setVideoURI(uri);
                 mVideoView.requestFocus();
                 mVideoView.setLayoutParams(videoParams);
 
-
+                // TextView for Showing Incoming Call Number and contact name
                 RelativeLayout.LayoutParams textViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
                 textViewParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-
                 TextView incomingCallNumber = new TextView(IncomingSpecialCall.this);
                 incomingCallNumber.setBackgroundColor(getResources().getColor(R.color.black));
                 incomingCallNumber.setText(callerNumber);
@@ -163,12 +185,29 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
                 incomingCallNumber.setLayoutParams(textViewParams);
                 incomingCallNumber.bringToFront();
 
+                //Transition Button
+                RelativeLayout.LayoutParams b2Params = new RelativeLayout.LayoutParams(150, 150);
+                b2Params.addRule(RelativeLayout.ALIGN_RIGHT,  incomingCallNumber.getId());
+                b2Params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                b2Params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                Button videoTransition = new AutoSizeButton(this);
+                videoTransition.setText("Transition");
+                videoTransition.setBackgroundColor(Color.GRAY);
+                videoTransition.setLayoutParams(b2Params);
+
+
+                // adding view to the RelativeLayout
                 rlayout.addView(mVideoView);
                 rlayout.addView(incomingCallNumber);
+                rlayout.addView(videoTransition);
+
 
                 setContentView(rlayout);
 
-                //setVisible(true);
+
+                videoTransitionID= videoTransition.getId();
+                videoTransition.setOnClickListener(this);
+
 
 
             }
@@ -181,12 +220,44 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
 
 
+    public class VideoViewCustom extends VideoView {
+
+        private int mForceHeight = 0;
+        private int mForceWidth = 0;
+        public VideoViewCustom(Context context) {
+            super(context);
+        }
+
+        public VideoViewCustom(Context context, AttributeSet attrs) {
+            this(context, attrs, 0);
+        }
+
+        public VideoViewCustom(Context context, AttributeSet attrs, int defStyle) {
+            super(context, attrs, defStyle);
+        }
+
+        public void setDimensions(int w, int h) {
+            this.mForceHeight = h;
+            this.mForceWidth = w;
+
+        }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            Log.i("@@@@", "onMeasure");
+
+            setMeasuredDimension(mForceWidth, mForceHeight);
+        }
+    }
+
+
+
+
     @Override
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "Entering OnResume");
         IncomingService.isInFront = true;
-        doBindService();
 
     }
 
@@ -219,26 +290,159 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
 
 
-    @Override
-    public void onClick(View v) {
-
-        int id = v.getId();
-        /*if (id == R.id.Answer) {   /// ANSWER
-            Log.i(TAG, "InSecond Method Ans Call");
-            answerSpecialCall();
-        }*/
-
-
-    }
 
     private void finishSpecialCall(){
 
         try {
-          this.finish();
+            this.finish();
             videoMedia = false;
         } catch (Exception e)
         {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        int id = v.getId();
+        if (id == videoTransitionID) {
+            Log.i(TAG, "INSIDE Transition Button");
+
+            if (FullScreen)
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            else
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+
+
+            int currentPosition = mVideoView.getCurrentPosition();
+            mVideoView.stopPlayback();
+
+
+            rlayout.removeAllViews();
+
+            if (FullScreen) {
+                final float scale = this.getResources().getDisplayMetrics().density;
+                int pixels = (int) (400 * scale + 0.5f);
+
+                FrameLayout.LayoutParams rel_btn = new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, pixels);
+                rel_btn.bottomMargin = pixels;
+                rlayout.setBottom(pixels);
+
+                rlayout.setLayoutParams(rel_btn);
+            } else {
+                FrameLayout.LayoutParams rel_btn = new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+                rlayout.setLayoutParams(rel_btn);
+
+
+            }
+
+
+            // VideoView on Relative Layout
+            final File root = new File(mediaFilePath);
+
+            RelativeLayout.LayoutParams videoParams;
+
+            if (FullScreen) {
+                videoParams = new RelativeLayout.LayoutParams(300, 300);
+                FullScreen = false;
+            } else {
+                videoParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+                FullScreen = true;
+            }
+
+            videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            videoParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            videoParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+            videoParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            Uri uri = Uri.fromFile(root);
+            // final VideoView mVideoView  = new VideoView(IncomingSpecialCall.this);
+            mVideoView = new VideoViewCustom(IncomingSpecialCall.this);
+            //  mVideoView.setBackgroundColor(Color.TRANSPARENT);
+            // MediaController mediaController = new MediaController(this);
+            mediaController = new MediaController(this);
+            mediaController.setAnchorView(mVideoView);
+            mediaController.setMediaPlayer(mVideoView);
+            //  mediaController.setBackgroundColor(Color.TRANSPARENT);
+
+
+            mVideoView.setMediaController(mediaController);
+            mVideoView.setOnPreparedListener(PreparedListener);
+            mVideoView.setVideoURI(uri);
+            mVideoView.requestFocus();
+            mVideoView.seekTo(currentPosition);
+
+
+            mVideoView.setLayoutParams(videoParams);
+
+
+            // TextView for Showing Incoming Call Number and contact name
+            RelativeLayout.LayoutParams textViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            textViewParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            TextView incomingCallNumber = new TextView(IncomingSpecialCall.this);
+            incomingCallNumber.setBackgroundColor(getResources().getColor(R.color.black));
+            incomingCallNumber.setText(callerNumber);
+            incomingCallNumber.setPadding(10, 10, 10, 10);
+            incomingCallNumber.setTextColor(getResources().getColor(R.color.white));
+            incomingCallNumber.setLayoutParams(textViewParams);
+            incomingCallNumber.bringToFront();
+
+            //Transition Button
+            RelativeLayout.LayoutParams b2Params = new RelativeLayout.LayoutParams(150, 150);
+            b2Params.addRule(RelativeLayout.ALIGN_RIGHT, incomingCallNumber.getId());
+            b2Params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            b2Params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            Button videoTransition = new AutoSizeButton(this);
+            videoTransition.setText("Transition");
+            videoTransition.setBackgroundColor(Color.GRAY);
+            videoTransition.setLayoutParams(b2Params);
+
+
+            rlayout.addView(mVideoView);
+            rlayout.addView(incomingCallNumber);
+            rlayout.addView(videoTransition);
+
+
+            // rlayout.requestLayout();
+
+            videoTransitionID= videoTransition.getId();
+            videoTransition.setOnClickListener(this);
+
+
+        }
+        if (id == imageTransitionID)
+        {
+
+
+            ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) myImageView.getLayoutParams();
+            if (FullScreen) {
+                params.height = 300;
+                FullScreen = false;
+            } else {
+                params.height = RelativeLayout.LayoutParams.MATCH_PARENT;
+                FullScreen = true;
+            }
+
+            myImageView.setLayoutParams(params);
+
+
+
+            TextView myTextView = (TextView)findViewById(R.id.IncomingCallNumber);
+            myTextView.setText(callerNumber);
+
+            //  Log.d("IncomingCallActivity: onCreate: ", "flagz");
+            videoMedia = false;
+
+
+            Button Transition = (Button)findViewById(R.id.Transition);
+            imageTransitionID = Transition.getId();
+            Transition.setOnClickListener(this);
+
+
+
         }
     }
 
@@ -286,7 +490,7 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
 
 
 
-                }
+                    }
                     break;
                 }
 
@@ -300,22 +504,27 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
         super.onPause();
         Log.i(TAG, "Entering OnPause");
         IncomingService.isInFront = false;
-        doUnbindService();
+
 
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(int keyCode, KeyEvent event) {  //// return button also should be filtered here >> Rony for now it just get into this method. maybe we need the return button to move the activity background
         super.onKeyDown(keyCode, event);
         Log.i(TAG, "Entering onKeyDown");
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
-            keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
-            keyCode == KeyEvent.KEYCODE_VOLUME_MUTE ) {
-            incomingReceiver.stopSound();
+                keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
+                keyCode == KeyEvent.KEYCODE_VOLUME_MUTE ) {
+
+
+            Intent i = new Intent(this, IncomingService.class);
+            i.setAction(IncomingService.STOP_RING);
+            this.startService(i);
+
 
             if (videoMedia)
             {
-                audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
                 audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
                 videoMedia = false;
             }
@@ -324,46 +533,8 @@ public class IncomingSpecialCall extends ActionBarActivity implements OnClickLis
         return false;
     }
 
-    private ServiceConnection mConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            // This is called when the connection with the service has been
-            // established, giving us the service object we can use to
-            // interact with the service.  Because we have bound to a explicit
-            // service that we know is running in our own process, we can
-            // cast its IBinder to a concrete class and directly access it.
-            incomingReceiver = ((IncomingService.MyBinder)service).getService();
 
-        }
 
-        public void onServiceDisconnected(ComponentName className) {
-            // This is called when the connection with the service has been
-            // unexpectedly disconnected -- that is, its process crashed.
-            // Because it is running in our same process, we should never
-            // see this happen.
-            incomingReceiver = null;
-        }
-    };
-
-    void doBindService() {
-        // Establish a connection with the service.  We use an explicit
-        // class name because we want a specific service implementation that
-        // we know will be running in our own process (and thus won't be
-        // supporting component replacement by other applications).
-        Log.i(TAG, "Entering doBindService");
-        bindService(new Intent(this,
-                IncomingService.class), mConnection, 0);
-        mIsBound = true;
-    }
-
-    void doUnbindService() {
-
-        if (mIsBound) {
-            // Detach our existing connection.
-            Log.i(TAG, "Entering doBindService");
-            unbindService(mConnection);
-            mIsBound = false;
-        }
-    }
 
 
 }

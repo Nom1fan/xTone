@@ -33,5 +33,13 @@
         android:layout_gravity="bottom" />
 
 
+    <Button
+        android:id="@+id/Transition"
+        android:layout_width="125dp"
+        android:layout_height="98dp"
+        android:layout_gravity="bottom|right"
+        android:text="Transition" />
+
+
 
 </MediaController>

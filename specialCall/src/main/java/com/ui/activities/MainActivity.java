@@ -115,6 +115,9 @@ public class MainActivity extends Activity implements OnClickListener {
         if(serviceReceiver!=null)
             unregisterReceiver(serviceReceiver);
         saveInstanceState();
+
+
+        finish();
     }
 
 	@Override
@@ -126,7 +129,12 @@ public class MainActivity extends Activity implements OnClickListener {
         String appState = getState();
         Log.i(tag, "App State:" + appState);
 
-        startService(new Intent(this, IncomingService.class));
+        // startService(new Intent(this, IncomingService.class));
+
+        Intent i = new Intent(this, IncomingService.class);
+        i.setAction(IncomingService.ServiceStart);
+        this.startService(i);
+
         Log.i(tag, "startService: IncomingService");
 
         if(!appState.equals(AppStateManager.STATE_LOGGED_OUT)) {
