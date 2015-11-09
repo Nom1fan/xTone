@@ -74,6 +74,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
     boolean FullScreen = true;
     int videoTransitionID ;
     int imageTransitionID ;
+    public static Context ctx;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,46 +93,44 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
             tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
             tm.listen(stateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
-            Log.i(TAG, "Preparing to display:"+mediaFilePath);
+            Log.i(TAG, "Preparing to display:" + mediaFilePath);
 
             FileManager.FileType fileType = FileManager.getFileType(new File(mediaFilePath));
 
             this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
                             WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                            | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT /*| Intent.FLAG_ACTIVITY_CLEAR_TOP*/ | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL  // <<< flags added by RONY
+                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |   WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |   WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                            | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT /*| Intent.FLAG_ACTIVITY_CLEAR_TOP*/   // <<< flags added by RONY
                             | /*Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP |*/ Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED // <<< flags added by RONY
                     , WindowManager.LayoutParams.FLAG_FULLSCREEN |
                             WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                             WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |  WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |   WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+            );
 
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+
+            WindowManager.LayoutParams lp = this.getWindow().getAttributes();
+            lp.dimAmount=0.0f;
+            this.getWindow().setAttributes(lp);
+
+           // getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
             if (fileType == FileManager.FileType.IMAGE)
             {
+                this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
                 Log.i(TAG, "In IMAGE");
                 setContentView(R.layout.activity_incoming_special_call);
                 BitmapFactory.decodeFile(mediaFilePath);
+
                 myImageView = (ImageView)findViewById(R.id.CallerImage);
+
                 myImageView.setImageBitmap(loadImage(mediaFilePath));
 
                 TextView myTextView = (TextView)findViewById(R.id.IncomingCallNumber);
                 myTextView.setText(callerNumber);
 
-                //  Log.d("IncomingCallActivity: onCreate: ", "flagz");
                 videoMedia = false;
-
-
-                Button Transition = (Button)findViewById(R.id.Transition);
-                imageTransitionID = Transition.getId();
-                Transition.setOnClickListener(this);
-
-                // Transition.setOnClickListener(this);
-
-
-
 
             }
             if (fileType == FileManager.FileType.VIDEO)
@@ -146,7 +145,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
                 /*RelativeLayout*/ rlayout  = new RelativeLayout(this);
                 rlayout.setLayoutParams(params);
-                //  rlayout.setBackgroundColor(Color.TRANSPARENT);
+               //   rlayout.setBackgroundColor(Color.GREEN);
                 rlayout.setGravity(Gravity.CENTER_VERTICAL);
 
 
@@ -165,7 +164,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
                 mediaController = new MediaController(this);
                 mediaController.setAnchorView(mVideoView);
                 mediaController.setMediaPlayer(mVideoView);
-                //  mediaController.setBackgroundColor(Color.TRANSPARENT);
+                mediaController.setBackgroundColor(Color.WHITE);
 
 
                 mVideoView.setMediaController(mediaController);
@@ -173,6 +172,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
                 mVideoView.setVideoURI(uri);
                 mVideoView.requestFocus();
                 mVideoView.setLayoutParams(videoParams);
+               // mVideoView.setBackgroundColor(Color.YELLOW);
 
                 // TextView for Showing Incoming Call Number and contact name
                 RelativeLayout.LayoutParams textViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -191,7 +191,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
                 b2Params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
                 b2Params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
                 Button videoTransition = new AutoSizeButton(this);
-                videoTransition.setText("Transition");
+                videoTransition.setText("Minimize");
                 videoTransition.setBackgroundColor(Color.GRAY);
                 videoTransition.setLayoutParams(b2Params);
 
@@ -295,6 +295,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
 
         try {
             this.finish();
+            mIsBound = true;
             videoMedia = false;
         } catch (Exception e)
         {
@@ -309,10 +310,24 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
         if (id == videoTransitionID) {
             Log.i(TAG, "INSIDE Transition Button");
 
-            if (FullScreen)
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            else
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            ctx = getApplicationContext();
+            mIsBound = false;
+         //   this.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+            this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
+                            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |  WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |   WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH  |WindowManager.LayoutParams.FLAG_SPLIT_TOUCH |   WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY  //| WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+                            | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT /*| Intent.FLAG_ACTIVITY_CLEAR_TOP*/   // <<< flags added by RONY
+                            | /*Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP |*/ Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED // <<< flags added by RONY
+                    , WindowManager.LayoutParams.FLAG_FULLSCREEN |
+                            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |  WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |   WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH  |WindowManager.LayoutParams.FLAG_SPLIT_TOUCH |   WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY  //| WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+            );
+
+            WindowManager.LayoutParams lp = this.getWindow().getAttributes();
+            lp.dimAmount=0.0f;
+            this.getWindow().setAttributes(lp);
 
 
             int currentPosition = mVideoView.getCurrentPosition();
@@ -366,7 +381,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
             mediaController = new MediaController(this);
             mediaController.setAnchorView(mVideoView);
             mediaController.setMediaPlayer(mVideoView);
-            //  mediaController.setBackgroundColor(Color.TRANSPARENT);
+            mediaController.setBackgroundColor(Color.BLUE);
 
 
             mVideoView.setMediaController(mediaController);
@@ -374,7 +389,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
             mVideoView.setVideoURI(uri);
             mVideoView.requestFocus();
             mVideoView.seekTo(currentPosition);
-
+          //  mVideoView.setBackgroundColor(Color.RED);
 
             mVideoView.setLayoutParams(videoParams);
 
@@ -403,47 +418,86 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
 
             rlayout.addView(mVideoView);
             rlayout.addView(incomingCallNumber);
-            rlayout.addView(videoTransition);
-
-
-            // rlayout.requestLayout();
-
-            videoTransitionID= videoTransition.getId();
-            videoTransition.setOnClickListener(this);
-
-
-        }
-        if (id == imageTransitionID)
-        {
-
-
-            ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) myImageView.getLayoutParams();
-            if (FullScreen) {
-                params.height = 300;
-                FullScreen = false;
-            } else {
-                params.height = RelativeLayout.LayoutParams.MATCH_PARENT;
-                FullScreen = true;
-            }
-
-            myImageView.setLayoutParams(params);
+           // rlayout.addView(videoTransition);
 
 
 
-            TextView myTextView = (TextView)findViewById(R.id.IncomingCallNumber);
-            myTextView.setText(callerNumber);
 
-            //  Log.d("IncomingCallActivity: onCreate: ", "flagz");
-            videoMedia = false;
-
-
-            Button Transition = (Button)findViewById(R.id.Transition);
-            imageTransitionID = Transition.getId();
-            Transition.setOnClickListener(this);
-
+          //  videoTransitionID= videoTransition.getId();
+          //  videoTransition.setOnClickListener(this);
 
 
         }
+//        if (id == imageTransitionID)
+//        {
+//
+//
+//            this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
+//                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+//                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+//                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |  WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |     WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY  //| WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+//                    | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT /*| Intent.FLAG_ACTIVITY_CLEAR_TOP*/   // <<< flags added by RONY
+//                    | /*Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP |*/ Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED // <<< flags added by RONY
+//                    , WindowManager.LayoutParams.FLAG_FULLSCREEN |
+//                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+//                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+//                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |  WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |     WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY  //| WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+//            );
+//
+//
+//            ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) myImageView.getLayoutParams();
+//            if (FullScreen) {
+//                final float scale = this.getResources().getDisplayMetrics().density;
+//                int pixels = (int) (400 * scale + 0.5f);
+//
+//                params.height = pixels;
+//                FullScreen = false;
+//            } else {
+//                params.height = RelativeLayout.LayoutParams.MATCH_PARENT;
+//                FullScreen = true;
+//            }
+//
+//            myImageView.setLayoutParams(params);
+//
+//
+//
+//          //  TextView myTextView = (TextView)findViewById(R.id.IncomingCallNumber);
+//
+//
+//            //  Log.d("IncomingCallActivity: onCreate: ", "flagz");
+//            videoMedia = false;
+//
+//
+//
+//            // TextView for Showing Incoming Call Number and contact name
+//           // RelativeLayout.LayoutParams textViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+//           // textViewParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+//            TextView myTextView = (TextView)findViewById(R.id.IncomingCallNumber);
+//            myTextView.setBackgroundColor(getResources().getColor(R.color.black));
+//            myTextView.setText(callerNumber);
+//            myTextView.setPadding(10, 10, 10, 10);
+//            myTextView.setTextColor(getResources().getColor(R.color.white));
+//         //   myTextView.setLayoutParams(textViewParams);
+//            myTextView.bringToFront();
+//
+//            //Transition Button
+//            RelativeLayout.LayoutParams b2Params = new RelativeLayout.LayoutParams(150, 150);
+//            b2Params.addRule(RelativeLayout.ALIGN_RIGHT, myTextView.getId());
+//            b2Params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+//            b2Params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+//            Button ImageTransition = (Button)findViewById(R.id.Transition);
+//            ImageTransition.setText("Transition");
+//            ImageTransition.setBackgroundColor(Color.GRAY);
+//            ImageTransition.setLayoutParams(b2Params);
+//
+//
+//
+//
+//            ImageTransition.setOnClickListener(this);
+//
+//
+//
+//        }
     }
 
 
@@ -505,7 +559,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
         Log.i(TAG, "Entering OnPause");
         IncomingService.isInFront = false;
 
-
+        mIsBound = true;
     }
 
     @Override
