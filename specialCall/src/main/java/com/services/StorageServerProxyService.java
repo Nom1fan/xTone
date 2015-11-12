@@ -6,7 +6,7 @@ import android.os.PowerManager;
 import android.util.Log;
 import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
-import com.netcompss.loader.LoadJNI;
+import com.utils.FileResizer;
 import com.utils.NotificationUtils;
 
 import java.io.File;
@@ -88,7 +88,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
 
                                 ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
                                 FileManager managedFile = (FileManager) intentForThread.getSerializableExtra(FILE_TO_UPLOAD);
-                                compressFile(managedFile, specialCallOutGoingPath);
+                                managedFile = FileResizer.resizeFileIfNecessary(managedFile, specialCallOutGoingPath, mContext);
                                 uploadFileToServer(connectionToServer, destId, managedFile);
                                 releaseLockIfNecessary();
                             }
@@ -145,34 +145,5 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
         MessageRequestDownload msgRD = new MessageRequestDownload(td);
         connectionToServer.sendToServer(msgRD);
 
-    }
-
-    private FileManager compressFile(FileManager managedFile, String outPath) {
-
-        String workFolder = Constants.specialCallOutgoingPath;
-        String extension = managedFile.getFileExtension();
-        File compressedFile = new File(outPath + "/" + managedFile.getNameWithoutExtension() + "_comp." + extension);
-
-        try {
-            LoadJNI vk = new LoadJNI();
-            String[] complexCommandChosen = new String[21];
-            switch (managedFile.getFileType()) {
-                case VIDEO:
-                    String[] complexCommand =
-                            {"ffmpeg", "-y", "-i", managedFile.getFileFullPath(), "-strict", "experimental", "-s", "160x120",
-                                    "-r", "25", "-vcodec", extension, "-b", "150k", "-ab", "48000", "-ac", "2", "-ar", "22050",
-                                    compressedFile.getAbsolutePath()};
-                    complexCommandChosen = complexCommand;
-                    break;
-            }
-            vk.run(complexCommandChosen, workFolder, getApplicationContext());
-            return new FileManager(compressedFile);
-
-        }
-        catch(Throwable e) {
-            Log.e(TAG, "Compressing file failed", e);
-        }
-        // Could not compress, returning uncompressed (untouched) file
-        return managedFile;
     }
 }
