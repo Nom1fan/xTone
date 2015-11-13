@@ -42,7 +42,7 @@ import com.services.LogicServerProxyService;
 import com.services.StorageServerProxyService;
 import com.special.app.R;
 import com.ui.components.AutoCompletePopulateListAsyncTask;
-import com.ui.components.BitmapWorkerTask;
+import com.ui.components.BitMapWorkerTask;
 import com.app.AppStateManager;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
@@ -54,7 +54,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import DataObjects.SharedConstants;
 import EventObjects.Event;
 import EventObjects.EventReport;
 import Exceptions.FileDoesNotExistException;
@@ -1143,7 +1142,7 @@ public class MainActivity extends Activity implements OnClickListener {
             if (!lastUploadedMediaPath.equals("")) {
                 fType = FileManager.getFileType(lastUploadedMediaPath);
 
-				BitmapWorkerTask task = new BitmapWorkerTask(selectMediaBtn);
+				BitMapWorkerTask task = new BitMapWorkerTask(selectMediaBtn);
 				task.set_width(selectMediaBtn.getWidth());
 				task.set_height(selectMediaBtn.getHeight());
 				task.set_fileType(fType);

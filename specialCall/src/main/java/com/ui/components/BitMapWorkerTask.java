@@ -15,16 +15,16 @@ import FilesManager.FileManager;
 /**
  * Created by mor on 20/09/2015.
  */
-public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
-    private final WeakReference<ImageButton> imageButtonWeakReference;
+public class BitMapWorkerTask extends AsyncTask<String, Void, Bitmap> {
+    private final WeakReference<ImageView> imageComponentWeakReference;
     private String _filePath;
     private FileManager.FileType _fileType;
     private int _height;
     private int _width;
 
-    public BitmapWorkerTask(ImageButton imageButton) {
+    public BitMapWorkerTask(ImageView imageComponent) {
         // Use a WeakReference to ensure the ImageView can be garbage collected
-        imageButtonWeakReference = new WeakReference<>(imageButton);
+        imageComponentWeakReference = new WeakReference<>(imageComponent);
     }
 
     // Decode image in background.
@@ -72,10 +72,10 @@ public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
     // Once complete, see if ImageView is still around and set bitmap.
     @Override
     protected void onPostExecute(Bitmap bitmap) {
-        if (imageButtonWeakReference != null && bitmap != null) {
-            final ImageButton imageButton = imageButtonWeakReference.get();
-            if (imageButton != null) {
-                imageButton.setImageBitmap(bitmap);
+        if (imageComponentWeakReference != null && bitmap != null) {
+            final ImageView imageComponent = imageComponentWeakReference.get();
+            if (imageComponent != null) {
+                imageComponent.setImageBitmap(bitmap);
             }
         }
     }

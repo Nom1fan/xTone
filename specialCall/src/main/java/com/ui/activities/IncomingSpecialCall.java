@@ -15,15 +15,12 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
@@ -33,8 +30,6 @@ import android.widget.VideoView;
 import com.interfaces.ITelephony;
 import com.services.IncomingService;
 import com.special.app.R;
-import com.ui.components.AutoSizeButton;
-import com.ui.components.BitmapWorkerTask;
 
 import java.io.File;
 
