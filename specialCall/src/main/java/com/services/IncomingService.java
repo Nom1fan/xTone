@@ -15,20 +15,27 @@ import android.provider.Contacts;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.special.app.R;
 import com.ui.activities.IncomingSpecialCall;
 
 import java.io.File;
 import java.io.IOException;
 
+import EventObjects.EventReport;
+import EventObjects.EventType;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
+
+import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 
 
@@ -230,6 +237,7 @@ public class IncomingService extends Service {
                         InRingingSession = true;
 
 
+
                         startRingtoneSpecialCall();
                         startMediaSpecialCall();
                     }
@@ -246,7 +254,6 @@ public class IncomingService extends Service {
                 Log.i(TAG, "TelephonyManager.CALL_STATE_IDLE");
                 if (wasSpecialRingTone)
                 {
-                    //  wakeLock.release();
 
                     wasSpecialRingTone = false;
                 }
@@ -290,7 +297,7 @@ public class IncomingService extends Service {
                 Log.i(TAG, "TelephonyManager.CALL_STATE_OFFHOOK");
                 if (wasSpecialRingTone)
                 {
-                    //  wakeLock.release();
+
                     wasSpecialRingTone = false;
                 }
 
@@ -345,14 +352,10 @@ public class IncomingService extends Service {
         }
 
         specialCallIntent.setClass(getApplicationContext(), IncomingSpecialCall.class);
-        /*specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);*/
-        specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        specialCallIntent.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-        specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
-        specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        specialCallIntent.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // added instead of FULL WAKE LOCKED as it's deprecated << if this doesn't work move to FULL WAKE LOCK
-        //  specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        specialCallIntent.setFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);//|Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+
 
         specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_FILEPATH, mediaFilePath);
 
@@ -364,7 +367,7 @@ public class IncomingService extends Service {
         getApplicationContext().startActivity(specialCallIntent);
 
         try {
-            Thread.sleep(500);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -383,9 +386,20 @@ public class IncomingService extends Service {
                 Log.i(TAG, "START ACTIVITY");
 
                 Intent i=new Intent(getApplicationContext(),IncomingSpecialCall.class);
-                specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                specialCallIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
+
+                specialCallIntent.setFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+
+                        | Intent.FLAG_ACTIVITY_NEW_TASK |
+                                Intent.FLAG_ACTIVITY_SINGLE_TOP |
+                                Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT |
+                                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+                        | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                               | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                );
+
                 getApplicationContext().startActivity(specialCallIntent);
+
 
                 try {
                     Thread.sleep(100);
@@ -450,11 +464,6 @@ public class IncomingService extends Service {
     }
 
     private void startMediaSpecialCall() {
-
-//        PowerManager powerManager = (PowerManager) getApplicationContext().getSystemService(getApplicationContext().POWER_SERVICE);
-//        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, TAG+" WL_TAG");
-//        wakeLock.acquire();
-
 
 
         String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.MEDIA_FILEPATH, incomingCallNumber);

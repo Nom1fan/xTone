@@ -115,9 +115,6 @@ public class MainActivity extends Activity implements OnClickListener {
         if(serviceReceiver!=null)
             unregisterReceiver(serviceReceiver);
         saveInstanceState();
-
-
-        finish();
     }
 
 	@Override

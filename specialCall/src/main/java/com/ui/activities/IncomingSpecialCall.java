@@ -1,10 +1,8 @@
 package com.ui.activities;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -12,28 +10,17 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v4.app.Fragment;
-
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.internal.widget.ActionBarOverlayLayout;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.transition.TransitionManager;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -42,15 +29,15 @@ import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
+
 import com.interfaces.ITelephony;
 import com.services.IncomingService;
 import com.special.app.R;
 import com.ui.components.AutoSizeButton;
-
+import com.ui.components.BitmapWorkerTask;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+
 import FilesManager.FileManager;
 
 
@@ -74,7 +61,9 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
     boolean FullScreen = true;
     int videoTransitionID ;
     int imageTransitionID ;
-
+    public static Context ctx;
+    RelativeLayout mLayout;
+    // WindowManager.LayoutParams windowParams;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +71,6 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
         Log.i(TAG, "Entering " + TAG);
 
         try {
-
 
             Intent intent = getIntent();
             mediaFilePath = intent.getStringExtra(SPECIAL_CALL_FILEPATH);
@@ -92,46 +80,64 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
             tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
             tm.listen(stateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
-            Log.i(TAG, "Preparing to display:"+mediaFilePath);
+            Log.i(TAG, "Preparing to display:" + mediaFilePath);
 
             FileManager.FileType fileType = FileManager.getFileType(new File(mediaFilePath));
 
             this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
-                            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
-                            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                            | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT /*| Intent.FLAG_ACTIVITY_CLEAR_TOP*/ | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL  // <<< flags added by RONY
-                            | /*Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP |*/ Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED // <<< flags added by RONY
-                    , WindowManager.LayoutParams.FLAG_FULLSCREEN |
-                            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
-                            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |  WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |     WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY  //| WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+                    | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT /*| Intent.FLAG_ACTIVITY_CLEAR_TOP*/   // <<< flags added by RONY
+                    | /*Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP |*/ Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED // <<< flags added by RONY
+                    ,WindowManager.LayoutParams.FLAG_FULLSCREEN|
+                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |  WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |      WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY  //| WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+            );
 
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 
-            if (fileType == FileManager.FileType.IMAGE)
-            {
-                Log.i(TAG, "In IMAGE");
-                setContentView(R.layout.activity_incoming_special_call);
-                BitmapFactory.decodeFile(mediaFilePath);
-                myImageView = (ImageView)findViewById(R.id.CallerImage);
-                myImageView.setImageBitmap(loadImage(mediaFilePath));
 
+            WindowManager.LayoutParams lp = this.getWindow().getAttributes();
+            lp.dimAmount=0.0f;
+            this.getWindow().setAttributes(lp);
+
+            // Drawing image during call
+            if (fileType == FileManager.FileType.IMAGE) {
+
+                try {
+                    // this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    Log.i(TAG, "In IMAGE");
+                    setContentView(R.layout.activity_incoming_special_call);
+
+                    myImageView = (ImageView) findViewById(R.id.CallerImage);
+                    int width = myImageView.getMinimumWidth();
+                    int height = myImageView.getMinimumHeight();
+
+                    final BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inJustDecodeBounds = true;
+                    BitmapFactory.decodeFile(mediaFilePath, options);
+                    options.inSampleSize = calculateInSampleSize(options, width, height);
+
+                    options.inJustDecodeBounds = false;
+                    Bitmap tmp_bitmap = BitmapFactory.decodeFile(mediaFilePath, options);
+                    if (tmp_bitmap != null)
+                        myImageView.setImageBitmap(tmp_bitmap);
+                    else
+                    {
+                        tmp_bitmap = BitmapFactory.decodeFile(mediaFilePath);
+                        myImageView.setImageBitmap(tmp_bitmap);
+                    }
+
+                }   catch (NullPointerException | OutOfMemoryError e) {
+                    Log.e(TAG, "Failed decoding image", e);
+                }
+
+                // Drawing incoming number during call
                 TextView myTextView = (TextView)findViewById(R.id.IncomingCallNumber);
                 myTextView.setText(callerNumber);
 
-                //  Log.d("IncomingCallActivity: onCreate: ", "flagz");
                 videoMedia = false;
-
-
-                Button Transition = (Button)findViewById(R.id.Transition);
-                imageTransitionID = Transition.getId();
-                Transition.setOnClickListener(this);
-
-                // Transition.setOnClickListener(this);
-
-
-
 
             }
             if (fileType == FileManager.FileType.VIDEO)
@@ -142,73 +148,32 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
                 // Special ringtone in video case is silent
                 IncomingService.wasSpecialRingTone = true;
 
-                // setting Relative Layout Paramaters
-                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-                /*RelativeLayout*/ rlayout  = new RelativeLayout(this);
-                rlayout.setLayoutParams(params);
-                //  rlayout.setBackgroundColor(Color.TRANSPARENT);
-                rlayout.setGravity(Gravity.CENTER_VERTICAL);
+                setContentView(R.layout.activity_incoming_special_call_video);
 
 
                 // VideoView on Relative Layout
                 final File root = new File(mediaFilePath);
-                RelativeLayout.LayoutParams videoParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-                videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                videoParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                videoParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-                videoParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+
                 Uri uri = Uri.fromFile(root);
-                // final VideoView mVideoView  = new VideoView(IncomingSpecialCall.this);
-                mVideoView  = new VideoViewCustom(IncomingSpecialCall.this);
-                //  mVideoView.setBackgroundColor(Color.TRANSPARENT);
-                // MediaController mediaController = new MediaController(this);
+                VideoView mVideoView  = (VideoView)findViewById(R.id.CallerVideo);
+
+
                 mediaController = new MediaController(this);
                 mediaController.setAnchorView(mVideoView);
                 mediaController.setMediaPlayer(mVideoView);
-                //  mediaController.setBackgroundColor(Color.TRANSPARENT);
+                mediaController.setBackgroundColor(Color.WHITE);
 
 
                 mVideoView.setMediaController(mediaController);
                 mVideoView.setOnPreparedListener(PreparedListener);
                 mVideoView.setVideoURI(uri);
+                mVideoView.setBackgroundColor(Color.TRANSPARENT);
                 mVideoView.requestFocus();
-                mVideoView.setLayoutParams(videoParams);
+
 
                 // TextView for Showing Incoming Call Number and contact name
-                RelativeLayout.LayoutParams textViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-                textViewParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                TextView incomingCallNumber = new TextView(IncomingSpecialCall.this);
-                incomingCallNumber.setBackgroundColor(getResources().getColor(R.color.black));
-                incomingCallNumber.setText(callerNumber);
-                incomingCallNumber.setPadding(10, 10, 10, 10);
-                incomingCallNumber.setTextColor(getResources().getColor(R.color.white));
-                incomingCallNumber.setLayoutParams(textViewParams);
-                incomingCallNumber.bringToFront();
-
-                //Transition Button
-                RelativeLayout.LayoutParams b2Params = new RelativeLayout.LayoutParams(150, 150);
-                b2Params.addRule(RelativeLayout.ALIGN_RIGHT,  incomingCallNumber.getId());
-                b2Params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                b2Params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                Button videoTransition = new AutoSizeButton(this);
-                videoTransition.setText("Transition");
-                videoTransition.setBackgroundColor(Color.GRAY);
-                videoTransition.setLayoutParams(b2Params);
-
-
-                // adding view to the RelativeLayout
-                rlayout.addView(mVideoView);
-                rlayout.addView(incomingCallNumber);
-                rlayout.addView(videoTransition);
-
-
-                setContentView(rlayout);
-
-
-                videoTransitionID= videoTransition.getId();
-                videoTransition.setOnClickListener(this);
-
-
+                TextView myTextView = (TextView)findViewById(R.id.IncomingCallNumberVideo);
+                myTextView.setText(callerNumber);
 
             }
         }
@@ -218,6 +183,10 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
         }
     }
 
+    @Override
+    public void onClick(View v) {
+
+    }
 
 
     public class VideoViewCustom extends VideoView {
@@ -274,178 +243,17 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
         }
     };
 
-
-    private Bitmap loadImage(String imgPath) {
-        BitmapFactory.Options options;
-        try {
-            options = new BitmapFactory.Options();
-            options.inSampleSize = 2;
-            Bitmap bitmap = BitmapFactory.decodeFile(imgPath, options);
-            return bitmap;
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-
-
-
     private void finishSpecialCall(){
 
         try {
             this.finish();
+            mIsBound = true;
             videoMedia = false;
         } catch (Exception e)
         {
             e.printStackTrace();
         }
     }
-
-    @Override
-    public void onClick(View v) {
-
-        int id = v.getId();
-        if (id == videoTransitionID) {
-            Log.i(TAG, "INSIDE Transition Button");
-
-            if (FullScreen)
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            else
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-
-
-            int currentPosition = mVideoView.getCurrentPosition();
-            mVideoView.stopPlayback();
-
-
-            rlayout.removeAllViews();
-
-            if (FullScreen) {
-                final float scale = this.getResources().getDisplayMetrics().density;
-                int pixels = (int) (400 * scale + 0.5f);
-
-                FrameLayout.LayoutParams rel_btn = new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT, pixels);
-                rel_btn.bottomMargin = pixels;
-                rlayout.setBottom(pixels);
-
-                rlayout.setLayoutParams(rel_btn);
-            } else {
-                FrameLayout.LayoutParams rel_btn = new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
-
-                rlayout.setLayoutParams(rel_btn);
-
-
-            }
-
-
-            // VideoView on Relative Layout
-            final File root = new File(mediaFilePath);
-
-            RelativeLayout.LayoutParams videoParams;
-
-            if (FullScreen) {
-                videoParams = new RelativeLayout.LayoutParams(300, 300);
-                FullScreen = false;
-            } else {
-                videoParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-                FullScreen = true;
-            }
-
-            videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            videoParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            videoParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-            videoParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-            Uri uri = Uri.fromFile(root);
-            // final VideoView mVideoView  = new VideoView(IncomingSpecialCall.this);
-            mVideoView = new VideoViewCustom(IncomingSpecialCall.this);
-            //  mVideoView.setBackgroundColor(Color.TRANSPARENT);
-            // MediaController mediaController = new MediaController(this);
-            mediaController = new MediaController(this);
-            mediaController.setAnchorView(mVideoView);
-            mediaController.setMediaPlayer(mVideoView);
-            //  mediaController.setBackgroundColor(Color.TRANSPARENT);
-
-
-            mVideoView.setMediaController(mediaController);
-            mVideoView.setOnPreparedListener(PreparedListener);
-            mVideoView.setVideoURI(uri);
-            mVideoView.requestFocus();
-            mVideoView.seekTo(currentPosition);
-
-
-            mVideoView.setLayoutParams(videoParams);
-
-
-            // TextView for Showing Incoming Call Number and contact name
-            RelativeLayout.LayoutParams textViewParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            textViewParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-            TextView incomingCallNumber = new TextView(IncomingSpecialCall.this);
-            incomingCallNumber.setBackgroundColor(getResources().getColor(R.color.black));
-            incomingCallNumber.setText(callerNumber);
-            incomingCallNumber.setPadding(10, 10, 10, 10);
-            incomingCallNumber.setTextColor(getResources().getColor(R.color.white));
-            incomingCallNumber.setLayoutParams(textViewParams);
-            incomingCallNumber.bringToFront();
-
-            //Transition Button
-            RelativeLayout.LayoutParams b2Params = new RelativeLayout.LayoutParams(150, 150);
-            b2Params.addRule(RelativeLayout.ALIGN_RIGHT, incomingCallNumber.getId());
-            b2Params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            b2Params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-            Button videoTransition = new AutoSizeButton(this);
-            videoTransition.setText("Transition");
-            videoTransition.setBackgroundColor(Color.GRAY);
-            videoTransition.setLayoutParams(b2Params);
-
-
-            rlayout.addView(mVideoView);
-            rlayout.addView(incomingCallNumber);
-            rlayout.addView(videoTransition);
-
-
-            // rlayout.requestLayout();
-
-            videoTransitionID= videoTransition.getId();
-            videoTransition.setOnClickListener(this);
-
-
-        }
-        if (id == imageTransitionID)
-        {
-
-
-            ViewGroup.LayoutParams params = (ViewGroup.LayoutParams) myImageView.getLayoutParams();
-            if (FullScreen) {
-                params.height = 300;
-                FullScreen = false;
-            } else {
-                params.height = RelativeLayout.LayoutParams.MATCH_PARENT;
-                FullScreen = true;
-            }
-
-            myImageView.setLayoutParams(params);
-
-
-
-            TextView myTextView = (TextView)findViewById(R.id.IncomingCallNumber);
-            myTextView.setText(callerNumber);
-
-            //  Log.d("IncomingCallActivity: onCreate: ", "flagz");
-            videoMedia = false;
-
-
-            Button Transition = (Button)findViewById(R.id.Transition);
-            imageTransitionID = Transition.getId();
-            Transition.setOnClickListener(this);
-
-
-
-        }
-    }
-
 
     /**
      * A placeholder fragment containing a simple view.
@@ -505,6 +313,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
         Log.i(TAG, "Entering OnPause");
         IncomingService.isInFront = false;
 
+        mIsBound = true;
 
     }
 
@@ -534,7 +343,27 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
     }
 
 
+    public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
 
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
 
 
 }
