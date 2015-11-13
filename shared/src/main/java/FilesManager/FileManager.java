@@ -37,9 +37,12 @@ public class FileManager implements Serializable {
 	private String _extension;
     private long _size;
 	private FileType _fileType;
+    private String _uncompdFileFullPath;
+    private boolean isCompressed = false;
 
-    public static final int MAX_FILE_SIZE = 5242880; // 5MB
+    public static final int MAX_FILE_SIZE = 16777216; // 16MB
     public static final String UPLOAD_FOLDER = "\\uploads\\";
+
     public enum FileType { IMAGE, VIDEO, RINGTONE }
 
 
@@ -58,7 +61,7 @@ public class FileManager implements Serializable {
         {
             _file = file;
             if(doesFileExist()) {
-                //validateFileSize();
+                validateFileSize();
                 _extension = extractExtension(_file.getAbsolutePath());
                 _fileType = validateFileFormat();
                 _size = _file.length();
@@ -85,7 +88,7 @@ public class FileManager implements Serializable {
 		{
 			_file = new File(filePath);
             if(doesFileExist()) {
-                //validateFileSize();
+                validateFileSize();
                 _extension = extractExtension(filePath);
                 _fileType = validateFileFormat();
                 _size = (int) _file.length();
@@ -98,6 +101,15 @@ public class FileManager implements Serializable {
 	}
 
     /* Public instance methods */
+
+    public boolean isCompressed() {
+        return isCompressed;
+    }
+
+    public void setIsCompressed(boolean isCompressed) {
+        this.isCompressed = isCompressed;
+    }
+
 
     public String getNameWithoutExtension() {
 
@@ -119,7 +131,13 @@ public class FileManager implements Serializable {
         return fileData;
     }
 
+    /**
+     * @return returns the original path of the file before compression
+     */
     public String getFileFullPath() {
+
+        if(isCompressed)
+            return _uncompdFileFullPath;
         return _file.getAbsolutePath();
     }
 
@@ -128,9 +146,18 @@ public class FileManager implements Serializable {
         return _extension;
     }
 
+    public String get_uncompdFileFullPath() {
+        return _uncompdFileFullPath;
+    }
+
+    public void set_uncompdFileFullPath(String _uncompdFileFullPath) {
+        this._uncompdFileFullPath = _uncompdFileFullPath;
+    }
+
     public long getFileSize() {
         return _size;
     }
+
 
     /**
      * Delete the file safely (rename first)

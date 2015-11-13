@@ -28,6 +28,13 @@ public abstract class FFMPEG_Utils {
 
     }};
 
+    /**
+     * Compresses video/audio/image files
+     * @param managedFile - The file to compress
+     * @param outPath - The path of the compressed file
+     * @param context
+     * @return
+     */
     public static FileManager compressFile(FileManager managedFile, String outPath, Context context) {
 
         String extension = managedFile.getFileExtension();
@@ -47,6 +54,13 @@ public abstract class FFMPEG_Utils {
                                     compressedFile.getAbsolutePath()};
                     complexCommandChosen = complexCommand;
                     break;
+                case RINGTONE:
+                    //TODO See if there is a way to compress the audio formats we support
+                    break;
+
+                case IMAGE:
+                    //TODO implement image compression
+                    break;
             }
 
             vk.run(complexCommandChosen, workFolder, context);
@@ -61,7 +75,7 @@ public abstract class FFMPEG_Utils {
     }
 
     /**
-     * Returns the duration of a VIDEO/AUDIO file in seconds. Returns 0 for any other file type.
+     * Returns the duration of a video/audio file in seconds. Returns 0 for any other file type.
      * @param managedFile
      * @param context
      * @return
@@ -102,6 +116,14 @@ public abstract class FFMPEG_Utils {
 
     }
 
+    /**
+     * Trims a video/audio file from 0 seconds to endTime seconds, without re-encoding.
+     * @param managedFile - Video/audio file to trim
+     * @param outPath - The path of the trimmed video/audio
+     * @param endTime - The time to end the cut in
+     * @param context
+     * @return
+     */
     public static FileManager trim(FileManager managedFile, String outPath ,Double endTime, Context context) {
 
         String extension = managedFile.getFileExtension();
@@ -131,5 +153,32 @@ public abstract class FFMPEG_Utils {
         // Could not compress, returning uncompressed (untouched) file
         return managedFile;
 
+    }
+
+    public static int[] getImageResolution(FileManager managedFile, Context context) {
+
+        try {
+            LoadJNI vk = new LoadJNI();
+            FileManager.FileType fType = managedFile.getFileType();
+            if (fType.equals(FileManager.FileType.IMAGE)) {
+
+                String[] complexCommand =
+                        {"ffmpeg", "-i", managedFile.getFileFullPath()};
+                vk.run(complexCommand, workFolder, context);
+                BufferedReader br = new BufferedReader(new FileReader(workFolder + "vk.log"));
+                String line = "";
+                boolean cont = true;
+
+//                while (cont && (line = br.readLine()) != null) {
+//                    if (line.contains("Duration"))
+//                        cont = false;
+//                }
+            }
+        }
+        catch(Throwable e) {
+            Log.e(TAG, "Getting resolution of image failed", e);
+        }
+
+        return null;
     }
 }
