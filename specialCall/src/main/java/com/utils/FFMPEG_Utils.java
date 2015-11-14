@@ -28,50 +28,75 @@ public abstract class FFMPEG_Utils {
 
     }};
 
+
     /**
-     * Compresses video/audio/image files
-     * @param managedFile - The file to compress
-     * @param outPath - The path of the compressed file
+     * Compresses a video file if possible. Otherwise, returns the base (untouched) file.
+     * @param baseFile The base file to compress
+     * @param outPath  The path of the compressed file
      * @param context
      * @return
      */
-    public static FileManager compressFile(FileManager managedFile, String outPath, Context context) {
+    public static FileManager compressVideoFile(FileManager baseFile, String outPath, Context context) {
 
-        String extension = managedFile.getFileExtension();
+        String extension = baseFile.getFileExtension();
         String vCodec = extension2vCodec.get(extension);
-        File compressedFile = new File(outPath + "/" + managedFile.getNameWithoutExtension() + "_comp." + extension);
+        File compressedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_comp." + extension);
         if(compressedFile.exists())
             FileManager.delete(compressedFile);
 
         try {
             LoadJNI vk = new LoadJNI();
-            String[] complexCommandChosen = new String[21];
-            switch (managedFile.getFileType()) {
-                case VIDEO:
-                    String[] complexCommand =
-                            {"ffmpeg", "-y", "-i", managedFile.getFileFullPath(), "-strict", "experimental", "-s", "320x240",
-                                    "-r", "25", "-vcodec", vCodec, "-b", "150k", "-ab", "48000", "-ac", "2", "-ar", "22050",
-                                    compressedFile.getAbsolutePath()};
-                    complexCommandChosen = complexCommand;
-                    break;
-                case RINGTONE:
-                    //TODO See if there is a way to compress the audio formats we support
-                    break;
 
-                case IMAGE:
-                    //TODO implement image compression
-                    break;
-            }
+            String[] complexCommand =
+                    {"ffmpeg", "-y", "-i", baseFile.getFileFullPath(), "-strict", "experimental", "-s", "320x240",
+                            "-r", "25", "-vcodec", vCodec, "-b", "150k", "-ab", "48000", "-ac", "2", "-ar", "22050",
+                            compressedFile.getAbsolutePath()};
 
-            vk.run(complexCommandChosen, workFolder, context);
+            vk.run(complexCommand, workFolder, context);
             return new FileManager(compressedFile);
 
         }
         catch(Throwable e) {
-            Log.e(TAG, "Compressing file failed", e);
+            Log.e(TAG, "Compressing video file failed", e);
         }
+
         // Could not compress, returning uncompressed (untouched) file
-        return managedFile;
+        return baseFile;
+    }
+
+    /**
+     * Resizes an image file resolution by 30%, maintaining aspect ratio
+     * @param baseFile The image file to compress
+     * @param outPath The output of the compressed file
+     * @param width - The width parameter of the original resolution
+     * @param context
+     * @return
+     */
+    public static FileManager compressImageFile(FileManager baseFile, String outPath, double width, Context context) {
+
+        String extension = baseFile.getFileExtension();
+        File compressedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_comp." + extension);
+        if(compressedFile.exists())
+            FileManager.delete(compressedFile);
+
+        try {
+            LoadJNI vk = new LoadJNI();
+            double percent = 0.7;
+            width = width * percent;
+
+            String[] complexCommand =
+                    {"ffmpeg", "-i", baseFile.getFileFullPath(), "-vf", "scale="+(int)width+":-1", compressedFile.getAbsolutePath()};
+
+            vk.run(complexCommand, workFolder, context);
+            return new FileManager(compressedFile);
+
+        }
+        catch(Throwable e) {
+            Log.e(TAG, "Compressing image file failed", e);
+        }
+
+        // Could not compress, returning uncompressed (untouched) file
+        return baseFile;
     }
 
     /**
@@ -133,24 +158,19 @@ public abstract class FFMPEG_Utils {
 
         try {
             LoadJNI vk = new LoadJNI();
-            String[] complexCommandChosen = new String[12];
-            switch (managedFile.getFileType()) {
-                case RINGTONE:
-                case VIDEO:
-                    String[] complexCommand =
-                            {"ffmpeg", "-i", managedFile.getFileFullPath(), "-vcodec", "copy", "-acodec", "copy" , "-ss", "0", "-t" , endTime.toString(), trimmedFile.getAbsolutePath() };
-                    complexCommandChosen = complexCommand;
-                    break;
-            }
 
-            vk.run(complexCommandChosen, workFolder, context);
+            String[] complexCommand =
+                    {"ffmpeg", "-i", managedFile.getFileFullPath(), "-vcodec", "copy", "-acodec",
+                            "copy" , "-ss", "0", "-t" , endTime.toString(), trimmedFile.getAbsolutePath() };
+
+            vk.run(complexCommand, workFolder, context);
             return new FileManager(trimmedFile);
 
         }
         catch(Throwable e) {
             Log.e(TAG, "Trimming file failed", e);
         }
-        // Could not compress, returning uncompressed (untouched) file
+        // Could not trim, returning untrimmed (untouched) file
         return managedFile;
 
     }
@@ -169,6 +189,19 @@ public abstract class FFMPEG_Utils {
                 String line = "";
                 boolean cont = true;
 
+                while(cont && (line = br.readLine())!=null) {
+                    if(line.contains("sof0"))
+                        cont = false;
+                }
+
+                int pivot_index = line.lastIndexOf(" ")+1;
+                String unformattedResolution = line.substring(pivot_index, line.length());
+                String[] sArrayTmp = unformattedResolution.split("x");
+                int[] iArraytmp = new int[2];
+                iArraytmp[0] = Integer.parseInt(sArrayTmp[0]);
+                iArraytmp[1] = Integer.parseInt(sArrayTmp[1]);
+
+                return iArraytmp;
 //                while (cont && (line = br.readLine()) != null) {
 //                    if (line.contains("Duration"))
 //                        cont = false;
@@ -177,6 +210,7 @@ public abstract class FFMPEG_Utils {
         }
         catch(Throwable e) {
             Log.e(TAG, "Getting resolution of image failed", e);
+
         }
 
         return null;

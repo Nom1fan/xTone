@@ -47,7 +47,7 @@ public abstract class MessageToServer implements Serializable  {
             {
                 logger.severe("[Failed to send reply to user]:"+_messageInitiaterId+" of message:"+msg.getClass().getSimpleName()+" [Exception]:"+e.getMessage()+ "Terminating client connection...");
                 e.printStackTrace();
-                //ClientsManager.removeClientConnection(_messageInitiaterId);
+
                 return false;
             }
 

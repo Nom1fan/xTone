@@ -36,6 +36,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.app.AppStateManager;
 import com.data_objects.Constants;
 import com.services.IncomingService;
 import com.services.LogicServerProxyService;
@@ -43,7 +44,6 @@ import com.services.StorageServerProxyService;
 import com.special.app.R;
 import com.ui.components.AutoCompletePopulateListAsyncTask;
 import com.ui.components.BitmapWorkerTask;
-import com.app.AppStateManager;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
 
@@ -54,7 +54,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import DataObjects.SharedConstants;
 import EventObjects.Event;
 import EventObjects.EventReport;
 import Exceptions.FileDoesNotExistException;
@@ -544,6 +543,11 @@ public class MainActivity extends Activity implements OnClickListener {
                           @Override
                           public void run() {
 
+                              if(!Constants.MY_TOKEN(context).equals("")) {
+                                  findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
+                                  findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
+                              }
+
                               Button loginBtn = (Button) findViewById(R.id.login_btn);
                               loginBtn.setEnabled(false);
                               loginBtn.setText("Login");
@@ -721,14 +725,14 @@ public class MainActivity extends Activity implements OnClickListener {
             break;
 
         case USER_REGISTERED_TRUE:
-        destPhoneNumber = (String) report.data();
-        stateReady(tag + " EVENT: USER_REGISTERED_TRUE", report.desc());
-        break;
+            destPhoneNumber = (String) report.data();
+            stateReady(tag + " EVENT: USER_REGISTERED_TRUE", report.desc());
+            break;
 
         case USER_REGISTERED_FALSE:
             destPhoneNumber = (String) report.data();
             stateIdle(tag+" EVENT: USER_REGISTERED_FALSE", report.desc(), Color.RED);
-        break;
+            break;
 
 		case ISREGISTERED_ERROR:
             destPhoneNumber = (String) report.data();
@@ -744,6 +748,10 @@ public class MainActivity extends Activity implements OnClickListener {
                 stateIdle(tag + "EVENT: REFRESH_UI", msg, Color.GREEN);
             break;
 
+        case COMPRESSING:
+            stateLoading(tag + " EVENT: COMPRESSING", report.desc(), Color.GREEN);
+            break;
+
         case RECONNECT_ATTEMPT:
             stateLoading(tag + " EVENT: RECONNECT_ATTEMPT", report.desc(), Color.RED);
             break;
@@ -753,7 +761,10 @@ public class MainActivity extends Activity implements OnClickListener {
             break;
 
         case CONNECTED:
-            stateIdle(tag +"EVENT: CONNECTED", report.desc(), Color.GREEN);
+            if(isContactSelected())
+                stateReady(tag + "EVENT: REFRESH_UI", report.desc());
+            else
+                stateIdle(tag + "EVENT: REFRESH_UI", report.desc(), Color.GREEN);
             break;
 
         case DISCONNECTED:
