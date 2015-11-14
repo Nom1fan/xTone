@@ -931,6 +931,9 @@ public class MainActivity extends Activity implements OnClickListener {
                 enableSelectRingToneButton();
                 enableSelectContactButton();
                 enableCallButton();
+
+                // Taking Focus from AutoCompleteTextView in the end, so he won't pop up :) added also focus capabilities to the MainActivity Layout XML
+                findViewById(R.id.mainActivity).requestFocus();
             }
         });
     }

@@ -4,6 +4,8 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:background="@drawable/background"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:padding="15dip" >
 
     <ImageButton
