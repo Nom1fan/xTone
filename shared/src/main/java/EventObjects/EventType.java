@@ -26,4 +26,5 @@ public enum EventType implements Serializable {
 	REFRESH_UI,
 	LOADING_TIMEOUT,
 	TOKEN_RETRIEVED,
+	COMPRESSING,
 }

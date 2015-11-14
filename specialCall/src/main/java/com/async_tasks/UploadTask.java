@@ -3,22 +3,22 @@ package com.async_tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-
+import com.data_objects.Constants;
 import com.ui.components.NotificationHelper;
 import com.utils.BroadcastUtils;
 import com.utils.NotificationUtils;
-
 import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
 import ClientObjects.ConnectionToServer;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import FilesManager.FileManager;
 import MessagesToServer.MessageUploadFile;
+
 
 public class UploadTask extends AsyncTask<Void,String,Void> {
     private NotificationHelper mNotificationHelper;
@@ -75,6 +75,15 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
             Log.e(TAG, "Failed:" + e.getMessage());
              BroadcastUtils.sendEventReportBroadcast(_context, TAG,
                      new EventReport(EventType.UPLOAD_FAILURE, "Upload to "+_td.getDestinationId()+" failed:"+e.getMessage(),null));
+        }
+
+        Log.i(TAG, "Deleting "+_td.getDestinationId()+"'s outgoing folder after upload");
+        File specialCallOutgoingDir = new File(Constants.specialCallOutgoingPath+_td.getDestinationId());
+
+        String[] entries = specialCallOutgoingDir.list();
+        for (String s : entries) {
+            File currentFile = new File(specialCallOutgoingDir.getPath(), s);
+            currentFile.delete();
         }
 
         return null;

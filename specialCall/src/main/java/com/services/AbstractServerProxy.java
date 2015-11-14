@@ -52,7 +52,7 @@ public class AbstractServerProxy extends Service implements IServerProxy {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         mContext = getApplicationContext();
-        SharedConstants.specialCallPath = Constants.specialCallPath;
+        SharedConstants.specialCallIncomingPath = Constants.specialCallIncomingPath;
 
         return START_NOT_STICKY;
     }

@@ -87,8 +87,10 @@ public class MessageUploadFile extends MessageToServer {
 		String infoMsg = "File:"+_td.get_fullFilePathSrcSD()+" uploaded to server";
 		cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, null)));
 			
-		if(!cont)
+		if(!cont) {
+			logger.severe("Canceling file upload from "+_td.getSourceId()+" to "+_td.getDestinationId());
 			return cont;
+		}
 			
 		// Sending file to destination
         _td.set_filePathOnServer(fileFullPath);

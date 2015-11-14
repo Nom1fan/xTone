@@ -15,7 +15,7 @@
         
 
     <Button
-        android:id="@+id/login"
+        android:id="@+id/login_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -27,7 +27,7 @@
         android:id="@+id/SMSCode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/login"
+        android:layout_above="@+id/login_btn"
         android:ems="10"
         android:hint="SMS code you received"
         android:maxLength="4"
@@ -35,7 +35,7 @@
         android:singleLine="true" />
 
     <EditText
-        android:id="@+id/CallNumber"
+        android:id="@+id/LoginNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/GetSMSCode"
@@ -51,5 +51,26 @@
         <requestFocus />
     </EditText>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Initializing..."
+        android:id="@+id/initTextView"
+        android:layout_marginTop="69dp"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/initProgressBar"
+        android:layout_toEndOf="@+id/initProgressBar"
+        android:layout_marginLeft="28dp"
+        android:layout_marginStart="28dp" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/initProgressBar"
+        android:layout_alignBottom="@+id/initTextView"
+        android:layout_toLeftOf="@+id/login_btn"
+        android:layout_toStartOf="@+id/login_btn" />
+
 </RelativeLayout>
-<!-- From: file:/C:/Users/Mor/as_workspace/SpecialCall/specialCall/src/main/res/layout/loginuser.xml -->
+<!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/src/main/res/layout/loginuser.xml -->

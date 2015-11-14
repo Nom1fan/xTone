@@ -4,30 +4,32 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:background="@drawable/background"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:padding="15dip" >
 
     <ImageButton
-        android:id="@+id/Select_Contact"
+        android:id="@+id/selectContactBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="contacts"
-        android:src="@drawable/iphonecontacts"      
+        android:src="@drawable/select_contact_enabled"
         android:textSize="18sp"
         android:layout_alignBottom="@+id/CallNumber"
-        android:layout_alignRight="@+id/MyPic"
-        android:layout_alignEnd="@+id/MyPic"
-        android:layout_alignTop="@+id/MyRing" />
+        android:layout_alignRight="@+id/selectMediaBtn"
+        android:layout_alignEnd="@+id/selectMediaBtn"
+        android:layout_alignTop="@+id/selectRingtoneBtn" />
 
     <TextView
         android:id="@+id/destName"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/CallNumber"
-        android:layout_toRightOf="@+id/settingsBtn"
-        android:layout_toEndOf="@+id/settingsBtn" />
+        android:layout_toRightOf="@+id/selectProfileMediaBtn"
+        android:layout_toEndOf="@+id/selectProfileMediaBtn" />
 
     <Button
-        android:id="@+id/MyRing"
+        android:id="@+id/selectRingtoneBtn"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:enabled="true"
@@ -39,10 +41,10 @@
         android:layout_alignParentRight="false"
         android:layout_alignParentLeft="false"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/MyPic" />
+        android:layout_below="@+id/selectMediaBtn" />
 
     <ImageButton
-        android:id="@+id/MyPic"
+        android:id="@+id/selectMediaBtn"
         android:layout_width="300dp"
         android:layout_height="200dp"
         android:contentDescription="mypic"
@@ -53,24 +55,26 @@
         android:layout_alignLeft="@+id/CallNumber"
         android:layout_alignStart="@+id/CallNumber" />
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/CallNumber"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:ems="10"
         android:enabled="true"
-        android:hint="Destination number"
-        android:inputType="number"
-        android:focusable="false"
+        android:hint="To...."
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:phoneNumber="true"
         android:maxLength="10"
         android:singleLine="true"
         android:layout_alignRight="@+id/CallNow"
         android:layout_alignEnd="@+id/CallNow"
-        android:layout_below="@+id/MyRing">
+        android:completionThreshold="1"
+        android:layout_below="@+id/selectRingtoneBtn"
+        android:inputType="textAutoComplete|text">
 
         <requestFocus />
-    </EditText>
+    </AutoCompleteTextView>
 
     <Button
         android:id="@+id/CallNow"
@@ -83,19 +87,20 @@
         android:layout_centerHorizontal="true" />
 
     <ImageButton
-        android:id="@+id/settingsBtn"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/selectProfileMediaBtn"
+        android:contentDescription="mypic"
+        android:clickable="true"
+        android:src="@drawable/defaultpic_enabled"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:src="@drawable/settings" />
+        android:layout_alignParentTop="true" />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
-        android:layout_alignBottom="@+id/settingsBtn"
+        android:layout_alignBottom="@+id/selectProfileMediaBtn"
         android:layout_centerHorizontal="true" />
 
     <TextView
@@ -106,8 +111,8 @@
         android:textColor="#027f00"
         android:singleLine="false"
         android:background="@android:color/black"
-        android:layout_below="@+id/settingsBtn"
+        android:layout_below="@+id/selectProfileMediaBtn"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
-</RelativeLayout><!-- From: file:/C:/Users/Mor/as_workspace/SpecialCall/specialCall/src/main/res/layout/activity_main.xml -->
+</RelativeLayout><!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/src/main/res/layout/activity_main.xml -->

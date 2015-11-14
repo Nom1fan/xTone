@@ -4,15 +4,23 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
+
+import com.app.AppStateManager;
 import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
+import com.utils.BroadcastUtils;
+import com.utils.FileCompressorUtil;
 import com.utils.NotificationUtils;
+
+import java.io.File;
 import java.io.IOException;
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
 import DataObjects.PushEventKeys;
 import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
+import EventObjects.EventReport;
+import EventObjects.EventType;
 import FilesManager.FileManager;
 import MessagesToServer.MessageRequestDownload;
 
@@ -77,9 +85,20 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
 
                                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
                                 wakeLock.acquire();
+
                                 String destId = intentForThread.getStringExtra(DESTINATION_ID);
+                                String specialCallOutGoingPath = Constants.specialCallOutgoingPath + destId;
+                                File specialCallOutgoingDir = new File(specialCallOutGoingPath);
+                                specialCallOutgoingDir.mkdirs();
+
                                 ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
                                 FileManager managedFile = (FileManager) intentForThread.getSerializableExtra(FILE_TO_UPLOAD);
+
+                                AppStateManager.setAppState(mContext, TAG, AppStateManager.STATE_LOADING);
+                                BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.COMPRESSING, "Compressing file...", null));
+                                managedFile = FileCompressorUtil.compressFileIfNecessary(managedFile, specialCallOutGoingPath, mContext);
+                                BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.REFRESH_UI, "Compression complete.", null));
+
                                 uploadFileToServer(connectionToServer, destId, managedFile);
                                 releaseLockIfNecessary();
                             }
@@ -119,7 +138,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
      * @param managedFile   - The file to upload inside a manager wrapper
      * @param destNumber - The destination number to whom the file is for
      */
-    public void uploadFileToServer(ConnectionToServer connectionToServer, final String destNumber, final FileManager managedFile) throws IOException {
+    private void uploadFileToServer(ConnectionToServer connectionToServer, final String destNumber, final FileManager managedFile) throws IOException {
 
         TransferDetails td = new TransferDetails(Constants.MY_ID(mContext), destNumber, managedFile);
         NotificationUtils.createHelper(mContext, "File upload to:" + td.getDestinationId() + " is pending");
@@ -131,11 +150,10 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
      * @param connectionToServer
      * @param td - The transfer details
      */
-    public void requestDownloadFromServer(ConnectionToServer connectionToServer, TransferDetails td) throws IOException {
+    private void requestDownloadFromServer(ConnectionToServer connectionToServer, TransferDetails td) throws IOException {
 
         MessageRequestDownload msgRD = new MessageRequestDownload(td);
         connectionToServer.sendToServer(msgRD);
 
     }
-
 }

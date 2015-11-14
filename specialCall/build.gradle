@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.special.specialcall"
-        minSdkVersion 8
+        minSdkVersion 15
         targetSdkVersion 19
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_7
@@ -39,4 +39,5 @@ dependencies {
     compile 'com.parse.bolts:bolts-android:1.+'
     compile fileTree(include: 'Parse-*.jar', dir: 'libs')
     compile 'org.apache.directory.studio:org.apache.commons.lang:2.6'
+    compile project(':ffmpeg4android_lib')
 }

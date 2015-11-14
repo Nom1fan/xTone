@@ -6,7 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.special.specialcall.MainActivity$PlaceholderFragment" >
+    tools:context="com.ui.activities.MainActivity$PlaceholderFragment" >
 
     <TextView
         android:layout_width="wrap_content"
@@ -14,4 +14,4 @@
         android:text="@string/hello_world" />
 
 </RelativeLayout>
-<!-- From: file:/C:/Users/Mor/as_workspace/SpecialCall/specialCall/src/main/res/layout/fragment_main.xml -->
+<!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/src/main/res/layout/fragment_main.xml -->

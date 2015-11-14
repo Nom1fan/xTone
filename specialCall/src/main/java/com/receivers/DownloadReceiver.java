@@ -38,7 +38,7 @@ public class DownloadReceiver extends BroadcastReceiver {
                 String extension = td.getExtension();
                 String fFullName = td.getSourceWithExtension();
                 String source = td.getSourceId();
-                String fileFullPath = Constants.specialCallPath+source+"/"+fFullName;
+                String fileFullPath = Constants.specialCallIncomingPath+source+"/"+fFullName;
 
                 switch (fType) {
                     case RINGTONE:
@@ -72,7 +72,7 @@ public class DownloadReceiver extends BroadcastReceiver {
      */
     private void deleteFilesIfNecessary(String addedFileName, FileManager.FileType newDownloadedFileType, String source) {
 
-        File spDir = new File(Constants.specialCallPath+source);
+        File spDir = new File(Constants.specialCallIncomingPath+source);
         File[] files = spDir.listFiles();
         try
         {

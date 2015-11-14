@@ -6,6 +6,7 @@ import DataObjects.PushEventKeys;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
+import Exceptions.DownloadRequestFailedException;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
@@ -42,16 +43,18 @@ public class MessageRequestDownload extends MessageToServer {
         try {
             FileManager managedFile = new FileManager(_filePathOnServer);
             MessageDownloadFile msgDF = new MessageDownloadFile(_td, managedFile.getFileData());
-            replyToClient(msgDF);
+            boolean sent = replyToClient(msgDF);
+            if(!sent)
+                throw new DownloadRequestFailedException();
 
         } catch (FileInvalidFormatException  |
                  FileExceedsMaxSizeException |
                  FileDoesNotExistException   |
+                 DownloadRequestFailedException |
                  FileMissingExtensionException e) {
 
             e.printStackTrace();
             String msgTransferFailed ="TRANSFER_FAILED: "+_td.getDestinationId()+" did not receive file";
-            logger.severe(msgTransferFailed+ "Exception:"+e.getMessage());
 
             // Informing sender that file did not reach destination
             logger.severe("Informing sender:"+_td.getSourceId()+" that file did not reach destination:"+_td.getDestinationId());

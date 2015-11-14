@@ -4,10 +4,8 @@ import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 
 import ClientObjects.ConnectionToServer;
-import ClientObjects.IServerProxy;
 import DataObjects.PushEventKeys;
 import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
@@ -42,7 +40,7 @@ public class MessageDownloadFile extends MessageToClient {
 		  try
 		  {
 			// Creating file and directories for downloaded file
-			File specialCallIncomingDir = new File(SharedConstants.specialCallPath+_sourceId);
+			File specialCallIncomingDir = new File(SharedConstants.specialCallIncomingPath +_sourceId);
 			specialCallIncomingDir.mkdirs();
 			String fileStoragePath =  specialCallIncomingDir.getAbsolutePath() +"/"+ _fileName;
 			FileManager.createNewFile(fileStoragePath,_fileData);
