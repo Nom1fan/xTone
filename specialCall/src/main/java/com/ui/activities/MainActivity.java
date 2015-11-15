@@ -43,7 +43,7 @@ import com.services.LogicServerProxyService;
 import com.services.StorageServerProxyService;
 import com.special.app.R;
 import com.ui.components.AutoCompletePopulateListAsyncTask;
-import com.ui.components.BitMapWorkerTask;
+import com.ui.components.BitmapWorkerTask;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
 
@@ -1160,7 +1160,7 @@ public class MainActivity extends Activity implements OnClickListener {
             if (!lastUploadedMediaPath.equals("")) {
                 fType = FileManager.getFileType(lastUploadedMediaPath);
 
-				BitMapWorkerTask task = new BitMapWorkerTask(selectMediaBtn);
+				BitmapWorkerTask task = new BitmapWorkerTask(selectMediaBtn);
 				task.set_width(selectMediaBtn.getWidth());
 				task.set_height(selectMediaBtn.getHeight());
 				task.set_fileType(fType);

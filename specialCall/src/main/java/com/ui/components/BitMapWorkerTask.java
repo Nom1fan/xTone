@@ -15,14 +15,14 @@ import FilesManager.FileManager;
 /**
  * Created by mor on 20/09/2015.
  */
-public class BitMapWorkerTask extends AsyncTask<String, Void, Bitmap> {
+public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
     private final WeakReference<ImageView> imageComponentWeakReference;
     private String _filePath;
     private FileManager.FileType _fileType;
     private int _height;
     private int _width;
 
-    public BitMapWorkerTask(ImageView imageComponent) {
+    public BitmapWorkerTask(ImageView imageComponent) {
         // Use a WeakReference to ensure the ImageView can be garbage collected
         imageComponentWeakReference = new WeakReference<>(imageComponent);
     }
