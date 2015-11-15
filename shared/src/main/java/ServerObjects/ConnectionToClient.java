@@ -123,7 +123,8 @@ public class ConnectionToClient extends Thread
     this.clientSocket = clientSocket;
     this.server = server;
 
-    clientSocket.setSoTimeout(0); // make sure timeout is infinite
+    final int TIMEOUT = 60*1000*5;
+    clientSocket.setSoTimeout(TIMEOUT); // make sure timeout is 5 min
 
     //Initialize the objects streams
     try
@@ -274,12 +275,27 @@ public class ConnectionToClient extends Thread
         }
       }
     }
+    catch (InterruptedIOException exception)
+    {
+      // This will be thrown when a timeout occurs.
+      // The client has not sent any message and timeout occured. Closing socket.
+      if (!readyToStop)
+      {
+        try
+        {
+          close();
+        }
+        catch (Exception ex) { }
+
+        server.clientTimedOut(this);
+      }
+    }
     catch(EOFException exception) {
       if (!readyToStop)
       {
         try
         {
-          closeAll();
+          close();
         }
         catch (Exception ex) { }
 
@@ -291,7 +307,7 @@ public class ConnectionToClient extends Thread
       {
         try
         {
-          closeAll();
+          close();
         }
         catch (Exception ex) { }
 

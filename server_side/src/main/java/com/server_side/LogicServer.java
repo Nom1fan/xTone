@@ -138,6 +138,12 @@ public class LogicServer extends AbstractServer {
 //        _logger.warning("Client " + client.getInfo("id") + " disconnected");
     }
 
+    @Override
+    synchronized protected void clientTimedOut(ConnectionToClient client) {
+
+        _logger.warning("Client " + client.getInfo("id") + " timed out. Socket closed.");
+    }
+
     /* Assisting methods */
 
     private void closeConnectionToClient(ConnectionToClient ctc) {
