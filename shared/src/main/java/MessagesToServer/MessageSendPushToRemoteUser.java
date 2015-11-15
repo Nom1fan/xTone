@@ -39,19 +39,22 @@ public class MessageSendPushToRemoteUser extends MessageToServer {
 		initLogger();
 
 		String remoteToken = ClientsManager.getClientPushToken(_remoteUserId);
-        boolean sent;
 
-        if(_extra==null) {
-            sent = PushSender.sendPush(remoteToken, _pushEventAction, _msg);
-        }
-        else {
-            sent = PushSender.sendPush(remoteToken, _pushEventAction, _msg, _extra);
-        }
+		if(remoteToken!=null) {
 
-		if(sent)
-			logger.info("Push from:"+_messageInitiaterId+" to:"+_remoteUserId+" sent successfully");
+			boolean sent = false;
+			if (_extra == null) {
+				sent = PushSender.sendPush(remoteToken, _pushEventAction, _msg);
+			} else {
+				sent = PushSender.sendPush(remoteToken, _pushEventAction, _msg, _extra);
+			}
+			if(sent)
+				logger.info("Push from:"+_messageInitiaterId+" to:"+_remoteUserId+" sent successfully");
+			else
+				logger.severe("Push from:" + _messageInitiaterId + " to:" +_remoteUserId+" failed to be sent");
+		}
 		else
-			logger.severe("Push from:" + _messageInitiaterId + " to:" +_remoteUserId+" failed to be sent");
+			logger.severe("Push from:" + _messageInitiaterId + " to:" +_remoteUserId+" failed to be sent. Token does not exist");
 
 		return true;
 	}
