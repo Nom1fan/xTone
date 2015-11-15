@@ -52,7 +52,7 @@ public class FileCompressorUtil {
 
                     modifiedFile = trimMediaFile(baseFile, outPath, AUDIO_SIZE_COMPRESS_NEEDED, context);
 
-                    if (modifiedFile.getFileSize() >= AUDIO_SIZE_COMPRESS_NEEDED)
+                    //if (modifiedFile.getFileSize() >= AUDIO_SIZE_COMPRESS_NEEDED)
                         // TODO See if there is a way to compress non-wav audio files
 
                     modifiedFile.set_uncompdFileFullPath(baseFile.getFileFullPath());
