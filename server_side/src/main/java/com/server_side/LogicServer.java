@@ -48,12 +48,12 @@ public class LogicServer extends AbstractServer {
 
     /* LogicServer private methods */
 
-    private SQLiteDAL1 initDbDAL() throws SQLiteException {
+    private SQLiteDAL initDbDAL() throws SQLiteException {
 
         // Initializing General Database
-        SQLiteDAL1 dal = new SQLiteDAL1(Paths.get("").toAbsolutePath().toString() + SQLiteDAL1.GENERAL_DB_PATH);
+        SQLiteDAL dal = new SQLiteDAL(Paths.get("").toAbsolutePath().toString() + SQLiteDAL.GENERAL_DB_PATH);
         // Creating tables
-        dal.createTable(SQLiteDAL1.TABLE_UID2TOKEN, SQLiteDAL1.COL_UID, SQLiteDAL1.COL_TOKEN);
+        dal.createTable(SQLiteDAL.TABLE_UID2TOKEN, SQLiteDAL.COL_UID, SQLiteDAL.COL_TOKEN);
 
         return dal;
     }
