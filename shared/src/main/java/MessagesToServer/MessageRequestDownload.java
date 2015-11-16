@@ -60,7 +60,10 @@ public class MessageRequestDownload extends MessageToServer {
             logger.severe("Informing sender:"+_td.getSourceId()+" that file did not reach destination:"+_td.getDestinationId());
             String senderId = _td.getSourceId();
             String senderToken = ClientsManager.getClientPushToken(senderId);
-            PushSender.sendPush(senderToken, PushEventKeys.SHOW_MESSAGE, msgTransferFailed);
+            if(!senderToken.equals(""))
+                PushSender.sendPush(senderToken, PushEventKeys.SHOW_MESSAGE, msgTransferFailed);
+            else
+                logger.severe("Failed trying to Inform sender:"+_td.getSourceId()+" that file did not reach destination:"+_td.getDestinationId()+". Empty token");
 
             // informing destination of request failure
             String msgDownloadFailed = "DOWNLOAD_FAILURE: File send from user:"+_td.getSourceId()+" failed.";

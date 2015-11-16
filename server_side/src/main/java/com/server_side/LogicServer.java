@@ -1,8 +1,10 @@
 package com.server_side;
 
 
-import java.io.EOFException;
+import com.almworks.sqlite4java.SQLiteException;
+
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.logging.Logger;
 import DataObjects.SharedConstants;
 import LogObjects.LogsManager;
@@ -22,16 +24,17 @@ public class LogicServer extends AbstractServer {
         super(LogicServer.class.getSimpleName(), SharedConstants.LOGIC_SERVER_PORT);
 
         try {
+
             LogsManager.createServerLogsDir();
             LogsManager.clearLogs();
             _logger = LogsManager.getServerLogger();
-            ClientsManager.initialize();
+            ClientsManager.initialize(initDbDAL());
 
             System.out.println("Starting logic server...");
 
             listen();
         }
-        catch (IOException e ) {
+        catch (IOException | SQLiteException e ) {
             e.printStackTrace();
             _logger.severe("Failed to initialize logic server components. Exception:" + e.getMessage());
             try {
@@ -41,6 +44,18 @@ public class LogicServer extends AbstractServer {
             }
         }
 
+    }
+
+    /* LogicServer private methods */
+
+    private SQLiteDAL1 initDbDAL() throws SQLiteException {
+
+        // Initializing General Database
+        SQLiteDAL1 dal = new SQLiteDAL1(Paths.get("").toAbsolutePath().toString() + SQLiteDAL1.GENERAL_DB_PATH);
+        // Creating tables
+        dal.createTable(SQLiteDAL1.TABLE_UID2TOKEN, SQLiteDAL1.COL_UID, SQLiteDAL1.COL_TOKEN);
+
+        return dal;
     }
 
     /* AbstractServer hook methods */
@@ -141,7 +156,7 @@ public class LogicServer extends AbstractServer {
     @Override
     synchronized protected void clientTimedOut(ConnectionToClient client) {
 
-        _logger.warning("Client " + client.getInfo("id") + " timed out. Socket closed.");
+        //_logger.warning("Client " + client.getInfo("id") + " timed out. Socket closed.");
     }
 
     /* Assisting methods */

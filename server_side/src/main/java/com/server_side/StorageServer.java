@@ -25,7 +25,7 @@ public class StorageServer extends AbstractServer {
             LogsManager.createServerLogsDir();
             LogsManager.clearLogs();
             _logger = LogsManager.getServerLogger();
-            ClientsManager.initialize();
+            //ClientsManager.initialize();
 
             System.out.println("Starting storage server...");
 
@@ -139,7 +139,7 @@ public class StorageServer extends AbstractServer {
     @Override
     synchronized protected void clientTimedOut(ConnectionToClient client) {
 
-        _logger.warning("Client " + client.getInfo("id") + " timed out. Socket closed.");
+       // _logger.warning("Client " + client.getInfo("id") + " timed out. Socket closed.");
     }
 
     /* Assisting methods */

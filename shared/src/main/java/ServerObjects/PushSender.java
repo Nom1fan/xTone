@@ -70,6 +70,11 @@ public abstract class PushSender {
 
     public static boolean sendPush(final String deviceToken, final String pushEventAction, final String value) {
 
+        if(deviceToken==null || deviceToken.equals("")) {
+            _logger.severe("Invalid device token. Aborting push send");
+            return false;
+        }
+
         try {
             pushData(new Gson().toJson(new PushObject(deviceToken, pushEventAction, value)));
         } catch (Exception e) {
@@ -82,6 +87,11 @@ public abstract class PushSender {
     }
 
     public static boolean sendPush(final String deviceToken, final String pushEventAction, final String value, final String jsonExtra) {
+
+        if(deviceToken==null || deviceToken.equals("")) {
+            _logger.severe("Invalid device token. Aborting push send");
+            return false;
+        }
 
         try {
             pushData(new Gson().toJson(new PushObject(deviceToken, pushEventAction, value, jsonExtra)));

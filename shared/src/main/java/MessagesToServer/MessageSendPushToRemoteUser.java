@@ -40,7 +40,7 @@ public class MessageSendPushToRemoteUser extends MessageToServer {
 
 		String remoteToken = ClientsManager.getClientPushToken(_remoteUserId);
 
-		if(remoteToken!=null) {
+		if(remoteToken!=null && !remoteToken.equals("")) {
 
 			boolean sent = false;
 			if (_extra == null) {

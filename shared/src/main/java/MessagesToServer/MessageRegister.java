@@ -24,9 +24,7 @@ public class MessageRegister extends MessageToServer {
 		
 		logger.info(_messageInitiaterId + " is registering...");
 
-		ClientsManager.addClientPushToken(_messageInitiaterId, pushToken);
-		//ClientsManager.addClientConnection(_messageInitiaterId, clientConnection);
-		//ClientsManager.markClientHeartBeat(_messageInitiaterId, clientConnection);
+		ClientsManager.registerUser(_messageInitiaterId, pushToken);
 		MessageRegisterRes msgReply = new MessageRegisterRes();
 		replyToClient(msgReply);
 		
