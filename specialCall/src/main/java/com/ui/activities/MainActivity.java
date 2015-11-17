@@ -482,6 +482,12 @@ public class MainActivity extends Activity implements OnClickListener {
 			intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
 			startActivityForResult(intent, ActivityRequestCodes.SELECT_CONTACT);
 		}
+        else if (id == R.id.clear) {
+
+            AutoCompleteTextView textViewToClear = (AutoCompleteTextView)findViewById(R.id.CallNumber);
+            textViewToClear.setText("");
+
+        }
 
 		else if (id == R.id.login_btn) {
 
@@ -699,6 +705,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
         ImageButton button7 = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
         button7.setOnClickListener(this);
+
+        ImageButton button8 = (ImageButton) findViewById(R.id.clear);
+        button8.setOnClickListener(this);
 
 	}
 

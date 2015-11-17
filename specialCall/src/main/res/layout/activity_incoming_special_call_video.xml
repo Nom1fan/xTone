@@ -5,6 +5,8 @@
     android:layout_height="match_parent"
     tools:context="com.ui.activities.IncomingSpecialCall"
     tools:ignore="MergeRootFrame"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:minHeight="500dp"
     android:minWidth="300dp">
 
