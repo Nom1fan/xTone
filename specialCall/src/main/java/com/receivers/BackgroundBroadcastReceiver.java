@@ -29,7 +29,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
         switch(report.status())
         {
             case REGISTER_SUCCESS:
-                AppStateManager.setAppState(context, TAG + "STATE_IDLE", AppStateManager.STATE_IDLE);
+                AppStateManager.setAppState(context, TAG, AppStateManager.STATE_IDLE);
             break;
 
             case RECONNECT_ATTEMPT:
