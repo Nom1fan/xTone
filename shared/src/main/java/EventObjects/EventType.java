@@ -27,4 +27,5 @@ public enum EventType implements Serializable {
 	LOADING_TIMEOUT,
 	TOKEN_RETRIEVED,
 	COMPRESSING,
+	SP_CALL_INC_MOVED_TO_BG,
 }

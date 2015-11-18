@@ -19,4 +19,12 @@ public abstract class BroadcastUtils {
         broadcastEvent.putExtra(Event.EVENT_REPORT, report);
         context.sendBroadcast(broadcastEvent);
     }
+
+    public static void sendSpecialCallBroadcast(Context context, String tag, EventReport report) {
+
+        Log.i(tag, "Broadcasting specialcall event:" + report.status().toString());
+        Intent broadcastEvent = new Intent(Event.SP_CALL_EVENT_ACTION);
+        broadcastEvent.putExtra(Event.EVENT_REPORT, report);
+        context.sendBroadcast(broadcastEvent);
+    }
 }

@@ -128,7 +128,7 @@ public class MainActivity extends Activity implements OnClickListener {
         // startService(new Intent(this, IncomingService.class));
 
         Intent i = new Intent(this, IncomingService.class);
-        i.setAction(IncomingService.ServiceStart);
+        i.setAction(IncomingService.ACTION_START);
         this.startService(i);
 
         Log.i(tag, "startService: IncomingService");
@@ -1193,9 +1193,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private void drawSelectRingToneButton() {
 
-        boolean wasRingToneUploaded = lut_utils.getUploadedRingTonePerNumber(destPhoneNumber);
+        String wasRingToneUploaded = lut_utils.getUploadedRingTonePerNumber(destPhoneNumber);
         Button ringButton = (Button) findViewById(R.id.selectRingtoneBtn);
-        if(wasRingToneUploaded)
+        if(!wasRingToneUploaded.isEmpty())
         {
             ringButton.getBackground().setColorFilter(0xFF00FF00,
                     PorterDuff.Mode.MULTIPLY);

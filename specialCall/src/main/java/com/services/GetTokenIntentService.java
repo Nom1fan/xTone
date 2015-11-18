@@ -57,7 +57,7 @@ public class GetTokenIntentService extends IntentService {
             retries++;
             String errMsg = "Failed to retrieve device token, retrying...";
             Log.e(TAG, errMsg);
-            callToast(errMsg, Color.RED);
+            //callToast(errMsg, Color.RED);
 
             token = (String) ParseInstallation.getCurrentInstallation().get("deviceToken");
             SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN, token);
@@ -78,7 +78,7 @@ public class GetTokenIntentService extends IntentService {
             String infoMsg =  "Device token retrieved";
             BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.TOKEN_RETRIEVED, null, null));
             Log.i(TAG, infoMsg+":"+token);
-            callToast(infoMsg,Color.GREEN);
+            //callToast(infoMsg,Color.GREEN);
         }
     }
 

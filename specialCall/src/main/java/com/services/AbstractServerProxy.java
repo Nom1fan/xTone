@@ -97,14 +97,14 @@ public class AbstractServerProxy extends Service implements IServerProxy {
         connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 
         Log.i(TAG, "created");
-        callInfoToast(TAG + " created");
+        //callInfoToast(TAG + " created");
     }
 
     @Override
     public void onDestroy() {
 
         Log.e(TAG, "Being destroyed");
-        callErrToast(TAG + "is being destroyed");
+        //callErrToast(TAG + "is being destroyed");
     }
 
     @Override

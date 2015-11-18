@@ -1,41 +1,37 @@
 package com.services;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Binder;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.provider.Contacts;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.special.app.R;
 import com.ui.activities.IncomingSpecialCall;
 
 import java.io.File;
 import java.io.IOException;
 
+import EventObjects.Event;
 import EventObjects.EventReport;
-import EventObjects.EventType;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
 
-import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 
 
@@ -53,18 +49,31 @@ public class IncomingService extends Service {
     private String incomingCallNumber;
     private static volatile boolean InRingingSession = false;
     private Intent specialCallIntent = new Intent();
-    private final int TOP_ACTIVITY_RETRIES = 5;
     private static final String TAG = IncomingService.class.getSimpleName();
     private MediaPlayer mMediaPlayer;
-    private final IBinder mBinder = new MyBinder();
-    public static final String STOP_RING = "com.services.IncomingService.STOPRING";
-    public static final String ServiceStart = "com.services.IncomingService.ServiceStart";
+    public static final String ACTION_STOP_RING = "com.services.IncomingService.ACTION_STOP_RING";
+    public static final String ACTION_START = "com.services.IncomingService.ACTION_START";
+    private BroadcastReceiver specialCallStateReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            EventReport report = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
+            switch(report.status()) {
+
+                case SP_CALL_INC_MOVED_TO_BG:
+                    displaySpecialCallActivity();
+                break;
+            }
+        }
+    };
+
     /* Service operations methods */
 
     @Override
     public void onCreate() {
         Log.i(TAG, "Service onCreate");
-        callInfoToast("IncomingSpecialCall Service created", Color.CYAN);
+        //callInfoToast("IncomingSpecialCall Service created", Color.CYAN);
 
         try
         {
@@ -75,6 +84,8 @@ public class IncomingService extends Service {
                 tm.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
 
             }
+
+            registerReceiver(specialCallStateReceiver, new IntentFilter(Event.SP_CALL_EVENT_ACTION));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -101,22 +112,15 @@ public class IncomingService extends Service {
                     Log.i(TAG, "Action:" + action);
                     switch (action) {
 
-                        case STOP_RING: {
+                        case ACTION_STOP_RING: {
                             stopSound();
                         }
                         break;
-                        case ServiceStart: {
+                        case ACTION_START: {
                         }break;
                     }
                 }
-
-
-
-
-
-
             }
-
 
         }.start();
 
@@ -132,15 +136,8 @@ public class IncomingService extends Service {
     }
 
     @Override
-    public IBinder onBind(Intent arg0) {
-        return mBinder;
-    }
-
-
-    public class MyBinder extends Binder {
-        public IncomingService getService() {
-            return IncomingService.this;
-        }
+    public IBinder onBind(Intent intent) {
+        return null;
     }
 
     /* Assisting methods and listeners */
@@ -158,11 +155,6 @@ public class IncomingService extends Service {
             Log.e(TAG, "Failed to Stop sound. Exception:" + e.getMessage());
         }
     }
-
-
-
-
-
 
     /**
      * Listener for call states
@@ -341,6 +333,7 @@ public class IncomingService extends Service {
 
     private void displaySpecialCallActivity(FileManager.FileType fType, String mediaFilePath) {
 
+        Log.i(TAG, "Displaying specialcall activity");
 
         if (fType == FileManager.FileType.VIDEO) {
 
@@ -354,69 +347,23 @@ public class IncomingService extends Service {
         specialCallIntent.setClass(getApplicationContext(), IncomingSpecialCall.class);
 
         specialCallIntent.setFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);//|Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+                | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+                        | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                        | Intent.FLAG_ACTIVITY_CLEAR_TOP
+        );
 
 
         specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_FILEPATH, mediaFilePath);
 
         String contactname = getContactName(incomingCallNumber);
-        specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_CALLER, contactname+": "+ incomingCallNumber);
+        specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_CALLER, contactname + ": " + incomingCallNumber);
+        startActivity(specialCallIntent);
 
+    }
 
-        Log.i(TAG, "START ACTIVITY before For");
-        getApplicationContext().startActivity(specialCallIntent);
+    private void displaySpecialCallActivity() {
 
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-
-        int count;
-        int numFailures = 0;
-        for(count=0;count<20;++count)
-        {
-            count++;
-            Log.i(TAG, "Into the For isInFront: " + isInFront);
-            if(!isInFront)
-            {   numFailures++;
-
-                Log.i(TAG, "START ACTIVITY");
-
-                Intent i=new Intent(getApplicationContext(),IncomingSpecialCall.class);
-
-
-                specialCallIntent.setFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-
-                        | Intent.FLAG_ACTIVITY_NEW_TASK |
-                                Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                                Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT |
-                                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-                        | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                               | Intent.FLAG_ACTIVITY_CLEAR_TOP
-                );
-
-                getApplicationContext().startActivity(specialCallIntent);
-
-
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-        }
-        Log.i(TAG, "Exited after For ");
-
-        if(numFailures==count)
-        {
-            Log.e(TAG, "Failed to set IncomingSpecialCall activity to top after:"+TOP_ACTIVITY_RETRIES+" retries");
-        }
-
+        startActivity(specialCallIntent);
     }
 
     private void startRingtoneSpecialCall() {

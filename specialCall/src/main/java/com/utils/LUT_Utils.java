@@ -31,12 +31,12 @@ public class LUT_Utils {
         SharedPrefUtils.remove(_context, SharedPrefUtils.UPLOADED_MEDIA_THUMBNAIL, destPhoneNumber);
     }
 
-    public void saveUploadedRingTonePerNumber(String destPhoneNumber, boolean wasUploaded) {
-        SharedPrefUtils.setBoolean(_context, SharedPrefUtils.WAS_RINGTONE_UPLOADED, destPhoneNumber, wasUploaded);
+    public void saveUploadedRingTonePerNumber(String destPhoneNumber, String mediaPath) {
+        SharedPrefUtils.setString(_context, SharedPrefUtils.WAS_RINGTONE_UPLOADED, destPhoneNumber, mediaPath);
     }
 
-    public boolean getUploadedRingTonePerNumber(String destPhoneNumber) {
-        return SharedPrefUtils.getBoolean(_context, SharedPrefUtils.WAS_RINGTONE_UPLOADED, destPhoneNumber);
+    public String getUploadedRingTonePerNumber(String destPhoneNumber) {
+        return SharedPrefUtils.getString(_context, SharedPrefUtils.WAS_RINGTONE_UPLOADED, destPhoneNumber);
     }
 
     public void removeUploadedRingTonePerNumber(String destPhoneNumber) {
@@ -54,7 +54,7 @@ public class LUT_Utils {
                 removeUploadedRingTonePerNumber(destPhoneNumber);
                 break;
             case RINGTONE:
-                saveUploadedRingTonePerNumber(destPhoneNumber, true);
+                saveUploadedRingTonePerNumber(destPhoneNumber, mediaPath);
 
                 // Checking if video was marked as last uploaded, if so need to delete (ringtone cannot co-exist with video)
                 String thumbPath = getUploadedMediaPerNumber(destPhoneNumber);

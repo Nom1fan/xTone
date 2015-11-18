@@ -3,6 +3,7 @@ package com.ui.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -30,9 +31,13 @@ import android.widget.VideoView;
 import com.interfaces.ITelephony;
 import com.services.IncomingService;
 import com.special.app.R;
+import com.utils.BroadcastUtils;
+import com.utils.SharedPrefUtils;
 
 import java.io.File;
 
+import EventObjects.EventReport;
+import EventObjects.EventType;
 import FilesManager.FileManager;
 
 
@@ -43,21 +48,18 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
     public static final String TAG = "IncomingSpecialCall";
     public static final String SPECIAL_CALL_FILEPATH = "SpecialCallFilePath";
     public static final String SPECIAL_CALL_CALLER = "SpecialCallCaller";
-    private String callerNumber ;
-    private boolean mIsBound = false;
-    private boolean videoMedia = false;
+    public static final String SPECIAL_CALL_PREVIEW = "SpecialCallPreview";
 
-    AudioManager audioManager = null ;
-    RelativeLayout rlayout;
-    VideoViewCustom mVideoView;
-    MediaController mediaController;
-    ImageView myImageView;
-    String mediaFilePath;
-    boolean FullScreen = true;
-    int videoTransitionID ;
-    int imageTransitionID ;
-    public static Context ctx;
-    RelativeLayout mLayout;
+    private String callerNumber ;
+    private boolean isPreview = false;
+    private boolean videoMedia = false;
+    private boolean isCallFinished = false;
+    private AudioManager audioManager = null ;
+    private MediaController mediaController;
+    private ImageView myImageView;
+    private String mediaFilePath;
+    private Bitmap spCallBitmap;
+
     // WindowManager.LayoutParams windowParams;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,25 +72,33 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
             Intent intent = getIntent();
             mediaFilePath = intent.getStringExtra(SPECIAL_CALL_FILEPATH);
             callerNumber = intent.getStringExtra(SPECIAL_CALL_CALLER);
+            isPreview = intent.getBooleanExtra(SPECIAL_CALL_PREVIEW, false);
 
-            CallStateListener stateListener = new CallStateListener();
-            tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
-            tm.listen(stateListener, PhoneStateListener.LISTEN_CALL_STATE);
+            if (!isPreview) {
+                CallStateListener stateListener = new CallStateListener();
+                tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+                tm.listen(stateListener, PhoneStateListener.LISTEN_CALL_STATE);
+            }
+
 
             Log.i(TAG, "Preparing to display:" + mediaFilePath);
 
             FileManager.FileType fileType = FileManager.getFileType(new File(mediaFilePath));
 
-            this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN |
+            this.getWindow().setFlags(
                     WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                     WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |  WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |     WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY  //| WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
-                    | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT /*| Intent.FLAG_ACTIVITY_CLEAR_TOP*/   // <<< flags added by RONY
-                    | /*Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP |*/ Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED // <<< flags added by RONY
-                    ,WindowManager.LayoutParams.FLAG_FULLSCREEN|
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                    WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY |
+                    Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
+                    Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT |
+                    Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
                     WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                     WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |  WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |      WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY  //| WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON  |
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
+                    WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
             );
 
 
@@ -115,14 +125,18 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
                     options.inSampleSize = calculateInSampleSize(options, width, height);
 
                     options.inJustDecodeBounds = false;
-                    Bitmap tmp_bitmap = BitmapFactory.decodeFile(mediaFilePath, options);
-                    if (tmp_bitmap != null)
-                        myImageView.setImageBitmap(tmp_bitmap);
-                    else
-                    {
-                        tmp_bitmap = BitmapFactory.decodeFile(mediaFilePath);
-                        myImageView.setImageBitmap(tmp_bitmap);
+                    if(SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.WAS_SPIMAGE_DECODED)) {
+                        spCallBitmap = BitmapFactory.decodeFile(mediaFilePath, options);
+                        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.WAS_SPIMAGE_DECODED, true);
                     }
+
+                        if (spCallBitmap != null)
+                            myImageView.setImageBitmap(spCallBitmap);
+                        else {
+                            spCallBitmap = BitmapFactory.decodeFile(mediaFilePath);
+                            myImageView.setImageBitmap(spCallBitmap);
+                        }
+
 
                 }   catch (NullPointerException | OutOfMemoryError e) {
                     Log.e(TAG, "Failed decoding image", e);
@@ -181,6 +195,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
     @Override
     public void onClick(View v) {
 
+        int id = v.getId();
     }
 
 
@@ -221,6 +236,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "Entering OnResume");
+        findViewById(R.id.container).requestFocus();
         IncomingService.isInFront = true;
 
     }
@@ -241,9 +257,11 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
     private void finishSpecialCall(){
 
         try {
-            this.finish();
-            mIsBound = true;
+            isCallFinished = true;
             videoMedia = false;
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.WAS_SPIMAGE_DECODED, false);
+            finish();
+
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -275,7 +293,6 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
                 case TelephonyManager.DATA_DISCONNECTED: {
                     Log.i(TAG, "TelephonyManager.DATA_DISCONNECTED");
 
-                    finishSpecialCall();
                     if (audioManager != null){
 
                         Runnable r = new Runnable() {
@@ -290,10 +307,8 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
                         };
 
                         new Thread(r).start();
-
-
-
                     }
+                    finishSpecialCall();
                     break;
                 }
 
@@ -306,10 +321,8 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
     protected void onPause() {
         super.onPause();
         Log.i(TAG, "Entering OnPause");
-        IncomingService.isInFront = false;
-
-        mIsBound = true;
-
+        if(!isCallFinished)
+            BroadcastUtils.sendSpecialCallBroadcast(getApplicationContext(), TAG, new EventReport(EventType.SP_CALL_INC_MOVED_TO_BG, null, null));
     }
 
     @Override
@@ -322,7 +335,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
 
 
             Intent i = new Intent(this, IncomingService.class);
-            i.setAction(IncomingService.STOP_RING);
+            i.setAction(IncomingService.ACTION_STOP_RING);
             this.startService(i);
 
 

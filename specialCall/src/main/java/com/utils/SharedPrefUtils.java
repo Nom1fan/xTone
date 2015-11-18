@@ -21,6 +21,7 @@ public class SharedPrefUtils {
 	public static final String APP_STATE = "AppState";
 	public static final String LOADING_MESSAGE = "LoadingMessage";
 	public static final String MY_DEVICE_TOKEN = "MyDeviceToken";
+	public static final String WAS_SPIMAGE_DECODED ="WasSpImageDecoded";
 
 	/* Shared pref keys under SERVER_PROXY */
 	public static final String RECONNECT_INTERVAL = "LogicServerProxyService.RECONNECT_INTERVAL";
