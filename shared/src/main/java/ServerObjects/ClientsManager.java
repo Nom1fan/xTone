@@ -54,7 +54,10 @@ public class ClientsManager {
 
 	public synchronized static boolean registerUser(String clientId, String token) {
 
-		return dal.registerUser(clientId, token);
+		if(isRegistered(clientId))
+			return dal.updateUserPushToken(clientId, token);
+		else
+			return dal.registerUser(clientId, token);
 	}
 
 	public synchronized static boolean unregisterUser(String clientId) {
@@ -67,17 +70,17 @@ public class ClientsManager {
 		return dal.getUserPushToken(clientId);
 	}
 
-	public synchronized static UserStatus isRegistered(String clientId) {
+	public synchronized static boolean isRegistered(String clientId) {
 
         String deviceToken = ClientsManager.getClientPushToken(clientId);
 
         if (deviceToken == null || deviceToken.equals("")) {
 
             serverLogger.info("No device token found for user:" + clientId + ". User is " + UserStatus.UNREGISTERED.toString());
-            return UserStatus.UNREGISTERED;
+            return false;
         }
 
-		return UserStatus.REGISTERED;
+		return true;
 		
 	}
 }

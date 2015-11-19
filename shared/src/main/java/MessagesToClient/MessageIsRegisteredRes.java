@@ -13,34 +13,27 @@ public class MessageIsRegisteredRes extends MessageToClient {
 	 * 
 	 */
 	private static final long serialVersionUID = -7124115668017564832L;
-	private UserStatus _userStatus;
 	private String _phone;
+	private boolean _isRegistered;
 	
-	public MessageIsRegisteredRes(String phone, UserStatus userStatus) {
+	public MessageIsRegisteredRes(String phone, boolean isRegistered) {
 						
 		_phone = phone;
-		_userStatus = userStatus;
+		_isRegistered = isRegistered;
 	}
 	
 	@Override
 	public EventReport doClientAction(ConnectionToServer connectionToServer) throws IOException {
 		
 		String desc;
-		switch(_userStatus)
-		{
-			case REGISTERED:
-				desc = "User "+_phone+" is registered";
-				return new EventReport(EventType.USER_REGISTERED_TRUE, desc, _phone);
-
-			case UNREGISTERED:
-				desc = "User "+_phone+" is unregistered";
-				return new EventReport(EventType.USER_REGISTERED_FALSE, desc, _phone);
-			
-			default: 
-					desc = "Unable to retrieve user "+_phone+" status";
-					return new EventReport(EventType.ISREGISTERED_ERROR, desc, _phone);
+		if(_isRegistered) {
+			desc = "User "+_phone+" is registered";
+			return new EventReport(EventType.USER_REGISTERED_TRUE, desc, _phone);
 		}
-					
+		else {
+			desc = "User "+_phone+" is unregistered";
+			return new EventReport(EventType.USER_REGISTERED_FALSE, desc, _phone);
+		}
 	}
 	
 }

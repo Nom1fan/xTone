@@ -8,5 +8,5 @@ public interface IDAL {
     boolean registerUser(String uid, String token);
     boolean unregisterUser(String uid);
     String getUserPushToken(String uid);
-
+    boolean updateUserPushToken(String uid, String token);
 }

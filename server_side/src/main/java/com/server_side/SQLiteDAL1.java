@@ -1,10 +1,12 @@
 package com.server_side;
 
-import com.almworks.sqlite4java.*;
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.almworks.sqlite4java.SQLiteConnection;
+import com.almworks.sqlite4java.SQLiteException;
+import com.almworks.sqlite4java.SQLiteJob;
+import com.almworks.sqlite4java.SQLiteQueue;
+import com.almworks.sqlite4java.SQLiteStatement;
 
 import java.io.File;
-import java.nio.file.Paths;
 
 import DalObjects.IDAL;
 
@@ -62,6 +64,13 @@ public class SQLiteDAL1 implements IDAL {
     }
 
     @Override
+    public boolean updateUserPushToken(final String uid, final String token) {
+
+        String query = "UPDATE " + TABLE_UID2TOKEN + " SET " + COL_TOKEN + "=" + "\"" + token + "\"" + " WHERE "+ COL_UID + "=" + "\"" +  uid + "\"";
+        return execQuery(query);
+    }
+
+    @Override
     public String getUserPushToken(final String uid) {
 
         return myQueue.execute(new SQLiteJob<String>() {
@@ -102,23 +111,5 @@ public class SQLiteDAL1 implements IDAL {
             }
         }).complete();
 
-    }
-
-
-    public static void main(String args[]) {
-
-        String dbPath  = Paths.get("").toAbsolutePath().toString() + GENERAL_DB_PATH;
-        try {
-            SQLiteDAL1 dal = new SQLiteDAL1(dbPath);
-            dal.createTable(TABLE_UID2TOKEN, COL_UID, COL_TOKEN);
-            dal.registerUser("000", "token");
-            String token = dal.getUserPushToken("000");
-            dal.unregisterUser("000");
-            token = dal.getUserPushToken("000");
-            System.out.println("end");
-
-        } catch (SQLiteException e) {
-            e.printStackTrace();
-        }
     }
 }
