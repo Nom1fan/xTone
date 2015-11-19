@@ -85,15 +85,16 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
 
             FileManager.FileType fileType = FileManager.getFileType(new File(mediaFilePath));
 
+
+
             this.getWindow().setFlags(
+                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
                     WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                     WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                     WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                    WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY |
-                    Intent.FLAG_ACTIVITY_REORDER_TO_FRONT |
-                    Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT |
-                    Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED,
+                    WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
+                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
                     WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                     WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                     WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON  |
@@ -290,12 +291,14 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
         public void onCallStateChanged(int state, String incomingNumber) {
             switch (state) {
 
-                case TelephonyManager.DATA_DISCONNECTED: {
-                    Log.i(TAG, "TelephonyManager.DATA_DISCONNECTED");
+                case TelephonyManager.CALL_STATE_IDLE:
+                case TelephonyManager.CALL_STATE_OFFHOOK:
+                {
+                    Log.i(TAG, "TelephonyManager.CALL_STATE_IDLE");
 
                     if (audioManager != null){
 
-                        Runnable r = new Runnable() {
+                        new Thread() {
                             public void run() {
                                 try {
                                     Thread.sleep(2000,0);
@@ -304,9 +307,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
                                 }
                                 audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
                             }
-                        };
-
-                        new Thread(r).start();
+                        }.start();
                     }
                     finishSpecialCall();
                     break;

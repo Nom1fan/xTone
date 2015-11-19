@@ -346,10 +346,12 @@ public class IncomingService extends Service {
 
         specialCallIntent.setClass(getApplicationContext(), IncomingSpecialCall.class);
 
-        specialCallIntent.setFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-                        | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                        | Intent.FLAG_ACTIVITY_CLEAR_TOP
+        specialCallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK             |
+                                   Intent.FLAG_ACTIVITY_SINGLE_TOP           |
+                                   Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT     |
+                                   Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED |
+                                   Intent.FLAG_ACTIVITY_REORDER_TO_FRONT     |
+                                   Intent.FLAG_ACTIVITY_CLEAR_TOP
         );
 
 
