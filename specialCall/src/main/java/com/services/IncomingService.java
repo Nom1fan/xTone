@@ -1,25 +1,36 @@
 package com.services;
 
-import android.app.Service;
+import android.app.ActionBar;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.Contacts;
+import android.provider.MediaStore;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.WindowManager;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.MediaController;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
-import com.ui.activities.IncomingSpecialCall;
+import com.special.app.R;
+import com.utils.SharedPrefUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,11 +42,11 @@ import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
+import wei.mark.standout.StandOutWindow;
+import wei.mark.standout.ui.Window;
 
-import com.utils.SharedPrefUtils;
 
-
-public class IncomingService extends Service {
+public class IncomingService extends StandOutWindow {
 
     public static boolean wasSpecialRingTone = false;
     public static boolean isInFront = false;
@@ -48,23 +59,28 @@ public class IncomingService extends Service {
     private static CallStateListener phoneListener;
     private String incomingCallNumber;
     private static volatile boolean InRingingSession = false;
-    private Intent specialCallIntent = new Intent();
     private static final String TAG = IncomingService.class.getSimpleName();
     private MediaPlayer mMediaPlayer;
+    private int mWidth;
+    private int mHeight;
+//    private MediaController mediaController;
+    private View specialCallView;
+    private TextView specialCallTextView;
+    private Bitmap spCallBitmap;
+    private boolean videoMedia = false;
     public static final String ACTION_STOP_RING = "com.services.IncomingService.ACTION_STOP_RING";
     public static final String ACTION_START = "com.services.IncomingService.ACTION_START";
-    private BroadcastReceiver specialCallStateReceiver = new BroadcastReceiver() {
+
+    private MediaPlayer.OnPreparedListener PreparedListener = new MediaPlayer.OnPreparedListener(){
 
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onPrepared(MediaPlayer m) {
 
-            EventReport report = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
-            switch(report.status()) {
-
-                case SP_CALL_INC_MOVED_TO_BG:
-                    displaySpecialCallActivity();
-                break;
-            }
+            Log.i(TAG, "Entering OnPreparedListener");
+            m.setLooping(true);
+            m.setVolume(1.0f, 1.0f);
+            m.start();
+            Log.i(TAG, "Finishing OnPreparedListener");
         }
     };
 
@@ -72,8 +88,14 @@ public class IncomingService extends Service {
 
     @Override
     public void onCreate() {
+        super.onCreate();
         Log.i(TAG, "Service onCreate");
-        //callInfoToast("IncomingSpecialCall Service created", Color.CYAN);
+
+        Display display = mWindowManager.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        mWidth = size.x;
+        mHeight = size.y/2;
 
         try
         {
@@ -85,7 +107,6 @@ public class IncomingService extends Service {
 
             }
 
-            registerReceiver(specialCallStateReceiver, new IntentFilter(Event.SP_CALL_EVENT_ACTION));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -131,8 +152,34 @@ public class IncomingService extends Service {
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         Log.e(TAG, "Service onDestroy");
 
+    }
+
+    @Override
+    public String getAppName() {
+        return "SPECIAL CALL";
+    }
+
+    @Override
+    public int getAppIcon() {
+        return R.drawable.ic_launcher;
+    }
+
+    @Override
+    public void createAndAttachView(int id, FrameLayout frame) {
+
+        Log.i(TAG, "In createAndAttachView()");
+
+        frame.addView(specialCallView);
+        frame.addView(specialCallTextView);
+    }
+
+    @Override
+    public StandOutLayoutParams getParams(int id, Window window) {
+
+        return new StandOutLayoutParams(id, mWidth, mHeight, 0, 0);
     }
 
     @Override
@@ -243,6 +290,7 @@ public class IncomingService extends Service {
                 break;
 
             case TelephonyManager.CALL_STATE_IDLE:
+            case TelephonyManager.CALL_STATE_OFFHOOK:
                 Log.i(TAG, "TelephonyManager.CALL_STATE_IDLE");
                 if (wasSpecialRingTone)
                 {
@@ -251,7 +299,7 @@ public class IncomingService extends Service {
                 }
 
                 if  (InRingingSession) {
-
+                    InRingingSession = false;
                     Runnable r = new Runnable() {
                         public void run() {
 
@@ -269,6 +317,7 @@ public class IncomingService extends Service {
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
+                                audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
                                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, oldMediaVolume, 0);
                                 audioManager.setStreamVolume(AudioManager.STREAM_ALARM, oldAlarmVolume, 0);
                             } catch(Exception e) {  e.printStackTrace();  }
@@ -276,64 +325,39 @@ public class IncomingService extends Service {
                             try {
                                 audioManager.setStreamMute(AudioManager.STREAM_RING, false);
                             } catch(Exception e) {  e.printStackTrace();  }
-                            InRingingSession = false;
+
+
+
 
                         }
                     };
 
                     new Thread(r).start();
 
-                }
-                break;
-            case TelephonyManager.CALL_STATE_OFFHOOK:
-                Log.i(TAG, "TelephonyManager.CALL_STATE_OFFHOOK");
-                if (wasSpecialRingTone)
-                {
-
-                    wasSpecialRingTone = false;
-                }
-
-                if  (InRingingSession) {
-
-                    Runnable r = new Runnable() {
-                        public void run() {
-
-
-                            Log.i(TAG, "AudioManager.STREAM_RING, false");
-                            try {
-                                if(mMediaPlayer!=null)
-                                    mMediaPlayer.stop();
-                            } catch(Exception e) {  e.printStackTrace();  }
-
-                            try {
-                                try {
-                                    Thread.sleep(2000,0);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, oldMediaVolume, 0);
-                                audioManager.setStreamVolume(AudioManager.STREAM_ALARM, oldAlarmVolume, 0);
-                            } catch(Exception e) {  e.printStackTrace();  }
-
-                            try {
-                                audioManager.setStreamMute(AudioManager.STREAM_RING, false);
-                            } catch(Exception e) {  e.printStackTrace();  }
-                            InRingingSession = false;
-
-                        }
-                    };
-
-                    new Thread(r).start();
+                    Intent i = new Intent(this, IncomingService.class);
+                    i.setAction(StandOutWindow.ACTION_CLOSE);
+                    startService(i);
 
                 }
                 break;
+
         }
 
     }
 
-    private void displaySpecialCallActivity(FileManager.FileType fType, String mediaFilePath) {
+    private void prepareViewForSpecialCall(FileManager.FileType fType, String mediaFilePath) {
 
-        Log.i(TAG, "Displaying specialcall activity");
+        Log.i(TAG, "Preparing specialcall view");
+
+        //TextView for Showing Incoming Call Number and contact name
+        specialCallTextView = new TextView(this);
+        specialCallTextView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT));
+        String contactName = getContactName(incomingCallNumber);
+        specialCallTextView.setText(!contactName.equals("") ? contactName+" "+incomingCallNumber : incomingCallNumber);
+        specialCallTextView.setBackgroundColor(Color.BLACK);
+        specialCallTextView.setTextColor(Color.WHITE);
+        specialCallTextView.setGravity(Gravity.BOTTOM|Gravity.LEFT);
 
         if (fType == FileManager.FileType.VIDEO) {
 
@@ -344,29 +368,98 @@ public class IncomingService extends Service {
             videoStreamOn = true;
         }
 
-        specialCallIntent.setClass(getApplicationContext(), IncomingSpecialCall.class);
+        // Drawing image during call
+        if (fType == FileManager.FileType.IMAGE) {
 
-        specialCallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK             |
-                                   Intent.FLAG_ACTIVITY_SINGLE_TOP           |
-                                   Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT     |
-                                   Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED |
-                                   Intent.FLAG_ACTIVITY_REORDER_TO_FRONT     |
-                                   Intent.FLAG_ACTIVITY_CLEAR_TOP
-        );
+            try {
+
+                Log.i(TAG, "In IMAGE");
+
+                specialCallView = new ImageView(this);
+
+                specialCallView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT));
+
+                final BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeFile(mediaFilePath, options);
+                options.inSampleSize = calculateInSampleSize(options, mWidth, mHeight);
+
+                options.inJustDecodeBounds = false;
+                if(SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.WAS_SPIMAGE_DECODED)) {
+                    spCallBitmap = BitmapFactory.decodeFile(mediaFilePath, options);
+                    SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.WAS_SPIMAGE_DECODED, true);
+                }
+
+                if (spCallBitmap != null)
+                    ((ImageView)specialCallView).setImageBitmap(spCallBitmap);
+                else {
+                    spCallBitmap = BitmapFactory.decodeFile(mediaFilePath);
+                    ((ImageView)specialCallView).setImageBitmap(spCallBitmap);
+                }
 
 
-        specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_FILEPATH, mediaFilePath);
+            }   catch (NullPointerException | OutOfMemoryError e) {
+                Log.e(TAG, "Failed decoding image", e);
+            }
 
-        String contactname = getContactName(incomingCallNumber);
-        specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_CALLER, contactname + ": " + incomingCallNumber);
-        startActivity(specialCallIntent);
+            videoMedia = false;
 
+        }
+        if (fType == FileManager.FileType.VIDEO)
+        {
+
+            Log.i(TAG, "In VIDEO");
+            videoMedia = true;
+
+            // Special ringtone in video case is silent
+            IncomingService.wasSpecialRingTone = true;
+
+            // VideoView on Relative Layout
+            final File root = new File(mediaFilePath);
+
+            Uri uri = Uri.fromFile(root);
+
+            specialCallView = new VideoView(this);
+            specialCallView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT));
+
+//            mediaController = new MediaController(this);
+//            mediaController.setAnchorView(specialCallView);
+//            mediaController.setMediaPlayer(((VideoView)specialCallView));
+//            mediaController.setBackgroundColor(Color.WHITE);
+//
+//
+//            ((VideoView)specialCallView).setMediaController(mediaController);
+            ((VideoView)specialCallView).setOnPreparedListener(PreparedListener);
+            ((VideoView)specialCallView).setVideoURI(uri);
+            ((VideoView)specialCallView).setBackgroundColor(Color.TRANSPARENT);
+            ((VideoView)specialCallView).requestFocus();
+
+        }
     }
 
-    private void displaySpecialCallActivity() {
 
-        startActivity(specialCallIntent);
-    }
+//        specialCallIntent.setClass(getApplicationContext(), IncomingSpecialCall.class);
+//
+//        specialCallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK             |
+//                                   Intent.FLAG_ACTIVITY_SINGLE_TOP           |
+//                                   Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT     |
+//                                   Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED |
+//                                   Intent.FLAG_ACTIVITY_REORDER_TO_FRONT     |
+//                                   Intent.FLAG_ACTIVITY_CLEAR_TOP
+//        );
+//
+//
+//        specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_FILEPATH, mediaFilePath);
+//
+//        String contactname = getContactName(incomingCallNumber);
+//        specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_CALLER, contactname + ": " + incomingCallNumber);
+//        startActivity(specialCallIntent);
+//    private void prepareViewForSpecialCall() {
+//
+//        startActivity(specialCallIntent);
+//    }
 
     private void startRingtoneSpecialCall() {
 
@@ -422,7 +515,10 @@ public class IncomingService extends Service {
         if(!mediaFilePath.equals("")) {
             try {
                 FileManager fm = new FileManager(mediaFilePath);
-                displaySpecialCallActivity(fm.getFileType(), fm.getFileFullPath());
+                prepareViewForSpecialCall(fm.getFileType(), fm.getFileFullPath());
+                Intent i = new Intent(this, IncomingService.class);
+                i.setAction(StandOutWindow.ACTION_SHOW);
+                startService(i);
 
             } catch (FileInvalidFormatException |
                     FileExceedsMaxSizeException |
@@ -433,7 +529,27 @@ public class IncomingService extends Service {
         }
     }
 
+    public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
 
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
 
     /* UI methods */
 
