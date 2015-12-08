@@ -40,4 +40,5 @@ dependencies {
     compile fileTree(include: 'Parse-*.jar', dir: 'libs')
     compile 'org.apache.directory.studio:org.apache.commons.lang:2.6'
     compile project(':ffmpeg4android_lib')
+    compile project(':standOut_lib')
 }
