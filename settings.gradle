@@ -1,2 +1,3 @@
-include ':shared', ':server_side', 'ffmpeg4android_lib'
+include ':shared', ':server_side', 'ffmpeg4android_lib', ':ffmpeg4android_lib'
 include ':specialCall'
+include ':standOut_lib'

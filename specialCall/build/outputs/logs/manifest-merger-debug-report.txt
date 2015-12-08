@@ -17,6 +17,7 @@ uses-sdk
 ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:7:5-9:41
 MERGED from [com.android.support:appcompat-v7:19.1.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\appcompat-v7\19.1.0\AndroidManifest.xml:18:5-42
 MERGED from [SpecialCall:ffmpeg4android_lib:unspecified] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\ffmpeg4android_lib\unspecified\AndroidManifest.xml:7:5-9:41
+MERGED from [SpecialCall:standOut_lib:unspecified] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\standOut_lib\unspecified\AndroidManifest.xml:7:5-9:41
 	android:targetSdkVersion
 		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:9:9-38
 		INJECTED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml
@@ -290,3 +291,7 @@ ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidM
 		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:154:13-37
 	android:name
 		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:153:13-62
+uses-permission#android.permission.SYSTEM_ALERT_WINDOW
+ADDED from [SpecialCall:standOut_lib:unspecified] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\standOut_lib\unspecified\AndroidManifest.xml:11:5-78
+	android:name
+		ADDED from [SpecialCall:standOut_lib:unspecified] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\standOut_lib\unspecified\AndroidManifest.xml:11:22-75

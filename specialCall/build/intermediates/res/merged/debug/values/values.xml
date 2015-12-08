@@ -97,6 +97,7 @@
     <declare-styleable name="ActionMenuView"/>
     <declare-styleable name="ActionMode"><attr name="titleTextStyle"/><attr name="subtitleTextStyle"/><attr name="background"/><attr name="backgroundSplit"/><attr name="height"/></declare-styleable>
     <declare-styleable name="ActivityChooserView"><attr format="string" name="initialActivityCount"/><attr format="reference" name="expandActivityOverflowButtonDrawable"/></declare-styleable>
+    <declare-styleable name="ButtonBarContainerTheme"><attr format="reference" name="metaButtonBarStyle"/><attr format="reference" name="metaButtonBarButtonStyle"/></declare-styleable>
     <declare-styleable name="CompatTextView"><attr format="reference|boolean" name="textAllCaps"/></declare-styleable>
     <declare-styleable name="LinearLayoutICS"><attr name="divider"/><attr name="showDividers"><flag name="none" value="0"/><flag name="beginning" value="1"/><flag name="middle" value="2"/><flag name="end" value="4"/></attr><attr format="dimension" name="dividerPadding"/></declare-styleable>
     <declare-styleable name="MenuGroup"><attr name="android:id"/><attr name="android:menuCategory"/><attr name="android:orderInCategory"/><attr name="android:checkableBehavior"/><attr name="android:visible"/><attr name="android:enabled"/></declare-styleable>
@@ -159,6 +160,9 @@
     <eat-comment/>
     <string name="action_settings">Settings</string>
     <string name="app_name">SpecialCall</string>
+    <!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/build/intermediates/exploded-aar/SpecialCall/standOut_lib/unspecified/res/values/values.xml -->
+    <eat-comment/>
+    <string name="close">Close</string>
     <!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/build/intermediates/exploded-aar/SpecialCall/ffmpeg4android_lib/unspecified/res/values/values.xml -->
     <eat-comment/>
     <string name="commandText">ffmpeg -y -i /sdcard/videokit/in.mp4 -strict experimental -vf transpose=1 -s 160x120 -r 30 -aspect 4:3 -ab 48000 -ac 2 -ar 22050 -b 2097k /sdcard/videokit/out.mp4</string>
@@ -166,6 +170,9 @@
     <!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/src/main/res/values/strings.xml -->
     <eat-comment/>
     <string name="content_title">File upload</string>
+    <!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/build/intermediates/exploded-aar/SpecialCall/standOut_lib/unspecified/res/values/values.xml -->
+    <eat-comment/>
+    <string name="corner">Corner</string>
     <!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/build/intermediates/exploded-aar/SpecialCall/ffmpeg4android_lib/unspecified/res/values/values.xml -->
     <eat-comment/>
     <string name="email">android@netcompss.com</string>
@@ -174,8 +181,18 @@
     <eat-comment/>
     <string name="hello">SimpleDialer</string>
     <string name="hello_world">Hello world!</string>
+    <!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/build/intermediates/exploded-aar/SpecialCall/standOut_lib/unspecified/res/values/values.xml -->
+    <eat-comment/>
+    <string name="hide">Hide</string>
+    <!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/src/main/res/values/strings.xml -->
+    <eat-comment/>
     <string name="initial_upload_text">Pending upload</string>
     <string name="main_label">My Friends</string>
+    <!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/build/intermediates/exploded-aar/SpecialCall/standOut_lib/unspecified/res/values/values.xml -->
+    <eat-comment/>
+    <string name="maximize">Maximize</string>
+    <!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/src/main/res/values/strings.xml -->
+    <eat-comment/>
     <string name="title_activity_incoming_special_call">IncomingSpecialCall</string>
     <string name="upload_ticker">File upload in progress</string>
     <!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/build/intermediates/exploded-aar/SpecialCall/ffmpeg4android_lib/unspecified/res/values/values.xml -->
@@ -187,6 +204,9 @@
     The notification will work only on Android 4 or above.\n
     To support notifications on older versions, use the Android support library</string>
     <string name="welcome_demo">FFmpeg4Android Demo shows how easy it is for every application to run FFMpeg commands.</string>
+    <!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/build/intermediates/exploded-aar/SpecialCall/standOut_lib/unspecified/res/values/values.xml -->
+    <eat-comment/>
+    <string name="window_icon">Window icon</string>
     <!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/src/main/res/values/styles.xml -->
     <eat-comment/>
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light">

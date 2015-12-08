@@ -3,7 +3,6 @@ package com.ui.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -11,7 +10,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.AttributeSet;
@@ -24,7 +22,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.MediaController;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -101,7 +98,6 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
                     WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
             );
-
 
 
             WindowManager.LayoutParams lp = this.getWindow().getAttributes();
@@ -269,23 +265,6 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
         }
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(
-                    R.layout.fragment_incoming_special_call, container, false);
-            return rootView;
-        }
-    }
-
     public class CallStateListener extends PhoneStateListener {
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
@@ -305,7 +284,7 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
-                                audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+
                             }
                         }.start();
                     }

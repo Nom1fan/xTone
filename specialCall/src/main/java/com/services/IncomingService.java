@@ -64,6 +64,7 @@ public class IncomingService extends StandOutWindow {
     private int mWidth;
     private int mHeight;
 //    private MediaController mediaController;
+    private static int id = 0;
     private View specialCallView;
     private TextView specialCallTextView;
     private Bitmap spCallBitmap;
@@ -376,7 +377,6 @@ public class IncomingService extends StandOutWindow {
                 Log.i(TAG, "In IMAGE");
 
                 specialCallView = new ImageView(this);
-
                 specialCallView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
 
@@ -397,7 +397,6 @@ public class IncomingService extends StandOutWindow {
                     spCallBitmap = BitmapFactory.decodeFile(mediaFilePath);
                     ((ImageView)specialCallView).setImageBitmap(spCallBitmap);
                 }
-
 
             }   catch (NullPointerException | OutOfMemoryError e) {
                 Log.e(TAG, "Failed decoding image", e);
@@ -519,6 +518,7 @@ public class IncomingService extends StandOutWindow {
                 Intent i = new Intent(this, IncomingService.class);
                 i.setAction(StandOutWindow.ACTION_SHOW);
                 startService(i);
+
 
             } catch (FileInvalidFormatException |
                     FileExceedsMaxSizeException |
