@@ -386,10 +386,7 @@ public class IncomingService extends StandOutWindow {
                 options.inSampleSize = calculateInSampleSize(options, mWidth, mHeight);
 
                 options.inJustDecodeBounds = false;
-                if(SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.WAS_SPIMAGE_DECODED)) {
-                    spCallBitmap = BitmapFactory.decodeFile(mediaFilePath, options);
-                    SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.WAS_SPIMAGE_DECODED, true);
-                }
+                spCallBitmap = BitmapFactory.decodeFile(mediaFilePath, options);
 
                 if (spCallBitmap != null)
                     ((ImageView)specialCallView).setImageBitmap(spCallBitmap);
