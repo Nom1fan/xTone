@@ -21,10 +21,14 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -34,6 +38,7 @@ import com.utils.SharedPrefUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.RoundingMode;
 
 import EventObjects.Event;
 import EventObjects.EventReport;
@@ -63,12 +68,15 @@ public class IncomingService extends StandOutWindow {
     private MediaPlayer mMediaPlayer;
     private int mWidth;
     private int mHeight;
-//    private MediaController mediaController;
+    private MediaController mediaController;
     private static int id = 0;
     private View specialCallView;
     private TextView specialCallTextView;
+    private ImageView specialCallCloseBtn;
+private RelativeLayout relativeLayout;
     private Bitmap spCallBitmap;
     private boolean videoMedia = false;
+    private boolean windowCloseActionWasMade = false;
     public static final String ACTION_STOP_RING = "com.services.IncomingService.ACTION_STOP_RING";
     public static final String ACTION_START = "com.services.IncomingService.ACTION_START";
 
@@ -96,7 +104,7 @@ public class IncomingService extends StandOutWindow {
         Point size = new Point();
         display.getSize(size);
         mWidth = size.x;
-        mHeight = size.y/2;
+        mHeight = size.y*63/100;
 
         try
         {
@@ -173,8 +181,10 @@ public class IncomingService extends StandOutWindow {
 
         Log.i(TAG, "In createAndAttachView()");
 
-        frame.addView(specialCallView);
-        frame.addView(specialCallTextView);
+        frame.addView(relativeLayout);
+
+        frame.setBackgroundColor(Color.BLACK);
+        windowCloseActionWasMade = false;
     }
 
     @Override
@@ -335,10 +345,12 @@ public class IncomingService extends StandOutWindow {
 
                     new Thread(r).start();
 
-                    Intent i = new Intent(this, IncomingService.class);
-                    i.setAction(StandOutWindow.ACTION_CLOSE);
-                    startService(i);
-
+                    if (!windowCloseActionWasMade) {
+                        Intent i = new Intent(this, IncomingService.class);
+                        i.setAction(StandOutWindow.ACTION_CLOSE);
+                        startService(i);
+                        windowCloseActionWasMade=true;
+                    }
                 }
                 break;
 
@@ -350,15 +362,67 @@ public class IncomingService extends StandOutWindow {
 
         Log.i(TAG, "Preparing specialcall view");
 
-        //TextView for Showing Incoming Call Number and contact name
+        // Creating a new RelativeLayout
+        relativeLayout = new RelativeLayout(this);
+
+        // Defining the RelativeLayout layout parameters.
+        // In this case I want to fill its parent
+        RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT);
+
+        relativeLayout.setLayoutParams(rlp);
+        relativeLayout.setBackgroundColor(Color.BLACK);
+        // Defining the layout parameters of the TextView
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+
+          //TextView for Showing Incoming Call Number and contact name
         specialCallTextView = new TextView(this);
-        specialCallTextView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT));
+
         String contactName = getContactName(incomingCallNumber);
-        specialCallTextView.setText(!contactName.equals("") ? contactName+" "+incomingCallNumber : incomingCallNumber);
+        specialCallTextView.setText(!contactName.equals("") ? contactName + " " + incomingCallNumber : incomingCallNumber);
         specialCallTextView.setBackgroundColor(Color.BLACK);
         specialCallTextView.setTextColor(Color.WHITE);
-        specialCallTextView.setGravity(Gravity.BOTTOM|Gravity.LEFT);
+        specialCallTextView.setGravity(Gravity.BOTTOM | Gravity.LEFT);
+
+        specialCallTextView.setLayoutParams(lp);
+
+
+
+        //ImageView for Closing Special Incoming Call
+        specialCallCloseBtn = new ImageView(this);
+        RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        lp1.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        lp1.addRule(RelativeLayout.ALIGN_BOTTOM);
+        lp1.addRule(RelativeLayout.ALIGN_RIGHT);
+        lp1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        specialCallCloseBtn.setImageResource(R.drawable.abc_ic_clear);
+        specialCallCloseBtn.setBackgroundColor(Color.BLACK);
+
+        specialCallCloseBtn.setLayoutParams(lp1);
+
+        specialCallCloseBtn.setClickable(true);
+        specialCallCloseBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                if (!windowCloseActionWasMade) {
+                    Intent i = new Intent(getApplicationContext(), IncomingService.class);
+                    i.setAction(StandOutWindow.ACTION_CLOSE);
+                    startService(i);
+                    windowCloseActionWasMade = true;
+                }
+
+            }
+        });
+
+
+
+
 
         if (fType == FileManager.FileType.VIDEO) {
 
@@ -368,7 +432,7 @@ public class IncomingService extends StandOutWindow {
             } catch(Exception e) {  e.printStackTrace();  }
             videoStreamOn = true;
         }
-
+        System.gc();
         // Drawing image during call
         if (fType == FileManager.FileType.IMAGE) {
 
@@ -379,7 +443,8 @@ public class IncomingService extends StandOutWindow {
                 specialCallView = new ImageView(this);
                 specialCallView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
-
+          //     ((ImageView)specialCallView).setScaleType(ImageView.ScaleType.FIT_XY); STRECTH IMAGE ON FULL SCREEN <<< NOT SURE IT's GOOD !!!!!
+                ((ImageView)specialCallView).setScaleType(ImageView.ScaleType.FIT_CENTER); // <<  just place the image Center of Window and fit it with ratio
                 final BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inJustDecodeBounds = true;
                 BitmapFactory.decodeFile(mediaFilePath, options);
@@ -400,6 +465,7 @@ public class IncomingService extends StandOutWindow {
             }
 
             videoMedia = false;
+            relativeLayout.addView(specialCallView);
 
         }
         if (fType == FileManager.FileType.VIDEO)
@@ -417,22 +483,40 @@ public class IncomingService extends StandOutWindow {
             Uri uri = Uri.fromFile(root);
 
             specialCallView = new VideoView(this);
-            specialCallView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT));
+
+
+
+            specialCallView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.MATCH_PARENT));
+
+           RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) specialCallView.getLayoutParams();
+
+            params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+
+            specialCallView.setLayoutParams(params);
+
 
 //            mediaController = new MediaController(this);
 //            mediaController.setAnchorView(specialCallView);
 //            mediaController.setMediaPlayer(((VideoView)specialCallView));
 //            mediaController.setBackgroundColor(Color.WHITE);
-//
-//
 //            ((VideoView)specialCallView).setMediaController(mediaController);
             ((VideoView)specialCallView).setOnPreparedListener(PreparedListener);
             ((VideoView)specialCallView).setVideoURI(uri);
-            ((VideoView)specialCallView).setBackgroundColor(Color.TRANSPARENT);
             ((VideoView)specialCallView).requestFocus();
 
+            relativeLayout.addView(specialCallView);
+  //          relativeLayout.addView(mediaController);
         }
+
+
+        relativeLayout.addView(specialCallTextView);
+        relativeLayout.addView(specialCallCloseBtn);
+
+
     }
 
 
