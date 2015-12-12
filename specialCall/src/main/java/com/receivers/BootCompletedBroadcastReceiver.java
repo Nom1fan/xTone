@@ -18,6 +18,7 @@ public class BootCompletedBroadcastReceiver extends BroadcastReceiver {
             if (ACTION.equals(intent.getAction())) {
 
                 Intent incomingReceiverIntent = new Intent(context, IncomingService.class);
+                incomingReceiverIntent.setAction(IncomingService.ACTION_START);
                 context.startService(incomingReceiverIntent);
             }
         }

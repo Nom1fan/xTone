@@ -37,7 +37,7 @@ import EventObjects.EventReport;
 import EventObjects.EventType;
 import FilesManager.FileManager;
 
-
+@Deprecated
 public class IncomingSpecialCall extends Activity implements OnClickListener {
 
     private ITelephony telephonyService;
@@ -329,7 +329,6 @@ public class IncomingSpecialCall extends Activity implements OnClickListener {
         }
         return false;
     }
-
 
     public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image

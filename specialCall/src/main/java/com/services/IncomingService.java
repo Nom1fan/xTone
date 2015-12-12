@@ -1,7 +1,5 @@
 package com.services;
 
-import android.app.ActionBar;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -14,34 +12,23 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.Contacts;
-import android.provider.MediaStore;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
-
 import com.special.app.R;
 import com.utils.SharedPrefUtils;
-
 import java.io.File;
 import java.io.IOException;
-import java.math.RoundingMode;
-
-import EventObjects.Event;
-import EventObjects.EventReport;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
@@ -519,27 +506,6 @@ private RelativeLayout relativeLayout;
 
     }
 
-
-//        specialCallIntent.setClass(getApplicationContext(), IncomingSpecialCall.class);
-//
-//        specialCallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK             |
-//                                   Intent.FLAG_ACTIVITY_SINGLE_TOP           |
-//                                   Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT     |
-//                                   Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED |
-//                                   Intent.FLAG_ACTIVITY_REORDER_TO_FRONT     |
-//                                   Intent.FLAG_ACTIVITY_CLEAR_TOP
-//        );
-//
-//
-//        specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_FILEPATH, mediaFilePath);
-//
-//        String contactname = getContactName(incomingCallNumber);
-//        specialCallIntent.putExtra(IncomingSpecialCall.SPECIAL_CALL_CALLER, contactname + ": " + incomingCallNumber);
-//        startActivity(specialCallIntent);
-//    private void prepareViewForSpecialCall() {
-//
-//        startActivity(specialCallIntent);
-//    }
 
     private void startRingtoneSpecialCall() {
 
