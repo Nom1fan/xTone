@@ -112,7 +112,11 @@ public class MainActivity extends Activity implements OnClickListener {
         Log.i(tag, "onPause()");
 
         if(serviceReceiver!=null)
-            unregisterReceiver(serviceReceiver);
+        {  try
+        {unregisterReceiver(serviceReceiver);}
+        catch (Exception ex){
+            Log.e(tag, ex.getMessage().toString());}
+        }
         saveInstanceState();
     }
 
