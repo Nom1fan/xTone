@@ -28,14 +28,11 @@ public class MessageUploadFile extends MessageToServer {
 	private static final long serialVersionUID = 2356276507283427913L;
 	private String _destId;
 	private TransferDetails _td;
-	//private byte[] _fileData;
-
 
 		public MessageUploadFile(String srcId, TransferDetails td) {
 			super(srcId);
 			_destId = td.getDestinationId();
 			_td = td;
-			//_fileData = filedata;
 
 		}
 
@@ -102,8 +99,11 @@ public class MessageUploadFile extends MessageToServer {
 		{
 			String errMsg = "TRANSFER_FAILURE: "+ _destId +" did not receive pending download push for file:"+_td.getSourceWithExtension();
 			String initiaterToken = ClientsManager.getClientPushToken(_messageInitiaterId);
+			// Informing source (uploader) that the file was not sent to destination
 			cont = PushSender.sendPush(initiaterToken, PushEventKeys.SHOW_MESSAGE, errMsg);
 		}
+
+		ClientsManager.insertCommunicationRecord(_td.getSourceId(), _td.getDestinationId(), _td.getExtension(), (int)_td.getFileSize());
 
 		return cont;
 		

@@ -1,4 +1,4 @@
-package com.server_side;
+package servers;
 
 import DataObjects.SharedConstants;
 
