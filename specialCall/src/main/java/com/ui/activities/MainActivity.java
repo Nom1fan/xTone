@@ -18,6 +18,7 @@ import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
+import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -85,7 +86,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
     }
     private AutoCompleteTextView mTxtPhoneNo;
-
+    private int randomPIN=0;
 
 
 
@@ -112,7 +113,11 @@ public class MainActivity extends Activity implements OnClickListener {
         Log.i(tag, "onPause()");
 
         if(serviceReceiver!=null)
-            unregisterReceiver(serviceReceiver);
+        {  try
+        {unregisterReceiver(serviceReceiver);}
+        catch (Exception ex){
+            Log.e(tag, ex.getMessage().toString());}
+        }
         saveInstanceState();
     }
 
@@ -491,23 +496,34 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		else if (id == R.id.login_btn) {
 
-			myPhoneNumber = ((EditText) findViewById(R.id.LoginNumber))
-					.getText().toString();
+           String myVerificationcode = ((EditText) findViewById(R.id.SMSCode)).getText().toString();
+		if (myVerificationcode.equals(String.valueOf(randomPIN))){
+                myPhoneNumber = ((EditText) findViewById(R.id.LoginNumber))
+                        .getText().toString();
 
-			SharedPrefUtils.setString(context,
-                    SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, myPhoneNumber);
+                SharedPrefUtils.setString(context,
+                        SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, myPhoneNumber);
 
-			initializeConnection();
+                initializeConnection();
 
-			File SpecialCallIncoming = new File(Constants.specialCallIncomingPath);
-			SpecialCallIncoming.mkdirs();
+                File SpecialCallIncoming = new File(Constants.specialCallIncomingPath);
+                SpecialCallIncoming.mkdirs();
 
-            File SpecialCallOutgoing = new File(Constants.specialCallOutgoingPath);
-            SpecialCallOutgoing.mkdirs();
+                File SpecialCallOutgoing = new File(Constants.specialCallOutgoingPath);
+                SpecialCallOutgoing.mkdirs();
 
-			initializeUI();
-            new AutoCompletePopulateListAsyncTask(this, mTxtPhoneNo).execute();
-			stateIdle(tag + "::onClick() R.id.login", "", Color.BLACK);
+                initializeUI();
+                new AutoCompletePopulateListAsyncTask(this, mTxtPhoneNo).execute();
+                stateIdle(tag + "::onClick() R.id.login", "", Color.BLACK);
+            }
+            else
+            {
+                Toast.makeText(getApplicationContext(), "Code Wan't Correct Please Try Again !",
+                        Toast.LENGTH_SHORT).show();
+
+            }
+
+
 		}
 
 
@@ -566,8 +582,12 @@ public class MainActivity extends Activity implements OnClickListener {
                               loginBtn.setEnabled(false);
                               loginBtn.setText("Login");
 
-                              EditText loginNumberET = (EditText) findViewById(R.id.LoginNumber);
+                              Button GetSMSCode = (Button) findViewById(R.id.GetSMSCode);
+                              GetSMSCode.setEnabled(false);
+                              EditText SmsCodeVerification = (EditText) findViewById(R.id.SMSCode);
+                              SmsCodeVerification.setEnabled(false);
 
+                              EditText loginNumberET = (EditText) findViewById(R.id.LoginNumber);
                               loginNumberET.addTextChangedListener(new TextWatcher() {
                                   @Override
                                   public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -580,8 +600,63 @@ public class MainActivity extends Activity implements OnClickListener {
                                       if (10 == s.length()) {
 
                                           String token = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
-                                          if(token!=null && !token.equals(""))
-                                            findViewById(R.id.login_btn).setEnabled(true);
+                                          if (token != null && !token.equals("")) {
+                                              findViewById(R.id.GetSMSCode).setEnabled(true);
+                                              findViewById(R.id.SMSCode).setEnabled(true);
+                                          }
+                                      } else {
+                                          findViewById(R.id.GetSMSCode).setEnabled(false);
+                                          findViewById(R.id.SMSCode).setEnabled(false);
+                                      }
+                                  }
+
+                                  @Override
+                                  public void afterTextChanged(Editable s) {
+
+                                  }
+                              });
+
+
+
+
+                              OnClickListener buttonListener = new View.OnClickListener() {
+
+                                  @Override
+                                  public void onClick(View v) {
+                                      EditText loginNumber = (EditText) findViewById(R.id.LoginNumber);
+
+                                      //generate a 4 digit integer 1000 <10000
+                                      randomPIN = (int)(Math.random()*9000)+1000;
+                                      try {
+                                          SmsManager smsManager = SmsManager.getDefault();
+                                          smsManager.sendTextMessage(loginNumber.getText().toString(), null, "SpecialCall SmsVerificationCode: "+String.valueOf(randomPIN), null, null);
+                                          Toast.makeText(getApplicationContext(), "Message Sent To: " +loginNumber.getText().toString(),
+                                                  Toast.LENGTH_LONG).show();
+                                      } catch (Exception ex) {
+                                          Toast.makeText(getApplicationContext(),
+                                                  ex.getMessage().toString(),
+                                                  Toast.LENGTH_LONG).show();
+                                          ex.printStackTrace();
+                                      }
+
+                                  }
+                              };
+                              GetSMSCode.setOnClickListener(buttonListener);
+
+
+                              SmsCodeVerification.addTextChangedListener(new TextWatcher() {
+                                  @Override
+                                  public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                                  }
+
+                                  @Override
+                                  public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                                      if (4 == s.length()) {
+
+                                          findViewById(R.id.login_btn).setEnabled(true);
+
                                       }
                                       else
                                           findViewById(R.id.login_btn).setEnabled(false);
@@ -592,6 +667,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
                                   }
                               });
+
                           }
                       }
         );

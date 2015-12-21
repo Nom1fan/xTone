@@ -1,7 +1,9 @@
 package com.services;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,6 +19,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -42,7 +45,7 @@ public class IncomingService extends StandOutWindow {
 
     public static boolean wasSpecialRingTone = false;
     public static boolean isInFront = false;
-    public static boolean videoStreamOn = false;
+
     public static int ringVolume;
     public static int oldMediaVolume;
     public static int oldAlarmVolume;
@@ -60,27 +63,84 @@ public class IncomingService extends StandOutWindow {
     private View specialCallView;
     private TextView specialCallTextView;
     private ImageView specialCallCloseBtn;
-private RelativeLayout relativeLayout;
+    private RelativeLayout relativeLayout;
     private Bitmap spCallBitmap;
     private boolean videoMedia = false;
-    private boolean windowCloseActionWasMade = false;
+    private boolean specialRingtoneIsOn = false;
+    private boolean windowCloseActionWasMade = true;
+    private boolean SpecialRingInitiated = false;
     public static final String ACTION_STOP_RING = "com.services.IncomingService.ACTION_STOP_RING";
     public static final String ACTION_START = "com.services.IncomingService.ACTION_START";
-
+    private int mone=0;
     private MediaPlayer.OnPreparedListener PreparedListener = new MediaPlayer.OnPreparedListener(){
 
         @Override
         public void onPrepared(MediaPlayer m) {
 
-            Log.i(TAG, "Entering OnPreparedListener");
+
             m.setLooping(true);
             m.setVolume(1.0f, 1.0f);
             m.start();
-            Log.i(TAG, "Finishing OnPreparedListener");
+            Log.i(TAG, " Video registerVolumeReceiverMethod");
+            registerVolumeReceiverMethod();
         }
     };
 
     /* Service operations methods */
+
+    private final BroadcastReceiver VolumeButtonreceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            int volumeDuringRun = (Integer)intent.getExtras().get("android.media.EXTRA_VOLUME_STREAM_VALUE");
+
+
+            if (SpecialRingInitiated && InRingingSession && volumeDuringRun!=0 )
+            {
+
+                if (specialRingtoneIsOn && (volumeDuringRun==7 || volumeDuringRun==15 ||  volumeDuringRun!=oldMediaVolume))
+                {
+                    mMediaPlayer.stop();
+                    specialRingtoneIsOn = false;
+                    Log.e(TAG, " !!!!!!!!!!specialRingtoneIsOn MUTED By Receiver !!!!!!!!!!");
+
+                    Log.e(TAG, " oldMediaVolume: "+ oldMediaVolume+ " oldAlarmVolume: "+oldAlarmVolume+ " volumeDuringRun: " + volumeDuringRun);
+
+
+                }else
+                {
+                    audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                    Log.e(TAG, " !!!!!!!!!!STREAM_MUSIC MUTED By Receiver !!!!!!!!!!");
+                    Log.e(TAG, " oldMediaVolume: "+ oldMediaVolume+ " oldAlarmVolume: "+oldAlarmVolume+ " volumeDuringRun: " + volumeDuringRun);
+
+                }
+
+              //  SpecialRingInitiated = false;
+              //  unregisterReceiver(VolumeButtonreceiver);
+            }
+
+            if (SpecialRingInitiated && InRingingSession)
+            {
+                mone++;
+            }
+            Log.e(TAG, " !!!!!!!!!!mone "+ mone +"  !!!!!!!!!!");
+            if (mone >3)
+            {
+                try{
+                    mMediaPlayer.stop();
+                    audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                    mone=0;
+                }
+                catch (Exception e)
+                {}
+
+            }
+            Log.e(TAG, "EXITED BROADCAST  SpecialRingInitiated: " + String.valueOf(SpecialRingInitiated) +  " InRingingSession: " + String.valueOf(InRingingSession));
+            Log.e(TAG, " oldMediaVolume: "+ oldMediaVolume+ " oldAlarmVolume: "+oldAlarmVolume+ " volumeDuringRun: " + volumeDuringRun);
+
+        }
+    };
+
 
     @Override
     public void onCreate() {
@@ -95,14 +155,11 @@ private RelativeLayout relativeLayout;
 
         try
         {
-
             if (phoneListener==null){
                 phoneListener = new CallStateListener();
                 TelephonyManager tm = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
                 tm.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
-
             }
-
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -149,6 +206,7 @@ private RelativeLayout relativeLayout;
     @Override
     public void onDestroy() {
         super.onDestroy();
+
         Log.e(TAG, "Service onDestroy");
 
     }
@@ -177,7 +235,9 @@ private RelativeLayout relativeLayout;
     @Override
     public StandOutLayoutParams getParams(int id, Window window) {
 
+        Log.i(TAG, "In StandOutLayoutParams()");
         return new StandOutLayoutParams(id, mWidth, mHeight, 0, 0);
+
     }
 
     @Override
@@ -225,22 +285,18 @@ private RelativeLayout relativeLayout;
                 {
                     try
                     {
-
+                        // Retrieving the ringtone volume
+                        ringVolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
                         incomingCallNumber = incomingNumber;
-                        String ringtonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, incomingCallNumber);
-                        File ringtoneFile = new File(ringtonePath);
-                        Log.i(TAG, "InRingingSession SharedPrefUtils ringtonePath:" + ringtonePath);
+
                         try
                         {
-                            // Retrieving the ringtone volume
-                            ringVolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
 
                             // Backing up the music and alarm volume
                             oldMediaVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
                             oldAlarmVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM);
 
                             // Setting music and alarm volume to equal the ringtone volume
-
                             if (ringVolume==0)
                                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
                             else
@@ -255,28 +311,46 @@ private RelativeLayout relativeLayout;
                             Log.e(TAG, "Failed to set stream volume:"+e.getMessage());
                         }
 
+                        String ringtonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, incomingCallNumber);
+                        File ringtoneFile = new File(ringtonePath);
+
+                        //Check if Mute Was Needed if not return to UnMute.
                         if (ringtoneFile.exists())
                         {
-                            Log.i(TAG, "AudioManager.STREAM_RING, true");
+
                             audioManager.setStreamMute(AudioManager.STREAM_RING, true);
+                            Log.i(TAG, "YesRingtone YesMute !!!");
+
+
+                            Runnable r = new Runnable() {
+                                public void run() {
+                                    Log.i(TAG, "startRingtoneSpecialCall Thread");
+                                    try {
+                                        startRingtoneSpecialCall();
+
+                                    } catch(Exception e) {  e.printStackTrace();  }
+
+                                }
+                            };
+
+                            new Thread(r).start();
+
 
                         }
                         else
                         {
-                            Log.i(TAG, "AudioManager.STREAM_RING, false");
+
                             try {
                                 audioManager.setStreamMute(AudioManager.STREAM_RING, false);
+                                Log.i(TAG, "NoRingtone NoMute");
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
 
-                        InRingingSession = true;
-
-
-
-                        startRingtoneSpecialCall();
                         startMediaSpecialCall();
+
+                        InRingingSession = true;
                     }
                     catch(Exception e)
                     {
@@ -295,50 +369,11 @@ private RelativeLayout relativeLayout;
 
                     wasSpecialRingTone = false;
                 }
+                closeSpecialCallWindowAndRingtone();
+                SpecialRingInitiated = false;
+                specialRingtoneIsOn = false;
+                mone=0;
 
-                if  (InRingingSession) {
-                    InRingingSession = false;
-                    Runnable r = new Runnable() {
-                        public void run() {
-
-
-                            Log.i(TAG, "AudioManager.STREAM_RING, false");
-                            try {
-                                if(mMediaPlayer!=null)   //TODO Check in advance the file type and act accordingly
-                                    mMediaPlayer.stop();
-                            } catch(Exception e) {  e.printStackTrace();  }
-
-                            try {
-
-                                try {
-                                    Thread.sleep(2000,0);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
-                                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, oldMediaVolume, 0);
-                                audioManager.setStreamVolume(AudioManager.STREAM_ALARM, oldAlarmVolume, 0);
-                            } catch(Exception e) {  e.printStackTrace();  }
-
-                            try {
-                                audioManager.setStreamMute(AudioManager.STREAM_RING, false);
-                            } catch(Exception e) {  e.printStackTrace();  }
-
-
-
-
-                        }
-                    };
-
-                    new Thread(r).start();
-
-                    if (!windowCloseActionWasMade) {
-                        Intent i = new Intent(this, IncomingService.class);
-                        i.setAction(StandOutWindow.ACTION_CLOSE);
-                        startService(i);
-                        windowCloseActionWasMade=true;
-                    }
-                }
                 break;
 
         }
@@ -366,7 +401,7 @@ private RelativeLayout relativeLayout;
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
         lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 
-          //TextView for Showing Incoming Call Number and contact name
+        //TextView for Showing Incoming Call Number and contact name
         specialCallTextView = new TextView(this);
 
         String contactName = getContactName(incomingCallNumber);
@@ -390,35 +425,17 @@ private RelativeLayout relativeLayout;
         lp1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         specialCallCloseBtn.setImageResource(R.drawable.abc_ic_clear);
         specialCallCloseBtn.setBackgroundColor(Color.BLACK);
-
         specialCallCloseBtn.setLayoutParams(lp1);
-
         specialCallCloseBtn.setClickable(true);
         specialCallCloseBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
-                if (!windowCloseActionWasMade) {
-                    Intent i = new Intent(getApplicationContext(), IncomingService.class);
-                    i.setAction(StandOutWindow.ACTION_CLOSE);
-                    startService(i);
-                    windowCloseActionWasMade = true;
-                }
+                closeSpecialCallWindowWithoutRingtone();
 
             }
         });
 
 
-
-
-
-        if (fType == FileManager.FileType.VIDEO) {
-
-            Log.i(TAG, "AudioManager.STREAM_RING, true");
-            try {
-                audioManager.setStreamMute(AudioManager.STREAM_RING, true);
-            } catch(Exception e) {  e.printStackTrace();  }
-            videoStreamOn = true;
-        }
         System.gc();
         // Drawing image during call
         if (fType == FileManager.FileType.IMAGE) {
@@ -430,7 +447,7 @@ private RelativeLayout relativeLayout;
                 specialCallView = new ImageView(this);
                 specialCallView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT));
-          //     ((ImageView)specialCallView).setScaleType(ImageView.ScaleType.FIT_XY); STRECTH IMAGE ON FULL SCREEN <<< NOT SURE IT's GOOD !!!!!
+                //     ((ImageView)specialCallView).setScaleType(ImageView.ScaleType.FIT_XY); STRECTH IMAGE ON FULL SCREEN <<< NOT SURE IT's GOOD !!!!!
                 ((ImageView)specialCallView).setScaleType(ImageView.ScaleType.FIT_CENTER); // <<  just place the image Center of Window and fit it with ratio
                 final BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inJustDecodeBounds = true;
@@ -458,6 +475,13 @@ private RelativeLayout relativeLayout;
         if (fType == FileManager.FileType.VIDEO)
         {
 
+
+            try {
+                audioManager.setStreamMute(AudioManager.STREAM_RING, true);
+                Log.i(TAG, "VIDEO file detected MUTE Ring");
+
+            } catch(Exception e) {  e.printStackTrace();  }
+
             Log.i(TAG, "In VIDEO");
             videoMedia = true;
 
@@ -470,13 +494,10 @@ private RelativeLayout relativeLayout;
             Uri uri = Uri.fromFile(root);
 
             specialCallView = new VideoView(this);
-
-
-
             specialCallView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                     RelativeLayout.LayoutParams.MATCH_PARENT));
 
-           RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) specialCallView.getLayoutParams();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) specialCallView.getLayoutParams();
 
             params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
             params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
@@ -484,8 +505,6 @@ private RelativeLayout relativeLayout;
             params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 
             specialCallView.setLayoutParams(params);
-
-
 //            mediaController = new MediaController(this);
 //            mediaController.setAnchorView(specialCallView);
 //            mediaController.setMediaPlayer(((VideoView)specialCallView));
@@ -496,13 +515,13 @@ private RelativeLayout relativeLayout;
             ((VideoView)specialCallView).requestFocus();
 
             relativeLayout.addView(specialCallView);
-  //          relativeLayout.addView(mediaController);
+            //          relativeLayout.addView(mediaController);
+            SpecialRingInitiated=true;
+
+
         }
-
-
         relativeLayout.addView(specialCallTextView);
         relativeLayout.addView(specialCallCloseBtn);
-
 
     }
 
@@ -526,6 +545,96 @@ private RelativeLayout relativeLayout;
         }
     }
 
+    private void closeSpecialCallWindowWithoutRingtone(){
+
+        if  (InRingingSession) {
+
+            Runnable r = new Runnable() {
+                public void run() {
+                    Log.i(TAG, "mMediaPlayer.stop(); closeSpecialCallWindowWithoutRingtone");
+                    try {
+                        if(mMediaPlayer!=null)   //TODO Check in advance the file type and act accordingly
+                            mMediaPlayer.stop();
+
+                    } catch(Exception e) {  e.printStackTrace();  }
+
+                }
+            };
+
+            new Thread(r).start();
+
+            if (!windowCloseActionWasMade) {
+                Intent i = new Intent(getApplicationContext(), IncomingService.class);
+                i.setAction(StandOutWindow.ACTION_CLOSE);
+                startService(i);
+                windowCloseActionWasMade=true;
+            }
+        }
+
+
+
+    }
+
+    private void closeSpecialCallWindowAndRingtone(){
+
+        if  (InRingingSession) {
+            InRingingSession = false;
+            Runnable r = new Runnable() {
+                public void run() {
+
+
+                    Log.i(TAG, "mMediaPlayer.stop(); closeSpecialCallWindowAndRingtone");
+                    try {
+                        if(mMediaPlayer!=null)   //TODO Check in advance the file type and act accordingly
+                            mMediaPlayer.stop();
+                    } catch(Exception e) {  e.printStackTrace();  }
+
+                    try {
+
+                        try {
+                            Thread.sleep(1000,0);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+                        audioManager.setStreamMute(AudioManager.STREAM_ALARM, false);
+                        Log.e(TAG, " !!!!!!!!!! UNMUTED !!!!!!!!!!  "+" oldMediaVolume: "+ oldMediaVolume+ " oldAlarmVolume: "+oldAlarmVolume+ " OldringVolume: " + ringVolume);
+                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, oldMediaVolume, 0);
+                        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, oldAlarmVolume, 0);
+                    } catch(Exception e) {  e.printStackTrace();  }
+
+                    try {
+                        audioManager.setStreamMute(AudioManager.STREAM_RING, false);
+                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume, 0);
+                    } catch(Exception e) {  e.printStackTrace();  }
+
+
+
+
+                }
+            };
+
+            new Thread(r).start();
+
+            if (!windowCloseActionWasMade) {
+                Intent i = new Intent(getApplicationContext(), IncomingService.class);
+                i.setAction(StandOutWindow.ACTION_CLOSE);
+                startService(i);
+                windowCloseActionWasMade=true;
+            }
+
+
+        try{     unregisterReceiver(VolumeButtonreceiver);}
+        catch(Exception exception)
+        {  Log.e(TAG,"UnregisterReceiver failed in IDLE");}
+
+
+        }
+
+
+
+    }
+
     private void playSound(Context context, Uri alert) {
 
         Log.i(TAG, "Playing ringtone sound");
@@ -544,11 +653,44 @@ private RelativeLayout relativeLayout;
                 mMediaPlayer.prepare();
                 mMediaPlayer.setLooping(true);
                 mMediaPlayer.start();
+                SpecialRingInitiated=true;
+                specialRingtoneIsOn = true;
+
+                Log.i(TAG, " Ringtone registerVolumeReceiverMethod");
+                registerVolumeReceiverMethod();
+
             }
         } catch (IOException e) {
             e.printStackTrace();
             Log.e(TAG, "Failed to play sound. Exception:" + e.getMessage());
         }
+    }
+
+    private void registerVolumeReceiverMethod() {
+
+
+        Runnable r = new Runnable() {
+            public void run() {
+
+                try {
+                    Thread.sleep(1500,0);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                IntentFilter filter = new IntentFilter();
+                filter.addAction("android.media.VOLUME_CHANGED_ACTION");
+
+
+                registerReceiver(VolumeButtonreceiver, filter);
+                Log.e(TAG, "registerReceiver VolumeButtonReceiver Finished register");
+
+            }
+        };
+
+        new Thread(r).start();
+
+
+
     }
 
     private void startMediaSpecialCall() {
