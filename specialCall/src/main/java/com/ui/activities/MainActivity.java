@@ -497,7 +497,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		else if (id == R.id.login_btn) {
 
            String myVerificationcode = ((EditText) findViewById(R.id.SMSCode)).getText().toString();
-		if (myVerificationcode.equals(String.valueOf(randomPIN))){
+		//if (myVerificationcode.equals(String.valueOf(randomPIN))){    // NEED TO FIND A SMS GATEWAY FIRST
                 myPhoneNumber = ((EditText) findViewById(R.id.LoginNumber))
                         .getText().toString();
 
@@ -515,13 +515,13 @@ public class MainActivity extends Activity implements OnClickListener {
                 initializeUI();
                 new AutoCompletePopulateListAsyncTask(this, mTxtPhoneNo).execute();
                 stateIdle(tag + "::onClick() R.id.login", "", Color.BLACK);
-            }
-            else
+          //  }// NEED TO FIND A SMS GATEWAY FIRST
+          /*  else// NEED TO FIND A SMS GATEWAY FIRST
             {
                 Toast.makeText(getApplicationContext(), "Code Wan't Correct Please Try Again !",
                         Toast.LENGTH_SHORT).show();
 
-            }
+            }*/
 
 
 		}
@@ -603,10 +603,12 @@ public class MainActivity extends Activity implements OnClickListener {
                                           if (token != null && !token.equals("")) {
                                               findViewById(R.id.GetSMSCode).setEnabled(true);
                                               findViewById(R.id.SMSCode).setEnabled(true);
+                                              findViewById(R.id.login_btn).setEnabled(true);  // REMOVE // NEED TO FIND A SMS GATEWAY FIRST
                                           }
                                       } else {
                                           findViewById(R.id.GetSMSCode).setEnabled(false);
                                           findViewById(R.id.SMSCode).setEnabled(false);
+                                          findViewById(R.id.login_btn).setEnabled(false);   // REMOVE // // NEED TO FIND A SMS GATEWAY FIRST
                                       }
                                   }
 

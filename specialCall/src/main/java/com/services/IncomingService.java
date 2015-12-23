@@ -48,7 +48,7 @@ public class IncomingService extends StandOutWindow {
 
     public static int ringVolume;
     public static int oldMediaVolume;
-    public static int oldAlarmVolume;
+
 
     public static AudioManager audioManager;
     private static CallStateListener phoneListener;
@@ -104,14 +104,19 @@ public class IncomingService extends StandOutWindow {
                     specialRingtoneIsOn = false;
                     Log.e(TAG, " !!!!!!!!!!specialRingtoneIsOn MUTED By Receiver !!!!!!!!!!");
 
-                    Log.e(TAG, " oldMediaVolume: "+ oldMediaVolume+ " oldAlarmVolume: "+oldAlarmVolume+ " volumeDuringRun: " + volumeDuringRun);
+                    Log.e(TAG, " oldMediaVolume: "+ oldMediaVolume+  " volumeDuringRun: " + volumeDuringRun);
 
 
                 }else
                 {
-                    audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                    try {
+                        audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                        Log.e(TAG, "MUTE STREAM_MUSIC ");
+                    } catch(Exception e)
+                    {
+                        e.printStackTrace();}
                     Log.e(TAG, " !!!!!!!!!!STREAM_MUSIC MUTED By Receiver !!!!!!!!!!");
-                    Log.e(TAG, " oldMediaVolume: "+ oldMediaVolume+ " oldAlarmVolume: "+oldAlarmVolume+ " volumeDuringRun: " + volumeDuringRun);
+                    Log.e(TAG, " oldMediaVolume: "+ oldMediaVolume+ " volumeDuringRun: " + volumeDuringRun);
 
                 }
 
@@ -128,15 +133,25 @@ public class IncomingService extends StandOutWindow {
             {
                 try{
                     mMediaPlayer.stop();
+                } catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+
+                try
+                {
                     audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                    Log.e(TAG, "MUTE STREAM_MUSIC ");
+
                     mone=0;
                 }
-                catch (Exception e)
-                {}
+                catch(Exception e) {
+                    e.printStackTrace();
+                }
 
             }
             Log.e(TAG, "EXITED BROADCAST  SpecialRingInitiated: " + String.valueOf(SpecialRingInitiated) +  " InRingingSession: " + String.valueOf(InRingingSession));
-            Log.e(TAG, " oldMediaVolume: "+ oldMediaVolume+ " oldAlarmVolume: "+oldAlarmVolume+ " volumeDuringRun: " + volumeDuringRun);
+            Log.e(TAG, " oldMediaVolume: "+ oldMediaVolume+ " volumeDuringRun: " + volumeDuringRun);
 
         }
     };
@@ -285,25 +300,29 @@ public class IncomingService extends StandOutWindow {
                 {
                     try
                     {
+
                         // Retrieving the ringtone volume
                         ringVolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
+                        Log.e(TAG, "ringVolume Original"+ ringVolume);
                         incomingCallNumber = incomingNumber;
 
                         try
                         {
 
-                            // Backing up the music and alarm volume
+                            // Backing up the music
                             oldMediaVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                            oldAlarmVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM);
 
-                            // Setting music and alarm volume to equal the ringtone volume
-                            if (ringVolume==0)
+
+                            // Setting music  to equal the ringtone volume
+                            if (ringVolume==0) {
                                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
-                            else
-                                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume*2+1, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
+                                Log.e(TAG, "STREAM_MUSIC Change : 0");
+                            }else {
+                                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume * 2 + 1, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
+                                Log.e(TAG, "STREAM_MUSIC Change : " + String.valueOf(ringVolume * 2 + 1));
+                            }
 
 
-                            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, ringVolume, 0);
                         }
                         catch(Exception e)
                         {
@@ -319,6 +338,7 @@ public class IncomingService extends StandOutWindow {
                         {
 
                             audioManager.setStreamMute(AudioManager.STREAM_RING, true);
+                            Log.e(TAG, "MUTE STREAM_RING ");
                             Log.i(TAG, "YesRingtone YesMute !!!");
 
 
@@ -342,6 +362,7 @@ public class IncomingService extends StandOutWindow {
 
                             try {
                                 audioManager.setStreamMute(AudioManager.STREAM_RING, false);
+                                Log.e(TAG, "UNMUTE STREAM_RING ");
                                 Log.i(TAG, "NoRingtone NoMute");
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -478,6 +499,7 @@ public class IncomingService extends StandOutWindow {
 
             try {
                 audioManager.setStreamMute(AudioManager.STREAM_RING, true);
+                Log.e(TAG, "MUTE STREAM_RING ");
                 Log.i(TAG, "VIDEO file detected MUTE Ring");
 
             } catch(Exception e) {  e.printStackTrace();  }
@@ -589,24 +611,35 @@ public class IncomingService extends StandOutWindow {
                             mMediaPlayer.stop();
                     } catch(Exception e) {  e.printStackTrace();  }
 
-                    try {
+
 
                         try {
-                            Thread.sleep(1000,0);
+                            Thread.sleep(1000, 0);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                        try {
                         audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
-                        audioManager.setStreamMute(AudioManager.STREAM_ALARM, false);
-                        Log.e(TAG, " !!!!!!!!!! UNMUTED !!!!!!!!!!  "+" oldMediaVolume: "+ oldMediaVolume+ " oldAlarmVolume: "+oldAlarmVolume+ " OldringVolume: " + ringVolume);
+                            Log.e(TAG, "UNMUTE STREAM_MUSIC ");
+                        } catch(Exception e) {  e.printStackTrace();  }
+
+                        Log.e(TAG, " !!!!!!!!!! UNMUTED !!!!!!!!!!  "+" oldMediaVolume: "+ oldMediaVolume+ " OldringVolume: " + ringVolume);
+                                try {
                         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, oldMediaVolume, 0);
-                        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, oldAlarmVolume, 0);
-                    } catch(Exception e) {  e.printStackTrace();  }
+                                    Log.e(TAG, "STREAM_MUSIC Change : " + String.valueOf(oldMediaVolume));
+
+                                } catch(Exception e) {  e.printStackTrace();  }
+
 
                     try {
                         audioManager.setStreamMute(AudioManager.STREAM_RING, false);
-                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume, 0);
+                        Log.e(TAG, "UNMUTE STREAM_RING ");
                     } catch(Exception e) {  e.printStackTrace();  }
+                /*
+                    try {
+                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume, 0);
+                        Log.e(TAG, "STREAM_MUSIC Change : " + String.valueOf(ringVolume));
+                    } catch(Exception e) {  e.printStackTrace();  }*/
 
 
 
@@ -648,8 +681,8 @@ public class IncomingService extends StandOutWindow {
             }
             final AudioManager audioManager = (AudioManager) context
                     .getSystemService(Context.AUDIO_SERVICE);
-            if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
-                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+            if (audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) != 0) {
+                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 mMediaPlayer.prepare();
                 mMediaPlayer.setLooping(true);
                 mMediaPlayer.start();
