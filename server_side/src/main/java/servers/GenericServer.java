@@ -1,4 +1,4 @@
-package com.server_side;
+package servers;
 
 import java.io.IOException;
 import java.util.logging.Logger;

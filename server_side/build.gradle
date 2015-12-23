@@ -7,4 +7,5 @@ dependencies {
     compile 'org.kie.modules:org-apache-commons-collections-main:6.3.0.CR2'
     compile 'org.kie.modules:org-apache-commons-logging-main:6.3.0.Final'
     compile files('libs/sqlite4java.jar')
+    compile files('libs/mysql-connector-java-5.1.38-bin.jar')
 }

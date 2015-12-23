@@ -1,4 +1,4 @@
-package com.server_side;
+package com.database;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteException;
@@ -7,6 +7,7 @@ import com.almworks.sqlite4java.SQLiteQueue;
 import com.almworks.sqlite4java.SQLiteStatement;
 
 import java.io.File;
+import java.sql.SQLException;
 
 import DalObjects.IDAL;
 
@@ -68,6 +69,11 @@ public class SQLiteDAL1 implements IDAL {
 
         String query = "UPDATE " + TABLE_UID2TOKEN + " SET " + COL_TOKEN + "=" + "\"" + token + "\"" + " WHERE "+ COL_UID + "=" + "\"" +  uid + "\"";
         return execQuery(query);
+    }
+
+    @Override
+    public int insertCommunicationHistory(String src, String dest, String extension, int size) throws SQLException{
+        return 0;
     }
 
     @Override
