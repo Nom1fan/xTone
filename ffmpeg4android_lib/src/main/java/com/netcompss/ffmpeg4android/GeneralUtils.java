@@ -471,11 +471,11 @@ public class GeneralUtils {
 		  }
 		  else if (rc < 0) {
 			  if (rc == -1)
-				  Toast.makeText(ctx, "Trail Expired. contact support.", Toast.LENGTH_LONG).show();
+				  Log.e(Prefs.TAG, "Trial Expired. contact support.");
 			  else if (rc == -2) 
-				  Toast.makeText(ctx, "License invalid contact support", Toast.LENGTH_LONG).show();
-			  else 
-				  Toast.makeText(ctx, "License check failed. contact support." + rc, Toast.LENGTH_LONG).show();
+				  Log.e(Prefs.TAG, "License invalid. contact support.");
+			  else
+				  Log.e(Prefs.TAG, "License check failed. contact support.");
 		  }
 		  return rc;
 	}

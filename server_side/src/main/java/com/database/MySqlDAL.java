@@ -40,7 +40,7 @@ public class MySqlDAL implements IDAL {
 
     public void initConn() throws SQLException {
 
-        conn = DriverManager.getConnection("jdbc:mysql://" + "localhost" + ":" + SharedConstants.DB_SERVER_PORT + "/sys?" +
+        conn = DriverManager.getConnection("jdbc:mysql://" + SharedConstants.DB_SERVER_HOST + ":" + SharedConstants.DB_SERVER_PORT + "/sys?" +
                 "user=" + SharedConstants.DB_SERVER_USER + "&password=" + SharedConstants.DB_SERVER_PWD);
     }
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.data_objects.Constants;
+import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.netcompss.loader.LoadJNI;
 
 import java.io.BufferedReader;
@@ -34,9 +35,12 @@ public abstract class FFMPEG_Utils {
      * @param baseFile The base file to compress
      * @param outPath  The path of the compressed file
      * @param context
-     * @return
+     * @return The compressed file, if possible. Otherwise, the base file.
      */
     public static FileManager compressVideoFile(FileManager baseFile, String outPath, Context context) {
+
+        if(GeneralUtils.isLicenseValid(context, workFolder)<0)
+            return baseFile;
 
         String extension = baseFile.getFileExtension();
         String vCodec = extension2vCodec.get(extension);
@@ -66,13 +70,16 @@ public abstract class FFMPEG_Utils {
 
     /**
      * Resizes an image file resolution by 30%, maintaining aspect ratio
-     * @param baseFile The image file to compress
+     * @param baseFile The base file to compress
      * @param outPath The output of the compressed file
-     * @param width - The width parameter of the original resolution
+     * @param width The width parameter of the original resolution
      * @param context
-     * @return
+     * @return The compressed file, if possible. Otherwise, the base file.
      */
     public static FileManager compressImageFile(FileManager baseFile, String outPath, double width, Context context) {
+
+        if(GeneralUtils.isLicenseValid(context, workFolder)<0)
+            return baseFile;
 
         String extension = baseFile.getFileExtension();
         File compressedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_comp." + extension);
@@ -100,21 +107,24 @@ public abstract class FFMPEG_Utils {
     }
 
     /**
-     * Returns the duration of a video/audio file in seconds. Returns 0 for any other file type.
-     * @param managedFile
+     * getFileDurationInSeconds
+     * @param baseFile The Video/audio file to retrieve its duration
      * @param context
-     * @return
+     * @return The duration of a video/audio file in seconds, if possible. Otherwise returns 0.
      */
-    public static long getFileDurationInSeconds(FileManager managedFile, Context context) {
+    public static long getFileDurationInSeconds(FileManager baseFile, Context context) {
+
+        if(GeneralUtils.isLicenseValid(context, workFolder)<0)
+            return 0;
 
         try {
             LoadJNI vk = new LoadJNI();
-            FileManager.FileType fType = managedFile.getFileType();
+            FileManager.FileType fType = baseFile.getFileType();
             if (fType.equals(FileManager.FileType.RINGTONE) ||
                 fType.equals(FileManager.FileType.VIDEO)) {
 
                     String[] complexCommand =
-                            {"ffmpeg", "-i", managedFile.getFileFullPath() };
+                            {"ffmpeg", "-i", baseFile.getFileFullPath() };
                     vk.run(complexCommand, workFolder, context);
                     BufferedReader br = new BufferedReader(new FileReader(workFolder+"vk.log"));
                     String line = "";
@@ -143,16 +153,19 @@ public abstract class FFMPEG_Utils {
 
     /**
      * Trims a video/audio file from 0 seconds to endTime seconds, without re-encoding.
-     * @param managedFile - Video/audio file to trim
-     * @param outPath - The path of the trimmed video/audio
-     * @param endTime - The time to end the cut in
+     * @param baseFile Video/audio file to trim
+     * @param outPath The path of the trimmed video/audio
+     * @param endTime The time to end the cut in
      * @param context
-     * @return
+     * @return The trimmed video/audio file, if possible. Otherwise, the base file.
      */
-    public static FileManager trim(FileManager managedFile, String outPath ,Double endTime, Context context) {
+    public static FileManager trim(FileManager baseFile, String outPath ,Double endTime, Context context) {
 
-        String extension = managedFile.getFileExtension();
-        File trimmedFile = new File(outPath + "/" + managedFile.getNameWithoutExtension() + "_trimmed." + extension);
+        if(GeneralUtils.isLicenseValid(context, workFolder)<0)
+            return baseFile;
+
+        String extension = baseFile.getFileExtension();
+        File trimmedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_trimmed." + extension);
         if(trimmedFile.exists())
             FileManager.delete(trimmedFile);
 
@@ -160,7 +173,7 @@ public abstract class FFMPEG_Utils {
             LoadJNI vk = new LoadJNI();
 
             String[] complexCommand =
-                    {"ffmpeg", "-i", managedFile.getFileFullPath(), "-vcodec", "copy", "-acodec",
+                    {"ffmpeg", "-i", baseFile.getFileFullPath(), "-vcodec", "copy", "-acodec",
                             "copy" , "-ss", "0", "-t" , endTime.toString(), trimmedFile.getAbsolutePath() };
 
             vk.run(complexCommand, workFolder, context);
@@ -171,11 +184,20 @@ public abstract class FFMPEG_Utils {
             Log.e(TAG, "Trimming file failed", e);
         }
         // Could not trim, returning untrimmed (untouched) file
-        return managedFile;
+        return baseFile;
 
     }
 
+    /**
+     * Retrieves image resolution from vk.log
+     * @param managedFile The image file to retrieve
+     * @param context
+     * @return The image resolution as integer array (width in 0 index and height in 1), if possible. Otherwise, returns null.
+     */
     public static int[] getImageResolution(FileManager managedFile, Context context) {
+
+        if(GeneralUtils.isLicenseValid(context, workFolder)<0)
+            return null;
 
         try {
             LoadJNI vk = new LoadJNI();
@@ -202,10 +224,6 @@ public abstract class FFMPEG_Utils {
                 iArraytmp[1] = Integer.parseInt(sArrayTmp[1]);
 
                 return iArraytmp;
-//                while (cont && (line = br.readLine()) != null) {
-//                    if (line.contains("Duration"))
-//                        cont = false;
-//                }
             }
         }
         catch(Throwable e) {
@@ -215,4 +233,5 @@ public abstract class FFMPEG_Utils {
 
         return null;
     }
+
 }

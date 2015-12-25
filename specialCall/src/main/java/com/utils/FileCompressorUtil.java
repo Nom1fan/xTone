@@ -3,6 +3,8 @@ package com.utils;
 import android.content.Context;
 
 import com.app.AppStateManager;
+import com.data_objects.Constants;
+import com.netcompss.ffmpeg4android.GeneralUtils;
 
 import EventObjects.Event;
 import EventObjects.EventReport;
@@ -21,15 +23,19 @@ public class FileCompressorUtil {
     private static final long ONE_MINUTE = 60;
     private static final double PERCENT_TO_TRIM = 0.7;
     private static final String tag = FileCompressorUtil.class.getSimpleName();
+    private static final String workFolder = Constants.specialCallOutgoingPath;
 
     /**
-     * If necessary, reduces file size using various methods and returns new reduced file. Otherwise, returns original (untouched) file.
+     * Compresses all file formats
      * @param baseFile - The file to reduce its size if necessary
      * @param outPath - The path to saved the reduced file in
      * @param context
-     * @return
+     * @return The compressed file, if needed (and possible). Otherwise, the base file.
      */
     public static FileManager compressFileIfNecessary(FileManager baseFile, String outPath, Context context) {
+
+        if(GeneralUtils.isLicenseValid(context, workFolder) < 0)
+            return baseFile;
 
         FileManager modifiedFile = baseFile;
         switch(baseFile.getFileType()) {
