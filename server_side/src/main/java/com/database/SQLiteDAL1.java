@@ -100,6 +100,16 @@ public class SQLiteDAL1 implements IDAL {
         }).complete();
     }
 
+    @Override
+    public void updateCommunicationRecord(int commId, String column, Object value) {
+       //TODO implement method
+    }
+
+    @Override
+    public void updateCommunicationRecord(int commId, String[] columns, Object[] values) {
+        //TODO implement method
+    }
+
     private boolean execQuery(final String query) {
 
         return myQueue.execute(new SQLiteJob<Boolean>() {

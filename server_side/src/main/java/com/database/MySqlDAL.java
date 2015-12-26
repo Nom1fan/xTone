@@ -10,32 +10,20 @@ import DataObjects.SharedConstants;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by Mor on 19/12/2015.
  */
 public class MySqlDAL implements IDAL {
 
-    // Table users
-    public static final String TABLE_USERS = "users";
-    // Table keys under TABLE_USERS
-    public static final String COL_UID = "uid";
-    public static final String COL_TOKEN = "token";
-
-    //Table communication_history
-    public static final String TABLE_COMM_HISTORY = "communication_history";
-    // Table keys under TABLE_COMM_HISTORY
-    public static final String COL_UID_SRC = "uid_src";
-    public static final String COL_UID_DEST = "uid_dest";
-    public static final String COL_CONTENT_EXTENSION = "content_ext";
-    public static final String COL_CONTENT_SIZE = "content_size";
-
     private Connection conn;
 
     public MySqlDAL() throws SQLException {
 
-        initConn();
-
+        if(conn==null)
+            initConn();
     }
 
     public void initConn() throws SQLException {
@@ -88,6 +76,35 @@ public class MySqlDAL implements IDAL {
         return token;
     }
 
+    //TODO Test this method
+    @Override
+    public void updateCommunicationRecord(int commId, String[] columns, Object[] values) throws SQLException {
+
+        if(columns.length < 1)
+            return;
+
+        StringBuilder query = new StringBuilder();
+        query.append("UPDATE " + TABLE_COMM_HISTORY + " SET " + columns[0] + "=" + "\"" + values[0] + "\"");
+        for(int i=1;i<columns.length;++i) {
+            query.append(", ");
+            query.append(columns[i] + "=" + "\"" + values[i] + "\"");
+        }
+
+        query.append(" WHERE " + COL_COMM_ID + "=" + "\"" + commId + "\"");
+        executeQuery(query.toString());
+    }
+
+    @Override
+    public void updateCommunicationRecord(int commId, String column, Object value) throws SQLException{
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+        String query = "UPDATE " + TABLE_COMM_HISTORY +
+                " SET " + column + "=" + "\"" + value + "\"" +
+                ", " + COL_TRANSFER_DATETIME + "=" + "\"" + sdf.format(new Date()) + "\"" +
+                " WHERE " + COL_COMM_ID + "=" + "\"" + commId + "\"";
+        executeQuery(query);
+    }
+
     @Override
     public boolean updateUserPushToken(String uid, String token) {
 
@@ -97,8 +114,6 @@ public class MySqlDAL implements IDAL {
 
     @Override
     public int insertCommunicationHistory(String src, String dest, String extension, int size) throws SQLException {
-
-
 
         String query = "INSERT INTO " + TABLE_COMM_HISTORY +
                 " (" + COL_UID_SRC + "," + COL_UID_DEST + "," + COL_CONTENT_EXTENSION + "," + COL_CONTENT_SIZE + ")" +

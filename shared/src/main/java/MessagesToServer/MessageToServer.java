@@ -28,10 +28,9 @@ public abstract class MessageToServer implements Serializable  {
     /**
      * Send a message reply to the client that initiated the message to server
      * @param msg - The message to send to the client
-     * @return - returns 'true' if message was sent successfully, else returns 'false' and removes the client connection from client pool
+     * @return - returns 'true' if message was sent successfully. Otherwise, returns 'false'.
      */
 	protected final boolean replyToClient(MessageToClient msg) {
-
 
             try
             {
@@ -50,7 +49,6 @@ public abstract class MessageToServer implements Serializable  {
 
                 return false;
             }
-
     }
 
 	abstract public boolean doServerAction() throws IOException, ClassNotFoundException;

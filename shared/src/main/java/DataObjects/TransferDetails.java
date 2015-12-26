@@ -7,6 +7,7 @@ import FilesManager.FileManager;
 public class TransferDetails implements Serializable {
 
 	private static final long serialVersionUID = 7408472793374531808L;
+    private int _commId;
 	private String _sourceId;
 	private String _destinationId;
 	private String _extension;
@@ -62,5 +63,13 @@ public class TransferDetails implements Serializable {
 
     public FileManager get_managedFile() {
         return _managedFile;
+    }
+
+    public int get_commId() {
+        return _commId;
+    }
+
+    public void set_commId(int _commId) {
+        this._commId = _commId;
     }
 }

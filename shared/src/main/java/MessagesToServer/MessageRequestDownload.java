@@ -1,7 +1,9 @@
 package MessagesToServer;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
+import DalObjects.IDAL;
 import DataObjects.PushEventKeys;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
@@ -15,6 +17,7 @@ import FilesManager.FileManager;
 import MessagesToClient.MessageDownloadFile;
 import MessagesToClient.MessageTriggerEventOnly;
 import ServerObjects.ClientsManager;
+import ServerObjects.CommHistoryManager;
 import ServerObjects.PushSender;
 
 /**
@@ -47,6 +50,10 @@ public class MessageRequestDownload extends MessageToServer {
             if(!sent)
                 throw new DownloadRequestFailedException();
 
+            // Marking in communication history record that the transfer was successful
+            char TRUE = '1';
+            CommHistoryManager.updateCommunicationRecord(_td.get_commId(), IDAL.COL_TRANSFER_SUCCESS, TRUE);
+
         } catch (FileInvalidFormatException  |
                  FileExceedsMaxSizeException |
                  FileDoesNotExistException   |
@@ -70,6 +77,9 @@ public class MessageRequestDownload extends MessageToServer {
             logger.severe("Informing destination:"+_td.getDestinationId()+" that download request failed");
             replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.DOWNLOAD_FAILURE, msgDownloadFailed, null)));
 
+            // Marking in communication history record that the transfer has failed
+            char FALSE = '0';
+            CommHistoryManager.updateCommunicationRecord(_td.get_commId(), IDAL.COL_TRANSFER_SUCCESS, FALSE);
         }
 
         return true;

@@ -1,10 +1,15 @@
 package servers;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.logging.Logger;
+
+import DalObjects.IDAL;
 import LogObjects.LogsManager;
 import MessagesToServer.MessageToServer;
 import ServerObjects.AbstractServer;
+import ServerObjects.ClientsManager;
+import ServerObjects.CommHistoryManager;
 import ServerObjects.ConnectionToClient;
 
 /**
@@ -20,13 +25,16 @@ public class GenericServer extends AbstractServer {
      * @param serverName
      * @param port the port number on which to listen.
      */
-    public GenericServer(String serverName, int port) {
+    public GenericServer(String serverName, int port, IDAL dal) {
         super(serverName, port);
         this.serverName = serverName;
         try {
             LogsManager.createServerLogsDir();
             LogsManager.clearLogs();
             _logger = LogsManager.getServerLogger();
+
+            ClientsManager.initialize(dal);
+            CommHistoryManager.initialize(dal);
 
             System.out.println("Starting " + serverName + "...");
 
@@ -140,4 +148,5 @@ public class GenericServer extends AbstractServer {
             e.printStackTrace();
         }
     }
+
 }

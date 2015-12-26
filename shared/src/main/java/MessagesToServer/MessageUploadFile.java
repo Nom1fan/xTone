@@ -13,6 +13,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.SQLException;
+
 import DataObjects.PushEventKeys;
 import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
@@ -21,6 +23,7 @@ import EventObjects.EventType;
 import FilesManager.FileManager;
 import MessagesToClient.MessageTriggerEventOnly;
 import ServerObjects.ClientsManager;
+import ServerObjects.CommHistoryManager;
 import ServerObjects.PushSender;
 
 public class MessageUploadFile extends MessageToServer {
@@ -88,8 +91,12 @@ public class MessageUploadFile extends MessageToServer {
 			logger.severe("Canceling file upload from "+_td.getSourceId()+" to "+_td.getDestinationId());
 			return cont;
 		}
-			
+
+        // Inserting the record of the file upload, retrieving back the commId
+        int commId = CommHistoryManager.insertCommunicationRecord(_td.getSourceId(), _td.getDestinationId(), _td.getExtension(), (int) _td.getFileSize());
+
 		// Sending file to destination
+        _td.set_commId(commId);
         _td.set_filePathOnServer(fileFullPath);
 		String destToken = ClientsManager.getClientPushToken(_destId);
 		String pushEventAction = PushEventKeys.PENDING_DOWNLOAD;
@@ -102,8 +109,6 @@ public class MessageUploadFile extends MessageToServer {
 			// Informing source (uploader) that the file was not sent to destination
 			cont = PushSender.sendPush(initiaterToken, PushEventKeys.SHOW_MESSAGE, errMsg);
 		}
-
-		ClientsManager.insertCommunicationRecord(_td.getSourceId(), _td.getDestinationId(), _td.getExtension(), (int)_td.getFileSize());
 
 		return cont;
 		

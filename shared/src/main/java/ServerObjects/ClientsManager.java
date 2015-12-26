@@ -85,26 +85,4 @@ public class ClientsManager {
 		
 	}
 
-	public synchronized static void insertCommunicationRecord(final String src, final String dest, final String extension, final int size) {
-
-		new Thread() {
-
-			@Override
-			public void run() {
-				try
-
-				{
-					int commId = dal.insertCommunicationHistory(src, dest, extension, size);
-					serverLogger.info("insertCommunicationHistory success: [commId:" + commId + ", src:" + src + ", extension:" + extension + ", size:" + size + "]");
-				} catch (
-						SQLException e
-						)
-
-				{
-					e.printStackTrace();
-					serverLogger.severe("insertCommunicationHistory failure. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
-				}
-			}
-		}.start();
-	}
 }
