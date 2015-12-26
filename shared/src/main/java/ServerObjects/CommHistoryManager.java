@@ -65,8 +65,8 @@ public class CommHistoryManager {
     public synchronized static void updateCommunicationRecord(int commId, String column, Object value) {
 
         try {
-            serverLogger.info("updateCommunicationRecord success: [commId:" + commId + ", column:" + column + ", value:" + value + "]");
             dal.updateCommunicationRecord(commId, column, value);
+            serverLogger.info("updateCommunicationRecord success: [commId:" + commId + ", column:" + column + ", value:" + value + "]");
         }
         catch (SQLException e)
         {
