@@ -19,7 +19,6 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -65,10 +64,9 @@ public class IncomingService extends StandOutWindow {
     private ImageView specialCallCloseBtn;
     private RelativeLayout relativeLayout;
     private Bitmap spCallBitmap;
-    private boolean videoMedia = false;
-    private boolean specialRingtoneIsOn = false;
+    private boolean volumeChangeByService = false;
     private boolean windowCloseActionWasMade = true;
-    private boolean SpecialRingInitiated = false;
+    private boolean alreadyMuted = false;
     public static final String ACTION_STOP_RING = "com.services.IncomingService.ACTION_STOP_RING";
     public static final String ACTION_START = "com.services.IncomingService.ACTION_START";
     private int mone=0;
@@ -94,64 +92,25 @@ public class IncomingService extends StandOutWindow {
             String action = intent.getAction();
             int volumeDuringRun = (Integer)intent.getExtras().get("android.media.EXTRA_VOLUME_STREAM_VALUE");
 
-
-            if (SpecialRingInitiated && InRingingSession && volumeDuringRun!=0 )
+            Log.e(TAG, "BroadCastFlags: alreadyMuted: "+ alreadyMuted+ " InRingingSession: " + InRingingSession + " volumeChangeByService: "+ volumeChangeByService);
+            if (!alreadyMuted && InRingingSession /*&& !volumeChangeByService*/)
             {
-
-                if (specialRingtoneIsOn && (volumeDuringRun==7 || volumeDuringRun==15 ||  volumeDuringRun!=oldMediaVolume))
-                {
-                    mMediaPlayer.stop();
-                    specialRingtoneIsOn = false;
-                    Log.e(TAG, " !!!!!!!!!!specialRingtoneIsOn MUTED By Receiver !!!!!!!!!!");
-
-                    Log.e(TAG, " oldMediaVolume: "+ oldMediaVolume+  " volumeDuringRun: " + volumeDuringRun);
-
-
-                }else
-                {
-                    try {
-                        audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
-                        Log.e(TAG, "MUTE STREAM_MUSIC ");
-                    } catch(Exception e)
-                    {
-                        e.printStackTrace();}
-                    Log.e(TAG, " !!!!!!!!!!STREAM_MUSIC MUTED By Receiver !!!!!!!!!!");
-                    Log.e(TAG, " oldMediaVolume: "+ oldMediaVolume+ " volumeDuringRun: " + volumeDuringRun);
-
-                }
-
-              //  SpecialRingInitiated = false;
-              //  unregisterReceiver(VolumeButtonreceiver);
-            }
-
-            if (SpecialRingInitiated && InRingingSession)
-            {
-                mone++;
-            }
-            Log.e(TAG, " !!!!!!!!!!mone "+ mone +"  !!!!!!!!!!");
-            if (mone >3)
-            {
-                try{
-                    mMediaPlayer.stop();
-                } catch(Exception e)
-                {
-                    e.printStackTrace();
-                }
-
-                try
-                {
+                try {
                     audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                    alreadyMuted =true;
                     Log.e(TAG, "MUTE STREAM_MUSIC ");
+                } catch(Exception e) {
+                e.printStackTrace();
+                }
 
-                    mone=0;
-                }
-                catch(Exception e) {
-                    e.printStackTrace();
-                }
+
 
             }
-            Log.e(TAG, "EXITED BROADCAST  SpecialRingInitiated: " + String.valueOf(SpecialRingInitiated) +  " InRingingSession: " + String.valueOf(InRingingSession));
-            Log.e(TAG, " oldMediaVolume: "+ oldMediaVolume+ " volumeDuringRun: " + volumeDuringRun);
+
+            if(volumeChangeByService)
+                volumeChangeByService=false;
+
+            Log.e(TAG, "Exited BroadCast oldMediaVolume: "+ oldMediaVolume+ " volumeDuringRun: " + volumeDuringRun);
 
         }
     };
@@ -315,9 +274,11 @@ public class IncomingService extends StandOutWindow {
 
                             // Setting music  to equal the ringtone volume
                             if (ringVolume==0) {
+                                volumeChangeByService= true;
                                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
                                 Log.e(TAG, "STREAM_MUSIC Change : 0");
                             }else {
+                                volumeChangeByService= true;
                                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume * 2 + 1, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
                                 Log.e(TAG, "STREAM_MUSIC Change : " + String.valueOf(ringVolume * 2 + 1));
                             }
@@ -391,8 +352,8 @@ public class IncomingService extends StandOutWindow {
                     wasSpecialRingTone = false;
                 }
                 closeSpecialCallWindowAndRingtone();
-                SpecialRingInitiated = false;
-                specialRingtoneIsOn = false;
+
+
                 mone=0;
 
                 break;
@@ -489,7 +450,7 @@ public class IncomingService extends StandOutWindow {
                 Log.e(TAG, "Failed decoding image", e);
             }
 
-            videoMedia = false;
+
             relativeLayout.addView(specialCallView);
 
         }
@@ -505,7 +466,7 @@ public class IncomingService extends StandOutWindow {
             } catch(Exception e) {  e.printStackTrace();  }
 
             Log.i(TAG, "In VIDEO");
-            videoMedia = true;
+
 
             // Special ringtone in video case is silent
             IncomingService.wasSpecialRingTone = true;
@@ -538,7 +499,7 @@ public class IncomingService extends StandOutWindow {
 
             relativeLayout.addView(specialCallView);
             //          relativeLayout.addView(mediaController);
-            SpecialRingInitiated=true;
+
 
 
         }
@@ -600,11 +561,16 @@ public class IncomingService extends StandOutWindow {
     private void closeSpecialCallWindowAndRingtone(){
 
         if  (InRingingSession) {
-            InRingingSession = false;
+
             Runnable r = new Runnable() {
                 public void run() {
+                    InRingingSession = false;
+                    try{     unregisterReceiver(VolumeButtonreceiver);}
+                    catch(Exception exception)
+                    {  Log.e(TAG,"UnregisterReceiver failed in IDLE");}
 
-
+                    volumeChangeByService = false;
+                    alreadyMuted = false;
                     Log.i(TAG, "mMediaPlayer.stop(); closeSpecialCallWindowAndRingtone");
                     try {
                         if(mMediaPlayer!=null)   //TODO Check in advance the file type and act accordingly
@@ -657,9 +623,7 @@ public class IncomingService extends StandOutWindow {
             }
 
 
-        try{     unregisterReceiver(VolumeButtonreceiver);}
-        catch(Exception exception)
-        {  Log.e(TAG,"UnregisterReceiver failed in IDLE");}
+
 
 
         }
@@ -686,8 +650,6 @@ public class IncomingService extends StandOutWindow {
                 mMediaPlayer.prepare();
                 mMediaPlayer.setLooping(true);
                 mMediaPlayer.start();
-                SpecialRingInitiated=true;
-                specialRingtoneIsOn = true;
 
                 Log.i(TAG, " Ringtone registerVolumeReceiverMethod");
                 registerVolumeReceiverMethod();
