@@ -72,12 +72,16 @@ public class MessageUploadFile extends MessageToServer {
 			}
 
             bos.close();
+
+            if(fileSize > 0)
+                throw new IOException("Upload was stopped abruptly");
 		}
 	 	catch (IOException e) {
 			e.printStackTrace();
 			logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destId+" Failed:"+e.getMessage());
-			String errMsg = "UPLOAD_FAILED: Server failed to create the file";
+			String errMsg = "UPLOAD_FAILED:"+e.getMessage();
 			cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_FAILURE, errMsg, null)));
+            PushSender.sendPush(ClientsManager.getClientPushToken(_messageInitiaterId), PushEventKeys.SHOW_MESSAGE, errMsg);
 
 			return cont;
 		}

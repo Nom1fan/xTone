@@ -122,7 +122,11 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
             }
         }.start();
 
-        return START_NOT_STICKY;
+        if ((flags & START_FLAG_REDELIVERY)!=0) { // if crash restart...
+            stopSelf(startId);
+        }
+
+        return START_REDELIVER_INTENT;
     }
 
 
@@ -156,4 +160,12 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
         connectionToServer.sendToServer(msgRD);
 
     }
+//
+//    @Override
+//    public void onTaskRemoved(Intent rootIntent) {
+//        super.onTaskRemoved(rootIntent);
+//        Log.i(TAG,"Entering onTaskRemoved()");
+//
+//
+//    }
 }
