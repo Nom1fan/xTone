@@ -8,6 +8,7 @@ import android.util.Log;
 import com.app.AppStateManager;
 import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
+import com.interfaces.CallbackListener;
 import com.utils.BroadcastUtils;
 import com.utils.FileCompressorUtil;
 import com.utils.NotificationUtils;
@@ -53,11 +54,13 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        Log.i(TAG, "StorageServerProxyService started");
+        Log.i(TAG, "Started");
 
-        // If crash restart but was not mid-action we should do nothing
-        if ((flags & START_FLAG_REDELIVERY)!=0 && !wasMidAction) {
+        // If crash restart occurred but was not mid-action we should do nothing
+        if ((flags & START_FLAG_REDELIVERY)!=0 && !wasMidAction()) {
+            Log.i(TAG,"Crash restart occurred but was not mid-action (wasMidAction()=" + wasMidAction() + ". Exiting service.");
             stopSelf(startId);
+            return START_REDELIVER_INTENT;
         }
 
         final Intent intentForThread = intent;
@@ -67,7 +70,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
             @Override
             public void run() {
 
-                wasMidAction = true;
+                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retired in redeliver intent flow.
                 if (intentForThread != null)
                 {
                     String action = intentForThread.getAction();
@@ -129,7 +132,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
             }
         }.start();
 
-        if ((flags & START_FLAG_REDELIVERY)!=0) { // if crash restart...
+        if ((flags & START_FLAG_REDELIVERY)!=0) { // if we took care of crash restart, mark it as completed
             stopSelf(startId);
         }
 
@@ -171,7 +174,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
     @Override
     public void doCallbackAction() {
 
-        wasMidAction = false;
+        setMidAction(false);
     }
 //
 //    @Override

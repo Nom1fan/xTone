@@ -35,7 +35,6 @@ public class AbstractServerProxy extends Service implements IServerProxy {
 
     protected Context mContext;
     protected String TAG;
-    protected boolean wasMidAction = false;
     protected PowerManager.WakeLock wakeLock;
     protected ConnectivityManager connManager;
     protected ArrayList<ConnectionToServer> connections = new ArrayList<>();
@@ -73,7 +72,7 @@ public class AbstractServerProxy extends Service implements IServerProxy {
             // Finished handling request-response transaction
             connectionToServer.closeConnection();
             connections.remove(connectionToServer);
-            wasMidAction = false;
+           setMidAction(false);
 
         } catch(Exception e) {
             String errMsg = "Handling message from server failed. Reason:"+e.getMessage();
@@ -98,7 +97,7 @@ public class AbstractServerProxy extends Service implements IServerProxy {
 
         connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 
-        Log.i(TAG, "created");
+        Log.i(TAG, "Created");
         //callInfoToast(TAG + " created");
     }
 
@@ -131,7 +130,6 @@ public class AbstractServerProxy extends Service implements IServerProxy {
             wakeLock = null;
         }
     }
-
 
     protected void cancelReconnect()
     {
@@ -169,6 +167,17 @@ public class AbstractServerProxy extends Service implements IServerProxy {
         PendingIntent pi = PendingIntent.getService(getApplicationContext(), 0, i, 0);
         AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
         alarmMgr.set(AlarmManager.RTC_WAKEUP, now + interval, pi);
+    }
+
+    protected boolean wasMidAction() {
+
+        return SharedPrefUtils.getBoolean(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_MID_ACTION);
+    }
+
+    protected void setMidAction(boolean bool) {
+
+        Log.i(TAG, "Setting midAction="+bool);
+        SharedPrefUtils.setBoolean(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_MID_ACTION, bool);
     }
 
     protected boolean isNetworkAvailable() {
