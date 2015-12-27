@@ -8,6 +8,7 @@ import android.util.Log;
 import com.app.AppStateManager;
 import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
+import com.interfaces.CallbackListener;
 import com.utils.BroadcastUtils;
 import com.utils.FileCompressorUtil;
 import com.utils.NotificationUtils;
@@ -33,7 +34,7 @@ import MessagesToServer.MessageRequestDownload;
  * - Upload file
  * @author Mor
  */
-public class StorageServerProxyService extends AbstractServerProxy implements IServerProxy {
+public class StorageServerProxyService extends AbstractServerProxy implements IServerProxy, CallbackListener {
 
     // Service actions
     public static final String ACTION_DOWNLOAD = "com.services.StorageServerProxyService.DOWNLOAD";
@@ -55,12 +56,19 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
         super.onStartCommand(intent, flags, startId);
         Log.i(TAG, "StorageServerProxyService started");
 
+        // If crash restart but was not mid-action we should do nothing
+        if ((flags & START_FLAG_REDELIVERY)!=0 && !wasMidAction) {
+            stopSelf(startId);
+        }
+
         final Intent intentForThread = intent;
 
         new Thread() {
 
             @Override
             public void run() {
+
+                wasMidAction = true;
                 if (intentForThread != null)
                 {
                     String action = intentForThread.getAction();
@@ -79,7 +87,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
                                 TransferDetails td = (TransferDetails) intentForThread.getSerializableExtra(PushEventKeys.PUSH_DATA);
                                 requestDownloadFromServer(openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT), td);
                             }
-                                break;
+                            break;
 
                             case ACTION_UPLOAD: {
 
@@ -146,7 +154,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
 
         TransferDetails td = new TransferDetails(Constants.MY_ID(mContext), destNumber, managedFile);
         NotificationUtils.createHelper(mContext, "File upload to:" + td.getDestinationId() + " is pending");
-        new UploadTask(mContext, connectionToServer, td).execute();
+        new UploadTask(mContext, this ,connectionToServer, td).execute();
     }
 
     /**
@@ -159,6 +167,12 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
         MessageRequestDownload msgRD = new MessageRequestDownload(td);
         connectionToServer.sendToServer(msgRD);
 
+    }
+
+    @Override
+    public void doCallbackAction() {
+
+        wasMidAction = false;
     }
 //
 //    @Override

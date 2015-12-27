@@ -35,6 +35,7 @@ public class AbstractServerProxy extends Service implements IServerProxy {
 
     protected Context mContext;
     protected String TAG;
+    protected boolean wasMidAction = false;
     protected PowerManager.WakeLock wakeLock;
     protected ConnectivityManager connManager;
     protected ArrayList<ConnectionToServer> connections = new ArrayList<>();
@@ -72,6 +73,7 @@ public class AbstractServerProxy extends Service implements IServerProxy {
             // Finished handling request-response transaction
             connectionToServer.closeConnection();
             connections.remove(connectionToServer);
+            wasMidAction = false;
 
         } catch(Exception e) {
             String errMsg = "Handling message from server failed. Reason:"+e.getMessage();
