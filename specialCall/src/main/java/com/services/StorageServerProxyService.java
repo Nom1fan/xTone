@@ -8,7 +8,6 @@ import android.util.Log;
 import com.app.AppStateManager;
 import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
-import com.interfaces.CallbackListener;
 import com.utils.BroadcastUtils;
 import com.utils.FileCompressorUtil;
 import com.utils.NotificationUtils;

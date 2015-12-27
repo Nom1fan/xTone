@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import com.data_objects.Constants;
+import com.interfaces.CallbackListener;
 import com.ui.components.NotificationHelper;
 import com.utils.BroadcastUtils;
 import com.utils.NotificationUtils;
@@ -26,9 +27,11 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
     private ConnectionToServer _connectionToServer;
     private TransferDetails _td;
     private Context _context;
+    private CallbackListener _callBackListener;
 
-    public UploadTask(Context context, ConnectionToServer connectionToServer, TransferDetails td){
+    public UploadTask(Context context, CallbackListener callBackListener , ConnectionToServer connectionToServer, TransferDetails td) {
         _context = context;
+        _callBackListener = callBackListener;
         mNotificationHelper = NotificationUtils.getNextHelper();
         _connectionToServer = connectionToServer;
         _td = td;
@@ -97,6 +100,8 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
         //The task is complete, tell the status bar about it
         mNotificationHelper.completed();
         NotificationUtils.freeHelperSpace();
+        //The task is complete, tell the call back listener about it
+        _callBackListener.doCallbackAction();
     }
 
 }
