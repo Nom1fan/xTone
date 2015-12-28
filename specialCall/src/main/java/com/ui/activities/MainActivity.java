@@ -18,6 +18,7 @@ import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.InputType;
@@ -262,6 +263,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     checkDestinationNumber();
 
                     Uri uriRingtone = data.getData();
+                    Log.e(tag,"uriRingtone: " + uriRingtone.toString());
                     String ringTonePath = getRealPathFromURI(uriRingtone);
                     fm = new FileManager(ringTonePath);
                 }
@@ -971,7 +973,29 @@ public class MainActivity extends Activity implements OnClickListener {
     private String getRealPathFromURI(Uri contentURI) {
 
         String result = null;
+        String displayName = null;
+        String externalStoragePathAfterSearch = null;
         try {
+
+          if(  contentURI.toString().contains("content://com.android.providers"))  // providers doesn't provide the correct path to the file so we take the file name and search its real path
+          {
+              Cursor cursor = null;
+              try {
+                  cursor = getApplicationContext().getContentResolver().query(contentURI, null, null, null, null);
+                  if (cursor != null && cursor.moveToFirst()) {
+                      displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                  }
+              } finally {
+                  cursor.close();
+              }
+
+              if (displayName != null && !displayName.isEmpty())
+                  externalStoragePathAfterSearch = getPathFromNameRecursive(Environment.getExternalStorageDirectory(),displayName);
+
+              Log.e(tag,"displayName: " + displayName + " externalStoragePathAfterSearch: "+externalStoragePathAfterSearch);
+
+              return externalStoragePathAfterSearch;
+          }
             Cursor cursor = getContentResolver().query(contentURI, null, null,
                     null, null);
             if (cursor == null) { // Source is Dropbox or other similar local
@@ -988,10 +1012,37 @@ public class MainActivity extends Activity implements OnClickListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return result;
 
+
+
     }
+
+
+    private String getPathFromNameRecursive(File dir,String fileTitle) {
+
+        File listFile[] = dir.listFiles();
+
+        if (listFile != null) {
+            for (int i = 0; i < listFile.length; i++) {
+
+                if (listFile[i].isDirectory()) {
+                    String path = getPathFromNameRecursive(listFile[i], fileTitle);
+                    if (path!=null)
+                        return path;
+                } else {
+                    if (listFile[i].getName().contains(fileTitle)){
+                        Log.e(tag,"file title: " + fileTitle);
+                        return listFile[i].getAbsolutePath();
+                    }
+                }
+            }
+
+
+        }
+
+        return null;
+    } // help search for file in ExternalStorage >> getRealPathFromURI Method Uses it !!
 
     private void initializeConnection() {
 
