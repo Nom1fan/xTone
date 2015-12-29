@@ -1,89 +1,13 @@
 ECLIPSE ANDROID PROJECT IMPORT SUMMARY
 ======================================
 
-Manifest Merging:
------------------
-Your project uses libraries that provide manifests, and your Eclipse
-project did not explicitly turn on manifest merging. In Android Gradle
-projects, manifests are always merged (meaning that contents from your
-libraries' manifests will be merged into the app manifest. If you had
-manually copied contents from library manifests into your app manifest
-you may need to remove these for the app to build correctly.
-
 Ignored Files:
 --------------
 The following files were *not* copied into the new Gradle project; you
 should evaluate whether these are still needed in your project and if
 so manually move them:
 
-* httpcomponents-client-4.3.4\
-* httpcomponents-client-4.3.4\LICENSE.txt
-* httpcomponents-client-4.3.4\NOTICE.txt
-* httpcomponents-client-4.3.4\README.txt
-* httpcomponents-client-4.3.4\RELEASE_NOTES.txt
-* httpcomponents-client-4.3.4\examples\
-* httpcomponents-client-4.3.4\examples\org\
-* httpcomponents-client-4.3.4\examples\org\apache\
-* httpcomponents-client-4.3.4\examples\org\apache\http\
-* httpcomponents-client-4.3.4\examples\org\apache\http\client\
-* httpcomponents-client-4.3.4\examples\org\apache\http\client\fluent\
-* httpcomponents-client-4.3.4\examples\org\apache\http\client\fluent\FluentAsync.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\client\fluent\FluentExecutor.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\client\fluent\FluentQuickStart.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\client\fluent\FluentRequests.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\client\fluent\FluentResponseHandling.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientAbortMethod.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientAuthentication.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientChunkEncodedPost.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientConfiguration.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientConnectionRelease.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientCustomContext.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientCustomSSL.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientEvictExpiredConnections.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientExecuteProxy.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientExecuteSOCKS.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientFormLogin.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientMultiThreadedExecution.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientPreemptiveBasicAuthentication.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientPreemptiveDigestAuthentication.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientProxyAuthentication.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientWithRequestFuture.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ClientWithResponseHandler.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\ProxyTunnelDemo.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\client\QuickStart.java
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\entity\
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\entity\mime\
-* httpcomponents-client-4.3.4\examples\org\apache\http\examples\entity\mime\ClientMultipartFormPost.java
-* httpcomponents-client-4.3.4\lib\
-* httpcomponents-client-4.3.4\lib\commons-codec-1.6.jar
-* httpcomponents-client-4.3.4\lib\commons-logging-1.1.3.jar
-* httpcomponents-client-4.3.4\lib\fluent-hc-4.3.4.jar
-* httpcomponents-client-4.3.4\lib\httpclient-4.3.4.jar
-* httpcomponents-client-4.3.4\lib\httpclient-cache-4.3.4.jar
-* httpcomponents-client-4.3.4\lib\httpcore-4.3.2.jar
-* httpcomponents-client-4.3.4\lib\httpmime-4.3.4.jar
-* httpcomponents-client-4.3.4\tutorial\
-* httpcomponents-client-4.3.4\tutorial\html\
-* httpcomponents-client-4.3.4\tutorial\html\advanced.html
-* httpcomponents-client-4.3.4\tutorial\html\authentication.html
-* httpcomponents-client-4.3.4\tutorial\html\caching.html
-* httpcomponents-client-4.3.4\tutorial\html\connmgmt.html
-* httpcomponents-client-4.3.4\tutorial\html\css\
-* httpcomponents-client-4.3.4\tutorial\html\css\hc-tutorial.css
-* httpcomponents-client-4.3.4\tutorial\html\fluent.html
-* httpcomponents-client-4.3.4\tutorial\html\fundamentals.html
-* httpcomponents-client-4.3.4\tutorial\html\images\
-* httpcomponents-client-4.3.4\tutorial\html\images\asf_logo_wide.gif
-* httpcomponents-client-4.3.4\tutorial\html\images\hc_logo.png
-* httpcomponents-client-4.3.4\tutorial\html\index.html
-* httpcomponents-client-4.3.4\tutorial\html\preface.html
-* httpcomponents-client-4.3.4\tutorial\html\statemgmt.html
-* httpcomponents-client-4.3.4\tutorial\pdf\
-* httpcomponents-client-4.3.4\tutorial\pdf\httpclient-tutorial.pdf
-* ic_launcher-web.png
-* proguard-project.txt
+* proguard.cfg
 
 Replaced Jars with Dependencies:
 --------------------------------
@@ -95,43 +19,30 @@ the .jar file in your project was of an older version than the
 dependency we picked, which could render the project not compileable.
 You can disable the jar replacement in the import wizard and try again:
 
-android-support-v4.jar => com.android.support:support-v4:19.1.0
-android-support-v7-appcompat.jar => com.android.support:appcompat-v7:19.1.0
-
-Replaced Libraries with Dependencies:
--------------------------------------
-The importer recognized the following library projects as third party
-libraries and replaced them with Gradle dependencies instead. This has
-the advantage that more explicit version information is known, and the
-libraries can be updated automatically. However, it is possible that
-the source files in your project were of an older version than the
-dependency we picked, which could render the project not compileable.
-You can disable the library replacement in the import wizard and try
-again:
-
-android-support-v7-appcompat => [com.android.support:appcompat-v7:19.1.0]
+android-support-v4.jar => com.android.support:support-v4:19.+
 
 Moved Files:
 ------------
 Android Gradle projects use a different directory structure than ADT
 Eclipse projects. Here's how the projects were restructured:
 
-In Shared:
-* lib\commons-io-2.4.jar => shared\lib\commons-io-2.4.jar
-* src\ => shared\src\main\java\
-In SpecialCall:
-* AndroidManifest.xml => specialCall\src\main\AndroidManifest.xml
-* assets\ => specialCall\src\main\assets
-* libs\commons-codec-1.6.jar => specialCall\libs\commons-codec-1.6.jar
-* libs\commons-logging-1.1.3.jar => specialCall\libs\commons-logging-1.1.3.jar
-* libs\fluent-hc-4.3.4.jar => specialCall\libs\fluent-hc-4.3.4.jar
-* libs\httpclient-4.3.4.jar => specialCall\libs\httpclient-4.3.4.jar
-* libs\httpclient-cache-4.3.4.jar => specialCall\libs\httpclient-cache-4.3.4.jar
-* libs\httpcore-4.3.2.jar => specialCall\libs\httpcore-4.3.2.jar
-* libs\httpmime-4.3.4.jar => specialCall\libs\httpmime-4.3.4.jar
-* lint.xml => specialCall\lint.xml
-* res\ => specialCall\src\main\res\
-* src\ => specialCall\src\main\java\
+* AndroidManifest.xml => aFileChooser\src\main\AndroidManifest.xml
+* res\ => aFileChooser\src\main\res\
+* src\ => aFileChooser\src\main\java\
+
+Missing Android Support Repository:
+-----------------------------------
+Some useful libraries, such as the Android Support Library, are
+installed from a special Maven repository, which should be installed
+via the SDK manager.
+
+It looks like this library is missing from your SDK installation at:
+null
+
+To install it, open the SDK manager, and in the Extras category,
+select "Android Support Repository". You may also want to install the
+"Google Repository" if you want to use libraries like Google Play
+Services.
 
 Next Steps:
 -----------

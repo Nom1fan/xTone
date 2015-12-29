@@ -40,6 +40,7 @@ import android.widget.Toast;
 
 import com.app.AppStateManager;
 import com.data_objects.Constants;
+import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.services.IncomingService;
 import com.services.LogicServerProxyService;
 import com.services.StorageServerProxyService;
@@ -88,7 +89,7 @@ public class MainActivity extends Activity implements OnClickListener {
     }
     private AutoCompleteTextView mTxtPhoneNo;
     private int randomPIN=0;
-
+    private static final int REQUEST_CHOOSER = 1234;
 
 
 	@Override
@@ -221,97 +222,74 @@ public class MainActivity extends Activity implements OnClickListener {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
 
-            try {
-
                 restoreInstanceState();
 
                 FileManager fm = null;
 
-                if (requestCode == ActivityRequestCodes.SELECT_PICTURE) {
-                    final boolean isCamera;
+               if (requestCode == REQUEST_CHOOSER) {
+                   final boolean isCamera;
+                   try {
+                       checkDestinationNumber();
+                       Uri uri;
 
-                    checkDestinationNumber();
+                       if (data == null) {
+                           isCamera = true;
+                       } else {
+                           final String action = data.getAction();
+                           isCamera = action != null && action.equals(MediaStore.ACTION_IMAGE_CAPTURE);
+                       }
 
-                    if (data == null) {
-                        isCamera = true;
-                    } else {
-                        final String action = data.getAction();
-                        isCamera = action != null && action.equals(MediaStore.ACTION_IMAGE_CAPTURE);
-                    }
+                       if (isCamera) {
+                           uri = outputFileUri;
+                       } else {
+                           uri = data.getData();
+                       }
 
-                    Uri selectedImageOrVideoUri;
-                    if (isCamera) {
-                        selectedImageOrVideoUri = outputFileUri;
-                    } else {
-                        selectedImageOrVideoUri = data.getData();
-                    }
+                       // Get the File path from the Uri
+                       String path = FileUtils.getPath(this, uri);
+                       // Alternatively, use FileUtils.getFile(Context, Uri)
+                       if (path != null) {
+                            if (FileUtils.isLocal(path)) {
 
-                    String imgOrVidPath = getRealPathFromURI(selectedImageOrVideoUri);
+                                if (isCamera) {
+                                    File file = new File(path);
+                                    file.renameTo(new File(path += ".jpeg"));
+                                }
 
-                    if(isCamera)
-                    {
-                        File file = new File(imgOrVidPath);
-                        file.renameTo(new File(imgOrVidPath+=".jpeg"));
+                                fm = new FileManager(path);
 
-                    }
+                                if (fm != null) {
+                                    Intent i = new Intent(context, StorageServerProxyService.class);
+                                    i.setAction(StorageServerProxyService.ACTION_UPLOAD);
+                                    i.putExtra(StorageServerProxyService.DESTINATION_ID, destPhoneNumber);
+                                    i.putExtra(StorageServerProxyService.FILE_TO_UPLOAD, fm);
+                                    context.startService(i);
 
-                    fm = new FileManager(imgOrVidPath);
-                }
+                                } else
+                                    writeErrStatBar("An unknown error occured during file upload");
+                            }
+                       }
 
-                if (requestCode == ActivityRequestCodes.PICK_SONG) {
 
-                    checkDestinationNumber();
-
-                    Uri uriRingtone = data.getData();
-                    Log.e(tag,"uriRingtone: " + uriRingtone.toString());
-                    String ringTonePath = getRealPathFromURI(uriRingtone);
-                    fm = new FileManager(ringTonePath);
-                }
-
-                if(fm!=null) {
-                    Intent i = new Intent(context, StorageServerProxyService.class);
-                    i.setAction(StorageServerProxyService.ACTION_UPLOAD);
-                    i.putExtra(StorageServerProxyService.DESTINATION_ID, destPhoneNumber);
-                    i.putExtra(StorageServerProxyService.FILE_TO_UPLOAD, fm);
-                    context.startService(i);
-
-//
-//                    setState(tag + "::onActivityResult upload file", AppStateManager.STATE_LOADING);
-//                            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, "Uploading file to server...");
-                }
-                else
-                    writeErrStatBar("An unknown error occured during file upload");
-            }
-            catch(NullPointerException e)
-            {
-                e.printStackTrace();
-                Log.e(tag,"It seems there was a problem with the file path.");
-                callErrToast("It seems there was a problem with the file path");
-                //writeErrStatBar("It seems there was a problem with the file path");
-            }
-            catch (FileExceedsMaxSizeException e)
-            {
-                callErrToast("Please select a file that weights less than:"+
-                        FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
-//                writeErrStatBar("Please select a file that weights less than:"+
-//                        FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
-            }
-            catch (InvalidDestinationNumberException e)
-            {
-                //callErrToast("There was a problem with the destination number. Please try again");
-                writeErrStatBar("There was a problem with the destination number. Please try again");
-            }
-            catch (FileInvalidFormatException e)
-            {
-                e.printStackTrace();
-                callErrToast("Please select a valid format");
-                //writeErrStatBar("Please select a valid format");
-            } catch (FileDoesNotExistException | FileMissingExtensionException e) {
-                e.printStackTrace();
-                callErrToast(e.getMessage());
-                //writeErrStatBar(e.getMessage());
-            }
-
+                   } catch (NullPointerException e) {
+                       e.printStackTrace();
+                       Log.e(tag, "It seems there was a problem with the file path.");
+                       callErrToast("It seems there was a problem with the file path");
+                   } catch (FileExceedsMaxSizeException e) {
+                       callErrToast("Please select a file that weights less than:" +
+                               FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+                   } catch (FileInvalidFormatException e) {
+                       e.printStackTrace();
+                       callErrToast("Please select a valid format");
+                   } catch (FileDoesNotExistException | FileMissingExtensionException e) {
+                       e.printStackTrace();
+                       callErrToast(e.getMessage());
+                   }  catch (InvalidDestinationNumberException e)
+                   {
+                       //callErrToast("There was a problem with the destination number. Please try again");
+                       writeErrStatBar("There was a problem with the destination number. Please try again");
+                   }
+               }
             if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
                 try {
                     if (data != null) {
@@ -399,7 +377,11 @@ public class MainActivity extends Activity implements OnClickListener {
 				android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 		final PackageManager packageManager = getPackageManager();
 		final List<ResolveInfo> listCam = packageManager.queryIntentActivities(
-				captureIntent, 0);
+                captureIntent, 0);
+
+
+        final Intent videoIntent = new Intent(
+                MediaStore.ACTION_VIDEO_CAPTURE);
 
 		for (ResolveInfo res : listCam) {
 			final String packageName = res.activityInfo.packageName;
@@ -410,54 +392,23 @@ public class MainActivity extends Activity implements OnClickListener {
 			intent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
 			cameraIntents.add(intent);
 		}
+        cameraIntents.add(videoIntent);
 
-		// Filesystem.
-		final Intent galleryIntent = new Intent();
-		galleryIntent.setType("*/*");
-		galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+        // Create the ACTION_GET_CONTENT Intent
+       final Intent intent = FileUtils.createGetContentIntent();
 
-		// Chooser of filesystem options.
-		final Intent chooserIntent = Intent.createChooser(galleryIntent,
-				"Select Source");
+        Intent chooserIntent = Intent.createChooser(intent, "Select a file");
 
         // Add the camera options.
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,
                 cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
 
-        startActivityForResult(chooserIntent,
-				ActivityRequestCodes.SELECT_PICTURE);
+        startActivityForResult(chooserIntent, REQUEST_CHOOSER);
+
+
+
 	}
 
-	private void selectRingtone() {
-
-
-		Intent intent_selectRingTone = new Intent();
-		intent_selectRingTone.setType("audio/*");
-		intent_selectRingTone.setAction(Intent.ACTION_GET_CONTENT);
-
-		try
-        {
-			startActivityForResult(intent_selectRingTone, ActivityRequestCodes.PICK_SONG);
-		}
-        catch(ActivityNotFoundException e)
-        {
-
-            intent_selectRingTone.setType("*/*");
-
-            try
-            {
-                startActivityForResult(intent_selectRingTone, ActivityRequestCodes.PICK_SONG);
-            }
-            catch (ActivityNotFoundException e1)
-            {
-                e.printStackTrace();
-                String errMsg = "Failed to start activity to select a ringtone:"+e.getMessage();
-			    Log.e(tag,errMsg);
-                //callErrToast(errMsg);
-                writeErrStatBar(errMsg);
-            }
-		}
-	}
 
 	public void onClick(View v) {
 
@@ -471,17 +422,17 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		} else if (id == R.id.selectMediaBtn) {
 
-			selectVisualMedia();
+         selectVisualMedia();
 
 		}
         else if (id == R.id.selectProfileMediaBtn) {
 
-            selectVisualMedia();
+           selectVisualMedia();
 
         }
         else if (id == R.id.selectRingtoneBtn) {
 
-			selectRingtone();
+            selectVisualMedia();
 
 		} else if (id == R.id.selectContactBtn) {
 
