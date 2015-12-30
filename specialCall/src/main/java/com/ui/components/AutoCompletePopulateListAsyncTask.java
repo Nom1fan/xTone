@@ -8,6 +8,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.SimpleAdapter;
 
 import com.special.app.R;
+import com.utils.FilterWithSpaceAdapter;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -15,12 +16,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 // ASYNC TASK To Populate all contacts , it can take long time and it delays the UI
-public class AutoCompletePopulateListAsyncTask extends AsyncTask<Void, Integer, SimpleAdapter> {
+public class AutoCompletePopulateListAsyncTask extends AsyncTask<Void, Integer, FilterWithSpaceAdapter> {
 
-    private ArrayList<Map<String, String>> mPeopleList;
+  //  private ArrayList<Map<String, String>> mPeopleList ;
+    private ArrayList<String> mPeopleList ;
     private final WeakReference<AutoCompleteTextView> autoCompleteTextViewWeakReference;
     private final Context mContext;
-    private SimpleAdapter mAdapter;
+  //  private SimpleAdapter mAdapter;
+    private FilterWithSpaceAdapter mWithSpaceAdapter;
 
     private static final String[] PROJECTION = new String[] {
             ContactsContract.Contacts.DISPLAY_NAME,
@@ -35,18 +38,20 @@ public class AutoCompletePopulateListAsyncTask extends AsyncTask<Void, Integer, 
     }
 
     @Override
-    protected SimpleAdapter doInBackground(Void... params) {
+    protected FilterWithSpaceAdapter doInBackground(Void... params) {
         mPeopleList = new ArrayList<>();
         PopulatePeopleList();
-        mAdapter = new SimpleAdapter(mContext, mPeopleList, R.layout.custcontview ,new String[] { "Name", "Phone" /*, "Type"*/ }, new int[] { R.id.ccontName, R.id.ccontNo/*, R.id.ccontType*/ });
-        return mAdapter;
+    //    mAdapter = new SimpleAdapter(mContext, mPeopleList, R.layout.custcontview ,new String[] { "Name", "Phone" /*, "Type"*/ }, new int[] { R.id.ccontName, R.id.ccontNo/*, R.id.ccontType*/ });
+        mWithSpaceAdapter = new FilterWithSpaceAdapter(mContext,R.layout.custcontview,R.id.ccontName ,mPeopleList);
+
+        return mWithSpaceAdapter;
 
     }
 
     @Override
-    protected void onPostExecute(SimpleAdapter mAdapter) {
+    protected void onPostExecute(FilterWithSpaceAdapter mWithSpaceAdapter) {
 
-       autoCompleteTextViewWeakReference.get().setAdapter(mAdapter);
+       autoCompleteTextViewWeakReference.get().setAdapter(mWithSpaceAdapter);
 
     }
 
@@ -70,10 +75,10 @@ public class AutoCompletePopulateListAsyncTask extends AsyncTask<Void, Integer, 
                     phoneNumber = people.getString(phonesIndex);
                     // numberType = people.getString(phoneTypeIndex);
 
-                    Map<String, String> NamePhoneType = new HashMap<>();
+                  //  Map<String, String> NamePhoneType = new HashMap<>();
 
-                    NamePhoneType.put("Name", contactName);
-                    NamePhoneType.put("Phone", phoneNumber);
+                  //  NamePhoneType.put("Name", contactName);
+                  //  NamePhoneType.put("Phone", phoneNumber);
 
                    /* if (numberType.equals("0"))
                         NamePhoneType.put("Type", "Work");
@@ -85,7 +90,7 @@ public class AutoCompletePopulateListAsyncTask extends AsyncTask<Void, Integer, 
                         NamePhoneType.put("Type", "Other");*/
 
                     //Then add this map to the list.
-                    mPeopleList.add(NamePhoneType);
+                    mPeopleList.add(contactName + "\n" +phoneNumber);
                 }
 
             } finally {

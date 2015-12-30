@@ -7,9 +7,10 @@
         android:id="@+id/ccontName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Large Text"
         android:textColor="#A5000000"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.PopupMenu.Small"
+        android:singleLine="false"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/ccontNo"
@@ -17,9 +18,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@id/ccontName"
-        android:text="Medium Text"
         android:textColor="#A5000000"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Widget.PopupMenu.Small"
+        android:singleLine="false" />
 
     <!--  <TextView
           android:id="@+id/ccontType"
@@ -31,8 +32,4 @@
           android:text="Small Text"
           android:textColor="#A5000000"
           android:textAppearance="?android:attr/textAppearanceSmall" />-->
-
-
-
-
 </LinearLayout>

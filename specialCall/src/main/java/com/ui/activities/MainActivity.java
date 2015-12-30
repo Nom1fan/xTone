@@ -47,6 +47,7 @@ import com.services.StorageServerProxyService;
 import com.special.app.R;
 import com.ui.components.AutoCompletePopulateListAsyncTask;
 import com.ui.components.BitmapWorkerTask;
+import com.utils.FilterWithSpaceAdapter;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
 
@@ -646,15 +647,29 @@ public class MainActivity extends Activity implements OnClickListener {
 
         mTxtPhoneNo  = (AutoCompleteTextView) findViewById(R.id.CallNumber);
 
+        //FilterWithSpaceAdapter<String> adapter1 =   new FilterWithSpaceAdapter<String>(this, R.layout.custcontview,R.id.CallNumber);
+
+      //  mTxtPhoneNo.setAdapter(adapter1);
+
         mTxtPhoneNo.setRawInputType(InputType.TYPE_CLASS_TEXT);
 
         mTxtPhoneNo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> av, View arg1, int index, long arg3) {
-                Map<String, String> map = (Map<String, String>) av.getItemAtPosition(index);
-                String name = map.get("Name");
-                String number = map.get("Phone");
-                mTxtPhoneNo.setText(toNumeric(number));
+                String[] nameAndPhone = ((String) av.getItemAtPosition(index)).split("\\\n");
+
+                String name = nameAndPhone[0];
+                String number = nameAndPhone[1];
+                String NumericNumber = toNumeric(number);
+                Log.e(tag, NumericNumber);
+                if (NumericNumber.startsWith("972")){
+                    NumericNumber= NumericNumber.replaceFirst("972","0");
+               }
+                if (NumericNumber.startsWith("9720")){
+                    NumericNumber= NumericNumber.replaceFirst("9720","0");
+                }
+
+                mTxtPhoneNo.setText(NumericNumber);
                 destName = name;
                 setDestNameTextView();
             }
@@ -685,6 +700,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
                 String destPhone = s.toString();
 
+
                 if (10 == s.length() && NumberUtils.isNumber(destPhone)) {
 
                     destPhoneNumber = destPhone;
@@ -714,6 +730,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
             @Override
             public void afterTextChanged(Editable s) {
+
+
             }
         });
 
@@ -1044,11 +1062,11 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		runOnUiThread(new Runnable() {
 
-			public void run() {
-				    findViewById(R.id.CallNow).setEnabled(false);
-			}
+            public void run() {
+                findViewById(R.id.CallNow).setEnabled(false);
+            }
 
-		});
+        });
 	}
 
 	private void enableCallButton() {
