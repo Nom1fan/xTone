@@ -25,7 +25,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/CallNumber"
         android:layout_toLeftOf="@+id/clear"
-        android:layout_toStartOf="@+id/clear" />
+        android:layout_alignLeft="@+id/CallNumber"
+        android:layout_alignStart="@+id/CallNumber" />
 
     <Button
         android:id="@+id/selectRingtoneBtn"
@@ -66,7 +67,9 @@
         android:inputType="textAutoComplete|text"
         android:layout_alignTop="@+id/selectContactBtn"
         android:layout_alignLeft="@+id/selectMediaBtn"
-        android:layout_alignStart="@+id/selectMediaBtn">
+        android:layout_alignStart="@+id/selectMediaBtn"
+        android:layout_alignRight="@+id/progressBar"
+        android:layout_alignEnd="@+id/progressBar">
 
         <requestFocus />
     </AutoCompleteTextView>
@@ -115,12 +118,10 @@
         android:layout_height="wrap_content"
         android:id="@+id/clear"
         android:clickable="true"
-        android:layout_alignEnd="@+id/CallNumber"
         android:background="@drawable/clear"
-        android:layout_marginBottom="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_alignBottom="@+id/CallNumber"
-        android:layout_alignRight="@+id/CallNumber" />
+        android:layout_above="@+id/destName"
+        android:layout_alignLeft="@+id/selectRingtoneBtn"
+        android:layout_alignStart="@+id/selectRingtoneBtn" />
 
     <TextView
         android:layout_width="wrap_content"
