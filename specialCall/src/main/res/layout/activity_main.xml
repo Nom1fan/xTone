@@ -15,33 +15,29 @@
         android:contentDescription="contacts"
         android:src="@drawable/select_contact_enabled"
         android:textSize="18sp"
-        android:layout_alignBottom="@+id/CallNumber"
+        android:layout_above="@+id/selectMediaBtn"
         android:layout_alignRight="@+id/selectMediaBtn"
-        android:layout_alignEnd="@+id/selectMediaBtn"
-        android:layout_alignTop="@+id/selectRingtoneBtn" />
+        android:layout_alignEnd="@+id/selectMediaBtn" />
 
     <TextView
         android:id="@+id/destName"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/CallNumber"
-        android:layout_toRightOf="@+id/selectProfileMediaBtn"
-        android:layout_toEndOf="@+id/selectProfileMediaBtn" />
+        android:layout_toLeftOf="@+id/clear"
+        android:layout_toStartOf="@+id/clear" />
 
     <Button
         android:id="@+id/selectRingtoneBtn"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:enabled="true"
-        android:layout_marginBottom="14dp"
+        android:enabled="false"
         android:textSize="18sp"
         android:text="Select Ringtone"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentRight="false"
-        android:layout_alignParentLeft="false"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/selectMediaBtn" />
+        android:visibility="invisible"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <ImageButton
         android:id="@+id/selectMediaBtn"
@@ -51,9 +47,8 @@
         android:clickable="true"
         android:src="@drawable/defaultpic_enabled"
         android:textSize="18sp"
-        android:layout_below="@+id/statusBar"
-        android:layout_alignLeft="@+id/CallNumber"
-        android:layout_alignStart="@+id/CallNumber" />
+        android:layout_above="@+id/CallNow"
+        android:layout_centerHorizontal="true" />
 
     <AutoCompleteTextView
         android:id="@+id/CallNumber"
@@ -67,11 +62,11 @@
         android:phoneNumber="true"
         android:maxLength="10"
         android:singleLine="true"
-        android:layout_alignRight="@+id/CallNow"
-        android:layout_alignEnd="@+id/CallNow"
         android:completionThreshold="1"
-        android:layout_below="@+id/selectRingtoneBtn"
-        android:inputType="textAutoComplete|text">
+        android:inputType="textAutoComplete|text"
+        android:layout_alignTop="@+id/selectContactBtn"
+        android:layout_alignLeft="@+id/selectMediaBtn"
+        android:layout_alignStart="@+id/selectMediaBtn">
 
         <requestFocus />
     </AutoCompleteTextView>
@@ -83,7 +78,7 @@
         android:enabled="true"
         android:textSize="18sp"
         android:text="Call Now"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/statusBar"
         android:layout_centerHorizontal="true" />
 
     <ImageButton
@@ -111,7 +106,7 @@
         android:textColor="#027f00"
         android:singleLine="false"
         android:background="@android:color/black"
-        android:layout_below="@+id/selectProfileMediaBtn"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
@@ -126,5 +121,22 @@
         android:layout_marginRight="5dp"
         android:layout_alignBottom="@+id/CallNumber"
         android:layout_alignRight="@+id/CallNumber" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:id="@+id/ringtoneName"
+        android:visibility="visible"
+        android:background="@android:color/white"
+        android:textColor="@android:color/black"
+        android:singleLine="true"
+        android:hint="No Ringtone Was Chosen !"
+        android:layout_above="@+id/CallNow"
+        android:layout_alignLeft="@+id/selectMediaBtn"
+        android:layout_alignStart="@+id/selectMediaBtn"
+        android:layout_alignRight="@+id/selectContactBtn"
+        android:layout_alignEnd="@+id/selectContactBtn" />
 
 </RelativeLayout>

@@ -323,6 +323,16 @@ public class FileManager implements Serializable {
         bos.close();
     }
 
+    public static String getFileNameWithExtension(String filePath){
+
+        String tmp_str[] = filePath.split("\\/");
+
+        String fileName = tmp_str[tmp_str.length-1];
+
+        return fileName;
+
+    }
+
     /* Private static methods*/
 
     private static String extractExtension(String filePath) throws FileMissingExtensionException{

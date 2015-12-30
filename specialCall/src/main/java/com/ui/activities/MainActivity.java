@@ -622,7 +622,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
                                   }
                               });
-
                           }
                       }
         );
@@ -920,81 +919,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
         return str.replaceAll("[^0-9]","");
     }
-
-    private String getRealPathFromURI(Uri contentURI) {
-
-        String result = null;
-        String displayName = null;
-        String externalStoragePathAfterSearch = null;
-        try {
-
-          if(  contentURI.toString().contains("content://com.android.providers"))  // providers doesn't provide the correct path to the file so we take the file name and search its real path
-          {
-              Cursor cursor = null;
-              try {
-                  cursor = getApplicationContext().getContentResolver().query(contentURI, null, null, null, null);
-                  if (cursor != null && cursor.moveToFirst()) {
-                      displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                  }
-              } finally {
-                  cursor.close();
-              }
-
-              if (displayName != null && !displayName.isEmpty())
-                  externalStoragePathAfterSearch = getPathFromNameRecursive(Environment.getExternalStorageDirectory(),displayName);
-
-              Log.e(tag,"displayName: " + displayName + " externalStoragePathAfterSearch: "+externalStoragePathAfterSearch);
-
-              return externalStoragePathAfterSearch;
-          }
-            Cursor cursor = getContentResolver().query(contentURI, null, null,
-                    null, null);
-            if (cursor == null) { // Source is Dropbox or other similar local
-                // file path
-                result = contentURI.getPath();
-            } else {
-                cursor.moveToFirst();
-                int idx = cursor
-                        .getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-                result = cursor.getString(idx);
-                cursor.close();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
-
-
-
-    }
-
-
-    private String getPathFromNameRecursive(File dir,String fileTitle) {
-
-        File listFile[] = dir.listFiles();
-
-        if (listFile != null) {
-            for (int i = 0; i < listFile.length; i++) {
-
-                if (listFile[i].isDirectory()) {
-                    String path = getPathFromNameRecursive(listFile[i], fileTitle);
-                    if (path!=null)
-                        return path;
-                } else {
-                    if (listFile[i].getName().contains(fileTitle)){
-                        Log.e(tag,"file title: " + fileTitle);
-                        return listFile[i].getAbsolutePath();
-                    }
-                }
-            }
-
-
-        }
-
-        return null;
-    } // help search for file in ExternalStorage >> getRealPathFromURI Method Uses it !!
-
     private void initializeConnection() {
 
         Intent i = new Intent();
@@ -1014,9 +938,6 @@ public class MainActivity extends Activity implements OnClickListener {
         String s = edCN.getText().toString();
         return 10 == s.length();
     }
-
-
-
 
     /* -------------- UI methods -------------- */
 
@@ -1274,20 +1195,36 @@ public class MainActivity extends Activity implements OnClickListener {
     private void drawSelectRingToneButton() {
 
         String wasRingToneUploaded = lut_utils.getUploadedRingTonePerNumber(destPhoneNumber);
+
+        TextView ringtoneView = (TextView) findViewById(R.id.ringtoneName);
+
         Button ringButton = (Button) findViewById(R.id.selectRingtoneBtn);
         if(!wasRingToneUploaded.isEmpty())
         {
             ringButton.getBackground().setColorFilter(0xFF00FF00,
                     PorterDuff.Mode.MULTIPLY);
+
+
+            ringtoneView.setText(FileManager.getFileNameWithExtension(wasRingToneUploaded));
+            ringtoneView.setBackgroundColor(0xFF00FF00);
+
+
         }
         else
         {
             if(ringButton.isEnabled())
-                ringButton.getBackground().setColorFilter(Color.LTGRAY,
+            {  ringButton.getBackground().setColorFilter(Color.LTGRAY,
                         PorterDuff.Mode.MULTIPLY);
-            else
+
+                ringtoneView.setBackgroundColor(Color.WHITE);
+                ringtoneView.setText("No Ringtone Ready Yet!");
+            }
+            else{
                 ringButton.getBackground().setColorFilter(Color.DKGRAY,
                         PorterDuff.Mode.MULTIPLY);
+                ringtoneView.setBackgroundColor(Color.DKGRAY);
+                ringtoneView.setText("Can't Use Ringtone !");
+            }
         }
     }
 
