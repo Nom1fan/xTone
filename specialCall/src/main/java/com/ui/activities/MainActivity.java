@@ -91,7 +91,8 @@ public class MainActivity extends Activity implements OnClickListener {
     private AutoCompleteTextView mTxtPhoneNo;
     private int randomPIN=0;
     private static final int REQUEST_CHOOSER = 1234;
-
+    private static boolean wasRegisteredChecked = false;
+    private static boolean wasFileChooser=false;
 
 	@Override
 	protected void onStart() {
@@ -115,6 +116,7 @@ public class MainActivity extends Activity implements OnClickListener {
         super.onPause();
         Log.i(tag, "onPause()");
 
+        wasRegisteredChecked=false;
         if(serviceReceiver!=null)
         {  try
         {unregisterReceiver(serviceReceiver);}
@@ -126,7 +128,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	@Override
     protected void onResume() {
-		super.onResume();
+        super.onResume();
         Log.i(tag, "onResume()");
 
         context = getApplicationContext();
@@ -221,13 +223,17 @@ public class MainActivity extends Activity implements OnClickListener {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+
         if (resultCode == RESULT_OK) {
 
-                restoreInstanceState();
+            wasRegisteredChecked = false;
+
 
                 FileManager fm = null;
 
                if (requestCode == REQUEST_CHOOSER) {
+
                    final boolean isCamera;
                    try {
                        checkDestinationNumber();
@@ -260,6 +266,9 @@ public class MainActivity extends Activity implements OnClickListener {
                                 fm = new FileManager(path);
 
                                 if (fm != null) {
+                                    wasRegisteredChecked = true;
+                                    wasFileChooser=true;
+                                    Log.e(tag,"onActivityResult RESULT_OK _ Rony");
                                     Intent i = new Intent(context, StorageServerProxyService.class);
                                     i.setAction(StorageServerProxyService.ACTION_UPLOAD);
                                     i.putExtra(StorageServerProxyService.DESTINATION_ID, destPhoneNumber);
@@ -291,6 +300,9 @@ public class MainActivity extends Activity implements OnClickListener {
                        writeErrStatBar("There was a problem with the destination number. Please try again");
                    }
                }
+
+            restoreInstanceState();
+
             if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
                 try {
                     if (data != null) {
@@ -404,6 +416,8 @@ public class MainActivity extends Activity implements OnClickListener {
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,
                 cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
 
+        wasFileChooser=true;
+        wasRegisteredChecked=true;
         startActivityForResult(chooserIntent, REQUEST_CHOOSER);
 
 
@@ -647,10 +661,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
         mTxtPhoneNo  = (AutoCompleteTextView) findViewById(R.id.CallNumber);
 
-        //FilterWithSpaceAdapter<String> adapter1 =   new FilterWithSpaceAdapter<String>(this, R.layout.custcontview,R.id.CallNumber);
-
-      //  mTxtPhoneNo.setAdapter(adapter1);
-
         mTxtPhoneNo.setRawInputType(InputType.TYPE_CLASS_TEXT);
 
         mTxtPhoneNo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -670,6 +680,7 @@ public class MainActivity extends Activity implements OnClickListener {
                 }
 
                 mTxtPhoneNo.setText(NumericNumber);
+
                 destName = name;
                 setDestNameTextView();
             }
@@ -701,8 +712,11 @@ public class MainActivity extends Activity implements OnClickListener {
                 String destPhone = s.toString();
 
 
-                if (10 == s.length() && NumberUtils.isNumber(destPhone)) {
 
+                if (10 == s.length() && NumberUtils.isNumber(destPhone) && !wasRegisteredChecked) {
+
+
+                    wasRegisteredChecked = true;
                     destPhoneNumber = destPhone;
                     drawSelectMediaButton(false);
                     drawSelectRingToneButton();
@@ -717,6 +731,13 @@ public class MainActivity extends Activity implements OnClickListener {
                         context.startService(i);
                     }
                 } else {
+
+                    wasRegisteredChecked = false;
+
+                    if (wasFileChooser) {
+                       wasRegisteredChecked=true;
+                        wasFileChooser=false;
+                    }
                     destPhoneNumber = "";
                     destName = "";
                     setDestNameTextView();
@@ -889,6 +910,7 @@ public class MainActivity extends Activity implements OnClickListener {
     }
 
     private void restoreInstanceState() {
+
 
         // Restoring destination number
         final AutoCompleteTextView ed_destinationNumber =
