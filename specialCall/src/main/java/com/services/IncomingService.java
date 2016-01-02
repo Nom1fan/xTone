@@ -70,6 +70,7 @@ public class IncomingService extends StandOutWindow {
     public static final String ACTION_STOP_RING = "com.services.IncomingService.ACTION_STOP_RING";
     public static final String ACTION_START = "com.services.IncomingService.ACTION_START";
     private int mone=0;
+    private boolean bugFixPatchForReceiverRegister=true;
     private MediaPlayer.OnPreparedListener PreparedListener = new MediaPlayer.OnPreparedListener(){
 
         @Override
@@ -92,8 +93,8 @@ public class IncomingService extends StandOutWindow {
             String action = intent.getAction();
             int volumeDuringRun = (Integer)intent.getExtras().get("android.media.EXTRA_VOLUME_STREAM_VALUE");
 
-            Log.e(TAG, "BroadCastFlags: alreadyMuted: "+ alreadyMuted+ " InRingingSession: " + InRingingSession + " volumeChangeByService: "+ volumeChangeByService);
-            if (!alreadyMuted && InRingingSession /*&& !volumeChangeByService*/)
+            Log.e(TAG, "BroadCastFlags: alreadyMuted: "+ alreadyMuted+ " InRingingSession: " + InRingingSession + " bugFixPatchForReceiverRegister: "+ bugFixPatchForReceiverRegister);
+            if (!alreadyMuted && InRingingSession && !bugFixPatchForReceiverRegister/*&& !volumeChangeByService*/)
             {
                 try {
                     audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
@@ -261,6 +262,8 @@ public class IncomingService extends StandOutWindow {
                     {
 
                         // Retrieving the ringtone volume
+                        audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                        Log.e(TAG, "audioManager initialize again"+ audioManager.toString());
                         ringVolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
                         Log.e(TAG, "ringVolume Original"+ ringVolume);
                         incomingCallNumber = incomingNumber;
@@ -599,6 +602,7 @@ public class IncomingService extends StandOutWindow {
 
                     try {
                         audioManager.setStreamMute(AudioManager.STREAM_RING, false);
+                        audioManager.setStreamVolume(AudioManager.STREAM_RING, ringVolume, 0);
                         Log.e(TAG, "UNMUTE STREAM_RING ");
                     } catch(Exception e) {  e.printStackTrace();  }
                 /*
@@ -667,11 +671,9 @@ public class IncomingService extends StandOutWindow {
         Runnable r = new Runnable() {
             public void run() {
 
-                try {
-                    Thread.sleep(1500,0);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+
+
+                bugFixPatchForReceiverRegister=true; // when registered sometimes it enters the receiver and causes an independent mute.
                 IntentFilter filter = new IntentFilter();
                 filter.addAction("android.media.VOLUME_CHANGED_ACTION");
 
@@ -679,6 +681,13 @@ public class IncomingService extends StandOutWindow {
                 registerReceiver(VolumeButtonreceiver, filter);
                 Log.e(TAG, "registerReceiver VolumeButtonReceiver Finished register");
 
+                try {
+                    Thread.sleep(3000,0);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                bugFixPatchForReceiverRegister=false; // when registered sometimes it enters the receiver and causes an independent mute.
             }
         };
 
