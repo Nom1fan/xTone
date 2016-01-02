@@ -40,9 +40,10 @@ public class AbstractServerProxy extends Service implements IServerProxy {
     protected ArrayList<ConnectionToServer> connections = new ArrayList<>();
 
     public static final String ACTION_RECONNECT = "com.services.LogicServerProxyService.RECONNECT";
+    public static final String ACTION_RESET_RECONNECT_INTERVAL = "com.services.LogicServerProxyService.RESET_RECONNECT_INTERVAL";
 
-    protected static final long INITIAL_RETRY_INTERVAL = 1000 * 5;
-    protected static final long MAXIMUM_RETRY_INTERVAL = 1000 * 60;
+    protected static final long INITIAL_RETRY_INTERVAL = 1000 * 1;
+    protected static final long MAXIMUM_RETRY_INTERVAL = 1000 * 10;
 
     public AbstractServerProxy(String tag) {
         TAG = tag;

@@ -45,6 +45,8 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
             if(!appState.equals(AppStateManager.STATE_LOGGED_OUT) && appState.equals(AppStateManager.STATE_DISABLED)) {
                 Log.i(TAG, "Starting LogicServerProxyService...");
                 Intent i = new Intent(context, LogicServerProxyService.class);
+                i.setAction(LogicServerProxyService.ACTION_RESET_RECONNECT_INTERVAL);
+                context.startService(i);
                 i.setAction(LogicServerProxyService.ACTION_RECONNECT);
                 context.startService(i);
             }

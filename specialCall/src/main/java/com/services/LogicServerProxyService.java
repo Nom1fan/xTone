@@ -74,6 +74,10 @@ public class LogicServerProxyService extends AbstractServerProxy {
                                 reconnectIfNecessary();
                             break;
 
+                            case ACTION_RESET_RECONNECT_INTERVAL:
+                                SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
+                            break;
+
                             default:
                                 Log.w(TAG, "Service started with invalid action:" + action);
 
