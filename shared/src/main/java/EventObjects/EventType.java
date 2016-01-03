@@ -28,4 +28,5 @@ public enum EventType implements Serializable {
 	TOKEN_RETRIEVED,
 	COMPRESSING,
 	SP_CALL_INC_MOVED_TO_BG,
+	FETCHING_USER_DATA,
 }

@@ -15,7 +15,6 @@ import EventObjects.EventType;
 public class AppStateManager {
 
     private static final String TAG = AppStateManager.class.getSimpleName();
-    private static final int LOADING_TIMEOUT = 20*1000;
     private static Thread loadingTimeoutThread;
 
     /* Shared pref values under APP_STATE */
@@ -26,29 +25,58 @@ public class AppStateManager {
     public static final String STATE_IDLE = "Idle";
     public static final String STATE_LOADING = "Loading";
 
+    private static class LoadingState {
+
+        private String _timeoutMsg;
+        private int _loadingTimeout;
+
+        public LoadingState(String timeoutMsg, int loadingTimeout) {
+
+            _timeoutMsg = timeoutMsg;
+            _loadingTimeout = loadingTimeout;
+        }
+
+        public int get_loadingTimeout() {
+            return _loadingTimeout;
+        }
+
+        public String get_timeoutMsg() {
+            return _timeoutMsg;
+        }
+    }
+
     public synchronized static void setAppState(Context context, String tag , String state) {
         Log.i(TAG, tag + " Changing state to:" + state);
         SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE, state);
 
-        if(state.equals(STATE_LOADING))
-            setLoadingTimeout(context);
-        else
-            stopLoadingTimeout();
+        stopLoadingTimeout();
+    }
+
+    public synchronized static void setAppState(Context context, String tag, LoadingState loadingState) {
+
+        Log.i(TAG, tag + " Changing state to:" + STATE_LOADING);
+        SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE, STATE_LOADING);
+        setLoadingTimeout(context, loadingState);
     }
 
     public synchronized static String getAppState(Context context) {
         return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE);
     }
 
-    private synchronized static void setLoadingTimeout(final Context context) {
+    public synchronized static LoadingState createLoadingState(String timeoutMsg, int timeout) {
+
+        return new LoadingState(timeoutMsg, timeout);
+    }
+
+    private synchronized static void setLoadingTimeout(final Context context, final LoadingState loadingState) {
 
         loadingTimeoutThread = new Thread() {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(LOADING_TIMEOUT);
+                    Thread.sleep(loadingState.get_loadingTimeout());
                     if(getAppState(context).equals(STATE_LOADING)) {
-                        BroadcastUtils.sendEventReportBroadcast(context, "LOADING_TIMEOUT", new EventReport(EventType.LOADING_TIMEOUT, null, null));
+                        BroadcastUtils.sendEventReportBroadcast(context, "LOADING_TIMEOUT", new EventReport(EventType.LOADING_TIMEOUT, loadingState.get_timeoutMsg(), null));
                     }
                 } catch (InterruptedException e) {
                     Log.i(TAG, "setLoadingTimeout interrupted, loading stopped before timeout");

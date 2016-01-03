@@ -103,12 +103,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
 
                                 ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
                                 FileManager managedFile = (FileManager) intentForThread.getSerializableExtra(FILE_TO_UPLOAD);
-
-                                AppStateManager.setAppState(mContext, TAG, AppStateManager.STATE_LOADING);
-                                BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.COMPRESSING, "Compressing file...", null));
                                 managedFile = FileCompressorUtil.compressFileIfNecessary(managedFile, specialCallOutGoingPath, mContext);
-                                BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.REFRESH_UI, "Compression complete.", null));
-
                                 uploadFileToServer(connectionToServer, destId, managedFile);
                                 releaseLockIfNecessary();
                             }

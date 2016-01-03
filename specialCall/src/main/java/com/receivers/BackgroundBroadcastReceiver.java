@@ -32,18 +32,35 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 AppStateManager.setAppState(context, TAG, AppStateManager.STATE_IDLE);
             break;
 
-            case RECONNECT_ATTEMPT:
-                AppStateManager.setAppState(context, TAG + " RECONNECT ATTEMPT", AppStateManager.STATE_LOADING);
+            case RECONNECT_ATTEMPT: {
+                String msg = "Reconnect failed. Please check your internet connection.";
+                AppStateManager.setAppState(context, TAG + " RECONNECT ATTEMPT", AppStateManager.createLoadingState(msg, 5000));
                 SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, "Reconnecting...");
+            }
+            break;
+
+            case FETCHING_USER_DATA: {
+                String msg = "Failed to fetch user data. Please try again later.";
+                AppStateManager.setAppState(context, TAG + " FETCHING_USER_DATA", AppStateManager.createLoadingState(msg, 5000));
+                SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, report.desc());
+            }
             break;
 
             case CONNECTED:
                 AppStateManager.setAppState(context, TAG + " CONNECTED", AppStateManager.STATE_IDLE);
             break;
 
-            case CONNECTING:
-                AppStateManager.setAppState(context, TAG + " CONNECTING", AppStateManager.STATE_LOADING);
+            case CONNECTING: {
+                String msg = "Failed to connect to server. Please check your internet connection";
+                AppStateManager.setAppState(context, TAG + " CONNECTING", AppStateManager.createLoadingState(msg, 5000));
                 SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, "Connecting...");
+            }
+            break;
+
+            case COMPRESSING: {
+                String timeoutMsg = "Compression took too long, aborting compression.";
+                AppStateManager.setAppState(context, TAG, AppStateManager.createLoadingState(timeoutMsg, 10*1000));
+            }
             break;
 
             case DISCONNECTED:

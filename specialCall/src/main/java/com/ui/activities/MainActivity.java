@@ -47,6 +47,7 @@ import com.services.StorageServerProxyService;
 import com.special.app.R;
 import com.ui.components.AutoCompletePopulateListAsyncTask;
 import com.ui.components.BitmapWorkerTask;
+import com.utils.BroadcastUtils;
 import com.utils.FilterWithSpaceAdapter;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
@@ -60,6 +61,7 @@ import java.util.Map;
 
 import EventObjects.Event;
 import EventObjects.EventReport;
+import EventObjects.EventType;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
@@ -711,10 +713,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
                 String destPhone = s.toString();
 
-
-
-                if (10 == s.length() && NumberUtils.isNumber(destPhone) && !wasRegisteredChecked) {
-
+                if (10 == s.length() &&
+                        NumberUtils.isNumber(destPhone) &&
+                        !wasRegisteredChecked) {
 
                     wasRegisteredChecked = true;
                     destPhoneNumber = destPhone;
@@ -723,7 +724,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
                     if (!getState().equals(AppStateManager.STATE_DISABLED) &&
                             !getState().equals(AppStateManager.STATE_LOADING)) {
-                        stateLoading(tag + " onTextchanged()", "Fetching user data...", Color.GREEN);
+                        String msg = "Fetching user data...";
+                        stateLoading(tag + " onTextchanged()", msg , Color.GREEN);
+                        BroadcastUtils.sendEventReportBroadcast(context, tag + " onTextchanged()", new EventReport(EventType.FETCHING_USER_DATA, msg, null));
 
                         Intent i = new Intent(context, LogicServerProxyService.class);
                         i.setAction(LogicServerProxyService.ACTION_ISREGISTERED);
@@ -871,7 +874,8 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 
         case LOADING_TIMEOUT:
-            stateIdle(tag+" EVENT: LOADING_TIMEOUT", "", Color.BLACK);
+
+            stateIdle(tag+" EVENT: LOADING_TIMEOUT", report.desc(), Color.YELLOW);
             break;
 
         case TOKEN_RETRIEVED:
