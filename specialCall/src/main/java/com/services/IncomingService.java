@@ -70,7 +70,7 @@ public class IncomingService extends StandOutWindow {
     public static final String ACTION_STOP_RING = "com.services.IncomingService.ACTION_STOP_RING";
     public static final String ACTION_START = "com.services.IncomingService.ACTION_START";
     private int mone=0;
-    private boolean bugFixPatchForReceiverRegister=true;
+
     private MediaPlayer.OnPreparedListener PreparedListener = new MediaPlayer.OnPreparedListener(){
 
         @Override
@@ -93,8 +93,10 @@ public class IncomingService extends StandOutWindow {
             String action = intent.getAction();
             int volumeDuringRun = (Integer)intent.getExtras().get("android.media.EXTRA_VOLUME_STREAM_VALUE");
 
-            Log.e(TAG, "BroadCastFlags: alreadyMuted: "+ alreadyMuted+ " InRingingSession: " + InRingingSession + " bugFixPatchForReceiverRegister: "+ bugFixPatchForReceiverRegister);
-            if (!alreadyMuted && InRingingSession && !bugFixPatchForReceiverRegister/*&& !volumeChangeByService*/)
+
+            Log.e(TAG, "BroadCast OldRingVolume=  "+ ringVolume +" volumeDuringRun: " + volumeDuringRun);
+           // Log.e(TAG, "BroadCastFlags: alreadyMuted: "+ alreadyMuted+ " InRingingSession: " + InRingingSession + " bugFixPatchForReceiverRegister: "+ bugFixPatchForReceiverRegister);
+            if (!alreadyMuted && InRingingSession && (volumeDuringRun!=0)/*&& !volumeChangeByService*/)
             {
                 try {
                     audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
@@ -111,7 +113,7 @@ public class IncomingService extends StandOutWindow {
             if(volumeChangeByService)
                 volumeChangeByService=false;
 
-            Log.e(TAG, "Exited BroadCast oldMediaVolume: "+ oldMediaVolume+ " volumeDuringRun: " + volumeDuringRun);
+
 
         }
     };
@@ -673,7 +675,7 @@ public class IncomingService extends StandOutWindow {
 
 
 
-                bugFixPatchForReceiverRegister=true; // when registered sometimes it enters the receiver and causes an independent mute.
+
                 IntentFilter filter = new IntentFilter();
                 filter.addAction("android.media.VOLUME_CHANGED_ACTION");
 
@@ -682,12 +684,12 @@ public class IncomingService extends StandOutWindow {
                 Log.e(TAG, "registerReceiver VolumeButtonReceiver Finished register");
 
                 try {
-                    Thread.sleep(3000,0);
+                    Thread.sleep(1000,0);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                bugFixPatchForReceiverRegister=false; // when registered sometimes it enters the receiver and causes an independent mute.
+
             }
         };
 
