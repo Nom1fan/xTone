@@ -50,8 +50,7 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
 
         try {
             _connectionToServer.sendToServer(msgUF);
-
-
+            
             Log.i(TAG, "Initiating file data upload...");
 
             DataOutputStream dos = new DataOutputStream(_connectionToServer.getClientSocket().getOutputStream());

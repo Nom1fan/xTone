@@ -2,7 +2,10 @@ package MessagesToClient;
 
 import com.google.gson.Gson;
 
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import ClientObjects.ConnectionToServer;
@@ -21,16 +24,13 @@ public class MessageDownloadFile extends MessageToClient {
 	private String _fileName;	
 	private String _sourceId;
 	private String _myId;
-	private byte[] _fileData;
-	
-	
-	public MessageDownloadFile(TransferDetails td, byte[] fileData) {
+
+	public MessageDownloadFile(TransferDetails td) {
 						
 		_td = td;		
 		_fileName = _td.getSourceWithExtension();		
 		_sourceId = _td.getSourceId();
 		_myId = _td.getDestinationId();
-		_fileData = fileData;
 
 	}
 	
@@ -39,27 +39,42 @@ public class MessageDownloadFile extends MessageToClient {
 							
 		  try
 		  {
-			// Creating file and directories for downloaded file
-			File specialCallIncomingDir = new File(SharedConstants.specialCallIncomingPath +_sourceId);
-			specialCallIncomingDir.mkdirs();
-			String fileStoragePath =  specialCallIncomingDir.getAbsolutePath() +"/"+ _fileName;
-			FileManager.createNewFile(fileStoragePath,_fileData);
+			  // Creating file and directories for downloaded file
+			  File specialCallIncomingDir = new File(SharedConstants.specialCallIncomingPath +_sourceId);
+			  specialCallIncomingDir.mkdirs();
+			  String fileStoragePath =  specialCallIncomingDir.getAbsolutePath() + "/" + _fileName;
+			  File newFile = new File(fileStoragePath);
+			  newFile.createNewFile();
+
+			  FileOutputStream fos = new FileOutputStream(fileStoragePath);
+			  BufferedOutputStream bos = new BufferedOutputStream(fos);
+			  DataInputStream dis = new DataInputStream(connectionToServer.getClientSocket().getInputStream());
+
+			  System.out.println("Reading data...");
+			  byte[] buf = new byte[1024*8];
+			  long fileSize = _td.getFileSize();
+			  int bytesRead;
+			  while (fileSize > 0 && (bytesRead = dis.read(buf, 0, (int)Math.min(buf.length, fileSize))) != -1)
+			  {
+				  bos.write(buf,0,bytesRead);
+				  fileSize -= bytesRead;
+			  }
+
+			  bos.close();
+
+			  if(fileSize > 0)
+				  throw new IOException("download was stopped abruptly");
+
 		  }
 		  catch(IOException e)
 		  {
-			String errMsg;
+
 			e.printStackTrace();
-			if(e.getMessage()!=null)
-				errMsg = "DOWNLOAD_FAILURE:"+e.getMessage();
-			else
-				errMsg = "DOWNLOAD_FAILURE";
+		  	String errMsg = "DOWNLOAD_FAILURE:" + (e.getMessage() != null ? e.getMessage() : "");
 
 			return new EventReport(EventType.DOWNLOAD_FAILURE,errMsg,_fileName);
 		  }
-		  
-		  // Informing source (uploader) that file received by user (downloader)
-          String msg = "TRANSFER_SUCCESS: to "+_td.getDestinationId()+". Filename:"+new File(_td.get_fullFilePathSrcSD()).getName();
-		  connectionToServer.sendToServer(new MessageSendPushToRemoteUser(_myId, _sourceId, PushEventKeys.TRANSFER_SUCCESS, msg , new Gson().toJson(_td)));
+
 				
 		  String desc = "DOWNLOAD_SUCCESS. Filename:"+_fileName;
 		  return new EventReport(EventType.DOWNLOAD_SUCCESS,desc,_td);

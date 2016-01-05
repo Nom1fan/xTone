@@ -97,12 +97,14 @@ public class MySqlDAL implements IDAL {
     @Override
     public void updateCommunicationRecord(int commId, String column, Object value) throws SQLException{
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String query = "UPDATE " + TABLE_COMM_HISTORY +
                 " SET " + column + "=" + "\"" + value + "\"" +
                 ", " + COL_TRANSFER_DATETIME + "=" + "\"" + sdf.format(new Date()) + "\"" +
                 " WHERE " + COL_COMM_ID + "=" + "\"" + commId + "\"";
-        executeQuery(query);
+        boolean isOK = executeQuery(query);
+        if(!isOK)
+            throw new SQLException("updateCommunicationRecord failed. Check stack trace for more information.");
     }
 
     @Override
