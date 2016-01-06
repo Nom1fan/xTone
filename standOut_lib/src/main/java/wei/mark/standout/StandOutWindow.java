@@ -7,6 +7,9 @@ import java.util.Set;
 
 import wei.mark.standout.constants.StandOutFlags;
 import wei.mark.standout.ui.Window;
+
+import android.app.Activity;
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -1825,6 +1828,10 @@ public abstract class StandOutWindow extends Service {
 				// windows may be moved beyond edges
 				flags |= FLAG_LAYOUT_NO_LIMITS;
 			}
+
+			flags |= FLAG_DISMISS_KEYGUARD;
+			flags |= FLAG_SHOW_WHEN_LOCKED;
+            flags |= FLAG_TURN_SCREEN_ON;
 
 			x = getX(id, width);
 			y = getY(id, height);

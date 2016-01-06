@@ -1,5 +1,7 @@
 package com.services;
 
+import android.app.Activity;
+import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -67,6 +69,12 @@ public class IncomingService extends StandOutWindow {
     private boolean volumeChangeByService = false;
     private boolean windowCloseActionWasMade = true;
     private boolean alreadyMuted = false;
+    private boolean KeyguardDissmissed = false;
+    private boolean BugflagFirstTime1SecondTime0GhostInTheMachine = false;
+
+    KeyguardManager keyguardManager ;
+    KeyguardManager.KeyguardLock lock ;
+
     public static final String ACTION_STOP_RING = "com.services.IncomingService.ACTION_STOP_RING";
     public static final String ACTION_START = "com.services.IncomingService.ACTION_START";
     private int mone=0;
@@ -93,26 +101,22 @@ public class IncomingService extends StandOutWindow {
             String action = intent.getAction();
             int volumeDuringRun = (Integer)intent.getExtras().get("android.media.EXTRA_VOLUME_STREAM_VALUE");
 
-            Log.e(TAG, "BroadCastFlags: alreadyMuted: "+ alreadyMuted+ " InRingingSession: " + InRingingSession + " bugFixPatchForReceiverRegister: "+ bugFixPatchForReceiverRegister);
-            if (!alreadyMuted && InRingingSession && (volumeDuringRun!=0) && !bugFixPatchForReceiverRegister/*&& !volumeChangeByService*/)
+            Log.i(TAG, "BroadCastFlags: alreadyMuted: " + alreadyMuted + " InRingingSession: " + InRingingSession + " bugFixPatchForReceiverRegister: " + bugFixPatchForReceiverRegister);
+            if (!alreadyMuted && InRingingSession && (volumeDuringRun!=0) &&(volumeDuringRun!=1) && !bugFixPatchForReceiverRegister/*&& !volumeChangeByService*/)
             {
                 try {
                     audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
                     alreadyMuted =true;
-                    Log.e(TAG, "MUTE STREAM_MUSIC ");
+                    Log.i(TAG, "MUTE STREAM_MUSIC ");
                 } catch(Exception e) {
                 e.printStackTrace();
                 }
-
-
-
             }
 
             if(volumeChangeByService)
                 volumeChangeByService=false;
 
-            Log.e(TAG, "Exited BroadCast oldMediaVolume: "+ ringVolume+ " volumeDuringRun: " + volumeDuringRun);
-
+            Log.i(TAG, "Exited BroadCast oldMediaVolume: " + ringVolume + " volumeDuringRun: " + volumeDuringRun);
         }
     };
 
@@ -199,6 +203,9 @@ public class IncomingService extends StandOutWindow {
     @Override
     public void createAndAttachView(int id, FrameLayout frame) {
 
+        keyguardManager = (KeyguardManager)   getSystemService(Activity.KEYGUARD_SERVICE);
+        lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE);
+        DissmissKeyGuard(true);
         Log.i(TAG, "In createAndAttachView()");
 
         frame.addView(relativeLayout);
@@ -263,9 +270,9 @@ public class IncomingService extends StandOutWindow {
 
                         // Retrieving the ringtone volume
                         audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                        Log.e(TAG, "audioManager initialize again"+ audioManager.toString());
+                        Log.i(TAG, "audioManager initialize again" + audioManager.toString());
                         ringVolume = audioManager.getStreamVolume(AudioManager.STREAM_RING);
-                        Log.e(TAG, "ringVolume Original"+ ringVolume);
+                        Log.i(TAG, "ringVolume Original" + ringVolume);
                         incomingCallNumber = incomingNumber;
 
                         try
@@ -279,11 +286,11 @@ public class IncomingService extends StandOutWindow {
                             if (ringVolume==0) {
                                 volumeChangeByService= true;
                                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
-                                Log.e(TAG, "STREAM_MUSIC Change : 0");
+                                Log.i(TAG, "STREAM_MUSIC Change : 0");
                             }else {
                                 volumeChangeByService= true;
                                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume * 2 + 1, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
-                                Log.e(TAG, "STREAM_MUSIC Change : " + String.valueOf(ringVolume * 2 + 1));
+                                Log.i(TAG, "STREAM_MUSIC Change : " + String.valueOf(ringVolume * 2 + 1));
                             }
 
 
@@ -302,7 +309,7 @@ public class IncomingService extends StandOutWindow {
                         {
 
                             audioManager.setStreamMute(AudioManager.STREAM_RING, true);
-                            Log.e(TAG, "MUTE STREAM_RING ");
+                            Log.i(TAG, "MUTE STREAM_RING ");
                             Log.i(TAG, "YesRingtone YesMute !!!");
 
 
@@ -326,7 +333,7 @@ public class IncomingService extends StandOutWindow {
 
                             try {
                                 audioManager.setStreamMute(AudioManager.STREAM_RING, false);
-                                Log.e(TAG, "UNMUTE STREAM_RING ");
+                                Log.i(TAG, "UNMUTE STREAM_RING ");
                                 Log.i(TAG, "NoRingtone NoMute");
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -463,7 +470,7 @@ public class IncomingService extends StandOutWindow {
 
             try {
                 audioManager.setStreamMute(AudioManager.STREAM_RING, true);
-                Log.e(TAG, "MUTE STREAM_RING ");
+                Log.i(TAG, "MUTE STREAM_RING ");
                 Log.i(TAG, "VIDEO file detected MUTE Ring");
 
             } catch(Exception e) {  e.printStackTrace();  }
@@ -511,6 +518,30 @@ public class IncomingService extends StandOutWindow {
 
     }
 
+    private void DissmissKeyGuard(boolean dismissOrNot){
+
+                     boolean isKeyguardLocked = false;
+                if (keyguardManager!=null)
+                     isKeyguardLocked = keyguardManager.isKeyguardLocked();
+
+
+                if(isKeyguardLocked && dismissOrNot)
+                {
+                    lock.disableKeyguard();
+                    KeyguardDissmissed=true;
+                    Log.i(TAG, "Dismiss Keyguard");
+
+                }
+
+                if(KeyguardDissmissed && !dismissOrNot){
+                    lock.reenableKeyguard();
+                    KeyguardDissmissed=false;
+                    Log.i(TAG, "REenable Keyguard");
+
+                }
+                     Log.i(TAG, "!!! EnteredDismissedMethod !!! : isKeyGuardLocked: " + isKeyguardLocked + " KeyguardDissmissed: " +KeyguardDissmissed + " dismissOrNot: "+ dismissOrNot);
+
+    }
 
     private void startRingtoneSpecialCall() {
 
@@ -565,6 +596,8 @@ public class IncomingService extends StandOutWindow {
 
         if  (InRingingSession) {
 
+            DissmissKeyGuard(false);
+
             Runnable r = new Runnable() {
                 public void run() {
                     InRingingSession = false;
@@ -589,13 +622,13 @@ public class IncomingService extends StandOutWindow {
                         }
                         try {
                         audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
-                            Log.e(TAG, "UNMUTE STREAM_MUSIC ");
+                            Log.i(TAG, "UNMUTE STREAM_MUSIC ");
                         } catch(Exception e) {  e.printStackTrace();  }
 
-                        Log.e(TAG, " !!!!!!!!!! UNMUTED !!!!!!!!!!  "+" oldMediaVolume: "+ oldMediaVolume+ " OldringVolume: " + ringVolume);
+                    Log.i(TAG, " !!!!!!!!!! UNMUTED !!!!!!!!!!  " + " oldMediaVolume: " + oldMediaVolume + " OldringVolume: " + ringVolume);
                                 try {
                         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, oldMediaVolume, 0);
-                                    Log.e(TAG, "STREAM_MUSIC Change : " + String.valueOf(oldMediaVolume));
+                                    Log.i(TAG, "STREAM_MUSIC Change : " + String.valueOf(oldMediaVolume));
 
                                 } catch(Exception e) {  e.printStackTrace();  }
 
@@ -603,16 +636,8 @@ public class IncomingService extends StandOutWindow {
                     try {
                         audioManager.setStreamMute(AudioManager.STREAM_RING, false);
                         audioManager.setStreamVolume(AudioManager.STREAM_RING, ringVolume, 0);
-                        Log.e(TAG, "UNMUTE STREAM_RING ");
+                        Log.i(TAG, "UNMUTE STREAM_RING ");
                     } catch(Exception e) {  e.printStackTrace();  }
-                /*
-                    try {
-                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume, 0);
-                        Log.e(TAG, "STREAM_MUSIC Change : " + String.valueOf(ringVolume));
-                    } catch(Exception e) {  e.printStackTrace();  }*/
-
-
-
 
                 }
             };
@@ -679,7 +704,7 @@ public class IncomingService extends StandOutWindow {
 
 
                 registerReceiver(VolumeButtonreceiver, filter);
-                Log.e(TAG, "registerReceiver VolumeButtonReceiver Finished register");
+                Log.i(TAG, "registerReceiver VolumeButtonReceiver Finished register");
 
                 try {
                     Thread.sleep(1000,0);
