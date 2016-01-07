@@ -34,6 +34,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -743,6 +744,14 @@ public class MainActivity extends Activity implements OnClickListener {
                     }
                     destPhoneNumber = "";
                     destName = "";
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ImageView userStatus = (ImageView) findViewById(R.id.userStatus);
+                            userStatus.setVisibility(View.INVISIBLE);
+                        }});
+
                     setDestNameTextView();
                     saveInstanceState();
                     if (getState().equals(AppStateManager.STATE_READY))
@@ -816,17 +825,51 @@ public class MainActivity extends Activity implements OnClickListener {
         case USER_REGISTERED_TRUE:
             destPhoneNumber = (String) report.data();
             stateReady(tag + " EVENT: USER_REGISTERED_TRUE", report.desc());
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ImageView userStatus = (ImageView) findViewById(R.id.userStatus);
+                    userStatus.setImageResource(R.drawable.positive);
+                    userStatus.setVisibility(View.VISIBLE);
+                    userStatus.bringToFront();
+                }
+            });
+
+
             break;
 
         case USER_REGISTERED_FALSE:
             destPhoneNumber = (String) report.data();
             stateIdle(tag+" EVENT: USER_REGISTERED_FALSE", report.desc(), Color.RED);
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ImageView userStatus = (ImageView) findViewById(R.id.userStatus);
+                    userStatus.setImageResource(R.drawable.negative);
+                    userStatus.setVisibility(View.VISIBLE);
+                    userStatus.bringToFront();
+                }
+            });
+
             break;
 
 		case ISREGISTERED_ERROR:
             destPhoneNumber = (String) report.data();
 			stateIdle(tag + "EVENT: ISREGISTERED_ERROR", "", Color.BLACK);
             writeErrStatBar(report.desc());
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ImageView userStatus = (ImageView) findViewById(R.id.userStatus);
+                    userStatus.setImageResource(R.drawable.negative);
+                    userStatus.setVisibility(View.VISIBLE);
+                    userStatus.bringToFront();
+                }
+            });
+
 			break;
 
         case REFRESH_UI:
@@ -991,6 +1034,8 @@ public class MainActivity extends Activity implements OnClickListener {
     public void stateReady(String tag, String msg) {
 
         setState(tag, AppStateManager.STATE_READY);
+
+        if (!tag.contains("USER_REGISTERED_TRUE"))
         writeInfoStatBar(msg);
 
         runOnUiThread(new Runnable() {
@@ -1009,6 +1054,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
     public void stateIdle(String tag, String msg, int color) {
 
+        if (!tag.contains("USER_REGISTERED_FALSE"))
         writeInfoStatBar(msg, color);
         setState(tag, AppStateManager.STATE_IDLE);
 
@@ -1337,7 +1383,7 @@ public class MainActivity extends Activity implements OnClickListener {
         statusBar.setText(text);
     }
 
-    private void writeInfoStatBar(final String text, final int g) {
+        private void writeInfoStatBar(final String text, final int g) {
 
         TextView statusBar = (TextView)findViewById(R.id.statusBar);
         statusBar.setTextColor(g);

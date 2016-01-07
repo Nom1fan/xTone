@@ -141,4 +141,18 @@
         android:layout_alignRight="@+id/selectContactBtn"
         android:layout_alignEnd="@+id/selectContactBtn" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/userStatus"
+        android:layout_alignBottom="@+id/CallNumber"
+        android:layout_toLeftOf="@+id/clear"
+        android:layout_alignTop="@+id/CallNumber"
+
+        android:layout_alignRight="@+id/CallNumber"
+        android:layout_alignEnd="@+id/CallNumber"
+
+        android:layout_alignLeft="@+id/CallNow"
+        android:layout_alignStart="@+id/CallNow" />
+
 </RelativeLayout>
