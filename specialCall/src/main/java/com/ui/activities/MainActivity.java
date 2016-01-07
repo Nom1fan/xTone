@@ -24,6 +24,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -96,6 +97,7 @@ public class MainActivity extends Activity implements OnClickListener {
     private static final int REQUEST_CHOOSER = 1234;
     private static boolean wasRegisteredChecked = false;
     private static boolean wasFileChooser=false;
+    private Toast toast;
 
 	@Override
 	protected void onStart() {
@@ -726,7 +728,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     if (!getState().equals(AppStateManager.STATE_DISABLED) &&
                             !getState().equals(AppStateManager.STATE_LOADING)) {
                         String msg = "Fetching user data...";
-                        stateLoading(tag + " onTextchanged()", msg , Color.GREEN);
+                        stateLoading(tag + " onTextchanged()", msg, Color.GREEN);
                         BroadcastUtils.sendEventReportBroadcast(context, tag + " onTextchanged()", new EventReport(EventType.FETCHING_USER_DATA, msg, null));
 
                         Intent i = new Intent(context, LogicServerProxyService.class);
@@ -739,18 +741,23 @@ public class MainActivity extends Activity implements OnClickListener {
                     wasRegisteredChecked = false;
 
                     if (wasFileChooser) {
-                       wasRegisteredChecked=true;
-                        wasFileChooser=false;
+                        wasRegisteredChecked = true;
+                        wasFileChooser = false;
                     }
                     destPhoneNumber = "";
                     destName = "";
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            ImageView userStatus = (ImageView) findViewById(R.id.userStatus);
-                            userStatus.setVisibility(View.INVISIBLE);
-                        }});
+                    if (10 != s.length() ||
+                            !NumberUtils.isNumber(destPhone))
+                    {  runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                ImageView userStatus = (ImageView) findViewById(R.id.userStatus);
+                                userStatus.setVisibility(View.INVISIBLE);
+                            }
+                        });
+                      }
+
 
                     setDestNameTextView();
                     saveInstanceState();
@@ -1341,52 +1348,64 @@ public class MainActivity extends Activity implements OnClickListener {
 		});
 	}
 
-	private void callInfoToast(final String text) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Toast toast = Toast.makeText(context, text,
-						Toast.LENGTH_LONG);
-				TextView v = (TextView) toast.getView().findViewById(
-						android.R.id.message);
-				v.setTextColor(Color.GREEN);
-				toast.show();
-			}
-		});
-	}
-	
-	private void callInfoToast(final String text, final int g) {
-		runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast toast = Toast.makeText(context, text,
-                        Toast.LENGTH_LONG);
-                TextView v = (TextView) toast.getView().findViewById(
-                        android.R.id.message);
-                v.setTextColor(g);
-                toast.show();
-            }
-        });
-	}
 
     private void writeErrStatBar(final String text) {
 
-        TextView statusBar = (TextView)findViewById(R.id.statusBar);
-        statusBar.setTextColor(Color.RED);
-        statusBar.setText(text);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(toast != null) // if there is already a Toast , than cancel it because there is a new Toast
+                {
+                    toast.cancel();
+                }
+
+                toast = Toast.makeText(context, text,
+                        Toast.LENGTH_LONG);
+                TextView v = (TextView) toast.getView().findViewById(
+                        android.R.id.message);
+                v.setTextColor(Color.GREEN);
+                toast.setGravity(Gravity.TOP, Gravity.CENTER_VERTICAL, Gravity.CENTER_VERTICAL);
+                toast.show();
+            }
+        });
     }
 
     private void writeInfoStatBar(final String text) {
-
-        TextView statusBar = (TextView)findViewById(R.id.statusBar);
-        statusBar.setTextColor(Color.GREEN);
-        statusBar.setText(text);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(toast != null) // if there is already a Toast , than cancel it because there is a new Toast
+                {
+                    toast.cancel();
+                }
+                toast = Toast.makeText(context, text,
+                        Toast.LENGTH_LONG);
+                TextView v = (TextView) toast.getView().findViewById(
+                        android.R.id.message);
+                v.setTextColor(Color.GREEN);
+                toast.setGravity(Gravity.TOP, Gravity.CENTER_VERTICAL, Gravity.CENTER_VERTICAL);
+                toast.show();
+            }
+        });
     }
 
-        private void writeInfoStatBar(final String text, final int g) {
+    private void writeInfoStatBar(final String text, final int g) {
 
-        TextView statusBar = (TextView)findViewById(R.id.statusBar);
-        statusBar.setTextColor(g);
-        statusBar.setText(text);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(toast != null) // if there is already a Toast , than cancel it because there is a new Toast
+                    {
+                        toast.cancel();
+                    }
+                    toast = Toast.makeText(context, text,
+                            Toast.LENGTH_LONG);
+                    TextView v = (TextView) toast.getView().findViewById(
+                            android.R.id.message);
+                    v.setTextColor(g);
+                    toast.setGravity(Gravity.TOP, Gravity.CENTER_VERTICAL, Gravity.CENTER_VERTICAL);
+                    toast.show();
+                }
+            });
     }
 }

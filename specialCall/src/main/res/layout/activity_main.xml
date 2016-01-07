@@ -38,19 +38,22 @@
         android:text="Select Ringtone"
         android:visibility="invisible"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignRight="@+id/selectContactBtn"
+        android:layout_alignEnd="@+id/selectContactBtn" />
 
     <ImageButton
         android:id="@+id/selectMediaBtn"
         android:layout_width="300dp"
-        android:layout_height="200dp"
+        android:layout_height="220dp"
         android:contentDescription="mypic"
         android:clickable="true"
         android:src="@drawable/defaultpic_enabled"
         android:textSize="18sp"
         android:layout_above="@+id/CallNow"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <AutoCompleteTextView
         android:id="@+id/CallNumber"
@@ -69,8 +72,8 @@
         android:layout_alignTop="@+id/selectContactBtn"
         android:layout_alignLeft="@+id/selectMediaBtn"
         android:layout_alignStart="@+id/selectMediaBtn"
-        android:layout_alignRight="@+id/progressBar"
-        android:layout_alignEnd="@+id/progressBar">
+        android:layout_toStartOf="@+id/selectRingtoneBtn"
+        android:layout_toLeftOf="@+id/selectRingtoneBtn">
 
         <requestFocus />
     </AutoCompleteTextView>
@@ -82,8 +85,9 @@
         android:enabled="true"
         android:textSize="18sp"
         android:text="Call Now"
-        android:layout_above="@+id/statusBar"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/clear"
+        android:layout_alignEnd="@+id/clear" />
 
     <ImageButton
         android:id="@+id/selectProfileMediaBtn"
@@ -93,26 +97,22 @@
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+
+        android:layout_above="@+id/CallNumber"
+        android:layout_toLeftOf="@+id/userStatus"
+        android:layout_toStartOf="@+id/userStatus" />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
         android:layout_alignBottom="@+id/selectProfileMediaBtn"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="500dp"
-        android:layout_height="35dp"
-        android:id="@+id/statusBar"
-        android:textStyle="normal|bold"
-        android:textColor="#027f00"
-        android:singleLine="false"
-        android:background="@android:color/black"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignRight="@+id/clear"
+        android:layout_alignEnd="@+id/clear"
+        android:layout_alignLeft="@+id/userStatus"
+        android:layout_alignStart="@+id/userStatus"
+        android:layout_below="@+id/selectRingtoneBtn" />
 
     <ImageButton
         android:layout_width="wrap_content"
