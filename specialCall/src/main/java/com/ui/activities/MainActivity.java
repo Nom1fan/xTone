@@ -1363,7 +1363,7 @@ public class MainActivity extends Activity implements OnClickListener {
                         Toast.LENGTH_LONG);
                 TextView v = (TextView) toast.getView().findViewById(
                         android.R.id.message);
-                v.setTextColor(Color.GREEN);
+                v.setTextColor(Color.RED);
                 toast.setGravity(Gravity.TOP, Gravity.CENTER_VERTICAL, Gravity.CENTER_VERTICAL);
                 toast.show();
             }

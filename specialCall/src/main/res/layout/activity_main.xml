@@ -96,23 +96,28 @@
         android:src="@drawable/defaultpic_enabled"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
 
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_above="@+id/CallNumber"
-        android:layout_toLeftOf="@+id/userStatus"
-        android:layout_toStartOf="@+id/userStatus" />
+        android:layout_alignLeft="@+id/CallNumber"
+        android:layout_alignStart="@+id/CallNumber"
+        android:layout_alignRight="@+id/CallNumber"
+        android:layout_alignEnd="@+id/CallNumber"
+
+        />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
         android:layout_alignBottom="@+id/selectProfileMediaBtn"
-        android:layout_alignRight="@+id/clear"
-        android:layout_alignEnd="@+id/clear"
-        android:layout_alignLeft="@+id/userStatus"
-        android:layout_alignStart="@+id/userStatus"
-        android:layout_below="@+id/selectRingtoneBtn" />
+        android:layout_alignRight="@+id/selectRingtoneBtn"
+        android:layout_alignEnd="@+id/selectRingtoneBtn"
+        android:layout_alignTop="@+id/selectRingtoneBtn"
+        android:layout_alignLeft="@+id/selectRingtoneBtn"
+        android:layout_alignStart="@+id/selectRingtoneBtn" />
 
     <ImageButton
         android:layout_width="wrap_content"

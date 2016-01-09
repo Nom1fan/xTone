@@ -205,7 +205,9 @@ public class IncomingService extends StandOutWindow {
 
         keyguardManager = (KeyguardManager)   getSystemService(Activity.KEYGUARD_SERVICE);
         lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE);
-        DissmissKeyGuard(true);
+        if (keyguardManager!=null) {
+            DissmissKeyGuard(true);
+        }
         Log.i(TAG, "In createAndAttachView()");
 
         frame.addView(relativeLayout);
@@ -521,7 +523,6 @@ public class IncomingService extends StandOutWindow {
     private void DissmissKeyGuard(boolean dismissOrNot){
 
                      boolean isKeyguardLocked = false;
-                if (keyguardManager!=null)
                      isKeyguardLocked = keyguardManager.isKeyguardLocked();
 
 
@@ -596,11 +597,19 @@ public class IncomingService extends StandOutWindow {
 
         if  (InRingingSession) {
 
-            DissmissKeyGuard(false);
+            if (keyguardManager!=null) {
+                DissmissKeyGuard(false);
+            }
 
             Runnable r = new Runnable() {
                 public void run() {
                     InRingingSession = false;
+
+                    try {
+                        audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                        Log.i(TAG, "Mute STREAM_MUSIC "); //so it won't go to headphone and stay there for a 1-2 seconds untill mediaplayer stops
+                    } catch(Exception e) {  e.printStackTrace();  }
+
                     try{     unregisterReceiver(VolumeButtonreceiver);}
                     catch(Exception exception)
                     {  Log.e(TAG,"UnregisterReceiver failed in IDLE");}
