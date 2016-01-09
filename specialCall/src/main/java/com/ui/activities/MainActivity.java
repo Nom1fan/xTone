@@ -12,6 +12,7 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -74,7 +75,6 @@ import FilesManager.FileManager;
 
 public class MainActivity extends Activity implements OnClickListener {
 
-    private String buttonLabels[];
 	private String myPhoneNumber = "";
 	private String destPhoneNumber = "";
 	private String destName = "";	
@@ -98,6 +98,7 @@ public class MainActivity extends Activity implements OnClickListener {
     private static boolean wasRegisteredChecked = false;
     private static boolean wasFileChooser=false;
     private Toast toast;
+    String shareBody = "You are Invited to MediaCallz https://play.google.com/apps/testing/com.special.specialcall";
 
 	@Override
 	protected void onStart() {
@@ -367,18 +368,6 @@ public class MainActivity extends Activity implements OnClickListener {
 		return true;
 	}
 
-	private void populateArrays() {
-
-		//TODO Move this to strings.xml as proper
-		
-		buttonLabels[0] = "CALL NOW";
-		buttonLabels[1] = "How Will i look like";
-		buttonLabels[2] = "Select Ringtone";
-		buttonLabels[3] = "uploading video clip";
-		buttonLabels[4] = "Download From Server";
-		buttonLabels[5] = "Select Contact";
-	}
-
 	private void selectVisualMedia() {
 
 		// Determine Uri of camera image to save.
@@ -466,7 +455,18 @@ public class MainActivity extends Activity implements OnClickListener {
             textViewToClear.setText("");
 
         }
+        else if(id == R.id.inviteButton){
 
+                EditText callNumber = (EditText) findViewById(R.id.CallNumber);
+                try {
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(callNumber.getText().toString(), null, shareBody, null, null);
+                    writeInfoStatBar("Invitation Sent To: " + callNumber.getText().toString());
+
+                } catch (Exception ex) {
+                    writeErrStatBar(ex.getMessage().toString());
+                }
+        }
 		else if (id == R.id.login_btn) {
 
            String myVerificationcode = ((EditText) findViewById(R.id.SMSCode)).getText().toString();
@@ -518,6 +518,21 @@ public class MainActivity extends Activity implements OnClickListener {
                 startActivity(y);
 
                 break;
+
+            case R.id.action_share:
+
+                saveInstanceState();
+
+                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                sharingIntent.setType("text/plain");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "MediaCallz (Open it in Google Play Store to Download the Application)");
+
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                startActivity(Intent.createChooser(sharingIntent, "Share via"));
+
+
+                break;
+
 
             default:
 
@@ -654,12 +669,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
         setContentView(R.layout.activity_main);
 
-        int entries = 6;
-        buttonLabels = new String[entries];
-
-		// Populate the data arrays
-		populateArrays();
-
 		// Set up buttons and attach click listeners
 
 		// Solving bug that causes EditText to be unfocusable at startup
@@ -754,6 +763,10 @@ public class MainActivity extends Activity implements OnClickListener {
                             public void run() {
                                 ImageView userStatus = (ImageView) findViewById(R.id.userStatus);
                                 userStatus.setVisibility(View.INVISIBLE);
+
+                                ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
+                                invite.setVisibility(View.INVISIBLE);
+                                invite.setClickable(false);
                             }
                         });
                       }
@@ -782,7 +795,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		button2.setOnClickListener(this);
 
 		Button button3 = (Button) findViewById(R.id.selectRingtoneBtn);
-		button3.setText(buttonLabels[2]);
+		button3.setText("Select Ringtone");
 		button3.getBackground().setColorFilter(0xFFFF0000,
                 PorterDuff.Mode.MULTIPLY);
 		button3.setOnClickListener(this);
@@ -796,6 +809,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
         ImageButton button8 = (ImageButton) findViewById(R.id.clear);
         button8.setOnClickListener(this);
+
+        ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
+        invite.setOnClickListener(this);
 
 	}
 
@@ -840,6 +856,10 @@ public class MainActivity extends Activity implements OnClickListener {
                     userStatus.setImageResource(R.drawable.positive);
                     userStatus.setVisibility(View.VISIBLE);
                     userStatus.bringToFront();
+
+                    ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
+                    invite.setVisibility(View.INVISIBLE);
+                    invite.setClickable(false);
                 }
             });
 
@@ -857,6 +877,11 @@ public class MainActivity extends Activity implements OnClickListener {
                     userStatus.setImageResource(R.drawable.negative);
                     userStatus.setVisibility(View.VISIBLE);
                     userStatus.bringToFront();
+
+                    ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
+                    invite.setVisibility(View.VISIBLE);
+                    invite.setClickable(true);
+                    invite.bringToFront();
                 }
             });
 

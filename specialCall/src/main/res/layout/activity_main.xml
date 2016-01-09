@@ -27,7 +27,8 @@
         android:layout_alignLeft="@+id/CallNumber"
         android:layout_alignStart="@+id/CallNumber"
         android:layout_alignRight="@+id/CallNumber"
-        android:layout_alignEnd="@+id/CallNumber" />
+        android:layout_alignEnd="@+id/CallNumber"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/selectRingtoneBtn"
@@ -54,6 +55,21 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <ImageButton
+        android:id="@+id/inviteButton"
+        android:layout_width="300dp"
+        android:layout_height="220dp"
+        android:contentDescription="invite "
+        android:clickable="false"
+        android:src="@drawable/invite"
+        android:textSize="18sp"
+        android:layout_above="@+id/CallNow"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:visibility="invisible" />
 
     <AutoCompleteTextView
         android:id="@+id/CallNumber"

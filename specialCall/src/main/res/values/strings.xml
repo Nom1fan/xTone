@@ -4,7 +4,12 @@
     <string name="initial_upload_text">Pending upload</string>
     <string name="app_name">SpecialCall</string>
     <string name="hello_world">Hello world!</string>
+
+
     <string name="action_settings">Settings</string>
+    <string name="action_share">Share Us</string>
+
+
     <string name="hello">SimpleDialer</string>
     <string name="main_label">My Friends</string>
     <string name="title_activity_incoming_special_call">IncomingSpecialCall</string>
