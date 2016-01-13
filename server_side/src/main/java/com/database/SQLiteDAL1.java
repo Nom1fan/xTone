@@ -12,8 +12,9 @@ import java.sql.SQLException;
 import DalObjects.IDAL;
 
 /**
- * Created by Mor on 16/11/2015.
+ * Deprecated. Replaced by MySqlDAL
  */
+@Deprecated
 public class SQLiteDAL1 implements IDAL {
 
     // *** General Database ***
@@ -72,9 +73,10 @@ public class SQLiteDAL1 implements IDAL {
     }
 
     @Override
-    public int insertCommunicationHistory(String src, String dest, String extension, int size) throws SQLException{
+    public int insertCommunicationHistory(String type, String src, String dest, String extension, int size) throws SQLException {
         return 0;
     }
+
 
     @Override
     public String getUserPushToken(final String uid) {

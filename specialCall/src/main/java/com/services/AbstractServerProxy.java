@@ -31,7 +31,7 @@ import MessagesToClient.MessageToClient;
 /**
  * Created by mor on 18/10/2015.
  */
-public class AbstractServerProxy extends Service implements IServerProxy {
+public abstract class AbstractServerProxy extends Service implements IServerProxy {
 
     protected Context mContext;
     protected String TAG;
@@ -53,7 +53,7 @@ public class AbstractServerProxy extends Service implements IServerProxy {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         mContext = getApplicationContext();
-        SharedConstants.specialCallIncomingPath = Constants.specialCallIncomingPath;
+        SharedConstants.INCOMING_FOLDER = Constants.INCOMING_FOLDER;
 
         return START_NOT_STICKY;
     }

@@ -7,6 +7,7 @@ import android.util.Log;
 
 import java.io.File;
 
+import DataObjects.SpecialMediaType;
 import DataObjects.TransferDetails;
 import EventObjects.Event;
 import EventObjects.EventReport;
@@ -22,6 +23,12 @@ public class DownloadReceiver extends BroadcastReceiver {
 
     private static final String TAG = DownloadReceiver.class.getSimpleName();
     private Context _context;
+    private String _newfileFullPath;
+    private String _newFileDir;
+    private String _sharedPrefKeyForVisualMedia;
+    private String _sharedPrefKeyForAudioMedia;
+
+
     /**
      * Listener for downloads
      * Responsible for setting/deleting files and preparing for later media display after a new successful download event is received
@@ -33,23 +40,22 @@ public class DownloadReceiver extends BroadcastReceiver {
             _context = context;
             if (eventReport.status() == EventType.DOWNLOAD_SUCCESS) {
                 Log.i(TAG, "In: DOWNLOAD_SUCCESS");
+
                 TransferDetails td = (TransferDetails) eventReport.data();
+                preparePathsAndDirs(td);
                 FileManager.FileType fType = td.getFileType();
-                String extension = td.getExtension();
                 String fFullName = td.getSourceWithExtension();
                 String source = td.getSourceId();
-                String fileFullPath = Constants.specialCallIncomingPath+source+"/"+fFullName;
 
                 switch (fType) {
                     case RINGTONE:
-                        setNewRingTone(source, fileFullPath);
+                        setNewRingTone(source);
                         deleteFilesIfNecessary(fFullName, fType, source);
                         break;
 
                     case VIDEO:
                     case IMAGE:
-                        SharedPrefUtils.setString(_context,
-                                SharedPrefUtils.MEDIA_FILEPATH, source, fileFullPath);
+                        setNewVisualMedia(source);
                         deleteFilesIfNecessary(fFullName, fType, source);
                         break;
                 }
@@ -72,8 +78,8 @@ public class DownloadReceiver extends BroadcastReceiver {
      */
     private void deleteFilesIfNecessary(String addedFileName, FileManager.FileType newDownloadedFileType, String source) {
 
-        File spDir = new File(Constants.specialCallIncomingPath+source);
-        File[] files = spDir.listFiles();
+        File[] files = new File(_newFileDir).listFiles();
+
         try
         {
             switch (newDownloadedFileType)
@@ -90,7 +96,7 @@ public class DownloadReceiver extends BroadcastReceiver {
                                 (fileType == FileManager.FileType.VIDEO ||
                                         fileType == FileManager.FileType.RINGTONE)) {
                             FileManager.delete(file);
-                            SharedPrefUtils.remove(_context, SharedPrefUtils.MEDIA_FILEPATH, source);
+                            SharedPrefUtils.remove(_context, _sharedPrefKeyForVisualMedia , source);
                         }
                     }
                     break;
@@ -118,7 +124,7 @@ public class DownloadReceiver extends BroadcastReceiver {
                         String fileName = file.getName(); // This includes extension
                         if(!fileName.equals(addedFileName)) {
                             FileManager.delete(file);
-                            SharedPrefUtils.remove(_context, SharedPrefUtils.RINGTONE_FILEPATH, source);
+                            SharedPrefUtils.remove(_context, _sharedPrefKeyForAudioMedia, source);
                         }
                     }
                     break;
@@ -135,12 +141,42 @@ public class DownloadReceiver extends BroadcastReceiver {
 
     }
 
-    private void setNewRingTone(String source ,String ringToneFilePath) {
+    private void setNewRingTone(String source) {
 
-        Log.i(TAG, "setNewRingTone with sharedPrefs: " + ringToneFilePath);
+        Log.i(TAG, "setNewRingTone with sharedPrefs: " + _newfileFullPath);
             SharedPrefUtils.setString(_context,
-                    SharedPrefUtils.RINGTONE_FILEPATH, source,
-                    ringToneFilePath);
+                    _sharedPrefKeyForAudioMedia, source, _newfileFullPath);
     }
+
+    private void setNewVisualMedia(String source) {
+
+        Log.i(TAG, "setNewVisualMedia with sharedPrefs: " + _newfileFullPath);
+        SharedPrefUtils.setString(_context,
+                _sharedPrefKeyForVisualMedia, source, _newfileFullPath);
+    }
+
+    private void preparePathsAndDirs(TransferDetails td) {
+
+        // Preparing for appropriate special media type
+        switch(td.get_spMediaType())
+        {
+            case CALLER_MEDIA:
+                _newFileDir = Constants.INCOMING_FOLDER + td.getSourceId();
+                _sharedPrefKeyForVisualMedia = SharedPrefUtils.CALLER_MEDIA_FILEPATH;
+                _sharedPrefKeyForAudioMedia = SharedPrefUtils.RINGTONE_FILEPATH;
+                break;
+            case PROFILE_MEDIA:
+                _newFileDir = Constants.OUTGOING_FOLDER + td.getSourceId();
+                _sharedPrefKeyForVisualMedia = SharedPrefUtils.PROFILE_MEDIA_FILEPATH;
+                _sharedPrefKeyForAudioMedia = SharedPrefUtils.FUNTONE_FILEPATH;
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Invalid SpecialMediaType received");
+        }
+
+        _newfileFullPath = _newFileDir + "/" + td.getSourceWithExtension();
+    }
+
 
 }

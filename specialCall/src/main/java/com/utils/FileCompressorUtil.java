@@ -2,11 +2,9 @@ package com.utils;
 
 import android.content.Context;
 
-import com.app.AppStateManager;
 import com.data_objects.Constants;
 import com.netcompss.ffmpeg4android.GeneralUtils;
 
-import EventObjects.Event;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import FilesManager.FileManager;
@@ -23,7 +21,7 @@ public class FileCompressorUtil {
     private static final long ONE_MINUTE = 60;
     private static final double PERCENT_TO_TRIM = 0.7;
     private static final String tag = FileCompressorUtil.class.getSimpleName();
-    private static final String workFolder = Constants.specialCallOutgoingPath;
+    private static final String workFolder = Constants.TEMP_COMPRESSED_FOLDER;
     private static final String TAG = FileCompressorUtil.class.getSimpleName();
 
     /**

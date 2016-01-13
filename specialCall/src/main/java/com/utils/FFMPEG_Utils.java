@@ -23,7 +23,7 @@ import FilesManager.FileManager;
 public abstract class FFMPEG_Utils {
 
     private static final String TAG = FFMPEG_Utils.class.getSimpleName();
-    private static final String workFolder = Constants.specialCallOutgoingPath;
+    private static final String workFolder = Constants.TEMP_COMPRESSED_FOLDER;
     private static final HashMap<String,String> extension2vCodec = new HashMap(){{
         put("mp4", "mpeg4");
 

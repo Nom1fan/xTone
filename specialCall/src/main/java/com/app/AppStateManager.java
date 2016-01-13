@@ -25,15 +25,20 @@ public class AppStateManager {
     public static final String STATE_IDLE = "Idle";
     public static final String STATE_LOADING = "Loading";
 
+    private static final int MAXIMUM_TIMEOUT_IN_MILLISECONDS = 10*1000;
+
     private static class LoadingState {
 
         private String _timeoutMsg;
         private int _loadingTimeout;
 
-        public LoadingState(String timeoutMsg, int loadingTimeout) {
+        public LoadingState(String timeoutMsg, int loadingTimeoutInMilliseconds) {
 
             _timeoutMsg = timeoutMsg;
-            _loadingTimeout = loadingTimeout;
+            if(loadingTimeoutInMilliseconds > MAXIMUM_TIMEOUT_IN_MILLISECONDS)
+                _loadingTimeout = MAXIMUM_TIMEOUT_IN_MILLISECONDS;
+            else
+                _loadingTimeout = loadingTimeoutInMilliseconds;
         }
 
         public int get_loadingTimeout() {
@@ -63,9 +68,9 @@ public class AppStateManager {
         return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE);
     }
 
-    public synchronized static LoadingState createLoadingState(String timeoutMsg, int timeout) {
+    public synchronized static LoadingState createLoadingState(String timeoutMsg, int timeoutInMilliseconds) {
 
-        return new LoadingState(timeoutMsg, timeout);
+        return new LoadingState(timeoutMsg, timeoutInMilliseconds);
     }
 
     private synchronized static void setLoadingTimeout(final Context context, final LoadingState loadingState) {

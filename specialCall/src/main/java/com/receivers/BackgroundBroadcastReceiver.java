@@ -69,7 +69,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
             case DESTINATION_DOWNLOAD_COMPLETE:
                 TransferDetails td = (TransferDetails) report.data();
-                LUT_Utils lut_utils = new LUT_Utils(context);
+                LUT_Utils lut_utils = new LUT_Utils(context, td.get_spMediaType());
                 lut_utils.saveUploadedPerNumber(td.getDestinationId(), td.getFileType(), td.get_fullFilePathSrcSD());
 
                 BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, report.desc(), null));

@@ -16,8 +16,9 @@ public class TransferDetails implements Serializable {
 	private String _filePathOnServer;
     private String _fullFilePathSrcSD;
     private FileManager _managedFile;
+    private SpecialMediaType _spMediaType;
 
-    public TransferDetails(String source, String destination, FileManager managedFile) {
+    public TransferDetails(String source, String destination, FileManager managedFile, SpecialMediaType spMediaType) {
 
         _sourceId = source;
         _destinationId = destination;
@@ -26,6 +27,7 @@ public class TransferDetails implements Serializable {
         _fileType = managedFile.getFileType();
         _fullFilePathSrcSD = managedFile.getFileFullPath();
         _managedFile = managedFile;
+        _spMediaType = spMediaType;
 
     }
 
@@ -36,6 +38,10 @@ public class TransferDetails implements Serializable {
     public String getSourceId() { return _sourceId; }
 
     public String getDestinationId() {
+
+        if(_destinationId==null)
+            _destinationId = "";
+
         return _destinationId;
     }
 
@@ -72,4 +78,9 @@ public class TransferDetails implements Serializable {
     public void set_commId(int _commId) {
         this._commId = _commId;
     }
+
+    public SpecialMediaType get_spMediaType() {
+        return _spMediaType;
+    }
+
 }

@@ -34,11 +34,11 @@ public class CommHistoryManager {
         serverLogger = LogsManager.getServerLogger();
     }
 
-    public synchronized static int insertCommunicationRecord(String src, String dest, String extension, int size)  {
+    public synchronized static int insertCommunicationRecord(String type, String src, String dest, String extension, int size)  {
 
         try
         {
-            int commId = dal.insertCommunicationHistory(src, dest, extension, size);
+            int commId = dal.insertCommunicationHistory(type, src, dest, extension, size);
             serverLogger.info("insertCommunicationHistory success: [commId:" + commId + ", src:" + src + ", extension:" + extension + ", size:" + size + "]");
             return commId;
         } catch (SQLException e)

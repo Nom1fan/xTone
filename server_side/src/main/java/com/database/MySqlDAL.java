@@ -98,7 +98,8 @@ public class MySqlDAL implements IDAL {
     public void updateCommunicationRecord(int commId, String column, Object value) throws SQLException{
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String query = "UPDATE " + TABLE_COMM_HISTORY +
+        String query =
+                "UPDATE " + TABLE_COMM_HISTORY +
                 " SET " + column + "=" + "\"" + value + "\"" +
                 ", " + COL_TRANSFER_DATETIME + "=" + "\"" + sdf.format(new Date()) + "\"" +
                 " WHERE " + COL_COMM_ID + "=" + "\"" + commId + "\"";
@@ -115,11 +116,24 @@ public class MySqlDAL implements IDAL {
     }
 
     @Override
-    public int insertCommunicationHistory(String src, String dest, String extension, int size) throws SQLException {
+    public int insertCommunicationHistory(String type, String src, String dest, String extension, int size) throws SQLException {
 
         String query = "INSERT INTO " + TABLE_COMM_HISTORY +
-                " (" + COL_UID_SRC + "," + COL_UID_DEST + "," + COL_CONTENT_EXTENSION + "," + COL_CONTENT_SIZE + ")" +
-                " VALUES" + " (" + "\"" + src + "\"" + "," + "\"" + dest + "\"" + "," + "\"" +  extension + "\"" + "," + "\"" + size + "\"" + ")";
+                " (" +
+                COL_TYPE + "," +
+                COL_UID_SRC + "," +
+                COL_UID_DEST + "," +
+                COL_CONTENT_EXTENSION + "," +
+                COL_CONTENT_SIZE +
+                ")" +
+                " VALUES" +
+                " (" +
+                "\"" + type + "\"" + "," +
+                "\"" + src + "\"" + "," +
+                "\"" + dest + "\"" + "," +
+                "\"" + extension + "\"" + "," +
+                "\"" + size + "\"" +
+                ")";
 
         return executeReturnGenKeyQuery(query);
     }

@@ -1,21 +1,20 @@
 package MessagesToClient;
 
-import com.google.gson.Gson;
-
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import ClientObjects.ConnectionToServer;
-import DataObjects.PushEventKeys;
 import DataObjects.SharedConstants;
+import DataObjects.SpecialMediaType;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import FilesManager.FileManager;
-import MessagesToServer.MessageSendPushToRemoteUser;
 
 public class MessageDownloadFile extends MessageToClient {
 
@@ -24,6 +23,7 @@ public class MessageDownloadFile extends MessageToClient {
 	private String _fileName;	
 	private String _sourceId;
 	private String _myId;
+    private SpecialMediaType _specialMediaType;
 
 	public MessageDownloadFile(TransferDetails td) {
 						
@@ -31,7 +31,7 @@ public class MessageDownloadFile extends MessageToClient {
 		_fileName = _td.getSourceWithExtension();		
 		_sourceId = _td.getSourceId();
 		_myId = _td.getDestinationId();
-
+        _specialMediaType = _td.get_spMediaType();
 	}
 	
 	@Override
@@ -39,10 +39,24 @@ public class MessageDownloadFile extends MessageToClient {
 							
 		  try
 		  {
+
+              File folderPath = null;
+              switch(_td.get_spMediaType())
+              {
+                  case CALLER_MEDIA:
+                      folderPath = new File(SharedConstants.INCOMING_FOLDER + _sourceId);
+                      break;
+                  case PROFILE_MEDIA:
+                      folderPath = new File(SharedConstants.OUTGOING_FOLDER + _sourceId);
+                      break;
+                  default:
+                      throw new UnsupportedOperationException("Not yet implemented");
+
+              }
+
 			  // Creating file and directories for downloaded file
-			  File specialCallIncomingDir = new File(SharedConstants.specialCallIncomingPath +_sourceId);
-			  specialCallIncomingDir.mkdirs();
-			  String fileStoragePath =  specialCallIncomingDir.getAbsolutePath() + "/" + _fileName;
+              folderPath.mkdirs();
+			  String fileStoragePath =  folderPath.getAbsolutePath() + "/" + _fileName;
 			  File newFile = new File(fileStoragePath);
 			  newFile.createNewFile();
 

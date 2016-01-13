@@ -80,7 +80,7 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
         }
 
         Log.i(TAG, "Deleting "+_td.getDestinationId()+"'s outgoing folder after upload");
-        File specialCallOutgoingDir = new File(Constants.specialCallOutgoingPath+_td.getDestinationId());
+        File specialCallOutgoingDir = new File(Constants.TEMP_COMPRESSED_FOLDER +_td.getDestinationId());
 
         String[] entries = specialCallOutgoingDir.list();
         for (String s : entries) {

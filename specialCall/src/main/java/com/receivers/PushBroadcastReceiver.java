@@ -36,11 +36,19 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
         JSONObject pushData = getPushData(intent);
         String jsonData;
         TransferDetails td;
+        String eventActionCode;
 
 
         try {
-            String eventActionCode = pushData.getString(PushEventKeys.PUSH_EVENT_ACTION);
-            Log.i(TAG, "PushEventActionCode:" + eventActionCode);
+            if(pushData == null)
+            {
+                String errMsg = "Invalid push data! Push data was null. Terminating push receive";
+                Log.e(TAG, errMsg);
+                throw new Exception(errMsg);
+            }
+                eventActionCode = pushData.getString(PushEventKeys.PUSH_EVENT_ACTION);
+                Log.i(TAG, "PushEventActionCode:" + eventActionCode);
+
             switch(eventActionCode)
             {
                 case PushEventKeys.PENDING_DOWNLOAD:
@@ -52,7 +60,7 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
                     i.setAction(StorageServerProxyService.ACTION_DOWNLOAD);
                     i.putExtra(PushEventKeys.PUSH_DATA, td);
                     _context.startService(i);
-                break;
+                    break;
 
                 case PushEventKeys.TRANSFER_SUCCESS:
                     String msg = pushData.getString(PushEventKeys.PUSH_DATA);
@@ -66,11 +74,10 @@ public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
                 case PushEventKeys.SHOW_MESSAGE:
                     Log.i(TAG, "In:" + PushEventKeys.SHOW_MESSAGE);
                     super.onPushReceive(context, intent);
-                break;
+                    break;
             }
 
-
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

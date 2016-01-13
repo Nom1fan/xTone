@@ -41,7 +41,6 @@ public class FileManager implements Serializable {
     private boolean isCompressed = false;
 
     public static final int MAX_FILE_SIZE = 16777216; // 16MB
-    public static final String UPLOAD_FOLDER = "\\server_side\\uploads\\";
 
     public enum FileType { IMAGE, VIDEO, RINGTONE }
 

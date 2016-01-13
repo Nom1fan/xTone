@@ -9,25 +9,48 @@ import com.utils.SharedPrefUtils;
 
 public class Constants {
 
+	// Constants for Parse
 	public static final String APPLICATION_ID = "7CL97UlX4EtpMyRJYshNlIQ3T12EEZ0OaZWxZjvR";
 	public static final String CLIENT_KEY = "7Elu6v6XVyQRzxIqnlyIG9YGyzXuh65hD42ZUqZa";
-	public static final String specialCallIncomingPath = setSpeciallCallIncomingPath();
-	public static final String specialCallOutgoingPath = setSpecialCallOutgoingPath();
+
+    public static final String APP_NAME = "MediaCallz";
+    public static final String INCOMING_FOLDER_NAME = "Incoming_" + APP_NAME;
+    public static final String OUTGOING_FOLDER_NAME = "Outgoing_" + APP_NAME;
+    public static final String TEMP_COMP_FOLDER_NAME = "Compressed_" + APP_NAME;
+    public static final String ROOT_FOLDER = setRootFolder();
+	public static final String INCOMING_FOLDER = getIncomingFolder();
+    public static final String OUTGOING_FOLDER = getOutgoingFolder();
+    public static final String TEMP_COMPRESSED_FOLDER = getTempFolderForCompression();
+
 	public static String MY_ID(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER); }
 	public static String MY_TOKEN(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN); }
 	
-	private static String setSpeciallCallIncomingPath() {
+	private static String getIncomingFolder() {
 		
-		String path = Environment.getExternalStorageDirectory()+"/SpecialCallIncoming/";
-		SharedConstants.specialCallIncomingPath = path;
+		String path = ROOT_FOLDER + INCOMING_FOLDER_NAME + "/";
+		SharedConstants.INCOMING_FOLDER = path;
 		return path;
 	}
 
-	private static String setSpecialCallOutgoingPath() {
+    private static String getOutgoingFolder() {
 
-		String path = Environment.getExternalStorageDirectory()+"/SpecialCallOutgoing/";
-		SharedConstants.specialCallOutgoingPath = path;
+        String path = ROOT_FOLDER + OUTGOING_FOLDER_NAME + "/";
+        SharedConstants.OUTGOING_FOLDER = path;
+        return path;
+    }
+
+	private static String getTempFolderForCompression() {
+
+		String path = ROOT_FOLDER + TEMP_COMP_FOLDER_NAME + "/";
+		SharedConstants.tempFolderForCompression = path;
 		return path;
 	}
+
+    private static String setRootFolder() {
+
+        String path = Environment.getExternalStorageDirectory() + "/" + APP_NAME + "/";
+        SharedConstants.ROOT_FOLDER = path;
+        return path;
+    }
 
 }

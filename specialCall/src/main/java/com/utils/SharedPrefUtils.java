@@ -8,10 +8,14 @@ public class SharedPrefUtils {
 	/* Shared pref names */
 	public static final String GENERAL = "General";
 	public static final String SERVER_PROXY = "AbstractServerProxy";
-	public static final String UPLOADED_MEDIA_THUMBNAIL = "UploadedMediaThumbnail";
-	public static final String WAS_RINGTONE_UPLOADED ="WasRingToneUploaded";
-	public static final String MEDIA_FILEPATH = "Media";
-	public static final String RINGTONE_FILEPATH = "ringToneFilePath";
+	public static final String UPLOADED_CALLER_MEDIA_THUMBNAIL = "UploadedCallerMediaThumbnail";
+	public static final String UPLOADED_RINGTONE_PATH ="UploadedRingTonePath";
+	public static final String UPLOADED_PROFILE_MEDIA_THUMBNAIL = "UploadedProfileMediaThumbnail";
+	public static final String UPLOADED_FUNTONE_PATH = "UploadedFunTonePath";
+	public static final String CALLER_MEDIA_FILEPATH = "CallerMediaFilePath";
+	public static final String RINGTONE_FILEPATH = "RingToneFilePath";
+    public static final String PROFILE_MEDIA_FILEPATH = "ProfileMediaFilePath";
+    public static final String FUNTONE_FILEPATH = "FunToneFilePath";
 
 
 	/* Shared pref keys under GENERAL */
@@ -21,7 +25,6 @@ public class SharedPrefUtils {
 	public static final String APP_STATE = "AppState";
 	public static final String LOADING_MESSAGE = "LoadingMessage";
 	public static final String MY_DEVICE_TOKEN = "MyDeviceToken";
-	public static final String WAS_SPIMAGE_DECODED ="WasSpImageDecoded";
 
 	/* Shared pref keys under SERVER_PROXY */
 	public static final String RECONNECT_INTERVAL = "LogicServerProxyService.RECONNECT_INTERVAL";

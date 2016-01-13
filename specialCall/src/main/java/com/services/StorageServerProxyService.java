@@ -5,11 +5,9 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
-import com.app.AppStateManager;
 import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
 import com.interfaces.CallbackListener;
-import com.utils.BroadcastUtils;
 import com.utils.FileCompressorUtil;
 import com.utils.NotificationUtils;
 
@@ -19,9 +17,8 @@ import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
 import DataObjects.PushEventKeys;
 import DataObjects.SharedConstants;
+import DataObjects.SpecialMediaType;
 import DataObjects.TransferDetails;
-import EventObjects.EventReport;
-import EventObjects.EventType;
 import FilesManager.FileManager;
 import MessagesToServer.MessageRequestDownload;
 
@@ -43,6 +40,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
     // Service intent keys
     public static final String FILE_TO_UPLOAD = "com.services.StorageServerProxyService.FILE_TO_UPLOAD";
     public static final String DESTINATION_ID = "com.services.StorageServerProxyService.DESTINATION_ID";
+    public static final String SPECIAL_MEDIA_TYPE = "com.services.StorageServerProxyService.SPECIAL_MEDIA_TYPE";
 
 
     public StorageServerProxyService() {
@@ -97,14 +95,15 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
                                 wakeLock.acquire();
 
                                 String destId = intentForThread.getStringExtra(DESTINATION_ID);
-                                String specialCallOutGoingPath = Constants.specialCallOutgoingPath + destId;
-                                File specialCallOutgoingDir = new File(specialCallOutGoingPath);
-                                specialCallOutgoingDir.mkdirs();
+                                SpecialMediaType specialMediaType = (SpecialMediaType) intentForThread.getSerializableExtra(SPECIAL_MEDIA_TYPE);
+                                String tempCompressFolder = Constants.TEMP_COMPRESSED_FOLDER + destId;
+                                File tempCompressFolderDir = new File(tempCompressFolder);
+                                tempCompressFolderDir.mkdirs();
 
                                 ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
                                 FileManager managedFile = (FileManager) intentForThread.getSerializableExtra(FILE_TO_UPLOAD);
-                                managedFile = FileCompressorUtil.compressFileIfNecessary(managedFile, specialCallOutGoingPath, mContext);
-                                uploadFileToServer(connectionToServer, destId, managedFile);
+                                managedFile = FileCompressorUtil.compressFileIfNecessary(managedFile, tempCompressFolder, mContext);
+                                uploadFileToServer(connectionToServer, destId, managedFile, specialMediaType);
                                 releaseLockIfNecessary();
                             }
                             break;
@@ -147,9 +146,13 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
      * @param managedFile   - The file to upload inside a manager wrapper
      * @param destNumber - The destination number to whom the file is for
      */
-    private void uploadFileToServer(ConnectionToServer connectionToServer, final String destNumber, final FileManager managedFile) throws IOException {
+    private void uploadFileToServer(
+            ConnectionToServer connectionToServer,
+            String destNumber,
+            FileManager managedFile,
+            SpecialMediaType specialMediaType) throws IOException {
 
-        TransferDetails td = new TransferDetails(Constants.MY_ID(mContext), destNumber, managedFile);
+        TransferDetails td = new TransferDetails(Constants.MY_ID(mContext), destNumber, managedFile, specialMediaType);
         NotificationUtils.createHelper(mContext, "File upload to:" + td.getDestinationId() + " is pending");
         new UploadTask(mContext, this ,connectionToServer, td).execute();
     }
@@ -163,7 +166,6 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
 
         MessageRequestDownload msgRD = new MessageRequestDownload(td);
         connectionToServer.sendToServer(msgRD);
-
     }
 
     @Override

@@ -47,7 +47,7 @@ public class MessageRequestDownload extends MessageToServer {
         logger.info(_messageInitiaterId + " is requesting download from:"+_td.getSourceId()+" of file type:"+_td.getExtension()+"...");
 
         try {
-            FileManager managedFile = new FileManager(_filePathOnServer);
+            FileManager fileForDownload = new FileManager(_filePathOnServer);
             MessageDownloadFile msgDF = new MessageDownloadFile(_td);
             boolean sent = replyToClient(msgDF);
             if(!sent)
@@ -57,11 +57,11 @@ public class MessageRequestDownload extends MessageToServer {
 
             DataOutputStream dos = new DataOutputStream(getClientConnection().getClientSocket().getOutputStream());
 
-            FileInputStream fis = new FileInputStream(managedFile.getFile());
+            FileInputStream fis = new FileInputStream(fileForDownload.getFile());
             BufferedInputStream bis = new BufferedInputStream(fis);
 
             byte[] buf = new byte[1024 * 8];
-            long bytesToRead = managedFile.getFileSize();
+            long bytesToRead = fileForDownload.getFileSize();
             int bytesRead;
             while (bytesToRead > 0 && (bytesRead = bis.read(buf, 0, (int) Math.min(buf.length, bytesToRead))) != -1) {
                 dos.write(buf, 0, bytesRead);
