@@ -1,6 +1,7 @@
 package com.ui.activities;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -11,12 +12,14 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.InputType;
@@ -71,7 +74,6 @@ import Exceptions.InvalidDestinationNumberException;
 import FilesManager.FileManager;
 
 
-@SuppressWarnings("ALL")
 public class MainActivity extends Activity implements OnClickListener {
 
     private String buttonLabels[];
@@ -96,6 +98,7 @@ public class MainActivity extends Activity implements OnClickListener {
     private static boolean wasRegisteredChecked = false;
     private static boolean wasFileChooser=false;
     private Toast toast;
+    String shareBody = "You are Invited to MediaCallz https://play.google.com/apps/testing/com.special.specialcall";
 
 	@Override
 	protected void onStart() {
@@ -398,7 +401,20 @@ public class MainActivity extends Activity implements OnClickListener {
             AutoCompleteTextView textViewToClear = (AutoCompleteTextView)findViewById(R.id.CallNumber);
             textViewToClear.setText("");
 
-        } else if (id == R.id.login_btn) {
+        } 
+        else if(id == R.id.inviteButton){
+
+                EditText callNumber = (EditText) findViewById(R.id.CallNumber);
+                try {
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(callNumber.getText().toString(), null, shareBody, null, null);
+                    writeInfoStatBar("Invitation Sent To: " + callNumber.getText().toString());
+
+                } catch (Exception ex) {
+                    writeErrStatBar(ex.getMessage());
+                }
+        }
+		else if (id == R.id.login_btn) {
 
            String myVerificationcode = ((EditText) findViewById(R.id.SMSCode)).getText().toString();
 		    //if (myVerificationcode.equals(String.valueOf(randomPIN))){    // NEED TO FIND A SMS GATEWAY FIRST
@@ -442,6 +458,22 @@ public class MainActivity extends Activity implements OnClickListener {
                 y.setClass(_context, Settings.class);
                 startActivity(y);
                 break;
+
+            case R.id.action_share:
+
+                saveInstanceState();
+
+                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+                sharingIntent.setType("text/plain");
+                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "MediaCallz (Open it in Google Play Store to Download the Application)");
+
+                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+                startActivity(Intent.createChooser(sharingIntent, "Share via"));
+
+
+                break;
+
+
             default:
                 saveInstanceState();
                 Intent o = new Intent();
@@ -506,6 +538,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
                                   }
                               });
+
+
+
 
                               OnClickListener buttonListener = new View.OnClickListener() {
 
@@ -652,7 +687,19 @@ public class MainActivity extends Activity implements OnClickListener {
                     _destName = "";
 
                     if (10 != s.length() || !NumberUtils.isNumber(destPhone))
-                      userStatusUnregistered();
+                    {  
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                ImageView userStatus = (ImageView) findViewById(R.id.userStatus);
+                                userStatus.setVisibility(View.INVISIBLE);
+
+                                ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
+                                invite.setVisibility(View.INVISIBLE);
+                                invite.setClickable(false);
+                            }
+                        });
+                      }
 
                     setDestNameTextView();
                     saveInstanceState();
@@ -682,6 +729,9 @@ public class MainActivity extends Activity implements OnClickListener {
         button7.setOnClickListener(this);
         ImageButton button8 = (ImageButton) findViewById(R.id.clear);
         button8.setOnClickListener(this);
+
+        ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
+        invite.setOnClickListener(this);
 
 	}
 
@@ -870,7 +920,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
         Intent i = new Intent();
         i.setClass(getBaseContext(), LogicServerProxyService.class);
-        if(AppStateManager.getAppState(_context).equals(AppStateManager.STATE_LOGGED_OUT))
+        if(AppStateManager.getAppState(context).equals(AppStateManager.STATE_LOGGED_OUT))
             i.setAction(LogicServerProxyService.ACTION_REGISTER);
         else
            i.setAction(LogicServerProxyService.ACTION_RECONNECT);

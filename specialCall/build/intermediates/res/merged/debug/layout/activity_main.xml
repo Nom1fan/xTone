@@ -15,49 +15,65 @@
         android:contentDescription="contacts"
         android:src="@drawable/select_contact_enabled"
         android:textSize="18sp"
-        android:layout_alignBottom="@+id/CallNumber"
+        android:layout_above="@+id/selectMediaBtn"
         android:layout_alignRight="@+id/selectMediaBtn"
-        android:layout_alignEnd="@+id/selectMediaBtn"
-        android:layout_alignTop="@+id/selectRingtoneBtn" />
+        android:layout_alignEnd="@+id/selectMediaBtn" />
 
     <TextView
         android:id="@+id/destName"
-        android:layout_width="120dp"
+        android:layout_width="175dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/CallNumber"
-        android:layout_toRightOf="@+id/selectProfileMediaBtn"
-        android:layout_toEndOf="@+id/selectProfileMediaBtn" />
+        android:layout_alignLeft="@+id/CallNumber"
+        android:layout_alignStart="@+id/CallNumber"
+        android:layout_alignRight="@+id/CallNumber"
+        android:layout_alignEnd="@+id/CallNumber"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/selectRingtoneBtn"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
-        android:enabled="true"
-        android:layout_marginBottom="14dp"
+        android:enabled="false"
         android:textSize="18sp"
         android:text="Select Ringtone"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentRight="false"
-        android:layout_alignParentLeft="false"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/selectMediaBtn" />
+        android:visibility="invisible"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/selectContactBtn"
+        android:layout_alignEnd="@+id/selectContactBtn" />
 
     <ImageButton
         android:id="@+id/selectMediaBtn"
         android:layout_width="300dp"
-        android:layout_height="200dp"
+        android:layout_height="220dp"
         android:contentDescription="mypic"
         android:clickable="true"
         android:src="@drawable/defaultpic_enabled"
         android:textSize="18sp"
-        android:layout_below="@+id/statusBar"
-        android:layout_alignLeft="@+id/CallNumber"
-        android:layout_alignStart="@+id/CallNumber" />
+        android:layout_above="@+id/CallNow"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <ImageButton
+        android:id="@+id/inviteButton"
+        android:layout_width="300dp"
+        android:layout_height="220dp"
+        android:contentDescription="invite "
+        android:clickable="false"
+        android:src="@drawable/invite"
+        android:textSize="18sp"
+        android:layout_above="@+id/CallNow"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:visibility="invisible" />
 
     <AutoCompleteTextView
         android:id="@+id/CallNumber"
-        android:layout_width="200dp"
+        android:layout_width="175dp"
         android:layout_height="wrap_content"
         android:ems="10"
         android:enabled="true"
@@ -67,11 +83,13 @@
         android:phoneNumber="true"
         android:maxLength="10"
         android:singleLine="true"
-        android:layout_alignRight="@+id/CallNow"
-        android:layout_alignEnd="@+id/CallNow"
         android:completionThreshold="1"
-        android:layout_below="@+id/selectRingtoneBtn"
-        android:inputType="textAutoComplete|text">
+        android:inputType="textAutoComplete|text"
+        android:layout_alignTop="@+id/selectContactBtn"
+        android:layout_alignLeft="@+id/selectMediaBtn"
+        android:layout_alignStart="@+id/selectMediaBtn"
+        android:layout_toStartOf="@+id/selectRingtoneBtn"
+        android:layout_toLeftOf="@+id/selectRingtoneBtn">
 
         <requestFocus />
     </AutoCompleteTextView>
@@ -84,7 +102,8 @@
         android:textSize="18sp"
         android:text="Call Now"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignRight="@+id/clear"
+        android:layout_alignEnd="@+id/clear" />
 
     <ImageButton
         android:id="@+id/selectProfileMediaBtn"
@@ -93,38 +112,68 @@
         android:src="@drawable/defaultpic_enabled"
         android:layout_width="120dp"
         android:layout_height="120dp"
+
+        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/CallNumber"
+        android:layout_alignLeft="@+id/CallNumber"
+        android:layout_alignStart="@+id/CallNumber"
+        android:layout_alignRight="@+id/CallNumber"
+        android:layout_alignEnd="@+id/CallNumber"
+
+        />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
         android:layout_alignBottom="@+id/selectProfileMediaBtn"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
-        android:layout_width="500dp"
-        android:layout_height="35dp"
-        android:id="@+id/statusBar"
-        android:textStyle="normal|bold"
-        android:textColor="#027f00"
-        android:singleLine="false"
-        android:background="@android:color/black"
-        android:layout_below="@+id/selectProfileMediaBtn"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignRight="@+id/selectRingtoneBtn"
+        android:layout_alignEnd="@+id/selectRingtoneBtn"
+        android:layout_alignTop="@+id/selectRingtoneBtn"
+        android:layout_alignLeft="@+id/selectRingtoneBtn"
+        android:layout_alignStart="@+id/selectRingtoneBtn" />
 
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/clear"
         android:clickable="true"
-        android:layout_alignEnd="@+id/CallNumber"
         android:background="@drawable/clear"
-        android:layout_marginBottom="5dp"
-        android:layout_marginRight="5dp"
         android:layout_alignBottom="@+id/CallNumber"
-        android:layout_alignRight="@+id/CallNumber" />
+        android:layout_toRightOf="@+id/CallNumber"
+        android:layout_toEndOf="@+id/CallNumber"  />
 
-</RelativeLayout><!-- From: file:/C:/SpecialCall_Repository/specialCall/src/main/res/layout/activity_main.xml -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:id="@+id/ringtoneName"
+        android:visibility="visible"
+        android:background="@android:color/white"
+        android:textColor="@android:color/black"
+        android:singleLine="true"
+        android:hint="No Ringtone Was Chosen !"
+        android:layout_above="@+id/CallNow"
+        android:layout_alignLeft="@+id/selectMediaBtn"
+        android:layout_alignStart="@+id/selectMediaBtn"
+        android:layout_alignRight="@+id/selectContactBtn"
+        android:layout_alignEnd="@+id/selectContactBtn" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/userStatus"
+        android:layout_alignBottom="@+id/CallNumber"
+        android:layout_toLeftOf="@+id/clear"
+        android:layout_alignTop="@+id/CallNumber"
+
+        android:layout_alignRight="@+id/CallNumber"
+        android:layout_alignEnd="@+id/CallNumber"
+
+        android:layout_alignLeft="@+id/CallNow"
+        android:layout_alignStart="@+id/CallNow" />
+
+</RelativeLayout><!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/src/main/res/layout/activity_main.xml -->
