@@ -26,7 +26,7 @@ import java.lang.reflect.Field;
 public class SpecialCallApp extends Application {
 
     private static final String TAG = SpecialCallApp.class.getSimpleName();
-
+    private static boolean shortCutMade=false;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -34,7 +34,12 @@ public class SpecialCallApp extends Application {
         final Context context = getApplicationContext();
         addShortcutIcon();
         //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
-        makeActionOverflowMenuShown();
+
+        if(!shortCutMade)
+        {
+            makeActionOverflowMenuShown();
+            shortCutMade=true;
+        }
 
         // Initializing app state
         if(AppStateManager.getAppState(context).equals(""))

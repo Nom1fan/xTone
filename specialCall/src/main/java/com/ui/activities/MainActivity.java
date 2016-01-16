@@ -1435,6 +1435,7 @@ public class MainActivity extends Activity implements OnClickListener {
     }
 
     private void callErrToast(final String text) {
+        if (text.length() > 5){
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -1445,11 +1446,12 @@ public class MainActivity extends Activity implements OnClickListener {
                 v.setTextColor(Color.RED);
                 toast.show();
             }
-        });
+        });}
+        else {Log.e(TAG,"Toast is filtered: "+ text);}
     }
 
     private void writeErrStatBar(final String text) {
-
+        if (text.length() > 5){
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -1466,10 +1468,11 @@ public class MainActivity extends Activity implements OnClickListener {
                 toast.setGravity(Gravity.TOP, Gravity.CENTER_VERTICAL, Gravity.CENTER_VERTICAL);
                 toast.show();
             }
-        });
+        });}else {Log.e(TAG, "Toast is filtered: " + text);}
     }
 
     private void writeInfoStatBar(final String text) {
+        if (text.length() > 5){
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -1485,12 +1488,13 @@ public class MainActivity extends Activity implements OnClickListener {
                 toast.setGravity(Gravity.TOP, Gravity.CENTER_VERTICAL, Gravity.CENTER_VERTICAL);
                 toast.show();
             }
-        });
+        });}else {Log.e(TAG, "Toast is filtered: " + text);}
     }
 
     private void writeInfoStatBar(final String text, final int g) {
 
-        runOnUiThread(new Runnable() {
+        if (text.length() > 5){
+            runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (toast != null) // if there is already a Toast , than cancel it because there is a new Toast
@@ -1505,6 +1509,6 @@ public class MainActivity extends Activity implements OnClickListener {
                 toast.setGravity(Gravity.TOP, Gravity.CENTER_VERTICAL, Gravity.CENTER_VERTICAL);
                 toast.show();
             }
-        });
+        });}else {Log.e(TAG, "Toast is filtered: " + text);}
     }
 }

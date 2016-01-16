@@ -382,7 +382,7 @@ public class IncomingService extends AbstractStandOutService {
                             mMediaPlayer.stop();
                     } catch(Exception e) {  e.printStackTrace();  }
                     try {
-                        Thread.sleep(1000, 0);
+                        Thread.sleep(2000, 0);
                     } catch (InterruptedException e) { e.printStackTrace(); }
                     try {
                         mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
