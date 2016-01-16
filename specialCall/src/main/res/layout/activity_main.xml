@@ -176,4 +176,39 @@
         android:layout_alignLeft="@+id/CallNow"
         android:layout_alignStart="@+id/CallNow" />
 
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fetchuserprogress"
+        android:layout_alignBottom="@+id/CallNumber"
+        android:layout_toLeftOf="@+id/clear"
+        android:layout_alignTop="@+id/CallNumber"
+
+        android:layout_alignRight="@+id/CallNumber"
+        android:layout_alignEnd="@+id/CallNumber"
+
+        android:layout_alignLeft="@+id/CallNow"
+        android:layout_alignStart="@+id/CallNow"
+        android:visibility="gone" />
+
+    <ImageView
+        android:layout_width="@dimen/abc_action_bar_subtitle_text_size"
+        android:layout_height="@dimen/abc_action_bar_subtitle_text_size"
+        android:id="@+id/mediaStatus"
+        android:layout_above="@+id/ringtoneName"
+        android:layout_alignRight="@+id/selectMediaBtn"
+        android:layout_alignEnd="@+id/selectMediaBtn"
+        android:visibility="invisible"
+        android:layout_marginRight="@dimen/abc_action_bar_subtitle_bottom_margin" />
+
+    <ImageView
+        android:layout_width="@dimen/abc_action_bar_subtitle_text_size"
+        android:layout_height="@dimen/abc_action_bar_subtitle_text_size"
+        android:id="@+id/ringtoneStatus"
+        android:visibility="invisible"
+        android:layout_alignBottom="@+id/selectMediaBtn"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="@dimen/abc_action_bar_subtitle_bottom_margin" />
+
 </RelativeLayout>

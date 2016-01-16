@@ -77,15 +77,16 @@ import FilesManager.FileManager;
 public class MainActivity extends Activity implements OnClickListener {
 
     private String buttonLabels[];
-	private String _myPhoneNumber = "";
-	private String _destPhoneNumber = "";
-	private String _destName = "";
+    private String _myPhoneNumber = "";
+    private String _destPhoneNumber = "";
+    private String _destName = "";
     private static final String TAG = MainActivity.class.getSimpleName();
-	private Uri _outputFileUri;
-	private ProgressBar _pBar;
+    private Uri _outputFileUri;
+    private ProgressBar pFetchUserBar;
+    private ProgressBar _pBar;
     private Context _context;
-	private BroadcastReceiver _serviceReceiver;
-	private IntentFilter serviceReceiverIntentFilter = new IntentFilter(Event.EVENT_ACTION);
+    private BroadcastReceiver _serviceReceiver;
+    private IntentFilter serviceReceiverIntentFilter = new IntentFilter(Event.EVENT_ACTION);
     private abstract class ActivityRequestCodes {
 
         public static final int SELECT_CALLER_MEDIA = 1;
@@ -100,22 +101,22 @@ public class MainActivity extends Activity implements OnClickListener {
     private Toast toast;
     String shareBody = "You are Invited to MediaCallz https://play.google.com/apps/testing/com.special.specialcall";
 
-	@Override
-	protected void onStart() {
-		super.onStart();
+    @Override
+    protected void onStart() {
+        super.onStart();
         Log.i(TAG, "onStart()");
 
-		_serviceReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
+        _serviceReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
 
-					EventReport report = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
-					eventReceived(new Event(this,report));
-			}
-		};
-		registerReceiver(_serviceReceiver, serviceReceiverIntentFilter);
+                EventReport report = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
+                eventReceived(new Event(this,report));
+            }
+        };
+        registerReceiver(_serviceReceiver, serviceReceiverIntentFilter);
 
-	}
+    }
 
     @Override
     protected void onPause() {
@@ -132,7 +133,7 @@ public class MainActivity extends Activity implements OnClickListener {
         saveInstanceState();
     }
 
-	@Override
+    @Override
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "onResume()");
@@ -177,57 +178,57 @@ public class MainActivity extends Activity implements OnClickListener {
         {
             case AppStateManager.STATE_LOGGED_OUT:
                 initializeLoginUI();
-            break;
+                break;
 
             case AppStateManager.STATE_IDLE:
                 stateIdle(TAG + "::onResume() STATE_IDLE", "", Color.BLACK);
                 restoreInstanceState();
                 writeInfoStatBar("");
-            break;
+                break;
 
             case AppStateManager.STATE_READY:
                 stateReady(TAG + "::onResume() STATE_READY", "");
                 restoreInstanceState();
-            break;
+                break;
 
             case AppStateManager.STATE_LOADING:
                 String loadingMsg = SharedPrefUtils.getString(_context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE);
                 stateLoading(TAG + "::onResume() STATE_LOADING", loadingMsg, Color.YELLOW);
                 restoreInstanceState();
-            break;
+                break;
 
             case AppStateManager.STATE_DISABLED:
                 String errMsg = "Disconnected. Check your internet connection.";
                 stateDisabled(TAG + "::onResume() STATE_DISABLED", errMsg);
                 restoreInstanceState();
-            break;
+                break;
         }
-	}
+    }
 
-	@Override
+    @Override
     protected void onDestroy() {
-	    super.onDestroy();
+        super.onDestroy();
         Log.i(TAG, "onDestroy()");
-	 }
+    }
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
 
         _context = getApplicationContext();
 
-		if (getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
+        if (getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
 
             initializeLoginUI();
 
-		} else {
-			initializeUI();
+        } else {
+            initializeUI();
             if (getState().equals(AppStateManager.STATE_LOGGED_IN)) {
                 stateIdle(TAG + "::onCreate()", "", Color.BLACK);
             }
-		}
-	}
+        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -237,16 +238,16 @@ public class MainActivity extends Activity implements OnClickListener {
 
             wasRegisteredChecked = false;
 
-               if (requestCode == ActivityRequestCodes.SELECT_CALLER_MEDIA) {
+            if (requestCode == ActivityRequestCodes.SELECT_CALLER_MEDIA) {
 
-                   SpecialMediaType specialMediaType = SpecialMediaType.CALLER_MEDIA;
-                   uploadFile(data, specialMediaType);
-               }
-               else if(requestCode == ActivityRequestCodes.SELECT_PROFILE_MEDIA) {
+                SpecialMediaType specialMediaType = SpecialMediaType.CALLER_MEDIA;
+                uploadFile(data, specialMediaType);
+            }
+            else if(requestCode == ActivityRequestCodes.SELECT_PROFILE_MEDIA) {
 
-                   SpecialMediaType specialMediaType = SpecialMediaType.PROFILE_MEDIA;
-                   uploadFile(data, specialMediaType);
-               }
+                SpecialMediaType specialMediaType = SpecialMediaType.PROFILE_MEDIA;
+                uploadFile(data, specialMediaType);
+            }
 
             restoreInstanceState();
 
@@ -302,62 +303,50 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 
-	private void populateArrays() {
+    private void selectVisualMedia(int code) {
 
-		//TODO Move this to strings.xml as proper
-		
-		buttonLabels[0] = "CALL NOW";
-		buttonLabels[1] = "How Will i look like";
-		buttonLabels[2] = "Select Ringtone";
-		buttonLabels[3] = "uploading video clip";
-		buttonLabels[4] = "Download From Server";
-		buttonLabels[5] = "Select Contact";
-	}
+        // Determine Uri of camera image to save.
+        final File root = new File(Environment.getExternalStorageDirectory()
+                + File.separator + "MyDir" + File.separator);
+        root.mkdirs();
+        final String fname = "MyImage";
+        final File sdImageMainDirectory = new File(root, fname);
+        _outputFileUri = Uri.fromFile(sdImageMainDirectory);
 
-	private void selectVisualMedia(int code) {
-
-		// Determine Uri of camera image to save.
-		final File root = new File(Environment.getExternalStorageDirectory()
-				+ File.separator + "MyDir" + File.separator);
-		root.mkdirs();
-		final String fname = "MyImage";
-		final File sdImageMainDirectory = new File(root, fname);
-		_outputFileUri = Uri.fromFile(sdImageMainDirectory);
-
-		// Camera.
-		final List<Intent> cameraIntents = new ArrayList<>();
-		final Intent captureIntent = new Intent(
-				android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-		final PackageManager packageManager = getPackageManager();
-		final List<ResolveInfo> listCam = packageManager.queryIntentActivities(
+        // Camera.
+        final List<Intent> cameraIntents = new ArrayList<>();
+        final Intent captureIntent = new Intent(
+                android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        final PackageManager packageManager = getPackageManager();
+        final List<ResolveInfo> listCam = packageManager.queryIntentActivities(
                 captureIntent, 0);
 
 
         final Intent videoIntent = new Intent(
                 MediaStore.ACTION_VIDEO_CAPTURE);
 
-		for (ResolveInfo res : listCam) {
-			final String packageName = res.activityInfo.packageName;
-			final Intent intent = new Intent(captureIntent);
-			intent.setComponent(new ComponentName(res.activityInfo.packageName,
-					res.activityInfo.name));
-			intent.setPackage(packageName);
-			intent.putExtra(MediaStore.EXTRA_OUTPUT, _outputFileUri);
-			cameraIntents.add(intent);
-		}
+        for (ResolveInfo res : listCam) {
+            final String packageName = res.activityInfo.packageName;
+            final Intent intent = new Intent(captureIntent);
+            intent.setComponent(new ComponentName(res.activityInfo.packageName,
+                    res.activityInfo.name));
+            intent.setPackage(packageName);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, _outputFileUri);
+            cameraIntents.add(intent);
+        }
         cameraIntents.add(videoIntent);
 
         // Create the ACTION_GET_CONTENT Intent
-       final Intent intent = FileUtils.createGetContentIntent();
+        final Intent intent = FileUtils.createGetContentIntent();
 
-        Intent chooserIntent = Intent.createChooser(intent, "Select a file");
+        Intent chooserIntent = Intent.createChooser(intent, "Select Media File");
 
         // Add the camera options.
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,
@@ -366,86 +355,86 @@ public class MainActivity extends Activity implements OnClickListener {
         wasFileChooser=true;
         wasRegisteredChecked=true;
         startActivityForResult(chooserIntent, code);
-	}
+    }
 
-	public void onClick(View v) {
+    public void onClick(View v) {
 
         // Saving instance state
         saveInstanceState();
 
-		int id = v.getId();
-		if (id == R.id.CallNow) {
+        int id = v.getId();
+        if (id == R.id.CallNow) {
 
-			launchDialer(_destPhoneNumber);
+            launchDialer(_destPhoneNumber);
 
-		} else if (id == R.id.selectMediaBtn) {
+        } else if (id == R.id.selectMediaBtn) {
 
-             selectVisualMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
+            selectVisualMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
 
-		} else if (id == R.id.selectProfileMediaBtn) {
+        } else if (id == R.id.selectProfileMediaBtn) {
 
-             selectVisualMedia(ActivityRequestCodes.SELECT_PROFILE_MEDIA);
+            selectVisualMedia(ActivityRequestCodes.SELECT_PROFILE_MEDIA);
 
         } else if (id == R.id.selectRingtoneBtn) {
 
-             //selectVisualMedia();
+            //selectVisualMedia();
 
-		} else if (id == R.id.selectContactBtn) {
+        } else if (id == R.id.selectContactBtn) {
 
-			Intent intent = new Intent(Intent.ACTION_PICK);
-			intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
-			startActivityForResult(intent, ActivityRequestCodes.SELECT_CONTACT);
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
+            startActivityForResult(intent, ActivityRequestCodes.SELECT_CONTACT);
 
-		} else if (id == R.id.clear) {
+        } else if (id == R.id.clear) {
 
             AutoCompleteTextView textViewToClear = (AutoCompleteTextView)findViewById(R.id.CallNumber);
             textViewToClear.setText("");
 
-        } 
+        }
         else if(id == R.id.inviteButton){
 
-                EditText callNumber = (EditText) findViewById(R.id.CallNumber);
-                try {
-                    SmsManager smsManager = SmsManager.getDefault();
-                    smsManager.sendTextMessage(callNumber.getText().toString(), null, shareBody, null, null);
-                    writeInfoStatBar("Invitation Sent To: " + callNumber.getText().toString());
+            EditText callNumber = (EditText) findViewById(R.id.CallNumber);
+            try {
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(callNumber.getText().toString(), null, shareBody, null, null);
+                writeInfoStatBar("Invitation Sent To: " + callNumber.getText().toString());
 
-                } catch (Exception ex) {
-                    writeErrStatBar(ex.getMessage());
-                }
+            } catch (Exception ex) {
+                writeErrStatBar(ex.getMessage());
+            }
         }
-		else if (id == R.id.login_btn) {
+        else if (id == R.id.login_btn) {
 
-           String myVerificationcode = ((EditText) findViewById(R.id.SMSCode)).getText().toString();
-		    //if (myVerificationcode.equals(String.valueOf(randomPIN))){    // NEED TO FIND A SMS GATEWAY FIRST
-                _myPhoneNumber = ((EditText) findViewById(R.id.LoginNumber))
-                        .getText().toString();
+            String myVerificationcode = ((EditText) findViewById(R.id.SMSCode)).getText().toString();
+            //if (myVerificationcode.equals(String.valueOf(randomPIN))){    // NEED TO FIND A SMS GATEWAY FIRST
+            _myPhoneNumber = ((EditText) findViewById(R.id.LoginNumber))
+                    .getText().toString();
 
-                SharedPrefUtils.setString(_context,
-                        SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, _myPhoneNumber);
+            SharedPrefUtils.setString(_context,
+                    SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, _myPhoneNumber);
 
-                initializeConnection();
+            initializeConnection();
 
-                File incomingFolder = new File(Constants.INCOMING_FOLDER);
-                incomingFolder.mkdirs();
+            File incomingFolder = new File(Constants.INCOMING_FOLDER);
+            incomingFolder.mkdirs();
 
-                File outgoingFolder = new File(Constants.OUTGOING_FOLDER);
-                outgoingFolder.mkdirs();
+            File outgoingFolder = new File(Constants.OUTGOING_FOLDER);
+            outgoingFolder.mkdirs();
 
-                File tempCompressedFolder = new File(Constants.TEMP_COMPRESSED_FOLDER);
-                tempCompressedFolder.mkdirs();
+            File tempCompressedFolder = new File(Constants.TEMP_COMPRESSED_FOLDER);
+            tempCompressedFolder.mkdirs();
 
-                initializeUI();
-                new AutoCompletePopulateListAsyncTask(this, mTxtPhoneNo).execute();
-                stateIdle(TAG + "::onClick() R.id.login", "", Color.BLACK);
-          //  }//TODO NEED TO FIND A SMS GATEWAY FIRST
+            initializeUI();
+            new AutoCompletePopulateListAsyncTask(this, mTxtPhoneNo).execute();
+            stateIdle(TAG + "::onClick() R.id.login", "", Color.BLACK);
+            //  }//TODO NEED TO FIND A SMS GATEWAY FIRST
           /*  else
             {
                 Toast.makeText(getApplicationContext(), "Code Wan't Correct Please Try Again !",
                         Toast.LENGTH_SHORT).show();
 
             }*/
-		}
+        }
     }
 
     @Override
@@ -595,17 +584,11 @@ public class MainActivity extends Activity implements OnClickListener {
         );
     }
 
-	private void initializeUI() {
+    private void initializeUI() {
 
         setContentView(R.layout.activity_main);
 
-        int entries = 6;
-        buttonLabels = new String[entries];
-
-		// Populate the data arrays
-		populateArrays();
-
-		// Setting up buttons and attaching click listeners
+        // Setting up buttons and attaching click listeners
         mTxtPhoneNo  = (AutoCompleteTextView) findViewById(R.id.CallNumber);
         mTxtPhoneNo.setRawInputType(InputType.TYPE_CLASS_TEXT);
         mTxtPhoneNo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -619,7 +602,7 @@ public class MainActivity extends Activity implements OnClickListener {
                 Log.e(TAG, NumericNumber);
                 if (NumericNumber.startsWith("972")){
                     NumericNumber= NumericNumber.replaceFirst("972","0");
-               }
+                }
                 if (NumericNumber.startsWith("9720")){
                     NumericNumber= NumericNumber.replaceFirst("9720","0");
                 }
@@ -687,7 +670,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     _destName = "";
 
                     if (10 != s.length() || !NumberUtils.isNumber(destPhone))
-                    {  
+                    {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -699,7 +682,7 @@ public class MainActivity extends Activity implements OnClickListener {
                                 invite.setClickable(false);
                             }
                         });
-                      }
+                    }
 
                     setDestNameTextView();
                     saveInstanceState();
@@ -715,16 +698,16 @@ public class MainActivity extends Activity implements OnClickListener {
             }
         });
 
-		Button button1 = (Button) findViewById(R.id.CallNow);
-		button1.setOnClickListener(this);
-		ImageButton button2 = (ImageButton) findViewById(R.id.selectMediaBtn);
-		button2.setOnClickListener(this);
-		Button button3 = (Button) findViewById(R.id.selectRingtoneBtn);
-		button3.setText(buttonLabels[2]);
-		button3.getBackground().setColorFilter(0xFFFF0000, PorterDuff.Mode.MULTIPLY);
-		button3.setOnClickListener(this);
-		ImageButton button6 = (ImageButton) findViewById(R.id.selectContactBtn);
-		button6.setOnClickListener(this);
+        Button button1 = (Button) findViewById(R.id.CallNow);
+        button1.setOnClickListener(this);
+        ImageButton button2 = (ImageButton) findViewById(R.id.selectMediaBtn);
+        button2.setOnClickListener(this);
+        Button button3 = (Button) findViewById(R.id.selectRingtoneBtn);
+        button3.setText("Select Ringtone");
+        button3.getBackground().setColorFilter(0xFFFF0000, PorterDuff.Mode.MULTIPLY);
+        button3.setOnClickListener(this);
+        ImageButton button6 = (ImageButton) findViewById(R.id.selectContactBtn);
+        button6.setOnClickListener(this);
         ImageButton button7 = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
         button7.setOnClickListener(this);
         ImageButton button8 = (ImageButton) findViewById(R.id.clear);
@@ -733,117 +716,117 @@ public class MainActivity extends Activity implements OnClickListener {
         ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
         invite.setOnClickListener(this);
 
-	}
+    }
 
     public void eventReceived(Event event) {
 
-		final EventReport report = event.report();
+        final EventReport report = event.report();
 
-		switch (report.status()) {
+        switch (report.status()) {
 
-		case UPLOAD_SUCCESS:
-            if(isContactSelected())
-                stateReady(TAG + "EVENT: UPLOAD_SUCCESS", report.desc());
-            else
-                stateIdle(TAG +" EVENT: UPLOAD_SUCCESS", report.desc(), Color.GREEN);
-			break;
+            case UPLOAD_SUCCESS:
+                if(isContactSelected())
+                    stateReady(TAG + "EVENT: UPLOAD_SUCCESS", report.desc());
+                else
+                    stateIdle(TAG +" EVENT: UPLOAD_SUCCESS", report.desc(), Color.GREEN);
+                break;
 
-		case UPLOAD_FAILURE:
-            stateIdle(TAG +" EVENT: UPLOAD_FAILURE", "", Color.RED);
-            writeErrStatBar(report.desc());
-            break;
+            case UPLOAD_FAILURE:
+                stateIdle(TAG +" EVENT: UPLOAD_FAILURE", "", Color.RED);
+                writeErrStatBar(report.desc());
+                break;
 
-		case DOWNLOAD_SUCCESS:
-            writeInfoStatBar(report.desc());
-			break;
+            case DOWNLOAD_SUCCESS:
+                writeInfoStatBar(report.desc());
+                break;
 
-		case DOWNLOAD_FAILURE:
-            writeErrStatBar(report.desc());
-			break;
+            case DOWNLOAD_FAILURE:
+                writeErrStatBar(report.desc());
+                break;
 
-        case REGISTER_SUCCESS:
-            stateIdle(TAG + " EVENT: REGISTER_SUCCESS", report.desc(), Color.GREEN);
-            break;
+            case REGISTER_SUCCESS:
+                stateIdle(TAG + " EVENT: REGISTER_SUCCESS", report.desc(), Color.GREEN);
+                break;
 
-        case USER_REGISTERED_TRUE:
-            _destPhoneNumber = (String) report.data();
-            stateReady(TAG + " EVENT: USER_REGISTERED_TRUE", report.desc());
-            break;
+            case USER_REGISTERED_TRUE:
+                _destPhoneNumber = (String) report.data();
+                stateReady(TAG + " EVENT: USER_REGISTERED_TRUE", report.desc());
+                break;
 
-        case USER_REGISTERED_FALSE:
-            _destPhoneNumber = (String) report.data();
-            stateIdle(TAG + " EVENT: USER_REGISTERED_FALSE", report.desc(), Color.RED);
-            break;
+            case USER_REGISTERED_FALSE:
+                _destPhoneNumber = (String) report.data();
+                stateIdle(TAG + " EVENT: USER_REGISTERED_FALSE", report.desc(), Color.RED);
+                break;
 
-		case ISREGISTERED_ERROR:
-            _destPhoneNumber = (String) report.data();
-			stateIdle(TAG + "EVENT: ISREGISTERED_ERROR", "", Color.BLACK);
-            writeErrStatBar(report.desc());
-			break;
+            case ISREGISTERED_ERROR:
+                _destPhoneNumber = (String) report.data();
+                stateIdle(TAG + "EVENT: ISREGISTERED_ERROR", "", Color.BLACK);
+                writeErrStatBar(report.desc());
+                break;
 
-        case REFRESH_UI:
-            String msg = report.desc();
-            if(isContactSelected())
-                stateReady(TAG + "EVENT: REFRESH_UI", msg);
-            else
-                stateIdle(TAG + "EVENT: REFRESH_UI", msg, Color.GREEN);
-            break;
+            case REFRESH_UI:
+                String msg = report.desc();
+                if(isContactSelected())
+                    stateReady(TAG + "EVENT: REFRESH_UI", msg);
+                else
+                    stateIdle(TAG + "EVENT: REFRESH_UI", msg, Color.GREEN);
+                break;
 
-        case COMPRESSING:
-            stateLoading(TAG + " EVENT: COMPRESSING", report.desc(), Color.GREEN);
-            break;
+            case COMPRESSING:
+                stateLoading(TAG + " EVENT: COMPRESSING", report.desc(), Color.GREEN);
+                break;
 
-        case RECONNECT_ATTEMPT:
-            stateLoading(TAG + " EVENT: RECONNECT_ATTEMPT", report.desc(), Color.RED);
-            break;
+            case RECONNECT_ATTEMPT:
+                stateLoading(TAG + " EVENT: RECONNECT_ATTEMPT", report.desc(), Color.RED);
+                break;
 
-        case CONNECTING:
-            stateLoading(TAG + " EVENT: CONNECTING", report.desc(), Color.YELLOW);
-            break;
+            case CONNECTING:
+                stateLoading(TAG + " EVENT: CONNECTING", report.desc(), Color.YELLOW);
+                break;
 
-        case CONNECTED:
-            if(isContactSelected())
-                stateReady(TAG + "EVENT: REFRESH_UI", report.desc());
-            else
-                stateIdle(TAG + "EVENT: REFRESH_UI", report.desc(), Color.GREEN);
-            break;
+            case CONNECTED:
+                if(isContactSelected())
+                    stateReady(TAG + "EVENT: REFRESH_UI", report.desc());
+                else
+                    stateIdle(TAG + "EVENT: REFRESH_UI", report.desc(), Color.GREEN);
+                break;
 
-        case DISCONNECTED:
-            stateDisabled(TAG +" EVENT: DISCONNECTED", report.desc());
-            break;
+            case DISCONNECTED:
+                stateDisabled(TAG +" EVENT: DISCONNECTED", report.desc());
+                break;
 
 //		case CLOSE_APP:
 //			writeErrStatBar(report.desc());
 //			finish();
 //			break;
 
-		case DISPLAY_ERROR:
-			writeErrStatBar(report.desc());
-			break;
-			
-		case DISPLAY_MESSAGE:
-            writeInfoStatBar(report.desc());
-			break;
+            case DISPLAY_ERROR:
+                writeErrStatBar(report.desc());
+                break;
 
-        case LOADING_TIMEOUT:
+            case DISPLAY_MESSAGE:
+                writeInfoStatBar(report.desc());
+                break;
 
-            stateIdle(TAG +" EVENT: LOADING_TIMEOUT", report.desc(), Color.YELLOW);
-            break;
+            case LOADING_TIMEOUT:
 
-        case TOKEN_RETRIEVED:
-            findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
-            findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
-            EditText loginET = (EditText)findViewById(R.id.LoginNumber);
-            CharSequence loginNumber = loginET.getText();
-            if(10 == loginNumber.length())
-                findViewById(R.id.login_btn).setEnabled(true);
-            break;
+                stateIdle(TAG +" EVENT: LOADING_TIMEOUT", report.desc(), Color.YELLOW);
+                break;
 
-		default:
-			Log.e(TAG, "Undefined event status on EventReceived");
-		}
+            case TOKEN_RETRIEVED:
+                findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
+                findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
+                EditText loginET = (EditText)findViewById(R.id.LoginNumber);
+                CharSequence loginNumber = loginET.getText();
+                if(10 == loginNumber.length())
+                    findViewById(R.id.login_btn).setEnabled(true);
+                break;
 
-	}
+            default:
+                Log.e(TAG, "Undefined event status on EventReceived");
+        }
+
+    }
 
 
 	/* -------------- Assisting methods -------------- */
@@ -920,10 +903,10 @@ public class MainActivity extends Activity implements OnClickListener {
 
         Intent i = new Intent();
         i.setClass(getBaseContext(), LogicServerProxyService.class);
-        if(AppStateManager.getAppState(context).equals(AppStateManager.STATE_LOGGED_OUT))
+        if(AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_LOGGED_OUT))
             i.setAction(LogicServerProxyService.ACTION_REGISTER);
         else
-           i.setAction(LogicServerProxyService.ACTION_RECONNECT);
+            i.setAction(LogicServerProxyService.ACTION_RECONNECT);
 
         startService(i);
 
@@ -1015,6 +998,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
                 disableProgressBar();
                 enableSelectMediaButton();
+                disableUserFetchProgressBar();
                 enableSelectProfileMediaButton();
                 enableContactEditText();
                 enableSelectRingToneButton();
@@ -1028,7 +1012,7 @@ public class MainActivity extends Activity implements OnClickListener {
     public void stateIdle(String tag, String msg, int color) {
 
         if (!tag.contains("USER_REGISTERED_FALSE"))
-        writeInfoStatBar(msg, color);
+            writeInfoStatBar(msg, color);
         setState(tag, AppStateManager.STATE_IDLE);
 
         runOnUiThread(new Runnable() {
@@ -1039,6 +1023,7 @@ public class MainActivity extends Activity implements OnClickListener {
                 disableProgressBar();
                 enableSelectContactButton();
                 enableContactEditText();
+                disableUserFetchProgressBar();
                 disableSelectProfileMediaButton();
                 disableSelectCallerMediaButton();
                 disableSelectRingToneButton();
@@ -1060,6 +1045,7 @@ public class MainActivity extends Activity implements OnClickListener {
             public void run() {
                 disableSelectCallerMediaButton();
                 disableSelectProfileMediaButton();
+                disableUserFetchProgressBar();
                 disableProgressBar();
                 disableSelectRingToneButton();
                 disableSelectContactButton();
@@ -1074,8 +1060,14 @@ public class MainActivity extends Activity implements OnClickListener {
         setState(tag, AppStateManager.STATE_LOADING);
         SharedPrefUtils.setString(_context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, msg);
 
-        enableProgressBar();
-        writeInfoStatBar(msg, color);
+
+
+        if (!msg.contains("Fetching user data..."))
+        { writeInfoStatBar(msg, color);
+            enableProgressBar();}
+        else
+            enableUserFetchProgressBar();
+
         runOnUiThread(new Runnable() {
 
             @Override
@@ -1107,27 +1099,27 @@ public class MainActivity extends Activity implements OnClickListener {
         startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse(numberToDial)));
     }
 
-	private void disableCallButton() {
+    private void disableCallButton() {
 
-		runOnUiThread(new Runnable() {
+        runOnUiThread(new Runnable() {
 
             public void run() {
                 findViewById(R.id.CallNow).setEnabled(false);
             }
 
         });
-	}
+    }
 
-	private void enableCallButton() {
+    private void enableCallButton() {
 
-		runOnUiThread(new Runnable() {
+        runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
                 findViewById(R.id.CallNow).setEnabled(true);
             }
         });
-	}
+    }
 
     private void disableSelectCallerMediaButton() {
 
@@ -1157,7 +1149,7 @@ public class MainActivity extends Activity implements OnClickListener {
             @Override
             public void run() {
                 findViewById(R.id.selectMediaBtn).setClickable(true);
-                           drawSelectMediaButton(true);
+                drawSelectMediaButton(true);
             }
         });
     }
@@ -1200,8 +1192,8 @@ public class MainActivity extends Activity implements OnClickListener {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-               findViewById(R.id.selectContactBtn).setEnabled(false);
-               drawSelectContactButton(false);
+                findViewById(R.id.selectContactBtn).setEnabled(false);
+                drawSelectContactButton(false);
             }
         });
     }
@@ -1217,18 +1209,18 @@ public class MainActivity extends Activity implements OnClickListener {
         });
     }
 
-	private void disableProgressBar() {
+    private void disableProgressBar() {
 
-		runOnUiThread(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 _pBar = (ProgressBar) findViewById(R.id.progressBar);
                 _pBar.setVisibility(ProgressBar.GONE);
             }
         });
-	}
+    }
 
-	private void enableProgressBar() {
+    private void enableProgressBar() {
 
         runOnUiThread(new Runnable() {
             @Override
@@ -1237,7 +1229,7 @@ public class MainActivity extends Activity implements OnClickListener {
                 _pBar.setVisibility(ProgressBar.VISIBLE);
             }
         });
-	}
+    }
 
     private void disableContactEditText() {
 
@@ -1246,7 +1238,29 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private void enableContactEditText() {
 
-       findViewById(R.id.CallNumber).setEnabled(true);
+        findViewById(R.id.CallNumber).setEnabled(true);
+    }
+
+    private void disableUserFetchProgressBar() {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                pFetchUserBar = (ProgressBar) findViewById(R.id.fetchuserprogress);
+                pFetchUserBar.setVisibility(ProgressBar.GONE);
+            }
+        });
+    }
+
+    private void enableUserFetchProgressBar() {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                pFetchUserBar = (ProgressBar) findViewById(R.id.fetchuserprogress);
+                pFetchUserBar.setVisibility(ProgressBar.VISIBLE);
+            }
+        });
     }
 
     private void userStatusRegistered() {
@@ -1258,6 +1272,10 @@ public class MainActivity extends Activity implements OnClickListener {
                 userStatus.setImageResource(R.drawable.positive);
                 userStatus.setVisibility(View.VISIBLE);
                 userStatus.bringToFront();
+
+                ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
+                invite.setVisibility(View.INVISIBLE);
+                invite.setClickable(false);
             }
         });
     }
@@ -1275,12 +1293,18 @@ public class MainActivity extends Activity implements OnClickListener {
                     userStatus.setImageResource(R.drawable.negative);
                     userStatus.setVisibility(View.VISIBLE);
                     userStatus.bringToFront();
+
+                    ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
+                    invite.setVisibility(View.VISIBLE);
+                    invite.setClickable(true);
+                    invite.bringToFront();
+
                 }
             }
         });
     }
 
-	private void drawSelectMediaButton(boolean enabled) {
+    private void drawSelectMediaButton(boolean enabled) {
 
         LUT_Utils lut_utils = new LUT_Utils(_context, SpecialMediaType.CALLER_MEDIA);
         try {
@@ -1300,8 +1324,20 @@ public class MainActivity extends Activity implements OnClickListener {
                     task.set_height(selectCallerMediaBtn.getHeight());
                     task.set_fileType(fType);
                     task.execute(lastUploadedMediaPath);
-                } else // enabled but no uploaded media
-                    selectCallerMediaBtn.setImageResource(R.drawable.defaultpic_enabled);
+
+                    ImageView mediaStatus = (ImageView) findViewById(R.id.mediaStatus);
+                    mediaStatus.setVisibility(View.VISIBLE);
+                    mediaStatus.setImageResource(R.drawable.doublepositive);
+                    mediaStatus.bringToFront();
+
+                } else {// enabled but no uploaded media
+                    if(enabled)
+                        selectCallerMediaBtn.setImageResource(R.drawable.defaultpic_enabled);
+                    else
+                        selectCallerMediaBtn.setImageResource(R.drawable.defaultpic_disabled);
+
+                ImageView mediaStatus = (ImageView) findViewById(R.id.mediaStatus);
+                mediaStatus.setVisibility(View.INVISIBLE);}
             }
 
         } catch (FileInvalidFormatException |
@@ -1359,12 +1395,18 @@ public class MainActivity extends Activity implements OnClickListener {
 
             ringtoneView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
             ringtoneView.setBackgroundColor(0xFF00FF00);
+
+            ImageView ringtoneStatus = (ImageView) findViewById(R.id.ringtoneStatus);
+            ringtoneStatus.setVisibility(View.VISIBLE);
+            ringtoneStatus.setImageResource(R.drawable.doublepositive);
+            ringtoneStatus.bringToFront();
+
         }
         else
         {
             if(ringButton.isEnabled())
             {  ringButton.getBackground().setColorFilter(Color.LTGRAY,
-                        PorterDuff.Mode.MULTIPLY);
+                    PorterDuff.Mode.MULTIPLY);
 
                 ringtoneView.setBackgroundColor(Color.WHITE);
                 ringtoneView.setText("No Ringtone Ready Yet!");
@@ -1375,6 +1417,10 @@ public class MainActivity extends Activity implements OnClickListener {
                 ringtoneView.setBackgroundColor(Color.DKGRAY);
                 ringtoneView.setText("No ringtone selected yet");
             }
+            ImageView ringtoneStatus = (ImageView) findViewById(R.id.ringtoneStatus);
+            ringtoneStatus.setVisibility(View.INVISIBLE);
+
+
         }
     }
 
@@ -1387,19 +1433,19 @@ public class MainActivity extends Activity implements OnClickListener {
             selectContactButton.setImageResource(R.drawable.select_contact_disabled);
     }
 
-	private void callErrToast(final String text) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Toast toast = Toast.makeText(_context, text,
-						Toast.LENGTH_LONG);
-				TextView v = (TextView) toast.getView().findViewById(
-						android.R.id.message);
-				v.setTextColor(Color.RED);
-				toast.show();
-			}
-		});
-	}
+    private void callErrToast(final String text) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast toast = Toast.makeText(_context, text,
+                        Toast.LENGTH_LONG);
+                TextView v = (TextView) toast.getView().findViewById(
+                        android.R.id.message);
+                v.setTextColor(Color.RED);
+                toast.show();
+            }
+        });
+    }
 
     private void writeErrStatBar(final String text) {
 
@@ -1443,21 +1489,21 @@ public class MainActivity extends Activity implements OnClickListener {
 
     private void writeInfoStatBar(final String text, final int g) {
 
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (toast != null) // if there is already a Toast , than cancel it because there is a new Toast
-                    {
-                        toast.cancel();
-                    }
-                    toast = Toast.makeText(_context, text,
-                            Toast.LENGTH_LONG);
-                    TextView v = (TextView) toast.getView().findViewById(
-                            android.R.id.message);
-                    v.setTextColor(g);
-                    toast.setGravity(Gravity.TOP, Gravity.CENTER_VERTICAL, Gravity.CENTER_VERTICAL);
-                    toast.show();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (toast != null) // if there is already a Toast , than cancel it because there is a new Toast
+                {
+                    toast.cancel();
                 }
-            });
+                toast = Toast.makeText(_context, text,
+                        Toast.LENGTH_LONG);
+                TextView v = (TextView) toast.getView().findViewById(
+                        android.R.id.message);
+                v.setTextColor(g);
+                toast.setGravity(Gravity.TOP, Gravity.CENTER_VERTICAL, Gravity.CENTER_VERTICAL);
+                toast.show();
+            }
+        });
     }
 }
