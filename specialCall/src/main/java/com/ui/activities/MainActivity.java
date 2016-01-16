@@ -1028,6 +1028,7 @@ public class MainActivity extends Activity implements OnClickListener {
                 disableSelectCallerMediaButton();
                 disableSelectRingToneButton();
                 disableCallButton();
+                if (!wasFileChooser)
                 userStatusUnregistered();
                 //TODO Add invite feature method
             }

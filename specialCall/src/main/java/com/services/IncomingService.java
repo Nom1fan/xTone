@@ -365,6 +365,7 @@ public class IncomingService extends AbstractStandOutService {
             Runnable r = new Runnable() {
                 public void run() {
                     mInRingingSession = false;
+                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
                     try {
                         if(mVolumeButtonReceiver!=null)
                             unregisterReceiver(mVolumeButtonReceiver);
