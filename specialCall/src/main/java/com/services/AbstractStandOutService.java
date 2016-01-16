@@ -104,7 +104,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     @Override
     public int getAppIcon() {
-        return R.drawable.ic_launcher;
+        return R.drawable.mediacallztempicon;
     }
 
     @Override

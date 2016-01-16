@@ -14,6 +14,8 @@ import com.parse.ParsePush;
 import com.parse.SaveCallback;
 
 import com.data_objects.Constants;
+import com.special.app.R;
+import com.ui.activities.MainActivity;
 import com.utils.SharedPrefUtils;
 
 import java.lang.reflect.Field;
@@ -30,7 +32,7 @@ public class SpecialCallApp extends Application {
         super.onCreate();
 
         final Context context = getApplicationContext();
-
+        addShortcutIcon();
         //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
         makeActionOverflowMenuShown();
 
@@ -77,6 +79,39 @@ public class SpecialCallApp extends Application {
         }
     }
 
+    // onClick of addShortcutIcon
+    private void addShortcutIcon() {
+        //shorcutIntent object
+        Intent shortcutIntent = new Intent(getApplicationContext(),
+                MainActivity.class);
+
+        shortcutIntent.setAction(Intent.ACTION_MAIN);
+        //shortcutIntent is added with addIntent
+        Intent addIntent = new Intent();
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "MediaCallz");
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
+                Intent.ShortcutIconResource.fromContext(getApplicationContext(),
+                        R.drawable.mediacallztempicon));
+
+        addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+        // finally broadcast the new Intent
+        getApplicationContext().sendBroadcast(addIntent);
+    }
+
+    private void removeShortcutIcon() {
+
+        Intent shortcutIntent = new Intent(getApplicationContext(),
+                MainActivity.class);
+        shortcutIntent.setAction(Intent.ACTION_MAIN);
+
+        Intent addIntent = new Intent();
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "MediaCallz");
+
+        addIntent.setAction("com.android.launcher.action.UNINSTALL_SHORTCUT");
+        getApplicationContext().sendBroadcast(addIntent);
+    }
 
 
 }

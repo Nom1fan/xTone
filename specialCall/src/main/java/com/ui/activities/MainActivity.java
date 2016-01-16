@@ -541,7 +541,7 @@ public class MainActivity extends Activity implements OnClickListener {
                                       randomPIN = (int)(Math.random()*9000)+1000;
                                       try {
                                           SmsManager smsManager = SmsManager.getDefault();
-                                          smsManager.sendTextMessage(loginNumber.getText().toString(), null, "SpecialCall SmsVerificationCode: "+String.valueOf(randomPIN), null, null);
+                                          smsManager.sendTextMessage(loginNumber.getText().toString(), null, "MediaCallz SmsVerificationCode: "+String.valueOf(randomPIN), null, null);
                                           Toast.makeText(getApplicationContext(), "Message Sent To: " +loginNumber.getText().toString(),
                                                   Toast.LENGTH_LONG).show();
                                       } catch (Exception ex) {
