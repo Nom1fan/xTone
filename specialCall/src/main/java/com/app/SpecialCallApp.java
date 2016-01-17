@@ -26,25 +26,24 @@ import java.lang.reflect.Field;
 public class SpecialCallApp extends Application {
 
     private static final String TAG = SpecialCallApp.class.getSimpleName();
-    private static boolean shortCutMade=false;
     @Override
     public void onCreate() {
         super.onCreate();
 
         final Context context = getApplicationContext();
-        addShortcutIcon();
+
+
+
+
         //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
 
-        if(!shortCutMade)
-        {
             makeActionOverflowMenuShown();
-            shortCutMade=true;
-        }
 
         // Initializing app state
-        if(AppStateManager.getAppState(context).equals(""))
+        if(AppStateManager.getAppState(context).equals("")) {
+            addShortcutIcon();
             AppStateManager.setAppState(context, TAG, AppStateManager.STATE_LOGGED_OUT);
-
+        }
         // Initializing SQLite db
 //        DAL_Manager.initialize(getApplicationContext());
 
@@ -84,6 +83,8 @@ public class SpecialCallApp extends Application {
         }
     }
 
+
+
     // onClick of addShortcutIcon
     private void addShortcutIcon() {
         //shorcutIntent object
@@ -91,6 +92,9 @@ public class SpecialCallApp extends Application {
                 MainActivity.class);
 
         shortcutIntent.setAction(Intent.ACTION_MAIN);
+        shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        shortcutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
         //shortcutIntent is added with addIntent
         Intent addIntent = new Intent();
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
@@ -98,7 +102,7 @@ public class SpecialCallApp extends Application {
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
                 Intent.ShortcutIconResource.fromContext(getApplicationContext(),
                         R.drawable.mediacallztempicon));
-
+        addIntent.putExtra("duplicate", false); // Just create once
         addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
         // finally broadcast the new Intent
         getApplicationContext().sendBroadcast(addIntent);
