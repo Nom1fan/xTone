@@ -397,6 +397,7 @@ public class IncomingService extends AbstractStandOutService {
                     try {
                         mAudioManager.setStreamMute(AudioManager.STREAM_RING, false);
                         mAudioManager.setStreamVolume(AudioManager.STREAM_RING, mRingVolume, 0);
+                        mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
                         Log.i(TAG, "UNMUTE STREAM_RING ");
                     } catch(Exception e) {  e.printStackTrace();  }
                 }

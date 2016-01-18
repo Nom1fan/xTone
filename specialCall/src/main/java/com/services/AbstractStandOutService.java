@@ -381,7 +381,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         Log.i(TAG, "closeSpecialCallWindowWithoutRingtone():");
         if  (mInRingingSession) {
-            mInRingingSession = false;
             stopSound();
 
             if (!windowCloseActionWasMade) {
