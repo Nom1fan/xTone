@@ -32,7 +32,10 @@ public class OutgoingService extends AbstractStandOutService {
     private OutgoingCallReceiver mOutgoingCallReceiver;
     private static int TIME_TO_SLEEP_AVOIDING_BUGGY_STATE_IDLE = 1000;
     private  boolean isMuted=false;
+    private  boolean funtoneFileExists=false;
     protected ImageView mSpecialCallMuteBtn;
+    private int mOldMediaVolume;
+
     public OutgoingService() {
         super(OutgoingService.class.getSimpleName());
     }
@@ -86,7 +89,27 @@ public class OutgoingService extends AbstractStandOutService {
                 if(mInRingingSession) {
                     Log.i(TAG, "TelephonyManager inside mInRingingSession IDLE=0, OFFHOOK=2. STATE WAS:" + state);
                     closeSpecialCallWindowWithoutRingtone();
-                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            try {
+                                Thread.sleep(2000); // fix bug: sound in mute , closing call and it sounds for a second in the end.
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);  //unmute Music stream no matter what
+
+                            try {
+                                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,mOldMediaVolume,0); // return music volume to the old one
+                            } catch(Exception e) {
+                                Log.e(TAG,"setStreamVolume  STREAM_MUSIC failed. Exception:"+ (e.getMessage()!=null? e.getMessage() : e));
+                            }
+                        }
+                    }.start();
+
+
+
                     mInRingingSession=false;
                 }
                 break;
@@ -117,13 +140,32 @@ public class OutgoingService extends AbstractStandOutService {
                         String funTonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, mOutgoingCallNumber);
                         final File funToneFile = new File(funTonePath);
 
+                        // Retrieving the ringtone volume
+                        if(mAudioManager!=null)
+                            Log.i(TAG, "mAudioManager initialize again" + mAudioManager.toString());
+                        else
+                            throw new Exception("mAudioManager was returned as null from getSystemService!");
+
+
+                            // Backing up the music volume
+                        mOldMediaVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC); // getting old music volume
+                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) -5 , 0); // setting max volume for music -5 as it's to high volume
+
+
+                        if (funToneFile.exists()) {
+                            funtoneFileExists = true;
+
+                        }
+                        attachDefaultView = true;
                         String mediaFilePath
                                 = SharedPrefUtils.getString(getApplicationContext(),
                                 SharedPrefUtils.PROFILE_MEDIA_FILEPATH, mOutgoingCallNumber);
 
                         startMediaSpecialCall(mediaFilePath, mOutgoingCallNumber);
 
-                        if (funToneFile.exists())
+                        attachDefaultView = false;
+
+                        if (funtoneFileExists)
                         {
                             startAudioSpecialCall(funTonePath);
                         }
@@ -147,6 +189,9 @@ public class OutgoingService extends AbstractStandOutService {
                         e.printStackTrace();
                         Log.e(TAG, "CALL_STATE_RINGING failed:"+e.getMessage());
                     }
+
+                    funtoneFileExists=false;
+
                 }
             }
         }
@@ -155,23 +200,38 @@ public class OutgoingService extends AbstractStandOutService {
     @Override
     protected void prepareViewForSpecialCall(FileManager.FileType fileType , String mediaFilePath, String callNumber) {
         super.prepareViewForSpecialCall(fileType, mediaFilePath, callNumber);
+        if (funtoneFileExists || ((fileType == FileManager.FileType.VIDEO))) {  // in case only an image without funtone, so there is no need for the mute button , but video should have it
+            prepareMuteBtn();
 
-        prepareMuteBtn();
+            mRelativeLayout.addView(mSpecialCallMuteBtn);
 
-        mRelativeLayout.addView(mSpecialCallMuteBtn);
-
-        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-            Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT );
-            mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
-            isMuted=true;
-            mSpecialCallMuteBtn.setImageResource(R.drawable.mute);
-            mSpecialCallMuteBtn.bringToFront();
+            if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+                Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
+                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                isMuted = true;
+                mSpecialCallMuteBtn.setImageResource(R.drawable.mute);
+                mSpecialCallMuteBtn.bringToFront();
+            }
         }
+    }
 
-       /* Intent i = new Intent(this, this.getClass());
-        //i.putExtra("id", mID);
-        i.setAction(StandOutWindow.ACTION_SHOW);
-        startService(i);*/
+    @Override
+    protected void prepareDefaultViewForSpecialCall(String callNumber) {
+        super.prepareDefaultViewForSpecialCall(callNumber);
+
+        if (funtoneFileExists) {  // in case only an image without funtone, so there is no need for the mute button
+            prepareMuteBtn();
+
+            mRelativeLayout.addView(mSpecialCallMuteBtn);
+
+            if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+                Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
+                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                isMuted = true;
+                mSpecialCallMuteBtn.setImageResource(R.drawable.mute);
+                mSpecialCallMuteBtn.bringToFront();
+            }
+        }
     }
 
     private void prepareMuteBtn()

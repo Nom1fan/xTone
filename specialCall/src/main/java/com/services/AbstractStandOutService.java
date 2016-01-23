@@ -50,6 +50,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected boolean mInRingingSession = false;
     protected MediaPlayer mMediaPlayer;
     protected boolean windowCloseActionWasMade = true;
+    protected boolean attachDefaultView = false;
     protected View mSpecialCallView;
     protected AudioManager mAudioManager;
     protected CallStateListener mPhoneListener;
@@ -324,6 +325,32 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         ((VideoView) mSpecialCallView).setOnPreparedListener(mVideoPreparedListener);
     }
 
+    // Default view for outgoing call when there is no image or video
+    protected void prepareDefaultViewForSpecialCall(String callNumber) {
+        Log.i(TAG, "Preparing SpecialCall view");
+
+        // Attempting to induce garbage collection
+        System.gc();
+
+        prepareRelativeLayout();
+        prepareCallNumberTextView(callNumber);
+        prepareCloseBtn();
+
+        mSpecialCallView = new ImageView(this);
+        mSpecialCallView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
+        //     ((ImageView)mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_XY); STRECTH IMAGE ON FULL SCREEN <<< NOT SURE IT's GOOD !!!!!
+        ((ImageView) mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_CENTER); // <<  just place the image Center of Window and fit it with ratio
+
+
+         ((ImageView) mSpecialCallView).setImageResource(R.drawable.mediacallztempicon);
+
+
+        mRelativeLayout.addView(mSpecialCallView);
+        mRelativeLayout.addView(mSpecialCallTextView);
+        mRelativeLayout.addView(mSpecialCallCloseBtn);
+    }
+
     protected void prepareViewForSpecialCall(FileManager.FileType fileType , String mediaFilePath, String callNumber) {
         Log.i(TAG, "Preparing SpecialCall view");
 
@@ -370,6 +397,15 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     FileMissingExtensionException e) {
                 e.printStackTrace();
             }
+        }else if (attachDefaultView){
+
+                prepareDefaultViewForSpecialCall(callNumber);
+
+                Intent i = new Intent(this, this.getClass());
+
+                i.setAction(StandOutWindow.ACTION_SHOW);
+                startService(i);
+
         }
         else {
             Log.e(TAG, "Empty media file path! Cannot start special call media");
