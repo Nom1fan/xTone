@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 
 import FilesManager.FileManager;
-import wei.mark.standout.StandOutWindow;
 
 /**
  * Created by Mor on 08/01/2016.
@@ -73,6 +72,45 @@ public class OutgoingService extends AbstractStandOutService {
         unregisterReceiver(mOutgoingCallReceiver);
     }
 
+    /* AbstractStandOutService methods */
+
+    @Override
+    protected void prepareViewForSpecialCall(FileManager.FileType fileType , String mediaFilePath, String callNumber) {
+        super.prepareViewForSpecialCall(fileType, mediaFilePath, callNumber);
+        if (funtoneFileExists || ((fileType == FileManager.FileType.VIDEO))) {  // in case only an image without funtone, so there is no need for the mute button , but video should have it
+            prepareMuteBtn();
+
+            mRelativeLayout.addView(mSpecialCallMuteBtn);
+
+            if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+                Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
+                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                isMuted = true;
+                mSpecialCallMuteBtn.setImageResource(R.drawable.mute);
+                mSpecialCallMuteBtn.bringToFront();
+            }
+        }
+    }
+
+    @Override
+    protected void prepareDefaultViewForSpecialCall(String callNumber) {
+        super.prepareDefaultViewForSpecialCall(callNumber);
+
+        if (funtoneFileExists) {  // in case only an image without funtone, so there is no need for the mute button
+            prepareMuteBtn();
+
+            mRelativeLayout.addView(mSpecialCallMuteBtn);
+
+            if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+                Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
+                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                isMuted = true;
+                mSpecialCallMuteBtn.setImageResource(R.drawable.mute);
+                mSpecialCallMuteBtn.bringToFront();
+            }
+        }
+    }
+
     /**
      *
      * @param state The call state
@@ -90,29 +128,32 @@ public class OutgoingService extends AbstractStandOutService {
                     Log.i(TAG, "TelephonyManager inside mInRingingSession IDLE=0, OFFHOOK=2. STATE WAS:" + state);
                     closeSpecialCallWindowWithoutRingtone();
 
-                    new Thread() {
-                        @Override
-                        public void run() {
-                            try {
-                                Thread.sleep(2000); // fix bug: sound in mute , closing call and it sounds for a second in the end.
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                            mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);  //unmute Music stream no matter what
-
-                            try {
-                                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,mOldMediaVolume,0); // return music volume to the old one
-                            } catch(Exception e) {
-                                Log.e(TAG,"setStreamVolume  STREAM_MUSIC failed. Exception:"+ (e.getMessage()!=null? e.getMessage() : e));
-                            }
-                        }
-                    }.start();
+                    resumeMusicStreamToPrevious();
 
 
 
                     mInRingingSession=false;
                 }
                 break;
+        }
+    }
+
+    @Override
+    protected void playSound(Context context, Uri alert) {
+
+        Log.i(TAG, "Playing funtone sound");
+        mMediaPlayer = new MediaPlayer();
+        try
+        {
+            mMediaPlayer.setDataSource(context, alert);
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mMediaPlayer.prepare();
+            mMediaPlayer.setLooping(true);
+            mMediaPlayer.start();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Failed to play sound. Exception:" + e.getMessage());
         }
     }
 
@@ -197,42 +238,7 @@ public class OutgoingService extends AbstractStandOutService {
         }
     }
 
-    @Override
-    protected void prepareViewForSpecialCall(FileManager.FileType fileType , String mediaFilePath, String callNumber) {
-        super.prepareViewForSpecialCall(fileType, mediaFilePath, callNumber);
-        if (funtoneFileExists || ((fileType == FileManager.FileType.VIDEO))) {  // in case only an image without funtone, so there is no need for the mute button , but video should have it
-            prepareMuteBtn();
-
-            mRelativeLayout.addView(mSpecialCallMuteBtn);
-
-            if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-                Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
-                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
-                isMuted = true;
-                mSpecialCallMuteBtn.setImageResource(R.drawable.mute);
-                mSpecialCallMuteBtn.bringToFront();
-            }
-        }
-    }
-
-    @Override
-    protected void prepareDefaultViewForSpecialCall(String callNumber) {
-        super.prepareDefaultViewForSpecialCall(callNumber);
-
-        if (funtoneFileExists) {  // in case only an image without funtone, so there is no need for the mute button
-            prepareMuteBtn();
-
-            mRelativeLayout.addView(mSpecialCallMuteBtn);
-
-            if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-                Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
-                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
-                isMuted = true;
-                mSpecialCallMuteBtn.setImageResource(R.drawable.mute);
-                mSpecialCallMuteBtn.bringToFront();
-            }
-        }
-    }
+    /* Assisting methods */
 
     private void prepareMuteBtn()
     {
@@ -271,22 +277,24 @@ public class OutgoingService extends AbstractStandOutService {
         });
     }
 
-    @Override
-    protected void playSound(Context context, Uri alert) {
+    private void resumeMusicStreamToPrevious() {
 
-        Log.i(TAG, "Playing funtone sound");
-        mMediaPlayer = new MediaPlayer();
-        try
-        {
-            mMediaPlayer.setDataSource(context, alert);
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.prepare();
-            mMediaPlayer.setLooping(true);
-            mMediaPlayer.start();
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2000); // fix bug: sound in mute , closing call and it sounds for a second in the end.
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);  //unmute Music stream no matter what
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e(TAG, "Failed to play sound. Exception:" + e.getMessage());
-        }
+                try {
+                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,mOldMediaVolume,0); // return music volume to the old one
+                } catch(Exception e) {
+                    Log.e(TAG,"setStreamVolume  STREAM_MUSIC failed. Exception:"+ (e.getMessage()!=null? e.getMessage() : e));
+                }
+            }
+        }.start();
     }
 }

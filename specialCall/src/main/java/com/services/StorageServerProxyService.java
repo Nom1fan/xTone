@@ -8,6 +8,7 @@ import android.util.Log;
 import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
 import com.interfaces.CallbackListener;
+import com.utils.BroadcastUtils;
 import com.utils.FileCompressorUtil;
 import com.utils.NotificationUtils;
 
@@ -19,6 +20,8 @@ import DataObjects.PushEventKeys;
 import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
 import DataObjects.TransferDetails;
+import EventObjects.EventReport;
+import EventObjects.EventType;
 import FilesManager.FileManager;
 import MessagesToServer.MessageRequestDownload;
 
@@ -68,11 +71,11 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
             @Override
             public void run() {
 
-                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retired in redeliver intent flow.
                 if (intentForThread != null)
                 {
                     String action = intentForThread.getAction();
                     Log.i(TAG, "Action:" + action);
+
 
                     PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
 
@@ -81,7 +84,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
                         switch (action) {
 
                             case ACTION_DOWNLOAD: {
-
+                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
                                 wakeLock.acquire();
                                 TransferDetails td = (TransferDetails) intentForThread.getSerializableExtra(PushEventKeys.PUSH_DATA);
@@ -90,7 +93,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
                             break;
 
                             case ACTION_UPLOAD: {
-
+                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
                                 wakeLock.acquire();
 
@@ -110,6 +113,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
 
 
                             default:
+                                setMidAction(false);
                                 Log.w(TAG, "Service started with invalid action:" + action);
 
                         }
@@ -118,6 +122,9 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
                         String errMsg = "Action failed:"+action+" Exception:"+e.getMessage();
                         Log.e(TAG, errMsg);
                         handleDisconnection(errMsg);
+                    } catch(Exception e) {
+                        String errMsg = "Action failed:"+action+" Exception:"+e.getMessage();
+                        Log.e(TAG, errMsg);
                     }
                 } else
                     Log.w(TAG, "Service started with missing action");
@@ -153,7 +160,8 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
             SpecialMediaType specialMediaType) throws IOException {
 
         TransferDetails td = new TransferDetails(Constants.MY_ID(mContext), destNumber, managedFile, specialMediaType);
-        NotificationUtils.createHelper(mContext, "File upload to:" + td.getDestinationId() + " is pending");
+        //NotificationUtils.createHelper(mContext, "File upload to:" + td.getDestinationId() + " is pending");
+        BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.UPLOADING, "Uploading...", null));
         new UploadTask(mContext, this ,connectionToServer, td).execute();
     }
 

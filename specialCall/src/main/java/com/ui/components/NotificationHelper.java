@@ -11,7 +11,6 @@ import com.special.app.R;
 public class NotificationHelper {
     private Context mContext;
     private int NOTIFICATION_ID;
-    private Notification mNotification;
     private NotificationManager mNotificationManager;
     private PendingIntent mContentIntent;
     private CharSequence mContentTitle;
@@ -35,7 +34,6 @@ public class NotificationHelper {
         int icon = android.R.drawable.stat_sys_upload;
         CharSequence tickerText = mContext.getString(R.string.upload_ticker); //Initial text that appears in the status bar
         long when = System.currentTimeMillis();
-        mNotification = new Notification(icon, tickerText, when);
 
         //create the content which is shown in the notification pulldown
         mContentTitle = mContext.getString(R.string.content_title); //Full title of the notification in the pull down
@@ -47,13 +45,17 @@ public class NotificationHelper {
         mContentIntent = PendingIntent.getActivity(mContext, 0, notificationIntent, 0);
 
         //add the additional content and intent to the notification
-        mNotification.setLatestEventInfo(mContext, mContentTitle, contentText, mContentIntent);
-
-        //make this notification appear in the 'Ongoing events' section
-        mNotification.flags = Notification.FLAG_ONGOING_EVENT;
+        Notification.Builder builder = new Notification.Builder(mContext);
+        builder.setContentTitle(mContentTitle);
+        builder.setContentText(contentText);
+        builder.setContentIntent(mContentIntent);
+        builder.setWhen(when);
+        builder.setTicker(tickerText);
+        builder.setSmallIcon(icon);
+        builder.setOngoing(true);
 
         //show the notification
-        mNotificationManager.notify(NOTIFICATION_ID, mNotification);
+        mNotificationManager.notify(NOTIFICATION_ID, builder.build());
 
     }
 
@@ -65,8 +67,13 @@ public class NotificationHelper {
         //build up the new status message
         CharSequence contentText = text;
         //publish it to the status bar
-        mNotification.setLatestEventInfo(mContext, mContentTitle, contentText, mContentIntent);
-        mNotificationManager.notify(NOTIFICATION_ID, mNotification);
+        Notification.Builder builder = new Notification.Builder(mContext);
+        builder.setContentTitle(mContentTitle);
+        builder.setContentText(contentText);
+        builder.setContentIntent(mContentIntent);
+        builder.setOngoing(true);
+
+        mNotificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
     /**

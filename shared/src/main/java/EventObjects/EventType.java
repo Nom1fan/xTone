@@ -5,6 +5,7 @@ import java.io.Serializable;
 public enum EventType implements Serializable { 
 	UPLOAD_SUCCESS,
 	UPLOAD_FAILURE,
+	UPLOADING,
 	DOWNLOAD_SUCCESS,
 	DOWNLOAD_FAILURE,	
 	LOGIN_FAILURE,
@@ -24,9 +25,9 @@ public enum EventType implements Serializable {
 	CONNECTED,
 	SERVER_PROXY_CREATED,
 	REFRESH_UI,
-	LOADING_TIMEOUT,
 	TOKEN_RETRIEVED,
 	COMPRESSING,
+	COMPRESSION_COMPLETE,
 	SP_CALL_INC_MOVED_TO_BG,
 	FETCHING_USER_DATA,
 }

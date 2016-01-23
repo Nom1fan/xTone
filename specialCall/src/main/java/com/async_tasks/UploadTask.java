@@ -22,7 +22,7 @@ import MessagesToServer.MessageUploadFile;
 
 
 public class UploadTask extends AsyncTask<Void,String,Void> {
-    private NotificationHelper mNotificationHelper;
+    //private NotificationHelper mNotificationHelper;
     private static final String TAG = UploadTask.class.getSimpleName();
     private ConnectionToServer _connectionToServer;
     private TransferDetails _td;
@@ -32,7 +32,7 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
     public UploadTask(Context context, CallbackListener callBackListener , ConnectionToServer connectionToServer, TransferDetails td) {
         _context = context;
         _callBackListener = callBackListener;
-        mNotificationHelper = NotificationUtils.getNextHelper();
+        //mNotificationHelper = NotificationUtils.getNextHelper();
         _connectionToServer = connectionToServer;
         _td = td;
     }
@@ -90,15 +90,18 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
 
         return null;
     }
+
     protected void onProgressUpdate(String... progress) {
         //This method runs on the UI thread, it receives progress updates
         //from the background thread and publishes them to the status bar
-        mNotificationHelper.progressUpdate(progress[0]);
+        //mNotificationHelper.progressUpdate(progress[0]);
     }
+
     protected void onPostExecute(Void result)    {
-        //The task is complete, tell the status bar about it
-        mNotificationHelper.completed();
-        NotificationUtils.freeHelperSpace();
+
+        // The task is complete, tell the status bar about it
+        // mNotificationHelper.completed();
+        // NotificationUtils.freeHelperSpace();
         //The task is complete, tell the call back listener about it
         _callBackListener.doCallbackAction();
     }

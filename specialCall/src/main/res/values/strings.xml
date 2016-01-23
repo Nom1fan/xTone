@@ -10,6 +10,7 @@
     <string name="action_share">Share Us</string>
 
 
+    <string name="invite">You are Invited to MediaCallz https://play.google.com/apps/testing/com.special.specialcall</string>
     <string name="hello">SimpleDialer</string>
     <string name="main_label">My Friends</string>
     <string name="title_activity_incoming_special_call">IncomingSpecialCall</string>

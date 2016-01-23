@@ -60,7 +60,7 @@ public class GetTokenIntentService extends IntentService {
             //callToast(errMsg, Color.RED);
 
             token = (String) ParseInstallation.getCurrentInstallation().get("deviceToken");
-            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN, token);
+            Constants.MY_TOKEN(context, token);
 
             try {
                 Thread.sleep(TOKEN_RETRY_SLEEP);
@@ -70,7 +70,7 @@ public class GetTokenIntentService extends IntentService {
         }
 
         if (Constants.MY_TOKEN(context).equals("")) {
-            String errMsg = "Failed to retrieve device token, check your internet connection...";
+            String errMsg = "Oops! Failed to retrieve device token, check your internet connection and reinstall app...";
             Log.e(TAG, errMsg);
             callToast(errMsg, Color.RED);
         }

@@ -30,18 +30,6 @@
         android:layout_alignEnd="@+id/CallNumber"
         android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/selectRingtoneBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:enabled="false"
-        android:textSize="18sp"
-        android:text="Select Ringtone"
-        android:visibility="invisible"
-        android:layout_alignParentTop="true"
-        android:layout_alignRight="@+id/selectContactBtn"
-        android:layout_alignEnd="@+id/selectContactBtn" />
-
     <ImageButton
         android:id="@+id/selectMediaBtn"
         android:layout_width="300dp"
@@ -88,8 +76,8 @@
         android:layout_alignTop="@+id/selectContactBtn"
         android:layout_alignLeft="@+id/selectMediaBtn"
         android:layout_alignStart="@+id/selectMediaBtn"
-        android:layout_toStartOf="@+id/selectRingtoneBtn"
-        android:layout_toLeftOf="@+id/selectRingtoneBtn">
+        android:layout_alignRight="@+id/userStatus"
+        android:layout_alignEnd="@+id/userStatus">
 
         <requestFocus />
     </AutoCompleteTextView>
@@ -102,8 +90,7 @@
         android:textSize="18sp"
         android:text="Call Now"
         android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/clear"
-        android:layout_alignEnd="@+id/clear" />
+        android:layout_centerHorizontal="true" />
 
     <ImageButton
         android:id="@+id/selectProfileMediaBtn"
@@ -119,21 +106,18 @@
         android:layout_above="@+id/CallNumber"
         android:layout_alignLeft="@+id/CallNumber"
         android:layout_alignStart="@+id/CallNumber"
-        android:layout_alignRight="@+id/CallNumber"
-        android:layout_alignEnd="@+id/CallNumber"
 
-        />
+        android:layout_alignRight="@+id/userStatus"
+        android:layout_alignEnd="@+id/userStatus" />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
-        android:layout_alignBottom="@+id/selectProfileMediaBtn"
-        android:layout_alignRight="@+id/selectRingtoneBtn"
-        android:layout_alignEnd="@+id/selectRingtoneBtn"
-        android:layout_alignTop="@+id/selectRingtoneBtn"
-        android:layout_alignLeft="@+id/selectRingtoneBtn"
-        android:layout_alignStart="@+id/selectRingtoneBtn" />
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/selectContactBtn"
+        android:layout_alignStart="@+id/selectContactBtn"
+        android:layout_marginTop="49dp" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -167,14 +151,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/userStatus"
         android:layout_alignBottom="@+id/CallNumber"
-        android:layout_toLeftOf="@+id/clear"
         android:layout_alignTop="@+id/CallNumber"
 
-        android:layout_alignRight="@+id/CallNumber"
-        android:layout_alignEnd="@+id/CallNumber"
-
         android:layout_alignLeft="@+id/CallNow"
-        android:layout_alignStart="@+id/CallNow" />
+        android:layout_alignStart="@+id/CallNow"
+        android:layout_alignRight="@+id/CallNow"
+        android:layout_alignEnd="@+id/CallNow" />
 
     <ProgressBar
         android:layout_width="wrap_content"

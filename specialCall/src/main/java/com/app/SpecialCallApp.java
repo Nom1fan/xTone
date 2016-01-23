@@ -5,20 +5,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.ViewConfiguration;
-
 import com.services.GetTokenIntentService;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParsePush;
 import com.parse.SaveCallback;
-
 import com.data_objects.Constants;
 import com.special.app.R;
 import com.ui.activities.MainActivity;
 import com.utils.SharedPrefUtils;
-
 import java.lang.reflect.Field;
+import DataObjects.SharedConstants;
 
 /**
  * Created by mor on 10/09/2015.
@@ -32,25 +30,22 @@ public class SpecialCallApp extends Application {
 
         final Context context = getApplicationContext();
 
-
-
-
         //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
-
-            makeActionOverflowMenuShown();
+        makeActionOverflowMenuShown();
 
         // Initializing app state
         if(AppStateManager.getAppState(context).equals("")) {
             addShortcutIcon();
             AppStateManager.setAppState(context, TAG, AppStateManager.STATE_LOGGED_OUT);
         }
+
         // Initializing SQLite db
-//        DAL_Manager.initialize(getApplicationContext());
+        // DAL_Manager.initialize(getApplicationContext());
 
         // Initializing Parse for push notifications. NOTE: Also currently using device token as registration token
         Parse.initialize(this, Constants.APPLICATION_ID, Constants.CLIENT_KEY);
         if(getDeviceToken().equals("")) {
-            ParsePush.subscribeInBackground("SpecialCall");
+            ParsePush.subscribeInBackground(SharedConstants.APP_NAME); // Subscribing to channel
             ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
@@ -58,7 +53,6 @@ public class SpecialCallApp extends Application {
                     Intent i = new Intent(context, GetTokenIntentService.class);
                     i.setAction(GetTokenIntentService.ACTION_GET_TOKEN);
                     context.startService(i);
-
                 }
             });
         }
@@ -83,9 +77,6 @@ public class SpecialCallApp extends Application {
         }
     }
 
-
-
-    // onClick of addShortcutIcon
     private void addShortcutIcon() {
         //shorcutIntent object
         Intent shortcutIntent = new Intent(getApplicationContext(),
@@ -98,7 +89,7 @@ public class SpecialCallApp extends Application {
         //shortcutIntent is added with addIntent
         Intent addIntent = new Intent();
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, "MediaCallz");
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, SharedConstants.APP_NAME);
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
                 Intent.ShortcutIconResource.fromContext(getApplicationContext(),
                         R.drawable.mediacallztempicon));

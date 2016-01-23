@@ -52,7 +52,7 @@ public class FileCompressorUtil {
 
                     modifiedFile.set_uncompdFileFullPath(baseFile.getFileFullPath());
                     modifiedFile.setIsCompressed(true);
-                    BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, "Compression complete.", null));
+                    BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.COMPRESSION_COMPLETE, "Compression complete.", null));
                     return modifiedFile;
             case RINGTONE:
                     if(baseFile.getFileSize() <= AUDIO_SIZE_COMPRESS_NEEDED)

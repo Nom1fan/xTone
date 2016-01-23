@@ -112,7 +112,7 @@ public class MessageUploadFile extends MessageToServer {
 
 
 			// Informing source (uploader) that the file is on the way
-			infoMsg = "File:"+_td.get_fullFilePathSrcSD()+" uploaded to server";
+			infoMsg = "File uploaded";
 			cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, _td)));
 
 			if(!cont) {

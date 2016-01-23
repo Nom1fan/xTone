@@ -22,11 +22,11 @@ public class MessageRegisterRes extends MessageToClient {
         String msg;
         EventType eventType;
         if(_isRegisterSuccess) {
-            msg = "REGISTER_SUCCESS";
+            msg = "Registration successful";
             eventType = EventType.REGISTER_SUCCESS;
         }
         else {
-            msg = "REGISTER_FAILED. Please try again later.";
+            msg = "Registration failed. Please reinstall.";
             eventType = EventType.DISPLAY_ERROR;
         }
 

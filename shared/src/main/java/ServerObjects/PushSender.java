@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import DataObjects.PushEventKeys;
+import DataObjects.SharedConstants;
 import LogObjects.LogsManager;
 
 /**
@@ -37,7 +38,7 @@ public abstract class PushSender {
                 }};
 
             where = new HashMap() {{
-                put("channels", "SpecialCall");
+                put("channels", SharedConstants.APP_NAME);
                 put("deviceToken", token);
             }};
 
@@ -52,7 +53,7 @@ public abstract class PushSender {
             }};
 
             where = new HashMap() {{
-                put("channels", "SpecialCall");
+                put("channels", SharedConstants.APP_NAME);
                 put("deviceToken", token);
             }};
 

@@ -45,6 +45,13 @@ public class LogicServerProxyService extends AbstractServerProxy {
         super.onStartCommand(intent, flags, startId);
         Log.i(TAG, "LogicServerProxyService started");
 
+        // If crash restart occurred but was not mid-action we should do nothing
+        if ((flags & START_FLAG_REDELIVERY)!=0 && !wasMidAction()) {
+            Log.i(TAG,"Crash restart occurred but was not mid-action (wasMidAction()=" + wasMidAction() + ". Exiting service.");
+            stopSelf(startId);
+            return START_REDELIVER_INTENT;
+        }
+
         final Intent intentForThread = intent;
 
         new Thread() {
@@ -61,24 +68,31 @@ public class LogicServerProxyService extends AbstractServerProxy {
                         switch (action) {
 
                             case ACTION_REGISTER:
+                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
+                                BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.CONNECTING, "Connecting...", null));
                                 register(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
                             break;
 
                             case ACTION_ISREGISTERED: {
+                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 String destId = intentForThread.getStringExtra(DESTINATION_ID);
                                 isRegistered(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), destId);
                             }
                             break;
 
                             case ACTION_RECONNECT:
+                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
+                                BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.RECONNECT_ATTEMPT, "Reconnecting...", null));
                                 reconnectIfNecessary();
                             break;
 
                             case ACTION_RESET_RECONNECT_INTERVAL:
+                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
                             break;
 
                             default:
+                                setMidAction(false);
                                 Log.w(TAG, "Service started with invalid action:" + action);
 
                         }
@@ -87,6 +101,9 @@ public class LogicServerProxyService extends AbstractServerProxy {
                         String errMsg = "Action:"+action+" failed. Exception:"+e.getMessage();
                         Log.e(TAG, errMsg);
                         handleDisconnection(errMsg);
+                    } catch(Exception e) {
+                        String errMsg = "Action failed:"+action+" Exception:"+e.getMessage();
+                        Log.e(TAG, errMsg);
                     }
                 } else
                     Log.w(TAG, "Service started with missing action");
@@ -94,7 +111,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
             }
         }.start();
 
-        return START_NOT_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
 
@@ -124,7 +141,6 @@ public class LogicServerProxyService extends AbstractServerProxy {
     private void register(ConnectionToServer connectionToServer) throws IOException {
 
         Log.i(TAG, "Initiating register sequence...");
-        BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.CONNECTING, "Connecting...", null));
         MessageRegister msgRegister = new MessageRegister(Constants.MY_ID(mContext), Constants.MY_TOKEN(mContext));
         Log.i(TAG, "Sending register message to server...");
         connectionToServer.sendToServer(msgRegister);

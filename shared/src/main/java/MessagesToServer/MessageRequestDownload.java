@@ -71,7 +71,7 @@ public class MessageRequestDownload extends MessageToServer {
             }
 
             // Informing source (uploader) that file received by user (downloader)
-            String msg = "TRANSFER_SUCCESS: to "+_td.getDestinationId()+". Filename:"+new File(_td.get_fullFilePathSrcSD()).getName();
+            String msg = "Media for "+_td.getDestinationId()+ " is ready!";
             sent = PushSender.sendPush(ClientsManager.getClientPushToken(_td.getSourceId()), PushEventKeys.TRANSFER_SUCCESS, msg, new Gson().toJson(_td));
             if(!sent)
                 logger.warning("Failed to inform user " + _td.getSourceId() + " of transfer success to user: " + _td.getDestinationId());
