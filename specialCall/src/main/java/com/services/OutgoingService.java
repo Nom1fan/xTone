@@ -290,7 +290,7 @@ public class OutgoingService extends AbstractStandOutService {
         lp1.addRule(RelativeLayout.ALIGN_RIGHT);
         lp1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         lp1.setMargins(0,0,0,200);
-        mSpecialCallVolumeDownBtn.setImageResource(R.drawable.minus);
+        mSpecialCallVolumeDownBtn.setImageResource(R.drawable.minusvol);
         mSpecialCallVolumeDownBtn.setBackgroundColor(Color.WHITE);
         mSpecialCallVolumeDownBtn.setLayoutParams(lp1);
         mSpecialCallVolumeDownBtn.setClickable(true);
