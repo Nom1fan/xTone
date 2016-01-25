@@ -6,9 +6,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
@@ -108,7 +110,6 @@ public class FileManager implements Serializable {
     public void setIsCompressed(boolean isCompressed) {
         this.isCompressed = isCompressed;
     }
-
 
     public String getNameWithoutExtension() {
 
@@ -329,6 +330,43 @@ public class FileManager implements Serializable {
         String fileName = tmp_str[tmp_str.length-1];
 
         return fileName;
+
+    }
+
+    /**
+     * Return the unique MD5 for the specific file
+     * @param filepath
+     * @return md5 string
+     * @throws Exception
+     */
+    public static String getMD5(String filepath) throws Exception{
+        InputStream input =  new FileInputStream(filepath);
+        byte[] buffer = new byte[1024];
+
+        MessageDigest hashMsgDigest = MessageDigest.getInstance("MD5");
+
+        int read;
+        do {
+            read = input.read(buffer);
+            if (read > 0) {
+                hashMsgDigest.update(buffer, 0, read);
+            }
+        } while (read != -1);
+        input.close();
+
+        StringBuffer hexString = new StringBuffer();
+        byte[] hash = hashMsgDigest.digest();
+
+        for (int i = 0; i < hash.length; i++) {
+            if ((0xff & hash[i]) < 0x10) {
+                hexString.append("0"
+                        + Integer.toHexString((0xFF & hash[i])));
+            } else {
+                hexString.append(Integer.toHexString(0xFF & hash[i]));
+            }
+        }
+
+        return hexString.toString();
 
     }
 

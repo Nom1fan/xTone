@@ -42,9 +42,9 @@ dependencies {
     compile 'com.android.support:appcompat-v7:19.1.0'
     compile 'com.parse.bolts:bolts-android:1.+'
     compile fileTree(include: 'Parse-*.jar', dir: 'libs')
-    compile 'org.apache.directory.studio:org.apache.commons.lang:2.6'
     compile project(':ffmpeg4android_lib')
     compile project(':standOut_lib')
     compile project(':aFileChooser')
     compile 'com.nispok:snackbar:2.11.0'
+    compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
 }

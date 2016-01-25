@@ -1,13 +1,22 @@
 package com.receivers;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 
-import java.io.File;
+import com.data_objects.Constants;
+import com.utils.SharedPrefUtils;
 
-import DataObjects.SpecialMediaType;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+
+import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
 import EventObjects.Event;
 import EventObjects.EventReport;
@@ -16,8 +25,7 @@ import Exceptions.FileDoesNotExistException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
-import com.data_objects.Constants;
-import com.utils.SharedPrefUtils;
+
 
 public class DownloadReceiver extends BroadcastReceiver {
 
@@ -43,6 +51,10 @@ public class DownloadReceiver extends BroadcastReceiver {
 
                 TransferDetails td = (TransferDetails) eventReport.data();
                 preparePathsAndDirs(td);
+
+                // copy new downloaded file to History Folder so it will show up in Gallery and don't make any duplicates with MD5 signature
+                copyToHistoryForGalleryShow(td);
+
                 FileManager.FileType fType = td.getFileType();
                 String fFullName = td.getSourceWithExtension();
                 String source = td.getSourceId();
@@ -178,5 +190,46 @@ public class DownloadReceiver extends BroadcastReceiver {
         _newfileFullPath = _newFileDir + "/" + td.getSourceWithExtension();
     }
 
+    private void copyToHistoryForGalleryShow(TransferDetails td) {
 
+        try {
+
+            File downloadedFile = new File(_newfileFullPath);
+            String md5 = FileManager.getMD5(_newfileFullPath);
+            String historyFileName = Constants.HISTORY_FOLDER + td.getFileType().toString()+"_"+md5+ "." + td.getExtension(); //give a unique name to the file and make sure there won't be any duplicates
+            File copyToHistoryFile = new File(historyFileName);
+
+            if (!copyToHistoryFile.exists()) // if the file exist don't do any duplicate
+            {
+                FileUtils.copyFile(downloadedFile, copyToHistoryFile);
+                Log.i(TAG, "Creating a unique md5 file in the History Folder fileName:  " + copyToHistoryFile.getName());
+                if (td.getFileType() == FileManager.FileType.RINGTONE)
+                {
+                    ContentValues values = new ContentValues();
+                    values.put(MediaStore.MediaColumns.DATA, copyToHistoryFile.getName());
+                    values.put(MediaStore.MediaColumns.TITLE, copyToHistoryFile.getName());
+                    values.put(MediaStore.Audio.AudioColumns.ARTIST, copyToHistoryFile.getName());
+                    values.put(MediaStore.Audio.AudioColumns.ARTIST_ID, copyToHistoryFile.getName());
+                    values.put(MediaStore.Audio.AudioColumns.ALBUM, SharedConstants.APP_NAME);
+                    values.put(MediaStore.Audio.AudioColumns.ALBUM_KEY, SharedConstants.APP_NAME);
+                    values.put(MediaStore.Audio.AudioColumns.DISPLAY_NAME, copyToHistoryFile.getName());
+                    values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/*");
+                    values.put(MediaStore.Audio.Media.IS_MUSIC, true);
+                    Uri uri = MediaStore.Audio.Media.getContentUriForPath(historyFileName);
+                    _context.getContentResolver().insert(uri, values);
+
+                }
+                    _context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(copyToHistoryFile)));
+            }
+            else {
+                Log.e(TAG,"File already exist: " + historyFileName);
+            }
+
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

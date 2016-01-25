@@ -53,8 +53,11 @@ import com.ui.components.BitmapWorkerTask;
 import com.utils.BroadcastUtils;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
-import org.apache.commons.lang.math.NumberUtils;
+
 import java.io.File;
+import java.io.IOException;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
 import DataObjects.SpecialMediaType;
@@ -358,12 +361,22 @@ public class MainActivity extends Activity implements OnClickListener {
 
             File incomingFolder = new File(Constants.INCOMING_FOLDER);
             incomingFolder.mkdirs();
+            hideMediaFromGalleryScanner(Constants.INCOMING_FOLDER);// This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
+
 
             File outgoingFolder = new File(Constants.OUTGOING_FOLDER);
             outgoingFolder.mkdirs();
+            hideMediaFromGalleryScanner(Constants.OUTGOING_FOLDER);// This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
 
             File tempCompressedFolder = new File(Constants.TEMP_COMPRESSED_FOLDER);
             tempCompressedFolder.mkdirs();
+            hideMediaFromGalleryScanner(Constants.TEMP_COMPRESSED_FOLDER); // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
+
+            // No NEED TO HIDE MEDIA FOR HISTORY << ALL MEDIA WILL BE SHOWN THROUGH HERE
+            File HistoryFolder = new File(Constants.HISTORY_FOLDER);
+            HistoryFolder.mkdirs();
+
+
 
             initializeUI();
             new AutoCompletePopulateListAsyncTask(this, mTxtPhoneNo).execute();
@@ -574,7 +587,7 @@ public class MainActivity extends Activity implements OnClickListener {
                 String destPhone = s.toString();
 
                 if (10 == s.length() &&
-                        NumberUtils.isNumber(destPhone) &&
+                        isNumeric(destPhone) &&
                         !wasFileChooser) {
 
                     _destPhoneNumber = destPhone;
@@ -602,7 +615,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     _destPhoneNumber = "";
                     _destName = "";
 
-                    if (10 != s.length() || !NumberUtils.isNumber(destPhone))
+                    if (10 != s.length() || !isNumeric(destPhone))
                     {
                         runOnUiThread(new Runnable() {
                             @Override
@@ -688,6 +701,14 @@ public class MainActivity extends Activity implements OnClickListener {
 
 
 	/* -------------- Assisting methods -------------- */
+
+    private boolean isNumeric(String str)
+    {
+        NumberFormat formatter = NumberFormat.getInstance();
+        ParsePosition pos = new ParsePosition(0);
+        formatter.parse(str, pos);
+        return str.length() == pos.getIndex();
+    }
 
     /**
      * Saving the instance state - to be used from onPause()
@@ -853,11 +874,23 @@ public class MainActivity extends Activity implements OnClickListener {
         }
     }
 
-    private boolean isContactSelected() {
+    private void hideMediaFromGalleryScanner(String path) {
 
-        AutoCompleteTextView edCN = (AutoCompleteTextView) findViewById(R.id.CallNumber);
-        String s = edCN.getText().toString();
-        return 10 == s.length();
+        Log.i(TAG, "create file : " + path + "/" + ".nomedia");
+
+        File new_file =new File(path + "/" + ".nomedia");  // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
+        try
+        {
+            if(new_file.createNewFile())
+                Log.i(TAG , ".nomedia Created !");
+            else
+                Log.i(TAG , ".nomedia Already Exists !");
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
     }
 
     /* -------------- UI methods -------------- */
@@ -1157,8 +1190,8 @@ public class MainActivity extends Activity implements OnClickListener {
             @Override
             public void run() {
 
-            enableUserStatusNegativeIcon();
-            enableInviteButton();
+                enableUserStatusNegativeIcon();
+                enableInviteButton();
 
 
             }
@@ -1351,4 +1384,5 @@ public class MainActivity extends Activity implements OnClickListener {
             break;
         }
     }
+
 }
