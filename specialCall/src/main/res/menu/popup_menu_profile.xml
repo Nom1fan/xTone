@@ -1,0 +1,25 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.ui.activities.MainActivity" >
+
+        <item
+            android:id="@+id/specificprofile"
+            android:title="Specific Profile"/>
+
+        <item
+            android:id="@+id/defaultprofile"
+            android:title="Default Profile"/>
+
+        <item
+            android:id="@+id/previewprofilemedia"
+            android:title="Preview"/>
+
+        <item
+            android:id="@+id/clearprofilemedia"
+            android:title="Clear"/>
+
+
+
+    </menu>
+

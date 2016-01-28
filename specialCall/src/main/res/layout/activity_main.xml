@@ -97,7 +97,7 @@
         android:contentDescription="mypic"
         android:clickable="true"
         android:src="@drawable/defaultpic_enabled"
-        android:layout_width="120dp"
+        android:layout_width="200dp"
         android:layout_height="120dp"
 
         android:layout_alignParentTop="true"
@@ -107,8 +107,7 @@
         android:layout_alignLeft="@+id/CallNumber"
         android:layout_alignStart="@+id/CallNumber"
 
-        android:layout_alignRight="@+id/userStatus"
-        android:layout_alignEnd="@+id/userStatus" />
+        android:background="@android:color/transparent" />
 
     <ProgressBar
         android:layout_width="wrap_content"
@@ -153,10 +152,10 @@
         android:layout_alignBottom="@+id/CallNumber"
         android:layout_alignTop="@+id/CallNumber"
 
-        android:layout_alignLeft="@+id/CallNow"
-        android:layout_alignStart="@+id/CallNow"
         android:layout_alignRight="@+id/CallNow"
-        android:layout_alignEnd="@+id/CallNow" />
+        android:layout_alignEnd="@+id/CallNow"
+        android:layout_alignLeft="@+id/CallNow"
+        android:layout_alignStart="@+id/CallNow" />
 
     <ProgressBar
         android:layout_width="wrap_content"

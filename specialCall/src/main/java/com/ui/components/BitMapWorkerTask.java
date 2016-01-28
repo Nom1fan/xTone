@@ -2,27 +2,35 @@ package com.ui.components;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.Shader;
 import android.media.ThumbnailUtils;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
-import android.widget.ImageButton;
+import android.util.Log;
 import android.widget.ImageView;
-
+import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
 
+import DataObjects.SpecialMediaType;
 import FilesManager.FileManager;
 
 /**
  * Created by mor on 20/09/2015.
  */
-public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
+public class BitMapWorkerTask extends AsyncTask<String, Void, Bitmap> {
+    private final String TAG = BitMapWorkerTask.class.getSimpleName();
     private final WeakReference<ImageView> imageComponentWeakReference;
     private String _filePath;
     private FileManager.FileType _fileType;
     private int _height;
     private int _width;
+    private SpecialMediaType _specialMediaType;
 
-    public BitmapWorkerTask(ImageView imageComponent) {
+    public BitMapWorkerTask(ImageView imageComponent) {
         // Use a WeakReference to ensure the ImageView can be garbage collected
         imageComponentWeakReference = new WeakReference<>(imageComponent);
     }
@@ -74,8 +82,25 @@ public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
     protected void onPostExecute(Bitmap bitmap) {
         if (imageComponentWeakReference != null && bitmap != null) {
             final ImageView imageComponent = imageComponentWeakReference.get();
+
             if (imageComponent != null) {
-                imageComponent.setImageBitmap(bitmap);
+
+                switch (_specialMediaType){
+
+                    case PROFILE_MEDIA:
+                        bitmap = Bitmap.createScaledBitmap(bitmap, 400, 400, false);  // // TODO: 28/01/2016  change hardcoded numbers to relative
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        imageComponent.setImageBitmap(transform(bitmap, 250, 0));// // TODO: 28/01/2016  change hardcoded numbers to relative
+                        break;
+
+                    case CALLER_MEDIA:
+                        imageComponent.setImageBitmap(bitmap);
+                        break;
+                    default:
+                        Log.e(TAG, "Invalid SpecialCallMedia");
+                        imageComponent.setImageBitmap(bitmap);
+                }
             }
         }
     }
@@ -113,4 +138,28 @@ public class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
     public void set_fileType(FileManager.FileType _fileType) {
         this._fileType = _fileType;
     }
+
+    public void set_specialMediaType(SpecialMediaType _specialMediaType) {
+        this._specialMediaType = _specialMediaType;
+    }
+
+    public Bitmap transform(Bitmap source, int radius, int margin) {
+        final Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setShader(new BitmapShader(source, Shader.TileMode.MIRROR,
+                Shader.TileMode.MIRROR));
+
+        Bitmap output = Bitmap.createBitmap(source.getWidth(),
+                source.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+        canvas.drawRoundRect(new RectF(margin, margin, source.getWidth()
+                - margin, source.getHeight() - margin), radius, radius, paint);
+
+        if (source != output) {
+            source.recycle();
+        }
+        return output;
+    }
+
+
 }

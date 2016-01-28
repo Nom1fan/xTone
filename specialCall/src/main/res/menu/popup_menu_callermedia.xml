@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.ui.activities.MainActivity" >
+
+        <item
+            android:id="@+id/selectcallermedia"
+            android:title="Select Media"/>
+
+        <item
+            android:id="@+id/previewcallermedia"
+            android:title="Preview"/>
+
+        <item
+            android:id="@+id/clearcallermedia"
+            android:title="Clear"/>
+
+    </menu>
+

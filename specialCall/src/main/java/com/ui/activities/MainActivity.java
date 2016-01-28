@@ -9,8 +9,13 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -33,6 +38,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,11 +55,12 @@ import com.services.OutgoingService;
 import com.services.StorageServerProxyService;
 import com.special.app.R;
 import com.ui.components.AutoCompletePopulateListAsyncTask;
-import com.ui.components.BitmapWorkerTask;
+import com.ui.components.BitMapWorkerTask;
 import com.utils.BroadcastUtils;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -258,7 +265,7 @@ public class MainActivity extends Activity implements OnClickListener {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-
+// // TODO: 28/01/2016 implement drawer functionality
     private void selectMedia(int code) {
 
         // Determine Uri of camera image to save.
@@ -317,11 +324,11 @@ public class MainActivity extends Activity implements OnClickListener {
 
         } else if (id == R.id.selectMediaBtn) {
 
-            selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
+          openCallerMediaMenu();
 
         } else if (id == R.id.selectProfileMediaBtn) {
 
-            selectMedia(ActivityRequestCodes.SELECT_PROFILE_MEDIA);
+         openProfileMediaMenu();
 
         }  else if (id == R.id.selectContactBtn) {
 
@@ -1002,6 +1009,71 @@ public class MainActivity extends Activity implements OnClickListener {
 
     /* --- UI elements controls --- */
 
+    private void openCallerMediaMenu() { // tod
+
+        ImageButton callerMedia = (ImageButton) findViewById(R.id.selectMediaBtn);
+        //Creating the instance of PopupMenu
+        PopupMenu popup = new PopupMenu(MainActivity.this, callerMedia);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.popup_menu_callermedia, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                Log.i(TAG, String.valueOf(item.getItemId()));
+                switch (item.getItemId()) {
+                    case R.id.selectcallermedia:
+                        selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
+                        break;
+                    case R.id.previewcallermedia:
+                        Toast.makeText(MainActivity.this, "CallerMenu Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.clearcallermedia:
+                        Toast.makeText(MainActivity.this, "CallerMenu Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                        break;
+
+                }
+                return true;
+            }
+        });
+
+        popup.show();
+
+
+    }
+
+    private void openProfileMediaMenu() {
+        ImageButton profile = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
+        //Creating the instance of PopupMenu
+        PopupMenu popup = new PopupMenu(MainActivity.this, profile);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.popup_menu_profile, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+
+                Log.i(TAG, String.valueOf(item.getItemId()));
+
+                switch (item.getItemId()) {
+                    case R.id.specificprofile:
+                        selectMedia(ActivityRequestCodes.SELECT_PROFILE_MEDIA);
+                        break;
+                    case R.id.defaultprofile:
+                        selectMedia(ActivityRequestCodes.SELECT_PROFILE_MEDIA);
+                        break;
+                    case R.id.previewprofilemedia:
+                        Toast.makeText(MainActivity.this, "ProfileMenu Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.clearprofilemedia:
+                        Toast.makeText(MainActivity.this, "ProfileMenu Clicked  : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                        break;
+                }
+                return true;
+            }
+        });
+
+        popup.show();
+    }
+
     public void launchDialer(String number) {
         String numberToDial = "tel:" + number;
         startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse(numberToDial)));
@@ -1235,10 +1307,11 @@ public class MainActivity extends Activity implements OnClickListener {
                 if (!lastUploadedMediaPath.equals("")) {
                     fType = FileManager.getFileType(lastUploadedMediaPath);
 
-                    BitmapWorkerTask task = new BitmapWorkerTask(selectCallerMediaBtn);
+                    BitMapWorkerTask task = new BitMapWorkerTask(selectCallerMediaBtn);
                     task.set_width(selectCallerMediaBtn.getWidth());
                     task.set_height(selectCallerMediaBtn.getHeight());
                     task.set_fileType(fType);
+                    task.set_specialMediaType(SpecialMediaType.CALLER_MEDIA);
                     task.execute(lastUploadedMediaPath);
 
                     ImageView mediaStatus = (ImageView) findViewById(R.id.mediaStatus);
@@ -1272,20 +1345,21 @@ public class MainActivity extends Activity implements OnClickListener {
             ImageButton selectProfileMediaBtn = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
 
             if(!enabled)
-                selectProfileMediaBtn.setImageResource(R.drawable.defaultpic_disabled);
+                selectProfileMediaBtn.setImageBitmap(transform((localImageToBitmap(R.drawable.defaultpic_disabled, 400)), 250, 0));// // TODO: 28/01/2016  change hardcoded numbers to relative
             else {
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(_destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
                     fType = FileManager.getFileType(lastUploadedMediaPath);
 
-                    BitmapWorkerTask task = new BitmapWorkerTask(selectProfileMediaBtn);
+                    BitMapWorkerTask task = new BitMapWorkerTask(selectProfileMediaBtn);
                     task.set_width(selectProfileMediaBtn.getWidth());
                     task.set_height(selectProfileMediaBtn.getHeight());
                     task.set_fileType(fType);
+                    task.set_specialMediaType(SpecialMediaType.PROFILE_MEDIA);
                     task.execute(lastUploadedMediaPath);
                 } else // enabled but no uploaded media
-                    selectProfileMediaBtn.setImageResource(R.drawable.defaultpic_enabled);
+                    selectProfileMediaBtn.setImageBitmap(transform((localImageToBitmap(R.drawable.defaultpic_enabled, 400)), 250, 0));
             }
 
         } catch (FileInvalidFormatException |
@@ -1294,6 +1368,33 @@ public class MainActivity extends Activity implements OnClickListener {
             e.printStackTrace();
             lut_utils.removeUploadedMediaPerNumber(_destPhoneNumber);
         }
+    }
+
+    public Bitmap localImageToBitmap(int source, int THUMBNAIL_SIZE) {
+        int size = THUMBNAIL_SIZE;
+        Bitmap imageBitmap = BitmapFactory.decodeResource(_context.getResources(), source);
+        imageBitmap = Bitmap.createScaledBitmap(imageBitmap, size, size, false);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        return imageBitmap;
+    }
+
+    public Bitmap transform(Bitmap source, int radius, int margin) {
+        final Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setShader(new BitmapShader(source, Shader.TileMode.MIRROR,
+                Shader.TileMode.MIRROR));
+
+        Bitmap output = Bitmap.createBitmap(source.getWidth(),
+                source.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+        canvas.drawRoundRect(new RectF(margin, margin, source.getWidth()
+                - margin, source.getHeight() - margin), radius, radius, paint);
+
+        if (source != output) {
+            source.recycle();
+        }
+        return output;
     }
 
     private void drawSelectRingToneName() {
