@@ -444,7 +444,7 @@ public class MainActivity extends Activity implements OnClickListener {
                           @Override
                           public void run() {
 
-                              if(!Constants.MY_TOKEN(_context).equals("")) {
+                              if (!Constants.MY_TOKEN(_context).equals("")) {
                                   findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
                                   findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
                               }
@@ -499,11 +499,11 @@ public class MainActivity extends Activity implements OnClickListener {
                                       EditText loginNumber = (EditText) findViewById(R.id.LoginNumber);
 
                                       //generate a 4 digit integer 1000 <10000
-                                      randomPIN = (int)(Math.random()*9000)+1000;
+                                      randomPIN = (int) (Math.random() * 9000) + 1000;
                                       try {
                                           SmsManager smsManager = SmsManager.getDefault();
-                                          smsManager.sendTextMessage(loginNumber.getText().toString(), null, "MediaCallz SmsVerificationCode: "+String.valueOf(randomPIN), null, null);
-                                          Toast.makeText(getApplicationContext(), "Message Sent To: " +loginNumber.getText().toString(),
+                                          smsManager.sendTextMessage(loginNumber.getText().toString(), null, "MediaCallz SmsVerificationCode: " + String.valueOf(randomPIN), null, null);
+                                          Toast.makeText(getApplicationContext(), "Message Sent To: " + loginNumber.getText().toString(),
                                                   Toast.LENGTH_LONG).show();
                                       } catch (Exception ex) {
                                           Toast.makeText(getApplicationContext(),
@@ -530,8 +530,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
                                           findViewById(R.id.login_btn).setEnabled(true);
 
-                                      }
-                                      else
+                                      } else
                                           findViewById(R.id.login_btn).setEnabled(false);
                                   }
 
@@ -1343,9 +1342,15 @@ public class MainActivity extends Activity implements OnClickListener {
         try {
             FileManager.FileType fType;
             ImageButton selectProfileMediaBtn = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
+            int width =  selectProfileMediaBtn.getWidth();
+            if ( width < 1)
+                width = 600; // default 600 as LG G2 width for example
 
+            int thumbnailSize = width*2/3;
+            int radius = (int) (thumbnailSize*0.625);
+            Log.i(TAG, "thumbnailSize: " + thumbnailSize + " width: " + width + " radius: " + radius);
             if(!enabled)
-                selectProfileMediaBtn.setImageBitmap(transform((localImageToBitmap(R.drawable.defaultpic_disabled, 400)), 250, 0));// // TODO: 28/01/2016  change hardcoded numbers to relative
+                selectProfileMediaBtn.setImageBitmap(transform((localImageToBitmap(R.drawable.defaultpic_disabled, thumbnailSize)), radius, 0)); // TODO: code review on the relative sizes that we deliver for the circular profile media draw, to see calculation are good
             else {
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(_destPhoneNumber);
@@ -1359,7 +1364,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     task.set_specialMediaType(SpecialMediaType.PROFILE_MEDIA);
                     task.execute(lastUploadedMediaPath);
                 } else // enabled but no uploaded media
-                    selectProfileMediaBtn.setImageBitmap(transform((localImageToBitmap(R.drawable.defaultpic_enabled, 400)), 250, 0));
+                    selectProfileMediaBtn.setImageBitmap(transform((localImageToBitmap(R.drawable.defaultpic_enabled, thumbnailSize)), radius, 0));  // TODO: code review on the relative sizes that we deliver for the circular profile media draw, to see calculation are good
             }
 
         } catch (FileInvalidFormatException |

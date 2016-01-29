@@ -88,10 +88,19 @@ public class BitMapWorkerTask extends AsyncTask<String, Void, Bitmap> {
                 switch (_specialMediaType){
 
                     case PROFILE_MEDIA:
-                        bitmap = Bitmap.createScaledBitmap(bitmap, 400, 400, false);  // // TODO: 28/01/2016  change hardcoded numbers to relative
+
+                        int width = imageComponent.getWidth();
+                        if ( width < 1)
+                            width = 900; // default
+
+                        int thumbnailSize = width*2/3;
+                        int radius = (int) (thumbnailSize*0.625);
+                        Log.i(TAG, "thumbnailSize: " + thumbnailSize + " width: " + width + " radius: " + radius);
+
+                        bitmap = Bitmap.createScaledBitmap(bitmap, thumbnailSize, thumbnailSize, false); // TODO: code review on the relative sizes that we deliver for the circular profile media draw, to see calculation are good
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                        imageComponent.setImageBitmap(transform(bitmap, 250, 0));// // TODO: 28/01/2016  change hardcoded numbers to relative
+                        imageComponent.setImageBitmap(transform(bitmap, radius, 0));
                         break;
 
                     case CALLER_MEDIA:
