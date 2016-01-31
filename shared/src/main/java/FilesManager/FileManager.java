@@ -32,7 +32,7 @@ public class FileManager implements Serializable {
 
     private static final long serialVersionUID = -6478414954653475111L;
     private static final String[] imageFormats = { "jpg", "png", "jpeg", "bmp", "gif", "tiff" };
-    private static final String[] audioFormats = { "mp3", "ogg" };
+    private static final String[] audioFormats = { "mp3", "ogg" , "3gp" };
     private static final String[] videoFormats = { "avi", "mpeg", "mp4", "3gp", "wmv" };
 
     private File _file;

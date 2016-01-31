@@ -517,12 +517,18 @@ public class FileUtils {
      * @return The intent for opening a file with Intent.createChooser()
      * @author paulburke
      */
-    public static Intent createGetContentIntent() {
+    public static Intent createGetContentIntent(String type) {
         // Implicitly allow the user to select a particular kind of data
         final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 
                 // The MIME data type filter
-                intent.setType("*/*");
+
+
+        if (type ==null || type.isEmpty()) //// TODO: 31/01/2016 this was changed when we wanted to filter only image and video but we may n ot need this and revert this to it's source code !!!
+            intent.setType("*/*");
+        else
+            intent.setType(type);
+
 
         // Only return URIs that can be opened with ContentResolver
         intent.addCategory(Intent.CATEGORY_OPENABLE);

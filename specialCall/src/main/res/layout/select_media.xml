@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainSelectMedia"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background">
+
+
+
+    <Button
+        android:layout_width="60dp"
+        android:layout_height="50dp"
+        android:text="Back"
+        android:id="@+id/back"
+        android:layout_gravity="right"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:textSize="15dip" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Media Type"
+        android:id="@+id/selectMediaType"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignBottom="@+id/back"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Contact Name or Number"
+        android:id="@+id/contactNameOrNumber"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/selectMediaType"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="204dp"
+        android:layout_height="wrap_content"
+        android:text="Video/Image"
+        android:id="@+id/video_or_image"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="44dp"
+        android:layout_below="@+id/contactNameOrNumber"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="208dp"
+        android:layout_height="wrap_content"
+        android:text="Record Video"
+        android:id="@+id/recordVideo"
+        android:layout_gravity="center_vertical"
+        android:layout_below="@+id/audio"
+        android:layout_alignRight="@+id/audio"
+        android:layout_alignEnd="@+id/audio"
+        android:layout_alignLeft="@+id/audio"
+        android:layout_alignStart="@+id/audio" />
+
+    <Button
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="Audio"
+        android:id="@+id/audio"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/video_or_image"
+        android:layout_alignRight="@+id/video_or_image"
+        android:layout_alignEnd="@+id/video_or_image"
+        android:layout_alignLeft="@+id/video_or_image"
+        android:layout_alignStart="@+id/video_or_image" />
+
+    <Button
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="Take Picture"
+        android:id="@+id/takePicture"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/recordVideo"
+        android:layout_alignLeft="@+id/recordVideo"
+        android:layout_alignStart="@+id/recordVideo"
+        android:layout_alignRight="@+id/audio"
+        android:layout_alignEnd="@+id/audio" />
+
+    <Button
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="Record Audio"
+        android:id="@+id/recordAudio"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/takePicture"
+        android:layout_alignLeft="@+id/video_or_image"
+        android:layout_alignStart="@+id/video_or_image"
+        android:layout_alignRight="@+id/audio"
+        android:layout_alignEnd="@+id/audio" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/middle"
+        android:layout_above="@+id/selectMediaType"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="MediaCallz Gallery"
+        android:id="@+id/mediacallzBtn"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/recordAudio"
+        android:layout_alignLeft="@+id/recordAudio"
+        android:layout_alignStart="@+id/recordAudio"
+        android:layout_alignRight="@+id/recordAudio"
+        android:layout_alignEnd="@+id/recordAudio"
+        android:textColor="#fffb02"
+        android:textStyle="bold" />
+
+</RelativeLayout>

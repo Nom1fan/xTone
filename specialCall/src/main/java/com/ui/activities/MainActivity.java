@@ -2,12 +2,9 @@ package com.ui.activities;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,8 +15,7 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Parcelable;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.telephony.SmsManager;
@@ -65,8 +61,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
-import java.util.ArrayList;
-import java.util.List;
+
 import DataObjects.SpecialMediaType;
 import EventObjects.Event;
 import EventObjects.EventReport;
@@ -84,6 +79,7 @@ public class MainActivity extends Activity implements OnClickListener {
     private String _myPhoneNumber = "";
     private String _destPhoneNumber = "";
     private String _destName = "";
+    private int _SMType;
     private static final String TAG = MainActivity.class.getSimpleName();
     private Uri _outputFileUri;
     private ProgressBar pFetchUserBar;
@@ -96,11 +92,12 @@ public class MainActivity extends Activity implements OnClickListener {
         public static final int SELECT_CALLER_MEDIA = 1;
         public static final int SELECT_CONTACT = 2;
         public static final int SELECT_PROFILE_MEDIA = 3;
+        public static final int SELECT_MEDIA = 4;
 
     }
     private AutoCompleteTextView mTxtPhoneNo;
     private int randomPIN=0;
-    private boolean wasFileChooser=false;
+    public static boolean wasFileChooser=false; // todo try to remove this static shit that also is used by selectmedia class
     private final String shareBody = String.valueOf(R.string.invite);
 
     @Override
@@ -209,15 +206,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
         if (resultCode == RESULT_OK) {
 
-            if (requestCode == ActivityRequestCodes.SELECT_CALLER_MEDIA) {
-
-                SpecialMediaType specialMediaType = SpecialMediaType.CALLER_MEDIA;
-                uploadFile(data, specialMediaType);
-            }
-            else if(requestCode == ActivityRequestCodes.SELECT_PROFILE_MEDIA) {
-
-                SpecialMediaType specialMediaType = SpecialMediaType.PROFILE_MEDIA;
-                uploadFile(data, specialMediaType);
+            if (requestCode == ActivityRequestCodes.SELECT_MEDIA) {
+                    writeInfoSnackBar(data.getStringExtra("msg"));
             }
 
             if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
@@ -265,51 +255,22 @@ public class MainActivity extends Activity implements OnClickListener {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-// // TODO: 28/01/2016 implement drawer functionality
+
     private void selectMedia(int code) {
 
-        // Determine Uri of camera image to save.
-        final File root = new File(Environment.getExternalStorageDirectory()
-                + File.separator + "MyDir" + File.separator);
-        root.mkdirs();
-        final String fname = "MyImage";
-        final File sdImageMainDirectory = new File(root, fname);
-        _outputFileUri = Uri.fromFile(sdImageMainDirectory);
+        _SMType= code;
+                     /* Create an intent that will start the main activity. */
+                Intent mainIntent = new Intent(MainActivity.this,
+                        SelectMedia.class);
+                mainIntent.putExtra("SpecialMediaType", _SMType);
+                mainIntent.putExtra("DestinationNumber", _destPhoneNumber);
+                mainIntent.putExtra("DestinationName", _destName);
+                //SplashScreen.this.startActivity(mainIntent);
+                startActivityForResult(mainIntent, ActivityRequestCodes.SELECT_MEDIA);
 
-        // Camera.
-        final List<Intent> cameraIntents = new ArrayList<>();
-        final Intent captureIntent = new Intent(
-                android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        final PackageManager packageManager = getPackageManager();
-        final List<ResolveInfo> listCam = packageManager.queryIntentActivities(
-                captureIntent, 0);
-
-
-        final Intent videoIntent = new Intent(
-                MediaStore.ACTION_VIDEO_CAPTURE);
-
-        for (ResolveInfo res : listCam) {
-            final String packageName = res.activityInfo.packageName;
-            final Intent intent = new Intent(captureIntent);
-            intent.setComponent(new ComponentName(res.activityInfo.packageName,
-                    res.activityInfo.name));
-            intent.setPackage(packageName);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, _outputFileUri);
-            cameraIntents.add(intent);
-        }
-        cameraIntents.add(videoIntent);
-
-        // Create the ACTION_GET_CONTENT Intent
-        final Intent intent = FileUtils.createGetContentIntent();
-
-        Intent chooserIntent = Intent.createChooser(intent, "Select Media File");
-
-        // Add the camera options.
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS,
-                cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
-
-        wasFileChooser=true;
-        startActivityForResult(chooserIntent, code);
+                     /* Apply our splash exit (fade out) and main
+                        entry (fade in) animation transitions. */
+                overridePendingTransition(R.anim.slide_in_up, R.anim.no_animation);// open drawer animation
     }
 
     public void onClick(View v) {
@@ -383,6 +344,8 @@ public class MainActivity extends Activity implements OnClickListener {
             File HistoryFolder = new File(Constants.HISTORY_FOLDER);
             HistoryFolder.mkdirs();
 
+            File tempRecordingFolder = new File(Constants.TEMP_RECORDING_FOLDER);
+            tempCompressedFolder.mkdirs();
 
 
             initializeUI();
@@ -773,14 +736,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
     }
 
-    private void checkDestinationNumber() throws InvalidDestinationNumberException {
-
-        if(_destPhoneNumber ==null)
-            throw new InvalidDestinationNumberException();
-        if(_destPhoneNumber.equals("") || _destPhoneNumber.length() < 10)
-            throw new InvalidDestinationNumberException();
-    }
-
     private void setDestNameTextView() {
 
         runOnUiThread(new Runnable() {
@@ -820,64 +775,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
         startService(i);
 
-    }
-
-    private void uploadFile(Intent data, SpecialMediaType specialMediaType) {
-
-        FileManager fm = null;
-
-        final boolean isCamera;
-        try {
-            checkDestinationNumber();
-            Uri uri;
-
-            if (data == null) {
-                isCamera = true;
-            } else {
-                final String action = data.getAction();
-                isCamera = action != null && action.equals(MediaStore.ACTION_IMAGE_CAPTURE);
-            }
-            if (isCamera) {
-                uri = _outputFileUri;
-            } else {
-                uri = data.getData();
-            }
-
-            // Get the File path from the Uri
-            String path = FileUtils.getPath(this, uri);
-            // Alternatively, use FileUtils.getFile(Context, Uri)
-            if (path != null) if (FileUtils.isLocal(path)) {
-
-                if (isCamera) {
-                    File file = new File(path);
-                    file.renameTo(new File(path += ".jpeg"));
-                }
-
-                fm = new FileManager(path);
-                wasFileChooser = true;
-                Log.i(TAG, "onActivityResult RESULT_OK _ Rony");
-                Intent i = new Intent(_context, StorageServerProxyService.class);
-                i.setAction(StorageServerProxyService.ACTION_UPLOAD);
-                i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);
-                i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, specialMediaType);
-                i.putExtra(StorageServerProxyService.FILE_TO_UPLOAD, fm);
-                _context.startService(i);
-
-            }
-
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            Log.e(TAG, "It seems there was a problem with the file path.");
-            writeInfoSnackBar("Oops! problem with file");
-        } catch (FileExceedsMaxSizeException e) {
-            writeInfoSnackBar("Oops! Select a file that weights less than:" +
-                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
-        } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
-            e.printStackTrace();
-            writeInfoSnackBar("Oops! Invalid file");
-        } catch (InvalidDestinationNumberException e) {
-            writeInfoSnackBar("Oops! Invalid destination number");
-        }
     }
 
     private void hideMediaFromGalleryScanner(String path) {
