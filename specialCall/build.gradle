@@ -47,4 +47,5 @@ dependencies {
     compile project(':aFileChooser')
     compile 'com.nispok:snackbar:2.11.0'
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
+    compile 'com.android.support:design:23.1.1'
 }

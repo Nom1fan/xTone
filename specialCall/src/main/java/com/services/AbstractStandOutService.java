@@ -255,7 +255,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         lp1.addRule(RelativeLayout.ALIGN_TOP);
         lp1.addRule(RelativeLayout.ALIGN_RIGHT);
         lp1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        mSpecialCallCloseBtn.setImageResource(R.drawable.abc_ic_clear);
+        mSpecialCallCloseBtn.setImageResource(R.drawable.close);
         mSpecialCallCloseBtn.setBackgroundColor(Color.BLACK);
         mSpecialCallCloseBtn.setLayoutParams(lp1);
         mSpecialCallCloseBtn.setClickable(true);

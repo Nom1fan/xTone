@@ -15,9 +15,12 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.ContactsContract;
-import android.provider.MediaStore;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.InputType;
@@ -29,26 +32,27 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.app.AppStateManager;
 import com.data_objects.Constants;
 import com.data_objects.SnackbarData;
-import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.listeners.ActionClickListener;
 import com.services.IncomingService;
 import com.services.LogicServerProxyService;
 import com.services.OutgoingService;
-import com.services.StorageServerProxyService;
 import com.special.app.R;
 import com.ui.components.AutoCompletePopulateListAsyncTask;
 import com.ui.components.BitMapWorkerTask;
@@ -67,14 +71,12 @@ import EventObjects.Event;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import Exceptions.FileDoesNotExistException;
-import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
-import Exceptions.InvalidDestinationNumberException;
 import FilesManager.FileManager;
 
 
-public class MainActivity extends Activity implements OnClickListener {
+public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     private String _myPhoneNumber = "";
     private String _destPhoneNumber = "";
@@ -99,6 +101,13 @@ public class MainActivity extends Activity implements OnClickListener {
     private int randomPIN=0;
     public static boolean wasFileChooser=false; // todo try to remove this static shit that also is used by selectmedia class
     private final String shareBody = String.valueOf(R.string.invite);
+
+    private ListView mDrawerList;
+    private ArrayAdapter<String> mAdapter;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private DrawerLayout mDrawerLayout;
+    private String mActivityTitle;
+
 
     @Override
     protected void onStart() {
@@ -185,19 +194,88 @@ public class MainActivity extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+      //  setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.custom_action_bar);
+
+        Log.i(TAG,"0");
+
+
 
         _context = getApplicationContext();
 
         if (getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
 
+
+
             initializeLoginUI();
+           // actionbarwithHamburger();
 
         } else {
             initializeUI();
+            actionbarwithHamburger(toolbar);
+
             if (getState().equals(AppStateManager.STATE_LOGGED_IN)) {
                 stateIdle();
             }
         }
+    }
+
+    private void actionbarwithHamburger(Toolbar toolbar)
+    {
+
+
+
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        mActivityTitle = getTitle().toString();
+        mDrawerList = (ListView) findViewById(R.id.navList);
+        addDrawerItems();
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(MainActivity.this, "Time for an upgrade!", Toast.LENGTH_SHORT).show();
+            }
+        });
+        mDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout,  toolbar,R.string.drawer_open,R.string.drawer_close) {
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                //  getSupportActionBar().setTitle("Navigation!");
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu(
+            }
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                //   getSupportActionBar().setTitle(mActivityTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+        };
+        mDrawerToggle.setDrawerIndicatorEnabled(true);
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
+
+    }
+
+    private void addDrawerItems() {
+        String[] osArray = { "Android", "iOS", "Windows", "OS X", "Linux" };
+        mAdapter = new ArrayAdapter<String>(this, R.layout.simple_text_view, osArray);
+        mDrawerList.setAdapter(mAdapter);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if (mDrawerLayout!=null)
+            mDrawerToggle.syncState();
     }
 
     @Override
@@ -363,6 +441,12 @@ public class MainActivity extends Activity implements OnClickListener {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (mDrawerToggle!=null)
+            if (mDrawerToggle.onOptionsItemSelected(item)) {
+                return true;
+            }
+
         switch (item.getItemId()) {
             case R.id.action_settings:
 
@@ -584,8 +668,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     _destPhoneNumber = "";
                     _destName = "";
 
-                    if (10 != s.length() || !isNumeric(destPhone))
-                    {
+                    if (10 != s.length() || !isNumeric(destPhone)) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -625,6 +708,9 @@ public class MainActivity extends Activity implements OnClickListener {
 
         ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
         invite.setOnClickListener(this);
+
+
+
 
     }
 
