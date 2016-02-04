@@ -156,6 +156,13 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                         Color.RED, Snackbar.SnackbarDuration.LENGTH_LONG,
                         report.desc());
                 break;
+
+            //TODO Mor: Implement UNREGISTER_SUCCESS and UNREGISTER_FAILURE events handling
+            case UNREGISTER_SUCCESS:
+                break;
+
+            case UNREGISTER_FAILURE:
+                break;
         }
 
         if(!report.status().equals(EventType.REFRESH_UI))

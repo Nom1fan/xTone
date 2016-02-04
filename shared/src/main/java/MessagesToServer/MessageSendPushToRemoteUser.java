@@ -1,10 +1,7 @@
 package MessagesToServer;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 
-import DataObjects.PushEventKeys;
-import EventObjects.EventReport;
 import ServerObjects.ClientsManager;
 import ServerObjects.PushSender;
 
@@ -38,7 +35,7 @@ public class MessageSendPushToRemoteUser extends MessageToServer {
 
 		initLogger();
 
-		String remoteToken = ClientsManager.getClientPushToken(_remoteUserId);
+		String remoteToken = _clientsManager.getClientPushToken(_remoteUserId);
 
 		if(remoteToken!=null && !remoteToken.equals("")) {
 
@@ -49,12 +46,12 @@ public class MessageSendPushToRemoteUser extends MessageToServer {
 				sent = PushSender.sendPush(remoteToken, _pushEventAction, _msg, _extra);
 			}
 			if(sent)
-				logger.info("Push from:"+_messageInitiaterId+" to:"+_remoteUserId+" sent successfully");
+				_logger.info("Push from:"+_messageInitiaterId+" to:"+_remoteUserId+" sent successfully");
 			else
-				logger.severe("Push from:" + _messageInitiaterId + " to:" +_remoteUserId+" failed to be sent");
+				_logger.severe("Push from:" + _messageInitiaterId + " to:" +_remoteUserId+" failed to be sent");
 		}
 		else
-			logger.severe("Push from:" + _messageInitiaterId + " to:" +_remoteUserId+" failed to be sent. Token does not exist");
+			_logger.severe("Push from:" + _messageInitiaterId + " to:" +_remoteUserId+" failed to be sent. Token does not exist");
 
 		return true;
 	}

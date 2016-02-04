@@ -1,35 +1,40 @@
 package com.database;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import DalObjects.IDAL;
 import DataObjects.SharedConstants;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Created by Mor on 19/12/2015.
  */
 public class MySqlDAL implements IDAL {
 
-    private Connection conn;
+    private Connection _dbConn;
 
-    public MySqlDAL() throws SQLException {
+     /* IDAL methods implementations */
 
-        if(conn==null)
-            initConn();
-    }
-
+    @Override
     public void initConn() throws SQLException {
 
-        conn = DriverManager.getConnection("jdbc:mysql://" + SharedConstants.DB_SERVER_HOST + ":" + SharedConstants.DB_SERVER_PORT + "/sys?" +
+        _dbConn = DriverManager.getConnection("jdbc:mysql://" + SharedConstants.DB_SERVER_HOST + ":" + SharedConstants.DB_SERVER_PORT + "/sys?" +
                 "user=" + SharedConstants.DB_SERVER_USER + "&password=" + SharedConstants.DB_SERVER_PWD);
+    }
+
+    @Override
+    public void closeConn() {
+
+        if(_dbConn!=null)
+            try {
+                _dbConn.close();
+            } catch(SQLException e) { } //ignore
     }
 
     @Override
@@ -41,10 +46,25 @@ public class MySqlDAL implements IDAL {
     }
 
     @Override
-    public boolean unregisterUser(String uid) {
+    public boolean unregisterUser(String uid, String token) {
 
-        String query = "DELETE FROM " + TABLE_USERS + " WHERE " + COL_UID + "=" + "\"" + uid + "\"";
-        return executeQuery(query);
+       StringBuilder query = new StringBuilder();
+       uid = quote(uid);
+       token = quote(token);
+
+       query.
+       append("DELETE FROM ").
+       append(TABLE_USERS).
+       append(" WHERE ").
+       append(COL_UID).
+       append("=").
+       append(uid).
+       append("AND ").
+       append(COL_TOKEN).
+       append("=").
+       append(token);
+
+       return executeQuery(query.toString());
     }
 
     @Override
@@ -56,7 +76,7 @@ public class MySqlDAL implements IDAL {
         String token = "";
         try {
             initConn(); // Must init before each query since after 8 hours the connection is timed out
-            st = conn.createStatement();
+            st = _dbConn.createStatement();
             resultSet = st.executeQuery(query);
             if(resultSet.first())
                 token = resultSet.getString(1);
@@ -72,11 +92,12 @@ public class MySqlDAL implements IDAL {
                 try {
                     resultSet.close();
                 } catch (SQLException e) { } // ignore
+            closeConn();
         }
         return token;
     }
 
-    //TODO Test this method
+    //TODO Mor: Test this method
     @Override
     public void updateCommunicationRecord(int commId, String[] columns, Object[] values) throws SQLException {
 
@@ -138,12 +159,14 @@ public class MySqlDAL implements IDAL {
         return executeReturnGenKeyQuery(query);
     }
 
+    /* Internal operations methods and helpers */
+
     private int executeReturnGenKeyQuery(String query) throws SQLException {
 
         PreparedStatement preparedStatement = null;
         try {
             initConn(); // Must init before each query since after 8 hours the connection is timed out
-            preparedStatement = conn.prepareStatement(query , Statement.RETURN_GENERATED_KEYS);
+            preparedStatement = _dbConn.prepareStatement(query , Statement.RETURN_GENERATED_KEYS);
             preparedStatement.executeUpdate();
             ResultSet res = preparedStatement.getGeneratedKeys();
             if(res.next())
@@ -156,9 +179,11 @@ public class MySqlDAL implements IDAL {
         }
         finally {
             if(preparedStatement!=null)
-                try{
+                try {
                     preparedStatement.close();
+                    preparedStatement = null;
                 } catch(SQLException e) { } //ignore
+            closeConn();
         }
     }
 
@@ -168,7 +193,7 @@ public class MySqlDAL implements IDAL {
         Statement stmt = null;
         try {
             initConn(); // Must init before each query since after 8 hours the connection is timed out
-            stmt = conn.createStatement();
+            stmt = _dbConn.createStatement();
             stmt.execute(query);
             isOK = true;
         } catch (SQLException e) {
@@ -178,11 +203,16 @@ public class MySqlDAL implements IDAL {
             if(stmt!=null) {
                 try {
                     stmt.close();
+                    stmt = null;
                 } catch (SQLException e) { } // ignore
             }
-            stmt = null;
+            closeConn();
         }
 
         return isOK;
+    }
+
+    private String quote(String str) {
+        return "\"" + str + "\"";
     }
 }

@@ -22,13 +22,13 @@ public class MessageRegister extends MessageToServer {
 			
 		initLogger();				
 		
-		logger.info(_messageInitiaterId + " is registering...");
+		_logger.info(_messageInitiaterId + " is registering...");
 
-		boolean isOK = ClientsManager.registerUser(_messageInitiaterId, pushToken);
+		boolean isOK = _clientsManager.registerUser(_messageInitiaterId, pushToken);
 		MessageRegisterRes msgReply = new MessageRegisterRes(isOK);
 		replyToClient(msgReply);
 		
-		return cont;
+		return _cont;
 	}
 }
 

@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import DataObjects.PushEventKeys;
 import DataObjects.SharedConstants;
-import DataObjects.SpecialMediaType;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -70,8 +69,9 @@ public class MessageUploadFile extends MessageToServer {
 					" [Special Media Type]:" + _td.get_spMediaType() +
 					" [File size]:" +
 					FileManager.getFileSizeFormat(_td.getFileSize());
-			logger.info(infoMsg);
+			_logger.info(infoMsg);
 
+			BufferedOutputStream bos = null;
 			try {
 
 				// Preparing file placeholder
@@ -80,10 +80,10 @@ public class MessageUploadFile extends MessageToServer {
 				newFile.createNewFile();
 
 				FileOutputStream fos = new FileOutputStream(newFile);
-				BufferedOutputStream bos = new BufferedOutputStream(fos);
-				DataInputStream dis = new DataInputStream(getClientConnection().getClientSocket().getInputStream());
+				bos = new BufferedOutputStream(fos);
+				DataInputStream dis = new DataInputStream(get_clientConnection().getClientSocket().getInputStream());
 
-				logger.info("Reading data...");
+				_logger.info("Reading data...");
 				byte[] buf = new byte[1024*8];
 				long fileSize = _td.getFileSize();
 				int bytesRead;
@@ -93,8 +93,6 @@ public class MessageUploadFile extends MessageToServer {
 					fileSize -= bytesRead;
 				}
 
-				bos.close();
-
 				if(fileSize > 0)
 					throw new IOException("Upload was stopped abruptly");
                 else if (fileSize < 0 )
@@ -102,26 +100,33 @@ public class MessageUploadFile extends MessageToServer {
 			}
 			catch (IOException e) {
 				e.printStackTrace();
-				logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destId+" Failed:"+e.getMessage());
+				_logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destId+" Failed:"+e.getMessage());
 				String errMsg = "UPLOAD_FAILED:"+e.getMessage();
-				cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_FAILURE, errMsg, null)));
-				PushSender.sendPush(ClientsManager.getClientPushToken(_messageInitiaterId), PushEventKeys.SHOW_MESSAGE, errMsg);
+				_cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_FAILURE, errMsg, null)));
+				PushSender.sendPush(_clientsManager.getClientPushToken(_messageInitiaterId), PushEventKeys.SHOW_MESSAGE, errMsg);
 
-				return cont;
+				return _cont;
 			}
-
+			finally {
+				if(bos!=null)
+					try {
+						bos.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+			}
 
 			// Informing source (uploader) that the file is on the way
 			infoMsg = "File uploaded";
-			cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, _td)));
+			_cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, _td)));
 
-			if(!cont) {
-				logger.severe("Canceling file upload from "+_td.getSourceId()+" to "+_td.getDestinationId());
-				return cont;
+			if(!_cont) {
+				_logger.severe("Canceling file upload from "+_td.getSourceId()+" to "+_td.getDestinationId());
+				return _cont;
 			}
 
 			// Inserting the record of the file upload, retrieving back the commId
-			int commId = CommHistoryManager.insertCommunicationRecord(
+			int commId = _commHistoryManager.insertCommunicationRecord(
                     _td.get_spMediaType().toString(),
                     _td.getSourceId(),
                     _td.getDestinationId(),
@@ -131,19 +136,19 @@ public class MessageUploadFile extends MessageToServer {
 			// Sending file to destination
 			_td.set_commId(commId);
 			_td.set_filePathOnServer(fileFullPath.toString());
-			String destToken = ClientsManager.getClientPushToken(_destId);
+			String destToken = _clientsManager.getClientPushToken(_destId);
 			String pushEventAction = PushEventKeys.PENDING_DOWNLOAD;
 			boolean sent = PushSender.sendPush(destToken, pushEventAction, new Gson().toJson(_td));
 
 			if(!sent)
 			{
 				String errMsg = "TRANSFER_FAILURE: "+ _destId +" did not receive pending download push for file:"+_td.getSourceWithExtension();
-				String initiaterToken = ClientsManager.getClientPushToken(_messageInitiaterId);
+				String initiaterToken = _clientsManager.getClientPushToken(_messageInitiaterId);
 				// Informing source (uploader) that the file was not sent to destination
-				cont = PushSender.sendPush(initiaterToken, PushEventKeys.SHOW_MESSAGE, errMsg);
+				_cont = PushSender.sendPush(initiaterToken, PushEventKeys.SHOW_MESSAGE, errMsg);
 			}
 
-			return cont;
+			return _cont;
 		
 	}
 }

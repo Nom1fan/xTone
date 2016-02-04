@@ -13,12 +13,8 @@ public class ServerRunner {
 
     public static void main(String args[]) {
 
-        try {
-            MySqlDAL dal = new MySqlDAL();
-            new GenericServer("LogicServer", SharedConstants.LOGIC_SERVER_PORT, dal);
-            new GenericServer("StorageServer", SharedConstants.STORAGE_SERVER_PORT, dal);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        new GenericServer("LogicServer", SharedConstants.LOGIC_SERVER_PORT);
+        new GenericServer("StorageServer", SharedConstants.STORAGE_SERVER_PORT);
+
     }
 }

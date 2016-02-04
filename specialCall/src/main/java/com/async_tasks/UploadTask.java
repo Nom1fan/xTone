@@ -48,15 +48,17 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
         FileManager managedFile = _td.get_managedFile();
         MessageUploadFile msgUF = new MessageUploadFile(_td.getSourceId(),_td);
 
+        DataOutputStream dos = null;
+        BufferedInputStream bis = null;
         try {
             _connectionToServer.sendToServer(msgUF);
             
             Log.i(TAG, "Initiating file data upload...");
 
-            DataOutputStream dos = new DataOutputStream(_connectionToServer.getClientSocket().getOutputStream());
+            dos = new DataOutputStream(_connectionToServer.getClientSocket().getOutputStream());
 
             FileInputStream fis = new FileInputStream(managedFile.getFile());
-            BufferedInputStream bis = new BufferedInputStream(fis);
+            bis = new BufferedInputStream(fis);
 
             byte[] buf = new byte[1024 * 8];
             long fileSize = managedFile.getFileSize();
@@ -77,6 +79,15 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
             Log.e(TAG, "Failed:" + e.getMessage());
              BroadcastUtils.sendEventReportBroadcast(_context, TAG,
                      new EventReport(EventType.UPLOAD_FAILURE, "Upload to "+_td.getDestinationId()+" failed:"+e.getMessage(),null));
+        } finally {
+
+            if(bis!=null) {
+                try {
+                    bis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         Log.i(TAG, "Deleting "+_td.getDestinationId()+"'s outgoing folder after upload");

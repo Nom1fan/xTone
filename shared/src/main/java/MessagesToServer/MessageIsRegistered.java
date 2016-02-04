@@ -24,13 +24,13 @@ public class MessageIsRegistered extends MessageToServer {
 
 		initLogger();
 
-		logger.info(_messageInitiaterId + " is checking if " + _id + " is logged in...");
+		_logger.info(_messageInitiaterId + " is checking if " + _id + " is logged in...");
 
 
-		MessageIsRegisteredRes msgReply = new MessageIsRegisteredRes(_id, ClientsManager.isRegistered(_id));
+		MessageIsRegisteredRes msgReply = new MessageIsRegisteredRes(_id, _clientsManager.isRegistered(_id));
 		replyToClient(msgReply);
 		
-		return cont;
+		return _cont;
 		
 	}
 

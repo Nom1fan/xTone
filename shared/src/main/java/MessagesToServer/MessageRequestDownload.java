@@ -3,7 +3,6 @@ package MessagesToServer;
 import com.google.gson.Gson;
 import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import DalObjects.IDAL;
@@ -44,8 +43,10 @@ public class MessageRequestDownload extends MessageToServer {
 
         initLogger();
 
-        logger.info(_messageInitiaterId + " is requesting download from:"+_td.getSourceId()+" of file type:"+_td.getExtension()+"...");
+        _logger.info(_messageInitiaterId + " is requesting download from:"+_td.getSourceId()+" of file type:"+_td.getExtension()+"...");
 
+        BufferedInputStream bis = null;
+        DataOutputStream dos = null;
         try {
             FileManager fileForDownload = new FileManager(_filePathOnServer);
             MessageDownloadFile msgDF = new MessageDownloadFile(_td);
@@ -53,12 +54,11 @@ public class MessageRequestDownload extends MessageToServer {
             if(!sent)
                 throw new DownloadRequestFailedException("Failed to initiate download sequence.");
 
-            logger.info("Initiating data send...");
+            _logger.info("Initiating data send...");
 
-            DataOutputStream dos = new DataOutputStream(getClientConnection().getClientSocket().getOutputStream());
-
+            dos = new DataOutputStream(get_clientConnection().getClientSocket().getOutputStream());
             FileInputStream fis = new FileInputStream(fileForDownload.getFile());
-            BufferedInputStream bis = new BufferedInputStream(fis);
+            bis = new BufferedInputStream(fis);
 
             byte[] buf = new byte[1024 * 8];
             long bytesToRead = fileForDownload.getFileSize();
@@ -72,13 +72,13 @@ public class MessageRequestDownload extends MessageToServer {
 
             // Informing source (uploader) that file received by user (downloader)
             String msg = "Media for "+_td.getDestinationId()+ " is ready!";
-            sent = PushSender.sendPush(ClientsManager.getClientPushToken(_td.getSourceId()), PushEventKeys.TRANSFER_SUCCESS, msg, new Gson().toJson(_td));
+            sent = PushSender.sendPush(_clientsManager.getClientPushToken(_td.getSourceId()), PushEventKeys.TRANSFER_SUCCESS, msg, new Gson().toJson(_td));
             if(!sent)
-                logger.warning("Failed to inform user " + _td.getSourceId() + " of transfer success to user: " + _td.getDestinationId());
+                _logger.warning("Failed to inform user " + _td.getSourceId() + " of transfer success to user: " + _td.getDestinationId());
 
             // Marking in communication history record that the transfer was successful
             char TRUE = '1';
-            CommHistoryManager.updateCommunicationRecord(_td.get_commId(), IDAL.COL_TRANSFER_SUCCESS, TRUE);
+            _commHistoryManager.updateCommunicationRecord(_td.get_commId(), IDAL.COL_TRANSFER_SUCCESS, TRUE);
 
 
         } catch (FileInvalidFormatException  |
@@ -93,6 +93,11 @@ public class MessageRequestDownload extends MessageToServer {
 
             handleDownloadFailure(e);
             throw e; //In case of IOException we need to notify the server infra
+        } finally {
+        	if(bis!=null)
+        		bis.close();
+        	if(dos!=null)
+        		dos.close();
         }
 
 
@@ -101,27 +106,27 @@ public class MessageRequestDownload extends MessageToServer {
 
     private void handleDownloadFailure(Exception e) {
 
-        logger.severe("User " + _messageInitiaterId + " download request failed. Exception:" + e.getMessage());
+        _logger.severe("User " + _messageInitiaterId + " download request failed. Exception:" + e.getMessage());
 
         String msgTransferFailed ="TRANSFER_FAILED: "+_td.getDestinationId()+" did not receive file";
 
         // Informing sender that file did not reach destination
-        logger.severe("Informing sender:"+_td.getSourceId()+" that file did not reach destination:"+_td.getDestinationId());
+        _logger.severe("Informing sender:"+_td.getSourceId()+" that file did not reach destination:"+_td.getDestinationId());
         String senderId = _td.getSourceId();
-        String senderToken = ClientsManager.getClientPushToken(senderId);
+        String senderToken = _clientsManager.getClientPushToken(senderId);
         if(!senderToken.equals(""))
             PushSender.sendPush(senderToken, PushEventKeys.SHOW_MESSAGE, msgTransferFailed);
         else
-            logger.severe("Failed trying to Inform sender:"+_td.getSourceId()+" that file did not reach destination:"+_td.getDestinationId()+". Empty token");
+            _logger.severe("Failed trying to Inform sender:"+_td.getSourceId()+" that file did not reach destination:"+_td.getDestinationId()+". Empty token");
 
         // informing destination of request failure
         String msgDownloadFailed = "DOWNLOAD_FAILURE: File send from user:"+_td.getSourceId()+" failed.";
-        logger.severe("Informing destination:"+_td.getDestinationId()+" that download request failed");
+        _logger.severe("Informing destination:"+_td.getDestinationId()+" that download request failed");
         replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.DOWNLOAD_FAILURE, msgDownloadFailed, null)));
 
         // Marking in communication history record that the transfer has failed
         char FALSE = '0';
-        CommHistoryManager.updateCommunicationRecord(_td.get_commId(), IDAL.COL_TRANSFER_SUCCESS, FALSE);
+        _commHistoryManager.updateCommunicationRecord(_td.get_commId(), IDAL.COL_TRANSFER_SUCCESS, FALSE);
     }
 
 }

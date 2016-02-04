@@ -1,10 +1,10 @@
 package servers;
 
+import com.database.MySqlDAL;
+
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.logging.Logger;
 
-import DalObjects.IDAL;
 import LogObjects.LogsManager;
 import MessagesToServer.MessageToServer;
 import ServerObjects.AbstractServer;
@@ -25,16 +25,13 @@ public class GenericServer extends AbstractServer {
      * @param serverName
      * @param port the port number on which to listen.
      */
-    public GenericServer(String serverName, int port, IDAL dal) {
+    public GenericServer(String serverName, int port) {
         super(serverName, port);
         this.serverName = serverName;
         try {
             LogsManager.createServerLogsDir();
             LogsManager.clearLogs();
-            _logger = LogsManager.getServerLogger();
-
-            ClientsManager.initialize(dal);
-            CommHistoryManager.initialize(dal);
+            _logger = LogsManager.get_serverLogger();
 
             System.out.println("Starting " + serverName + "...");
 
@@ -58,7 +55,9 @@ public class GenericServer extends AbstractServer {
         MessageToServer msg = (MessageToServer) oMsg;
 
         try {
-            msg.setClientConnection(ctc);
+            msg.set_clientConnection(ctc);
+            msg.set_clientsManager(new ClientsManager(new MySqlDAL()));
+            msg.set_commHistoryManager(new CommHistoryManager(new MySqlDAL()));
             boolean cont = msg.doServerAction();
             if(!cont)
                 closeConnectionToClient(ctc);
@@ -78,7 +77,9 @@ public class GenericServer extends AbstractServer {
             try {
                 listen();
                 Thread.sleep(RESTART_INTERVAL);
-            } catch (IOException | InterruptedException e)  {
+            } catch (IOException e)  {
+                e.printStackTrace();
+            } catch (InterruptedException e)  {
                 e.printStackTrace();
             }
         }

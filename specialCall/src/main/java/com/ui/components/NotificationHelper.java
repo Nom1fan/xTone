@@ -27,7 +27,7 @@ public class NotificationHelper {
      */
     public void createUploadNotification(String initialMsg) {
 
-        //get the notification manager
+        // Get the notification manager
         mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 
         //create the notification
@@ -35,12 +35,12 @@ public class NotificationHelper {
         CharSequence tickerText = mContext.getString(R.string.upload_ticker); //Initial text that appears in the status bar
         long when = System.currentTimeMillis();
 
-        //create the content which is shown in the notification pulldown
+        // Create the content which is shown in the notification pulldown
         mContentTitle = mContext.getString(R.string.content_title); //Full title of the notification in the pull down
         CharSequence contentText = initialMsg; //Text of the notification in the pull down
 
-        //you have to set a PendingIntent on a notification to tell the system what you want it to do when the notification is selected
-        //I don't want to use this here so I'm just creating a blank one
+        // You have to set a PendingIntent on a notification to tell the system what you want it to do when the notification is selected
+        // I don't want to use this here so I'm just creating a blank one
         Intent notificationIntent = new Intent();
         mContentIntent = PendingIntent.getActivity(mContext, 0, notificationIntent, 0);
 

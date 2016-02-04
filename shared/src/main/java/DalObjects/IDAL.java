@@ -26,8 +26,10 @@ public interface IDAL {
     String COL_TRANSFER_DATETIME = "transfer_datetime";
 
 
+    void initConn() throws SQLException;
+    void closeConn();
     boolean registerUser(String uid, String token);
-    boolean unregisterUser(String uid);
+    boolean unregisterUser(String uid, String token);
     boolean updateUserPushToken(String uid, String token);
     int insertCommunicationHistory(String type, String src, String dest, String extension, int size) throws SQLException;
     String getUserPushToken(String uid);
