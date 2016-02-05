@@ -1,6 +1,5 @@
 package com.ui.activities;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +19,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.InputType;
@@ -194,27 +192,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-      //  setSupportActionBar(toolbar);
+
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.custom_action_bar);
-
-        Log.i(TAG,"0");
-
-
 
         _context = getApplicationContext();
 
         if (getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
-
-
-
             initializeLoginUI();
-           // actionbarwithHamburger();
 
         } else {
             initializeUI();
-            actionbarwithHamburger(toolbar);
 
             if (getState().equals(AppStateManager.STATE_LOGGED_IN)) {
                 stateIdle();
@@ -222,14 +210,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
     }
 
-    private void actionbarwithHamburger(Toolbar toolbar)
+    private void enableHamburgerIconWithSlideMenu()
     {
 
-
-
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);  //Enable or disable the "home" button in the corner of the action bar.
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mActivityTitle = getTitle().toString();
         mDrawerList = (ListView) findViewById(R.id.navList);
@@ -240,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 Toast.makeText(MainActivity.this, "Time for an upgrade!", Toast.LENGTH_SHORT).show();
             }
         });
-        mDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout,  toolbar,R.string.drawer_open,R.string.drawer_close) {
+        mDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout, R.string.drawer_open,R.string.drawer_close) {
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
@@ -260,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         mDrawerToggle.setDrawerIndicatorEnabled(true);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        mDrawerToggle.syncState();
 
 
     }
@@ -594,6 +579,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private void initializeUI() {
 
         setContentView(R.layout.activity_main);
+        enableHamburgerIconWithSlideMenu();
 
         //prepareMsgBarAnimation();
 
