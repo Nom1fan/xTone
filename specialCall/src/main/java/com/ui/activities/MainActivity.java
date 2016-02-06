@@ -1,5 +1,7 @@
 package com.ui.activities;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +17,7 @@ import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -63,6 +66,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
+import java.util.ArrayList;
+import java.util.List;
 
 import DataObjects.SpecialMediaType;
 import EventObjects.Event;
@@ -101,10 +106,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private final String shareBody = String.valueOf(R.string.invite);
 
     private ListView mDrawerList;
-    private ArrayAdapter<String> mAdapter;
+    CustomDrawerAdapter mAdapter;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
     private String mActivityTitle;
+    List<DrawerItem> dataList;
 
     @Override
     protected void onStart() {
@@ -191,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
-
+        dataList = new ArrayList<DrawerItem>();
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setCustomView(R.layout.custom_action_bar);
 
@@ -264,6 +270,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         }
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -388,23 +396,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         switch (item.getItemId()) {
             case R.id.action_settings:
 
-                saveInstanceState();
-                Intent y = new Intent();
-                y.setClass(_context, Settings.class);
-                startActivity(y);
+                appSettings();
+
                 break;
 
             case R.id.action_share:
 
                 saveInstanceState();
 
-                Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-                sharingIntent.setType("text/plain");
-                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "MediaCallz (Open it in Google Play Store to Download the Application)");
-
-                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-                startActivity(Intent.createChooser(sharingIntent, "Share via"));
-
+                shareUs();
 
                 break;
 
@@ -418,6 +418,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
         return true;
     }
+
+
+
 
     private void initializeLoginUI() {
 
@@ -933,18 +936,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private void enableHamburgerIconWithSlideMenu()
     {
 
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);  //Enable or disable the "home" button in the corner of the action bar.
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mActivityTitle = getTitle().toString();
-        mDrawerList = (ListView) findViewById(R.id.navList);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
         addDrawerItems();
-        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "Time for an upgrade!", Toast.LENGTH_SHORT).show();
-            }
-        });
+
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
         mDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout, R.string.drawer_open,R.string.drawer_close) {
 
             /** Called when a drawer has settled in a completely open state. */
@@ -971,9 +973,90 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     }
 
     private void addDrawerItems() {
-        String[] osArray = { "Android", "iOS", "Windows", "OS X", "Linux" };
-        mAdapter = new ArrayAdapter<String>(this, R.layout.simple_text_view, osArray);
+        String[] osArray = { "Media Management", "App Settings", "Report Bug", "FAQ & Tutorial" };
+
+// Add Drawer Item to dataList
+        // Add Drawer Item to dataList
+        dataList.add(new DrawerItem("", R.drawable.color_mc));
+        dataList.add(new DrawerItem("Media Management", R.drawable.mediaicon));
+        dataList.add(new DrawerItem("App Settings", R.drawable.settingsicon));
+        dataList.add(new DrawerItem("Report Bug", R.drawable.bug));
+        dataList.add(new DrawerItem("FAQ & Tutorial", R.drawable.questionmark));
+        dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
+        dataList.add(new DrawerItem("Rate Us", R.drawable.rateus2));
+
+
+        mAdapter = new CustomDrawerAdapter(this, R.layout.custome_drawer_item,
+                dataList);
+
+        //   mAdapter = new ArrayAdapter<String>(this, R.layout.custome_drawer_item, osArray);
         mDrawerList.setAdapter(mAdapter);
+    }
+
+    public void SelectItem(int possition) {
+
+        switch (possition) {
+            case 0:
+
+
+                break;
+            case 1: //Media Management
+
+                break;
+            case 2: // App Settings
+                appSettings();
+                break;
+            case 3: // Report Bug
+
+                break;
+            case 4: // FAQ & Tutorial
+
+                break;
+            case 5: // Share Us
+                shareUs();
+                break;
+            case 6: // Rate Us
+
+
+                break;
+
+            default:
+                break;
+        }
+
+
+     /*   mDrawerList.setItemChecked(possition, true);
+        setTitle(dataList.get(possition).getItemName());*/
+        mDrawerLayout.closeDrawer(mDrawerList);
+
+    }
+
+    private class DrawerItemClickListener implements
+            ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position,
+                                long id) {
+           if (position!=0)
+            SelectItem(position);
+
+        }
+    }
+
+    private void shareUs() {
+
+        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sharingIntent.setType("text/plain");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "MediaCallz (Open it in Google Play Store to Download the Application)");
+
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+        startActivity(Intent.createChooser(sharingIntent, "Share via"));
+    }
+
+    private void appSettings() {
+        saveInstanceState();
+        Intent y = new Intent();
+        y.setClass(_context, Settings.class);
+        startActivity(y);
     }
 
     private void openCallerMediaMenu() { // tod

@@ -92,7 +92,7 @@ public class SpecialCallApp extends Application {
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, SharedConstants.APP_NAME);
         addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,
                 Intent.ShortcutIconResource.fromContext(getApplicationContext(),
-                        R.drawable.mediacallztempicon));
+                        R.drawable.color_mc));
         addIntent.putExtra("duplicate", false); // Just create once
         addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
         // finally broadcast the new Intent

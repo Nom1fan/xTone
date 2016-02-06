@@ -105,7 +105,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     @Override
     public int getAppIcon() {
-        return R.drawable.mediacallztempicon;
+        return R.drawable.color_mc;
     }
 
     @Override
@@ -343,7 +343,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         ((ImageView) mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_CENTER); // <<  just place the image Center of Window and fit it with ratio
 
 
-         ((ImageView) mSpecialCallView).setImageResource(R.drawable.mediacallztempicon);
+         ((ImageView) mSpecialCallView).setImageResource(R.drawable.color_mc);
 
 
         mRelativeLayout.addView(mSpecialCallView);
