@@ -15,6 +15,7 @@ import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -23,7 +24,10 @@ import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -266,11 +270,25 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
     }
 
-    @Override
+  /*  @Override     //  the menu with the 3 dots on the right, on the top action bar, to enable it uncomment this.
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }*/
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent e) {  // hard menu key will open and close the drawer menu also
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+
+            if (!mDrawerLayout.isDrawerOpen(GravityCompat.START))
+                mDrawerLayout.openDrawer(GravityCompat.START);
+            else
+                mDrawerLayout.closeDrawer(GravityCompat.START);
+
+            return true;
+        }
+        return super.onKeyDown(keyCode, e);
     }
 
     private void selectMedia(int code) {
@@ -922,20 +940,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     /* --- UI elements controls --- */
 
-    private void enableHamburgerIconWithSlideMenu()
-    {
-
-
+    private void enableHamburgerIconWithSlideMenu()    {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);  //Enable or disable the "home" button in the corner of the action bar.
+
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         mActivityTitle = getTitle().toString();
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
-
         addDrawerItems();
-
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-
         mDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout, R.string.drawer_open,R.string.drawer_close) {
 
             /** Called when a drawer has settled in a completely open state. */
@@ -955,10 +968,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         };
         mDrawerToggle.setDrawerIndicatorEnabled(true);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mDrawerToggle.syncState();
-
-
     }
 
     private void addDrawerItems() {
@@ -966,14 +976,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
 // Add Drawer Item to dataList
         // Add Drawer Item to dataList
-        dataList.add(new DrawerItem("", R.drawable.color_mc));
         dataList.add(new DrawerItem("Media Management", R.drawable.mediaicon));
-        dataList.add(new DrawerItem("App Settings", R.drawable.settingsicon));
-        dataList.add(new DrawerItem("Report Bug", R.drawable.bug));
-        dataList.add(new DrawerItem("FAQ & Tutorial", R.drawable.questionmark));
+
+        dataList.add(new DrawerItem("Who Can MC me", R.drawable.blackwhitelist));
+        dataList.add(new DrawerItem("How To ?", R.drawable.questionmark));
         dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
         dataList.add(new DrawerItem("Rate Us", R.drawable.rateus2));
-
+        dataList.add(new DrawerItem("Report Bug", R.drawable.bug));
+        dataList.add(new DrawerItem("App Settings", R.drawable.settingsicon));
 
         mAdapter = new CustomDrawerAdapter(this, R.layout.custome_drawer_item,
                 dataList);
@@ -992,20 +1002,20 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             case 1: //Media Management
 
                 break;
-            case 2: // App Settings
-                appSettings();
-                break;
-            case 3: // Report Bug
+            case 2: // Who Can MC me
 
                 break;
-            case 4: // FAQ & Tutorial
+            case 3: // How To?
 
                 break;
-            case 5: // Share Us
+            case 4: // Share Us
                 shareUs();
                 break;
-            case 6: // Rate Us
+            case 5: // Rate Us
 
+                break;
+            case 6: // App Settings
+                appSettings();
 
                 break;
 
@@ -1123,7 +1133,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         runOnUiThread(new Runnable() {
 
             public void run() {
-                findViewById(R.id.CallNow).setEnabled(false);
+                findViewById(R.id.CallNow).setVisibility(View.INVISIBLE);
             }
 
         });
@@ -1135,6 +1145,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
             @Override
             public void run() {
+                findViewById(R.id.CallNow).setVisibility(View.VISIBLE);
                 findViewById(R.id.CallNow).setEnabled(true);
             }
         });
@@ -1145,8 +1156,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                findViewById(R.id.selectMediaBtn).setClickable(false);
-                drawSelectMediaButton(false);
+                findViewById(R.id.selectMediaBtn).setVisibility(View.INVISIBLE);
+                findViewById(R.id.ringtoneName).setVisibility(View.INVISIBLE);
             }
         });
     }
@@ -1167,6 +1178,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                findViewById(R.id.selectMediaBtn).setVisibility(View.VISIBLE);
+                findViewById(R.id.ringtoneName).setVisibility(View.VISIBLE);
                 findViewById(R.id.selectMediaBtn).setClickable(true);
                 drawSelectMediaButton(true);
             }
@@ -1382,11 +1395,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         try {
             FileManager.FileType fType;
             ImageButton selectProfileMediaBtn = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
-            int width =  selectProfileMediaBtn.getWidth();
+
+            DisplayMetrics displaymetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+            int width = displaymetrics.widthPixels;
+
             if ( width < 1)
                 width = 600; // default 600 as LG G2 width for example
 
-            int thumbnailSize = width*6/10;
+            BitMapWorkerTask._screenwidth = width;
+
+            int thumbnailSize = width*4/10;
             int radius = (int) (thumbnailSize*0.8);
             Log.i(TAG, "thumbnailSize: " + thumbnailSize + " width: " + width + " radius: " + radius);
             if(!enabled)

@@ -64,34 +64,14 @@ public class CustomDrawerAdapter extends ArrayAdapter<DrawerItem> {
 
         drawerHolder.icon.setImageDrawable(view.getResources().getDrawable(
                 dItem.getImgResID()));
-        if(!dItem.getItemName().isEmpty())
-        { drawerHolder.ItemName.setText(dItem.getItemName());
+
+         drawerHolder.ItemName.setText(dItem.getItemName());
 
             LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(150, 150);
             layoutParams.gravity = Gravity.RIGHT;
             drawerHolder.icon.setLayoutParams(layoutParams);
 
 
-        }
-        else {
-            drawerHolder.ItemName.setClickable(false);
-            drawerHolder.ItemName.setVisibility(View.INVISIBLE);
-            drawerHolder.icon.setClickable(false);
-            drawerHolder.icon.setBackgroundColor(Color.parseColor("#cbe4f0"));
-            view.setBackgroundColor(Color.parseColor("#cbe4f0"));
-
-            LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-            layoutParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL | Gravity.CENTER;
-
-            layoutParams.width = 300;
-            layoutParams.height = 300;
-
-            drawerHolder.icon.setLayoutParams(layoutParams);
-            view.setClickable(false);
-
-
-
-        }
 
         return view;
     }

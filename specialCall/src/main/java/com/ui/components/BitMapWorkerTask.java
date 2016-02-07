@@ -29,7 +29,7 @@ public class BitMapWorkerTask extends AsyncTask<String, Void, Bitmap> {
     private int _height;
     private int _width;
     private SpecialMediaType _specialMediaType;
-
+    public static int _screenwidth =600;  // todo added this static parameter because couldn't pass the width of the screen so i could calculate the profile media imageview
     public BitMapWorkerTask(ImageView imageComponent) {
         // Use a WeakReference to ensure the ImageView can be garbage collected
         imageComponentWeakReference = new WeakReference<>(imageComponent);
@@ -89,13 +89,13 @@ public class BitMapWorkerTask extends AsyncTask<String, Void, Bitmap> {
 
                     case PROFILE_MEDIA:
 
-                        int width = imageComponent.getWidth();
-                        if ( width < 1)
-                            width = 900; // default
 
-                        int thumbnailSize = width*6/10;
+                        if ( _width < 1)
+                            _screenwidth = 600; // default
+
+                        int thumbnailSize = _screenwidth*4/10;
                         int radius = (int) (thumbnailSize*0.8);
-                        Log.i(TAG, "thumbnailSize: " + thumbnailSize + " width: " + width + " radius: " + radius);
+                        Log.i(TAG, "thumbnailSize: " + thumbnailSize + " width: " + _screenwidth + " radius: " + radius);
 
                         bitmap = Bitmap.createScaledBitmap(bitmap, thumbnailSize, thumbnailSize, false); // TODO: code review on the relative sizes that we deliver for the circular profile media draw, to see calculation are good
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
