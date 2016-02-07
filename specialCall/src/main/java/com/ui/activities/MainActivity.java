@@ -24,11 +24,8 @@ import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -1395,19 +1392,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         try {
             FileManager.FileType fType;
             ImageButton selectProfileMediaBtn = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
+            int height = selectProfileMediaBtn.getHeight();
 
-            DisplayMetrics displaymetrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-            int width = displaymetrics.widthPixels;
+            if ( height < 1)
+                height = 350; // default 600 as LG G2 width for example
 
-            if ( width < 1)
-                width = 600; // default 600 as LG G2 width for example
+            BitMapWorkerTask._screenheight = height;
 
-            BitMapWorkerTask._screenwidth = width;
-
-            int thumbnailSize = width*4/10;
+            int thumbnailSize = height*9/10;
             int radius = (int) (thumbnailSize*0.8);
-            Log.i(TAG, "thumbnailSize: " + thumbnailSize + " width: " + width + " radius: " + radius);
+            Log.i(TAG, "thumbnailSize: " + thumbnailSize + " height: " + height + " radius: " + radius);
             if(!enabled)
                 selectProfileMediaBtn.setImageBitmap(transform((localImageToBitmap(R.drawable.defaultpic_disabled, thumbnailSize)), radius, 0)); // TODO: code review on the relative sizes that we deliver for the circular profile media draw, to see calculation are good
             else {
