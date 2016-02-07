@@ -1,7 +1,5 @@
 package com.ui.activities;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +15,6 @@ import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -33,7 +30,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -77,7 +73,6 @@ import Exceptions.FileDoesNotExistException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
-
 
 public class MainActivity extends AppCompatActivity implements OnClickListener {
 
@@ -271,8 +266,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
     }
 
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -418,9 +411,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
         return true;
     }
-
-
-
 
     private void initializeLoginUI() {
 
@@ -825,7 +815,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     }
 
     /* -------------- UI methods -------------- */
-
 
     /* --- UI States --- */
 
@@ -1397,8 +1386,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             if ( width < 1)
                 width = 600; // default 600 as LG G2 width for example
 
-            int thumbnailSize = width*2/3;
-            int radius = (int) (thumbnailSize*0.625);
+            int thumbnailSize = width*6/10;
+            int radius = (int) (thumbnailSize*0.8);
             Log.i(TAG, "thumbnailSize: " + thumbnailSize + " width: " + width + " radius: " + radius);
             if(!enabled)
                 selectProfileMediaBtn.setImageBitmap(transform((localImageToBitmap(R.drawable.defaultpic_disabled, thumbnailSize)), radius, 0)); // TODO: code review on the relative sizes that we deliver for the circular profile media draw, to see calculation are good

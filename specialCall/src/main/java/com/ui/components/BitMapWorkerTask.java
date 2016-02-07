@@ -93,8 +93,8 @@ public class BitMapWorkerTask extends AsyncTask<String, Void, Bitmap> {
                         if ( width < 1)
                             width = 900; // default
 
-                        int thumbnailSize = width*2/3;
-                        int radius = (int) (thumbnailSize*0.625);
+                        int thumbnailSize = width*6/10;
+                        int radius = (int) (thumbnailSize*0.8);
                         Log.i(TAG, "thumbnailSize: " + thumbnailSize + " width: " + width + " radius: " + radius);
 
                         bitmap = Bitmap.createScaledBitmap(bitmap, thumbnailSize, thumbnailSize, false); // TODO: code review on the relative sizes that we deliver for the circular profile media draw, to see calculation are good
