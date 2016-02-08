@@ -278,11 +278,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     public boolean onKeyDown(int keyCode, KeyEvent e) {  // hard menu key will open and close the drawer menu also
         if (keyCode == KeyEvent.KEYCODE_MENU) {
 
-            if (!mDrawerLayout.isDrawerOpen(GravityCompat.START))
-                mDrawerLayout.openDrawer(GravityCompat.START);
-            else
-                mDrawerLayout.closeDrawer(GravityCompat.START);
-
+           if (mDrawerLayout!=null) {
+               if (!mDrawerLayout.isDrawerOpen(GravityCompat.START))
+                   mDrawerLayout.openDrawer(GravityCompat.START);
+               else
+                   mDrawerLayout.closeDrawer(GravityCompat.START);
+           }
             return true;
         }
         return super.onKeyDown(keyCode, e);
@@ -992,26 +993,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     public void SelectItem(int possition) {
 
         switch (possition) {
-            case 0:
-
-
-                break;
-            case 1: //Media Management
+            case 0://Media Management
 
                 break;
-            case 2: // Who Can MC me
+            case 1: // Who Can MC me
 
                 break;
-            case 3: // How To?
+            case 2: // How To?
 
                 break;
-            case 4: // Share Us
+            case 3: // Share Us
+                break;
+            case 4: // Rate Us
                 shareUs();
                 break;
-            case 5: // Rate Us
-
-                break;
-            case 6: // App Settings
+            case 5: // App Settings
                 appSettings();
 
                 break;
@@ -1233,6 +1229,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             @Override
             public void run() {
                 _pBar = (ProgressBar) findViewById(R.id.progressBar);
+                if (_pBar!=null)
                 _pBar.setVisibility(ProgressBar.VISIBLE);
             }
         });
