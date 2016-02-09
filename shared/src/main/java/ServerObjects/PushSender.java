@@ -23,6 +23,8 @@ public abstract class PushSender {
 
     private static final String APPLICATION_ID = "7CL97UlX4EtpMyRJYshNlIQ3T12EEZ0OaZWxZjvR";
     private static final String REST_API_KEY = "XzVRYR8d6IiuKbZE0dYBdjxoyoEwP2ONJFxxHOPW";
+    private static final String BATCH_REST_API_KEY = "2b2efabe088730905d0651656ffb642c";
+
     private static final String PUSH_URL = "https://api.parse.com/1/push";
     private static Logger _logger = LogsManager.get_serverLogger();
     private static class PushObject {

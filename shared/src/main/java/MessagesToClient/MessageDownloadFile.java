@@ -36,11 +36,12 @@ public class MessageDownloadFile extends MessageToClient {
 	
 	@Override
 	public EventReport doClientAction(ConnectionToServer connectionToServer) throws IOException {
-							
+
+		  BufferedOutputStream bos = null;
 		  try
 		  {
-
               File folderPath = null;
+
               switch(_td.get_spMediaType())
               {
                   case CALLER_MEDIA:
@@ -61,7 +62,7 @@ public class MessageDownloadFile extends MessageToClient {
 			  newFile.createNewFile();
 
 			  FileOutputStream fos = new FileOutputStream(fileStoragePath);
-			  BufferedOutputStream bos = new BufferedOutputStream(fos);
+			  bos = new BufferedOutputStream(fos);
 			  DataInputStream dis = new DataInputStream(connectionToServer.getClientSocket().getInputStream());
 
 			  System.out.println("Reading data...");
@@ -74,8 +75,6 @@ public class MessageDownloadFile extends MessageToClient {
 				  fileSize -= bytesRead;
 			  }
 
-			  bos.close();
-
 			  if(fileSize > 0)
 				  throw new IOException("download was stopped abruptly");
 
@@ -87,6 +86,9 @@ public class MessageDownloadFile extends MessageToClient {
 		  	String errMsg = "DOWNLOAD_FAILURE:" + (e.getMessage() != null ? e.getMessage() : "");
 
 			return new EventReport(EventType.DOWNLOAD_FAILURE,errMsg,_fileName);
+		  } finally {
+			  if(bos!=null)
+			  	bos.close();
 		  }
 
 				

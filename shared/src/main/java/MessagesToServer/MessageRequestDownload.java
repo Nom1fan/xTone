@@ -18,6 +18,7 @@ import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
 import MessagesToClient.MessageDownloadFile;
 import MessagesToClient.MessageTriggerEventOnly;
+import ServerObjects.BatchPushSender;
 import ServerObjects.ClientsManager;
 import ServerObjects.CommHistoryManager;
 import ServerObjects.PushSender;
@@ -46,7 +47,6 @@ public class MessageRequestDownload extends MessageToServer {
         _logger.info(_messageInitiaterId + " is requesting download from:"+_td.getSourceId()+" of file type:"+_td.getExtension()+"...");
 
         BufferedInputStream bis = null;
-        DataOutputStream dos = null;
         try {
             FileManager fileForDownload = new FileManager(_filePathOnServer);
             MessageDownloadFile msgDF = new MessageDownloadFile(_td);
@@ -56,7 +56,7 @@ public class MessageRequestDownload extends MessageToServer {
 
             _logger.info("Initiating data send...");
 
-            dos = new DataOutputStream(get_clientConnection().getClientSocket().getOutputStream());
+            DataOutputStream dos = new DataOutputStream(get_clientConnection().getClientSocket().getOutputStream());
             FileInputStream fis = new FileInputStream(fileForDownload.getFile());
             bis = new BufferedInputStream(fis);
 
@@ -71,8 +71,10 @@ public class MessageRequestDownload extends MessageToServer {
             }
 
             // Informing source (uploader) that file received by user (downloader)
+            String title = "Media ready!";
             String msg = "Media for "+_td.getDestinationId()+ " is ready!";
-            sent = PushSender.sendPush(_clientsManager.getClientPushToken(_td.getSourceId()), PushEventKeys.TRANSFER_SUCCESS, msg, new Gson().toJson(_td));
+            String token = _clientsManager.getClientPushToken(_td.getSourceId());
+            sent = BatchPushSender.sendPush(token, PushEventKeys.TRANSFER_SUCCESS, title , msg, _td);
             if(!sent)
                 _logger.warning("Failed to inform user " + _td.getSourceId() + " of transfer success to user: " + _td.getDestinationId());
 
@@ -96,8 +98,6 @@ public class MessageRequestDownload extends MessageToServer {
         } finally {
         	if(bis!=null)
         		bis.close();
-        	if(dos!=null)
-        		dos.close();
         }
 
 
@@ -108,14 +108,15 @@ public class MessageRequestDownload extends MessageToServer {
 
         _logger.severe("User " + _messageInitiaterId + " download request failed. Exception:" + e.getMessage());
 
-        String msgTransferFailed ="TRANSFER_FAILED: "+_td.getDestinationId()+" did not receive file";
+        String title = "Media undelivered";
+        String msgTransferFailed ="Oops! "+_td.getDestinationId()+" did not receive your media.";
 
         // Informing sender that file did not reach destination
         _logger.severe("Informing sender:"+_td.getSourceId()+" that file did not reach destination:"+_td.getDestinationId());
         String senderId = _td.getSourceId();
         String senderToken = _clientsManager.getClientPushToken(senderId);
         if(!senderToken.equals(""))
-            PushSender.sendPush(senderToken, PushEventKeys.SHOW_MESSAGE, msgTransferFailed);
+            BatchPushSender.sendPush(senderToken, PushEventKeys.SHOW_MESSAGE, title, msgTransferFailed);
         else
             _logger.severe("Failed trying to Inform sender:"+_td.getSourceId()+" that file did not reach destination:"+_td.getDestinationId()+". Empty token");
 

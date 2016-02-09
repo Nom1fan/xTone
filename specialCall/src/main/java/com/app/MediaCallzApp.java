@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.ViewConfiguration;
+
+import com.batch.android.Batch;
+import com.batch.android.Config;
 import com.services.GetTokenIntentService;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -21,9 +24,9 @@ import DataObjects.SharedConstants;
 /**
  * Created by mor on 10/09/2015.
  */
-public class SpecialCallApp extends Application {
+public class MediaCallzApp extends Application {
 
-    private static final String TAG = SpecialCallApp.class.getSimpleName();
+    private static final String TAG = MediaCallzApp.class.getSimpleName();
     @Override
     public void onCreate() {
         super.onCreate();
@@ -41,6 +44,15 @@ public class SpecialCallApp extends Application {
 
         // Initializing SQLite db
         // DAL_Manager.initialize(getApplicationContext());
+
+        // Initializing Batch for push notifications
+        Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
+        Batch.Push.setManualDisplay(true);
+        Batch.setConfig(new Config(SharedConstants.LIVE_API_KEY));
+
+        Intent i = new Intent(context, GetTokenIntentService.class);
+        i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
+        context.startService(i);
 
         // Initializing Parse for push notifications. NOTE: Also currently using device token as registration token
         Parse.initialize(this, Constants.APPLICATION_ID, Constants.CLIENT_KEY);

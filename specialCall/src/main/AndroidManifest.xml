@@ -33,22 +33,12 @@
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" />
-
-
-
-    <!--
-      IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
-      to match your app's package name + ".permission.C2D_MESSAGE".
-    -->
-    <permission
-        android:name="com.special.app.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
-
-    <uses-permission android:name="com.special.specialcall.permission.C2D_MESSAGE" />
+    <permission android:name="com.special.app.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+    <uses-permission android:name="com.special.app.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name="com.app.SpecialCallApp"
+        android:name="com.app.MediaCallzApp"
         android:allowBackup="true"
         android:icon="@drawable/color_mc"
         android:label="@string/app_name" >
@@ -142,6 +132,20 @@
                 <action android:name="com.android.special.specialcall.EVENT_ACTION" />
             </intent-filter>
         </receiver>
+        <service android:name="com.batch.android.BatchPushService" />
+        <receiver android:name="com.batch.android.BatchPushReceiver" android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.special.app" />
+            </intent-filter>
+        </receiver>
+        <service android:name="com.services.BatchPushService" />
+        <receiver android:name="com.receivers.PushReceiver" android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.special.app" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name="com.receivers.PushBroadcastReceiver"
             android:exported="false" >
@@ -159,9 +163,10 @@
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
                 <!-- IMPORTANT: Change "com.parse.starter" to match your app's package name. -->
-                <category android:name="com.special.specialcall" />
+                <category android:name="com.special.app" />
             </intent-filter>
         </receiver>
+
         <receiver android:name="com.receivers.BootCompletedBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
@@ -43,6 +44,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.AppStateManager;
+import com.batch.android.Batch;
 import com.data_objects.Constants;
 import com.data_objects.SnackbarData;
 import com.nispok.snackbar.Snackbar;
@@ -113,6 +115,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         super.onStart();
         Log.i(TAG, "onStart()");
 
+        Batch.onStart(this);
+
         _serviceReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -137,6 +141,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             Log.e(TAG, ex.getMessage());}
         }
         saveInstanceState();
+    }
+
+    @Override
+    protected void onStop() {
+        Batch.onStop(this);
+
+        super.onStop();
     }
 
     @Override
@@ -185,8 +196,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         Log.i(TAG, "onDestroy()");
+        Batch.onDestroy(this);
+        super.onDestroy();
+
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Batch.onNewIntent(this, intent);
+
+        super.onNewIntent(intent);
     }
 
     @Override
@@ -225,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         if (resultCode == RESULT_OK) {
 
             if (requestCode == ActivityRequestCodes.SELECT_MEDIA) {
-                    writeInfoSnackBar(data.getStringExtra("msg"));
+                    writeInfoSnackBar(data.getStringExtra("msg"), Color.RED, Snackbar.SnackbarDuration.LENGTH_INDEFINITE);
             }
 
             if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
@@ -438,7 +458,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                           @Override
                           public void run() {
 
-                              if (!Constants.MY_TOKEN(_context).equals("")) {
+                              if (!Constants.MY_BATCH_TOKEN(_context).equals("")) {
                                   findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
                                   findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
                               }
@@ -482,8 +502,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
                                   }
                               });
-
-
 
 
                               OnClickListener buttonListener = new View.OnClickListener() {

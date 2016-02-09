@@ -141,7 +141,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
     private void register(ConnectionToServer connectionToServer) throws IOException {
 
         Log.i(TAG, "Initiating register sequence...");
-        MessageRegister msgRegister = new MessageRegister(Constants.MY_ID(mContext), Constants.MY_TOKEN(mContext));
+        MessageRegister msgRegister = new MessageRegister(Constants.MY_ID(mContext), Constants.MY_BATCH_TOKEN(mContext));
         Log.i(TAG, "Sending register message to server...");
         connectionToServer.sendToServer(msgRegister);
     }

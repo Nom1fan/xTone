@@ -302,9 +302,7 @@ public class SelectMedia extends Activity implements View.OnClickListener{
         } else {
             getParent().setResult(Activity.RESULT_OK, data);
         }
-
             SelectMedia.this.finish();
-
         }
 
     private void uploadAudioFile(Uri uri) {
@@ -413,9 +411,5 @@ public class SelectMedia extends Activity implements View.OnClickListener{
         });
         recorder.start();
         mProgressDialog.show();
-
-      
-   
     }
-
 }
