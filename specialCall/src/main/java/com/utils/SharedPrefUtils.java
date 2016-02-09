@@ -25,7 +25,6 @@ public class SharedPrefUtils {
 	public static final String APP_STATE = "AppState";
 	public static final String APP_PREV_STATE = "AppPrevState";
 	public static final String LOADING_MESSAGE = "LoadingMessage";
-	public static final String MY_DEVICE_TOKEN = "MyDeviceToken";
 	public static final String MY_DEVICE_BATCH_TOKEN = "MyDeviceBatchToken";
 
 	/* Shared pref keys under SERVER_PROXY */

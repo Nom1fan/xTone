@@ -1,6 +1,5 @@
 package MessagesToServer;
 
-import com.google.gson.Gson;
 import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
@@ -19,9 +18,6 @@ import FilesManager.FileManager;
 import MessagesToClient.MessageDownloadFile;
 import MessagesToClient.MessageTriggerEventOnly;
 import ServerObjects.BatchPushSender;
-import ServerObjects.ClientsManager;
-import ServerObjects.CommHistoryManager;
-import ServerObjects.PushSender;
 
 /**
  * Created by Mor on 09/10/2015.

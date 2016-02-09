@@ -85,6 +85,7 @@ public class BitMapWorkerTask extends AsyncTask<String, Void, Bitmap> {
 
             if (imageComponent != null) {
 
+                //TODO: Move all of this logic to doInBackground and make sure createScaledBitmap is always done after using calculateInSampleSize
                 switch (_specialMediaType){
 
                     case PROFILE_MEDIA:

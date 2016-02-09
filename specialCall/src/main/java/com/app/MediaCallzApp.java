@@ -8,17 +8,14 @@ import android.view.ViewConfiguration;
 
 import com.batch.android.Batch;
 import com.batch.android.Config;
-import com.services.GetTokenIntentService;
-import com.parse.Parse;
-import com.parse.ParseException;
-import com.parse.ParseInstallation;
-import com.parse.ParsePush;
-import com.parse.SaveCallback;
 import com.data_objects.Constants;
+import com.services.GetTokenIntentService;
 import com.special.app.R;
 import com.ui.activities.MainActivity;
 import com.utils.SharedPrefUtils;
+
 import java.lang.reflect.Field;
+
 import DataObjects.SharedConstants;
 
 /**
@@ -54,25 +51,6 @@ public class MediaCallzApp extends Application {
         i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
         context.startService(i);
 
-        // Initializing Parse for push notifications. NOTE: Also currently using device token as registration token
-        Parse.initialize(this, Constants.APPLICATION_ID, Constants.CLIENT_KEY);
-        if(getDeviceToken().equals("")) {
-            ParsePush.subscribeInBackground(SharedConstants.APP_NAME); // Subscribing to channel
-            ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-
-                    Intent i = new Intent(context, GetTokenIntentService.class);
-                    i.setAction(GetTokenIntentService.ACTION_GET_TOKEN);
-                    context.startService(i);
-                }
-            });
-        }
-    }
-
-    private String getDeviceToken() {
-
-        return SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
     }
 
     private void makeActionOverflowMenuShown() {

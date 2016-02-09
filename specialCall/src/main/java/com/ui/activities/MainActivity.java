@@ -484,7 +484,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
                                       if (10 == s.length()) {
 
-                                          String token = SharedPrefUtils.getString(_context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
+                                          String token = SharedPrefUtils.getString(_context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN);
                                           if (token != null && !token.equals("")) {
                                               findViewById(R.id.GetSMSCode).setEnabled(true);
                                               findViewById(R.id.SMSCode).setEnabled(true);
@@ -1432,6 +1432,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                     task.set_specialMediaType(SpecialMediaType.PROFILE_MEDIA);
                     task.execute(lastUploadedMediaPath);
                 } else // enabled but no uploaded media
+                    //TODO Change to use BitMapWorkerTask same as above
                     selectProfileMediaBtn.setImageBitmap(transform((localImageToBitmap(R.drawable.defaultpic_enabled, thumbnailSize)), radius, 0));  // TODO: code review on the relative sizes that we deliver for the circular profile media draw, to see calculation are good
             }
 
@@ -1443,6 +1444,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
     }
 
+    //TODO Remove from here. Should only exist in BitMapWorkerTask
     public Bitmap localImageToBitmap(int source, int THUMBNAIL_SIZE) {
         int size = THUMBNAIL_SIZE;
         Bitmap imageBitmap = BitmapFactory.decodeResource(_context.getResources(), source);
@@ -1452,6 +1454,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         return imageBitmap;
     }
 
+    //TODO Remove from here. Should only exist in BitMapWorkerTask
     public Bitmap transform(Bitmap source, int radius, int margin) {
         final Paint paint = new Paint();
         paint.setAntiAlias(true);

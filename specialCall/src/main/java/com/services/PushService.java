@@ -4,8 +4,6 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.batch.android.Batch;
 import com.google.gson.Gson;
@@ -14,21 +12,20 @@ import com.utils.BroadcastUtils;
 
 import DataObjects.PushEventKeys;
 import DataObjects.TransferDetails;
-import EventObjects.Event;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 
 /**
  * Created by Mor on 05/02/2016.
  */
-public class BatchPushService extends IntentService {
+public class PushService extends IntentService {
 
-    private static final String TAG = BatchPushService.class.getSimpleName();
+    private static final String TAG = PushService.class.getSimpleName();
     private Context _context;
     private Gson gson = new Gson();
 
-    public BatchPushService() {
-        super(BatchPushService.class.getSimpleName());
+    public PushService() {
+        super(PushService.class.getSimpleName());
     }
 
     @Override

@@ -1,6 +1,5 @@
 package MessagesToServer;
 
-import com.google.gson.Gson;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -17,9 +16,6 @@ import EventObjects.EventType;
 import FilesManager.FileManager;
 import MessagesToClient.MessageTriggerEventOnly;
 import ServerObjects.BatchPushSender;
-import ServerObjects.ClientsManager;
-import ServerObjects.CommHistoryManager;
-import ServerObjects.PushSender;
 
 public class MessageUploadFile extends MessageToServer {
 
