@@ -22,9 +22,11 @@
         android:contentDescription="contacts"
         android:src="@drawable/select_contact_enabled"
         android:textSize="18sp"
-        android:layout_above="@+id/selectMediaBtn"
         android:layout_alignRight="@+id/selectMediaBtn"
-        android:layout_alignEnd="@+id/selectMediaBtn" />
+        android:layout_alignEnd="@+id/selectMediaBtn"
+        android:layout_alignLeft="@+id/progressBar"
+        android:layout_alignStart="@+id/progressBar"
+        android:layout_above="@+id/selectMediaBtn" />
 
     <TextView
         android:id="@+id/destName"
@@ -35,7 +37,9 @@
         android:layout_alignStart="@+id/CallNumber"
         android:layout_alignRight="@+id/CallNumber"
         android:layout_alignEnd="@+id/CallNumber"
-        android:textStyle="bold" />
+        android:fontFamily="sans-serif-thin"
+        android:textStyle="bold"
+        android:textSize="30dp" />
 
     <ImageButton
         android:id="@+id/selectMediaBtn"
@@ -72,7 +76,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:enabled="true"
-        android:hint="To...."
+        android:hint="Type name or number"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:phoneNumber="true"
@@ -83,8 +87,12 @@
         android:layout_alignTop="@+id/selectContactBtn"
         android:layout_alignLeft="@+id/selectMediaBtn"
         android:layout_alignStart="@+id/selectMediaBtn"
-        android:layout_alignRight="@+id/userStatus"
-        android:layout_alignEnd="@+id/userStatus">
+        android:fontFamily="sans-serif-thin"
+        android:background="@drawable/border_style"
+        android:layout_toStartOf="@+id/selectMediaBtn"
+        android:layout_toLeftOf="@+id/selectMediaBtn"
+        android:layout_alignRight="@+id/clear"
+        android:layout_alignEnd="@+id/clear">
 
         <requestFocus />
     </AutoCompleteTextView>
@@ -120,10 +128,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
-        android:layout_alignParentTop="true"
-        android:layout_alignLeft="@+id/selectContactBtn"
-        android:layout_alignStart="@+id/selectContactBtn"
-        android:layout_marginTop="49dp" />
+        android:layout_above="@+id/clear"
+        android:layout_alignRight="@+id/mediaStatus"
+        android:layout_alignEnd="@+id/mediaStatus"
+        android:layout_marginBottom="47dp" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -131,9 +139,10 @@
         android:id="@+id/clear"
         android:clickable="true"
         android:background="@drawable/clear"
-        android:layout_alignBottom="@+id/CallNumber"
-        android:layout_toRightOf="@+id/CallNumber"
-        android:layout_toEndOf="@+id/CallNumber"  />
+        android:layout_alignTop="@+id/CallNumber"
+        android:layout_toStartOf="@+id/selectContactBtn"
+        android:layout_above="@+id/destName"
+        android:layout_toLeftOf="@+id/selectContactBtn" />
 
     <TextView
         android:layout_width="wrap_content"
