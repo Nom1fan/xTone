@@ -1,6 +1,5 @@
 package MessagesToServer;
 
-import com.google.gson.Gson;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -16,9 +15,7 @@ import EventObjects.EventReport;
 import EventObjects.EventType;
 import FilesManager.FileManager;
 import MessagesToClient.MessageTriggerEventOnly;
-import ServerObjects.ClientsManager;
-import ServerObjects.CommHistoryManager;
-import ServerObjects.PushSender;
+import ServerObjects.BatchPushSender;
 
 public class MessageUploadFile extends MessageToServer {
 
@@ -101,9 +98,11 @@ public class MessageUploadFile extends MessageToServer {
 			catch (IOException e) {
 				e.printStackTrace();
 				_logger.severe("Upload from user:"+_messageInitiaterId+" to user:"+_destId+" Failed:"+e.getMessage());
-				String errMsg = "UPLOAD_FAILED:"+e.getMessage();
-				_cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_FAILURE, errMsg, null)));
-				PushSender.sendPush(_clientsManager.getClientPushToken(_messageInitiaterId), PushEventKeys.SHOW_MESSAGE, errMsg);
+				String title = "Oops!";
+				String errMsg = "Your media to "+_destId+ "was lost on the way! Please try again.";
+				String token = _clientsManager.getClientPushToken(_messageInitiaterId);
+				//_cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_FAILURE, errMsg, null)));
+				BatchPushSender.sendPush(token , PushEventKeys.SHOW_MESSAGE, title, errMsg);
 
 				return _cont;
 			}
@@ -118,12 +117,7 @@ public class MessageUploadFile extends MessageToServer {
 
 			// Informing source (uploader) that the file is on the way
 			infoMsg = "File uploaded";
-			_cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, _td)));
-
-			if(!_cont) {
-				_logger.severe("Canceling file upload from "+_td.getSourceId()+" to "+_td.getDestinationId());
-				return _cont;
-			}
+			replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, _td)));
 
 			// Inserting the record of the file upload, retrieving back the commId
 			int commId = _commHistoryManager.insertCommunicationRecord(
@@ -138,14 +132,15 @@ public class MessageUploadFile extends MessageToServer {
 			_td.set_filePathOnServer(fileFullPath.toString());
 			String destToken = _clientsManager.getClientPushToken(_destId);
 			String pushEventAction = PushEventKeys.PENDING_DOWNLOAD;
-			boolean sent = PushSender.sendPush(destToken, pushEventAction, new Gson().toJson(_td));
+			boolean sent = BatchPushSender.sendPush(destToken, pushEventAction, _td);
 
 			if(!sent)
 			{
-				String errMsg = "TRANSFER_FAILURE: "+ _destId +" did not receive pending download push for file:"+_td.getSourceWithExtension();
+				String title = "Media undelivered";
+				String errMsg = "Oops! "+ _destId +" did not receive your media! Try again.";
 				String initiaterToken = _clientsManager.getClientPushToken(_messageInitiaterId);
 				// Informing source (uploader) that the file was not sent to destination
-				_cont = PushSender.sendPush(initiaterToken, PushEventKeys.SHOW_MESSAGE, errMsg);
+				BatchPushSender.sendPush(initiaterToken, PushEventKeys.SHOW_MESSAGE, title, errMsg);
 			}
 
 			return _cont;

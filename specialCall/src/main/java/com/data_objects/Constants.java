@@ -13,6 +13,8 @@ public class Constants {
 	public static final String APPLICATION_ID = "7CL97UlX4EtpMyRJYshNlIQ3T12EEZ0OaZWxZjvR";
 	public static final String CLIENT_KEY = "7Elu6v6XVyQRzxIqnlyIG9YGyzXuh65hD42ZUqZa";
 
+    // Constants for Batch
+    public static final String GCM_SENDER_ID = "908225653874";
 
     private static final String INCOMING_FOLDER_NAME = "Incoming_" + SharedConstants.APP_NAME;
     private static final String OUTGOING_FOLDER_NAME = "Outgoing_" + SharedConstants.APP_NAME;
@@ -27,9 +29,10 @@ public class Constants {
     public static final String TEMP_RECORDING_FOLDER = TEMP_COMPRESSED_FOLDER + TEMP_RECORDING_FOLDER_NAME + "/";
 
     public static String MY_ID(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER); }
-	public static String MY_TOKEN(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN); }
-    public static void MY_TOKEN(Context context, String token) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN, token); }
-	
+
+    public static String MY_BATCH_TOKEN(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN); }
+    public static void MY_BATCH_TOKEN(Context context, String token) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN, token); }
+
 	private static String getIncomingFolder() {
 		
 		String path = ROOT_FOLDER + INCOMING_FOLDER_NAME + "/";

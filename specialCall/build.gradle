@@ -1,11 +1,12 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.0"
 
     defaultConfig {
-        applicationId "com.special.specialcall"
+        applicationId "com.special.app"
         minSdkVersion 15
         targetSdkVersion 19
         compileOptions {
@@ -36,16 +37,27 @@ android {
     }
 }
 
+repositories {
+    mavenCentral()
+    maven {
+        url "http://maven.batch.com/release"
+    }
+}
+
+
+
 dependencies {
     compile project(':shared')
     compile 'com.android.support:support-v4:19.1.0'
     compile 'com.android.support:appcompat-v7:19.1.0'
-    compile 'com.parse.bolts:bolts-android:1.+'
-    compile fileTree(include: 'Parse-*.jar', dir: 'libs')
     compile project(':ffmpeg4android_lib')
     compile project(':standOut_lib')
     compile project(':aFileChooser')
     compile 'com.nispok:snackbar:2.11.0'
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
     compile 'com.android.support:design:23.1.1'
+    compile 'com.google.android.gms:play-services-gcm:8.3.0'
+    compile 'com.google.android.gms:play-services-base:8.3.0'
+    compile 'com.google.android.gms:play-services-ads:8.3.0'
+    compile 'com.batch.android:batch-sdk:1.5+'
 }

@@ -5,25 +5,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.ViewConfiguration;
-import com.services.GetTokenIntentService;
-import com.parse.Parse;
-import com.parse.ParseException;
-import com.parse.ParseInstallation;
-import com.parse.ParsePush;
-import com.parse.SaveCallback;
+
+import com.batch.android.Batch;
+import com.batch.android.Config;
 import com.data_objects.Constants;
+import com.services.GetTokenIntentService;
 import com.special.app.R;
 import com.ui.activities.MainActivity;
 import com.utils.SharedPrefUtils;
+
 import java.lang.reflect.Field;
+
 import DataObjects.SharedConstants;
 
 /**
  * Created by mor on 10/09/2015.
  */
-public class SpecialCallApp extends Application {
+public class MediaCallzApp extends Application {
 
-    private static final String TAG = SpecialCallApp.class.getSimpleName();
+    private static final String TAG = MediaCallzApp.class.getSimpleName();
     @Override
     public void onCreate() {
         super.onCreate();
@@ -42,25 +42,15 @@ public class SpecialCallApp extends Application {
         // Initializing SQLite db
         // DAL_Manager.initialize(getApplicationContext());
 
-        // Initializing Parse for push notifications. NOTE: Also currently using device token as registration token
-        Parse.initialize(this, Constants.APPLICATION_ID, Constants.CLIENT_KEY);
-        if(getDeviceToken().equals("")) {
-            ParsePush.subscribeInBackground(SharedConstants.APP_NAME); // Subscribing to channel
-            ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
+        // Initializing Batch for push notifications
+        Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
+        Batch.Push.setManualDisplay(true);
+        Batch.setConfig(new Config(SharedConstants.LIVE_API_KEY));
 
-                    Intent i = new Intent(context, GetTokenIntentService.class);
-                    i.setAction(GetTokenIntentService.ACTION_GET_TOKEN);
-                    context.startService(i);
-                }
-            });
-        }
-    }
+        Intent i = new Intent(context, GetTokenIntentService.class);
+        i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
+        context.startService(i);
 
-    private String getDeviceToken() {
-
-        return SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_TOKEN);
     }
 
     private void makeActionOverflowMenuShown() {
