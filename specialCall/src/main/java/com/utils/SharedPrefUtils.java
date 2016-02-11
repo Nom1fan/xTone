@@ -3,10 +3,13 @@ package com.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.Set;
+
 public class SharedPrefUtils {
 
 	/* Shared pref names */
 	public static final String GENERAL = "General";
+	public static final String SETTINGS = "Settings";
 	public static final String SERVER_PROXY = "AbstractServerProxy";
 	public static final String UPLOADED_CALLER_MEDIA_THUMBNAIL = "UploadedCallerMediaThumbnail";
 	public static final String UPLOADED_RINGTONE_PATH ="UploadedRingTonePath";
@@ -27,9 +30,15 @@ public class SharedPrefUtils {
 	public static final String LOADING_MESSAGE = "LoadingMessage";
 	public static final String MY_DEVICE_BATCH_TOKEN = "MyDeviceBatchToken";
 
+
 	/* Shared pref keys under SERVER_PROXY */
 	public static final String RECONNECT_INTERVAL = "LogicServerProxyService.RECONNECT_INTERVAL";
 	public static final String WAS_MID_ACTION = "WasMidAction";
+
+	/* shared pref keys under SETTINGS */
+	public static final String WHO_CAN_MC_ME = "WhoCanMCMe";
+	public static final String BLOCK_LIST = "BlockList";
+
 
 
 	public static int getInt(Context context, String prefsName, String key){
@@ -71,7 +80,19 @@ public class SharedPrefUtils {
 		SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
 		prefs.edit().putString(key, value).apply();
 	}
-	
+
+    public static void setStringSet(Context context, String prefsName, String key, Set<String> value){
+        SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
+        prefs.edit().putStringSet(key, value).apply();
+    }
+
+    public static Set<String> getStringSet(Context context, String prefsName, String key){
+        SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
+        Set<String> value = null;
+        prefs.getStringSet(key, value);
+        return  value;
+    }
+
 	public static void setBoolean(Context context, String prefsName, String key, Boolean value){
 		SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
 		prefs.edit().putBoolean(key, value).apply();

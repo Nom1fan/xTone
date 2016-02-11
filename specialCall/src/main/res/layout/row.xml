@@ -10,24 +10,31 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="15dp"
-        android:layout_marginTop="34dp"
-        android:text="TextView" />
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="10dp"
+        android:text="TextView"
+        android:textStyle="bold"
+        android:textColor="@android:color/black" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/checkBox1"
+        android:text="TextView"
+        android:layout_alignBottom="@+id/remove_blocked"
         android:layout_alignLeft="@+id/textView1"
-        android:text="TextView" />
+        android:layout_alignStart="@+id/textView1"
+        android:textColor="#aaa3a3" />
 
     <CheckBox
-        android:id="@+id/checkBox1"
+        android:id="@+id/remove_blocked"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginRight="30dp"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/textView1"
-        android:layout_marginRight="22dp"
-        android:layout_marginTop="23dp" />
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="30dp"
+        android:layout_alignTop="@+id/textView1"
+        android:textStyle="bold" />
 
 </RelativeLayout>

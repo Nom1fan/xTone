@@ -1015,7 +1015,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
                 break;
             case 1: // Who Can MC me
-
+                BlockMCContacts();
                 break;
             case 2: // How To?
 
@@ -1025,7 +1025,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             case 4: // Rate Us
                 shareUs();
                 break;
-            case 5: // App Settings
+            case 5: // Report BUG
+                shareUs();
+                break;
+            case 6: // App Settings
                 appSettings();
 
                 break;
@@ -1066,6 +1069,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         saveInstanceState();
         Intent y = new Intent();
         y.setClass(_context, Settings.class);
+        startActivity(y);
+    }
+
+    private void BlockMCContacts() {
+        saveInstanceState();
+        Intent y = new Intent();
+        y.setClass(_context, BlockMCContacts.class);
         startActivity(y);
     }
 

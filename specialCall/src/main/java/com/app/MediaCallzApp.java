@@ -30,26 +30,28 @@ public class MediaCallzApp extends Application {
 
         final Context context = getApplicationContext();
 
-        //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
-        makeActionOverflowMenuShown();
-
         // Initializing app state
         if(AppStateManager.getAppState(context).equals("")) {
+
+            //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
+            makeActionOverflowMenuShown();
+
             addShortcutIcon();
+
             AppStateManager.setAppState(context, TAG, AppStateManager.STATE_LOGGED_OUT);
+
+            // Initializing SQLite db
+            // DAL_Manager.initialize(getApplicationContext());
+
+            // Initializing Batch for push notifications
+            Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
+            Batch.Push.setManualDisplay(true);
+            Batch.setConfig(new Config(SharedConstants.LIVE_API_KEY));
+
+            Intent i = new Intent(context, GetTokenIntentService.class);
+            i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
+            context.startService(i);
         }
-
-        // Initializing SQLite db
-        // DAL_Manager.initialize(getApplicationContext());
-
-        // Initializing Batch for push notifications
-        Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
-        Batch.Push.setManualDisplay(true);
-        Batch.setConfig(new Config(SharedConstants.LIVE_API_KEY));
-
-        Intent i = new Intent(context, GetTokenIntentService.class);
-        i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
-        context.startService(i);
 
     }
 

@@ -58,7 +58,6 @@ public class SelectMedia extends Activity implements View.OnClickListener{
     private String _destPhoneNumber = "";
     private String _destName = "";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -168,7 +167,6 @@ public class SelectMedia extends Activity implements View.OnClickListener{
     }
 
     	/* -------------- Assisting methods -------------- */
-
 
     private void openVideoAndImageMediapath(int code) {
 
