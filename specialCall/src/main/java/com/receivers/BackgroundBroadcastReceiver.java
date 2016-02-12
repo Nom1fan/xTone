@@ -109,6 +109,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 TransferDetails td = (TransferDetails) report.data();
                 LUT_Utils lut_utils = new LUT_Utils(context, td.get_spMediaType());
                 lut_utils.saveUploadedPerNumber(td.getDestinationId(), td.getFileType(), td.get_fullFilePathSrcSD());
+                lut_utils.destroy();
                 snackbarData = new SnackbarData(
                         SnackbarData.SnackbarStatus.SHOW,
                         Color.GREEN, Snackbar.SnackbarDuration.LENGTH_LONG,

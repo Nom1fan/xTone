@@ -83,8 +83,8 @@
         android:layout_alignTop="@+id/selectContactBtn"
         android:layout_alignLeft="@+id/selectMediaBtn"
         android:layout_alignStart="@+id/selectMediaBtn"
-        android:layout_alignRight="@+id/userStatus"
-        android:layout_alignEnd="@+id/userStatus">
+        android:layout_alignRight="@+id/userStatusPositive"
+        android:layout_alignEnd="@+id/userStatusPositive">
 
         <requestFocus />
     </AutoCompleteTextView>
@@ -141,7 +141,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="RingTone Name "
         android:id="@+id/ringtoneName"
-        android:visibility="visible"
+        android:visibility="invisible"
         android:background="@android:color/white"
         android:textColor="@android:color/black"
         android:singleLine="true"
@@ -155,14 +155,28 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/userStatus"
+        android:id="@+id/userStatusPositive"
         android:layout_alignBottom="@+id/CallNumber"
         android:layout_alignTop="@+id/CallNumber"
-
         android:layout_alignRight="@+id/CallNow"
         android:layout_alignEnd="@+id/CallNow"
         android:layout_alignLeft="@+id/CallNow"
-        android:layout_alignStart="@+id/CallNow" />
+        android:layout_alignStart="@+id/CallNow"
+        android:src="@drawable/positive"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/userStatusNegative"
+        android:layout_alignBottom="@+id/CallNumber"
+        android:layout_alignTop="@+id/CallNumber"
+        android:layout_alignRight="@+id/CallNow"
+        android:layout_alignEnd="@+id/CallNow"
+        android:layout_alignLeft="@+id/CallNow"
+        android:layout_alignStart="@+id/CallNow"
+        android:src="@drawable/negative"
+        android:visibility="invisible" />
 
     <ProgressBar
         android:layout_width="wrap_content"
@@ -182,22 +196,24 @@
     <ImageView
         android:layout_width="@dimen/sb__text_size"
         android:layout_height="@dimen/sb__text_size"
-        android:id="@+id/mediaStatus"
+        android:id="@+id/mediaStatusArrived"
         android:layout_above="@+id/ringtoneName"
         android:layout_alignRight="@+id/selectMediaBtn"
         android:layout_alignEnd="@+id/selectMediaBtn"
         android:visibility="invisible"
-        android:layout_marginRight="@dimen/sb__text_size" />
+        android:layout_marginRight="@dimen/sb__text_size"
+        android:src="@drawable/doublepositive" />
 
     <ImageView
         android:layout_width="@dimen/sb__text_size"
         android:layout_height="@dimen/sb__text_size"
-        android:id="@+id/ringtoneStatus"
+        android:id="@+id/ringtoneStatusArrived"
         android:visibility="invisible"
         android:layout_alignBottom="@+id/selectMediaBtn"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginRight="@dimen/sb__text_size" />
+        android:layout_marginRight="@dimen/sb__text_size"
+        android:src="@drawable/doublepositive" />
 
 </RelativeLayout>
 

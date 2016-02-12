@@ -107,4 +107,9 @@ public class LUT_Utils {
                 break;
         }
     }
+
+    public void destroy() {
+
+        _context = null;
+    }
 }

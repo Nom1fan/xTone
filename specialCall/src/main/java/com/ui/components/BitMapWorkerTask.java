@@ -71,6 +71,9 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
         catch (NullPointerException | OutOfMemoryError e) {
             return null;
         }
+        finally {
+            _context = null;
+        }
         return null;
     }
 
@@ -158,10 +161,8 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
         return _height!=0 && _width!=0 && _context!=null;
     }
 
-    private Bitmap transform(Bitmap bitmap, int margin) {
+    private Bitmap transform(Bitmap bitmap, int radius, int margin) {
 
-        int thumbnailSize = _height *9/10;
-        int radius = (int) (thumbnailSize*0.8);
         final Paint paint = new Paint();
         paint.setAntiAlias(true);
         paint.setShader(new BitmapShader(bitmap, Shader.TileMode.MIRROR,
@@ -199,8 +200,13 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
 
     private Bitmap createScaledBitMap(Bitmap bitmap) {
 
-        if (_makeRound)
-            return transform(bitmap, 0);
+        if (_makeRound) {
+            Log.i(TAG, "Creating round bitmap");
+            int thumbnailSize = _height * 9/10;
+            int radius = (int) (thumbnailSize * 0.8);
+            Bitmap bitmapForRounding = Bitmap.createScaledBitmap(bitmap, thumbnailSize, thumbnailSize, false);
+            return transform(bitmapForRounding, radius ,0);
+        }
 
         return Bitmap.createScaledBitmap(bitmap, _width, _height, false);
     }
@@ -208,8 +214,7 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
     private Bitmap convertResourceToBitmap() {
 
         Bitmap bitmap = decodeSampledBitmapFromResource(_resources, _resourceId, _width, _height);
-        //ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        //bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+
         return createScaledBitMap(bitmap);
     }
 

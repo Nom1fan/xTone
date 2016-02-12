@@ -3,16 +3,21 @@ package com.app;
 import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.ViewConfiguration;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.batch.android.Batch;
 import com.batch.android.Config;
 import com.data_objects.Constants;
 import com.services.GetTokenIntentService;
 import com.special.app.R;
+
 import com.ui.activities.MainActivity;
-import com.utils.SharedPrefUtils;
 
 import java.lang.reflect.Field;
 
@@ -28,28 +33,37 @@ public class MediaCallzApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        final Context context = getApplicationContext();
+        Context context = getApplicationContext();
 
-        //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
-        makeActionOverflowMenuShown();
+        try {
 
-        // Initializing app state
-        if(AppStateManager.getAppState(context).equals("")) {
-            addShortcutIcon();
-            AppStateManager.setAppState(context, TAG, AppStateManager.STATE_LOGGED_OUT);
+            // Initializing app state
+            if (AppStateManager.getAppState(context).equals("")) {
+
+                AppStateManager.setAppState(context, TAG, AppStateManager.STATE_LOGGED_OUT);
+                //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
+                makeActionOverflowMenuShown();
+                addShortcutIcon();
+
+                // Initializing SQLite db
+                // DAL_Manager.initialize(getApplicationContext());
+
+                // Initializing Batch for push notifications
+                Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
+                Batch.Push.setManualDisplay(true);
+                Batch.setConfig(new Config(SharedConstants.LIVE_API_KEY));
+
+                Intent i = new Intent(context, GetTokenIntentService.class);
+                i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
+                context.startService(i);
+
+            }
+        } catch (Exception e) {
+            String errMsg = "Failed to initialize. Please try to install again. Error:" + (e.getMessage()!=null ? e.getMessage() : e);
+            callToast(errMsg, Color.RED);;
+        } finally {
+            context = null;
         }
-
-        // Initializing SQLite db
-        // DAL_Manager.initialize(getApplicationContext());
-
-        // Initializing Batch for push notifications
-        Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
-        Batch.Push.setManualDisplay(true);
-        Batch.setConfig(new Config(SharedConstants.LIVE_API_KEY));
-
-        Intent i = new Intent(context, GetTokenIntentService.class);
-        i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
-        context.startService(i);
 
     }
 
@@ -103,5 +117,19 @@ public class MediaCallzApp extends Application {
         getApplicationContext().sendBroadcast(addIntent);
     }
 
+    private void callToast(final String text, final int g) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
 
+            @Override
+            public void run() {
+                Toast toast = Toast.makeText(getApplicationContext(), text,
+                        Toast.LENGTH_SHORT);
+                TextView v = (TextView) toast.getView().findViewById(
+                        android.R.id.message);
+                v.setTextColor(g);
+                toast.show();
+            }
+        });
+
+    }
 }

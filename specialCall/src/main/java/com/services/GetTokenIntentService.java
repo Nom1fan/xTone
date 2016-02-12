@@ -52,35 +52,41 @@ public class GetTokenIntentService extends IntentService {
 
         Context context = getApplicationContext();
 
-        String token = "";
-        int retries = 0;
-        while ((retries < TOKEN_RETRIEVE_RETRIES) && Constants.MY_BATCH_TOKEN(context).equals(""))
-        {
-            retries++;
-            String errMsg = "Failed to retrieve device batch token, retrying...";
-            Log.e(TAG, errMsg);
-            //callToast(errMsg, Color.RED);
+        try {
 
-            token = Batch.Push.getLastKnownPushToken();
-            Constants.MY_BATCH_TOKEN(context, token);
+            String token = "";
+            int retries = 0;
+            while ((retries < TOKEN_RETRIEVE_RETRIES) && Constants.MY_BATCH_TOKEN(context).equals("")) {
+                retries++;
+                String errMsg = "Failed to retrieve device batch token, retrying...";
+                Log.e(TAG, errMsg);
+                //callToast(errMsg, Color.RED);
 
-            try {
-                Thread.sleep(TOKEN_RETRY_SLEEP);
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
+                token = Batch.Push.getLastKnownPushToken();
+                Constants.MY_BATCH_TOKEN(context, token);
+
+                try {
+                    Thread.sleep(TOKEN_RETRY_SLEEP);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
-        }
 
-        if (Constants.MY_BATCH_TOKEN(context).equals("")) {
-            String errMsg = "Oops! Failed to retrieve device batch token, check your internet connection and reinstall app...";
-            Log.e(TAG, errMsg);
-            callToast(errMsg, Color.RED);
-        }
-        else {
-            String infoMsg =  "Device batch token retrieved";
-            BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.TOKEN_RETRIEVED, null, null));
-            Log.i(TAG, infoMsg+":"+token);
-            //callToast(infoMsg,Color.GREEN);
+            if (Constants.MY_BATCH_TOKEN(context).equals("")) {
+                String errMsg = "Oops! Failed to retrieve device batch token, check your internet connection and reinstall app...";
+                Log.e(TAG, errMsg);
+                callToast(errMsg, Color.RED);
+            } else {
+                String infoMsg = "Device batch token retrieved";
+                BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.TOKEN_RETRIEVED, null, null));
+                Log.i(TAG, infoMsg + ":" + token);
+                //callToast(infoMsg,Color.GREEN);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Trying to retrieve token failed:"+(e.getMessage()!=null ? e.getMessage() : e));
+        } finally {
+
+            context = null;
         }
     }
 
