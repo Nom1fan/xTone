@@ -1,6 +1,16 @@
 package com.utils;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.BitmapFactory;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+
+import com.special.app.R;
+import com.ui.components.BitMapWorkerTask;
+
+import DataObjects.SpecialMediaType;
+import FilesManager.FileManager;
 
 /**
  * Created by Mor on 07/01/2016.
@@ -27,5 +37,28 @@ public abstract class BitmapUtils {
         }
 
         return inSampleSize;
+    }
+
+    public static void execBitmapWorkerTask(ImageView imageView, Context context, Resources resources, int resource, boolean makeRound) {
+
+        BitMapWorkerTask task = new BitMapWorkerTask(imageView);
+        task.set_context(context);
+        task.set_height(imageView.getHeight());
+        task.set_width(imageView.getWidth());
+        task.set_makeRound(makeRound);
+        task.set_Resources(resources);
+        task.set_resourceId(resource);
+        task.execute();
+    }
+
+    public static void execBitMapWorkerTask(ImageView imageView, FileManager.FileType fType, String filePath, boolean makeRound) {
+
+        BitMapWorkerTask task = new BitMapWorkerTask(imageView);
+        task.set_width(imageView.getWidth());
+        task.set_height(imageView.getHeight());
+        task.set_fileType(fType);
+        task.set_makeRound(makeRound);
+        task.set_filePath(filePath);
+        task.execute();
     }
 }

@@ -1,5 +1,7 @@
 package com.ui.components;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
@@ -12,6 +14,9 @@ import android.os.AsyncTask;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
+
+import com.utils.BitmapUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
 
@@ -21,15 +26,19 @@ import FilesManager.FileManager;
 /**
  * Created by mor on 20/09/2015.
  */
-public class BitMapWorkerTask extends AsyncTask<String, Void, Bitmap> {
+public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
+
     private final String TAG = BitMapWorkerTask.class.getSimpleName();
     private final WeakReference<ImageView> imageComponentWeakReference;
-    private String _filePath;
     private FileManager.FileType _fileType;
     private int _height;
     private int _width;
-    private SpecialMediaType _specialMediaType;
-    public static int _screenheight =350;  // todo added this static parameter because couldn't pass the width of the screen so i could calculate the profile media imageview
+    private Context _context;
+    private int _resourceId;
+    private Resources _resources;
+    private String _filePath;
+    private boolean _makeRound = false;
+
     public BitMapWorkerTask(ImageView imageComponent) {
         // Use a WeakReference to ensure the ImageView can be garbage collected
         imageComponentWeakReference = new WeakReference<>(imageComponent);
@@ -37,34 +46,26 @@ public class BitMapWorkerTask extends AsyncTask<String, Void, Bitmap> {
 
     // Decode image in background.
     @Override
-    protected Bitmap doInBackground(String ... params) {
+    protected Bitmap doInBackground(Void ... voids) {
 
         try {
 
-            _filePath = params[0];
-
-            if (membersOK()) {
-                Bitmap tmp_bitmap;
+            Log.i(TAG, "Decoding image in background");
+            if (validateMembersForFile()) {
+                Log.i(TAG, "[File Type]:"+_fileType + ", [File Path]:"+_filePath);
                 switch (_fileType) {
-
                     case IMAGE:
-                        final BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inJustDecodeBounds = true;
-                        BitmapFactory.decodeFile(_filePath, options);
-                        options.inSampleSize = calculateInSampleSize(options, _width, _height);
-
-                        options.inJustDecodeBounds = false;
-                        tmp_bitmap = BitmapFactory.decodeFile(_filePath, options);
-                        if(tmp_bitmap!=null)
-                            return Bitmap.createScaledBitmap(tmp_bitmap, _width, _height, false);
-                        else
-                            tmp_bitmap = BitmapFactory.decodeFile(_filePath);
-                        return Bitmap.createScaledBitmap(tmp_bitmap, _width, _height, false);
-
+                                return getImageBitmap(_filePath);
                     case VIDEO:
-                        tmp_bitmap = ThumbnailUtils.createVideoThumbnail(_filePath, MediaStore.Images.Thumbnails.MINI_KIND);
-                        return Bitmap.createScaledBitmap(tmp_bitmap, _width, _height, false);
+                                return getVideoBitmap(_filePath);
                 }
+            }
+            else if(validateMembersForResource()) {
+                Log.i(TAG, "Decoding image from resource");
+                return convertResourceToBitmap();
+            }
+            else {
+                Log.e(TAG, "Invalid parameter configuration. Current configuration does not fit either file nor resource.");
             }
         }
         catch (NullPointerException | OutOfMemoryError e) {
@@ -73,68 +74,22 @@ public class BitMapWorkerTask extends AsyncTask<String, Void, Bitmap> {
         return null;
     }
 
-    private boolean membersOK() {
-        return _filePath!=null && _fileType!=null && _height!=0 && _width!=0;
-    }
-
     // Once complete, see if ImageView is still around and set bitmap.
     @Override
     protected void onPostExecute(Bitmap bitmap) {
         if (imageComponentWeakReference != null && bitmap != null) {
             final ImageView imageComponent = imageComponentWeakReference.get();
 
-            if (imageComponent != null) {
-
-                //TODO: Move all of this logic to doInBackground and make sure createScaledBitmap is always done after using calculateInSampleSize
-                switch (_specialMediaType){
-
-                    case PROFILE_MEDIA:
-
-
-                        if ( _width < 1)
-                            _screenheight = 350; // default
-
-                        int thumbnailSize = _screenheight *9/10;
-                        int radius = (int) (thumbnailSize*0.8);
-                        Log.i(TAG, "thumbnailSize: " + thumbnailSize + " width: " + _screenheight + " radius: " + radius);
-
-                        bitmap = Bitmap.createScaledBitmap(bitmap, thumbnailSize, thumbnailSize, false); // TODO: code review on the relative sizes that we deliver for the circular profile media draw, to see calculation are good
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                        imageComponent.setImageBitmap(transform(bitmap, radius, 0));
-                        break;
-
-                    case CALLER_MEDIA:
-                        imageComponent.setImageBitmap(bitmap);
-                        break;
-                    default:
-                        Log.e(TAG, "Invalid SpecialCallMedia");
-                        imageComponent.setImageBitmap(bitmap);
-                }
-            }
+            if (imageComponent != null)
+                    imageComponent.setImageBitmap(bitmap);
         }
     }
 
-    public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
 
-        if (height > reqHeight || width > reqWidth) {
+    /* Getters & Setters */
 
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
+    public void set_filePath(String _filePath) {
+        this._filePath = _filePath;
     }
 
     public void set_height(int _height) {
@@ -149,27 +104,113 @@ public class BitMapWorkerTask extends AsyncTask<String, Void, Bitmap> {
         this._fileType = _fileType;
     }
 
-    public void set_specialMediaType(SpecialMediaType _specialMediaType) {
-        this._specialMediaType = _specialMediaType;
+    public void set_resourceId(int _resourceId) {
+        this._resourceId = _resourceId;
     }
 
-    public Bitmap transform(Bitmap source, int radius, int margin) {
+    public void set_context(Context _context) {
+        this._context = _context;
+    }
+
+    public void set_makeRound(Boolean _makeRound) {
+        this._makeRound = _makeRound;
+    }
+
+    public void set_Resources(Resources resources) {
+        this._resources = resources;
+    }
+
+
+    /* Inner helper methods */
+
+    private Bitmap decodeSampledBitmapFromImageFile(String filePath) {
+
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(filePath, options);
+        options.inSampleSize = BitmapUtils.calculateInSampleSize(options, _width, _height);
+
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(filePath, options);
+    }
+
+    private Bitmap decodeSampledBitmapFromResource(Resources res, int resId, int reqWidth, int reqHeight) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(res, resId, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = BitmapUtils.calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeResource(res, resId, options);
+    }
+
+    private boolean validateMembersForFile() {
+        return _filePath!=null && _fileType!=null && _height!=0 && _width!=0;
+    }
+
+    private boolean validateMembersForResource() {
+
+        return _height!=0 && _width!=0 && _context!=null;
+    }
+
+    private Bitmap transform(Bitmap bitmap, int margin) {
+
+        int thumbnailSize = _height *9/10;
+        int radius = (int) (thumbnailSize*0.8);
         final Paint paint = new Paint();
         paint.setAntiAlias(true);
-        paint.setShader(new BitmapShader(source, Shader.TileMode.MIRROR,
+        paint.setShader(new BitmapShader(bitmap, Shader.TileMode.MIRROR,
                 Shader.TileMode.MIRROR));
 
-        Bitmap output = Bitmap.createBitmap(source.getWidth(),
-                source.getHeight(), Bitmap.Config.ARGB_8888);
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
-        canvas.drawRoundRect(new RectF(margin, margin, source.getWidth()
-                - margin, source.getHeight() - margin), radius, radius, paint);
+        canvas.drawRoundRect(new RectF(margin, margin, bitmap.getWidth()
+                - margin, bitmap.getHeight() - margin), radius, radius, paint);
 
-        if (source != output) {
-            source.recycle();
+        if (bitmap != output) {
+            bitmap.recycle();
         }
         return output;
     }
 
+    private Bitmap getImageBitmap(String filePath) {
+
+        Bitmap bitmap = decodeSampledBitmapFromImageFile(filePath);
+        if(bitmap==null) {
+            Log.w(TAG, "Failed to get optimal bitmap, attempting to decode inefficiently");
+            bitmap = BitmapFactory.decodeFile(filePath);
+        }
+
+       return createScaledBitMap(bitmap);
+    }
+
+    private Bitmap getVideoBitmap(String filePath) {
+
+        Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Images.Thumbnails.MINI_KIND);
+
+        return createScaledBitMap(bitmap);
+    }
+
+    private Bitmap createScaledBitMap(Bitmap bitmap) {
+
+        if (_makeRound)
+            return transform(bitmap, 0);
+
+        return Bitmap.createScaledBitmap(bitmap, _width, _height, false);
+    }
+
+    private Bitmap convertResourceToBitmap() {
+
+        Bitmap bitmap = decodeSampledBitmapFromResource(_resources, _resourceId, _width, _height);
+        //ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        //bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        return createScaledBitMap(bitmap);
+    }
 
 }

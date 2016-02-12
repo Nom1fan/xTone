@@ -56,6 +56,7 @@ import com.services.OutgoingService;
 import com.special.app.R;
 import com.ui.components.AutoCompletePopulateListAsyncTask;
 import com.ui.components.BitMapWorkerTask;
+import com.utils.BitmapUtils;
 import com.utils.BroadcastUtils;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
@@ -1247,8 +1248,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             @Override
             public void run() {
                 _pBar = (ProgressBar) findViewById(R.id.progressBar);
-                if (_pBar!=null)
-                _pBar.setVisibility(ProgressBar.VISIBLE);
+                if (_pBar != null)
+                    _pBar.setVisibility(ProgressBar.VISIBLE);
             }
         });
     }
@@ -1371,12 +1372,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 if (!lastUploadedMediaPath.equals("")) {
                     fType = FileManager.getFileType(lastUploadedMediaPath);
 
-                    BitMapWorkerTask task = new BitMapWorkerTask(selectCallerMediaBtn);
-                    task.set_width(selectCallerMediaBtn.getWidth());
-                    task.set_height(selectCallerMediaBtn.getHeight());
-                    task.set_fileType(fType);
-                    task.set_specialMediaType(SpecialMediaType.CALLER_MEDIA);
-                    task.execute(lastUploadedMediaPath);
+                    BitmapUtils.execBitMapWorkerTask(selectCallerMediaBtn, fType, lastUploadedMediaPath, false);
 
                     ImageView mediaStatus = (ImageView) findViewById(R.id.mediaStatus);
                     mediaStatus.setVisibility(View.VISIBLE);
@@ -1404,36 +1400,24 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private void drawSelectProfileMediaButton(boolean enabled) {
 
         LUT_Utils lut_utils = new LUT_Utils(_context, SpecialMediaType.PROFILE_MEDIA);
+
         try {
-            FileManager.FileType fType;
+
             ImageButton selectProfileMediaBtn = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
-            int height = selectProfileMediaBtn.getHeight();
 
-            if ( height < 1)
-                height = 350; // default 600 as LG G2 width for example
-
-            BitMapWorkerTask._screenheight = height;
-
-            int thumbnailSize = height*9/10;
-            int radius = (int) (thumbnailSize*0.8);
-            Log.i(TAG, "thumbnailSize: " + thumbnailSize + " height: " + height + " radius: " + radius);
-            if(!enabled)
-                selectProfileMediaBtn.setImageBitmap(transform((localImageToBitmap(R.drawable.defaultpic_disabled, thumbnailSize)), radius, 0)); // TODO: code review on the relative sizes that we deliver for the circular profile media draw, to see calculation are good
+            if(!enabled) {
+                BitmapUtils.execBitmapWorkerTask(selectProfileMediaBtn, _context, getResources(), R.drawable.defaultpic_disabled, true);
+            }
             else {
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(_destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
-                    fType = FileManager.getFileType(lastUploadedMediaPath);
+                    FileManager.FileType fType = FileManager.getFileType(lastUploadedMediaPath);
 
-                    BitMapWorkerTask task = new BitMapWorkerTask(selectProfileMediaBtn);
-                    task.set_width(selectProfileMediaBtn.getWidth());
-                    task.set_height(selectProfileMediaBtn.getHeight());
-                    task.set_fileType(fType);
-                    task.set_specialMediaType(SpecialMediaType.PROFILE_MEDIA);
-                    task.execute(lastUploadedMediaPath);
+                    BitmapUtils.execBitMapWorkerTask(selectProfileMediaBtn, fType, lastUploadedMediaPath, true);
                 } else // enabled but no uploaded media
-                    //TODO Change to use BitMapWorkerTask same as above
-                    selectProfileMediaBtn.setImageBitmap(transform((localImageToBitmap(R.drawable.defaultpic_enabled, thumbnailSize)), radius, 0));  // TODO: code review on the relative sizes that we deliver for the circular profile media draw, to see calculation are good
+
+                    BitmapUtils.execBitmapWorkerTask(selectProfileMediaBtn, _context, getResources(), R.drawable.defaultpic_enabled, true);
             }
 
         } catch (FileInvalidFormatException |
@@ -1442,35 +1426,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             e.printStackTrace();
             lut_utils.removeUploadedMediaPerNumber(_destPhoneNumber);
         }
-    }
-
-    //TODO Remove from here. Should only exist in BitMapWorkerTask
-    public Bitmap localImageToBitmap(int source, int THUMBNAIL_SIZE) {
-        int size = THUMBNAIL_SIZE;
-        Bitmap imageBitmap = BitmapFactory.decodeResource(_context.getResources(), source);
-        imageBitmap = Bitmap.createScaledBitmap(imageBitmap, size, size, false);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        return imageBitmap;
-    }
-
-    //TODO Remove from here. Should only exist in BitMapWorkerTask
-    public Bitmap transform(Bitmap source, int radius, int margin) {
-        final Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setShader(new BitmapShader(source, Shader.TileMode.MIRROR,
-                Shader.TileMode.MIRROR));
-
-        Bitmap output = Bitmap.createBitmap(source.getWidth(),
-                source.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
-        canvas.drawRoundRect(new RectF(margin, margin, source.getWidth()
-                - margin, source.getHeight() - margin), radius, radius, paint);
-
-        if (source != output) {
-            source.recycle();
-        }
-        return output;
     }
 
     private void drawSelectRingToneName() {
@@ -1505,6 +1460,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         else
             selectContactButton.setImageResource(R.drawable.select_contact_disabled);
     }
+
+
 
     private void writeErrStatBar(final String text) {
 
