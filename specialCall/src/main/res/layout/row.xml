@@ -21,13 +21,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
-        android:layout_alignBottom="@+id/remove_blocked"
+        android:layout_alignBottom="@+id/checkBox"
         android:layout_alignLeft="@+id/textView1"
         android:layout_alignStart="@+id/textView1"
         android:textColor="#aaa3a3" />
 
     <CheckBox
-        android:id="@+id/remove_blocked"
+        android:id="@+id/checkBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="30dp"

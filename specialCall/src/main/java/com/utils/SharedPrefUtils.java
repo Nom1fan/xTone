@@ -3,6 +3,7 @@ package com.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class SharedPrefUtils {
@@ -10,6 +11,7 @@ public class SharedPrefUtils {
 	/* Shared pref names */
 	public static final String GENERAL = "General";
 	public static final String SETTINGS = "Settings";
+	public static final String RADIO_BUTTON_SETTINGS = "RadioButtonsSettings";
 	public static final String SERVER_PROXY = "AbstractServerProxy";
 	public static final String UPLOADED_CALLER_MEDIA_THUMBNAIL = "UploadedCallerMediaThumbnail";
 	public static final String UPLOADED_RINGTONE_PATH ="UploadedRingTonePath";
@@ -83,13 +85,16 @@ public class SharedPrefUtils {
 
     public static void setStringSet(Context context, String prefsName, String key, Set<String> value){
         SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
-        prefs.edit().putStringSet(key, value).apply();
+		SharedPreferences.Editor edit = prefs.edit();
+		edit.clear();
+		edit.putStringSet(key, value);
+		edit.commit();
     }
 
     public static Set<String> getStringSet(Context context, String prefsName, String key){
         SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
-        Set<String> value = null;
-        prefs.getStringSet(key, value);
+        Set<String> value = new HashSet<String>();
+        value =  prefs.getStringSet(key, null);
         return  value;
     }
 

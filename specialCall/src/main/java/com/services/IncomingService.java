@@ -20,6 +20,8 @@ import android.widget.VideoView;
 import com.utils.SharedPrefUtils;
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
+
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
@@ -205,9 +207,12 @@ public class IncomingService extends AbstractStandOutService {
 
     protected synchronized void syncOnCallStateChange(int state, String incomingNumber) {
 
+     // CHECK IF NUMBER BLOCKED OR NOT FOR MC
+    if(!checkIfNumberIsMCBlocked(incomingNumber))
         switch(state)
         {
             case TelephonyManager.CALL_STATE_RINGING:
+
                 if (!mInRingingSession)
                 {
                     try
@@ -304,6 +309,8 @@ public class IncomingService extends AbstractStandOutService {
         }
 
     }
+
+
 
     private void dismissKeyGuard(boolean dismissOrNot) {
 

@@ -83,6 +83,10 @@ public class OutgoingService extends AbstractStandOutService {
     @Override
     protected void syncOnCallStateChange(int state, String incomingNumber) {
 
+
+
+      // CHECK IF NUMBER BLOCKED OR NOT FOR MC
+     if(!checkIfNumberIsMCBlocked(incomingNumber))
         switch(state)
         {
             case TelephonyManager.CALL_STATE_IDLE:
@@ -131,8 +135,12 @@ public class OutgoingService extends AbstractStandOutService {
             if (intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
                 String mOutgoingCallNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
 
+
                 Log.i(TAG, "In ACTION_NEW_OUTGOING_CALL. mOutgoingCallNumber:"+ mOutgoingCallNumber);
                 Log.i(TAG, "mInRingingSession="+mInRingingSession +  " mOutgoingCallNumber="+ mOutgoingCallNumber);
+
+                // CHECK IF NUMBER BLOCKED OR NOT FOR MC
+                if(!checkIfNumberIsMCBlocked(mOutgoingCallNumber))
                 if (!mInRingingSession && mOutgoingCallNumber !=null)
                 {
 

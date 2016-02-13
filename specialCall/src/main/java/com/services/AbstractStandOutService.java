@@ -26,8 +26,11 @@ import android.widget.VideoView;
 
 import com.special.app.R;
 import com.utils.BitmapUtils;
+import com.utils.SharedPrefUtils;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
@@ -55,7 +58,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected AudioManager mAudioManager;
     protected CallStateListener mPhoneListener;
     protected OnVideoPreparedListener mVideoPreparedListener;
-
+    Set<String> blockedSet = new HashSet<String>();
 
     public AbstractStandOutService(String TAG) {
         this.TAG = TAG;
@@ -466,4 +469,24 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             Log.e(TAG, "Failed to Stop sound. Exception:" + e.getMessage());
         }
     }
+
+    protected boolean checkIfNumberIsMCBlocked(String incomingNumber) {
+        Log.i(TAG, "check if number blocked: " + incomingNumber);
+        blockedSet = SharedPrefUtils.getStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+        Set<String> onlyNumbersBlockedSet = new HashSet<String>();
+        if (blockedSet!=null) {
+            incomingNumber = incomingNumber.replaceAll("\\D+", "");
+
+            for (String s : blockedSet) {
+                s = s.replaceAll("\\D+", "");
+                onlyNumbersBlockedSet.add(s);
+            }
+            if (onlyNumbersBlockedSet.contains(incomingNumber)) {
+                Log.i(TAG, "NUMBER MC BLOCKED: " + incomingNumber);
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
