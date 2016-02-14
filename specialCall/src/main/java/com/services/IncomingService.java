@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -15,20 +14,13 @@ import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 import com.utils.SharedPrefUtils;
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
 
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileExceedsMaxSizeException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
 import wei.mark.standout.StandOutWindow;
-import wei.mark.standout.ui.Window;
 
 
 public class IncomingService extends AbstractStandOutService {

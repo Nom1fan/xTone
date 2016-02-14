@@ -57,7 +57,7 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.blocked_user_list);
-
+        Log.i(TAG, "onCreate");
         getAllContacts(this.getContentResolver());
         blockedContactsSet = SharedPrefUtils.getStringSet(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
 
@@ -136,6 +136,10 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
             Intent mainIntent = new Intent(BlockMCContacts.this,
                     SelectSpecificContacts.class);
 
+            if (blockedContacts!= null)
+            Log.i(TAG ,"SelectSpecificcontact blockedContacts  " + String.valueOf(blockedContacts.size()));
+            if (blockedContactsSet!= null)
+            Log.i(TAG, "SelectSpecificcontact blockedContactsSet  " + String.valueOf(blockedContactsSet.size()));
             mainIntent.putExtra("map", blockedContacts);
 
             startActivityForResult(mainIntent, ActivityRequestCodes.SELECT_BLACK_LIST_CONTACTS);
@@ -151,7 +155,7 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
             if (requestCode == ActivityRequestCodes.SELECT_BLACK_LIST_CONTACTS) {
 
                 blockedContacts = (HashMap<String, String>)data.getSerializableExtra("result");
-                Toast.makeText(getApplicationContext(), " ACTIVITY RESULT FOR BLOCK LIST HashMapCount: " + String.valueOf(blockedContacts.size()), Toast.LENGTH_LONG).show();
+               // Toast.makeText(getApplicationContext(), " ACTIVITY RESULT FOR BLOCK LIST HashMapCount: " + String.valueOf(blockedContacts.size()), Toast.LENGTH_LONG).show();
 
                 names = new ArrayList<String>();
                 phones = new ArrayList<String>();
@@ -164,7 +168,11 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
                 getAllContactsfromHashmap(blockedContacts); // populate the data for the adapter
 
                 blockedContactsSet = SharedPrefUtils.getStringSet(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
-                lv.setAdapter(ma);
+                if (blockedContacts!= null)
+                Log.i(TAG ,"ActivityResult blockedContacts  " + String.valueOf(blockedContacts.size()));
+                if (blockedContactsSet!= null)
+                Log.i(TAG ,"ActivityResult blockedContactsSet  " + String.valueOf(blockedContactsSet.size()));
+                        lv.setAdapter(ma);
                 lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
                 lv.setItemsCanFocus(false);
                 lv.setTextFilterEnabled(true);

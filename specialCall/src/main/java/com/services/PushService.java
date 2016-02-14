@@ -3,12 +3,20 @@ package com.services;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.batch.android.Batch;
 import com.google.gson.Gson;
 import com.receivers.PushReceiver;
 import com.utils.BroadcastUtils;
+import com.utils.SharedPrefUtils;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import DataObjects.PushEventKeys;
 import DataObjects.TransferDetails;
@@ -57,10 +65,14 @@ public class PushService extends IntentService {
                     jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
                     td = gson.fromJson(jsonData, TransferDetails.class);
 
+                  if(checkIfNumberIsMCBlocked(td.getSourceId())) //don't download if the number is blocked , just break and don't continue with the download flow
+                        break;
+
                     Intent i = new Intent(_context.getApplicationContext(), StorageServerProxyService.class);
                     i.setAction(StorageServerProxyService.ACTION_DOWNLOAD);
                     i.putExtra(PushEventKeys.PUSH_DATA, td);
                     _context.startService(i);
+
                     break;
 
                 case PushEventKeys.TRANSFER_SUCCESS:
@@ -84,6 +96,63 @@ public class PushService extends IntentService {
 
             PushReceiver.completeWakefulIntent(intent);
         }
+    }
+
+    protected boolean checkIfNumberIsMCBlocked(String incomingNumber) {
+        Log.i(TAG, "check if number blocked: " + incomingNumber);
+        //MC Permissions: ALL , Only contacts , Specific Black List Contacts
+        String permissionLevel = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
+
+        if (permissionLevel.isEmpty())
+        {
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, "ALL");
+        }
+        else
+        {
+            switch (permissionLevel) {
+
+                case "ALL":
+                    return false;
+
+                case "CONTACTS":
+
+                    // GET ALL CONTACTS
+                    List<String> phones = new ArrayList<String>();
+                    Cursor curPhones = this.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+                    while (curPhones.moveToNext())
+                    {
+                        String phoneNumber = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        phones.add(phoneNumber.replaceAll("\\D+", ""));
+                    }
+                    curPhones.close();
+
+                    if (phones.contains(incomingNumber.replaceAll("\\D+", "")))
+                        return true;
+                    else
+                        return false;
+
+
+                case "black_list":
+
+                    Set<String> blockedSet = SharedPrefUtils.getStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+                    Set<String> onlyNumbersBlockedSet = new HashSet<String>();
+                    if (blockedSet!=null) {
+                        incomingNumber = incomingNumber.replaceAll("\\D+", "");
+
+                        for (String s : blockedSet) {
+                            s = s.replaceAll("\\D+", "");
+                            onlyNumbersBlockedSet.add(s);
+                        }
+                        if (onlyNumbersBlockedSet.contains(incomingNumber)) {
+                            Log.i(TAG, "NUMBER MC BLOCKED: " + incomingNumber);
+                            return true;
+                        }
+                    }
+                    return false;
+
+            }
+        }
+        return false;
     }
 
 }
