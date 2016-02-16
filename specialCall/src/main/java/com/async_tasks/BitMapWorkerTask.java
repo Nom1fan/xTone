@@ -53,9 +53,9 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
                 Log.i(TAG, "[File Type]:"+_fileType + ", [File Path]:"+_filePath);
                 switch (_fileType) {
                     case IMAGE:
-                                return getImageBitmap(_filePath);
+                        return getImageBitmap(_filePath);
                     case VIDEO:
-                                return getVideoBitmap(_filePath);
+                        return getVideoBitmap(_filePath);
                 }
             }
             else if(validateMembersForResource()) {
@@ -67,7 +67,7 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
             }
         }
         catch (NullPointerException | OutOfMemoryError e) {
-            return null;
+            e.printStackTrace();
         }
         finally {
             _context = null;
@@ -82,7 +82,8 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
             final ImageView imageComponent = imageComponentWeakReference.get();
 
             if (imageComponent != null)
-                    imageComponent.setImageBitmap(bitmap);
+                imageComponent.setImageBitmap(bitmap);
+
         }
     }
 

@@ -7,10 +7,9 @@ import android.util.Log;
 
 import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
-import com.interfaces.CallbackListener;
+import com.interfaces.ICallbackListener;
 import com.utils.BroadcastUtils;
 import com.utils.FileCompressorUtil;
-import com.utils.NotificationUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +33,7 @@ import MessagesToServer.MessageRequestDownload;
  * - Upload file
  * @author Mor
  */
-public class StorageServerProxyService extends AbstractServerProxy implements IServerProxy, CallbackListener {
+public class StorageServerProxyService extends AbstractServerProxy implements IServerProxy, ICallbackListener {
 
     // Service actions
     public static final String ACTION_DOWNLOAD = "com.services.StorageServerProxyService.DOWNLOAD";

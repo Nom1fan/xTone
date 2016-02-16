@@ -3,13 +3,10 @@ package com.utils;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 
-import com.special.app.R;
-import com.ui.components.BitMapWorkerTask;
+import com.async_tasks.BitMapWorkerTask;
 
-import DataObjects.SpecialMediaType;
 import FilesManager.FileManager;
 
 /**

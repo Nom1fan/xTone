@@ -4,10 +4,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import com.data_objects.Constants;
-import com.interfaces.CallbackListener;
-import com.ui.components.NotificationHelper;
+import com.interfaces.ICallbackListener;
 import com.utils.BroadcastUtils;
-import com.utils.NotificationUtils;
+
 import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -27,9 +26,9 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
     private ConnectionToServer _connectionToServer;
     private TransferDetails _td;
     private Context _context;
-    private CallbackListener _callBackListener;
+    private ICallbackListener _callBackListener;
 
-    public UploadTask(Context context, CallbackListener callBackListener , ConnectionToServer connectionToServer, TransferDetails td) {
+    public UploadTask(Context context, ICallbackListener callBackListener , ConnectionToServer connectionToServer, TransferDetails td) {
         _context = context;
         _callBackListener = callBackListener;
         //mNotificationHelper = NotificationUtils.getNextHelper();
