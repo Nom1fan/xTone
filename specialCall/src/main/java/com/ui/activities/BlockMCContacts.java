@@ -212,13 +212,29 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
         while (curPhones.moveToNext())
         {
             String name=curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            String phoneNumber = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            allNames.add(name);
-            allPhones.add(phoneNumber);
-        }
-        // Collections.copy(originalnames,names);
+            String phoneNumber = toValidPhoneNumber(curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
 
+            if (!phones.contains(phoneNumber) && (phoneNumber.length() == 10))
+            {  allNames.add(name);
+                allPhones.add(phoneNumber);
+            }
+
+        }
         curPhones.close();
+    }
+
+    private String toValidPhoneNumber(String str) {
+
+        str = str.replaceAll("[^0-9]","");
+
+        if (str.startsWith("972")){
+            str= str.replaceFirst("972","0");
+        }
+        if (str.startsWith("9720")){
+            str= str.replaceFirst("9720","0");
+        }
+
+        return str;
     }
 
     class MyAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener//,Filterable
@@ -275,7 +291,9 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
                     Log.i(TAG, "position: " + String.valueOf(position));
 
                     if (blockedContacts !=null)
-                    blockedContacts.remove((names.get(position).toString()));
+                    {  blockedContacts.remove((names.get(position).toString()));
+                    Log.i(TAG, "Removed from BlockedContacts: " + (names.get(position).toString()));
+                    }
 
                     lv.removeViewInLayout(v);
 

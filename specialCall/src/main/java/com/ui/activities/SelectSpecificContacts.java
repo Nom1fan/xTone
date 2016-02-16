@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 public class SelectSpecificContacts extends AppCompatActivity implements OnItemClickListener{
@@ -47,6 +48,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
     HashMap<String,String> blockedContacts ;
     Set<String> blockedSet = new HashSet<String>();
     HashMap<String,String> allContactsClicked ;
+    Boolean checkboxPressed = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +59,6 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         blockedContacts = (HashMap<String, String>)intent.getSerializableExtra("map");
 
         Set<String> storedBlockedContacts = SharedPrefUtils.getStringSet(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
-
-
 
         if (storedBlockedContacts!=null){
                 blockedSet = storedBlockedContacts;
@@ -81,6 +81,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         if (blockedSet!= null)
         Log.i(TAG ," blockedSet  " + String.valueOf(blockedSet.size()));
 
+        checkboxPressed=true;
         getAllContacts(this.getContentResolver());
         lv= (ListView) findViewById(R.id.lv);
         ma = new MyAdapter();
@@ -94,13 +95,20 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         selectall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for (int i = 0; i < lv.getCount(); i++) {
-                    ma.setChecked(i, true);
+                for (int i = 0; i < phones.size(); i++) {
+                    checkboxPressed = true;
+                   ma.setChecked(i, true);
                     lv.setItemChecked(i, true);
                     //Log.i(TAG, "onclick true");
                     ma.notifyDataSetChanged();
                 }
-                blockedContacts = allContactsClicked;
+
+                ma.notifyDataSetChanged();
+
+                blockedContacts = new HashMap<String, String>();
+                blockedContacts.putAll(allContactsClicked);
+                saveBlockedContacts();
+                Log.i(TAG, "selectall.setOnClickListener : " + blockedContacts.size());
             }
         });
 
@@ -109,15 +117,31 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         {
             @Override
             public void onClick(View v) {
-                for ( int i=0; i < lv.getCount(); i++) {
-                    ma.setChecked(i,false);
-                    lv.setItemChecked(i,false);
+
+                for ( int i=0; i < phones.size(); i++) {
+                    checkboxPressed = true;
+                    ma.setChecked(i, false);
+                    lv.setItemChecked(i, false);
+
                     //Log.i(TAG,"onclick false" );
                     ma.notifyDataSetChanged();
                 }
 
+                lv= (ListView) findViewById(R.id.lv);
 
+                getAllContacts(getApplicationContext().getContentResolver());
+                lv= (ListView) findViewById(R.id.lv);
+                ma = new MyAdapter();
+                lv.setAdapter(ma);
+                lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+                lv.setItemsCanFocus(false);
+                lv.setTextFilterEnabled(true);
+
+                ma.notifyDataSetChanged();
+
+                blockedSet = new HashSet<String>();
                 blockedContacts = new HashMap<String, String>();
+
             }
         });
 
@@ -126,6 +150,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         {
             @Override
             public void onClick(View v) {
+                Log.i(TAG, "Back Button Pressed");
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("result", blockedContacts);
 
@@ -140,27 +165,6 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
 
     }
 
-   //recursive blind checks removal for everything inside a View
-    private void removeAllChecks(ViewGroup vg) {
-        View v = null;
-        for(int i = 0; i < vg.getChildCount(); i++){
-            try {
-                v = vg.getChildAt(i);
-                ((CheckBox)v).setChecked(false);
-            }
-            catch(Exception e1){ //if not checkBox, null View, etc
-                try {
-                    removeAllChecks((ViewGroup)v);
-                }
-                catch(Exception e2){ //v is not a view group
-                    continue;
-                }
-            }
-        }
-
-    }
-
-
     private SearchView.OnQueryTextListener onQueryTextListener() {
         return new SearchView.OnQueryTextListener() {
             @Override
@@ -170,6 +174,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
 
             @Override
             public boolean onQueryTextChange(String s) {
+              checkboxPressed = false;
                 int position = 0;
                 while (position < names.size() - 1) {
                     if (names.get(position).toUpperCase().contains(s.toUpperCase())) {
@@ -201,7 +206,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
     @Override
     protected void onPause() {
 
-        Log.i(TAG,"onPause");
+        Log.i(TAG, "onPause");
 
         Intent returnIntent = new Intent();
         returnIntent.putExtra("result", blockedContacts);
@@ -236,8 +241,23 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         super.onBackPressed();
     }
 
+    private String toValidPhoneNumber(String str) {
+
+        str = str.replaceAll("[^0-9]","");
+
+        if (str.startsWith("972")){
+            str= str.replaceFirst("972","0");
+        }
+        if (str.startsWith("9720")){
+            str= str.replaceFirst("9720","0");
+        }
+
+        return str;
+    }
+
     private void saveBlockedContacts() {
-       Log.i(TAG, "saveBlockedContacts");
+       Log.i(TAG, "saveBlockedContacts , blockedSet: "+ String.valueOf(blockedSet.size()));
+        Log.i(TAG, "saveBlockedContacts , blockedContacts: "+ String.valueOf(blockedContacts.size()));
 
         Iterator myVeryOwnIterator = blockedContacts.keySet().iterator();
         blockedSet = new HashSet<String>();
@@ -245,30 +265,49 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
             String name = (String) myVeryOwnIterator.next();
             String phoneNumber = (String) blockedContacts.get(name);
             ////// ADDING  To Black List is SharedPreferences
-           if (!blockedSet.contains(phoneNumber))
+           if (!blockedSet.contains(phoneNumber) && (phoneNumber.length() == 10))
            {
                //Log.i(TAG, "saveBlockedContacts : phoneNumber: " + phoneNumber);
                blockedSet.add(phoneNumber);
            }
         }
+        Log.i(TAG, "saveBlockedContacts : blockedSet : " + String.valueOf(blockedSet.size()));
         SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, blockedSet);
     }
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         ma.toggle(arg2);
     }
+
     public  void getAllContacts(ContentResolver cr) {
         allContactsClicked = new HashMap<String,String>();
         Cursor curPhones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,null,null, null);
+       // Log.i(TAG,"Before getAllContacts: namessize: " + String.valueOf(names.size()) + " PhoneSize: " + String.valueOf(phones.size()) + " AllContactsClicked:  "+ String.valueOf(allContactsClicked.size()));
         while (curPhones.moveToNext())
         {
-          String name=curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-          String phoneNumber = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-          names.add(name);
-          phones.add(phoneNumber);
-            allContactsClicked.put(name,phoneNumber);
-        }
+          String name= curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+          String phoneNumber = toValidPhoneNumber(curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
 
+           if (!phones.contains(phoneNumber) && (phoneNumber.length() == 10))
+            {
+                int i = 0;
+                while (allContactsClicked.containsKey(name)) // for names that have more than one number
+                {
+                    name = name + String.valueOf(i);
+                    i++;
+                 //   Log.i(TAG, "getAllContacts: namessize duplicate name: " + name);
+                }
+
+               names.add(name);
+               phones.add(phoneNumber);
+               allContactsClicked.put(name,phoneNumber);
+
+            }
+
+
+
+        }
+      //  Log.i(TAG,"AFTER getAllContacts: namessize: " + String.valueOf(names.size()) + " PhoneSize: " + String.valueOf(phones.size()) + " AllContactsClicked:  "+ String.valueOf(allContactsClicked.size()));
         curPhones.close();
      }
 
@@ -277,13 +316,13 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
        LayoutInflater mInflater;
         TextView tv1,tv;
         CheckBox cb;
+
        // filter_here filter = new filter_here();
         MyAdapter()
         {
             mCheckStates = new SparseBooleanArray(names.size());
             mInflater = (LayoutInflater)SelectSpecificContacts.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
          //   filter = new filter_here();
-
         }
         @Override
         public int getCount() {
@@ -292,12 +331,12 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
 
         @Override
         public Object getItem(int position) {
+            checkboxPressed = true;
             return position;
         }
 
         @Override
         public long getItemId(int position) {
-
             return 0;
         }
 
@@ -315,18 +354,23 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
             cb.setOnCheckedChangeListener(this);
 
             if (blockedSet != null) {
-               // Log.i(TAG, "blockedSet!=null");
-                if (blockedSet.contains(phones.get(position))) {
-               //     Log.i(TAG, "Check CheckBoxes");
+                if (blockedSet.contains((phones.get(position)).toString())) {
+                   // Log.i(TAG, "Check CheckBoxes");
                     cb.setChecked(true);
                     ma.notifyDataSetChanged();
                 } else
-                    cb.setChecked(mCheckStates.get(position, false));
+                {
+                  //  cb.setChecked(mCheckStates.get(position, false));
+
+                    cb.setChecked(mCheckStates.get(Integer.valueOf((phones.get(position))), false));
+                 //   Log.i(TAG,"UNCHECKED ?? : " + names.get(position) + " " + phones.get(position) );
+                }
             }
+
+
             return vi;
         }
          public boolean isChecked(int position) {
-             Log.i(TAG, "isChecked");
                 return mCheckStates.get(position, false);
             }
 
@@ -337,27 +381,34 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
             }
 
             public void toggle(int position) {
-                Log.i(TAG,"toggle" );
                 setChecked(position, !isChecked(position));
             }
         @Override
         public void onCheckedChanged(CompoundButton buttonView,
                 boolean isChecked) {
-           // Log.i(TAG,"onCheckedChanged" );
-             mCheckStates.put((Integer) buttonView.getTag(), isChecked);
-            if (isChecked && blockedContacts!=null
-                    && !blockedContacts.containsKey(names.get((Integer) buttonView.getTag()).toString()) && !blockedContacts.containsValue(phones.get((Integer) buttonView.getTag()).toString()))
+
+            String phoneInIndex = toValidPhoneNumber(phones.get((Integer) buttonView.getTag()).toString());
+            String nameInIndex = names.get((Integer) buttonView.getTag()).toString();
+            int i = 0;
+            while (blockedContacts.containsKey(nameInIndex) && !blockedContacts.containsValue(phoneInIndex)) // for names that have more than one number
             {
-                blockedContacts.put(names.get((Integer) buttonView.getTag()).toString() , phones.get((Integer) buttonView.getTag()).toString() );
+                nameInIndex = nameInIndex + String.valueOf(i);
+                i++;
+            }
+                 //   mCheckStates.put((Integer) buttonView.getTag(), isChecked);
+            mCheckStates.put(Integer.valueOf(phoneInIndex), isChecked);
+            if (isChecked && blockedContacts!=null && !blockedContacts.containsValue(phoneInIndex))  // so there won't be any phone duplicate
+            {
+                blockedContacts.put(nameInIndex , phoneInIndex);
             }
             else if (!isChecked && blockedContacts!=null) {
-                blockedContacts.remove(names.get((Integer) buttonView.getTag()).toString());
-
+                blockedContacts.remove(nameInIndex);
+            Log.i(TAG,"blockedContacts remove : " + nameInIndex + " size now :" + String.valueOf(blockedContacts.size()) );
                 if (blockedSet != null)
                 //    Log.i(TAG,"blockedSet!=null");
-                if (blockedSet.contains(phones.get((Integer) buttonView.getTag()).toString()))
+                if (blockedSet.contains(phoneInIndex))
                 { //  Log.i(TAG,"Check CheckBoxes");
-                blockedSet.remove(phones.get((Integer) buttonView.getTag()).toString());
+                blockedSet.remove(phoneInIndex);
                 }
 
             }

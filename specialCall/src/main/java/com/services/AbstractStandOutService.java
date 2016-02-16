@@ -477,6 +477,20 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         }
     }
 
+    private String toValidPhoneNumber(String str) {
+
+        str = str.replaceAll("[^0-9]","");
+
+        if (str.startsWith("972")){
+            str= str.replaceFirst("972","0");
+        }
+        if (str.startsWith("9720")){
+            str= str.replaceFirst("9720","0");
+        }
+
+        return str;
+    }
+
     protected boolean checkIfNumberIsMCBlocked(String incomingNumber) {
         Log.i(TAG, "check if number blocked: " + incomingNumber);
         //MC Permissions: ALL , Only contacts , Specific Black List Contacts
@@ -501,11 +515,11 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     while (curPhones.moveToNext())
                     {
                         String phoneNumber = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        phones.add(phoneNumber.replaceAll("\\D+", ""));
+                        phones.add(toValidPhoneNumber(phoneNumber));
                     }
                     curPhones.close();
 
-                    if (phones.contains(incomingNumber.replaceAll("\\D+", "")))
+                    if (phones.contains(toValidPhoneNumber(incomingNumber)))
                         return true;
                     else
                     return false;
@@ -515,10 +529,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     Set<String> blockedSet = SharedPrefUtils.getStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
                     Set<String> onlyNumbersBlockedSet = new HashSet<String>();
                     if (blockedSet!=null) {
-                        incomingNumber = incomingNumber.replaceAll("\\D+", "");
+                        incomingNumber = toValidPhoneNumber(incomingNumber);
 
                         for (String s : blockedSet) {
-                            s = s.replaceAll("\\D+", "");
+                            s = toValidPhoneNumber(s);
                             onlyNumbersBlockedSet.add(s);
                         }
                         if (onlyNumbersBlockedSet.contains(incomingNumber)) {
