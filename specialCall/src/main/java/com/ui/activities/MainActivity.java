@@ -1016,7 +1016,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             case 4: // Rate Us
                 shareUs();
                 break;
-            case 5: // App Settings
+            case 5: // Bug Report
+
+                break;
+            case 6: // App Settings
                 appSettings();
 
                 break;

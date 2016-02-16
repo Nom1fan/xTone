@@ -73,4 +73,3 @@
         android:layout_toStartOf="@+id/login_btn" />
 
 </RelativeLayout>
-<!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/src/main/res/layout/loginuser.xml -->

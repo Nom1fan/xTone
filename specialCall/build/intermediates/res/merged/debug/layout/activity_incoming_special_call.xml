@@ -21,7 +21,6 @@
         android:minHeight="500dp"
         android:minWidth="300dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/abc_ab_bottom_solid_dark_holo"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:background="@color/black"
@@ -48,4 +47,3 @@
 
 
 </RelativeLayout>
-<!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/src/main/res/layout/activity_incoming_special_call.xml -->

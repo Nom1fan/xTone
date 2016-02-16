@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.special.specialcall"
+    package="com.special.app"
     android:versionCode="5"
     android:versionName="5.0" >
 
@@ -8,6 +8,7 @@
         android:minSdkVersion="15"
         android:targetSdkVersion="19" />
 
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
     <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
@@ -31,30 +32,28 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="com.android.launcher.permission.UNINSTALL_SHORTCUT" />
 
-    <!--
-      IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
-      to match your app's package name + ".permission.C2D_MESSAGE".
-    -->
     <permission
         android:name="com.special.app.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.special.specialcall.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.special.app.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
-        android:name="com.app.SpecialCallApp"
+        android:name="com.app.MediaCallzApp"
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/color_mc"
         android:label="@string/app_name" >
         <activity
             android:name="com.ui.activities.MainActivity"
             android:excludeFromRecents="false"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/Theme.AppCompat.Light" >
             <category android:name="android.intent.category.LAUNCHER" />
 
             <intent-filter>
@@ -62,6 +61,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="com.ui.activities.SelectMedia"
+            android:excludeFromRecents="false"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" >
         </activity>
         <activity
             android:name="com.ipaulpro.afilechooser.FileChooserActivity"
@@ -80,7 +86,7 @@
         </activity>
         <activity
             android:name="com.ui.activities.Settings"
-            android:theme="@android:style/Theme.Light" >
+            android:theme="@style/Theme.AppCompat.Light" >
         </activity>
         <activity
             android:name="com.ui.activities.SelectSpecificContacts"
@@ -108,12 +114,6 @@
             android:priority="998" >
         </service>
 
-        <intent-filter>
-            <action android:name="com.services.LogicServerProxyService" />
-        </intent-filter>
-
-        <service android:name="com.parse.PushService" />
-
         <receiver android:name="com.receivers.ConnectivityBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
@@ -129,24 +129,28 @@
                 <action android:name="com.android.special.specialcall.EVENT_ACTION" />
             </intent-filter>
         </receiver>
+
+        <service android:name="com.batch.android.BatchPushService" />
+
         <receiver
-            android:name="com.receivers.PushBroadcastReceiver"
-            android:exported="false" >
-            <intent-filter>
-                <action android:name="com.parse.push.intent.RECEIVE" />
-                <action android:name="com.parse.push.intent.DELETE" />
-                <action android:name="com.parse.push.intent.OPEN" />
-            </intent-filter>
-        </receiver>
-        <receiver
-            android:name="com.parse.GcmBroadcastReceiver"
+            android:name="com.batch.android.BatchPushReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <!-- IMPORTANT: Change "com.parse.starter" to match your app's package name. -->
-                <category android:name="com.special.specialcall" />
+                <category android:name="com.special.app" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.services.PushService" />
+
+        <receiver
+            android:name="com.receivers.PushReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="com.special.app" />
             </intent-filter>
         </receiver>
         <receiver android:name="com.receivers.BootCompletedBroadcastReceiver" >
@@ -159,6 +163,36 @@
             android:name="com.services.GetTokenIntentService"
             android:exported="false" >
         </service>
+
+        <provider
+            android:name="com.google.android.gms.measurement.AppMeasurementContentProvider"
+            android:authorities="com.special.app.google_measurement_service"
+            android:exported="false" />
+
+        <receiver
+            android:name="com.google.android.gms.measurement.AppMeasurementReceiver"
+            android:enabled="true" >
+            <intent-filter>
+                <action android:name="com.google.android.gms.measurement.UPLOAD" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.google.android.gms.measurement.AppMeasurementService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+ <!-- Include the AdActivity and InAppPurchaseActivity configChanges and themes. -->
+        <activity
+            android:name="com.google.android.gms.ads.AdActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.google.android.gms.ads.purchase.InAppPurchaseActivity"
+            android:theme="@style/Theme.IAPTheme" />
     </application>
 
 </manifest>

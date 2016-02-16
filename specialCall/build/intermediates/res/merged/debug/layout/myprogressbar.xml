@@ -18,4 +18,3 @@
 		android:layout_alignTop="@id/imgThree" android:layout_alignBottom="@id/imgThree"
 		android:gravity="bottom" android:text="Please Wait..."></TextView>
 </RelativeLayout>
-<!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/src/main/res/layout/myprogressbar.xml -->

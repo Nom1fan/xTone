@@ -1,3 +1,10 @@
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/mainActivity"
     android:layout_width="fill_parent"
@@ -29,18 +36,6 @@
         android:layout_alignRight="@+id/CallNumber"
         android:layout_alignEnd="@+id/CallNumber"
         android:textStyle="bold" />
-
-    <Button
-        android:id="@+id/selectRingtoneBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:enabled="false"
-        android:textSize="18sp"
-        android:text="Select Ringtone"
-        android:visibility="invisible"
-        android:layout_alignParentTop="true"
-        android:layout_alignRight="@+id/selectContactBtn"
-        android:layout_alignEnd="@+id/selectContactBtn" />
 
     <ImageButton
         android:id="@+id/selectMediaBtn"
@@ -88,8 +83,8 @@
         android:layout_alignTop="@+id/selectContactBtn"
         android:layout_alignLeft="@+id/selectMediaBtn"
         android:layout_alignStart="@+id/selectMediaBtn"
-        android:layout_toStartOf="@+id/selectRingtoneBtn"
-        android:layout_toLeftOf="@+id/selectRingtoneBtn">
+        android:layout_alignRight="@+id/userStatusPositive"
+        android:layout_alignEnd="@+id/userStatusPositive">
 
         <requestFocus />
     </AutoCompleteTextView>
@@ -102,15 +97,14 @@
         android:textSize="18sp"
         android:text="Call Now"
         android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/clear"
-        android:layout_alignEnd="@+id/clear" />
+        android:layout_centerHorizontal="true" />
 
     <ImageButton
         android:id="@+id/selectProfileMediaBtn"
         android:contentDescription="mypic"
         android:clickable="true"
         android:src="@drawable/defaultpic_enabled"
-        android:layout_width="120dp"
+        android:layout_width="200dp"
         android:layout_height="120dp"
 
         android:layout_alignParentTop="true"
@@ -119,21 +113,17 @@
         android:layout_above="@+id/CallNumber"
         android:layout_alignLeft="@+id/CallNumber"
         android:layout_alignStart="@+id/CallNumber"
-        android:layout_alignRight="@+id/CallNumber"
-        android:layout_alignEnd="@+id/CallNumber"
 
-        />
+        android:background="@android:color/transparent" />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
-        android:layout_alignBottom="@+id/selectProfileMediaBtn"
-        android:layout_alignRight="@+id/selectRingtoneBtn"
-        android:layout_alignEnd="@+id/selectRingtoneBtn"
-        android:layout_alignTop="@+id/selectRingtoneBtn"
-        android:layout_alignLeft="@+id/selectRingtoneBtn"
-        android:layout_alignStart="@+id/selectRingtoneBtn" />
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/selectContactBtn"
+        android:layout_alignStart="@+id/selectContactBtn"
+        android:layout_marginTop="49dp" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -149,9 +139,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Small Text"
+        android:text="RingTone Name "
         android:id="@+id/ringtoneName"
-        android:visibility="visible"
+        android:visibility="invisible"
         android:background="@android:color/white"
         android:textColor="@android:color/black"
         android:singleLine="true"
@@ -165,7 +155,33 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/userStatus"
+        android:id="@+id/userStatusPositive"
+        android:layout_alignBottom="@+id/CallNumber"
+        android:layout_alignTop="@+id/CallNumber"
+        android:layout_alignRight="@+id/CallNow"
+        android:layout_alignEnd="@+id/CallNow"
+        android:layout_alignLeft="@+id/CallNow"
+        android:layout_alignStart="@+id/CallNow"
+        android:src="@drawable/positive"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/userStatusNegative"
+        android:layout_alignBottom="@+id/CallNumber"
+        android:layout_alignTop="@+id/CallNumber"
+        android:layout_alignRight="@+id/CallNow"
+        android:layout_alignEnd="@+id/CallNow"
+        android:layout_alignLeft="@+id/CallNow"
+        android:layout_alignStart="@+id/CallNow"
+        android:src="@drawable/negative"
+        android:visibility="invisible" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/fetchuserprogress"
         android:layout_alignBottom="@+id/CallNumber"
         android:layout_toLeftOf="@+id/clear"
         android:layout_alignTop="@+id/CallNumber"
@@ -174,6 +190,44 @@
         android:layout_alignEnd="@+id/CallNumber"
 
         android:layout_alignLeft="@+id/CallNow"
-        android:layout_alignStart="@+id/CallNow" />
+        android:layout_alignStart="@+id/CallNow"
+        android:visibility="gone" />
 
-</RelativeLayout><!-- From: file:/E:/Workspaces/git_Workspace/SpecialCall/specialCall/src/main/res/layout/activity_main.xml -->
+    <ImageView
+        android:layout_width="@dimen/sb__text_size"
+        android:layout_height="@dimen/sb__text_size"
+        android:id="@+id/mediaStatusArrived"
+        android:layout_above="@+id/ringtoneName"
+        android:layout_alignRight="@+id/selectMediaBtn"
+        android:layout_alignEnd="@+id/selectMediaBtn"
+        android:visibility="invisible"
+        android:layout_marginRight="@dimen/sb__text_size"
+        android:src="@drawable/doublepositive" />
+
+    <ImageView
+        android:layout_width="@dimen/sb__text_size"
+        android:layout_height="@dimen/sb__text_size"
+        android:id="@+id/ringtoneStatusArrived"
+        android:visibility="invisible"
+        android:layout_alignBottom="@+id/selectMediaBtn"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="@dimen/sb__text_size"
+        android:src="@drawable/doublepositive" />
+
+</RelativeLayout>
+
+
+
+    <ListView
+        android:id="@+id/left_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        android:background="#ffff"/>
+
+
+</android.support.v4.widget.DrawerLayout>
