@@ -43,7 +43,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
     List<String> phones = new ArrayList<String>(); // the list that the adapter uses to populate the view
     MyAdapter ma ;
     ListView lv;
-    HashMap<String,String> blockedContacts ;
+   // HashMap<String,String> blockedContacts ;
     Set<String> blockedSet = new HashSet<String>();
     HashMap<String,String> allContactsClicked ;
 
@@ -51,23 +51,9 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_spec_contacts);
-        Log.i(TAG,"onCreate");
+        Log.i(TAG, "onCreate");
 
-        Intent intent = getIntent();
-        blockedContacts = (HashMap<String, String>)intent.getSerializableExtra("map");  // get the
-
-        Set<String> storedBlockedContacts = SharedPrefUtils.getStringSet(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
-
-        if (storedBlockedContacts!=null)
-            blockedSet = storedBlockedContacts;
-        else
-            blockedSet =  new HashSet<String>();
-
-       /* if (blockedContacts==null || blockedContacts.size()<1)
-        {
-            allContactsClicked = new HashMap<String,String>();
-            blockedContacts = new HashMap<String,String>();
-        }*/
+        blockedSet = SharedPrefUtils.getStringSet(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
 
         getAllContacts(this.getContentResolver()); // populate all contacts to view with checkboxes
         lv= (ListView) findViewById(R.id.lv);
@@ -88,10 +74,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
                     ma.notifyDataSetChanged();
                 }
                 ma.notifyDataSetChanged();
-
-                blockedContacts = new HashMap<String, String>();
-                blockedContacts.putAll(allContactsClicked);
-                saveBlockedContacts();
+                saveBlockedContacts(allContactsClicked); // Save All contacts to sharedPref
             }
         });
 
@@ -119,7 +102,8 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
                 ma.notifyDataSetChanged();
 
                 blockedSet = new HashSet<String>();
-                blockedContacts = new HashMap<String, String>();
+                SharedPrefUtils.remove(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
+                SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, blockedSet); // clean sharedpref as no one is selected
 
             }
         });
@@ -180,13 +164,11 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
     protected void onPause() {
         Log.i(TAG, "onPause");
         returnWithResultIntent();
-        saveBlockedContacts();
         super.onPause();
     }
 
     private void returnWithResultIntent() {
         Intent returnIntent = new Intent();
-        returnIntent.putExtra("result", blockedContacts);
 
         if (getParent() == null) {
             setResult(Activity.RESULT_OK, returnIntent);
@@ -217,18 +199,19 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
     }
 
     // saving black listed contacts to SharedPref
-    private void saveBlockedContacts() {
-        Iterator myVeryOwnIterator = blockedContacts.keySet().iterator();
+    private void saveBlockedContacts(HashMap<String,String> contactsMap) {
+        Iterator myVeryOwnIterator = contactsMap.keySet().iterator();
         blockedSet = new HashSet<String>();
         while(myVeryOwnIterator.hasNext()) {
             String name = (String) myVeryOwnIterator.next();
-            String phoneNumber = (String) blockedContacts.get(name);
+            String phoneNumber = (String) contactsMap.get(name);
             ////// ADDING  To Black List is SharedPreferences
            if (!blockedSet.contains(phoneNumber) && (phoneNumber.length() == 10))
            {
                blockedSet.add(phoneNumber);
            }
         }
+        SharedPrefUtils.remove(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
         SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, blockedSet);
     }
     @Override
@@ -244,7 +227,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
           String name= curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
           String phoneNumber = toValidPhoneNumber(curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
 
-           if (!phones.contains(phoneNumber) && (phoneNumber.length() == 10))
+           if (!phones.contains(phoneNumber) && (phoneNumber.length() == 10)) // so there won't be any phone duplicates
             {
                 int i = 0;
                 while (allContactsClicked.containsKey(name)) // for names that have more than one number
@@ -306,6 +289,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
                 } else
                 {
                     cb.setChecked(mCheckStates.get(Integer.valueOf((phones.get(position))), false)); //mcheckstates key is the unique phone number and it defines wether it's checked or not. on the view
+                    ma.notifyDataSetChanged();
                 }
             }
 
@@ -331,25 +315,26 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
 
             String phoneInIndex = toValidPhoneNumber(phones.get((Integer) buttonView.getTag()).toString());
             String nameInIndex = names.get((Integer) buttonView.getTag()).toString();
-            int i = 0;
-            while (blockedContacts.containsKey(nameInIndex) && !blockedContacts.containsValue(phoneInIndex)) // for names that have more than one number
-            {
-                nameInIndex = nameInIndex + String.valueOf(i);
-                i++;
-            }
-            mCheckStates.put(Integer.valueOf(phoneInIndex), isChecked);  //mcheckstates key is the unique phone number and it defines wether it's checked or not. on the view
-            if (isChecked && blockedContacts!=null && !blockedContacts.containsValue(phoneInIndex))  // so there won't be any phone duplicate
-            {
-                blockedContacts.put(nameInIndex , phoneInIndex);
-            }
-            else if (!isChecked && blockedContacts!=null) {  // if unchecked remove from the black list in the sharedpref
-                blockedContacts.remove(nameInIndex);
 
-            if (blockedSet != null)
-                if (blockedSet.contains(phoneInIndex))
-                {
-                blockedSet.remove(phoneInIndex);
+            mCheckStates.put(Integer.valueOf(phoneInIndex), isChecked);  //mcheckstates key is the unique phone number and it defines wether it's checked or not. on the view
+
+            if (isChecked)  // so there won't be any phone duplicate
+            {
+                if (blockedSet != null)
+                {    blockedSet.add(phoneInIndex);
+                     SharedPrefUtils.remove(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
+                     SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, blockedSet); // clean sharedpref as no one is selected
                 }
+            }
+            else if (!isChecked) {  // if unchecked remove from the black list in the sharedpref
+
+                 if (blockedSet != null)
+                       if (blockedSet.contains(phoneInIndex))
+                              {
+                                      blockedSet.remove(phoneInIndex);
+                                      SharedPrefUtils.remove(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
+                                      SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, blockedSet); // clean sharedpref as no one is selected
+                              }
 
             }
         }

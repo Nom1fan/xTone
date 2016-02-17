@@ -94,7 +94,7 @@ public class SharedPrefUtils {
     public static Set<String> getStringSet(Context context, String prefsName, String key){
         SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         Set<String> value = new HashSet<String>();
-        value =  prefs.getStringSet(key, null);
+        value =  prefs.getStringSet(key, new HashSet<String>());
         return  value;
     }
 

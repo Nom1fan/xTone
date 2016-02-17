@@ -49,7 +49,6 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
     List<String> allPhones = new ArrayList<String>();
     MyAdapter ma ;
     ListView lv;
-    HashMap<String,String> blockedContacts ;
     Set<String> blockedContactsSet;
 
     @Override
@@ -91,8 +90,6 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
             }
         }
 
-        if (blockedContactsSet!=null){
-
             lv= (ListView) findViewById(R.id.blv);
             lv.removeAllViewsInLayout();
             ma = new MyAdapter();
@@ -104,45 +101,22 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
             lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
             lv.setItemsCanFocus(false);
             lv.setTextFilterEnabled(true);
-
-
-            Log.i(TAG, "blockedSet Size : " + String.valueOf(blockedContactsSet.size()));
-        }
-        else
-        {
-            blockedContactsSet =  new HashSet<String>();
-            Log.i(TAG,"blockedSet Initialize : " + String.valueOf(blockedContactsSet.size()));
-        }
-
     }
     @Override
     public void onClick(View v) {
         int id = v.getId();
         if (id == R.id.all_valid) {
-
             SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, "ALL");
-
         }
         if (id == R.id.contacts_only) {
-
             SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, "CONTACTS");
-
         }
         if (id == R.id.blacklist_specific) {
-
             SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, "black_list");
 
             Intent mainIntent = new Intent(BlockMCContacts.this,
                     SelectSpecificContacts.class);
-
-            if (blockedContacts!= null)
-            Log.i(TAG ,"SelectSpecificcontact blockedContacts  " + String.valueOf(blockedContacts.size()));
-            if (blockedContactsSet!= null)
-            Log.i(TAG, "SelectSpecificcontact blockedContactsSet  " + String.valueOf(blockedContactsSet.size()));
-            mainIntent.putExtra("map", blockedContacts);
-
             startActivityForResult(mainIntent, ActivityRequestCodes.SELECT_BLACK_LIST_CONTACTS);
-
         }
     }
     @Override
@@ -151,54 +125,34 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
 
         if (resultCode == RESULT_OK) {
 
-
             if (requestCode == ActivityRequestCodes.SELECT_BLACK_LIST_CONTACTS) {
 
-                blockedContacts = (HashMap<String, String>)data.getSerializableExtra("result");
-
+                getAllContacts(this.getContentResolver()); // need to get all contacts so we can compare what we have in the sharedpref and pull the name to display in the view
                 names = new ArrayList<String>();
                 phones = new ArrayList<String>();
+                blockedContactsSet = SharedPrefUtils.getStringSet(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
 
                 lv= (ListView) findViewById(R.id.blv);
                 lv.removeAllViewsInLayout();
                 ma = new MyAdapter();
                 lv.setAdapter(ma); // clear listview
 
-                getAllContactsfromHashmap(blockedContacts); // populate the data for the adapter
+                getAllContactsFromSetString(blockedContactsSet);
 
-                blockedContactsSet = SharedPrefUtils.getStringSet(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
-                if (blockedContacts!= null)
-                Log.i(TAG ,"ActivityResult blockedContacts  " + String.valueOf(blockedContacts.size()));
-                if (blockedContactsSet!= null)
-                Log.i(TAG ,"ActivityResult blockedContactsSet  " + String.valueOf(blockedContactsSet.size()));
-                        lv.setAdapter(ma);
+                lv.setAdapter(ma);
                 lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
                 lv.setItemsCanFocus(false);
                 lv.setTextFilterEnabled(true);
-
             }
         }
     }
-
-    public  void getAllContactsfromHashmap(HashMap selectedContacts) {
-        Iterator myVeryOwnIterator = selectedContacts.keySet().iterator();
-        while(myVeryOwnIterator.hasNext()) {
-            String name = (String) myVeryOwnIterator.next();
-            String phoneNumber = (String) selectedContacts.get(name);
-
-            if (!phones.contains(phoneNumber)) {
-                names.add(name);
-                phones.add(phoneNumber);
-            }
-        }
-      }
 
     // helps giving the name and phone number to display
     public  void getAllContactsFromSetString(Set<String> storedContacts) {
 
         for (String phone : allPhones)
         {
-            if (storedContacts.contains(phone))
+            if (storedContacts.contains(phone) && !phones.contains(phone))
             {
                 names.add(allNames.get(allPhones.indexOf(phone)));
                 phones.add(phone);
@@ -276,43 +230,26 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
             tv.setText(names.get(position));
             tv1.setText(phones.get(position));
             cb.setTag(position);
-
             View.OnClickListener buttonListener = new View.OnClickListener() {
 
                 @Override
                 public void onClick(View v) {
 
-
                     int position = lv.getPositionForView(v);
-
                     Log.i(TAG, "position: " + String.valueOf(position));
-
-                    if (blockedContacts !=null)
-                    {  blockedContacts.remove((names.get(position).toString()));
-                    Log.i(TAG, "Removed from BlockedContacts: " + (names.get(position).toString()));
-                    }
-
                     lv.removeViewInLayout(v);
-
                     names.remove(position);
-
-
                     ////// REMOVING From Black List is SharedPreferences
-
                     Log.i(TAG, "Remove from Set: " + phones.get(position));
                   if (blockedContactsSet!=null)
                     blockedContactsSet.remove(phones.get(position));
                     phones.remove(position);
-
+                    SharedPrefUtils.remove(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
                     SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, blockedContactsSet);
                     ((BaseAdapter)ma).notifyDataSetChanged();
-
-
                 }
             };
-
             cb.setOnClickListener(buttonListener);
-
             return vi;
         }
 
