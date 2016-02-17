@@ -18,7 +18,6 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.special.app.R;
 import com.utils.SharedPrefUtils;
@@ -58,7 +57,7 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.blocked_user_list);
         Log.i(TAG, "onCreate");
-        getAllContacts(this.getContentResolver());
+        getAllContacts(this.getContentResolver()); // need to get all contacts so we can compare what we have in the sharedpref and pull the name to display in the view
         blockedContactsSet = SharedPrefUtils.getStringSet(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
 
         all_valid = (RadioButton) findViewById(R.id.all_valid);
@@ -152,10 +151,10 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
 
         if (resultCode == RESULT_OK) {
 
+
             if (requestCode == ActivityRequestCodes.SELECT_BLACK_LIST_CONTACTS) {
 
                 blockedContacts = (HashMap<String, String>)data.getSerializableExtra("result");
-               // Toast.makeText(getApplicationContext(), " ACTIVITY RESULT FOR BLOCK LIST HashMapCount: " + String.valueOf(blockedContacts.size()), Toast.LENGTH_LONG).show();
 
                 names = new ArrayList<String>();
                 phones = new ArrayList<String>();
@@ -194,6 +193,7 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
         }
       }
 
+    // helps giving the name and phone number to display
     public  void getAllContactsFromSetString(Set<String> storedContacts) {
 
         for (String phone : allPhones)
@@ -216,7 +216,7 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
 
             if (!phones.contains(phoneNumber) && (phoneNumber.length() == 10))
             {  allNames.add(name);
-                allPhones.add(phoneNumber);
+               allPhones.add(phoneNumber);
             }
 
         }
@@ -242,7 +242,6 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
         LayoutInflater mInflater;
         TextView tv1,tv;
         Button cb;
-        // filter_here filter = new filter_here();
         MyAdapter()
         {
             mCheckStates = new SparseBooleanArray(names.size());
@@ -277,8 +276,6 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
             tv.setText(names.get(position));
             tv1.setText(phones.get(position));
             cb.setTag(position);
-
-
 
             View.OnClickListener buttonListener = new View.OnClickListener() {
 
@@ -315,10 +312,6 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
             };
 
             cb.setOnClickListener(buttonListener);
-
-
-
-
 
             return vi;
         }
