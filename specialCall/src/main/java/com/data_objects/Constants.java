@@ -7,6 +7,8 @@ import android.os.Environment;
 
 import com.utils.SharedPrefUtils;
 
+import java.io.File;
+
 public class Constants {
 
 	// Constants for Parse
@@ -36,6 +38,8 @@ public class Constants {
 	private static String getIncomingFolder() {
 		
 		String path = ROOT_FOLDER + INCOMING_FOLDER_NAME + "/";
+        File incomingFolder = new File(path);
+        incomingFolder.mkdirs();
 		SharedConstants.INCOMING_FOLDER = path;
 		return path;
 	}
@@ -43,6 +47,8 @@ public class Constants {
     private static String getOutgoingFolder() {
 
         String path = ROOT_FOLDER + OUTGOING_FOLDER_NAME + "/";
+        File outgoingFolder = new File(path);
+        outgoingFolder.mkdirs();
         SharedConstants.OUTGOING_FOLDER = path;
         return path;
     }
@@ -50,6 +56,8 @@ public class Constants {
 	private static String getTempFolderForCompression() {
 
 		String path = ROOT_FOLDER + TEMP_COMP_FOLDER_NAME + "/";
+        File outgoingFolder = new File(path);
+        outgoingFolder.mkdirs();
 		SharedConstants.tempFolderForCompression = path;
 		return path;
 	}
@@ -57,6 +65,8 @@ public class Constants {
     private static String setRootFolder() {
 
         String path = Environment.getExternalStorageDirectory() + "/" + SharedConstants.APP_NAME + "/";
+        File rootFolder = new File(path);
+        rootFolder.mkdirs();
         SharedConstants.ROOT_FOLDER = path;
         return path;
     }

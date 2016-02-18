@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,6 +38,7 @@ import android.widget.Toast;
 import com.app.AppStateManager;
 import com.batch.android.Batch;
 import com.data_objects.Constants;
+import com.data_objects.Contact;
 import com.data_objects.SnackbarData;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
@@ -50,13 +50,11 @@ import com.special.app.R;
 import com.ui.components.AutoCompletePopulateListAsyncTask;
 import com.utils.BitmapUtils;
 import com.utils.BroadcastUtils;
+import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
+import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,33 +69,24 @@ import FilesManager.FileManager;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+    public static boolean wasFileChooser = false; // todo try to remove this static shit that also is used by selectmedia class
+    private final String shareBody = String.valueOf(R.string.invite);
+    CustomDrawerAdapter mAdapter;
+    List<DrawerItem> dataList;
     private String _myPhoneNumber = "";
     private String _destPhoneNumber = "";
     private String _destName = "";
     private int _SMType;
-    private static final String TAG = MainActivity.class.getSimpleName();
-    private ProgressBar pFetchUserBar;
+    private ProgressBar _pFetchUserBar;
     private ProgressBar _pBar;
-    private BroadcastReceiver _serviceReceiver;
-    private IntentFilter serviceReceiverIntentFilter = new IntentFilter(Event.EVENT_ACTION);
-    private abstract class ActivityRequestCodes {
-
-        public static final int SELECT_CALLER_MEDIA = 1;
-        public static final int SELECT_CONTACT = 2;
-        public static final int SELECT_PROFILE_MEDIA = 3;
-        public static final int SELECT_MEDIA = 4;
-
-    }
-    private AutoCompleteTextView mTxtPhoneNo;
-    private int randomPIN=0;
-    public static boolean wasFileChooser=false; // todo try to remove this static shit that also is used by selectmedia class
-    private final String shareBody = String.valueOf(R.string.invite);
-
-    private ListView mDrawerList;
-    CustomDrawerAdapter mAdapter;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private DrawerLayout mDrawerLayout;
-    List<DrawerItem> dataList;
+    private BroadcastReceiver _eventReceiver;
+    private IntentFilter _eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
+    private AutoCompleteTextView _autoCompleteTextViewDestPhone;
+    private int _randomPIN = 0;
+    private ListView _DrawerList;
+    private ActionBarDrawerToggle _mDrawerToggle;
+    private DrawerLayout _mDrawerLayout;
 
     @Override
     protected void onStart() {
@@ -106,15 +95,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         Batch.onStart(this);
 
-        _serviceReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                EventReport report = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
-                eventReceived(new Event(this,report));
-            }
-        };
-        registerReceiver(_serviceReceiver, serviceReceiverIntentFilter);
+        prepareEventReceiver();
 
     }
 
@@ -123,11 +104,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         super.onPause();
         Log.i(TAG, "onPause()");
 
-        if(_serviceReceiver !=null)
-        {  try
-        {unregisterReceiver(_serviceReceiver);}
-        catch (Exception ex){
-            Log.e(TAG, ex.getMessage());}
+        if (_eventReceiver != null) {
+            try {
+                unregisterReceiver(_eventReceiver);
+            } catch (Exception ex) {
+                Log.e(TAG, ex.getMessage());
+            }
         }
         saveInstanceState();
     }
@@ -161,17 +143,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         syncUIwithAppState();
 
-        if(!appState.equals(AppStateManager.STATE_LOGGED_OUT)) {
+        if (!appState.equals(AppStateManager.STATE_LOGGED_OUT)) {
 
             // Taking Focus from AutoCompleteTextView in the end, so he won't pop up :) added also focus capabilities to the MainActivity Layout XML
             findViewById(R.id.mainActivity).requestFocus();
 
-            registerReceiver(_serviceReceiver, serviceReceiverIntentFilter);
+            prepareEventReceiver();
 
             // ASYNC TASK To Populate all contacts , it can take long time and it delays the UI
-            new AutoCompletePopulateListAsyncTask(this, mTxtPhoneNo).execute();
+            new AutoCompletePopulateListAsyncTask(this, _autoCompleteTextViewDestPhone).execute();
 
-            if(appState.equals(AppStateManager.STATE_DISABLED)) {
+            if (appState.equals(AppStateManager.STATE_DISABLED)) {
 
                 _myPhoneNumber = Constants.MY_ID(getApplicationContext());
                 initializeConnection();
@@ -220,8 +202,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        if (mDrawerLayout!=null)
-            mDrawerToggle.syncState();
+        if (_mDrawerLayout != null)
+            _mDrawerToggle.syncState();
     }
 
     @Override
@@ -231,46 +213,39 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         if (resultCode == RESULT_OK) {
 
             if (requestCode == ActivityRequestCodes.SELECT_MEDIA) {
-                    writeInfoSnackBar(data.getStringExtra("msg"), Color.RED, Snackbar.SnackbarDuration.LENGTH_INDEFINITE);
+                writeInfoSnackBar(data.getStringExtra("msg"), Color.RED, Snackbar.SnackbarDuration.LENGTH_INDEFINITE);
             }
 
             if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
                 try {
                     if (data != null) {
                         Uri uri = data.getData();
+                        Contact contact = ContactsUtils.getContact(uri, getApplicationContext());
+                        saveInstanceState(contact.get_name(), PhoneNumberUtils.toValidPhoneNumber(contact.get_phoneNumber()));
+                    }
 
-                        if (uri != null) {
-                            Cursor c = null;
-                            try {
-                                c = getContentResolver()
-                                        .query(uri,
-                                                new String[] {
-                                                        ContactsContract.CommonDataKinds.Phone.NUMBER,
-                                                        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, },
-                                                null, null, null);
-
-                                if (c != null && c.moveToFirst()) {
-                                    String number = c.getString(0);
-                                    String name = c.getString(1);
-
-                                    saveInstanceState(name, toValidPhoneNumber(number));
-
-                                }
-                            } finally {
-                                if (c != null) {
-                                    c.close();
-                                }
-                            }
-                        }
-                    } else
-                        throw new Exception("SELECT_CONTACT: data is null");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
             }
-
         }
+    }
+
+    @Override
+    public boolean onKeyDown ( int keyCode, KeyEvent e)
+    {  // hard menu key will open and close the drawer menu also
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+
+            if (_mDrawerLayout != null) {
+                if (!_mDrawerLayout.isDrawerOpen(GravityCompat.START))
+                    _mDrawerLayout.openDrawer(GravityCompat.START);
+                else
+                    _mDrawerLayout.closeDrawer(GravityCompat.START);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, e);
     }
 
   /*  @Override     //  the menu with the 3 dots on the right, on the top action bar, to enable it uncomment this.
@@ -280,36 +255,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         return true;
     }*/
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent e) {  // hard menu key will open and close the drawer menu also
-        if (keyCode == KeyEvent.KEYCODE_MENU) {
-
-           if (mDrawerLayout!=null) {
-               if (!mDrawerLayout.isDrawerOpen(GravityCompat.START))
-                   mDrawerLayout.openDrawer(GravityCompat.START);
-               else
-                   mDrawerLayout.closeDrawer(GravityCompat.START);
-           }
-            return true;
-        }
-        return super.onKeyDown(keyCode, e);
-    }
-
     private void selectMedia(int code) {
 
-        _SMType= code;
+        _SMType = code;
                      /* Create an intent that will start the main activity. */
-                Intent mainIntent = new Intent(MainActivity.this,
-                        SelectMedia.class);
-                mainIntent.putExtra("SpecialMediaType", _SMType);
-                mainIntent.putExtra("DestinationNumber", _destPhoneNumber);
-                mainIntent.putExtra("DestinationName", _destName);
-                //SplashScreen.this.startActivity(mainIntent);
-                startActivityForResult(mainIntent, ActivityRequestCodes.SELECT_MEDIA);
+        Intent mainIntent = new Intent(MainActivity.this,
+                SelectMedia.class);
+        mainIntent.putExtra("SpecialMediaType", _SMType);
+        mainIntent.putExtra("DestinationNumber", _destPhoneNumber);
+        mainIntent.putExtra("DestinationName", _destName);
+        //SplashScreen.this.startActivity(mainIntent);
+        startActivityForResult(mainIntent, ActivityRequestCodes.SELECT_MEDIA);
 
                      /* Apply our splash exit (fade out) and main
                         entry (fade in) animation transitions. */
-                overridePendingTransition(R.anim.slide_in_up, R.anim.no_animation);// open drawer animation
+        overridePendingTransition(R.anim.slide_in_up, R.anim.no_animation);// open drawer animation
     }
 
     public void onClick(View v) {
@@ -324,13 +284,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         } else if (id == R.id.selectMediaBtn) {
 
-          openCallerMediaMenu();
+            openCallerMediaMenu();
 
         } else if (id == R.id.selectProfileMediaBtn) {
 
-         openProfileMediaMenu();
+            openProfileMediaMenu();
 
-        }  else if (id == R.id.selectContactBtn) {
+        } else if (id == R.id.selectContactBtn) {
 
             Intent intent = new Intent(Intent.ACTION_PICK);
             intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
@@ -338,11 +298,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         } else if (id == R.id.clear) {
 
-            AutoCompleteTextView textViewToClear = (AutoCompleteTextView)findViewById(R.id.CallNumber);
+            AutoCompleteTextView textViewToClear = (AutoCompleteTextView) findViewById(R.id.CallNumber);
             textViewToClear.setText("");
 
-        }
-        else if(id == R.id.inviteButton){
+        } else if (id == R.id.inviteButton) {
 
             EditText callNumber = (EditText) findViewById(R.id.CallNumber);
             try {
@@ -353,11 +312,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             } catch (Exception ex) {
                 writeErrStatBar(ex.getMessage());
             }
-        }
-        else if (id == R.id.login_btn) {
+        } else if (id == R.id.login_btn) {
 
-            String myVerificationcode = ((EditText) findViewById(R.id.SMSCode)).getText().toString();
-            //if (myVerificationcode.equals(String.valueOf(randomPIN))){    // NEED TO FIND A SMS GATEWAY FIRST
+            String myVerificationcode = ((EditText) findViewById(R.id.SMSCodeEditText)).getText().toString();
+            //if (myVerificationcode.equals(String.valueOf(_randomPIN))){    // NEED TO FIND A SMS GATEWAY FIRST
+
             _myPhoneNumber = ((EditText) findViewById(R.id.LoginNumber))
                     .getText().toString();
 
@@ -366,64 +325,28 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
             initializeConnection();
 
-            File incomingFolder = new File(Constants.INCOMING_FOLDER);
-            incomingFolder.mkdirs();
-            hideMediaFromGalleryScanner(Constants.INCOMING_FOLDER);// This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
-
-
-            File outgoingFolder = new File(Constants.OUTGOING_FOLDER);
-            outgoingFolder.mkdirs();
-            hideMediaFromGalleryScanner(Constants.OUTGOING_FOLDER);// This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
-
-            File tempCompressedFolder = new File(Constants.TEMP_COMPRESSED_FOLDER);
-            tempCompressedFolder.mkdirs();
-            hideMediaFromGalleryScanner(Constants.TEMP_COMPRESSED_FOLDER); // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
-
-            // No NEED TO HIDE MEDIA FOR HISTORY << ALL MEDIA WILL BE SHOWN THROUGH HERE
-            File HistoryFolder = new File(Constants.HISTORY_FOLDER);
-            HistoryFolder.mkdirs();
-
-            File tempRecordingFolder = new File(Constants.TEMP_RECORDING_FOLDER);
-            tempCompressedFolder.mkdirs();
-
-
             initializeUI();
-            new AutoCompletePopulateListAsyncTask(this, mTxtPhoneNo).execute();
-            stateIdle();
-            //  }//TODO NEED TO FIND A SMS GATEWAY FIRST
-          /*  else
-            {
-                Toast.makeText(getApplicationContext(), "Code Wan't Correct Please Try Again !",
-                        Toast.LENGTH_SHORT).show();
 
-            }*/
+            stateIdle();
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (mDrawerToggle!=null)
-            if (mDrawerToggle.onOptionsItemSelected(item)) {
+        if (_mDrawerToggle != null)
+            if (_mDrawerToggle.onOptionsItemSelected(item)) {
                 return true;
             }
 
         switch (item.getItemId()) {
             case R.id.action_settings:
-
                 appSettings();
-
                 break;
-
             case R.id.action_share:
-
                 saveInstanceState();
-
                 shareUs();
-
                 break;
-
-
             default:
                 saveInstanceState();
                 Intent o = new Intent();
@@ -437,137 +360,179 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private void initializeLoginUI() {
 
         setContentView(R.layout.loginuser);
-        findViewById(R.id.login_btn).setOnClickListener(this);
 
-        runOnUiThread(new Runnable() {
+        if (!Constants.MY_BATCH_TOKEN(getApplicationContext()).equals("")) {
+            findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
+            findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
+        }
 
-                          @Override
-                          public void run() {
+        prepareLoginNumberEditText();
+        prepareLoginButton();
+        prepareGetSmsCodeButton();
+        prepareSmsCodeVerificationEditText();
 
-                              if (!Constants.MY_BATCH_TOKEN(getApplicationContext()).equals("")) {
-                                  findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
-                                  findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
-                              }
-
-                              Button loginBtn = (Button) findViewById(R.id.login_btn);
-                              loginBtn.setEnabled(false);
-                              loginBtn.setText("Login");
-
-                              Button GetSMSCode = (Button) findViewById(R.id.GetSMSCode);
-                              GetSMSCode.setEnabled(false);
-                              EditText SmsCodeVerification = (EditText) findViewById(R.id.SMSCode);
-                              SmsCodeVerification.setEnabled(false);
-
-                              EditText loginNumberET = (EditText) findViewById(R.id.LoginNumber);
-                              loginNumberET.addTextChangedListener(new TextWatcher() {
-                                  @Override
-                                  public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                                  }
-
-                                  @Override
-                                  public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                                      if (10 == s.length()) {
-
-                                          String token = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN);
-                                          if (token != null && !token.equals("")) {
-                                              findViewById(R.id.GetSMSCode).setEnabled(true);
-                                              findViewById(R.id.SMSCode).setEnabled(true);
-                                              findViewById(R.id.login_btn).setEnabled(true);  // REMOVE // NEED TO FIND A SMS GATEWAY FIRST
-                                          }
-                                      } else {
-                                          findViewById(R.id.GetSMSCode).setEnabled(false);
-                                          findViewById(R.id.SMSCode).setEnabled(false);
-                                          findViewById(R.id.login_btn).setEnabled(false);   // REMOVE // // NEED TO FIND A SMS GATEWAY FIRST
-                                      }
-                                  }
-
-                                  @Override
-                                  public void afterTextChanged(Editable s) {
-
-                                  }
-                              });
-
-
-                              OnClickListener buttonListener = new View.OnClickListener() {
-
-                                  @Override
-                                  public void onClick(View v) {
-                                      EditText loginNumber = (EditText) findViewById(R.id.LoginNumber);
-
-                                      //generate a 4 digit integer 1000 <10000
-                                      randomPIN = (int) (Math.random() * 9000) + 1000;
-                                      try {
-                                          SmsManager smsManager = SmsManager.getDefault();
-                                          smsManager.sendTextMessage(loginNumber.getText().toString(), null, "MediaCallz SmsVerificationCode: " + String.valueOf(randomPIN), null, null);
-                                          Toast.makeText(getApplicationContext(), "Message Sent To: " + loginNumber.getText().toString(),
-                                                  Toast.LENGTH_LONG).show();
-                                      } catch (Exception ex) {
-                                          Toast.makeText(getApplicationContext(),
-                                                  ex.getMessage(),
-                                                  Toast.LENGTH_LONG).show();
-                                          ex.printStackTrace();
-                                      }
-
-                                  }
-                              };
-                              GetSMSCode.setOnClickListener(buttonListener);
-
-
-                              SmsCodeVerification.addTextChangedListener(new TextWatcher() {
-                                  @Override
-                                  public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                                  }
-
-                                  @Override
-                                  public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                                      if (4 == s.length()) {
-
-                                          findViewById(R.id.login_btn).setEnabled(true);
-
-                                      } else
-                                          findViewById(R.id.login_btn).setEnabled(false);
-                                  }
-
-                                  @Override
-                                  public void afterTextChanged(Editable s) {
-
-                                  }
-                              });
-                          }
-                      }
-        );
     }
 
     private void initializeUI() {
 
         setContentView(R.layout.activity_main);
+
         enableHamburgerIconWithSlideMenu();
 
-        //prepareMsgBarAnimation();
+        prepareAutoCompleteTextViewDestPhoneNumber();
 
-        // Setting up buttons and attaching click listeners
-        mTxtPhoneNo  = (AutoCompleteTextView) findViewById(R.id.CallNumber);
-        mTxtPhoneNo.setRawInputType(InputType.TYPE_CLASS_TEXT);
-        mTxtPhoneNo.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        findViewById(R.id.CallNow).setOnClickListener(this);
+        findViewById(R.id.selectMediaBtn).setOnClickListener(this);
+        findViewById(R.id.selectContactBtn).setOnClickListener(this);
+        findViewById(R.id.selectProfileMediaBtn).setOnClickListener(this);;
+        findViewById(R.id.clear).setOnClickListener(this);;
+        findViewById(R.id.inviteButton).setOnClickListener(this);
+    }
+
+    public void eventReceived(Event event) {
+
+        final EventReport report = event.report();
+
+        switch (report.status()) {
+
+            case USER_REGISTERED_FALSE:
+                userStatusUnregistered();
+                break;
+
+            case REFRESH_UI:
+                SnackbarData data = (SnackbarData) report.data();
+                syncUIwithAppState();
+
+                if (data != null)
+                    handleSnackBar((SnackbarData) report.data());
+                break;
+
+            case DISPLAY_ERROR:
+                writeErrStatBar(report.desc());
+                break;
+
+            case DISPLAY_MESSAGE:
+                writeInfoSnackBar(report.desc());
+                break;
+
+            case TOKEN_RETRIEVED:
+                findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
+                findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
+                EditText loginET = (EditText) findViewById(R.id.LoginNumber);
+                CharSequence loginNumber = loginET.getText();
+                if (10 == loginNumber.length())
+                    findViewById(R.id.login_btn).setEnabled(true);
+                break;
+
+            default:
+                Log.e(TAG, "Undefined event status on EventReceived");
+        }
+    }
+
+	/* -------------- Assisting methods -------------- */
+
+    /**
+     * Saving the instance state - to be used from onPause()
+     */
+    private void saveInstanceState() {
+
+        // Saving destination number
+        final AutoCompleteTextView ed_destinationNumber = ((AutoCompleteTextView) findViewById(R.id.CallNumber));
+        if (ed_destinationNumber != null) {
+            _destPhoneNumber = ed_destinationNumber.getText().toString();
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, _destPhoneNumber);
+        }
+
+        // Saving destination name
+        final TextView ed_destinationName = ((TextView) findViewById(R.id.destName));
+        if (ed_destinationName != null) {
+            _destName = ed_destinationName.getText().toString();
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, _destName);
+        }
+    }
+
+    /**
+     * Saving the instance state - Should be used from onActivityResult.SELECT_CONTACT
+     *
+     * @param destName   The destination name to be saved
+     * @param destNumber The destination number to be saved
+     */
+    private void saveInstanceState(String destName, String destNumber) {
+
+        // Saving destination number
+        _destPhoneNumber = destNumber;
+        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, _destPhoneNumber);
+
+
+        // Saving destination name
+        _destName = destName;
+        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, _destName);
+    }
+
+    private void restoreInstanceState() {
+
+        Log.i(TAG, "Restoring instance state");
+
+        // Restoring destination number
+        final AutoCompleteTextView ed_destinationNumber =
+                (AutoCompleteTextView) findViewById(R.id.CallNumber);
+        String destNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
+        if (ed_destinationNumber != null && destNumber != null)
+            ed_destinationNumber.setText(destNumber);
+
+        // Restoring destination name
+        _destName = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
+        setDestNameTextView();
+
+        // Restoring my phone number
+        _myPhoneNumber = Constants.MY_ID(getApplicationContext());
+
+    }
+
+    private void setDestNameTextView() {
+
+        final TextView tv_destName =
+                (TextView) findViewById(R.id.destName);
+        if (tv_destName != null && _destName != null)
+            tv_destName.setText(_destName);
+    }
+
+    private void prepareEventReceiver() {
+
+        if(_eventReceiver==null) {
+            _eventReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+
+                    EventReport report = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
+                    eventReceived(new Event(this, report));
+                }
+            };
+        }
+
+        registerReceiver(_eventReceiver, _eventIntentFilter);
+    }
+
+    private void prepareAutoCompleteTextViewDestPhoneNumber() {
+
+        _autoCompleteTextViewDestPhone = (AutoCompleteTextView) findViewById(R.id.CallNumber);
+        _autoCompleteTextViewDestPhone.setRawInputType(InputType.TYPE_CLASS_TEXT);
+        _autoCompleteTextViewDestPhone.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> av, View arg1, int index, long arg3) {
 
                 String[] nameAndPhone = ((String) av.getItemAtPosition(index)).split("\\\n");
                 String name = nameAndPhone[0];
                 String number = nameAndPhone[1];
-                String NumericNumber = toValidPhoneNumber(number);
+                String NumericNumber = PhoneNumberUtils.toValidPhoneNumber(number);
 
-                mTxtPhoneNo.setText(NumericNumber);
+                _autoCompleteTextViewDestPhone.setText(NumericNumber);
                 _destName = name;
                 setDestNameTextView();
             }
         });
 
-        mTxtPhoneNo.setOnTouchListener(new View.OnTouchListener() {
+        _autoCompleteTextViewDestPhone.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
@@ -578,7 +543,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             }
         });
 
-        mTxtPhoneNo.addTextChangedListener(new TextWatcher() {
+        _autoCompleteTextViewDestPhone.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count,
@@ -592,7 +557,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 String destPhone = s.toString();
 
                 if (10 == s.length() &&
-                        isNumeric(destPhone) &&
+                        PhoneNumberUtils.isNumeric(destPhone) &&
                         !wasFileChooser) {
 
                     _destPhoneNumber = destPhone;
@@ -620,24 +585,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                     _destPhoneNumber = "";
                     _destName = "";
 
-                    if (10 != s.length() || !isNumeric(destPhone)) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                disableUserStatusPositiveIcon();
-                                vanishInviteButton();
+                    if (10 != s.length() || !PhoneNumberUtils.isNumeric(destPhone)) {
 
-                                if (getState().equals(AppStateManager.STATE_READY)) {
-                                    AppStateManager.setAppState(getApplicationContext(), TAG + " onTextChanged()", AppStateManager.STATE_IDLE);
-                                    BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG + "onTextChanged()", new EventReport(EventType.REFRESH_UI, "", null));
-                                }
-                            }
-                        });
+                        disableUserStatusPositiveIcon();
+                        vanishInviteButton();
+
+                        if (getState().equals(AppStateManager.STATE_READY)) {
+                            AppStateManager.setAppState(getApplicationContext(), TAG + " onTextChanged()", AppStateManager.STATE_IDLE);
+                            BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG + "onTextChanged()", new EventReport(EventType.REFRESH_UI, "", null));
+                        }
                     }
-
-                    setDestNameTextView();
-                    saveInstanceState();
                 }
+
+                setDestNameTextView();
+                saveInstanceState();
+
             }
 
             @Override
@@ -647,166 +609,114 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             }
         });
 
-        Button button1 = (Button) findViewById(R.id.CallNow);
-        button1.setOnClickListener(this);
-        ImageButton button2 = (ImageButton) findViewById(R.id.selectMediaBtn);
-        button2.setOnClickListener(this);
-        ImageButton button6 = (ImageButton) findViewById(R.id.selectContactBtn);
-        button6.setOnClickListener(this);
-        ImageButton button7 = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
-        button7.setOnClickListener(this);
-        ImageButton button8 = (ImageButton) findViewById(R.id.clear);
-        button8.setOnClickListener(this);
-
-        ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
-        invite.setOnClickListener(this);
-
-
-
-
+        new AutoCompletePopulateListAsyncTask(this, _autoCompleteTextViewDestPhone).execute();
     }
 
-    public void eventReceived(Event event) {
+    private void prepareLoginNumberEditText() {
 
-        final EventReport report = event.report();
-
-        switch (report.status()) {
-
-            case USER_REGISTERED_FALSE:
-                userStatusUnregistered();
-                break;
-
-            case REFRESH_UI:
-                SnackbarData data = (SnackbarData) report.data();
-                syncUIwithAppState();
-
-                if(data!=null)
-                   handleSnackBar((SnackbarData) report.data());
-                break;
-
-            case DISPLAY_ERROR:
-                writeErrStatBar(report.desc());
-                break;
-
-            case DISPLAY_MESSAGE:
-                writeInfoSnackBar(report.desc());
-                break;
-
-            case TOKEN_RETRIEVED:
-                findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
-                findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
-                EditText loginET = (EditText)findViewById(R.id.LoginNumber);
-                CharSequence loginNumber = loginET.getText();
-                if(10 == loginNumber.length())
-                    findViewById(R.id.login_btn).setEnabled(true);
-                break;
-
-            default:
-                Log.e(TAG, "Undefined event status on EventReceived");
-        }
-    }
-
-
-	/* -------------- Assisting methods -------------- */
-
-    private boolean isNumeric(String str)
-    {
-        NumberFormat formatter = NumberFormat.getInstance();
-        ParsePosition pos = new ParsePosition(0);
-        formatter.parse(str, pos);
-        return str.length() == pos.getIndex();
-    }
-
-    /**
-     * Saving the instance state - to be used from onPause()
-     */
-    private void saveInstanceState() {
-
-        // Saving destination number
-        final AutoCompleteTextView ed_destinationNumber = ((AutoCompleteTextView) findViewById(R.id.CallNumber));
-		if(ed_destinationNumber!=null) {
-            _destPhoneNumber = ed_destinationNumber.getText().toString();
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, _destPhoneNumber);
-        }
-
-        // Saving destination name
-        final TextView ed_destinationName = ((TextView) findViewById(R.id.destName));
-        if(ed_destinationName!=null) {
-            _destName = ed_destinationName.getText().toString();
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, _destName);
-        }
-    }
-
-    /**
-     * Saving the instance state - Should be used from onActivityResult.SELECT_CONTACT
-     * @param destName The destination name to be saved
-     * @param destNumber The destination number to be saved
-     */
-    private void saveInstanceState(String destName, String destNumber) {
-
-        // Saving destination number
-        _destPhoneNumber = destNumber;
-        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, _destPhoneNumber);
-
-
-        // Saving destination name
-        _destName = destName;
-        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, _destName);
-    }
-
-    private void restoreInstanceState() {
-
-        Log.i(TAG, "Restoring instance state");
-
-        // Restoring destination number
-        final AutoCompleteTextView ed_destinationNumber =
-                (AutoCompleteTextView) findViewById(R.id.CallNumber);
-        String destNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
-        if(ed_destinationNumber!=null && destNumber!=null)
-            ed_destinationNumber.setText(destNumber);
-
-        // Restoring destination name
-        _destName = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
-        setDestNameTextView();
-
-        // Restoring my phone number
-        _myPhoneNumber = Constants.MY_ID(getApplicationContext());
-
-    }
-
-    private void setDestNameTextView() {
-
-        runOnUiThread(new Runnable() {
+        EditText loginNumberET = (EditText) findViewById(R.id.LoginNumber);
+        loginNumberET.addTextChangedListener(new TextWatcher() {
             @Override
-            public void run() {
-                final TextView tv_destName =
-                        (TextView) findViewById(R.id.destName);
-                if (tv_destName != null && _destName != null)
-                    tv_destName.setText(_destName);
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                if (10 == s.length()) {
+
+                    String token = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN);
+                    if (token != null && !token.equals("")) {
+                        findViewById(R.id.GetSMSCode).setEnabled(true);
+                        findViewById(R.id.SMSCodeEditText).setEnabled(true);
+                        findViewById(R.id.login_btn).setEnabled(true);  // REMOVE // NEED TO FIND A SMS GATEWAY FIRST
+                    }
+                } else {
+                    findViewById(R.id.GetSMSCode).setEnabled(false);
+                    findViewById(R.id.SMSCodeEditText).setEnabled(false);
+                    findViewById(R.id.login_btn).setEnabled(false);   // REMOVE // // NEED TO FIND A SMS GATEWAY FIRST
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
-
     }
 
-    private String toValidPhoneNumber(String str) {
+    private void prepareLoginButton() {
 
-        str = str.replaceAll("[^0-9]","");
+        Button loginBtn = (Button) findViewById(R.id.login_btn);
+        loginBtn.setOnClickListener(this);
+        loginBtn.setEnabled(false);
+        loginBtn.setText("Login");
+    }
 
-        if (str.startsWith("972")){
-            str= str.replaceFirst("972","0");
-        }
-        if (str.startsWith("9720")){
-            str= str.replaceFirst("9720","0");
-        }
+    private void prepareGetSmsCodeButton() {
 
-        return str;
+        Button GetSMSCode = (Button) findViewById(R.id.GetSMSCode);
+        GetSMSCode.setEnabled(false);
+
+        OnClickListener buttonListener = new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                EditText loginNumber = (EditText) findViewById(R.id.LoginNumber);
+
+                //generate a 4 digit integer 1000 <10000
+                _randomPIN = (int) (Math.random() * 9000) + 1000;
+                try {
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(loginNumber.getText().toString(), null, "MediaCallz SmsVerificationCode: " + String.valueOf(_randomPIN), null, null);
+                    Toast.makeText(getApplicationContext(), "Message Sent To: " + loginNumber.getText().toString(),
+                            Toast.LENGTH_LONG).show();
+                } catch (Exception ex) {
+                    Toast.makeText(getApplicationContext(),
+                            ex.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                    ex.printStackTrace();
+                }
+
+            }
+        };
+        GetSMSCode.setOnClickListener(buttonListener);
+    }
+
+    private void prepareSmsCodeVerificationEditText() {
+
+        EditText SmsCodeVerificationEditText = (EditText) findViewById(R.id.SMSCodeEditText);
+        SmsCodeVerificationEditText.setEnabled(false);
+        SmsCodeVerificationEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                if (4 == s.length()) {
+
+                    findViewById(R.id.login_btn).setEnabled(true);
+
+                } else
+                    findViewById(R.id.login_btn).setEnabled(false);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     private void initializeConnection() {
 
         Intent i = new Intent();
         i.setClass(getBaseContext(), LogicServerProxyService.class);
-        if(AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_LOGGED_OUT))
+        if (AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_LOGGED_OUT))
             i.setAction(LogicServerProxyService.ACTION_REGISTER);
         else
             i.setAction(LogicServerProxyService.ACTION_RECONNECT);
@@ -815,100 +725,59 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     }
 
-    private void hideMediaFromGalleryScanner(String path) {
-
-        Log.i(TAG, "create file : " + path + "/" + ".nomedia");
-
-        File new_file =new File(path + "/" + ".nomedia");  // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
-        try
-        {
-            if(new_file.createNewFile())
-                Log.i(TAG , ".nomedia Created !");
-            else
-                Log.i(TAG , ".nomedia Already Exists !");
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
-    }
-
     /* -------------- UI methods -------------- */
 
     /* --- UI States --- */
 
-    public void stateReady() {
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-                disableProgressBar();
-                enableSelectMediaButton();
-                drawRingToneName();
-                disableUserFetchProgressBar();
-                enableSelectProfileMediaButton();
-                enableContactEditText();
-                enableSelectContactButton();
-                enableCallButton();
-                userStatusRegistered();
-            }
-        });
-    }
-
     public void stateIdle() {
 
-        runOnUiThread(new Runnable() {
+        disableProgressBar();
+        enableSelectContactButton();
+        enableContactEditText();
+        disableUserFetchProgressBar();
+        disableSelectProfileMediaButton();
+        disableSelectCallerMediaButton();
+        disableRingToneName();
+        disableCallButton();
 
-            @Override
-            public void run() {
+    }
 
-                disableProgressBar();
-                enableSelectContactButton();
-                enableContactEditText();
-                disableUserFetchProgressBar();
-                disableSelectProfileMediaButton();
-                disableSelectCallerMediaButton();
-                disableRingToneName();
-                disableCallButton();
-            }
-        });
+    public void stateReady() {
+
+        disableProgressBar();
+        enableSelectMediaButton();
+        drawRingToneName();
+        disableUserFetchProgressBar();
+        enableSelectProfileMediaButton();
+        enableContactEditText();
+        enableSelectContactButton();
+        enableCallButton();
+        userStatusRegistered();
+
     }
 
     public void stateDisabled() {
 
-        runOnUiThread(new Runnable() {
+        disableSelectCallerMediaButton();
+        disableSelectProfileMediaButton();
+        disableUserFetchProgressBar();
+        disableProgressBar();
+        disableSelectContactButton();
+        disableContactEditText();
+        disableCallButton();
+        disableInviteButton();
 
-            @Override
-            public void run() {
-                disableSelectCallerMediaButton();
-                disableSelectProfileMediaButton();
-                disableUserFetchProgressBar();
-                disableProgressBar();
-                disableSelectContactButton();
-                disableContactEditText();
-                disableCallButton();
-                disableInviteButton();
-            }
-        });
     }
 
     public void stateLoading() {
 
-        runOnUiThread(new Runnable() {
+        enableProgressBar();
+        disableSelectCallerMediaButton();
+        disableSelectProfileMediaButton();
+        disableSelectContactButton();
+        disableContactEditText();
+        disableCallButton();
 
-            @Override
-            public void run() {
-
-                enableProgressBar();
-                disableSelectCallerMediaButton();
-                disableSelectProfileMediaButton();
-                disableSelectContactButton();
-                disableContactEditText();
-                disableCallButton();
-            }
-        });
     }
 
     private String getState() {
@@ -918,8 +787,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     private void syncUIwithAppState() {
 
-        switch (AppStateManager.getAppState(getApplicationContext()))
-        {
+        switch (AppStateManager.getAppState(getApplicationContext())) {
             case AppStateManager.STATE_LOGGED_OUT:
                 initializeLoginUI();
                 break;
@@ -942,27 +810,25 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
     }
 
-    /* --- UI elements controls --- */
-
-    private void enableHamburgerIconWithSlideMenu()    {
+    private void enableHamburgerIconWithSlideMenu() {
         ActionBar actionBar = getSupportActionBar();
 
-        if(actionBar!=null) {
+        if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeButtonEnabled(true);  //Enable or disable the "home" button in the corner of the action bar.
         }
 
-        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        _mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        _DrawerList = (ListView) findViewById(R.id.left_drawer);
         addDrawerItems();
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-        mDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout, R.string.drawer_open,R.string.drawer_close) {
+        _DrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        _mDrawerToggle = new ActionBarDrawerToggle(this, _mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 //  getSupportActionBar().setTitle("Navigation!");
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu(
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
             /** Called when a drawer has settled in a completely closed state. */
@@ -973,18 +839,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             }
 
         };
-        mDrawerToggle.setDrawerIndicatorEnabled(true);
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-        mDrawerToggle.syncState();
+        _mDrawerToggle.setDrawerIndicatorEnabled(true);
+        _mDrawerLayout.setDrawerListener(_mDrawerToggle);
+        _mDrawerToggle.syncState();
     }
 
-    private void addDrawerItems() {
-        String[] osArray = { "Media Management", "App Settings", "Report Bug", "FAQ & Tutorial" };
+    /* --- UI elements controls --- */
 
-// Add Drawer Item to dataList
+    private void addDrawerItems() {
+
         // Add Drawer Item to dataList
         dataList.add(new DrawerItem("Media Management", R.drawable.mediaicon));
-
         dataList.add(new DrawerItem("Who Can MC me", R.drawable.blackwhitelist));
         dataList.add(new DrawerItem("How To ?", R.drawable.questionmark));
         dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
@@ -996,12 +861,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 dataList);
 
         //   mAdapter = new ArrayAdapter<String>(this, R.layout.custome_drawer_item, osArray);
-        mDrawerList.setAdapter(mAdapter);
+        _DrawerList.setAdapter(mAdapter);
     }
 
-    public void SelectItem(int possition) {
+    public void selectNavigationItem(int position) {
 
-        switch (possition) {
+        switch (position) {
             case 0://Media Management
 
                 break;
@@ -1029,21 +894,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
 
 
-     /*   mDrawerList.setItemChecked(possition, true);
-        setTitle(dataList.get(possition).getItemName());*/
-        mDrawerLayout.closeDrawer(mDrawerList);
+     /*   _DrawerList.setItemChecked(position, true);
+        setTitle(dataList.get(position).getItemName());*/
+        _mDrawerLayout.closeDrawer(_DrawerList);
 
-    }
-
-    private class DrawerItemClickListener implements
-            ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position,
-                                long id) {
-           if (position!=0)
-            SelectItem(position);
-
-        }
     }
 
     private void shareUs() {
@@ -1091,7 +945,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         });
 
         popup.show();
-
 
     }
 
@@ -1269,8 +1122,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                pFetchUserBar = (ProgressBar) findViewById(R.id.fetchuserprogress);
-                pFetchUserBar.setVisibility(ProgressBar.GONE);
+                _pFetchUserBar = (ProgressBar) findViewById(R.id.fetchuserprogress);
+                _pFetchUserBar.setVisibility(ProgressBar.GONE);
             }
         });
     }
@@ -1280,8 +1133,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                pFetchUserBar = (ProgressBar) findViewById(R.id.fetchuserprogress);
-                pFetchUserBar.setVisibility(ProgressBar.VISIBLE);
+                _pFetchUserBar = (ProgressBar) findViewById(R.id.fetchuserprogress);
+                _pFetchUserBar.setVisibility(ProgressBar.VISIBLE);
 
                 disableUserStatusPositiveIcon();
                 disableUserStatusNegativeIcon();
@@ -1382,7 +1235,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             FileManager.FileType fType;
             ImageButton selectCallerMediaBtn = (ImageButton) findViewById(R.id.selectMediaBtn);
 
-            if(!enabled)
+            if (!enabled)
                 selectCallerMediaBtn.setImageResource(R.drawable.defaultpic_disabled);
             else {
 
@@ -1405,7 +1258,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             }
 
         } catch (FileInvalidFormatException |
-                FileDoesNotExistException   |
+                FileDoesNotExistException |
                 FileMissingExtensionException e) {
             e.printStackTrace();
             lut_utils.removeUploadedMediaPerNumber(_destPhoneNumber);
@@ -1422,10 +1275,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
             ImageButton selectProfileMediaBtn = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
 
-            if(!enabled) {
+            if (!enabled) {
                 BitmapUtils.execBitmapWorkerTask(selectProfileMediaBtn, getApplicationContext(), getResources(), R.drawable.defaultpic_disabled, true);
-            }
-            else {
+            } else {
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(_destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
@@ -1438,7 +1290,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             }
 
         } catch (FileInvalidFormatException |
-                FileDoesNotExistException   |
+                FileDoesNotExistException |
                 FileMissingExtensionException e) {
             e.printStackTrace();
             lut_utils.removeUploadedMediaPerNumber(_destPhoneNumber);
@@ -1484,7 +1336,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private void drawSelectContactButton(boolean enabled) {
 
         ImageButton selectContactButton = (ImageButton) findViewById(R.id.selectContactBtn);
-        if(enabled)
+        if (enabled)
             selectContactButton.setImageResource(R.drawable.select_contact_enabled);
         else
             selectContactButton.setImageResource(R.drawable.select_contact_disabled);
@@ -1496,7 +1348,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     private void writeInfoSnackBar(final String text) {
 
-        Log.i(TAG, "Snackbar showing:"+text);
+        Log.i(TAG, "Snackbar showing:" + text);
 
         SnackbarManager.show(
                 Snackbar.with(getApplicationContext()) // context
@@ -1515,7 +1367,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     private void writeInfoSnackBar(final String text, final int color, Snackbar.SnackbarDuration duration) {
 
-        Log.i(TAG, "Snackbar showing:"+text);
+        Log.i(TAG, "Snackbar showing:" + text);
 
         SnackbarManager.show(
                 Snackbar.with(getApplicationContext()) // context
@@ -1534,16 +1386,34 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     private void handleSnackBar(SnackbarData snackbarData) {
 
-        switch(snackbarData.getStatus())
-        {
+        switch (snackbarData.getStatus()) {
             case CLOSE:
                 SnackbarManager.dismiss();
-            break;
+                break;
 
             case SHOW:
                 writeInfoSnackBar(snackbarData.getText(), snackbarData.getColor(), snackbarData.getmDuration());
-            break;
+                break;
         }
     }
 
+    private abstract class ActivityRequestCodes {
+
+        public static final int SELECT_CALLER_MEDIA = 1;
+        public static final int SELECT_CONTACT = 2;
+        public static final int SELECT_PROFILE_MEDIA = 3;
+        public static final int SELECT_MEDIA = 4;
+
+    }
+
+    private class DrawerItemClickListener implements
+            ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position,
+                                long id) {
+            if (position != 0)
+                selectNavigationItem(position);
+
+        }
+    }
 }

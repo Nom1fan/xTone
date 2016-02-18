@@ -46,6 +46,7 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
     @Override
     protected Bitmap doInBackground(Void ... voids) {
 
+
         try {
 
             Log.i(TAG, "Decoding image in background");

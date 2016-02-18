@@ -19,6 +19,8 @@ import com.special.app.R;
 
 import com.ui.activities.MainActivity;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 import DataObjects.SharedConstants;
@@ -56,6 +58,11 @@ public class MediaCallzApp extends Application {
                 Intent i = new Intent(context, GetTokenIntentService.class);
                 i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
                 context.startService(i);
+
+                // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
+                hideMediaFromGalleryScanner(Constants.INCOMING_FOLDER);
+                hideMediaFromGalleryScanner(Constants.OUTGOING_FOLDER);
+                hideMediaFromGalleryScanner(Constants.TEMP_COMPRESSED_FOLDER);
 
             }
         } catch (Exception e) {
@@ -115,6 +122,22 @@ public class MediaCallzApp extends Application {
 
         addIntent.setAction("com.android.launcher.action.UNINSTALL_SHORTCUT");
         getApplicationContext().sendBroadcast(addIntent);
+    }
+
+    private void hideMediaFromGalleryScanner(String path) {
+
+        Log.i(TAG, "create file : " + path + "/" + ".nomedia");
+
+        File new_file = new File(path + "/" + ".nomedia");  // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
+        try {
+            if (new_file.createNewFile())
+                Log.i(TAG, ".nomedia Created !");
+            else
+                Log.i(TAG, ".nomedia Already Exists !");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void callToast(final String text, final int g) {
