@@ -11,8 +11,6 @@ import android.content.pm.ResolveInfo;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -21,17 +19,12 @@ import android.widget.TextView;
 
 import com.data_objects.Constants;
 import com.ipaulpro.afilechooser.utils.FileUtils;
-import com.nispok.snackbar.Snackbar;
-import com.nispok.snackbar.SnackbarManager;
-import com.nispok.snackbar.listeners.ActionClickListener;
 import com.services.StorageServerProxyService;
 import com.special.app.R;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
-import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
@@ -43,21 +36,13 @@ import FilesManager.FileManager;
 /**
  * Created by rony on 29/01/2016.
  */
-public class SelectMedia extends Activity implements View.OnClickListener{
+public class SelectMediaActivity extends Activity implements View.OnClickListener {
 
-    private static final String TAG = SelectMedia.class.getSimpleName();
+    private static final String TAG = SelectMediaActivity.class.getSimpleName();
     private Uri _outputFileUri;
-    private abstract class ActivityRequestCodes {
-
-        public static final int SELECT_CALLER_MEDIA = 1;
-
-        public static final int SELECT_PROFILE_MEDIA = 3;
-
-    }
     private int SMTypeCode;
     private String _destPhoneNumber = "";
     private String _destName = "";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,16 +61,16 @@ public class SelectMedia extends Activity implements View.OnClickListener{
         SMTypeCode = intent.getIntExtra("SpecialMediaType", 1);
 
         if (ActivityRequestCodes.SELECT_CALLER_MEDIA == SMTypeCode)
-           mediaType.setText(R.string.select_caller_media_title);
+            mediaType.setText(R.string.select_caller_media_title);
         else
             mediaType.setText(R.string.select_profile_media_title);
 
         TextView nameOrPhone = (TextView) findViewById(R.id.contactNameOrNumber);
 
-      if (_destName.isEmpty())
-        nameOrPhone.setText(_destPhoneNumber);
+        if (_destName.isEmpty())
+            nameOrPhone.setText(_destPhoneNumber);
         else
-          nameOrPhone.setText(_destName);
+            nameOrPhone.setText(_destName);
 
         Button videoBtn = (Button) findViewById(R.id.video_or_image);
         videoBtn.setOnClickListener(this);
@@ -110,7 +95,7 @@ public class SelectMedia extends Activity implements View.OnClickListener{
         int id = v.getId();
 
         if (id == R.id.back) {
-            SelectMedia.this.finish();
+            SelectMediaActivity.this.finish();
         }
         else if (id == R.id.video_or_image) {
 
@@ -153,7 +138,6 @@ public class SelectMedia extends Activity implements View.OnClickListener{
         }
     }
 
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -167,9 +151,6 @@ public class SelectMedia extends Activity implements View.OnClickListener{
         Log.i(TAG, "onDestroy()");
     }
 
-    	/* -------------- Assisting methods -------------- */
-
-
     private void openVideoAndImageMediapath(int code) {
 
         // Create the ACTION_GET_CONTENT Intent
@@ -178,6 +159,8 @@ public class SelectMedia extends Activity implements View.OnClickListener{
         startActivityForResult(chooserIntent, code);
 
     }
+
+    	/* -------------- Assisting methods -------------- */
 
     private void openAudioMediapath(int code) {
 
@@ -242,68 +225,68 @@ public class SelectMedia extends Activity implements View.OnClickListener{
 
     private void uploadFile(Intent data, SpecialMediaType specialMediaType) {
 
-            FileManager fm = null;
-            Log.i(TAG,"Upload File");
-            final boolean isCamera;
-            try {
-                checkDestinationNumber();
-                Uri uri;
+        FileManager fm = null;
+        Log.i(TAG,"Upload File");
+        final boolean isCamera;
+        try {
+            checkDestinationNumber();
+            Uri uri;
 
-                if (data == null) {
-                    isCamera = true;
-                } else {
-                    final String action = data.getAction();
-                    isCamera = action != null && action.equals(MediaStore.ACTION_IMAGE_CAPTURE);
-                }
-                if (isCamera) {
-                    uri = _outputFileUri;
-                } else {
-                    uri = data.getData();
-                }
-
-                // Get the File path from the Uri
-                String path = FileUtils.getPath(this, uri);
-                // Alternatively, use FileUtils.getFile(Context, Uri)
-                if (path != null) if (FileUtils.isLocal(path)) {
-
-                    if (isCamera) {
-                        File file = new File(path);
-                        file.renameTo(new File(path += ".jpeg"));
-                    }
-
-                    fm = new FileManager(path);
-                    MainActivity.wasFileChooser = true;
-                    Log.i(TAG, "onActivityResult RESULT_OK _ Rony");
-                    Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
-                    i.setAction(StorageServerProxyService.ACTION_UPLOAD);
-                    i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);
-                    i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, specialMediaType);
-                    i.putExtra(StorageServerProxyService.FILE_TO_UPLOAD, fm);
-                    getApplicationContext().startService(i);
-
-                }
-                Log.i(TAG,"End Of Upload File");
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-                Log.e(TAG, "It seems there was a problem with the file path.");
-                data.putExtra("msg", "Oops! problem with file");
-            } catch (FileExceedsMaxSizeException e) {
-                data.putExtra("msg", "Oops! Select a file that weights less than:" +
-                        FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
-            } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
-                e.printStackTrace();
-                data.putExtra("msg", "Oops! Invalid file");
-            } catch (InvalidDestinationNumberException e) {
-                data.putExtra("msg", "Oops! Invalid destination number");
+            if (data == null) {
+                isCamera = true;
+            } else {
+                final String action = data.getAction();
+                isCamera = action != null && action.equals(MediaStore.ACTION_IMAGE_CAPTURE);
             }
+            if (isCamera) {
+                uri = _outputFileUri;
+            } else {
+                uri = data.getData();
+            }
+
+            // Get the File path from the Uri
+            String path = FileUtils.getPath(this, uri);
+            // Alternatively, use FileUtils.getFile(Context, Uri)
+            if (path != null) if (FileUtils.isLocal(path)) {
+
+                if (isCamera) {
+                    File file = new File(path);
+                    file.renameTo(new File(path += ".jpeg"));
+                }
+
+                fm = new FileManager(path);
+                MainActivity.wasFileChooser = true;
+                Log.i(TAG, "onActivityResult RESULT_OK _ Rony");
+                Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
+                i.setAction(StorageServerProxyService.ACTION_UPLOAD);
+                i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);
+                i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, specialMediaType);
+                i.putExtra(StorageServerProxyService.FILE_TO_UPLOAD, fm);
+                getApplicationContext().startService(i);
+
+            }
+            Log.i(TAG,"End Of Upload File");
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            Log.e(TAG, "It seems there was a problem with the file path.");
+            data.putExtra("msg", "Oops! problem with file");
+        } catch (FileExceedsMaxSizeException e) {
+            data.putExtra("msg", "Oops! Select a file that weights less than:" +
+                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+        } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
+            e.printStackTrace();
+            data.putExtra("msg", "Oops! Invalid file");
+        } catch (InvalidDestinationNumberException e) {
+            data.putExtra("msg", "Oops! Invalid destination number");
+        }
 
         if (getParent() == null) {
             setResult(Activity.RESULT_OK, data);
         } else {
             getParent().setResult(Activity.RESULT_OK, data);
         }
-            SelectMedia.this.finish();
-        }
+        SelectMediaActivity.this.finish();
+    }
 
     private void uploadAudioFile(Uri uri) {
         Intent data = new Intent();
@@ -357,7 +340,7 @@ public class SelectMedia extends Activity implements View.OnClickListener{
             getParent().setResult(Activity.RESULT_OK, data);
         }
 
-        SelectMedia.this.finish();
+        SelectMediaActivity.this.finish();
 
     }
 
@@ -386,7 +369,7 @@ public class SelectMedia extends Activity implements View.OnClickListener{
             e.printStackTrace();
         }
 
-        final ProgressDialog mProgressDialog = new ProgressDialog(SelectMedia.this);  // // TODO rony: 31/01/2016  add seconds to the progress of the recording
+        final ProgressDialog mProgressDialog = new ProgressDialog(SelectMediaActivity.this);  // // TODO rony: 31/01/2016  add seconds to the progress of the recording
         mProgressDialog.setTitle("Recording...");
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setButton("Stop recording", new DialogInterface.OnClickListener() {
@@ -411,5 +394,13 @@ public class SelectMedia extends Activity implements View.OnClickListener{
         });
         recorder.start();
         mProgressDialog.show();
+    }
+
+    private abstract class ActivityRequestCodes {
+
+        public static final int SELECT_CALLER_MEDIA = 1;
+
+        public static final int SELECT_PROFILE_MEDIA = 3;
+
     }
 }

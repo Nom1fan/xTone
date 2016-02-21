@@ -12,12 +12,13 @@ public abstract class PhoneNumberUtils {
 
         str = str.replaceAll("[^0-9]","");
 
-        if (str.startsWith("972")){
-            str= str.replaceFirst("972","0");
-        }
         if (str.startsWith("9720")){
             str= str.replaceFirst("9720","0");
         }
+        if (str.startsWith("972")){
+            str= str.replaceFirst("972","0");
+        }
+
 
         return str;
     }

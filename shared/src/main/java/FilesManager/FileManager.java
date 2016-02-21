@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -383,38 +384,38 @@ public class FileManager implements Serializable {
 
 
 
-//    /**
-//     * Deleting a directory recursively
-//     * @param directory - The directory to delete
-//     * @return
-//     * @throws NullPointerException
-//     * @throws FileNotFoundException
-//     */
+    /**
+     * Deleting a directory recursively
+     * @param directory - The directory to delete
+     * @return
+     * @throws NullPointerException
+     * @throws FileNotFoundException
+     */
 
-//	public static boolean deleteDirectory(File directory) throws NullPointerException, FileNotFoundException {
-//
-//		if(directory == null)
-//			throw new NullPointerException("The file parameter cannot be null");
-//
-//		if (directory.exists()) {
-//			File[] files = directory.listFiles();
-//			if (files == null) {
-//				return true;
-//			}
-//			for (int i = 0; i < files.length; i++) {
-//				if (files[i].isDirectory()) {
-//					deleteDirectory(files[i]);
-//				} else {
-//					files[i].delete();
-//				}
-//			}
-//		}
-//		else
-//			throw new FileNotFoundException();
-//
-//		return(directory.delete());
-//
-//	}
+	public static boolean deleteDirectory(File directory) throws NullPointerException, FileNotFoundException {
+
+		if(directory == null)
+			throw new NullPointerException("The file parameter cannot be null");
+
+		if (directory.exists()) {
+			File[] files = directory.listFiles();
+			if (files == null) {
+				return true;
+			}
+			for (int i = 0; i < files.length; i++) {
+				if (files[i].isDirectory()) {
+					deleteDirectory(files[i]);
+				} else {
+					files[i].delete();
+				}
+			}
+		}
+		else
+			throw new FileNotFoundException();
+
+		return(directory.delete());
+
+	}
 
 
 

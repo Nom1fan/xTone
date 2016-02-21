@@ -17,9 +17,10 @@ public abstract class SharedConstants {
     public static final String MY_DEFAULT_PROFILE_MEDIA_FILENAME = "MyDefaultProfileMedia";
 
     /* Shared constants */
-  	public static final String LOGIC_SERVER_HOST = "mediacallz.com";
+    //TODO Turn all of these into configuration file (XML/JSON instead of constants)
+  	public static final String LOGIC_SERVER_HOST = "epicall.no-ip.biz";
   	public static final int LOGIC_SERVER_PORT = 8888;
-	public static final String STROAGE_SERVER_HOST = "mediacallz.com";
+	public static final String STROAGE_SERVER_HOST = "epicall.no-ip.biz";
 	public static final int STORAGE_SERVER_PORT = 7777;
 	public static final String DB_SERVER_HOST = "localhost";
 	public static final int DB_SERVER_PORT = 3306;

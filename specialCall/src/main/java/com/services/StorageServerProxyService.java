@@ -22,6 +22,8 @@ import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import FilesManager.FileManager;
+import MessagesToServer.MessageClearMedia;
+import MessagesToServer.MessageNotifyMediaCleared;
 import MessagesToServer.MessageRequestDownload;
 
 
@@ -35,38 +37,33 @@ import MessagesToServer.MessageRequestDownload;
  */
 public class StorageServerProxyService extends AbstractServerProxy implements IServerProxy, ICallbackListener {
 
-    // Service actions
+    //region Service actions
     public static final String ACTION_DOWNLOAD = "com.services.StorageServerProxyService.DOWNLOAD";
     public static final String ACTION_UPLOAD = "com.services.StorageServerProxyService.UPLOAD";
+    public static final String ACTION_NOTIFY_MEDIA_CLEARED = "com.services.StorageServerProxyService.NOTIFY_MEDIA_CLEARED";
+    public static final String ACTION_CLEAR_MEDIA = "com.services.StorageServerProxyService.CLEAR_MEDIA";
+    //endregion
 
-    // Service intent keys
-    public static final String FILE_TO_UPLOAD = "com.services.StorageServerProxyService.FILE_TO_UPLOAD";
-    public static final String DESTINATION_ID = "com.services.StorageServerProxyService.DESTINATION_ID";
-    public static final String SPECIAL_MEDIA_TYPE = "com.services.StorageServerProxyService.SPECIAL_MEDIA_TYPE";
-
+    //region Service intent keys
+    public static final String FILE_TO_UPLOAD = "FILE_TO_UPLOAD";
+    public static final String DESTINATION_ID = "DESTINATION_ID";
+    public static final String SPECIAL_MEDIA_TYPE = "SPECIAL_MEDIA_TYPE";
+    public static final String TRANSFER_DETAILS = "TRANSFER_DETAILS";
+    //endregion
 
     public StorageServerProxyService() {
         super(StorageServerProxyService.class.getSimpleName());
     }
 
-    /* Service overriding methods */
-
+    //region Service methods
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         Log.i(TAG, "Started");
 
-        // If crash restart occurred but was not mid-action we should do nothing
-        if ((flags & START_FLAG_REDELIVERY)!=0 && !wasMidAction()) {
-            Log.i(TAG,"Crash restart occurred but was not mid-action (wasMidAction()=" + wasMidAction() + ". Exiting service.");
-            stopSelf(startId);
-            return START_REDELIVER_INTENT;
-        }
-
         final Intent intentForThread = intent;
 
         new Thread() {
-
             @Override
             public void run() {
 
@@ -75,46 +72,29 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
                     String action = intentForThread.getAction();
                     Log.i(TAG, "Action:" + action);
 
-
                     PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
 
                     try {
-
                         switch (action) {
+                            case ACTION_DOWNLOAD:
+                                actionDownload(intentForThread, powerManager);
+                                break;
 
-                            case ACTION_DOWNLOAD: {
-                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
-                                wakeLock.acquire();
-                                TransferDetails td = (TransferDetails) intentForThread.getSerializableExtra(PushEventKeys.PUSH_DATA);
-                                requestDownloadFromServer(openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT), td);
-                            }
-                            break;
+                            case ACTION_UPLOAD:
+                                actionUpload(intentForThread, powerManager);
+                                break;
 
-                            case ACTION_UPLOAD: {
-                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
-                                wakeLock.acquire();
+                            case ACTION_CLEAR_MEDIA:
+                                actionClear(intentForThread);
+                                break;
 
-                                String destId = intentForThread.getStringExtra(DESTINATION_ID);
-                                SpecialMediaType specialMediaType = (SpecialMediaType) intentForThread.getSerializableExtra(SPECIAL_MEDIA_TYPE);
-                                String tempCompressFolder = Constants.TEMP_COMPRESSED_FOLDER + destId;
-                                File tempCompressFolderDir = new File(tempCompressFolder);
-                                tempCompressFolderDir.mkdirs();
-
-                                ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
-                                FileManager managedFile = (FileManager) intentForThread.getSerializableExtra(FILE_TO_UPLOAD);
-                                managedFile = FileCompressorUtil.compressFileIfNecessary(managedFile, tempCompressFolder, mContext);
-                                uploadFileToServer(connectionToServer, destId, managedFile, specialMediaType);
-                                releaseLockIfNecessary();
-                            }
-                            break;
-
+                            case ACTION_NOTIFY_MEDIA_CLEARED:
+                                actionNotifyMediaCleared(intentForThread);
+                                break;
 
                             default:
                                 setMidAction(false);
                                 Log.w(TAG, "Service started with invalid action:" + action);
-
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -127,8 +107,6 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
                     }
                 } else
                     Log.w(TAG, "Service started with missing action");
-
-
             }
         }.start();
 
@@ -139,18 +117,86 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
         return START_REDELIVER_INTENT;
     }
 
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
+    //endregion
 
-          /* IServerProxy operations methods */
+    //region Action methods
+    private void actionDownload(Intent intent, PowerManager powerManager) throws IOException {
+
+        setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
+        wakeLock.acquire();
+        TransferDetails td = (TransferDetails) intent.getSerializableExtra(PushEventKeys.PUSH_DATA);
+        requestDownloadFromServer(openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT), td);
+    }
+
+    private void actionUpload(Intent intent, PowerManager powerManager) throws IOException {
+
+        setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
+        wakeLock.acquire();
+
+        String destId = intent.getStringExtra(DESTINATION_ID);
+        SpecialMediaType specialMediaType = (SpecialMediaType) intent.getSerializableExtra(SPECIAL_MEDIA_TYPE);
+        String tempCompressFolder = Constants.TEMP_COMPRESSED_FOLDER + destId;
+        File tempCompressFolderDir = new File(tempCompressFolder);
+        tempCompressFolderDir.mkdirs();
+
+        ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
+        FileManager managedFile = (FileManager) intent.getSerializableExtra(FILE_TO_UPLOAD);
+        managedFile = FileCompressorUtil.compressFileIfNecessary(managedFile, tempCompressFolder, getApplicationContext());
+        uploadFileToServer(connectionToServer, destId, managedFile, specialMediaType);
+        releaseLockIfNecessary();
+
+    }
+
+    private void actionClear(Intent intent) throws IOException {
+
+        setMidAction(true);
+        ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
+        String destId = intent.getStringExtra(DESTINATION_ID);
+        SpecialMediaType specialMediaType = (SpecialMediaType) intent.getSerializableExtra(SPECIAL_MEDIA_TYPE);
+        sendClearCommandToServer(connectionToServer, destId, specialMediaType);
+    }
+
+    private void actionNotifyMediaCleared(Intent intent) throws IOException {
+
+        setMidAction(true);
+        ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
+        TransferDetails td = (TransferDetails) intent.getSerializableExtra(TRANSFER_DETAILS);
+        MessageNotifyMediaCleared msgNMC = new MessageNotifyMediaCleared(Constants.MY_ID(getApplicationContext()), td);
+        connectionToServer.sendToServer(msgNMC);
+    }
+    //endregion
+
+    //region Storage operations methods
+    /**
+     * Sends a clear media command to the server
+     * @param connectionToServer
+     * @param destId The destination id of the user for which the media will be cleared
+     * @param specialMediaType The special media type of the media to clear
+     * @throws IOException
+     */
+    private void sendClearCommandToServer(
+            ConnectionToServer connectionToServer,
+            String destId,
+            SpecialMediaType specialMediaType) throws IOException {
+
+        TransferDetails td = new TransferDetails(Constants.MY_ID(getApplicationContext()), destId, specialMediaType);
+        MessageClearMedia msgCM = new MessageClearMedia(td.getSourceId(), td);
+        connectionToServer.sendToServer(msgCM);
+    }
 
     /**
      * Uploads a file to the server, sending it to a destination number
-     * @param managedFile   - The file to upload inside a manager wrapper
-     * @param destNumber - The destination number to whom the file is for
+     * @param connectionToServer
+     * @param destNumber The destination number to whom the file is for
+     * @param managedFile The file to upload inside a manager wrapper
+     * @param specialMediaType The special media type of the file to upload
+     * @throws IOException
      */
     private void uploadFileToServer(
             ConnectionToServer connectionToServer,
@@ -158,10 +204,10 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
             FileManager managedFile,
             SpecialMediaType specialMediaType) throws IOException {
 
-        TransferDetails td = new TransferDetails(Constants.MY_ID(mContext), destNumber, managedFile, specialMediaType);
-        //NotificationUtils.createHelper(mContext, "File upload to:" + td.getDestinationId() + " is pending");
-        BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.UPLOADING, "Uploading...", null));
-        new UploadTask(mContext, this ,connectionToServer, td).execute();
+        TransferDetails td = new TransferDetails(Constants.MY_ID(getApplicationContext()), destNumber, managedFile, specialMediaType);
+        //NotificationUtils.createHelper(getApplicationContext(), "File upload to:" + td.getDestinationId() + " is pending");
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.UPLOADING, "Uploading...", null));
+        new UploadTask(getApplicationContext(), this ,connectionToServer, td).execute();
     }
 
     /**
@@ -174,12 +220,17 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
         MessageRequestDownload msgRD = new MessageRequestDownload(td);
         connectionToServer.sendToServer(msgRD);
     }
+    //endregion
 
+    //region ICallbackListener methods
     @Override
     public void doCallbackAction() {
 
         setMidAction(false);
     }
+    //endregion
+
+
 //
 //    @Override
 //    public void onTaskRemoved(Intent rootIntent) {

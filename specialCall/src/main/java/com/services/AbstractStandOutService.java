@@ -26,6 +26,7 @@ import android.widget.VideoView;
 
 import com.special.app.R;
 import com.utils.BitmapUtils;
+import com.utils.ContactsUtils;
 
 import java.io.File;
 
@@ -61,8 +62,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         this.TAG = TAG;
     }
 
-    /* Service methods */
-
+    //region Service methods
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
@@ -90,14 +90,13 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         Log.e(TAG, "Service onDestroy");
     }
 
-    /* Standout Window methods */
-
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
+    //endregion
 
+    //region Standout Window methods
     @Override
     public String getAppName() {
         return "SPECIAL CALL";
@@ -122,9 +121,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         Log.i(TAG, "In StandOutLayoutParams()");
         return new StandOutLayoutParams(id, mWidth, mHeight, 0, 0);
     }
+    //endregion
 
-    /* Private classes and listeners */
-
+    //region Private classes and listeners
     /**
      * Listener for call states
      * Listens for different call states
@@ -168,36 +167,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         }
     }
 
-    //TODO Is there a way to do this without reflection?
-    private String getContactName(final String phoneNumber)
-    {
-        Uri uri;
-        String[] projection;
-        Uri mBaseUri = Contacts.Phones.CONTENT_FILTER_URL;
-        projection = new String[] { android.provider.Contacts.People.NAME };
-        try {
-            Class<?> c = Class.forName("android.provider.ContactsContract$PhoneLookup");
-            mBaseUri = (Uri) c.getField("CONTENT_FILTER_URI").get(mBaseUri);
-            projection = new String[] { "display_name" };
-        }
-        catch (Exception e) { } // Why are we obsorbing the exception?
-
-        uri = Uri.withAppendedPath(mBaseUri, Uri.encode(phoneNumber));
-        Cursor cursor = this.getContentResolver().query(uri, projection, null, null, null);
-
-        String contactName = "";
-
-        if (cursor.moveToFirst())
-        {
-            contactName = cursor.getString(0);
-        }
-
-        cursor.close();
-        cursor = null;
-
-        return contactName;
-    }
-
     private void prepareStandOutWindowDisplay()
     {
         Display display = mWindowManager.getDefaultDisplay();
@@ -234,7 +203,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         //TextView for Showing Incoming Call Number and contact name
         mSpecialCallTextView = new TextView(this);
-        String contactName = getContactName(callNumber);
+        String contactName = ContactsUtils.getContactName(getApplicationContext(), callNumber);
         mSpecialCallTextView.setText(!contactName.equals("") ? contactName + " " + callNumber : callNumber);
         mSpecialCallTextView.setBackgroundColor(Color.BLACK);
         mSpecialCallTextView.setTextColor(Color.WHITE);
@@ -466,4 +435,5 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             Log.e(TAG, "Failed to Stop sound. Exception:" + e.getMessage());
         }
     }
+    //endregion
 }

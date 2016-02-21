@@ -378,7 +378,7 @@ public class IncomingService extends AbstractStandOutService {
 
                     try {
                         Log.i(TAG, "mMediaPlayer.stop(); closeSpecialCallWindowAndRingtone");
-                        if(mMediaPlayer!=null)   //TODO Check in advance the file type and act accordingly
+                        if(mMediaPlayer!=null)
                             mMediaPlayer.stop();
                     } catch(Exception e) {  e.printStackTrace();  }
                     try {

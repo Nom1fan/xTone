@@ -45,13 +45,6 @@ public class LogicServerProxyService extends AbstractServerProxy {
         super.onStartCommand(intent, flags, startId);
         Log.i(TAG, "LogicServerProxyService started");
 
-        // If crash restart occurred but was not mid-action we should do nothing
-        if ((flags & START_FLAG_REDELIVERY)!=0 && !wasMidAction()) {
-            Log.i(TAG,"Crash restart occurred but was not mid-action (wasMidAction()=" + wasMidAction() + ". Exiting service.");
-            stopSelf(startId);
-            return START_REDELIVER_INTENT;
-        }
-
         final Intent intentForThread = intent;
 
         new Thread() {
@@ -65,11 +58,12 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
                     try {
 
+                        //TODO Mor: Change all actions into methods (See StorageServerProxyService)
                         switch (action) {
 
                             case ACTION_REGISTER:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.CONNECTING, "Connecting...", null));
+                                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CONNECTING, "Connecting...", null));
                                 register(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
                             break;
 
@@ -82,7 +76,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
                             case ACTION_RECONNECT:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.RECONNECT_ATTEMPT, "Reconnecting...", null));
+                                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.RECONNECT_ATTEMPT, "Reconnecting...", null));
                                 reconnectIfNecessary();
                             break;
 
@@ -129,7 +123,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
      * @param destinationId - The number of whom to check is logged-in
      */
     public void isRegistered(ConnectionToServer connectionToServer, String destinationId)  throws IOException {
-        MessageIsRegistered msgIsLogin = new MessageIsRegistered(Constants.MY_ID(mContext), destinationId);
+        MessageIsRegistered msgIsLogin = new MessageIsRegistered(Constants.MY_ID(getApplicationContext()), destinationId);
         connectionToServer.sendToServer(msgIsLogin);
     }
 
@@ -141,7 +135,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
     private void register(ConnectionToServer connectionToServer) throws IOException {
 
         Log.i(TAG, "Initiating register sequence...");
-        MessageRegister msgRegister = new MessageRegister(Constants.MY_ID(mContext), Constants.MY_BATCH_TOKEN(mContext));
+        MessageRegister msgRegister = new MessageRegister(Constants.MY_ID(getApplicationContext()), Constants.MY_BATCH_TOKEN(getApplicationContext()));
         Log.i(TAG, "Sending register message to server...");
         connectionToServer.sendToServer(msgRegister);
     }
@@ -152,7 +146,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
         {
             ConnectionToServer cts = openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT);
             if(cts!=null) {
-                BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.CONNECTED, "Connected", null));
+                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CONNECTED, "Connected", null));
                 cancelReconnect();
                 SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
             }
@@ -160,7 +154,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
         else {
             scheduleReconnect(System.currentTimeMillis());
             if(!AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_DISABLED))
-                BroadcastUtils.sendEventReportBroadcast(mContext,TAG, new EventReport(EventType.DISCONNECTED, "Disconnected. Check your internet connection", null));
+                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(),TAG, new EventReport(EventType.DISCONNECTED, "Disconnected. Check your internet connection", null));
         }
     }
 
@@ -175,7 +169,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
         Log.e(TAG, errMsg);
 
-        BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.DISCONNECTED, errMsg, null));
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DISCONNECTED, errMsg, null));
         scheduleReconnect(System.currentTimeMillis());
     }
 

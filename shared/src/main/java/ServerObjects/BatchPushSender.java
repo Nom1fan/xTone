@@ -21,12 +21,18 @@ import LogObjects.LogsManager;
  */
 public abstract class BatchPushSender {
 
-    //private static final String BATCH_PUSH_API_TOKEN = ""; //TODO Mor: Find out what the hell this is
     private static final String REST_API_KEY = "2b2efabe088730905d0651656ffb642c";
     private static final String LIVE_API_KEY = SharedConstants.LIVE_API_KEY;
     private static final String API_VERSION = "1.0";
     private static final String PUSH_URL = "https://api.batch.com/" + API_VERSION + "/" + LIVE_API_KEY + "/transactional/send";
     private static Logger _logger = LogsManager.get_serverLogger();
+
+    static
+    {
+        System.setProperty("org.apache.commons.logging.Log","org.apache.commons.logging.impl.SimpleLog");
+        System.setProperty("org.apache.commons.logging.simplelog.showdatetime", "true");
+        System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.wire", "DEBUG");
+    }
 
     /**
      * Sending a push containing title, message and data
@@ -130,16 +136,16 @@ public abstract class BatchPushSender {
 
 
     private static void pushData(String postData) throws Exception {
-        DefaultHttpClient httpclient = new DefaultHttpClient();
+        DefaultHttpClient httpClient = new DefaultHttpClient();
         HttpResponse response = null;
         HttpEntity entity = null;
         String responseString = null;
-        HttpPost httpost = new HttpPost(PUSH_URL);
-        httpost.addHeader("X-Authorization", REST_API_KEY);
-        httpost.addHeader("Content-Type", "application/json");
+        HttpPost httpPost = new HttpPost(PUSH_URL);
+        httpPost.addHeader("X-Authorization", REST_API_KEY);
+        httpPost.addHeader("Content-Type", "application/json");
         StringEntity reqEntity = new StringEntity(postData);
-        httpost.setEntity(reqEntity);
-        response = httpclient.execute(httpost);
+        httpPost.setEntity(reqEntity);
+        response = httpClient.execute(httpPost);
         entity = response.getEntity();
         if (entity != null) {
             responseString = EntityUtils.toString(response.getEntity());

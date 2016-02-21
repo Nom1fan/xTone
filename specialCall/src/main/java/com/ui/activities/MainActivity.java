@@ -46,6 +46,7 @@ import com.nispok.snackbar.listeners.ActionClickListener;
 import com.services.IncomingService;
 import com.services.LogicServerProxyService;
 import com.services.OutgoingService;
+import com.services.StorageServerProxyService;
 import com.special.app.R;
 import com.ui.components.AutoCompletePopulateListAsyncTask;
 import com.utils.BitmapUtils;
@@ -88,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private ActionBarDrawerToggle _mDrawerToggle;
     private DrawerLayout _mDrawerLayout;
 
+    //region Activity methods
     @Override
     protected void onStart() {
         super.onStart();
@@ -233,8 +235,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     }
 
     @Override
-    public boolean onKeyDown ( int keyCode, KeyEvent e)
-    {  // hard menu key will open and close the drawer menu also
+    public boolean onKeyDown ( int keyCode, KeyEvent e) {  // hard menu key will open and close the drawer menu also
         if (keyCode == KeyEvent.KEYCODE_MENU) {
 
             if (_mDrawerLayout != null) {
@@ -248,6 +249,33 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         return super.onKeyDown(keyCode, e);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (_mDrawerToggle != null)
+            if (_mDrawerToggle.onOptionsItemSelected(item)) {
+                return true;
+            }
+
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                appSettings();
+                break;
+            case R.id.action_share:
+                saveInstanceState();
+                shareUs();
+                break;
+            default:
+                saveInstanceState();
+                Intent o = new Intent();
+                o.setClass(getApplicationContext(), Settings.class);
+                startActivity(o);
+                break;
+        }
+        return true;
+    }
+    //endregion
+
   /*  @Override     //  the menu with the 3 dots on the right, on the top action bar, to enable it uncomment this.
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -260,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         _SMType = code;
                      /* Create an intent that will start the main activity. */
         Intent mainIntent = new Intent(MainActivity.this,
-                SelectMedia.class);
+                SelectMediaActivity.class);
         mainIntent.putExtra("SpecialMediaType", _SMType);
         mainIntent.putExtra("DestinationNumber", _destPhoneNumber);
         mainIntent.putExtra("DestinationName", _destName);
@@ -329,32 +357,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
             stateIdle();
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        if (_mDrawerToggle != null)
-            if (_mDrawerToggle.onOptionsItemSelected(item)) {
-                return true;
-            }
-
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                appSettings();
-                break;
-            case R.id.action_share:
-                saveInstanceState();
-                shareUs();
-                break;
-            default:
-                saveInstanceState();
-                Intent o = new Intent();
-                o.setClass(getApplicationContext(), Settings.class);
-                startActivity(o);
-                break;
-        }
-        return true;
     }
 
     private void initializeLoginUI() {
@@ -467,6 +469,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         // Saving destination name
         _destName = destName;
         SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, _destName);
+    }
+
+    private void clearMedia(SpecialMediaType spMediaType) {
+
+        Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
+        i.setAction(StorageServerProxyService.ACTION_CLEAR_MEDIA);
+        i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);
+        i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, spMediaType);
+        getApplicationContext().startService(i);
     }
 
     private void restoreInstanceState() {
@@ -917,7 +928,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         startActivity(y);
     }
 
-    private void openCallerMediaMenu() { // tod
+    private void openCallerMediaMenu() {
 
         ImageButton callerMedia = (ImageButton) findViewById(R.id.selectMediaBtn);
         //Creating the instance of PopupMenu
@@ -933,10 +944,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                         selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
                         break;
                     case R.id.previewcallermedia:
+                        //TODO Implement preview caller media
                         Toast.makeText(MainActivity.this, "CallerMenu Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.clearcallermedia:
-                        Toast.makeText(MainActivity.this, "CallerMenu Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                        //TODO Mor: Disable this option in case no media has been uploaded
+                        //TODO Mor: "Are you sure" dialog
+
+                        clearMedia(SpecialMediaType.CALLER_MEDIA);
                         break;
 
                 }
@@ -971,7 +986,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                         Toast.makeText(MainActivity.this, "ProfileMenu Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.clearprofilemedia:
-                        Toast.makeText(MainActivity.this, "ProfileMenu Clicked  : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                        //TODO Mor: Disable this option in case no media has been uploaded
+                        //TODO Mor: "Are you sure" dialog
+
+                        clearMedia(SpecialMediaType.PROFILE_MEDIA);
                         break;
                 }
                 return true;

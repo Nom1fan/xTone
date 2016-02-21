@@ -21,8 +21,6 @@ import EventObjects.EventType;
 public class PushService extends IntentService {
 
     private static final String TAG = PushService.class.getSimpleName();
-    private Context _context;
-    private Gson gson = new Gson();
 
     public PushService() {
         super(PushService.class.getSimpleName());
@@ -30,8 +28,6 @@ public class PushService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-
-        _context = getApplicationContext();
 
         String jsonData;
         TransferDetails td;
@@ -52,29 +48,51 @@ public class PushService extends IntentService {
 
             switch(eventActionCode)
             {
-                case PushEventKeys.PENDING_DOWNLOAD:
+                case PushEventKeys.PENDING_DOWNLOAD: {
                     Log.i(TAG, "In:" + PushEventKeys.PENDING_DOWNLOAD);
                     jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
-                    td = gson.fromJson(jsonData, TransferDetails.class);
+                    td = new Gson().fromJson(jsonData, TransferDetails.class);
 
-                    Intent i = new Intent(_context.getApplicationContext(), StorageServerProxyService.class);
+                    Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
                     i.setAction(StorageServerProxyService.ACTION_DOWNLOAD);
                     i.putExtra(PushEventKeys.PUSH_DATA, td);
-                    _context.startService(i);
+                    startService(i);
+                }
                     break;
 
-                case PushEventKeys.TRANSFER_SUCCESS:
+                case PushEventKeys.TRANSFER_SUCCESS: {
                     String msg = intent.getStringExtra(Batch.Push.ALERT_KEY);
                     jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
-                    td = gson.fromJson(jsonData, TransferDetails.class);
+                    td = new Gson().fromJson(jsonData, TransferDetails.class);
 
-                    BroadcastUtils.sendEventReportBroadcast(_context, TAG, new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, msg, td));
+                    BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, msg, td));
                     Batch.Push.displayNotification(this, intent);
+                }
                     break;
 
-                case PushEventKeys.SHOW_MESSAGE:
+                case PushEventKeys.CLEAR_MEDIA: {
+                    jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
+                    td = new Gson().fromJson(jsonData, TransferDetails.class);
+                    Intent i = new Intent(getApplicationContext(), ClearMediaIntentService.class);
+                    i.putExtra(ClearMediaIntentService.TRANSFER_DETAILS, td);
+                    startService(i);
+                }
+                    break;
+
+                case PushEventKeys.CLEAR_SUCCESS: {
+                    String alert = intent.getStringExtra(Batch.Push.ALERT_KEY);
+                    jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
+                    td = new Gson().fromJson(jsonData, TransferDetails.class);
+                    BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CLEAR_SUCCESS, alert, td));
+                    Batch.Push.displayNotification(this, intent);
+
+                }
+                    break;
+
+                case PushEventKeys.SHOW_MESSAGE: {
                     Log.i(TAG, "In:" + PushEventKeys.SHOW_MESSAGE);
                     Batch.Push.displayNotification(this, intent);
+                }
                     break;
             }
 

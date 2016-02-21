@@ -32,4 +32,5 @@ public enum EventType implements Serializable {
 	COMPRESSION_COMPLETE,
 	SP_CALL_INC_MOVED_TO_BG,
 	FETCHING_USER_DATA,
+	CLEAR_SUCCESS,
 }

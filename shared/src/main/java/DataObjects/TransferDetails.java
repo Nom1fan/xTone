@@ -18,6 +18,13 @@ public class TransferDetails implements Serializable {
     private FileManager _managedFile;
     private SpecialMediaType _spMediaType;
 
+    /**
+     * This constructor should be used in a message to transfer media
+     * @param source The media sender id
+     * @param destination The media receiver id
+     * @param managedFile The managed file descriptor of the media being sent
+     * @param spMediaType The special media type
+     */
     public TransferDetails(String source, String destination, FileManager managedFile, SpecialMediaType spMediaType) {
 
         _sourceId = source;
@@ -29,6 +36,19 @@ public class TransferDetails implements Serializable {
         _managedFile = managedFile;
         _spMediaType = spMediaType;
 
+    }
+
+    /**
+     * This constructor should be used in a message to clear media
+     * @param source The media clearer id
+     * @param destination The id of the user for which the media shall be cleared
+     * @param spMediaType The special media type fo clear
+     */
+    public TransferDetails(String source, String destination, SpecialMediaType spMediaType) {
+
+        _sourceId = source;
+        _destinationId = destination;
+        _spMediaType = spMediaType;
     }
 
     public String get_fullFilePathSrcSD() {

@@ -32,8 +32,7 @@ import MessagesToClient.MessageToClient;
  * Created by mor on 18/10/2015.
  */
 public abstract class AbstractServerProxy extends Service implements IServerProxy {
-
-    protected Context mContext;
+    
     protected String TAG;
     protected PowerManager.WakeLock wakeLock;
     protected ConnectivityManager connManager;
@@ -49,48 +48,20 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         TAG = tag;
     }
 
+    //region Service methods
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        mContext = getApplicationContext();
         SharedConstants.INCOMING_FOLDER = Constants.INCOMING_FOLDER;
 
-        return START_NOT_STICKY;
-    }
-
-    @Override
-    public void handleMessageFromServer(MessageToClient msg, ConnectionToServer connectionToServer) {
-        try
-        {
-            EventReport eventReport = msg
-                    .doClientAction(connectionToServer);
-
-            if(eventReport.status()!= EventType.NO_ACTION_REQUIRED)
-                BroadcastUtils.sendEventReportBroadcast(mContext,TAG, eventReport);
-
-            releaseLockIfNecessary();
-
-            // Finished handling request-response transaction
-            connectionToServer.closeConnection();
-            connections.remove(connectionToServer);
-           setMidAction(false);
-
-        } catch(Exception e) {
-            String errMsg = "Handling message from server failed. Reason:"+e.getMessage();
-            Log.i(TAG, errMsg);
-            releaseLockIfNecessary();
-            //handleDisconnection(errMsg);
+        // If crash restart occurred but was not mid-action we should do nothing
+        if ((flags & START_FLAG_REDELIVERY)!=0 && !wasMidAction()) {
+            Log.i(TAG,"Crash restart occurred but was not mid-action (wasMidAction()=" + wasMidAction() + ". Exiting service.");
+            stopSelf(startId);
+            return START_REDELIVER_INTENT;
         }
-    }
 
-    protected ConnectionToServer openSocket(String host, int port) throws IOException {
-        Log.i(TAG, "Opening socket...");
-        ConnectionToServer connectionToServer = new ConnectionToServer(host, port, this);
-        connectionToServer.openConnection();
-        connections.add(connectionToServer);
-        Log.i(TAG, "Socket is open");
-
-        return connectionToServer;
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -110,19 +81,56 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     }
 
     @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+    //endregion
+
+    //region IServerProxy methods
+    @Override
     public void handleDisconnection(String errMsg) {
 
         Log.e(TAG, errMsg);
 
-        BroadcastUtils.sendEventReportBroadcast(mContext, TAG, new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
+    public void handleMessageFromServer(MessageToClient msg, ConnectionToServer connectionToServer) {
+        try
+        {
+            EventReport eventReport = msg
+                    .doClientAction(connectionToServer);
 
-    /* Internal operations methods */
+            if(eventReport.status()!= EventType.NO_ACTION_REQUIRED)
+                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(),TAG, eventReport);
+
+            releaseLockIfNecessary();
+
+            // Finished handling request-response transaction
+            connectionToServer.closeConnection();
+            connections.remove(connectionToServer);
+            setMidAction(false);
+
+        } catch(Exception e) {
+            String errMsg = "Handling message from server failed. Reason:"+e.getMessage();
+            Log.i(TAG, errMsg);
+            releaseLockIfNecessary();
+            //handleDisconnection(errMsg);
+        }
+    }
+    //endregion
+
+    //region Internal operations methods
+    protected ConnectionToServer openSocket(String host, int port) throws IOException {
+        Log.i(TAG, "Opening socket...");
+        ConnectionToServer connectionToServer = new ConnectionToServer(host, port, this);
+        connectionToServer.openConnection();
+        connections.add(connectionToServer);
+        Log.i(TAG, "Socket is open");
+
+        return connectionToServer;
+    }
 
     protected void releaseLockIfNecessary() {
 
@@ -132,8 +140,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         }
     }
 
-    protected void cancelReconnect()
-    {
+    protected void cancelReconnect() {
         Log.i(TAG, "Cancelling reconnect");
         Intent i = new Intent();
         i.setClass(this, LogicServerProxyService.class);
@@ -143,8 +150,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         alarmMgr.cancel(pi);
     }
 
-    protected void scheduleReconnect(long startTime)
-    {
+    protected void scheduleReconnect(long startTime) {
         Log.i(TAG, "Scheduling reconnect");
         long interval =
                 SharedPrefUtils.getLong(getApplicationContext(),SharedPrefUtils.SERVER_PROXY,SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
@@ -191,36 +197,5 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
         return wifiConnected || mobileConnected;
     }
-
-              /* UI methods */
-
-    protected void callErrToast(final String text) {
-
-        Toast toast = Toast.makeText(getApplicationContext(), text,
-                Toast.LENGTH_LONG);
-        TextView v = (TextView) toast.getView().findViewById(
-                android.R.id.message);
-        v.setTextColor(Color.RED);
-        toast.show();
-    }
-
-    protected void callInfoToast(final String text) {
-
-        Toast toast = Toast.makeText(getApplicationContext(), text,
-                Toast.LENGTH_LONG);
-        TextView v = (TextView) toast.getView().findViewById(
-                android.R.id.message);
-        v.setTextColor(Color.GREEN);
-        toast.show();
-    }
-
-    protected void callInfoToast(final String text, final int g) {
-
-        Toast toast = Toast.makeText(getApplicationContext(), text,
-                Toast.LENGTH_LONG);
-        TextView v = (TextView) toast.getView().findViewById(
-                android.R.id.message);
-        v.setTextColor(g);
-        toast.show();
-    }
+    //endregion
 }

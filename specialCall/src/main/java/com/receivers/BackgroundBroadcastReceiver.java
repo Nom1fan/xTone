@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.util.Log;
 
 import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
@@ -29,12 +30,16 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         EventReport report = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
+
+        //Ignore refresh UI event sent from here on the same events channel
+        if(report.status().equals(EventType.REFRESH_UI))
+            return;
+
         SnackbarData snackbarData = null;
 
         switch(report.status())
         {
-            /* Events in loading states */
-
+            //region Events in loading states
             case RECONNECT_ATTEMPT: {
                 String msg = "Oops! Please check your internet connection.";
                 AppStateManager.setAppState(context, TAG + " RECONNECT ATTEMPT",
@@ -94,18 +99,19 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                         report.desc());
             }
             break;
+            //endregion
 
-            /* Events in Idle, ready and disabled states */
-
+            //region Events in Idle, ready and disabled states
             case DISCONNECTED:
                 AppStateManager.setAppState(context, TAG + " DISCONNECTED", AppStateManager.STATE_DISABLED);
                 snackbarData = new SnackbarData(
                         SnackbarData.SnackbarStatus.SHOW,
                         Color.RED, Snackbar.SnackbarDuration.LENGTH_INDEFINITE,
                         report.desc());
-            break;
+                break;
 
-            case DESTINATION_DOWNLOAD_COMPLETE:
+            case DESTINATION_DOWNLOAD_COMPLETE: {
+                Log.i(TAG, "In: DESTINATION_DOWNLOAD_COMPLETE");
                 TransferDetails td = (TransferDetails) report.data();
                 LUT_Utils lut_utils = new LUT_Utils(context, td.get_spMediaType());
                 lut_utils.saveUploadedPerNumber(td.getDestinationId(), td.getFileType(), td.get_fullFilePathSrcSD());
@@ -114,6 +120,20 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                         SnackbarData.SnackbarStatus.SHOW,
                         Color.GREEN, Snackbar.SnackbarDuration.LENGTH_LONG,
                         report.desc());
+            }
+            break;
+
+            case CLEAR_SUCCESS: {
+                TransferDetails td = (TransferDetails) report.data();
+                LUT_Utils lut_utils = new LUT_Utils(context, td.get_spMediaType());
+                lut_utils.removeUploadedMediaPerNumber(td.getDestinationId());
+                lut_utils.removeUploadedTonePerNumber(td.getDestinationId());
+                lut_utils.destroy();
+                snackbarData = new SnackbarData(
+                        SnackbarData.SnackbarStatus.SHOW,
+                        Color.GREEN, Snackbar.SnackbarDuration.LENGTH_LONG,
+                        report.desc());
+            }
             break;
 
             case USER_REGISTERED_TRUE:
@@ -164,10 +184,10 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
             case UNREGISTER_FAILURE:
                 break;
+            //endregion
         }
 
-        if(!report.status().equals(EventType.REFRESH_UI))
-            BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, report.desc(), snackbarData));
+        BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, report.desc(), snackbarData));
     }
 
 }
