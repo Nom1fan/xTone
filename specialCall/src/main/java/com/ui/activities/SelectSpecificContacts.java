@@ -71,10 +71,10 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
                 for (int i = 0; i < phones.size(); i++) {
                    ma.setChecked(i, true);
                     lv.setItemChecked(i, true);
-                    ma.notifyDataSetChanged();
                 }
-                ma.notifyDataSetChanged();
+
                 saveBlockedContacts(allContactsClicked); // Save All contacts to sharedPref
+                ma.notifyDataSetChanged();
             }
         });
 
@@ -87,11 +87,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
                 for ( int i=0; i < phones.size(); i++) {
                     ma.setChecked(i, false);
                     lv.setItemChecked(i, false);
-                    ma.notifyDataSetChanged();
                 }
-                lv= (ListView) findViewById(R.id.lv);
-
-                getAllContacts(getApplicationContext().getContentResolver());
                 lv= (ListView) findViewById(R.id.lv);
                 ma = new MyAdapter();
                 lv.setAdapter(ma);
@@ -235,9 +231,10 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
                     name = name + String.valueOf(i);
                     i++;
                 }
-               names.add(name);
+                names.add(name);
                phones.add(phoneNumber);
-               allContactsClicked.put(name,phoneNumber); // helps button selectall to
+                allContactsClicked.put(name,phoneNumber); // helps button selectall to
+
             }
         }
 
@@ -279,7 +276,6 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         MyAdapter()
         {
             mCheckStates = new SparseBooleanArray(names.size());
-            Log.i(TAG,"mcheckStates size: " + String.valueOf(names.size()));
             mInflater = (LayoutInflater)SelectSpecificContacts.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
         @Override
