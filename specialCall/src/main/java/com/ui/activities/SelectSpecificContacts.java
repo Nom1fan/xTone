@@ -227,7 +227,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
           String name= curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
           String phoneNumber = toValidPhoneNumber(curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
 
-           if (!phones.contains(phoneNumber) && (phoneNumber.length() == 10)) // so there won't be any phone duplicates
+           if (!phones.contains(phoneNumber) && (phoneNumber.length() == 10) && phoneNumber.startsWith("0") ) // so there won't be any phone duplicates
             {
                 int i = 0;
                 while (allContactsClicked.containsKey(name)) // for names that have more than one number
@@ -240,7 +240,34 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
                allContactsClicked.put(name,phoneNumber); // helps button selectall to
             }
         }
+
         curPhones.close();
+
+
+        String unkownName ="UKNOWN";
+        for (String phone : blockedSet)
+        {
+            if (!phones.contains(phone) && phone.startsWith("0"))
+            {
+
+
+                int i = 0;
+                while (allContactsClicked.containsKey(unkownName)) // for names that have more than one number
+                {
+                    unkownName = unkownName + String.valueOf(i);
+                    i++;
+                }
+
+                names.add(unkownName);
+                phones.add(phone);
+                allContactsClicked.put(unkownName, phone);
+                Log.i(TAG, " adding phone to black list: " + phone);
+            }
+        }
+
+
+
+
      }
 
     class MyAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener//,Filterable
@@ -252,6 +279,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         MyAdapter()
         {
             mCheckStates = new SparseBooleanArray(names.size());
+            Log.i(TAG,"mcheckStates size: " + String.valueOf(names.size()));
             mInflater = (LayoutInflater)SelectSpecificContacts.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
         @Override
@@ -273,12 +301,21 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         public View getView(final int position, View convertView, ViewGroup parent) {
             View vi = convertView;
             if (convertView == null)
-                vi = mInflater.inflate(R.layout.row, null);
+                vi = LayoutInflater.from(getApplicationContext()).inflate(R.layout.row, null);  // vi = mInflater.inflate(R.layout.row, null);
+
+
+
+
             tv = (TextView) vi.findViewById(R.id.textView1);
             tv1 = (TextView) vi.findViewById(R.id.textView2);
             cb = (CheckBox) vi.findViewById(R.id.checkBox);
+
+            if (names.get(position) !=null)
             tv.setText(names.get(position));
+
+            if (phones.get(position) !=null)
             tv1.setText(phones.get(position));
+
             cb.setTag(position);
             cb.setOnCheckedChangeListener(this);
 
@@ -286,9 +323,19 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
                 if (blockedSet.contains((phones.get(position)).toString())) {
                     cb.setChecked(true);
                     ma.notifyDataSetChanged();
+
                 } else
                 {
-                    cb.setChecked(mCheckStates.get(Integer.valueOf((phones.get(position))), false)); //mcheckstates key is the unique phone number and it defines wether it's checked or not. on the view
+
+                    try {
+                        if (phones.get(position) != null)
+                            cb.setChecked(mCheckStates.get(Integer.valueOf((phones.get(position))), false)); //mcheckstates key is the unique phone number and it defines wether it's checked or not. on the view
+                    }
+                    catch(Exception e){
+                        Log.e(TAG, "listview can't block OR show phone on listview: " + (phones.get(position)) + " " + names.get(position));
+
+                    }
+
                     ma.notifyDataSetChanged();
                 }
             }
@@ -316,8 +363,12 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
             String phoneInIndex = toValidPhoneNumber(phones.get((Integer) buttonView.getTag()).toString());
             String nameInIndex = names.get((Integer) buttonView.getTag()).toString();
 
-            mCheckStates.put(Integer.valueOf(phoneInIndex), isChecked);  //mcheckstates key is the unique phone number and it defines wether it's checked or not. on the view
+          try {
+              mCheckStates.put(Integer.valueOf(phoneInIndex), isChecked);  //mcheckstates key is the unique phone number and it defines wether it's checked or not. on the view
+          }   catch(Exception e){
+              Log.e(TAG, "listview can't select checkbox phone on listview: " + Integer.valueOf(phoneInIndex) + " " + nameInIndex);
 
+          }
             if (isChecked)  // so there won't be any phone duplicate
             {
                 if (blockedSet != null)

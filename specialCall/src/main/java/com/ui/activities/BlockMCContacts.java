@@ -158,6 +158,27 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
                 phones.add(phone);
             }
         }
+
+        String unkownName ="UKNOWN";
+        for (String phone : storedContacts)
+        {
+            if (!phones.contains(phone))
+            {
+                Log.i(TAG," adding phone to black list: " + phone);
+
+                int i = 0;
+                while (names.contains(unkownName)) // for names that have more than one number
+                {
+                    unkownName = unkownName + String.valueOf(i);
+                    i++;
+                }
+
+                names.add(unkownName);
+                phones.add(phone);
+            }
+        }
+
+
     }
 
     public  void getAllContacts(ContentResolver cr) {

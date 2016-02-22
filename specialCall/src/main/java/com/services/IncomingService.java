@@ -174,24 +174,27 @@ public class IncomingService extends AbstractStandOutService {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            int volumeDuringRun = (Integer)intent.getExtras().get("android.media.EXTRA_VOLUME_STREAM_VALUE");
+         if (!volumeChangeByMCButtons) {
+             int volumeDuringRun = (Integer) intent.getExtras().get("android.media.EXTRA_VOLUME_STREAM_VALUE");
 
-            Log.i(TAG, "BroadCastFlags: mAlreadyMuted: " + mAlreadyMuted + " mInRingingSession: " + mInRingingSession + " mBugFixPatchForReceiverRegister: " + mBugFixPatchForReceiverRegister);
-            if (!mAlreadyMuted && mInRingingSession && (volumeDuringRun!=0) &&(volumeDuringRun!=1) && !mBugFixPatchForReceiverRegister/*&& !mVolumeChangeByService*/)
-            {
-                try {
-                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
-                    mAlreadyMuted =true;
-                    Log.i(TAG, "MUTE STREAM_MUSIC ");
-                } catch(Exception e) {
-                    e.printStackTrace();
-                }
-            }
+             Log.i(TAG, "BroadCastFlags: mAlreadyMuted: " + mAlreadyMuted + " mInRingingSession: " + mInRingingSession + " mBugFixPatchForReceiverRegister: " + mBugFixPatchForReceiverRegister);
+             if (!mAlreadyMuted && mInRingingSession && (volumeDuringRun != 0) && (volumeDuringRun != 1) && !mBugFixPatchForReceiverRegister/*&& !mVolumeChangeByService*/) {
+                 try {
+                     mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                     mAlreadyMuted = true;
+                     Log.i(TAG, "MUTE STREAM_MUSIC ");
+                 } catch (Exception e) {
+                     e.printStackTrace();
+                 }
+             }
 
-            if(mVolumeChangeByService)
-                mVolumeChangeByService =false;
+             if (mVolumeChangeByService)
+                 mVolumeChangeByService = false;
 
-            Log.i(TAG, "Exited BroadCast mOldMediaVolume: " + mRingVolume + " volumeDuringRun: " + volumeDuringRun);
+             Log.i(TAG, "Exited BroadCast mOldMediaVolume: " + mRingVolume + " volumeDuringRun: " + volumeDuringRun);
+         }
+            else
+             volumeChangeByMCButtons = false;
         }
     };
 
@@ -199,6 +202,7 @@ public class IncomingService extends AbstractStandOutService {
 
     protected synchronized void syncOnCallStateChange(int state, String incomingNumber) {
 
+        mIncomingOutgoingNumber = incomingNumber;
      // CHECK IF NUMBER BLOCKED OR NOT FOR MC
     if(!checkIfNumberIsMCBlocked(incomingNumber))
         switch(state)

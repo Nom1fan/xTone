@@ -66,7 +66,10 @@ public class PushService extends IntentService {
                     td = gson.fromJson(jsonData, TransferDetails.class);
 
                   if(checkIfNumberIsMCBlocked(td.getSourceId())) //don't download if the number is blocked , just break and don't continue with the download flow
-                        break;
+                  {
+                      Log.i(TAG,"NUMBER BLOCKED For DOWNLOAD: " + td.getSourceId());
+                      break;
+                  }
 
                     Intent i = new Intent(_context.getApplicationContext(), StorageServerProxyService.class);
                     i.setAction(StorageServerProxyService.ACTION_DOWNLOAD);
