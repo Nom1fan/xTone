@@ -12,6 +12,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.Contacts;
+import android.provider.ContactsContract;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -22,13 +23,19 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.special.app.R;
 import com.utils.BitmapUtils;
+import com.utils.SharedPrefUtils;
 import com.utils.ContactsUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
@@ -47,7 +54,12 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected int mHeight;
     protected TextView mSpecialCallTextView;
     protected ImageView mSpecialCallCloseBtn;
+    protected ImageView mSpecialCallMuteBtn;
+    protected ImageView mSpecialCallVolumeUpBtn;
+    protected ImageView mSpecialCallVolumeDownBtn;
+    protected ImageView mSpecialCallBlockBtn;
     protected RelativeLayout mRelativeLayout;
+    protected boolean isMuted=false;
     protected boolean mInRingingSession = false;
     protected MediaPlayer mMediaPlayer;
     protected boolean windowCloseActionWasMade = true;
@@ -56,7 +68,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected AudioManager mAudioManager;
     protected CallStateListener mPhoneListener;
     protected OnVideoPreparedListener mVideoPreparedListener;
-
+    protected boolean volumeChangeByMCButtons = false;
+    protected int  mVolumeBeforeMute = 0;
+    protected String mIncomingOutgoingNumber="";
 
     public AbstractStandOutService(String TAG) {
         this.TAG = TAG;
@@ -88,6 +102,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     public void onDestroy() {
         super.onDestroy();
         Log.e(TAG, "Service onDestroy");
+
+        if (mAudioManager!=null)
+        {mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC,false);  // TODO Rony : Replace Deprecated !! Check All places
+        mAudioManager.setStreamMute(AudioManager.STREAM_RING,false);}  // TODO Rony : Replace Deprecated !! Check All places
     }
 
     @Override
@@ -112,6 +130,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         Log.i(TAG, "In createAndAttachView()");
         frame.addView(mRelativeLayout);
+        // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
         frame.setBackgroundColor(Color.BLACK);
         windowCloseActionWasMade = false;
     }
@@ -304,6 +323,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         prepareRelativeLayout();
         prepareCallNumberTextView(callNumber);
         prepareCloseBtn();
+        prepareMuteBtn();
+        prepareVolumeBtn();
+        prepareBlockButton();
 
         mSpecialCallView = new ImageView(this);
         mSpecialCallView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
@@ -312,12 +334,17 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         ((ImageView) mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_CENTER); // <<  just place the image Center of Window and fit it with ratio
 
 
-         ((ImageView) mSpecialCallView).setImageResource(R.drawable.color_mc);
+        ((ImageView) mSpecialCallView).setImageResource(R.drawable.color_mc);
+
 
 
         mRelativeLayout.addView(mSpecialCallView);
         mRelativeLayout.addView(mSpecialCallTextView);
         mRelativeLayout.addView(mSpecialCallCloseBtn);
+        mRelativeLayout.addView(mSpecialCallMuteBtn);
+        mRelativeLayout.addView(mSpecialCallVolumeDownBtn);
+        mRelativeLayout.addView(mSpecialCallVolumeUpBtn);
+        mRelativeLayout.addView(mSpecialCallBlockBtn);
     }
 
     protected void prepareViewForSpecialCall(FileManager.FileType fileType , String mediaFilePath, String callNumber) {
@@ -329,6 +356,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         prepareRelativeLayout();
         prepareCallNumberTextView(callNumber);
         prepareCloseBtn();
+        prepareMuteBtn();
+        prepareVolumeBtn();
+        prepareBlockButton();
 
         // Displaying image during call
         if (fileType == FileManager.FileType.IMAGE) {
@@ -346,6 +376,157 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mRelativeLayout.addView(mSpecialCallView);
         mRelativeLayout.addView(mSpecialCallTextView);
         mRelativeLayout.addView(mSpecialCallCloseBtn);
+        mRelativeLayout.addView(mSpecialCallMuteBtn);
+        mRelativeLayout.addView(mSpecialCallVolumeDownBtn);
+        mRelativeLayout.addView(mSpecialCallVolumeUpBtn);
+        mRelativeLayout.addView(mSpecialCallBlockBtn);
+
+    }
+
+    private void prepareMuteBtn()
+    {
+        Log.i(TAG, "Preparing Mute Button");
+
+        //ImageView for Closing Special Incoming Call
+        mSpecialCallMuteBtn = new ImageView(this);
+        RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        lp1.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        lp1.addRule(RelativeLayout.ALIGN_BOTTOM);
+        lp1.addRule(RelativeLayout.ALIGN_RIGHT);
+        lp1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        mSpecialCallMuteBtn.setImageResource(R.drawable.unmute);  //TODO : setImageResource need to be replaced ? memory issue ?
+        mSpecialCallMuteBtn.setBackgroundColor(Color.WHITE);
+        mSpecialCallMuteBtn.setLayoutParams(lp1); // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
+        mSpecialCallMuteBtn.setClickable(true);
+        mSpecialCallMuteBtn.bringToFront();
+        mSpecialCallMuteBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (isMuted) {  // in versions of KITKAT and lower , we start in muted mode on the music stream , because we don't know when answering happens and we should stop it.
+                    volumeChangeByMCButtons = true;
+
+                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false); // TODO Rony : Replace Deprecated !! Check All places
+                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
+                    isMuted = false;
+                    mSpecialCallMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
+                    mSpecialCallMuteBtn.bringToFront();
+                    Log.i(TAG, "UNMUTE by button");
+                } else {
+
+                    volumeChangeByMCButtons = true;
+                    mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true); // TODO Rony : Replace Deprecated !! Check All places
+                    isMuted = true;
+                    mSpecialCallMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
+                    mSpecialCallMuteBtn.bringToFront();
+                    Log.i(TAG, "MUTE by button");
+                }
+            }
+        });
+    }
+
+    private void prepareVolumeBtn()
+    {
+        Log.i(TAG, "Preparing Volume Button");
+
+        //ImageView for Closing Special Incoming Call
+        mSpecialCallVolumeDownBtn = new ImageView(this);
+        RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        lp1.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        lp1.addRule(RelativeLayout.ALIGN_BOTTOM);
+        lp1.addRule(RelativeLayout.ALIGN_RIGHT);
+        lp1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        lp1.addRule(RelativeLayout.ALIGN_TOP,mSpecialCallMuteBtn.getId());
+       // Log.i(TAG, " mSpecialCallMuteBtn.getHeight() : " + String.valueOf(mSpecialCallMuteBtn.getHeight()));
+        lp1.setMargins(0,0,0,200); // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
+        mSpecialCallVolumeDownBtn.setImageResource(R.drawable.minusvol);  //TODO : setImageResource need to be replaced ? memory issue ?
+        mSpecialCallVolumeDownBtn.setBackgroundColor(Color.WHITE);
+        mSpecialCallVolumeDownBtn.setLayoutParams(lp1);
+        mSpecialCallVolumeDownBtn.setClickable(true);
+        mSpecialCallVolumeDownBtn.bringToFront();
+        mSpecialCallVolumeDownBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                volumeChangeByMCButtons = true;
+                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) - 1 ,0); // decrease volume
+
+            }
+        });
+
+
+        //ImageView for Closing Special Incoming Call
+        mSpecialCallVolumeUpBtn = new ImageView(this);
+        RelativeLayout.LayoutParams lp2 = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        lp2.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        lp2.addRule(RelativeLayout.ALIGN_BOTTOM);
+        lp2.addRule(RelativeLayout.ALIGN_RIGHT);
+        lp2.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+       // Log.i(TAG, " mSpecialCallVolumeDownBtn.getHeight() : " + String.valueOf(mSpecialCallVolumeDownBtn.getMaxHeight()));
+        lp2.setMargins(0,0,0,400); // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
+        lp2.addRule(RelativeLayout.ALIGN_TOP,mSpecialCallVolumeDownBtn.getId());
+        mSpecialCallVolumeUpBtn.setImageResource(R.drawable.plus);//TODO : setImageResource need to be replaced ? memory issue ?
+        mSpecialCallVolumeUpBtn.setBackgroundColor(Color.WHITE);
+        mSpecialCallVolumeUpBtn.setLayoutParams(lp2);
+        mSpecialCallVolumeUpBtn.setClickable(true);
+        mSpecialCallVolumeUpBtn.bringToFront();
+        mSpecialCallVolumeUpBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                volumeChangeByMCButtons = true;
+                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) + 1 ,0); // increase volume
+
+            }
+        });
+
+
+
+    }
+
+    private void prepareBlockButton()
+    {
+        Log.i(TAG, "Preparing Mute Button");
+
+        //ImageView for Closing Special Incoming Call
+        mSpecialCallBlockBtn = new ImageView(this);
+        RelativeLayout.LayoutParams lp2 = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        lp2.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        lp2.addRule(RelativeLayout.ALIGN_BOTTOM);
+        lp2.addRule(RelativeLayout.ALIGN_RIGHT);
+        lp2.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        // Log.i(TAG, " mSpecialCallVolumeDownBtn.getHeight() : " + String.valueOf(mSpecialCallVolumeDownBtn.getMaxHeight()));
+        lp2.setMargins(0,0,0,600);  // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
+        lp2.addRule(RelativeLayout.ALIGN_TOP,mSpecialCallVolumeUpBtn.getId());
+        mSpecialCallBlockBtn.setImageResource(R.drawable.blocked_mc);//TODO : setImageResource need to be replaced ? memory issue ?
+        mSpecialCallBlockBtn.setBackgroundColor(Color.WHITE);
+        mSpecialCallBlockBtn.setLayoutParams(lp2);
+        mSpecialCallBlockBtn.setClickable(true);
+        mSpecialCallBlockBtn.bringToFront();
+        mSpecialCallBlockBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                Set<String> blockedNumbers = new HashSet<String>();
+                // TODO Rony Add method to GET the block_list from MCblockutils
+                blockedNumbers = SharedPrefUtils.getStringSet(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
+                blockedNumbers.add(toValidPhoneNumber(mIncomingOutgoingNumber)); // TODO Rony use Phone Number Utils
+
+                // TODO Rony Add method to SET the block_list from MCblockutils
+                SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, blockedNumbers);
+
+                // TODO Rony Show Toast from UIUtils
+                Toast.makeText(AbstractStandOutService.this,mIncomingOutgoingNumber +" Is Now MC BLOCKED !!! ", Toast.LENGTH_SHORT).show();
+
+                closeSpecialCallWindowWithoutRingtone();
+            }
+        });
+
+
+
     }
 
     protected void startMediaSpecialCall(String mediaFilePath, String callNumber) {
@@ -366,7 +547,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     FileMissingExtensionException e) {
                 e.printStackTrace();
             }
-        }else if (attachDefaultView){
+        }else if (attachDefaultView){ // // TODO: 19/02/2016  Rony Remove Default View for the first feew months :)
 
                 prepareDefaultViewForSpecialCall(callNumber);
 
@@ -435,5 +616,78 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             Log.e(TAG, "Failed to Stop sound. Exception:" + e.getMessage());
         }
     }
+
+    private String toValidPhoneNumber(String str) { // TODO Rony use from PhoneNumbers Utils
+
+        str = str.replaceAll("[^0-9]","");
+
+        if (str.startsWith("9720")){
+            str= str.replaceFirst("9720","0");
+        }
+        if (str.startsWith("972")){
+            str= str.replaceFirst("972","0");
+        }
+
+
+        return str;
+    }
+
+    protected boolean checkIfNumberIsMCBlocked(String incomingNumber) { // TODO Rony move it to MCBlockListUtils or whatever
+        Log.i(TAG, "check if number blocked: " + incomingNumber);
+        //MC Permissions: ALL , Only contacts , Specific Black List Contacts
+        String permissionLevel = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
+
+        if (permissionLevel.isEmpty())
+        {
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, "ALL");
+        }
+        else
+        {
+            switch (permissionLevel) {
+
+                case "ALL":
+                    return false;
+
+                case "CONTACTS":
+
+                    // GET ALL CONTACTS
+                    List<String> contactPhonenumbers = new ArrayList<String>(); // TODO Rony use the contactsUtils Method
+                    Cursor curPhones = this.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+                    assert curPhones != null;
+                    while (curPhones.moveToNext())
+                    {
+                        String phoneNumber = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        contactPhonenumbers.add(phoneNumber.replaceAll("\\D+", "")); // TODO Rony Use PhoneNumberUtils to ValidPhoneNumber
+                    }
+                    curPhones.close();
+
+                    if(contactPhonenumbers.contains(incomingNumber.replaceAll("\\D+", ""))) // TODO Rony Use PhoneNumberUtils to ValidPhoneNumber
+                        return false;
+                    else
+                        return true;
+
+
+                case "black_list":
+
+                    Set<String> blockedSet = SharedPrefUtils.getStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+                    if (!blockedSet.isEmpty()) {
+                        incomingNumber = incomingNumber.replaceAll("\\D+", ""); // TODO Rony Use PhoneNumberUtils to ValidPhoneNumber
+
+                        if (blockedSet.contains(incomingNumber)) {
+                            Log.i(TAG, "NUMBER MC BLOCKED: " + incomingNumber);
+                            return true;
+                        }
+                    }
+                    else {
+                        Log.w(TAG, "BlackList empty allowing phone number: " + incomingNumber);
+                        return false;
+                    }
+            }
+        }
+        return false;
+    }
+
+
+
     //endregion
 }

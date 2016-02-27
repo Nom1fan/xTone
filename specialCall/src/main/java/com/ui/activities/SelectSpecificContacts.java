@@ -1,18 +1,21 @@
 package com.ui.activities;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -22,87 +25,272 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.special.app.R;
+import com.utils.SharedPrefUtils;
 
-public class SelectSpecificContacts extends Activity implements OnItemClickListener {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
-    List<String> names = new ArrayList<>();
-    List<String> phones = new ArrayList<>();
-    MyAdapter ma;
-    Button select;
+public class SelectSpecificContacts extends AppCompatActivity implements OnItemClickListener {
+
+    private static final String TAG = SelectSpecificContacts.class.getSimpleName();
+    private List<String> _namesInListView = new ArrayList<String>(); // the list that the adapter uses to populate the view
+    private List<String> _phonesInListView = new ArrayList<String>(); // the list that the adapter uses to populate the view
+    private BlackListAdapter _ma;
+    private ListView _lv;
+    private Set<String> _blockedSet = new HashSet<String>();
+    private HashMap<String, String> _allContacts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_spec_contacts);
+        Log.i(TAG, "onCreate");
 
-        getAllContacts(this.getContentResolver());
-        ListView lv = (ListView) findViewById(R.id.lv);
-        ma = new MyAdapter();
-        lv.setAdapter(ma);
-        lv.setOnItemClickListener(this);
-        lv.setItemsCanFocus(false);
-        lv.setTextFilterEnabled(true);
-        // adding
-        select = (Button) findViewById(R.id.button1);
 
-        select.setOnClickListener(new OnClickListener() {
+        prepareListViewData();
+        prepareListView();
+        displayListViewWithNewData();
 
+        prepareSelectAllButton();
+        prepareUnSelectAllButton();
+        prepareBackButton();
+    }
+
+    private void prepareBackButton() {
+        Button back = (Button) findViewById(R.id.back);
+        back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                StringBuilder checkedcontacts = new StringBuilder();
+                Log.i(TAG, "Back Button Pressed");
+                returnWithResultIntent();
+                finish();
+            }
+        });
+    }
 
-                for (int i = 0; i < names.size(); i++)
+    private void prepareSelectAllButton() {
+        Button selectall = (Button) findViewById(R.id.selectall);
+        selectall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (int i = 0; i < _phonesInListView.size(); i++) {
+                    _ma.setChecked(i, true);
+                    _lv.setItemChecked(i, true);
+                }
+                saveBlockedContacts(_allContacts); // Save All contacts to sharedPref
+                _ma.notifyDataSetChanged();
+            }
+        });
+    }
 
-                    if (ma.mCheckStates.get(i)) {
-                        checkedcontacts.append(names.get(i));
-                        checkedcontacts.append("\n");
+    private void prepareUnSelectAllButton() {
 
-                    } else {
+        Button unselectall = (Button) findViewById(R.id.unselect);
+        unselectall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-                    }
+                for (int i = 0; i < _phonesInListView.size(); i++) {
+                    _ma.setChecked(i, false);
+                    _lv.setItemChecked(i, false);
+                }
 
-                Toast.makeText(SelectSpecificContacts.this, checkedcontacts, 1000).show();
+                displayListViewWithNewData();
+                _ma.notifyDataSetChanged();
+
+                _blockedSet = new HashSet<>();
+                SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+                SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, _blockedSet); // clean sharedpref as no one is selected
+
             }
         });
 
 
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        ma.toggle(arg2);
+    private void prepareListViewData() {
+        _blockedSet = SharedPrefUtils.getStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+        populateContactsToDisplayFromBlockedList(this.getContentResolver()); // populate all contacts to view with checkboxes
     }
 
-    public void getAllContacts(ContentResolver cr) {
+    private void displayListViewWithNewData() {
+        _ma = new BlackListAdapter();
+        _lv.setAdapter(_ma);  // link the listview with the adapter
+    }
 
-        Cursor curPhones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-        while (curPhones.moveToNext()) {
-            String name = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            String phoneNumber = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            names.add(name);
-            phones.add(phoneNumber);
+    private void prepareListView() {
+        _lv = (ListView) findViewById(R.id.lv);
+        _lv.setOnItemClickListener(this);
+        _lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        _lv.setItemsCanFocus(false);
+        _lv.setTextFilterEnabled(true);
+    }
+
+    // Search to get to the location of the contact
+    private SearchView.OnQueryTextListener onQueryTextListener() {
+        return new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                int position = 0;
+                while (position < _namesInListView.size() - 1) {
+                    if (_namesInListView.get(position).toUpperCase().contains(s.toUpperCase())) {
+                        _lv.smoothScrollToPositionFromTop(position, 0, 200);
+                        break;
+                    } else {
+                        position++;
+                    }
+                }
+
+                return false;
+            }
+        };
+    }
+
+    @Override // add search functionality
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        // Inflate menu to add items to action bar if it is present.
+        inflater.inflate(R.menu.select_contact_menu, menu);
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setOnQueryTextListener(onQueryTextListener());
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        return true;
+    }
+
+    @Override
+    protected void onPause() {
+        Log.i(TAG, "onPause");
+        returnWithResultIntent();
+        super.onPause();
+    }
+
+    private void returnWithResultIntent() {
+        Intent returnIntent = new Intent();
+
+        if (getParent() == null) {
+            setResult(Activity.RESULT_OK, returnIntent);
+        } else {
+            getParent().setResult(Activity.RESULT_OK, returnIntent);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.i(TAG, "onBackPressed");
+        returnWithResultIntent();
+        super.onBackPressed();
+    }
+
+    private String toValidPhoneNumber(String str) {
+
+        str = str.replaceAll("[^0-9]", "");
+
+        if (str.startsWith("972")) {
+            str = str.replaceFirst("972", "0");
+        }
+        if (str.startsWith("9720")) {
+            str = str.replaceFirst("9720", "0");
         }
 
-        curPhones.close();
+        return str;
+    } // TODO use phone number utils
+
+    // saving black listed contacts to SharedPref
+    private void saveBlockedContacts(HashMap<String, String> contactsMap) {
+        Iterator contactIterator = contactsMap.keySet().iterator();
+        _blockedSet = new HashSet<>();
+        while (contactIterator.hasNext()) {
+            String name = (String) contactIterator.next();
+            String phoneNumber = contactsMap.get(name);
+            // ADDING  To Black List is SharedPreferences
+            if (!_blockedSet.contains(phoneNumber) && (phoneNumber.length() == 10)) // TODO isvalidphone in phonenumberUtils
+            {
+                _blockedSet.add(phoneNumber);
+            }
+        }
+        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+        SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, _blockedSet);
     }
 
-    class MyAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener {
+    @Override
+    public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+        _ma.toggle(arg2);
+    }
+
+    public void populateContactsToDisplayFromBlockedList(ContentResolver cr) {
+        _allContacts = new HashMap<String, String>();
+        Cursor allContactsPhone = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+
+        // Handling PhoneNumbers In Native Contacts
+        assert allContactsPhone != null;
+        while (allContactsPhone.moveToNext()) {
+            String name = allContactsPhone.getString(allContactsPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            String phoneNumber = toValidPhoneNumber(allContactsPhone.getString(allContactsPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+
+            if (!_phonesInListView.contains(phoneNumber) && (phoneNumber.length() == 10) && phoneNumber.startsWith("0")) // so there won't be any phone duplicates
+            {
+                int i = 0;
+                while (_allContacts.containsKey(name)) // for namesInListView that have more than one number
+                {
+                    name = name + String.valueOf(i);
+                    i++;
+                }
+                _namesInListView.add(name);
+                _phonesInListView.add(phoneNumber);
+                _allContacts.put(name, phoneNumber); // helps button selectall to
+            }
+        }
+        allContactsPhone.close();
+
+        // Handling Numbers That Are Not stored in Native Contacts
+        String unkownName = "UNKNOWN";
+        for (String phone : _blockedSet) {
+            if (!_phonesInListView.contains(phone) && phone.startsWith("0")) // TODO  use phonenumberUtils.isValidPhoneNumber
+            {
+                int i = 0;
+                while (_allContacts.containsKey(unkownName)) // for namesInListView that have more than one number
+                {
+                    unkownName = unkownName + String.valueOf(i);
+                    i++;
+                }
+
+                _namesInListView.add(unkownName);
+                _phonesInListView.add(phone);
+                _allContacts.put(unkownName, phone);
+                Log.i(TAG, " adding phone to black list: " + phone);
+            }
+        }
+    }
+
+    class BlackListAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener//,Filterable
+    {
+        private SparseBooleanArray mCheckStates;
         LayoutInflater mInflater;
         TextView tv1, tv;
         CheckBox cb;
-        private SparseBooleanArray mCheckStates;
 
-        MyAdapter() {
-            mCheckStates = new SparseBooleanArray(names.size());
+        BlackListAdapter() {
+            mCheckStates = new SparseBooleanArray(_namesInListView.size());
             mInflater = (LayoutInflater) SelectSpecificContacts.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         @Override
         public int getCount() {
-            return names.size();
+            return _namesInListView.size();
         }
 
         @Override
@@ -112,23 +300,47 @@ public class SelectSpecificContacts extends Activity implements OnItemClickListe
 
         @Override
         public long getItemId(int position) {
-
             return 0;
         }
 
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             View vi = convertView;
-            if (convertView == null)
-                vi = mInflater.inflate(R.layout.row, null);
+            if (vi == null)
+                vi = LayoutInflater.from(getApplicationContext()).inflate(R.layout.row, null);  // vi = mInflater.inflate(R.layout.row, null);
+
             tv = (TextView) vi.findViewById(R.id.textView1);
             tv1 = (TextView) vi.findViewById(R.id.textView2);
-            cb = (CheckBox) vi.findViewById(R.id.checkBox1);
-            tv.setText("Name :" + names.get(position));
-            tv1.setText("Phone No :" + phones.get(position));
+            cb = (CheckBox) vi.findViewById(R.id.checkBox);
+
+            if (_namesInListView.get(position) != null)
+                tv.setText(_namesInListView.get(position));
+
+            if (_phonesInListView.get(position) != null)
+                tv1.setText(_phonesInListView.get(position));
+
             cb.setTag(position);
-            cb.setChecked(mCheckStates.get(position, false));
             cb.setOnCheckedChangeListener(this);
+
+            if (_blockedSet != null) {
+                if (_blockedSet.contains((_phonesInListView.get(position)))) {
+                    cb.setChecked(true);
+                    _ma.notifyDataSetChanged();
+
+                } else {
+
+                    try {
+                        if (_phonesInListView.get(position) != null)
+                            cb.setChecked(mCheckStates.get(Integer.valueOf((_phonesInListView.get(position))), false)); //mcheckstates key is the unique phone number and it defines wether it's checked or not. on the view
+                    } catch (Exception e) {
+                        Log.e(TAG, "listview can't block OR show phone on listview: " + (_phonesInListView.get(position)) + " " + _namesInListView.get(position));
+
+                    }
+
+                    _ma.notifyDataSetChanged();
+                }
+            }
+
 
             return vi;
         }
@@ -149,7 +361,33 @@ public class SelectSpecificContacts extends Activity implements OnItemClickListe
         public void onCheckedChanged(CompoundButton buttonView,
                                      boolean isChecked) {
 
-            mCheckStates.put((Integer) buttonView.getTag(), isChecked);
+            String phoneInIndex = toValidPhoneNumber(_phonesInListView.get((Integer) buttonView.getTag())); //TODO : Use PhoneNumberUtils.toValidPhoneNumber()
+            String nameInIndex = _namesInListView.get((Integer) buttonView.getTag());
+
+            try {
+                mCheckStates.put(Integer.valueOf(phoneInIndex), isChecked);  //mcheckstates key is the unique phone number and it defines wether it's checked or not. on the view
+            } catch (Exception e) {
+                Log.e(TAG, "listview can't select checkbox phone on listview: " + Integer.valueOf(phoneInIndex) + " " + nameInIndex);
+
+            }
+            if (isChecked)  // so there won't be any phone duplicate
+            {
+                if (_blockedSet != null) {
+                    _blockedSet.add(phoneInIndex);
+                    SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+                    SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, _blockedSet); // clean sharedpref as no one is selected
+                }
+            } else {  // if unchecked remove from the black list in the sharedpref
+
+                if (_blockedSet != null)
+                    if (_blockedSet.contains(phoneInIndex)) {
+                        _blockedSet.remove(phoneInIndex);
+                        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+                        SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, _blockedSet); // clean sharedpref as no one is selected
+                    }
+
+            }
         }
+
     }
 }

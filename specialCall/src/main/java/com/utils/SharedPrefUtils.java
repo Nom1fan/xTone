@@ -2,18 +2,22 @@ package com.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class SharedPrefUtils {
 
-    //region Shared prefs names
-    public static final String GENERAL = "General";
-    public static final String SERVER_PROXY = "AbstractServerProxy";
-    public static final String UPLOADED_CALLER_MEDIA_THUMBNAIL = "UploadedCallerMediaThumbnail";
-    public static final String UPLOADED_RINGTONE_PATH = "UploadedRingTonePath";
-    public static final String UPLOADED_PROFILE_MEDIA_THUMBNAIL = "UploadedProfileMediaThumbnail";
-    public static final String UPLOADED_FUNTONE_PATH = "UploadedFunTonePath";
-    public static final String CALLER_MEDIA_FILEPATH = "CallerMediaFilePath";
-    public static final String RINGTONE_FILEPATH = "RingToneFilePath";
+	//region Shared prefs names
+	public static final String GENERAL = "General";
+	public static final String SETTINGS = "Settings";
+	public static final String RADIO_BUTTON_SETTINGS = "RadioButtonsSettings";
+	public static final String SERVER_PROXY = "AbstractServerProxy";
+	public static final String UPLOADED_CALLER_MEDIA_THUMBNAIL = "UploadedCallerMediaThumbnail";
+	public static final String UPLOADED_RINGTONE_PATH ="UploadedRingTonePath";
+	public static final String UPLOADED_PROFILE_MEDIA_THUMBNAIL = "UploadedProfileMediaThumbnail";
+	public static final String UPLOADED_FUNTONE_PATH = "UploadedFunTonePath";
+	public static final String CALLER_MEDIA_FILEPATH = "CallerMediaFilePath";
+	public static final String RINGTONE_FILEPATH = "RingToneFilePath";
     public static final String PROFILE_MEDIA_FILEPATH = "ProfileMediaFilePath";
     public static final String FUNTONE_FILEPATH = "FunToneFilePath";
     //endregion
@@ -35,6 +39,9 @@ public abstract class SharedPrefUtils {
     //endregion
 
 
+	/* shared pref keys under SETTINGS */
+	public static final String WHO_CAN_MC_ME = "WhoCanMCMe";
+	public static final String BLOCK_LIST = "BlockList";
     //region Shared prefs action methods
     //region Getters
     public static int getInt(Context context, String prefsName, String key) {
@@ -55,6 +62,21 @@ public abstract class SharedPrefUtils {
     public static String getString(Context context, String prefsName, String key) {
         SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         return prefs.getString(key, "");
+    }
+
+    public static void setStringSet(Context context, String prefsName, String key, Set<String> value){
+        SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
+		SharedPreferences.Editor edit = prefs.edit();
+		edit.clear();
+		edit.putStringSet(key, value);
+		edit.commit();
+    }
+
+    public static Set<String> getStringSet(Context context, String prefsName, String key){
+        SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
+        Set<String> value = new HashSet<String>();
+        value =  prefs.getStringSet(key, new HashSet<String>());
+        return  value;
     }
 
     public static Boolean getBoolean(Context context, String prefsName, String key) {

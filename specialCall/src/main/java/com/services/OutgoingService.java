@@ -14,6 +14,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+//import android.telephony.PreciseCallState;
+import android.telephony.PhoneStateListener.*;
 
 import com.special.app.R;
 import com.utils.SharedPrefUtils;
@@ -22,7 +24,7 @@ import java.io.File;
 import java.io.IOException;
 
 import FilesManager.FileManager;
-import wei.mark.standout.StandOutWindow;
+
 
 /**
  * Created by Mor on 08/01/2016.
@@ -31,11 +33,9 @@ public class OutgoingService extends AbstractStandOutService {
 
     private OutgoingCallReceiver mOutgoingCallReceiver;
     private static int TIME_TO_SLEEP_AVOIDING_BUGGY_STATE_IDLE = 1000;
-    private  boolean isMuted=false;
+
     private  boolean funtoneFileExists=false;
-    protected ImageView mSpecialCallMuteBtn;
-    protected ImageView mSpecialCallVolumeUpBtn;
-    protected ImageView mSpecialCallVolumeDownBtn;
+
     private int mOldMediaVolume;
 
     public OutgoingService() {
@@ -83,6 +83,10 @@ public class OutgoingService extends AbstractStandOutService {
     @Override
     protected void syncOnCallStateChange(int state, String incomingNumber) {
 
+
+
+      // CHECK IF NUMBER BLOCKED OR NOT FOR MC
+     if(!checkIfNumberIsMCBlocked(incomingNumber))
         switch(state)
         {
             case TelephonyManager.CALL_STATE_IDLE:
@@ -100,7 +104,7 @@ public class OutgoingService extends AbstractStandOutService {
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-                            mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);  //unmute Music stream no matter what
+                            mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);  //unmute Music stream no matter what // TODO Rony : Replace Deprecated !! Check All places
 
                             try {
                                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,mOldMediaVolume,0); // return music volume to the old one
@@ -131,8 +135,12 @@ public class OutgoingService extends AbstractStandOutService {
             if (intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
                 String mOutgoingCallNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
 
+                mIncomingOutgoingNumber = mOutgoingCallNumber;
                 Log.i(TAG, "In ACTION_NEW_OUTGOING_CALL. mOutgoingCallNumber:"+ mOutgoingCallNumber);
                 Log.i(TAG, "mInRingingSession="+mInRingingSession +  " mOutgoingCallNumber="+ mOutgoingCallNumber);
+
+                // CHECK IF NUMBER BLOCKED OR NOT FOR MC
+                if(!checkIfNumberIsMCBlocked(mOutgoingCallNumber))
                 if (!mInRingingSession && mOutgoingCallNumber !=null)
                 {
 
@@ -199,138 +207,37 @@ public class OutgoingService extends AbstractStandOutService {
         }
     }
 
+
+
     @Override
     protected void prepareViewForSpecialCall(FileManager.FileType fileType , String mediaFilePath, String callNumber) {
         super.prepareViewForSpecialCall(fileType, mediaFilePath, callNumber);
         if (funtoneFileExists || ((fileType == FileManager.FileType.VIDEO))) {  // in case only an image without funtone, so there is no need for the mute button , but video should have it
-            prepareMuteBtn();
-            prepareVolumeBtn();
-            mRelativeLayout.addView(mSpecialCallMuteBtn);
-            mRelativeLayout.addView(mSpecialCallVolumeDownBtn);
-            mRelativeLayout.addView(mSpecialCallVolumeUpBtn);
 
             if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
-                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true); // TODO Rony : Replace Deprecated !! Check All places
                 isMuted = true;
-                mSpecialCallMuteBtn.setImageResource(R.drawable.mute);
+                mSpecialCallMuteBtn.setImageResource(R.drawable.mute);  // TODO : setImageResource need to be replaced ? memory issue ?
                 mSpecialCallMuteBtn.bringToFront();
             }
         }
     }
 
-    @Override
+    @Override  // DEFAULT VIEW
     protected void prepareDefaultViewForSpecialCall(String callNumber) {
         super.prepareDefaultViewForSpecialCall(callNumber);
 
         if (funtoneFileExists) {  // in case only an image without funtone, so there is no need for the mute button
-            prepareMuteBtn();
-            prepareVolumeBtn();
-            mRelativeLayout.addView(mSpecialCallMuteBtn);
-            mRelativeLayout.addView(mSpecialCallVolumeDownBtn);
-            mRelativeLayout.addView(mSpecialCallVolumeUpBtn);
+
             if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
-                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true); // TODO Rony : Replace Deprecated !! Check All places
                 isMuted = true;
-                mSpecialCallMuteBtn.setImageResource(R.drawable.mute);
+                mSpecialCallMuteBtn.setImageResource(R.drawable.mute);  //TODO : setImageResource need to be replaced ? memory issue ?
                 mSpecialCallMuteBtn.bringToFront();
             }
         }
-    }
-
-    private void prepareMuteBtn()
-    {
-        Log.i(TAG, "Preparing Mute Button");
-
-        //ImageView for Closing Special Incoming Call
-        mSpecialCallMuteBtn = new ImageView(this);
-        RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-        lp1.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        lp1.addRule(RelativeLayout.ALIGN_BOTTOM);
-        lp1.addRule(RelativeLayout.ALIGN_RIGHT);
-        lp1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        mSpecialCallMuteBtn.setImageResource(R.drawable.unmute);
-        mSpecialCallMuteBtn.setBackgroundColor(Color.WHITE);
-        mSpecialCallMuteBtn.setLayoutParams(lp1);
-        mSpecialCallMuteBtn.setClickable(true);
-        mSpecialCallMuteBtn.bringToFront();
-        mSpecialCallMuteBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (isMuted) {
-                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
-                    isMuted = false;
-                    mSpecialCallMuteBtn.setImageResource(R.drawable.unmute);
-                    mSpecialCallMuteBtn.bringToFront();
-                    Log.i(TAG, "UNMUTE by button");
-                } else {
-                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
-                    isMuted = true;
-                    mSpecialCallMuteBtn.setImageResource(R.drawable.mute);
-                    mSpecialCallMuteBtn.bringToFront();
-                    Log.i(TAG, "MUTE by button");
-                }
-            }
-        });
-    }
-
-    private void prepareVolumeBtn()
-    {
-        Log.i(TAG, "Preparing Mute Button");
-
-        //ImageView for Closing Special Incoming Call
-        mSpecialCallVolumeDownBtn = new ImageView(this);
-        RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-        lp1.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        lp1.addRule(RelativeLayout.ALIGN_BOTTOM);
-        lp1.addRule(RelativeLayout.ALIGN_RIGHT);
-        lp1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        lp1.setMargins(0,0,0,200);
-        mSpecialCallVolumeDownBtn.setImageResource(R.drawable.minusvol);
-        mSpecialCallVolumeDownBtn.setBackgroundColor(Color.WHITE);
-        mSpecialCallVolumeDownBtn.setLayoutParams(lp1);
-        mSpecialCallVolumeDownBtn.setClickable(true);
-        mSpecialCallVolumeDownBtn.bringToFront();
-        mSpecialCallVolumeDownBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) - 1 ,0); // decrease volume
-
-            }
-        });
-
-
-        //ImageView for Closing Special Incoming Call
-        mSpecialCallVolumeUpBtn = new ImageView(this);
-        RelativeLayout.LayoutParams lp2 = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-        lp2.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        lp2.addRule(RelativeLayout.ALIGN_BOTTOM);
-        lp2.addRule(RelativeLayout.ALIGN_RIGHT);
-        lp2.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-
-        lp2.setMargins(0,0,0,400);
-
-        mSpecialCallVolumeUpBtn.setImageResource(R.drawable.plus);
-        mSpecialCallVolumeUpBtn.setBackgroundColor(Color.WHITE);
-        mSpecialCallVolumeUpBtn.setLayoutParams(lp2);
-        mSpecialCallVolumeUpBtn.setClickable(true);
-        mSpecialCallVolumeUpBtn.bringToFront();
-        mSpecialCallVolumeUpBtn.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) + 1 ,0); // increase volume
-
-            }
-        });
-
-
-
     }
 
     @Override
