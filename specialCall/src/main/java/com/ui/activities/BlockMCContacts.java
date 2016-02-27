@@ -23,9 +23,6 @@ import com.special.app.R;
 import com.utils.SharedPrefUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -34,46 +31,37 @@ import java.util.Set;
  */
 
 
-public class BlockMCContacts extends Activity implements View.OnClickListener{
+public class BlockMCContacts extends Activity implements View.OnClickListener {
 
     private static final String TAG = BlockMCContacts.class.getSimpleName();
-    private RadioButton all_valid;
-    private RadioButton contacts_only;
-    private RadioButton blacklist_specific;
-    private abstract class ActivityRequestCodes {
-        public static final int SELECT_BLACK_LIST_CONTACTS = 10;
-    }
-    List<String> names = new ArrayList<String>();
-    List<String> phones = new ArrayList<String>();
-    List<String> allNames = new ArrayList<String>();
-    List<String> allPhones = new ArrayList<String>();
-    MyAdapter ma ;
-    ListView lv;
-    Set<String> blockedContactsSet;
+    private List<String> _namesInListView = new ArrayList<String>();
+    private List<String> _phonesInListView = new ArrayList<String>();
+    private List<String> _allContactsNames = new ArrayList<String>();
+    private List<String> _allContactsPhones = new ArrayList<String>();
+    private BlackListAdapter _ma;
+    private ListView _lv;
+    private Set<String> _blockedContactsSet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.blocked_user_list);
         Log.i(TAG, "onCreate");
-        getAllContacts(this.getContentResolver()); // need to get all contacts so we can compare what we have in the sharedpref and pull the name to display in the view
-        blockedContactsSet = SharedPrefUtils.getStringSet(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
 
-        all_valid = (RadioButton) findViewById(R.id.all_valid);
+        prepareListViewData();
+
+        RadioButton all_valid = (RadioButton) findViewById(R.id.all_valid);
         all_valid.setOnClickListener(this);
-        contacts_only = (RadioButton) findViewById(R.id.contacts_only);
+        RadioButton contacts_only = (RadioButton) findViewById(R.id.contacts_only);
         contacts_only.setOnClickListener(this);
-        blacklist_specific = (RadioButton) findViewById(R.id.blacklist_specific);
+        RadioButton blacklist_specific = (RadioButton) findViewById(R.id.blacklist_specific);
         blacklist_specific.setOnClickListener(this);
 
         String oldConfig = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
-        if (oldConfig.isEmpty())
-        {
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, "ALL");
+        if (oldConfig.isEmpty()) {
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, "ALL"); // TODO Rony: BlockListValues Class that holds the whole 3 radio button values
             all_valid.setChecked(true);
-        }
-        else
-        {
+        } else {
             switch (oldConfig) {
 
                 case "ALL":
@@ -90,18 +78,9 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
             }
         }
 
-            lv= (ListView) findViewById(R.id.blv);
-            lv.removeAllViewsInLayout();
-            ma = new MyAdapter();
-            lv.setAdapter(ma); // clear listview
-
-            getAllContactsFromSetString(blockedContactsSet);
-
-            lv.setAdapter(ma);
-            lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-            lv.setItemsCanFocus(false);
-            lv.setTextFilterEnabled(true);
+        displayListViewWithNewData();
     }
+
     @Override
     public void onClick(View v) {
         int id = v.getId();
@@ -119,6 +98,7 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
             startActivityForResult(mainIntent, ActivityRequestCodes.SELECT_BLACK_LIST_CONTACTS);
         }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -126,72 +106,75 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
         if (resultCode == RESULT_OK) {
 
             if (requestCode == ActivityRequestCodes.SELECT_BLACK_LIST_CONTACTS) {
-
-                getAllContacts(this.getContentResolver()); // need to get all contacts so we can compare what we have in the sharedpref and pull the name to display in the view
-                names = new ArrayList<String>();
-                phones = new ArrayList<String>();
-                blockedContactsSet = SharedPrefUtils.getStringSet(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
-
-                lv= (ListView) findViewById(R.id.blv);
-                lv.removeAllViewsInLayout();
-                ma = new MyAdapter();
-                lv.setAdapter(ma); // clear listview
-
-                getAllContactsFromSetString(blockedContactsSet);
-
-                lv.setAdapter(ma);
-                lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-                lv.setItemsCanFocus(false);
-                lv.setTextFilterEnabled(true);
+                prepareListViewData();
+                displayListViewWithNewData();
             }
         }
     }
 
-    // helps giving the name and phone number to display
-    public  void getAllContactsFromSetString(Set<String> storedContacts) {
+    private void displayListViewWithNewData() {
+        _lv = (ListView) findViewById(R.id.blv);
+        _lv.removeAllViewsInLayout();
+        _ma = new BlackListAdapter();
+        _lv.setAdapter(_ma); // clear listview
 
-        for (String phone : allPhones)
-        {
-            if (storedContacts.contains(phone) && !phones.contains(phone))
-            {
-                names.add(allNames.get(allPhones.indexOf(phone)));
-                phones.add(phone);
+        populateContactsToDisplayFromBlockedList(_blockedContactsSet);
+
+        _lv.setAdapter(_ma);
+        _lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        _lv.setItemsCanFocus(false);
+        _lv.setTextFilterEnabled(true);
+
+    }
+
+    private void prepareListViewData() {
+
+        getAllContacts(this.getContentResolver()); // need to get all contacts so we can compare what we have in the sharedpref and pull the name to display in the view
+        _namesInListView = new ArrayList<String>();
+        _phonesInListView = new ArrayList<String>();
+        _blockedContactsSet = SharedPrefUtils.getStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+    }
+
+    // helps giving the name and phone number to display
+    public void populateContactsToDisplayFromBlockedList(Set<String> blockedContactsSet) {
+
+        for (String phone : _allContactsPhones) {
+            if (blockedContactsSet.contains(phone) && !_phonesInListView.contains(phone)) {
+                _namesInListView.add(_allContactsNames.get(_allContactsPhones.indexOf(phone)));
+                _phonesInListView.add(phone);
             }
         }
 
-        String unkownName ="UKNOWN";
-        for (String phone : storedContacts)
-        {
-            if (!phones.contains(phone))
-            {
-                Log.i(TAG," adding phone to black list: " + phone);
+        String unkownName = "UKNOWN";
+        for (String phone : blockedContactsSet) {
+            if (!_phonesInListView.contains(phone)) {
+                Log.i(TAG, " adding phone to black list: " + phone);
 
                 int i = 0;
-                while (names.contains(unkownName)) // for names that have more than one number
+                while (_namesInListView.contains(unkownName)) // for _namesInListView that have more than one number
                 {
                     unkownName = unkownName + String.valueOf(i);
                     i++;
                 }
 
-                names.add(unkownName);
-                phones.add(phone);
+                _namesInListView.add(unkownName);
+                _phonesInListView.add(phone);
             }
         }
 
 
     }
 
-    public  void getAllContacts(ContentResolver cr) {
+    public void getAllContacts(ContentResolver cr) {
 
         Cursor curPhones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-        while (curPhones.moveToNext())
-        {
-            String name=curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+        while (curPhones.moveToNext()) {
+            String name = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
             String phoneNumber = toValidPhoneNumber(curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
 
-            if (!phones.contains(phoneNumber) && (phoneNumber.length() == 10))
-            {  allNames.add(name);
-               allPhones.add(phoneNumber);
+            if (!_phonesInListView.contains(phoneNumber) && (phoneNumber.length() == 10)) {
+                _allContactsNames.add(name);
+                _allContactsPhones.add(phoneNumber);
             }
 
         }
@@ -200,33 +183,35 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
 
     private String toValidPhoneNumber(String str) {
 
-        str = str.replaceAll("[^0-9]","");
+        str = str.replaceAll("[^0-9]", "");
 
-        if (str.startsWith("972")){
-            str= str.replaceFirst("972","0");
+        if (str.startsWith("972")) {
+            str = str.replaceFirst("972", "0");
         }
-        if (str.startsWith("9720")){
-            str= str.replaceFirst("9720","0");
+        if (str.startsWith("9720")) {
+            str = str.replaceFirst("9720", "0");
         }
 
         return str;
+    } // TODO Rony : use phonenumber utils
+
+    private abstract class ActivityRequestCodes {
+        public static final int SELECT_BLACK_LIST_CONTACTS = 10; // TODO : move all activityRequestCodes to one class with static constants
     }
 
-    class MyAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener//,Filterable
-    {  private SparseBooleanArray mCheckStates;
+    class BlackListAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener//,Filterable
+    {
         LayoutInflater mInflater;
-        TextView tv1,tv;
-        Button cb;
-        MyAdapter()
-        {
-            mCheckStates = new SparseBooleanArray(names.size());
-            mInflater = (LayoutInflater)BlockMCContacts.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            //   filter = new filter_here();
+        TextView blockedContactNumber, blockedContactName;
+        Button removeFromBlockedButton;
 
+        BlackListAdapter() {
+            mInflater = (LayoutInflater) BlockMCContacts.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
+
         @Override
         public int getCount() {
-            return names.size();
+            return _namesInListView.size();
         }
 
         @Override
@@ -242,38 +227,41 @@ public class BlockMCContacts extends Activity implements View.OnClickListener{
 
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
-            View vi=convertView;
-            if(convertView==null)
+            View vi = convertView;
+            if (convertView == null)
                 vi = mInflater.inflate(R.layout.blacklist_row, null);
-            tv= (TextView) vi.findViewById(R.id.blacklist_name);
-            tv1= (TextView) vi.findViewById(R.id.blacklist_phone);
-            cb = (Button) vi.findViewById(R.id.remove_from_blacklist);
-            tv.setText(names.get(position));
-            tv1.setText(phones.get(position));
-            cb.setTag(position);
+            blockedContactName = (TextView) vi.findViewById(R.id.blacklist_name);
+            blockedContactNumber = (TextView) vi.findViewById(R.id.blacklist_phone);
+            removeFromBlockedButton = (Button) vi.findViewById(R.id.remove_from_blacklist_button);
+            blockedContactName.setText(_namesInListView.get(position));
+            blockedContactNumber.setText(_phonesInListView.get(position));
+            removeFromBlockedButton.setTag(position);
             View.OnClickListener buttonListener = new View.OnClickListener() {
 
                 @Override
                 public void onClick(View v) {
 
-                    int position = lv.getPositionForView(v);
+                    int position = _lv.getPositionForView(v);
+
+                    // Removing contact from view
                     Log.i(TAG, "position: " + String.valueOf(position));
-                    lv.removeViewInLayout(v);
-                    names.remove(position);
-                    ////// REMOVING From Black List is SharedPreferences
-                    Log.i(TAG, "Remove from Set: " + phones.get(position));
-                  if (blockedContactsSet!=null)
-                    blockedContactsSet.remove(phones.get(position));
-                    phones.remove(position);
-                    SharedPrefUtils.remove(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
-                    SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, blockedContactsSet);
-                    ((BaseAdapter)ma).notifyDataSetChanged();
+                    _lv.removeViewInLayout(v);
+                    _namesInListView.remove(position);
+
+                    // Removing contact from blocked list
+                    Log.i(TAG, "Remove from Set: " + _phonesInListView.get(position));
+                    if (_blockedContactsSet != null)
+                        _blockedContactsSet.remove(_phonesInListView.get(position));
+                    _phonesInListView.remove(position);
+                    SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+                    SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, _blockedContactsSet);
+
+                    _ma.notifyDataSetChanged();
                 }
             };
-            cb.setOnClickListener(buttonListener);
+            removeFromBlockedButton.setOnClickListener(buttonListener);
             return vi;
         }
-
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

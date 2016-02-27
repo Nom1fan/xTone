@@ -36,6 +36,7 @@
     <permission android:name="com.special.app.permission.C2D_MESSAGE" android:protectionLevel="signature" />
     <uses-permission android:name="com.special.app.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PRECISE_PHONE_STATE" />
 
     <application
         android:name="com.app.MediaCallzApp"
@@ -116,13 +117,13 @@
         <service
             android:name="com.services.IncomingService"
             android:enabled="true"
-            android:priority="998" >
+            android:priority="999" >
         </service>
 
         <service
             android:name="com.services.OutgoingService"
             android:enabled="true"
-            android:priority="998" >
+            android:priority="999" >
         </service>
 
         <service

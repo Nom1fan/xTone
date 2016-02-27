@@ -806,11 +806,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
         str = str.replaceAll("[^0-9]","");
 
-        if (str.startsWith("972")){
-            str= str.replaceFirst("972","0");
-        }
         if (str.startsWith("9720")){
             str= str.replaceFirst("9720","0");
+        }
+        if (str.startsWith("972")){
+            str= str.replaceFirst("972","0");
         }
 
         return str;
@@ -1008,25 +1008,26 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         mDrawerList.setAdapter(mAdapter);
     }
 
-    public void SelectItem(int possition) {
+    public void SelectItem(int position) {
 
-        switch (possition) {
+        switch (position) {
             case 0://Media Management
-
+                appSettings();
                 break;
             case 1: // Who Can MC me
                 BlockMCContacts();
                 break;
             case 2: // How To?
-
+                //TODO IMPLEMET Case
                 break;
             case 3: // Share Us
+                shareUs();
                 break;
             case 4: // Rate Us
-                shareUs();
+                //TODO IMPLEMET Case
                 break;
             case 5: // Report BUG
-                shareUs();
+                //TODO IMPLEMET Case
                 break;
             case 6: // App Settings
                 appSettings();
@@ -1038,8 +1039,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
 
 
-     /*   mDrawerList.setItemChecked(possition, true);
-        setTitle(dataList.get(possition).getItemName());*/
+     /*   mDrawerList.setItemChecked(position, true);
+        setTitle(dataList.get(position).getItemName());*/
         mDrawerLayout.closeDrawer(mDrawerList);
 
     }
@@ -1075,7 +1076,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private void BlockMCContacts() {
         saveInstanceState();
         Intent y = new Intent();
-        y.setClass(_context, BlockMCContacts.class);
+        y.setClass(getApplicationContext(), BlockMCContacts.class);
         startActivity(y);
     }
 

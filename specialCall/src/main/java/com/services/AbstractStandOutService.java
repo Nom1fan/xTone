@@ -104,8 +104,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         Log.e(TAG, "Service onDestroy");
 
         if (mAudioManager!=null)
-        {mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC,false);
-        mAudioManager.setStreamMute(AudioManager.STREAM_RING,false);}
+        {mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC,false);  // TODO Rony : Replace Deprecated !! Check All places
+        mAudioManager.setStreamMute(AudioManager.STREAM_RING,false);}  // TODO Rony : Replace Deprecated !! Check All places
     }
 
     /* Standout Window methods */
@@ -131,6 +131,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         Log.i(TAG, "In createAndAttachView()");
         frame.addView(mRelativeLayout);
+        // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
         frame.setBackgroundColor(Color.BLACK);
         windowCloseActionWasMade = false;
     }
@@ -364,7 +365,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         ((ImageView) mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_CENTER); // <<  just place the image Center of Window and fit it with ratio
 
 
-         ((ImageView) mSpecialCallView).setImageResource(R.drawable.color_mc);
+        ((ImageView) mSpecialCallView).setImageResource(R.drawable.color_mc);
 
 
 
@@ -428,15 +429,15 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         lp1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         mSpecialCallMuteBtn.setImageResource(R.drawable.unmute);  //TODO : setImageResource need to be replaced ? memory issue ?
         mSpecialCallMuteBtn.setBackgroundColor(Color.WHITE);
-        mSpecialCallMuteBtn.setLayoutParams(lp1);
+        mSpecialCallMuteBtn.setLayoutParams(lp1); // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
         mSpecialCallMuteBtn.setClickable(true);
         mSpecialCallMuteBtn.bringToFront();
         mSpecialCallMuteBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (isMuted) {
+                if (isMuted) {  // in versions of KITKAT and lower , we start in muted mode on the music stream , because we don't know when answering happens and we should stop it.
                     volumeChangeByMCButtons = true;
 
-                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false); // TODO Rony : Replace Deprecated !! Check All places
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
                     isMuted = false;
                     mSpecialCallMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
@@ -446,7 +447,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
                     volumeChangeByMCButtons = true;
                     mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true); // TODO Rony : Replace Deprecated !! Check All places
                     isMuted = true;
                     mSpecialCallMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
                     mSpecialCallMuteBtn.bringToFront();
@@ -471,7 +472,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         lp1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         lp1.addRule(RelativeLayout.ALIGN_TOP,mSpecialCallMuteBtn.getId());
        // Log.i(TAG, " mSpecialCallMuteBtn.getHeight() : " + String.valueOf(mSpecialCallMuteBtn.getHeight()));
-        lp1.setMargins(0,0,0,200);
+        lp1.setMargins(0,0,0,200); // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
         mSpecialCallVolumeDownBtn.setImageResource(R.drawable.minusvol);  //TODO : setImageResource need to be replaced ? memory issue ?
         mSpecialCallVolumeDownBtn.setBackgroundColor(Color.WHITE);
         mSpecialCallVolumeDownBtn.setLayoutParams(lp1);
@@ -497,7 +498,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         lp2.addRule(RelativeLayout.ALIGN_RIGHT);
         lp2.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
        // Log.i(TAG, " mSpecialCallVolumeDownBtn.getHeight() : " + String.valueOf(mSpecialCallVolumeDownBtn.getMaxHeight()));
-        lp2.setMargins(0,0,0,400);
+        lp2.setMargins(0,0,0,400); // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
         lp2.addRule(RelativeLayout.ALIGN_TOP,mSpecialCallVolumeDownBtn.getId());
         mSpecialCallVolumeUpBtn.setImageResource(R.drawable.plus);//TODO : setImageResource need to be replaced ? memory issue ?
         mSpecialCallVolumeUpBtn.setBackgroundColor(Color.WHITE);
@@ -530,7 +531,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         lp2.addRule(RelativeLayout.ALIGN_RIGHT);
         lp2.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         // Log.i(TAG, " mSpecialCallVolumeDownBtn.getHeight() : " + String.valueOf(mSpecialCallVolumeDownBtn.getMaxHeight()));
-        lp2.setMargins(0,0,0,600);
+        lp2.setMargins(0,0,0,600);  // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
         lp2.addRule(RelativeLayout.ALIGN_TOP,mSpecialCallVolumeUpBtn.getId());
         mSpecialCallBlockBtn.setImageResource(R.drawable.blocked_mc);//TODO : setImageResource need to be replaced ? memory issue ?
         mSpecialCallBlockBtn.setBackgroundColor(Color.WHITE);
@@ -541,17 +542,17 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             public void onClick(View v) {
 
                 Set<String> blockedNumbers = new HashSet<String>();
+                // TODO Rony Add method to GET the block_list from MCblockutils
                 blockedNumbers = SharedPrefUtils.getStringSet(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
+                blockedNumbers.add(toValidPhoneNumber(mIncomingOutgoingNumber)); // TODO Rony use Phone Number Utils
 
-                blockedNumbers.add(toValidPhoneNumber(mIncomingOutgoingNumber));
-
+                // TODO Rony Add method to SET the block_list from MCblockutils
                 SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, blockedNumbers);
 
+                // TODO Rony Show Toast from UIUtils
                 Toast.makeText(AbstractStandOutService.this,mIncomingOutgoingNumber +" Is Now MC BLOCKED !!! ", Toast.LENGTH_SHORT).show();
 
                 closeSpecialCallWindowWithoutRingtone();
-
-
             }
         });
 
@@ -647,7 +648,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         }
     }
 
-    private String toValidPhoneNumber(String str) {
+    private String toValidPhoneNumber(String str) { // TODO Rony use from PhoneNumbers Utils
 
         str = str.replaceAll("[^0-9]","");
 
@@ -662,7 +663,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         return str;
     }
 
-    protected boolean checkIfNumberIsMCBlocked(String incomingNumber) {
+    protected boolean checkIfNumberIsMCBlocked(String incomingNumber) { // TODO Rony move it to MCBlockListUtils or whatever
         Log.i(TAG, "check if number blocked: " + incomingNumber);
         //MC Permissions: ALL , Only contacts , Specific Black List Contacts
         String permissionLevel = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
@@ -676,61 +677,47 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             switch (permissionLevel) {
 
                 case "ALL":
-                    if (blackListed())
-                        return true;
-
                     return false;
 
                 case "CONTACTS":
-                    if (blackListed())
-                        return true;
 
                     // GET ALL CONTACTS
-                    List<String> phones = new ArrayList<String>();
+                    List<String> contactPhonenumbers = new ArrayList<String>(); // TODO Rony use the contactsUtils Method
                     Cursor curPhones = this.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+                    assert curPhones != null;
                     while (curPhones.moveToNext())
                     {
                         String phoneNumber = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        phones.add(toValidPhoneNumber(phoneNumber));
+                        contactPhonenumbers.add(phoneNumber.replaceAll("\\D+", "")); // TODO Rony Use PhoneNumberUtils to ValidPhoneNumber
                     }
                     curPhones.close();
 
-                    if (phones.contains(toValidPhoneNumber(incomingNumber)))
-                        return true;
+                    if(contactPhonenumbers.contains(incomingNumber.replaceAll("\\D+", ""))) // TODO Rony Use PhoneNumberUtils to ValidPhoneNumber
+                        return false;
                     else
-                    return false;
+                        return true;
 
 
                 case "black_list":
-                    if (blackListed())
-                        return true;
-                  else
+
+                    Set<String> blockedSet = SharedPrefUtils.getStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+                    if (!blockedSet.isEmpty()) {
+                        incomingNumber = incomingNumber.replaceAll("\\D+", ""); // TODO Rony Use PhoneNumberUtils to ValidPhoneNumber
+
+                        if (blockedSet.contains(incomingNumber)) {
+                            Log.i(TAG, "NUMBER MC BLOCKED: " + incomingNumber);
+                            return true;
+                        }
+                    }
+                    else {
+                        Log.w(TAG, "BlackList empty allowing phone number: " + incomingNumber);
                         return false;
+                    }
             }
         }
         return false;
     }
 
-    protected boolean blackListed()
-    {
-        Set<String> blockedSet = SharedPrefUtils.getStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
-        Set<String> onlyNumbersBlockedSet = new HashSet<String>();
-        if (blockedSet!=null) {
-            mIncomingOutgoingNumber = toValidPhoneNumber(mIncomingOutgoingNumber);
-
-            for (String s : blockedSet) {
-                s = toValidPhoneNumber(s);
-                onlyNumbersBlockedSet.add(s);
-            }
-            if (onlyNumbersBlockedSet.contains(mIncomingOutgoingNumber)) {
-                Log.i(TAG, "NUMBER MC BLOCKED: " + mIncomingOutgoingNumber);
-                return true;
-            }
-        }
-        return false;
-
-
-    }
 
 
 }

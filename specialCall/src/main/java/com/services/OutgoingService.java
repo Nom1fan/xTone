@@ -14,6 +14,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+//import android.telephony.PreciseCallState;
+import android.telephony.PhoneStateListener.*;
 
 import com.special.app.R;
 import com.utils.SharedPrefUtils;
@@ -102,7 +104,7 @@ public class OutgoingService extends AbstractStandOutService {
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-                            mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);  //unmute Music stream no matter what
+                            mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);  //unmute Music stream no matter what // TODO Rony : Replace Deprecated !! Check All places
 
                             try {
                                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC,mOldMediaVolume,0); // return music volume to the old one
@@ -205,6 +207,8 @@ public class OutgoingService extends AbstractStandOutService {
         }
     }
 
+
+
     @Override
     protected void prepareViewForSpecialCall(FileManager.FileType fileType , String mediaFilePath, String callNumber) {
         super.prepareViewForSpecialCall(fileType, mediaFilePath, callNumber);
@@ -212,7 +216,7 @@ public class OutgoingService extends AbstractStandOutService {
 
             if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
-                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true); // TODO Rony : Replace Deprecated !! Check All places
                 isMuted = true;
                 mSpecialCallMuteBtn.setImageResource(R.drawable.mute);  // TODO : setImageResource need to be replaced ? memory issue ?
                 mSpecialCallMuteBtn.bringToFront();
@@ -228,7 +232,7 @@ public class OutgoingService extends AbstractStandOutService {
 
             if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
-                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true); // TODO Rony : Replace Deprecated !! Check All places
                 isMuted = true;
                 mSpecialCallMuteBtn.setImageResource(R.drawable.mute);  //TODO : setImageResource need to be replaced ? memory issue ?
                 mSpecialCallMuteBtn.bringToFront();

@@ -21,13 +21,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
-        android:layout_alignBottom="@+id/remove_from_blacklist"
+        android:layout_alignBottom="@+id/remove_from_blacklist_button"
         android:layout_alignLeft="@+id/textView1"
         android:layout_alignStart="@+id/textView1"
         android:textColor="#aaa3a3" />
 
     <Button
-        android:id="@+id/remove_from_blacklist"
+        android:id="@+id/remove_from_blacklist_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="30dp"

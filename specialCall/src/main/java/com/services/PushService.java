@@ -101,7 +101,7 @@ public class PushService extends IntentService {
         }
     }
 
-    protected boolean checkIfNumberIsMCBlocked(String incomingNumber) {
+    protected boolean checkIfNumberIsMCBlocked(String incomingNumber) { // TODO Rony move it to MCBlockListUtils or whatever
         Log.i(TAG, "check if number blocked: " + incomingNumber);
         //MC Permissions: ALL , Only contacts , Specific Black List Contacts
         String permissionLevel = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
@@ -120,39 +120,37 @@ public class PushService extends IntentService {
                 case "CONTACTS":
 
                     // GET ALL CONTACTS
-                    List<String> phones = new ArrayList<String>();
+                    List<String> contactPhonenumbers = new ArrayList<String>(); // TODO Rony use the contactsUtils Method
                     Cursor curPhones = this.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+                    assert curPhones != null;
                     while (curPhones.moveToNext())
                     {
                         String phoneNumber = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        phones.add(phoneNumber.replaceAll("\\D+", ""));
+                        contactPhonenumbers.add(phoneNumber.replaceAll("\\D+", "")); // TODO Rony Use PhoneNumberUtils to ValidPhoneNumber
                     }
                     curPhones.close();
 
-                    if (phones.contains(incomingNumber.replaceAll("\\D+", "")))
-                        return true;
-                    else
+                    if(contactPhonenumbers.contains(incomingNumber.replaceAll("\\D+", ""))) // TODO Rony Use PhoneNumberUtils to ValidPhoneNumber
                         return false;
+                    else
+                        return true;
 
 
                 case "black_list":
 
                     Set<String> blockedSet = SharedPrefUtils.getStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
-                    Set<String> onlyNumbersBlockedSet = new HashSet<String>();
-                    if (blockedSet!=null) {
-                        incomingNumber = incomingNumber.replaceAll("\\D+", "");
+                    if (!blockedSet.isEmpty()) {
+                        incomingNumber = incomingNumber.replaceAll("\\D+", ""); // TODO Rony Use PhoneNumberUtils to ValidPhoneNumber
 
-                        for (String s : blockedSet) {
-                            s = s.replaceAll("\\D+", "");
-                            onlyNumbersBlockedSet.add(s);
-                        }
-                        if (onlyNumbersBlockedSet.contains(incomingNumber)) {
+                        if (blockedSet.contains(incomingNumber)) {
                             Log.i(TAG, "NUMBER MC BLOCKED: " + incomingNumber);
                             return true;
                         }
                     }
-                    return false;
-
+                    else {
+                        Log.w(TAG, "BlackList empty allowing phone number: " + incomingNumber);
+                        return false;
+                    }
             }
         }
         return false;
