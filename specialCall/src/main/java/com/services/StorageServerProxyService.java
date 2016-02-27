@@ -61,6 +61,10 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
         super.onStartCommand(intent, flags, startId);
         Log.i(TAG, "Started");
 
+        boolean shouldStop = handleCrashedService(flags, startId);
+        if(shouldStop)
+            return START_REDELIVER_INTENT;
+
         final Intent intentForThread = intent;
 
         new Thread() {
@@ -110,9 +114,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
             }
         }.start();
 
-        if ((flags & START_FLAG_REDELIVERY)!=0) { // if we took care of crash restart, mark it as completed
-            stopSelf(startId);
-        }
+        markCrashedServiceHandlingComplete(flags, startId);
 
         return START_REDELIVER_INTENT;
     }
@@ -224,9 +226,14 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
 
     //region ICallbackListener methods
     @Override
-    public void doCallbackAction() {
+    public void doCallBackAction() {
 
         setMidAction(false);
+    }
+
+    @Override
+    public void doCallBackAction(Object... actions) {
+
     }
     //endregion
 

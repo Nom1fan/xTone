@@ -62,7 +62,8 @@ public class GetTokenIntentService extends IntentService {
                 Log.e(TAG, errMsg);
                 //callToast(errMsg, Color.RED);
 
-                token = Batch.Push.getLastKnownPushToken();
+                //token = Batch.Push.getLastKnownPushToken();
+                token =  Batch.User.getInstallationID();
                 Constants.MY_BATCH_TOKEN(context, token);
 
                 try {

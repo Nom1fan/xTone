@@ -5,5 +5,6 @@ package com.interfaces;
  */
 public interface ICallbackListener {
 
-    void doCallbackAction();
+    void doCallBackAction();
+    void doCallBackAction(Object ... actions);
 }

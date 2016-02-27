@@ -26,85 +26,80 @@ import android.widget.Toast;
 
 import com.special.app.R;
 
-public class SelectSpecificContacts extends Activity implements OnItemClickListener{
+public class SelectSpecificContacts extends Activity implements OnItemClickListener {
 
-    List<String> names = new ArrayList<String>();
-    List<String> phones = new ArrayList<String>();
-    MyAdapter ma ;
+    List<String> names = new ArrayList<>();
+    List<String> phones = new ArrayList<>();
+    MyAdapter ma;
     Button select;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_spec_contacts);
 
         getAllContacts(this.getContentResolver());
-        ListView lv= (ListView) findViewById(R.id.lv);
+        ListView lv = (ListView) findViewById(R.id.lv);
         ma = new MyAdapter();
         lv.setAdapter(ma);
-        lv.setOnItemClickListener(this); 
+        lv.setOnItemClickListener(this);
         lv.setItemsCanFocus(false);
         lv.setTextFilterEnabled(true);
         // adding
         select = (Button) findViewById(R.id.button1);
-        
-        select.setOnClickListener(new OnClickListener()
-        {
+
+        select.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                    StringBuilder checkedcontacts= new StringBuilder();
+                StringBuilder checkedcontacts = new StringBuilder();
 
-                for(int i = 0; i < names.size(); i++)
+                for (int i = 0; i < names.size(); i++)
 
-                    {
-                    if(ma.mCheckStates.get(i)==true)
-                    {
-                         checkedcontacts.append(names.get(i).toString());
-                         checkedcontacts.append("\n");
+                    if (ma.mCheckStates.get(i)) {
+                        checkedcontacts.append(names.get(i));
+                        checkedcontacts.append("\n");
 
-                    }
-                    else
-                    {
+                    } else {
 
                     }
 
-
-                }
-
-                Toast.makeText(SelectSpecificContacts.this, checkedcontacts,1000).show();
-            }       
+                Toast.makeText(SelectSpecificContacts.this, checkedcontacts, 1000).show();
+            }
         });
 
 
     }
+
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-         ma.toggle(arg2);
+        ma.toggle(arg2);
     }
 
-    public  void getAllContacts(ContentResolver cr) {
+    public void getAllContacts(ContentResolver cr) {
 
-        Cursor curPhones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,null,null, null);
-        while (curPhones.moveToNext())
-        {
-          String name=curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-          String phoneNumber = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-          names.add(name);
-          phones.add(phoneNumber);
+        Cursor curPhones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+        while (curPhones.moveToNext()) {
+            String name = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            String phoneNumber = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            names.add(name);
+            phones.add(phoneNumber);
         }
 
         curPhones.close();
-     }
-    class MyAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener
-    {  private SparseBooleanArray mCheckStates;
-       LayoutInflater mInflater;
-        TextView tv1,tv;
+    }
+
+    class MyAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener {
+        LayoutInflater mInflater;
+        TextView tv1, tv;
         CheckBox cb;
-        MyAdapter()
-        {
+        private SparseBooleanArray mCheckStates;
+
+        MyAdapter() {
             mCheckStates = new SparseBooleanArray(names.size());
-            mInflater = (LayoutInflater)SelectSpecificContacts.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            mInflater = (LayoutInflater) SelectSpecificContacts.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
+
         @Override
         public int getCount() {
             return names.size();
@@ -123,36 +118,38 @@ public class SelectSpecificContacts extends Activity implements OnItemClickListe
 
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
-            View vi=convertView;
-            if(convertView==null)
-             vi = mInflater.inflate(R.layout.row, null); 
-             tv= (TextView) vi.findViewById(R.id.textView1);
-             tv1= (TextView) vi.findViewById(R.id.textView2);
-             cb = (CheckBox) vi.findViewById(R.id.checkBox1);
-             tv.setText("Name :"+ names.get(position));
-             tv1.setText("Phone No :"+ phones.get(position));
-             cb.setTag(position);
-             cb.setChecked(mCheckStates.get(position, false));
-             cb.setOnCheckedChangeListener(this);
+            View vi = convertView;
+            if (convertView == null)
+                vi = mInflater.inflate(R.layout.row, null);
+            tv = (TextView) vi.findViewById(R.id.textView1);
+            tv1 = (TextView) vi.findViewById(R.id.textView2);
+            cb = (CheckBox) vi.findViewById(R.id.checkBox1);
+            tv.setText("Name :" + names.get(position));
+            tv1.setText("Phone No :" + phones.get(position));
+            cb.setTag(position);
+            cb.setChecked(mCheckStates.get(position, false));
+            cb.setOnCheckedChangeListener(this);
 
             return vi;
         }
-         public boolean isChecked(int position) {
-                return mCheckStates.get(position, false);
-            }
 
-            public void setChecked(int position, boolean isChecked) {
-                mCheckStates.put(position, isChecked);
-            }
+        public boolean isChecked(int position) {
+            return mCheckStates.get(position, false);
+        }
 
-            public void toggle(int position) {
-                setChecked(position, !isChecked(position));
-            }
+        public void setChecked(int position, boolean isChecked) {
+            mCheckStates.put(position, isChecked);
+        }
+
+        public void toggle(int position) {
+            setChecked(position, !isChecked(position));
+        }
+
         @Override
         public void onCheckedChanged(CompoundButton buttonView,
-                boolean isChecked) {
+                                     boolean isChecked) {
 
-             mCheckStates.put((Integer) buttonView.getTag(), isChecked);         
-        }   
-    }   
+            mCheckStates.put((Integer) buttonView.getTag(), isChecked);
+        }
+    }
 }

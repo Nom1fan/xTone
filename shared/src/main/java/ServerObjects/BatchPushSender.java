@@ -189,11 +189,11 @@ public abstract class BatchPushSender {
 
         private class Recipients {
 
-            private String[] tokens;
+            private String[] install_ids;
 
             public Recipients(String[] tokens) {
 
-                this.tokens = tokens;
+                this.install_ids = tokens;
             }
         }
 

@@ -86,6 +86,7 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                _context = null;
             }
         }
 
@@ -113,7 +114,7 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
         // mNotificationHelper.completed();
         // NotificationUtils.freeHelperSpace();
         //The task is complete, tell the call back listener about it
-        _callBackListener.doCallbackAction();
+        _callBackListener.doCallBackAction();
     }
 
 }

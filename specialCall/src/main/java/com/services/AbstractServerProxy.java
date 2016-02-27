@@ -3,16 +3,12 @@ package com.services;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.data_objects.Constants;
 import com.utils.BroadcastUtils;
@@ -32,17 +28,15 @@ import MessagesToClient.MessageToClient;
  * Created by mor on 18/10/2015.
  */
 public abstract class AbstractServerProxy extends Service implements IServerProxy {
-    
+
+    public static final String ACTION_RECONNECT = "com.services.LogicServerProxyService.RECONNECT";
+    public static final String ACTION_RESET_RECONNECT_INTERVAL = "com.services.LogicServerProxyService.RESET_RECONNECT_INTERVAL";
+    protected static final long INITIAL_RETRY_INTERVAL = 1000 * 1;
+    protected static final long MAXIMUM_RETRY_INTERVAL = 1000 * 10;
     protected String TAG;
     protected PowerManager.WakeLock wakeLock;
     protected ConnectivityManager connManager;
     protected ArrayList<ConnectionToServer> connections = new ArrayList<>();
-
-    public static final String ACTION_RECONNECT = "com.services.LogicServerProxyService.RECONNECT";
-    public static final String ACTION_RESET_RECONNECT_INTERVAL = "com.services.LogicServerProxyService.RESET_RECONNECT_INTERVAL";
-
-    protected static final long INITIAL_RETRY_INTERVAL = 1000 * 1;
-    protected static final long MAXIMUM_RETRY_INTERVAL = 1000 * 10;
 
     public AbstractServerProxy(String tag) {
         TAG = tag;
@@ -53,13 +47,6 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         SharedConstants.INCOMING_FOLDER = Constants.INCOMING_FOLDER;
-
-        // If crash restart occurred but was not mid-action we should do nothing
-        if ((flags & START_FLAG_REDELIVERY)!=0 && !wasMidAction()) {
-            Log.i(TAG,"Crash restart occurred but was not mid-action (wasMidAction()=" + wasMidAction() + ". Exiting service.");
-            stopSelf(startId);
-            return START_REDELIVER_INTENT;
-        }
 
         return START_NOT_STICKY;
     }
@@ -97,26 +84,25 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
     @Override
     public void handleMessageFromServer(MessageToClient msg, ConnectionToServer connectionToServer) {
-        try
-        {
+
+        try {
             EventReport eventReport = msg
                     .doClientAction(connectionToServer);
 
-            if(eventReport.status()!= EventType.NO_ACTION_REQUIRED)
-                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(),TAG, eventReport);
-
-            releaseLockIfNecessary();
+            if (eventReport.status() != EventType.NO_ACTION_REQUIRED)
+                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, eventReport);
 
             // Finished handling request-response transaction
             connectionToServer.closeConnection();
             connections.remove(connectionToServer);
             setMidAction(false);
 
-        } catch(Exception e) {
-            String errMsg = "Handling message from server failed. Reason:"+e.getMessage();
+        } catch (Exception e) {
+            String errMsg = "Handling message from server failed. Reason:" + e.getMessage();
             Log.i(TAG, errMsg);
-            releaseLockIfNecessary();
             //handleDisconnection(errMsg);
+        } finally {
+            releaseLockIfNecessary();
         }
     }
     //endregion
@@ -134,7 +120,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
     protected void releaseLockIfNecessary() {
 
-        if(wakeLock!=null) {
+        if (wakeLock != null) {
             wakeLock.release();
             wakeLock = null;
         }
@@ -146,14 +132,14 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         i.setClass(this, LogicServerProxyService.class);
         i.setAction(ACTION_RECONNECT);
         PendingIntent pi = PendingIntent.getService(getApplicationContext(), 0, i, 0);
-        AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
+        AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmMgr.cancel(pi);
     }
 
     protected void scheduleReconnect(long startTime) {
         Log.i(TAG, "Scheduling reconnect");
         long interval =
-                SharedPrefUtils.getLong(getApplicationContext(),SharedPrefUtils.SERVER_PROXY,SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
+                SharedPrefUtils.getLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
 
         long now = System.currentTimeMillis();
         long elapsed = now - startTime;
@@ -172,7 +158,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         i.setClass(this, LogicServerProxyService.class);
         i.setAction(ACTION_RECONNECT);
         PendingIntent pi = PendingIntent.getService(getApplicationContext(), 0, i, 0);
-        AlarmManager alarmMgr = (AlarmManager)getSystemService(ALARM_SERVICE);
+        AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmMgr.set(AlarmManager.RTC_WAKEUP, now + interval, pi);
     }
 
@@ -181,9 +167,29 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         return SharedPrefUtils.getBoolean(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_MID_ACTION);
     }
 
+    protected boolean handleCrashedService(int flags, int startId) {
+
+        boolean shouldStop = false;
+        // If crash restart occurred but was not mid-action we should do nothing
+        if ((flags & START_FLAG_REDELIVERY) != 0 && !wasMidAction()) {
+            Log.i(TAG, "Crash restart occurred but was not mid-action (wasMidAction()=" + wasMidAction() + ". Exiting service.");
+            stopSelf(startId);
+            shouldStop = true;
+        }
+
+        return shouldStop;
+    }
+
+    protected void markCrashedServiceHandlingComplete(int flags, int startId) {
+
+        if ((flags & START_FLAG_REDELIVERY) != 0) { // if we took care of crash restart, mark it as completed
+            stopSelf(startId);
+        }
+    }
+
     protected void setMidAction(boolean bool) {
 
-        Log.i(TAG, "Setting midAction="+bool);
+        Log.i(TAG, "Setting midAction=" + bool);
         SharedPrefUtils.setBoolean(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_MID_ACTION, bool);
     }
 

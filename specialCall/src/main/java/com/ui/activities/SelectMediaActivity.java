@@ -48,7 +48,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
-        MainActivity.wasFileChooser=true;
         Intent intent = getIntent();
         setContentView(R.layout.select_media);
 
@@ -255,7 +254,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                 }
 
                 fm = new FileManager(path);
-                MainActivity.wasFileChooser = true;
                 Log.i(TAG, "onActivityResult RESULT_OK _ Rony");
                 Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
                 i.setAction(StorageServerProxyService.ACTION_UPLOAD);
@@ -303,7 +301,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             if (path != null) if (FileUtils.isLocal(path)) {
 
                 fm = new FileManager(path);
-                MainActivity.wasFileChooser = true;
                 Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
                 i.setAction(StorageServerProxyService.ACTION_UPLOAD);
                 i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);

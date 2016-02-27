@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.services.IncomingService;
+import com.services.OutgoingService;
 
 /**
  * Created by Mor on 12/09/2015.
@@ -17,9 +18,15 @@ public class BootCompletedBroadcastReceiver extends BroadcastReceiver {
         public void onReceive(Context context, Intent intent) {
             if (ACTION.equals(intent.getAction())) {
 
+                // Re-starting IncomingService
                 Intent incomingReceiverIntent = new Intent(context, IncomingService.class);
                 incomingReceiverIntent.setAction(IncomingService.ACTION_START);
                 context.startService(incomingReceiverIntent);
+
+                // Re-starting OutgoingService
+                Intent OutgoingReceiverIntent = new Intent(context, OutgoingService.class);
+                OutgoingReceiverIntent.setAction(OutgoingService.ACTION_START);
+                context.startService(OutgoingReceiverIntent);
             }
         }
 

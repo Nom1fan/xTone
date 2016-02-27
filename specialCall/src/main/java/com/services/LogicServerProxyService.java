@@ -45,6 +45,10 @@ public class LogicServerProxyService extends AbstractServerProxy {
         super.onStartCommand(intent, flags, startId);
         Log.i(TAG, "LogicServerProxyService started");
 
+        boolean shouldStop = handleCrashedService(flags, startId);
+        if(shouldStop)
+            return START_REDELIVER_INTENT;
+
         final Intent intentForThread = intent;
 
         new Thread() {
@@ -104,6 +108,8 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
             }
         }.start();
+
+        markCrashedServiceHandlingComplete(flags, startId);
 
         return START_REDELIVER_INTENT;
     }

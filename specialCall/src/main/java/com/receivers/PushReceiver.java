@@ -13,8 +13,8 @@ import com.services.PushService;
 public class PushReceiver extends WakefulBroadcastReceiver {
 
     public void onReceive(Context context, Intent intent) {
-        ComponentName var3 = new ComponentName(context.getPackageName(), PushService.class.getName());
-        startWakefulService(context, intent.setComponent(var3));
+        ComponentName componentName = new ComponentName(context.getPackageName(), PushService.class.getName());
+        startWakefulService(context, intent.setComponent(componentName));
         setResultCode(Activity.RESULT_OK);
     }
 }

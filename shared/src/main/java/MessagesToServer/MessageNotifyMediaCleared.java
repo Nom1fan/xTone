@@ -5,6 +5,9 @@ import java.io.IOException;
 import DataObjects.PushEventKeys;
 import DataObjects.SpecialMediaType;
 import DataObjects.TransferDetails;
+import EventObjects.EventReport;
+import EventObjects.EventType;
+import MessagesToClient.MessageTriggerEventOnly;
 import ServerObjects.BatchPushSender;
 
 /**
@@ -42,6 +45,8 @@ public class MessageNotifyMediaCleared extends MessageToServer {
                     "that [User]:" + clearerId +
                     " cleared his media of [SpecialMediaType]:" + _td.get_spMediaType());
         }
+
+        replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.NO_ACTION_REQUIRED, null, null)));
 
         return false;
     }

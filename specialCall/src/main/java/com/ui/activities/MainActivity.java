@@ -36,10 +36,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.AppStateManager;
+import com.async_tasks.AutoCompletePopulateListAsyncTask;
+import com.async_tasks.IsRegisteredTask;
 import com.batch.android.Batch;
 import com.data_objects.Constants;
 import com.data_objects.Contact;
 import com.data_objects.SnackbarData;
+import com.interfaces.ICallbackListener;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.listeners.ActionClickListener;
@@ -48,37 +51,32 @@ import com.services.LogicServerProxyService;
 import com.services.OutgoingService;
 import com.services.StorageServerProxyService;
 import com.special.app.R;
-import com.ui.components.AutoCompletePopulateListAsyncTask;
 import com.utils.BitmapUtils;
-import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
 import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import DataObjects.SpecialMediaType;
 import EventObjects.Event;
 import EventObjects.EventReport;
-import EventObjects.EventType;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
 
-public class MainActivity extends AppCompatActivity implements OnClickListener {
+public class MainActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
-    public static boolean wasFileChooser = false; // todo try to remove this static shit that also is used by selectmedia class
+    private final String TAG = MainActivity.class.getSimpleName();
     private final String shareBody = String.valueOf(R.string.invite);
-    CustomDrawerAdapter mAdapter;
-    List<DrawerItem> dataList;
+    private CustomDrawerAdapter mAdapter;
     private String _myPhoneNumber = "";
     private String _destPhoneNumber = "";
     private String _destName = "";
-    private int _SMType;
     private ProgressBar _pFetchUserBar;
     private ProgressBar _pBar;
     private BroadcastReceiver _eventReceiver;
@@ -89,7 +87,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private ActionBarDrawerToggle _mDrawerToggle;
     private DrawerLayout _mDrawerLayout;
 
-    //region Activity methods
+
+    //region Activity methods (OnStart(), OnPause(), ...)
     @Override
     protected void onStart() {
         super.onStart();
@@ -153,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             prepareEventReceiver();
 
             // ASYNC TASK To Populate all contacts , it can take long time and it delays the UI
-            new AutoCompletePopulateListAsyncTask(this, _autoCompleteTextViewDestPhone).execute();
+            new AutoCompletePopulateListAsyncTask(_autoCompleteTextViewDestPhone).execute(getApplicationContext());
 
             if (appState.equals(AppStateManager.STATE_DISABLED)) {
 
@@ -185,9 +184,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
-        dataList = new ArrayList<DrawerItem>();
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.custom_action_bar);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            actionBar.setCustomView(R.layout.custom_action_bar);
+        }
 
         if (getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
             initializeLoginUI();
@@ -235,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     }
 
     @Override
-    public boolean onKeyDown ( int keyCode, KeyEvent e) {  // hard menu key will open and close the drawer menu also
+    public boolean onKeyDown(int keyCode, KeyEvent e) {  // hard menu key will open and close the drawer menu also
         if (keyCode == KeyEvent.KEYCODE_MENU) {
 
             if (_mDrawerLayout != null) {
@@ -274,30 +276,22 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
         return true;
     }
-    //endregion
+    //endregion (on
 
-  /*  @Override     //  the menu with the 3 dots on the right, on the top action bar, to enable it uncomment this.
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }*/
+    //region Assisting methods (onClick(), eventReceived(), ...)
+    private void selectMedia(int specialMediaType) {
 
-    private void selectMedia(int code) {
-
-        _SMType = code;
-                     /* Create an intent that will start the main activity. */
+        /* Create an intent that will start the main activity. */
         Intent mainIntent = new Intent(MainActivity.this,
                 SelectMediaActivity.class);
-        mainIntent.putExtra("SpecialMediaType", _SMType);
+        mainIntent.putExtra("SpecialMediaType", specialMediaType);
         mainIntent.putExtra("DestinationNumber", _destPhoneNumber);
         mainIntent.putExtra("DestinationName", _destName);
-        //SplashScreen.this.startActivity(mainIntent);
         startActivityForResult(mainIntent, ActivityRequestCodes.SELECT_MEDIA);
 
-                     /* Apply our splash exit (fade out) and main
-                        entry (fade in) animation transitions. */
-        overridePendingTransition(R.anim.slide_in_up, R.anim.no_animation);// open drawer animation
+         /* Apply our splash exit (fade out) and main
+            entry (fade in) animation transitions. */
+        overridePendingTransition(R.anim.slide_in_up, R.anim.no_animation); // open drawer animation
     }
 
     public void onClick(View v) {
@@ -359,38 +353,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         }
     }
 
-    private void initializeLoginUI() {
-
-        setContentView(R.layout.loginuser);
-
-        if (!Constants.MY_BATCH_TOKEN(getApplicationContext()).equals("")) {
-            findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
-            findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
-        }
-
-        prepareLoginNumberEditText();
-        prepareLoginButton();
-        prepareGetSmsCodeButton();
-        prepareSmsCodeVerificationEditText();
-
-    }
-
-    private void initializeUI() {
-
-        setContentView(R.layout.activity_main);
-
-        enableHamburgerIconWithSlideMenu();
-
-        prepareAutoCompleteTextViewDestPhoneNumber();
-
-        findViewById(R.id.CallNow).setOnClickListener(this);
-        findViewById(R.id.selectMediaBtn).setOnClickListener(this);
-        findViewById(R.id.selectContactBtn).setOnClickListener(this);
-        findViewById(R.id.selectProfileMediaBtn).setOnClickListener(this);;
-        findViewById(R.id.clear).setOnClickListener(this);;
-        findViewById(R.id.inviteButton).setOnClickListener(this);
-    }
-
     public void eventReceived(Event event) {
 
         final EventReport report = event.report();
@@ -406,15 +368,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 syncUIwithAppState();
 
                 if (data != null)
-                    handleSnackBar((SnackbarData) report.data());
+                    handleSnackBar(data);
                 break;
 
             case DISPLAY_ERROR:
-                writeErrStatBar(report.desc());
                 break;
 
             case DISPLAY_MESSAGE:
-                writeInfoSnackBar(report.desc());
+                handleSnackBar(new SnackbarData(
+                        SnackbarData.SnackbarStatus.SHOW,
+                        Color.GREEN,
+                        Snackbar.SnackbarDuration.LENGTH_LONG,
+                        report.desc()));
                 break;
 
             case TOKEN_RETRIEVED:
@@ -426,12 +391,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                     findViewById(R.id.login_btn).setEnabled(true);
                 break;
 
-            default:
-                Log.e(TAG, "Undefined event status on EventReceived");
+            default: // Event not meant for MainActivity receiver
+                    return;
+
         }
     }
-
-	/* -------------- Assisting methods -------------- */
 
     /**
      * Saving the instance state - to be used from onPause()
@@ -510,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     private void prepareEventReceiver() {
 
-        if(_eventReceiver==null) {
+        if (_eventReceiver == null) {
             _eventReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
@@ -525,6 +489,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     }
 
     private void prepareAutoCompleteTextViewDestPhoneNumber() {
+
+        final MainActivity instance = this;
 
         _autoCompleteTextViewDestPhone = (AutoCompleteTextView) findViewById(R.id.CallNumber);
         _autoCompleteTextViewDestPhone.setRawInputType(InputType.TYPE_CLASS_TEXT);
@@ -557,8 +523,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         _autoCompleteTextViewDestPhone.addTextChangedListener(new TextWatcher() {
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count,
-                                          int after) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
@@ -567,60 +532,37 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
                 String destPhone = s.toString();
 
-                if (10 == s.length() &&
-                        PhoneNumberUtils.isNumeric(destPhone) &&
-                        !wasFileChooser) {
+                if (PhoneNumberUtils.isValidPhoneNumber(destPhone)) {
 
                     _destPhoneNumber = destPhone;
-                    drawSelectMediaButton(false);
-                    drawRingToneName();
+                    new IsRegisteredTask(destPhone, instance).execute(instance.getApplicationContext());
 
-                    if (!getState().equals(AppStateManager.STATE_DISABLED) &&
-                            !getState().equals(AppStateManager.STATE_LOADING)) {
-                        String msg = "Fetching user data...";
-                        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG + " onTextchanged()",
-                                new EventReport(EventType.FETCHING_USER_DATA, msg, null));
-
-                        Intent i = new Intent(getApplicationContext(), LogicServerProxyService.class);
-                        i.setAction(LogicServerProxyService.ACTION_ISREGISTERED);
-                        i.putExtra(LogicServerProxyService.DESTINATION_ID, destPhone);
-                        getApplicationContext().startService(i);
-
-                        enableUserFetchProgressBar();
-                    }
-                } else {
-
-                    // Resetting the flag
-                    wasFileChooser = false;
+                }
+                else { // Invalid destination number
 
                     _destPhoneNumber = "";
                     _destName = "";
 
-                    if (10 != s.length() || !PhoneNumberUtils.isNumeric(destPhone)) {
+                    disableUserStatusPositiveIcon();
+                    disableUserStatusNegativeIcon();
+                    vanishInviteButton();
 
-                        disableUserStatusPositiveIcon();
-                        vanishInviteButton();
-
-                        if (getState().equals(AppStateManager.STATE_READY)) {
-                            AppStateManager.setAppState(getApplicationContext(), TAG + " onTextChanged()", AppStateManager.STATE_IDLE);
-                            BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG + "onTextChanged()", new EventReport(EventType.REFRESH_UI, "", null));
-                        }
+                    if (getState().equals(AppStateManager.STATE_READY)) {
+                        AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
+                        syncUIwithAppState();
                     }
                 }
 
                 setDestNameTextView();
                 saveInstanceState();
-
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-
-
             }
         });
 
-        new AutoCompletePopulateListAsyncTask(this, _autoCompleteTextViewDestPhone).execute();
+        new AutoCompletePopulateListAsyncTask(_autoCompleteTextViewDestPhone).execute(getApplicationContext());
     }
 
     private void prepareLoginNumberEditText() {
@@ -681,12 +623,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 try {
                     SmsManager smsManager = SmsManager.getDefault();
                     smsManager.sendTextMessage(loginNumber.getText().toString(), null, "MediaCallz SmsVerificationCode: " + String.valueOf(_randomPIN), null, null);
-                    Toast.makeText(getApplicationContext(), "Message Sent To: " + loginNumber.getText().toString(),
-                            Toast.LENGTH_LONG).show();
+                    writeInfoSnackBar("Message Sent To: " + loginNumber.getText());
                 } catch (Exception ex) {
-                    Toast.makeText(getApplicationContext(),
-                            ex.getMessage(),
-                            Toast.LENGTH_LONG).show();
                     ex.printStackTrace();
                 }
 
@@ -735,11 +673,44 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         startService(i);
 
     }
+    //endregion
 
-    /* -------------- UI methods -------------- */
+    //region UI methods
+    //region UI initializers
+    private void initializeLoginUI() {
 
-    /* --- UI States --- */
+        setContentView(R.layout.loginuser);
 
+        if (!Constants.MY_BATCH_TOKEN(getApplicationContext()).equals("")) {
+            findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
+            findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
+        }
+
+        prepareLoginNumberEditText();
+        prepareLoginButton();
+        prepareGetSmsCodeButton();
+        prepareSmsCodeVerificationEditText();
+
+    }
+
+    private void initializeUI() {
+
+        setContentView(R.layout.activity_main);
+
+        enableHamburgerIconWithSlideMenu();
+
+        prepareAutoCompleteTextViewDestPhoneNumber();
+
+        findViewById(R.id.CallNow).setOnClickListener(this);
+        findViewById(R.id.selectMediaBtn).setOnClickListener(this);
+        findViewById(R.id.selectContactBtn).setOnClickListener(this);
+        findViewById(R.id.selectProfileMediaBtn).setOnClickListener(this);
+        findViewById(R.id.clear).setOnClickListener(this);
+        findViewById(R.id.inviteButton).setOnClickListener(this);
+    }
+    //endregion
+
+    //region UI States
     public void stateIdle() {
 
         disableProgressBar();
@@ -820,7 +791,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 break;
         }
     }
+    //endregion
 
+    //region UI elements controls
     private void enableHamburgerIconWithSlideMenu() {
         ActionBar actionBar = getSupportActionBar();
 
@@ -855,11 +828,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         _mDrawerToggle.syncState();
     }
 
-    /* --- UI elements controls --- */
-
     private void addDrawerItems() {
 
         // Add Drawer Item to dataList
+        List<DrawerItem> dataList = new ArrayList<>();
         dataList.add(new DrawerItem("Media Management", R.drawable.mediaicon));
         dataList.add(new DrawerItem("Who Can MC me", R.drawable.blackwhitelist));
         dataList.add(new DrawerItem("How To ?", R.drawable.questionmark));
@@ -1137,40 +1109,27 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     private void disableUserFetchProgressBar() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                _pFetchUserBar = (ProgressBar) findViewById(R.id.fetchuserprogress);
-                _pFetchUserBar.setVisibility(ProgressBar.GONE);
-            }
-        });
+        _pFetchUserBar = (ProgressBar) findViewById(R.id.fetchuserprogress);
+        _pFetchUserBar.setVisibility(ProgressBar.GONE);
+
     }
 
     private void enableUserFetchProgressBar() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                _pFetchUserBar = (ProgressBar) findViewById(R.id.fetchuserprogress);
-                _pFetchUserBar.setVisibility(ProgressBar.VISIBLE);
+        _pFetchUserBar = (ProgressBar) findViewById(R.id.fetchuserprogress);
+        _pFetchUserBar.setVisibility(ProgressBar.VISIBLE);
 
-                disableUserStatusPositiveIcon();
-                disableUserStatusNegativeIcon();
-                vanishInviteButton();
-            }
-        });
+        disableUserStatusPositiveIcon();
+        disableUserStatusNegativeIcon();
+        vanishInviteButton();
     }
 
     private void userStatusRegistered() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                disableUserStatusNegativeIcon();
-                enableUserStatusPositiveIcon();
-                vanishInviteButton();
-            }
-        });
+        disableUserStatusNegativeIcon();
+        enableUserStatusPositiveIcon();
+        vanishInviteButton();
+
     }
 
     private void vanishInviteButton() {
@@ -1248,7 +1207,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     private void drawSelectMediaButton(boolean enabled) {
 
-        LUT_Utils lut_utils = new LUT_Utils(getApplicationContext(), SpecialMediaType.CALLER_MEDIA);
+        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.CALLER_MEDIA);
         try {
             FileManager.FileType fType;
             ImageButton selectCallerMediaBtn = (ImageButton) findViewById(R.id.selectMediaBtn);
@@ -1257,7 +1216,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 selectCallerMediaBtn.setImageResource(R.drawable.defaultpic_disabled);
             else {
 
-                String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(_destPhoneNumber);
+                String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(getApplicationContext(), _destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
                     fType = FileManager.getFileType(lastUploadedMediaPath);
 
@@ -1279,15 +1238,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 FileDoesNotExistException |
                 FileMissingExtensionException e) {
             e.printStackTrace();
-            lut_utils.removeUploadedMediaPerNumber(_destPhoneNumber);
-        } finally {
-            lut_utils.destroy();
+            lut_utils.removeUploadedMediaPerNumber(getApplicationContext(), _destPhoneNumber);
         }
     }
 
     private void drawSelectProfileMediaButton(boolean enabled) {
 
-        LUT_Utils lut_utils = new LUT_Utils(getApplicationContext(), SpecialMediaType.PROFILE_MEDIA);
+        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.PROFILE_MEDIA);
 
         try {
 
@@ -1297,7 +1254,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 BitmapUtils.execBitmapWorkerTask(selectProfileMediaBtn, getApplicationContext(), getResources(), R.drawable.defaultpic_disabled, true);
             } else {
 
-                String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(_destPhoneNumber);
+                String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(getApplicationContext(), _destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
                     FileManager.FileType fType = FileManager.getFileType(lastUploadedMediaPath);
 
@@ -1311,16 +1268,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 FileDoesNotExistException |
                 FileMissingExtensionException e) {
             e.printStackTrace();
-            lut_utils.removeUploadedMediaPerNumber(_destPhoneNumber);
-        } finally {
-            lut_utils.destroy();
+            lut_utils.removeUploadedMediaPerNumber(getApplicationContext(), _destPhoneNumber);
         }
     }
 
     private void drawRingToneName() {
 
-        LUT_Utils lut_utils = new LUT_Utils(getApplicationContext(), SpecialMediaType.CALLER_MEDIA);
-        String ringToneFilePath = lut_utils.getUploadedTonePerNumber(_destPhoneNumber);
+        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.CALLER_MEDIA);
+        String ringToneFilePath = lut_utils.getUploadedTonePerNumber(getApplicationContext(), _destPhoneNumber);
         TextView ringtoneView = (TextView) findViewById(R.id.ringtoneName);
 
         try {
@@ -1339,8 +1294,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             }
         } catch (Exception e) {
             Log.e(TAG, "Failed to draw drawRingToneName:" + (e.getMessage() != null ? e.getMessage() : e));
-        } finally {
-            lut_utils.destroy();
         }
     }
 
@@ -1410,18 +1363,54 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                 break;
 
             case SHOW:
-                writeInfoSnackBar(snackbarData.getText(), snackbarData.getColor(), snackbarData.getmDuration());
+                if(snackbarData.getText()!=null && !snackbarData.getText().equals(""))
+                    writeInfoSnackBar(snackbarData.getText(), snackbarData.getColor(), snackbarData.getmDuration());
                 break;
         }
     }
+    //endregion
+    //endregion
 
+    //region ICallbackListener methods
+    @Override
+    public void doCallBackAction() {
+
+    }
+
+    @Override
+    public void doCallBackAction(final Object... params) {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                String[] sParams = Arrays.copyOf(params, params.length, String[].class);
+                for (int i = 0; i < params.length; ++i) {
+
+                    switch (sParams[i]) {
+
+                        case IsRegisteredTask.DRAW_SELECT_MEDIA_FALSE:
+                            drawSelectProfileMediaButton(false);
+                            break;
+
+                        case IsRegisteredTask.ENABLE_FETCH_PROGRESS_BAR:
+                            enableUserFetchProgressBar();
+                            break;
+                    }
+                }
+            }
+        });
+
+    }
+    //endregion
+
+    //region private classes
     private abstract class ActivityRequestCodes {
 
         public static final int SELECT_CALLER_MEDIA = 1;
         public static final int SELECT_CONTACT = 2;
         public static final int SELECT_PROFILE_MEDIA = 3;
         public static final int SELECT_MEDIA = 4;
-
     }
 
     private class DrawerItemClickListener implements
@@ -1431,7 +1420,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                                 long id) {
             if (position != 0)
                 selectNavigationItem(position);
-
         }
     }
+    //endregion
+
+      /*  @Override     //  the menu with the 3 dots on the right, on the top action bar, to enable it uncomment this.
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }*/
 }

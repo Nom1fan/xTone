@@ -24,7 +24,7 @@ public abstract class FFMPEG_Utils {
 
     private static final String TAG = FFMPEG_Utils.class.getSimpleName();
     private static final String workFolder = Constants.TEMP_COMPRESSED_FOLDER;
-    private static final HashMap<String,String> extension2vCodec = new HashMap(){{
+    private static final HashMap<String, String> extension2vCodec = new HashMap() {{
         put("mp4", "mpeg4");
 
     }};
@@ -32,6 +32,7 @@ public abstract class FFMPEG_Utils {
 
     /**
      * Compresses a video file if possible. Otherwise, returns the base (untouched) file.
+     *
      * @param baseFile The base file to compress
      * @param outPath  The path of the compressed file
      * @param context
@@ -39,13 +40,13 @@ public abstract class FFMPEG_Utils {
      */
     public static FileManager compressVideoFile(FileManager baseFile, String outPath, Context context) {
 
-        if(GeneralUtils.isLicenseValid(context, workFolder)<0)
+        if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
             return baseFile;
 
         String extension = baseFile.getFileExtension();
         String vCodec = extension2vCodec.get(extension);
         File compressedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_comp." + extension);
-        if(compressedFile.exists())
+        if (compressedFile.exists())
             FileManager.delete(compressedFile);
 
         try {
@@ -59,8 +60,7 @@ public abstract class FFMPEG_Utils {
             vk.run(complexCommand, workFolder, context);
             return new FileManager(compressedFile);
 
-        }
-        catch(Throwable e) {
+        } catch (Throwable e) {
             Log.e(TAG, "Compressing video file failed", e);
         }
 
@@ -70,20 +70,21 @@ public abstract class FFMPEG_Utils {
 
     /**
      * Resizes an image file resolution by 30%, maintaining aspect ratio
+     *
      * @param baseFile The base file to compress
-     * @param outPath The output of the compressed file
-     * @param width The width parameter of the original resolution
+     * @param outPath  The output of the compressed file
+     * @param width    The width parameter of the original resolution
      * @param context
      * @return The compressed file, if possible. Otherwise, the base file.
      */
     public static FileManager compressImageFile(FileManager baseFile, String outPath, double width, Context context) {
 
-        if(GeneralUtils.isLicenseValid(context, workFolder)<0)
+        if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
             return baseFile;
 
         String extension = baseFile.getFileExtension();
         File compressedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_comp." + extension);
-        if(compressedFile.exists())
+        if (compressedFile.exists())
             FileManager.delete(compressedFile);
 
         try {
@@ -92,13 +93,12 @@ public abstract class FFMPEG_Utils {
             width = width * percent;
 
             String[] complexCommand =
-                    {"ffmpeg", "-i", baseFile.getFileFullPath(), "-vf", "scale="+(int)width+":-1", compressedFile.getAbsolutePath()};
+                    {"ffmpeg", "-i", baseFile.getFileFullPath(), "-vf", "scale=" + (int) width + ":-1", compressedFile.getAbsolutePath()};
 
             vk.run(complexCommand, workFolder, context);
             return new FileManager(compressedFile);
 
-        }
-        catch(Throwable e) {
+        } catch (Throwable e) {
             Log.e(TAG, "Compressing image file failed", e);
         }
 
@@ -108,42 +108,42 @@ public abstract class FFMPEG_Utils {
 
     /**
      * getFileDurationInSeconds
+     *
      * @param baseFile The Video/audio file to retrieve its duration
      * @param context
      * @return The duration of a video/audio file in seconds, if possible. Otherwise returns 0.
      */
     public static long getFileDurationInSeconds(FileManager baseFile, Context context) {
 
-        if(GeneralUtils.isLicenseValid(context, workFolder)<0)
+        if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
             return 0;
 
         try {
             LoadJNI vk = new LoadJNI();
             FileManager.FileType fType = baseFile.getFileType();
             if (fType.equals(FileManager.FileType.RINGTONE) ||
-                fType.equals(FileManager.FileType.VIDEO)) {
+                    fType.equals(FileManager.FileType.VIDEO)) {
 
-                    String[] complexCommand =
-                            {"ffmpeg", "-i", baseFile.getFileFullPath() };
-                    vk.run(complexCommand, workFolder, context);
-                    BufferedReader br = new BufferedReader(new FileReader(workFolder+"vk.log"));
-                    String line = "";
-                    boolean cont = true;
+                String[] complexCommand =
+                        {"ffmpeg", "-i", baseFile.getFileFullPath()};
+                vk.run(complexCommand, workFolder, context);
+                BufferedReader br = new BufferedReader(new FileReader(workFolder + "vk.log"));
+                String line = "";
+                boolean cont = true;
 
-                    while(cont && (line = br.readLine())!=null) {
-                        if(line.contains("Duration"))
-                            cont = false;
-                    }
-                    String unformattedDuration = line.substring(12,20);
-                    DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-                    Date reference = dateFormat.parse("00:00:00");
-                    Date date = dateFormat.parse(unformattedDuration);
-                    long seconds = (date.getTime() - reference.getTime()) / 1000L;
-                    return seconds;
+                while (cont && (line = br.readLine()) != null) {
+                    if (line.contains("Duration"))
+                        cont = false;
+                }
+                String unformattedDuration = line.substring(12, 20);
+                DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+                Date reference = dateFormat.parse("00:00:00");
+                Date date = dateFormat.parse(unformattedDuration);
+                long seconds = (date.getTime() - reference.getTime()) / 1000L;
+                return seconds;
             }
 
-        }
-        catch(Throwable e) {
+        } catch (Throwable e) {
             Log.e(TAG, "Getting duration of file failed", e);
         }
 
@@ -153,20 +153,21 @@ public abstract class FFMPEG_Utils {
 
     /**
      * Trims a video/audio file from 0 seconds to endTime seconds, without re-encoding.
+     *
      * @param baseFile Video/audio file to trim
-     * @param outPath The path of the trimmed video/audio
-     * @param endTime The time to end the cut in
+     * @param outPath  The path of the trimmed video/audio
+     * @param endTime  The time to end the cut in
      * @param context
      * @return The trimmed video/audio file, if possible. Otherwise, the base file.
      */
-    public static FileManager trim(FileManager baseFile, String outPath ,Double endTime, Context context) {
+    public static FileManager trim(FileManager baseFile, String outPath, Double endTime, Context context) {
 
-        if(GeneralUtils.isLicenseValid(context, workFolder)<0)
+        if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
             return baseFile;
 
         String extension = baseFile.getFileExtension();
         File trimmedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_trimmed." + extension);
-        if(trimmedFile.exists())
+        if (trimmedFile.exists())
             FileManager.delete(trimmedFile);
 
         try {
@@ -174,13 +175,12 @@ public abstract class FFMPEG_Utils {
 
             String[] complexCommand =
                     {"ffmpeg", "-i", baseFile.getFileFullPath(), "-vcodec", "copy", "-acodec",
-                            "copy" , "-ss", "0", "-t" , endTime.toString(), trimmedFile.getAbsolutePath() };
+                            "copy", "-ss", "0", "-t", endTime.toString(), trimmedFile.getAbsolutePath()};
 
             vk.run(complexCommand, workFolder, context);
             return new FileManager(trimmedFile);
 
-        }
-        catch(Throwable e) {
+        } catch (Throwable e) {
             Log.e(TAG, "Trimming file failed", e);
         }
         // Could not trim, returning untrimmed (untouched) file
@@ -190,13 +190,14 @@ public abstract class FFMPEG_Utils {
 
     /**
      * Retrieves image resolution from vk.log
+     *
      * @param managedFile The image file to retrieve
      * @param context
      * @return The image resolution as integer array (width in 0 index and height in 1), if possible. Otherwise, returns null.
      */
     public static int[] getImageResolution(FileManager managedFile, Context context) {
 
-        if(GeneralUtils.isLicenseValid(context, workFolder)<0)
+        if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
             return null;
 
         try {
@@ -211,12 +212,12 @@ public abstract class FFMPEG_Utils {
                 String line = "";
                 boolean cont = true;
 
-                while(cont && (line = br.readLine())!=null) {
-                    if(line.contains("sof0"))
+                while (cont && (line = br.readLine()) != null) {
+                    if (line.contains("sof0"))
                         cont = false;
                 }
 
-                int pivot_index = line.lastIndexOf(" ")+1;
+                int pivot_index = line.lastIndexOf(" ") + 1;
                 String unformattedResolution = line.substring(pivot_index, line.length());
                 String[] sArrayTmp = unformattedResolution.split("x");
                 int[] iArraytmp = new int[2];
@@ -225,8 +226,7 @@ public abstract class FFMPEG_Utils {
 
                 return iArraytmp;
             }
-        }
-        catch(Throwable e) {
+        } catch (Throwable e) {
             Log.e(TAG, "Getting resolution of image failed", e);
 
         }

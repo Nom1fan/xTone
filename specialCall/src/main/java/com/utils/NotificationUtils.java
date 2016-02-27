@@ -8,7 +8,7 @@ import com.ui.components.NotificationHelper;
 /**
  * Created by mor on 18/10/2015.
  */
-public class NotificationUtils {
+public abstract class NotificationUtils {
 
     private static final String TAG = NotificationUtils.class.getSimpleName();
     private static final int MAX_NOTIF_NUM = 5;
@@ -17,11 +17,11 @@ public class NotificationUtils {
 
     public static void createHelper(Context context, String initialMsg) {
 
-        NUM_OF_NOTIF=(NUM_OF_NOTIF+1)%MAX_NOTIF_NUM;
-        Log.i(TAG, "NUM_OF_NOTIF="+NUM_OF_NOTIF);
-        mNotificationHelpersArr[NUM_OF_NOTIF] = new NotificationHelper(context,NUM_OF_NOTIF);
+        NUM_OF_NOTIF = (NUM_OF_NOTIF + 1) % MAX_NOTIF_NUM;
+        Log.i(TAG, "NUM_OF_NOTIF=" + NUM_OF_NOTIF);
+        mNotificationHelpersArr[NUM_OF_NOTIF] = new NotificationHelper(NUM_OF_NOTIF);
 
-        mNotificationHelpersArr[NUM_OF_NOTIF].createUploadNotification(initialMsg);
+        mNotificationHelpersArr[NUM_OF_NOTIF].createUploadNotification(context, initialMsg);
     }
 
     public static NotificationHelper getNextHelper() {

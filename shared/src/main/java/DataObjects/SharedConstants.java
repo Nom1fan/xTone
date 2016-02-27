@@ -7,7 +7,6 @@ public abstract class SharedConstants {
 	public static String ROOT_FOLDER;
     public static String INCOMING_FOLDER;
     public static String OUTGOING_FOLDER;
-	public static String tempFolderForCompression;
 
     /* Server constants*/
     public static final String UPLOAD_FOLDER = "\\server_side\\uploads\\";
@@ -18,9 +17,9 @@ public abstract class SharedConstants {
 
     /* Shared constants */
     //TODO Turn all of these into configuration file (XML/JSON instead of constants)
-  	public static final String LOGIC_SERVER_HOST = "epicall.no-ip.biz";
+  	public static final String LOGIC_SERVER_HOST = "mediacallz.com";
   	public static final int LOGIC_SERVER_PORT = 8888;
-	public static final String STROAGE_SERVER_HOST = "epicall.no-ip.biz";
+	public static final String STROAGE_SERVER_HOST = "mediacallz.com";
 	public static final int STORAGE_SERVER_PORT = 7777;
 	public static final String DB_SERVER_HOST = "localhost";
 	public static final int DB_SERVER_PORT = 3306;

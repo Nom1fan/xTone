@@ -1,4 +1,4 @@
-package com.utils;
+package com.ui.components;
 
 /*
  * Copyright (C) 2006 The Android Open Source Project
@@ -16,23 +16,23 @@ package com.utils;
  * limitations under the License.
  */
 
-        import java.util.ArrayList;
-        import java.util.Arrays;
-        import java.util.Collection;
-        import java.util.Collections;
-        import java.util.Comparator;
-        import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
-        import android.content.Context;
-        import android.util.Log;
-        import android.view.LayoutInflater;
-        import android.view.View;
-        import android.view.ViewGroup;
-        import android.widget.ArrayAdapter;
-        import android.widget.BaseAdapter;
-        import android.widget.Filter;
-        import android.widget.Filterable;
-        import android.widget.TextView;
+import android.content.Context;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.TextView;
 
 /**
  * An adapter class which has the exact same behavior as the
@@ -43,20 +43,18 @@ package com.utils;
 public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
         Filterable {
     /**
-     * Contains the list of objects that represent the data of this
-     * ArrayAdapter. The content of this list is referred to as "the array" in
-     * the documentation.
-     */
-    private List<T> mObjects;
-
-    /**
      * Lock used to modify the content of {@link #mObjects}. Any write operation
      * performed on the array should be synchronized on this lock. This lock is
      * also used by the filter (see {@link #getFilter()} to make a synchronized
      * copy of the original array of data.
      */
     private final Object mLock = new Object();
-
+    /**
+     * Contains the list of objects that represent the data of this
+     * ArrayAdapter. The content of this list is referred to as "the array" in
+     * the documentation.
+     */
+    private List<T> mObjects;
     /**
      * The resource indicating what views to inflate to display the content of
      * this array adapter.
@@ -96,11 +94,9 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
     /**
      * Constructor
      *
-     * @param context
-     *            The current context.
-     * @param textViewResourceId
-     *            The resource ID for a layout file containing a TextView to use
-     *            when instantiating views.
+     * @param context            The current context.
+     * @param textViewResourceId The resource ID for a layout file containing a TextView to use
+     *                           when instantiating views.
      */
     public FilterWithSpaceAdapter(Context context, int textViewResourceId) {
         init(context, textViewResourceId, 0, new ArrayList<T>());
@@ -109,14 +105,11 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
     /**
      * Constructor
      *
-     * @param context
-     *            The current context.
-     * @param resource
-     *            The resource ID for a layout file containing a layout to use
-     *            when instantiating views.
-     * @param textViewResourceId
-     *            The id of the TextView within the layout resource to be
-     *            populated
+     * @param context            The current context.
+     * @param resource           The resource ID for a layout file containing a layout to use
+     *                           when instantiating views.
+     * @param textViewResourceId The id of the TextView within the layout resource to be
+     *                           populated
      */
     public FilterWithSpaceAdapter(Context context, int resource,
                                   int textViewResourceId) {
@@ -126,13 +119,10 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
     /**
      * Constructor
      *
-     * @param context
-     *            The current context.
-     * @param textViewResourceId
-     *            The resource ID for a layout file containing a TextView to use
-     *            when instantiating views.
-     * @param objects
-     *            The objects to represent in the ListView.
+     * @param context            The current context.
+     * @param textViewResourceId The resource ID for a layout file containing a TextView to use
+     *                           when instantiating views.
+     * @param objects            The objects to represent in the ListView.
      */
     public FilterWithSpaceAdapter(Context context, int textViewResourceId,
                                   T[] objects) {
@@ -142,16 +132,12 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
     /**
      * Constructor
      *
-     * @param context
-     *            The current context.
-     * @param resource
-     *            The resource ID for a layout file containing a layout to use
-     *            when instantiating views.
-     * @param textViewResourceId
-     *            The id of the TextView within the layout resource to be
-     *            populated
-     * @param objects
-     *            The objects to represent in the ListView.
+     * @param context            The current context.
+     * @param resource           The resource ID for a layout file containing a layout to use
+     *                           when instantiating views.
+     * @param textViewResourceId The id of the TextView within the layout resource to be
+     *                           populated
+     * @param objects            The objects to represent in the ListView.
      */
     public FilterWithSpaceAdapter(Context context, int resource,
                                   int textViewResourceId, T[] objects) {
@@ -161,13 +147,10 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
     /**
      * Constructor
      *
-     * @param context
-     *            The current context.
-     * @param textViewResourceId
-     *            The resource ID for a layout file containing a TextView to use
-     *            when instantiating views.
-     * @param objects
-     *            The objects to represent in the ListView.
+     * @param context            The current context.
+     * @param textViewResourceId The resource ID for a layout file containing a TextView to use
+     *                           when instantiating views.
+     * @param objects            The objects to represent in the ListView.
      */
     public FilterWithSpaceAdapter(Context context, int textViewResourceId,
                                   List<T> objects) {
@@ -177,58 +160,40 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
     /**
      * Constructor
      *
-     * @param context
-     *            The current context.
-     * @param resource
-     *            The resource ID for a layout file containing a layout to use
-     *            when instantiating views.
-     * @param textViewResourceId
-     *            The id of the TextView within the layout resource to be
-     *            populated
-     * @param objects
-     *            The objects to represent in the ListView.
+     * @param context            The current context.
+     * @param resource           The resource ID for a layout file containing a layout to use
+     *                           when instantiating views.
+     * @param textViewResourceId The id of the TextView within the layout resource to be
+     *                           populated
+     * @param objects            The objects to represent in the ListView.
      */
     public FilterWithSpaceAdapter(Context context, int resource,
                                   int textViewResourceId, List<T> objects) {
         init(context, resource, textViewResourceId, objects);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Creates a new ArrayAdapter from external resources. The content of the
+     * array is obtained through
+     * {@link android.content.res.Resources#getTextArray(int)}.
+     *
+     * @param context        The application's environment.
+     * @param textArrayResId The identifier of the array to use as the data source.
+     * @param textViewResId  The identifier of the layout used to create views.
+     * @return An ArrayAdapter<CharSequence>.
+     */
+    public static FilterWithSpaceAdapter<CharSequence> createFromResource(
+            Context context, int textArrayResId, int textViewResId) {
+        CharSequence[] strings = context.getResources().getTextArray(
+                textArrayResId);
+        return new FilterWithSpaceAdapter<CharSequence>(context, textViewResId,
+                strings);
+    }
 
     /**
      * Adds the specified object at the end of the array.
      *
-     * @param object
-     *            The object to add at the end of the array.
+     * @param object The object to add at the end of the array.
      */
     public void add(T object) {
         synchronized (mLock) {
@@ -245,8 +210,7 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
     /**
      * Adds the specified Collection at the end of the array.
      *
-     * @param collection
-     *            The Collection to add at the end of the array.
+     * @param collection The Collection to add at the end of the array.
      */
     public void addAll(Collection<? extends T> collection) {
         synchronized (mLock) {
@@ -263,8 +227,7 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
     /**
      * Adds the specified items at the end of the array.
      *
-     * @param items
-     *            The items to add at the end of the array.
+     * @param items The items to add at the end of the array.
      */
     public void addAll(T... items) {
         synchronized (mLock) {
@@ -281,10 +244,8 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
     /**
      * Inserts the specified object at the specified index in the array.
      *
-     * @param object
-     *            The object to insert into the array.
-     * @param index
-     *            The index at which the object must be inserted.
+     * @param object The object to insert into the array.
+     * @param index  The index at which the object must be inserted.
      */
     public void insert(T object, int index) {
         synchronized (mLock) {
@@ -301,8 +262,7 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
     /**
      * Removes the specified object from the array.
      *
-     * @param object
-     *            The object to remove.
+     * @param object The object to remove.
      */
     public void remove(T object) {
         synchronized (mLock) {
@@ -334,9 +294,8 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
     /**
      * Sorts the content of this adapter using the specified comparator.
      *
-     * @param comparator
-     *            The comparator used to sort the objects contained in this
-     *            adapter.
+     * @param comparator The comparator used to sort the objects contained in this
+     *                   adapter.
      */
     public void sort(Comparator<? super T> comparator) {
         synchronized (mLock) {
@@ -365,13 +324,12 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
      * {@link #notifyDataSetChanged}. If set to false, caller must manually call
      * notifyDataSetChanged() to have the changes reflected in the attached
      * view.
-     *
+     * <p/>
      * The default is true, and calling notifyDataSetChanged() resets the flag
      * to true.
      *
-     * @param notifyOnChange
-     *            if true, modifications to the list will automatically call
-     *            {@link #notifyDataSetChanged}
+     * @param notifyOnChange if true, modifications to the list will automatically call
+     *                       {@link #notifyDataSetChanged}
      */
     public void setNotifyOnChange(boolean notifyOnChange) {
         mNotifyOnChange = notifyOnChange;
@@ -414,9 +372,7 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
     /**
      * Returns the position of the specified item in the array.
      *
-     * @param item
-     *            The item to retrieve the position of.
-     *
+     * @param item The item to retrieve the position of.
      * @return The position of the specified item.
      */
     public int getPosition(T item) {
@@ -479,8 +435,7 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
      * Sets the layout resource to create the drop down views.
      * </p>
      *
-     * @param resource
-     *            the layout resource defining the drop down views
+     * @param resource the layout resource defining the drop down views
      * @see #getDropDownView(int, android.view.View, android.view.ViewGroup)
      */
     public void setDropDownViewResource(int resource) {
@@ -494,28 +449,6 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
         return createViewFromResource(position, convertView, parent,
                 mDropDownResource);
-    }
-
-    /**
-     * Creates a new ArrayAdapter from external resources. The content of the
-     * array is obtained through
-     * {@link android.content.res.Resources#getTextArray(int)}.
-     *
-     * @param context
-     *            The application's environment.
-     * @param textArrayResId
-     *            The identifier of the array to use as the data source.
-     * @param textViewResId
-     *            The identifier of the layout used to create views.
-     *
-     * @return An ArrayAdapter<CharSequence>.
-     */
-    public static FilterWithSpaceAdapter<CharSequence> createFromResource(
-            Context context, int textArrayResId, int textViewResId) {
-        CharSequence[] strings = context.getResources().getTextArray(
-                textArrayResId);
-        return new FilterWithSpaceAdapter<CharSequence>(context, textViewResId,
-                strings);
     }
 
     /**

@@ -14,7 +14,6 @@ import com.utils.SharedPrefUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 
 import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
@@ -30,8 +29,7 @@ import FilesManager.FileManager;
 public class DownloadReceiver extends BroadcastReceiver {
 
     private static final String TAG = DownloadReceiver.class.getSimpleName();
-    private Context _context;
-    private String _newfileFullPath;
+    private String _newFileFullPath;
     private String _newFileDir;
     private String _sharedPrefKeyForVisualMedia;
     private String _sharedPrefKeyForAudioMedia;
@@ -42,40 +40,40 @@ public class DownloadReceiver extends BroadcastReceiver {
      * Responsible for setting/deleting files and preparing for later media display after a new successful download event is received
      */
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            EventReport eventReport = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
-            _context = context;
-            if (eventReport.status() == EventType.DOWNLOAD_SUCCESS) {
-                Log.i(TAG, "In: DOWNLOAD_SUCCESS");
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        EventReport eventReport = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
 
-                TransferDetails td = (TransferDetails) eventReport.data();
-                preparePathsAndDirs(td);
+        if (eventReport.status() == EventType.DOWNLOAD_SUCCESS) {
+            Log.i(TAG, "In: DOWNLOAD_SUCCESS");
 
-                // copy new downloaded file to History Folder so it will show up in Gallery and don't make any duplicates with MD5 signature
-                copyToHistoryForGalleryShow(td);
+            TransferDetails td = (TransferDetails) eventReport.data();
+            preparePathsAndDirs(td);
 
-                FileManager.FileType fType = td.getFileType();
-                String fFullName = td.getSourceWithExtension();
-                String source = td.getSourceId();
+            // copy new downloaded file to History Folder so it will show up in Gallery and don't make any duplicates with MD5 signature
+            copyToHistoryForGalleryShow(context, td);
 
-                switch (fType) {
-                    case RINGTONE:
-                        setNewRingTone(source);
-                        deleteFilesIfNecessary(fFullName, fType, source);
-                        break;
+            FileManager.FileType fType = td.getFileType();
+            String fFullName = td.getSourceWithExtension();
+            String source = td.getSourceId();
 
-                    case VIDEO:
-                    case IMAGE:
-                        setNewVisualMedia(source);
-                        deleteFilesIfNecessary(fFullName, fType, source);
-                        break;
-                }
+            switch (fType) {
+                case RINGTONE:
+                    setNewRingTone(context, source);
+                    deleteFilesIfNecessary(context, fFullName, fType, source);
+                    break;
 
-
+                case VIDEO:
+                case IMAGE:
+                    setNewVisualMedia(context, source);
+                    deleteFilesIfNecessary(context, fFullName, fType, source);
+                    break;
             }
 
+
         }
+
+    }
 
     /**
      * Deletes files in the source's designated directory by an algorithm based on the new downloaded file type:
@@ -86,21 +84,17 @@ public class DownloadReceiver extends BroadcastReceiver {
      * nDFT = VIDEO --> deletes all
      *
      * @param newDownloadedFileType The type of the files just downloaded and should be created in the source designated folder
-     * @param source The source number of the sender of the file
+     * @param source                The source number of the sender of the file
      */
-    private void deleteFilesIfNecessary(String addedFileName, FileManager.FileType newDownloadedFileType, String source) {
+    private void deleteFilesIfNecessary(Context context, String addedFileName, FileManager.FileType newDownloadedFileType, String source) {
 
         File[] files = new File(_newFileDir).listFiles();
 
-        try
-        {
-            switch (newDownloadedFileType)
-            {
+        try {
+            switch (newDownloadedFileType) {
                 case RINGTONE:
 
-                    for (int i = 0; i < files.length; ++i)
-                    {
-                        File file = files[i];
+                    for (File file : files) {
                         String fileName = file.getName(); // This includes extension
                         FileManager.FileType fileType = FileManager.getFileType(file);
 
@@ -108,15 +102,13 @@ public class DownloadReceiver extends BroadcastReceiver {
                                 (fileType == FileManager.FileType.VIDEO ||
                                         fileType == FileManager.FileType.RINGTONE)) {
                             FileManager.delete(file);
-                            SharedPrefUtils.remove(_context, _sharedPrefKeyForVisualMedia , source);
+                            SharedPrefUtils.remove(context, _sharedPrefKeyForVisualMedia, source);
                         }
                     }
                     break;
                 case IMAGE:
 
-                    for (int i = 0; i < files.length; ++i)
-                    {
-                        File file = files[i];
+                    for (File file : files) {
                         String fileName = file.getName(); // This includes extension
                         FileManager.FileType fileType = FileManager.getFileType(file);
 
@@ -130,22 +122,19 @@ public class DownloadReceiver extends BroadcastReceiver {
 
                 case VIDEO:
 
-                    for (int i = 0; i < files.length; ++i)
-                    {
-                        File file = files[i];
+                    for (File file : files) {
                         String fileName = file.getName(); // This includes extension
-                        if(!fileName.equals(addedFileName)) {
+                        if (!fileName.equals(addedFileName)) {
                             FileManager.delete(file);
-                            SharedPrefUtils.remove(_context, _sharedPrefKeyForAudioMedia, source);
+                            SharedPrefUtils.remove(context, _sharedPrefKeyForAudioMedia, source);
                         }
                     }
                     break;
             }
 
-        }
-        catch (FileInvalidFormatException e) {
+        } catch (FileInvalidFormatException e) {
             e.printStackTrace();
-            Log.e(TAG, "Invalid file type:"+e.getMessage()+" in SpecialCall directory of source:"+source);
+            Log.e(TAG, "Invalid file type:" + e.getMessage() + " in SpecialCall directory of source:" + source);
         } catch (FileDoesNotExistException | FileMissingExtensionException e) {
             e.printStackTrace();
             Log.e(TAG, e.getMessage());
@@ -153,25 +142,24 @@ public class DownloadReceiver extends BroadcastReceiver {
 
     }
 
-    private void setNewRingTone(String source) {
+    private void setNewRingTone(Context context, String source) {
 
-        Log.i(TAG, "setNewRingTone with sharedPrefs: " + _newfileFullPath);
-            SharedPrefUtils.setString(_context,
-                    _sharedPrefKeyForAudioMedia, source, _newfileFullPath);
+        Log.i(TAG, "setNewRingTone with sharedPrefs: " + _newFileFullPath);
+        SharedPrefUtils.setString(context,
+                _sharedPrefKeyForAudioMedia, source, _newFileFullPath);
     }
 
-    private void setNewVisualMedia(String source) {
+    private void setNewVisualMedia(Context context, String source) {
 
-        Log.i(TAG, "setNewVisualMedia with sharedPrefs: " + _newfileFullPath);
-        SharedPrefUtils.setString(_context,
-                _sharedPrefKeyForVisualMedia, source, _newfileFullPath);
+        Log.i(TAG, "setNewVisualMedia with sharedPrefs: " + _newFileFullPath);
+        SharedPrefUtils.setString(context,
+                _sharedPrefKeyForVisualMedia, source, _newFileFullPath);
     }
 
     private void preparePathsAndDirs(TransferDetails td) {
 
         // Preparing for appropriate special media type
-        switch(td.get_spMediaType())
-        {
+        switch (td.get_spMediaType()) {
             case CALLER_MEDIA:
                 _newFileDir = Constants.INCOMING_FOLDER + td.getSourceId();
                 _sharedPrefKeyForVisualMedia = SharedPrefUtils.CALLER_MEDIA_FILEPATH;
@@ -187,24 +175,23 @@ public class DownloadReceiver extends BroadcastReceiver {
                 throw new UnsupportedOperationException("Invalid SpecialMediaType received");
         }
 
-        _newfileFullPath = _newFileDir + "/" + td.getSourceWithExtension();
+        _newFileFullPath = _newFileDir + "/" + td.getSourceWithExtension();
     }
 
-    private void copyToHistoryForGalleryShow(TransferDetails td) {
+    private void copyToHistoryForGalleryShow(Context context, TransferDetails td) {
 
         try {
 
-            File downloadedFile = new File(_newfileFullPath);
-            String md5 = FileManager.getMD5(_newfileFullPath);
-            String historyFileName = Constants.HISTORY_FOLDER + td.getFileType().toString()+"_"+md5+ "." + td.getExtension(); //give a unique name to the file and make sure there won't be any duplicates
+            File downloadedFile = new File(_newFileFullPath);
+            String md5 = FileManager.getMD5(_newFileFullPath);
+            String historyFileName = Constants.HISTORY_FOLDER + td.getFileType().toString() + "_" + md5 + "." + td.getExtension(); //give a unique name to the file and make sure there won't be any duplicates
             File copyToHistoryFile = new File(historyFileName);
 
             if (!copyToHistoryFile.exists()) // if the file exist don't do any duplicate
             {
                 FileUtils.copyFile(downloadedFile, copyToHistoryFile);
                 Log.i(TAG, "Creating a unique md5 file in the History Folder fileName:  " + copyToHistoryFile.getName());
-                if (td.getFileType() == FileManager.FileType.RINGTONE)
-                {
+                if (td.getFileType() == FileManager.FileType.RINGTONE) {
                     ContentValues values = new ContentValues();
                     values.put(MediaStore.MediaColumns.DATA, copyToHistoryFile.getName());
                     values.put(MediaStore.MediaColumns.TITLE, copyToHistoryFile.getName());
@@ -216,18 +203,14 @@ public class DownloadReceiver extends BroadcastReceiver {
                     values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/*");
                     values.put(MediaStore.Audio.Media.IS_MUSIC, true);
                     Uri uri = MediaStore.Audio.Media.getContentUriForPath(historyFileName);
-                    _context.getContentResolver().insert(uri, values);
+                    context.getContentResolver().insert(uri, values);
 
                 }
-                    _context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(copyToHistoryFile)));
-            }
-            else {
-                Log.e(TAG,"File already exist: " + historyFileName);
+                context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(copyToHistoryFile)));
+            } else {
+                Log.e(TAG, "File already exist: " + historyFileName);
             }
 
-        } catch (IOException e)
-        {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }

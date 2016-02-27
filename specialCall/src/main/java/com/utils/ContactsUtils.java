@@ -8,10 +8,18 @@ import android.provider.ContactsContract;
 
 import com.data_objects.Contact;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Mor on 18/02/2016.
  */
 public abstract class ContactsUtils {
+
+    private static final String[] PROJECTION = new String[]{
+            ContactsContract.Contacts.DISPLAY_NAME,
+            ContactsContract.CommonDataKinds.Phone.NUMBER
+    };
 
     public static Contact getContact(Uri uri, Context context) throws Exception {
 
@@ -28,12 +36,11 @@ public abstract class ContactsUtils {
                                 null, null, null);
 
                 if (c != null && c.moveToFirst()) {
-                     number = c.getString(0);
-                     name = c.getString(1);
+                    number = c.getString(0);
+                    name = c.getString(1);
 
                 }
-            }
-            finally {
+            } finally {
                 if (c != null) {
                     c.close();
                 }
@@ -49,21 +56,20 @@ public abstract class ContactsUtils {
         Uri uri;
         String[] projection;
         Uri mBaseUri = Contacts.Phones.CONTENT_FILTER_URL;
-        projection = new String[] { android.provider.Contacts.People.NAME };
+        projection = new String[]{android.provider.Contacts.People.NAME};
         try {
             Class<?> c = Class.forName("android.provider.ContactsContract$PhoneLookup");
             mBaseUri = (Uri) c.getField("CONTENT_FILTER_URI").get(mBaseUri);
-            projection = new String[] { "display_name" };
-        }
-        catch (Exception e) { } // Why are we obsorbing the exception?
+            projection = new String[]{"display_name"};
+        } catch (Exception e) {
+        } // Why are we obsorbing the exception?
 
         uri = Uri.withAppendedPath(mBaseUri, Uri.encode(phoneNumber));
         Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
 
         String contactName = "";
 
-        if (cursor.moveToFirst())
-        {
+        if (cursor.moveToFirst()) {
             contactName = cursor.getString(0);
         }
 
@@ -71,5 +77,33 @@ public abstract class ContactsUtils {
         cursor = null;
 
         return contactName;
+    }
+
+    public static List<Contact> getAllContacts(Context context) {
+
+        List<Contact> allContacts = new ArrayList<>();
+        Cursor people = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, PROJECTION, null, null, null);
+
+        if (people != null) {
+            try {
+                final int displayNameIndex = people.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+                final int phonesIndex = people.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+
+                String contactName, phoneNumber;
+
+                while (people.moveToNext()) {
+
+                    contactName = people.getString(displayNameIndex);
+                    phoneNumber = people.getString(phonesIndex);
+                    phoneNumber = PhoneNumberUtils.toValidPhoneNumber(phoneNumber);
+
+                    if(PhoneNumberUtils.isValidPhoneNumber(phoneNumber))
+                        allContacts.add(new Contact(contactName, phoneNumber));
+                }
+            } finally {
+                people.close();
+            }
+        }
+        return allContacts;
     }
 }
