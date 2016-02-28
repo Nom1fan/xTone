@@ -5,9 +5,7 @@ import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -26,10 +24,11 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.data_objects.Contact;
 import com.special.app.R;
+import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.PhoneNumberUtils;
-import com.utils.SharedPrefUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -224,13 +223,12 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
 
     public void populateContactsToDisplayFromBlockedList(ContentResolver cr) {
         _allContacts = new HashMap<String, String>();
-        Cursor allContactsPhone = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
 
-        // Handling PhoneNumbers In Native Contacts
-        assert allContactsPhone != null;
-        while (allContactsPhone.moveToNext()) {
-            String name = allContactsPhone.getString(allContactsPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            String phoneNumber = PhoneNumberUtils.toValidPhoneNumber(allContactsPhone.getString(allContactsPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+        List<Contact> contactsList = ContactsUtils.getAllContacts(getApplicationContext());
+
+        for (int x=0; x<contactsList.size(); x++) {
+            String name = contactsList.get(x).get_name();
+            String phoneNumber = contactsList.get(x).get_phoneNumber();
 
             if (!_phonesInListView.contains(phoneNumber) && PhoneNumberUtils.isValidPhoneNumber(phoneNumber)) // so there won't be any phone duplicates
             {
@@ -245,7 +243,6 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
                 _allContacts.put(name, phoneNumber); // helps button selectall to
             }
         }
-        allContactsPhone.close();
 
         // Handling Numbers That Are Not stored in Native Contacts
         String unkownName = "UNKNOWN";
@@ -372,7 +369,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
                 if (_blockedSet != null)
                     if (_blockedSet.contains(phoneInIndex)) {
                         _blockedSet.remove(phoneInIndex);
-                       MCBlockListUtils.setBlockListFromShared(getApplicationContext(),_blockedSet);
+                       MCBlockListUtils.setBlockListFromShared(getApplicationContext(), _blockedSet);
                     }
 
             }

@@ -1,10 +1,9 @@
 package com.utils;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.provider.ContactsContract;
 import android.util.Log;
 
+import com.data_objects.Contact;
 import com.data_objects.PermissionBlockListLevel;
 
 import java.util.ArrayList;
@@ -35,17 +34,13 @@ public abstract class MCBlockListUtils {
                     return false;
 
                 case PermissionBlockListLevel.CONTACTS_ONLY:
-
                     // GET ALL CONTACTS
-                    List<String> contactPhonenumbers = new ArrayList<String>(); // TODO Rony use the contactsUtils Method
-                    Cursor curPhones = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-                    assert curPhones != null;
-                    while (curPhones.moveToNext())
-                    {
-                        String phoneNumber = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        contactPhonenumbers.add(PhoneNumberUtils.toValidPhoneNumber(phoneNumber));
+                    List<Contact> contactsList = ContactsUtils.getAllContacts(context);
+                    List<String> contactPhonenumbers = new ArrayList<>();
+
+                    for (int i=0; i<contactsList.size(); i++) {
+                        contactPhonenumbers.add(contactsList.get(i).get_phoneNumber());
                     }
-                    curPhones.close();
 
                     if(contactPhonenumbers.contains(PhoneNumberUtils.toValidPhoneNumber(incomingNumber)))
                         return false;
@@ -54,7 +49,6 @@ public abstract class MCBlockListUtils {
 
 
                 case PermissionBlockListLevel.BLACK_LIST_SPECIFIC:
-
                     Set<String> blockedSet = SharedPrefUtils.getStringSet(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
                     if (!blockedSet.isEmpty()) {
                         incomingNumber = PhoneNumberUtils.toValidPhoneNumber(incomingNumber);

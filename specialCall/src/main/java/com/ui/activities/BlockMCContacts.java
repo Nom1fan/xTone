@@ -1,12 +1,9 @@
 package com.ui.activities;
 
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,10 +16,11 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.data_objects.ActivityRequestCodes;
+import com.data_objects.Contact;
 import com.data_objects.PermissionBlockListLevel;
 import com.special.app.R;
+import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
-import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 
 import java.util.ArrayList;
@@ -140,7 +138,7 @@ public class BlockMCContacts extends Activity implements View.OnClickListener {
 
     private void prepareListViewData() {
 
-        getAllContacts(this.getContentResolver()); // need to get all contacts so we can compare what we have in the sharedpref and pull the name to display in the view
+        getAllContacts(); // need to get all contacts so we can compare what we have in the sharedpref and pull the name to display in the view
         _namesInListView = new ArrayList<String>();
         _phonesInListView = new ArrayList<String>();
         _blockedContactsSet = MCBlockListUtils.getBlockListFromShared(getApplicationContext());
@@ -176,20 +174,18 @@ public class BlockMCContacts extends Activity implements View.OnClickListener {
 
     }
 
-    public void getAllContacts(ContentResolver cr) {
+    public void getAllContacts() {
+        List<Contact> contactsList = ContactsUtils.getAllContacts(getApplicationContext());
 
-        Cursor curPhones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-        while (curPhones.moveToNext()) {
-            String name = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            String phoneNumber = PhoneNumberUtils.toValidPhoneNumber(curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+        for (int i=0; i<contactsList.size(); i++) {
+            String name = contactsList.get(i).get_name();
+            String phoneNumber = contactsList.get(i).get_phoneNumber();
 
             if (!_phonesInListView.contains(phoneNumber) && (phoneNumber.length() == 10)) {
                 _allContactsNames.add(name);
                 _allContactsPhones.add(phoneNumber);
             }
-
         }
-        curPhones.close();
     }
     class BlackListAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener//,Filterable
     {

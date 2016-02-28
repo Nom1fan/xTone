@@ -1,9 +1,7 @@
 package com.async_tasks;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.os.AsyncTask;
-import android.provider.ContactsContract;
 import android.widget.AutoCompleteTextView;
 
 import com.data_objects.Contact;

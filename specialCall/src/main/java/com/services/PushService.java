@@ -1,10 +1,7 @@
 package com.services;
 
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.batch.android.Batch;
@@ -12,12 +9,6 @@ import com.google.gson.Gson;
 import com.receivers.PushReceiver;
 import com.utils.BroadcastUtils;
 import com.utils.MCBlockListUtils;
-import com.utils.SharedPrefUtils;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import DataObjects.PushEventKeys;
 import DataObjects.TransferDetails;
