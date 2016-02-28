@@ -39,6 +39,7 @@ import com.app.AppStateManager;
 import com.async_tasks.AutoCompletePopulateListAsyncTask;
 import com.async_tasks.IsRegisteredTask;
 import com.batch.android.Batch;
+import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.data_objects.Contact;
 import com.data_objects.SnackbarData;
@@ -673,6 +674,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         startService(i);
 
     }
+
+    private void BlockMCContacts() {
+        saveInstanceState();
+        Intent y = new Intent();
+        y.setClass(getApplicationContext(), BlockMCContacts.class);
+        startActivity(y);
+    }
     //endregion
 
     //region UI methods
@@ -708,6 +716,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         findViewById(R.id.clear).setOnClickListener(this);
         findViewById(R.id.inviteButton).setOnClickListener(this);
     }
+
     //endregion
 
     //region UI States
@@ -851,21 +860,22 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         switch (position) {
             case 0://Media Management
-
+                appSettings();
                 break;
             case 1: // Who Can MC me
-
+                BlockMCContacts();
                 break;
             case 2: // How To?
-
+                //TODO IMPLEMET Case
                 break;
             case 3: // Share Us
-                break;
-            case 4: // Rate Us
                 shareUs();
                 break;
-            case 5: // Bug Report
-
+            case 4: // Rate Us
+                //TODO IMPLEMET Case
+                break;
+            case 5: // Report BUG
+                //TODO IMPLEMET Case
                 break;
             case 6: // App Settings
                 appSettings();
@@ -1405,14 +1415,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //endregion
 
     //region private classes
-    private abstract class ActivityRequestCodes {
-
-        public static final int SELECT_CALLER_MEDIA = 1;
-        public static final int SELECT_CONTACT = 2;
-        public static final int SELECT_PROFILE_MEDIA = 3;
-        public static final int SELECT_MEDIA = 4;
-    }
-
     private class DrawerItemClickListener implements
             ListView.OnItemClickListener {
         @Override

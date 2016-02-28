@@ -15,6 +15,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.utils.MCBlockListUtils;
 import com.utils.SharedPrefUtils;
 import java.io.File;
 import java.io.IOException;
@@ -174,6 +175,7 @@ public class IncomingService extends AbstractStandOutService {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+
             if (!volumeChangeByMCButtons) { // this is not a mute by hard button only volume change \ mute by MC buttons , so ignore
                 int volumeDuringRun = (Integer) intent.getExtras().get("android.media.EXTRA_VOLUME_STREAM_VALUE");
 
@@ -204,7 +206,7 @@ public class IncomingService extends AbstractStandOutService {
 
         mIncomingOutgoingNumber = incomingNumber;
         // CHECK IF NUMBER BLOCKED OR NOT FOR MC
-        if(!checkIfNumberIsMCBlocked(incomingNumber))
+        if(!MCBlockListUtils.checkIfNumberIsMCBlocked(incomingNumber,getApplicationContext()) || (mInRingingSession))
             switch(state)
             {
                 case TelephonyManager.CALL_STATE_RINGING:

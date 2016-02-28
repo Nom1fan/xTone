@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.telephony.PhoneStateListener.*;
 
 import com.special.app.R;
+import com.utils.MCBlockListUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
@@ -86,7 +87,7 @@ public class OutgoingService extends AbstractStandOutService {
 
 
       // CHECK IF NUMBER BLOCKED OR NOT FOR MC
-     if(!checkIfNumberIsMCBlocked(incomingNumber))
+     if(!MCBlockListUtils.checkIfNumberIsMCBlocked(incomingNumber,getApplicationContext()))
         switch(state)
         {
             case TelephonyManager.CALL_STATE_IDLE:
@@ -140,7 +141,7 @@ public class OutgoingService extends AbstractStandOutService {
                 Log.i(TAG, "mInRingingSession="+mInRingingSession +  " mOutgoingCallNumber="+ mOutgoingCallNumber);
 
                 // CHECK IF NUMBER BLOCKED OR NOT FOR MC
-                if(!checkIfNumberIsMCBlocked(mOutgoingCallNumber))
+                if(!MCBlockListUtils.checkIfNumberIsMCBlocked(mOutgoingCallNumber,getApplicationContext()))
                 if (!mInRingingSession && mOutgoingCallNumber !=null)
                 {
 

@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.services.StorageServerProxyService;
@@ -393,11 +394,4 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         mProgressDialog.show();
     }
 
-    private abstract class ActivityRequestCodes {
-
-        public static final int SELECT_CALLER_MEDIA = 1;
-
-        public static final int SELECT_PROFILE_MEDIA = 3;
-
-    }
 }

@@ -27,6 +27,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.special.app.R;
+import com.utils.MCBlockListUtils;
+import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 
 import java.util.ArrayList;
@@ -51,6 +53,13 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_spec_contacts);
         Log.i(TAG, "onCreate");
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG, "onResume()");
 
 
         prepareListViewData();
@@ -100,14 +109,11 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
                     _ma.setChecked(i, false);
                     _lv.setItemChecked(i, false);
                 }
-
                 displayListViewWithNewData();
                 _ma.notifyDataSetChanged();
 
                 _blockedSet = new HashSet<>();
-                SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
-                SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, _blockedSet); // clean sharedpref as no one is selected
-
+                MCBlockListUtils.setBlockListFromShared(getApplicationContext(), _blockedSet);
             }
         });
 
@@ -115,7 +121,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
     }
 
     private void prepareListViewData() {
-        _blockedSet = SharedPrefUtils.getStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+        _blockedSet = MCBlockListUtils.getBlockListFromShared(getApplicationContext());
         populateContactsToDisplayFromBlockedList(this.getContentResolver()); // populate all contacts to view with checkboxes
     }
 
@@ -195,20 +201,6 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         super.onBackPressed();
     }
 
-    private String toValidPhoneNumber(String str) {
-
-        str = str.replaceAll("[^0-9]", "");
-
-        if (str.startsWith("972")) {
-            str = str.replaceFirst("972", "0");
-        }
-        if (str.startsWith("9720")) {
-            str = str.replaceFirst("9720", "0");
-        }
-
-        return str;
-    } // TODO use phone number utils
-
     // saving black listed contacts to SharedPref
     private void saveBlockedContacts(HashMap<String, String> contactsMap) {
         Iterator contactIterator = contactsMap.keySet().iterator();
@@ -217,13 +209,12 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
             String name = (String) contactIterator.next();
             String phoneNumber = contactsMap.get(name);
             // ADDING  To Black List is SharedPreferences
-            if (!_blockedSet.contains(phoneNumber) && (phoneNumber.length() == 10)) // TODO isvalidphone in phonenumberUtils
+            if (!_blockedSet.contains(phoneNumber) && PhoneNumberUtils.isValidPhoneNumber(phoneNumber))
             {
                 _blockedSet.add(phoneNumber);
             }
         }
-        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
-        SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, _blockedSet);
+        MCBlockListUtils.setBlockListFromShared(getApplicationContext(), _blockedSet);
     }
 
     @Override
@@ -239,9 +230,9 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         assert allContactsPhone != null;
         while (allContactsPhone.moveToNext()) {
             String name = allContactsPhone.getString(allContactsPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            String phoneNumber = toValidPhoneNumber(allContactsPhone.getString(allContactsPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+            String phoneNumber = PhoneNumberUtils.toValidPhoneNumber(allContactsPhone.getString(allContactsPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
 
-            if (!_phonesInListView.contains(phoneNumber) && (phoneNumber.length() == 10) && phoneNumber.startsWith("0")) // so there won't be any phone duplicates
+            if (!_phonesInListView.contains(phoneNumber) && PhoneNumberUtils.isValidPhoneNumber(phoneNumber)) // so there won't be any phone duplicates
             {
                 int i = 0;
                 while (_allContacts.containsKey(name)) // for namesInListView that have more than one number
@@ -259,7 +250,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         // Handling Numbers That Are Not stored in Native Contacts
         String unkownName = "UNKNOWN";
         for (String phone : _blockedSet) {
-            if (!_phonesInListView.contains(phone) && phone.startsWith("0")) // TODO  use phonenumberUtils.isValidPhoneNumber
+            if (!_phonesInListView.contains(phone) && PhoneNumberUtils.isValidPhoneNumber(phone))
             {
                 int i = 0;
                 while (_allContacts.containsKey(unkownName)) // for namesInListView that have more than one number
@@ -361,7 +352,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         public void onCheckedChanged(CompoundButton buttonView,
                                      boolean isChecked) {
 
-            String phoneInIndex = toValidPhoneNumber(_phonesInListView.get((Integer) buttonView.getTag())); //TODO : Use PhoneNumberUtils.toValidPhoneNumber()
+            String phoneInIndex = PhoneNumberUtils.toValidPhoneNumber(_phonesInListView.get((Integer) buttonView.getTag()));
             String nameInIndex = _namesInListView.get((Integer) buttonView.getTag());
 
             try {
@@ -374,16 +365,14 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
             {
                 if (_blockedSet != null) {
                     _blockedSet.add(phoneInIndex);
-                    SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
-                    SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, _blockedSet); // clean sharedpref as no one is selected
+                  MCBlockListUtils.setBlockListFromShared(getApplicationContext(), _blockedSet);
                 }
             } else {  // if unchecked remove from the black list in the sharedpref
 
                 if (_blockedSet != null)
                     if (_blockedSet.contains(phoneInIndex)) {
                         _blockedSet.remove(phoneInIndex);
-                        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
-                        SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, _blockedSet); // clean sharedpref as no one is selected
+                       MCBlockListUtils.setBlockListFromShared(getApplicationContext(),_blockedSet);
                     }
 
             }

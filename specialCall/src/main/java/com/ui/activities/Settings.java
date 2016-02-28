@@ -11,6 +11,7 @@ import android.provider.ContactsContract;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.data_objects.ActivityRequestCodes;
 import com.special.app.R;
 
 public class Settings extends PreferenceActivity {
@@ -107,12 +108,6 @@ public class Settings extends PreferenceActivity {
         });
     }
 
-    //	private ArrayList<Contact> allowedContacts = new ArrayList<Contact>();
-    private abstract class ActivityRequestCodes {
-
-        public static final int SELECT_CONTACT_PREFS = 1;
-
-    }
 }
     
     

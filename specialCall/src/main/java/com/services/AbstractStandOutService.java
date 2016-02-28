@@ -26,10 +26,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.data_objects.PermissionBlockListLevel;
 import com.special.app.R;
 import com.utils.BitmapUtils;
+import com.utils.MCBlockListUtils;
+import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.ContactsUtils;
+import com.utils.UI_Utils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -286,7 +290,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         final File root = new File(mediaFilePath);
 
         Uri uri = Uri.fromFile(root);
-        Log.i(TAG, "Video uri="+uri);
+        Log.i(TAG, "Video uri=" + uri);
 
         mSpecialCallView = new VideoView(this);
         mSpecialCallView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -406,6 +410,12 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 if (isMuted) {  // in versions of KITKAT and lower , we start in muted mode on the music stream , because we don't know when answering happens and we should stop it.
                     volumeChangeByMCButtons = true;
 
+                    try {     // TODO Rony Test Many Buttons Presses in IncomingService to See that it doesn't activates the MuteBroadcastReceiver mistakenly , sleep should help or we should do something else
+                        Thread.sleep(300,0);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                     mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false); // TODO Rony : Replace Deprecated !! Check All places
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
                     isMuted = false;
@@ -415,6 +425,11 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 } else {
 
                     volumeChangeByMCButtons = true;
+                    try { // TODO Rony Test Many Buttons Presses in IncomingService to See that it doesn't activates the MuteBroadcastReceiver mistakenly , sleep should help or we should do something else
+                        Thread.sleep(300,0);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
                     mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true); // TODO Rony : Replace Deprecated !! Check All places
                     isMuted = true;
@@ -451,6 +466,11 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             public void onClick(View v) {
 
                 volumeChangeByMCButtons = true;
+                try { // TODO Rony Test Many Buttons Presses in IncomingService to See that it doesn't activates the MuteBroadcastReceiver mistakenly , sleep should help or we should do something else
+                    Thread.sleep(300,0);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) - 1 ,0); // decrease volume
 
             }
@@ -477,6 +497,11 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mSpecialCallVolumeUpBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 volumeChangeByMCButtons = true;
+                try { // TODO Rony Test Many Buttons Presses in IncomingService to See that it doesn't activates the MuteBroadcastReceiver mistakenly , sleep should help or we should do something else
+                    Thread.sleep(300,0);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) + 1 ,0); // increase volume
 
             }
@@ -501,7 +526,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         lp2.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         // Log.i(TAG, " mSpecialCallVolumeDownBtn.getHeight() : " + String.valueOf(mSpecialCallVolumeDownBtn.getMaxHeight()));
         lp2.setMargins(0,0,0,600);  // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
-        lp2.addRule(RelativeLayout.ALIGN_TOP,mSpecialCallVolumeUpBtn.getId());
+        lp2.addRule(RelativeLayout.ALIGN_TOP, mSpecialCallVolumeUpBtn.getId());
         mSpecialCallBlockBtn.setImageResource(R.drawable.blocked_mc);//TODO : setImageResource need to be replaced ? memory issue ?
         mSpecialCallBlockBtn.setBackgroundColor(Color.WHITE);
         mSpecialCallBlockBtn.setLayoutParams(lp2);
@@ -511,15 +536,11 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             public void onClick(View v) {
 
                 Set<String> blockedNumbers = new HashSet<String>();
-                // TODO Rony Add method to GET the block_list from MCblockutils
-                blockedNumbers = SharedPrefUtils.getStringSet(getApplicationContext(),SharedPrefUtils.SETTINGS,SharedPrefUtils.BLOCK_LIST);
-                blockedNumbers.add(toValidPhoneNumber(mIncomingOutgoingNumber)); // TODO Rony use Phone Number Utils
+                blockedNumbers = MCBlockListUtils.getBlockListFromShared(getApplicationContext());
+                blockedNumbers.add(PhoneNumberUtils.toValidPhoneNumber(mIncomingOutgoingNumber));
 
-                // TODO Rony Add method to SET the block_list from MCblockutils
-                SharedPrefUtils.setStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, blockedNumbers);
-
-                // TODO Rony Show Toast from UIUtils
-                Toast.makeText(AbstractStandOutService.this,mIncomingOutgoingNumber +" Is Now MC BLOCKED !!! ", Toast.LENGTH_SHORT).show();
+                MCBlockListUtils.setBlockListFromShared(getApplicationContext(), blockedNumbers);
+                UI_Utils.callToast(mIncomingOutgoingNumber + " Is Now MC BLOCKED !!! ",Color.RED ,Toast.LENGTH_SHORT ,getApplicationContext());
 
                 closeSpecialCallWindowWithoutRingtone();
             }
@@ -616,78 +637,5 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             Log.e(TAG, "Failed to Stop sound. Exception:" + e.getMessage());
         }
     }
-
-    private String toValidPhoneNumber(String str) { // TODO Rony use from PhoneNumbers Utils
-
-        str = str.replaceAll("[^0-9]","");
-
-        if (str.startsWith("9720")){
-            str= str.replaceFirst("9720","0");
-        }
-        if (str.startsWith("972")){
-            str= str.replaceFirst("972","0");
-        }
-
-
-        return str;
-    }
-
-    protected boolean checkIfNumberIsMCBlocked(String incomingNumber) { // TODO Rony move it to MCBlockListUtils or whatever
-        Log.i(TAG, "check if number blocked: " + incomingNumber);
-        //MC Permissions: ALL , Only contacts , Specific Black List Contacts
-        String permissionLevel = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
-
-        if (permissionLevel.isEmpty())
-        {
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, "ALL");
-        }
-        else
-        {
-            switch (permissionLevel) {
-
-                case "ALL":
-                    return false;
-
-                case "CONTACTS":
-
-                    // GET ALL CONTACTS
-                    List<String> contactPhonenumbers = new ArrayList<String>(); // TODO Rony use the contactsUtils Method
-                    Cursor curPhones = this.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-                    assert curPhones != null;
-                    while (curPhones.moveToNext())
-                    {
-                        String phoneNumber = curPhones.getString(curPhones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        contactPhonenumbers.add(phoneNumber.replaceAll("\\D+", "")); // TODO Rony Use PhoneNumberUtils to ValidPhoneNumber
-                    }
-                    curPhones.close();
-
-                    if(contactPhonenumbers.contains(incomingNumber.replaceAll("\\D+", ""))) // TODO Rony Use PhoneNumberUtils to ValidPhoneNumber
-                        return false;
-                    else
-                        return true;
-
-
-                case "black_list":
-
-                    Set<String> blockedSet = SharedPrefUtils.getStringSet(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
-                    if (!blockedSet.isEmpty()) {
-                        incomingNumber = incomingNumber.replaceAll("\\D+", ""); // TODO Rony Use PhoneNumberUtils to ValidPhoneNumber
-
-                        if (blockedSet.contains(incomingNumber)) {
-                            Log.i(TAG, "NUMBER MC BLOCKED: " + incomingNumber);
-                            return true;
-                        }
-                    }
-                    else {
-                        Log.w(TAG, "BlackList empty allowing phone number: " + incomingNumber);
-                        return false;
-                    }
-            }
-        }
-        return false;
-    }
-
-
-
     //endregion
 }
