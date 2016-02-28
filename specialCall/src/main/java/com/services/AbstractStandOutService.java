@@ -2,7 +2,6 @@ package com.services;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -11,8 +10,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
-import android.provider.Contacts;
-import android.provider.ContactsContract;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -26,19 +23,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.data_objects.PermissionBlockListLevel;
 import com.special.app.R;
 import com.utils.BitmapUtils;
+import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.PhoneNumberUtils;
-import com.utils.SharedPrefUtils;
-import com.utils.ContactsUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import Exceptions.FileDoesNotExistException;
@@ -97,7 +90,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "Service onCreate");
-
+        android.os.Process.setThreadPriority(-20);
         prepareCallStateListener();
         prepareStandOutWindowDisplay();
     }
@@ -256,6 +249,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 closeSpecialCallWindowWithoutRingtone();
             }
         });
+
+
+
     }
 
     private void prepareImageView(String mediaFilePath)
@@ -341,7 +337,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         ((ImageView) mSpecialCallView).setImageResource(R.drawable.color_mc);
 
 
-
         mRelativeLayout.addView(mSpecialCallView);
         mRelativeLayout.addView(mSpecialCallTextView);
         mRelativeLayout.addView(mSpecialCallCloseBtn);
@@ -387,8 +382,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     }
 
-    private void prepareMuteBtn()
-    {
+    private void prepareMuteBtn() {
         Log.i(TAG, "Preparing Mute Button");
 
         //ImageView for Closing Special Incoming Call
@@ -409,13 +403,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             public void onClick(View v) {
                 if (isMuted) {  // in versions of KITKAT and lower , we start in muted mode on the music stream , because we don't know when answering happens and we should stop it.
                     volumeChangeByMCButtons = true;
-
-                    try {     // TODO Rony Test Many Buttons Presses in IncomingService to See that it doesn't activates the MuteBroadcastReceiver mistakenly , sleep should help or we should do something else
-                        Thread.sleep(300,0);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
                     mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false); // TODO Rony : Replace Deprecated !! Check All places
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
                     isMuted = false;
@@ -425,11 +412,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 } else {
 
                     volumeChangeByMCButtons = true;
-                    try { // TODO Rony Test Many Buttons Presses in IncomingService to See that it doesn't activates the MuteBroadcastReceiver mistakenly , sleep should help or we should do something else
-                        Thread.sleep(300,0);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                     mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
                     mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true); // TODO Rony : Replace Deprecated !! Check All places
                     isMuted = true;
@@ -439,6 +421,15 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 }
             }
         });
+        mSpecialCallMuteBtn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                // TODO Auto-generated method stub
+                return true;
+            }
+        });
+
+
     }
 
     private void prepareVolumeBtn()
@@ -466,16 +457,21 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             public void onClick(View v) {
 
                 volumeChangeByMCButtons = true;
-                try { // TODO Rony Test Many Buttons Presses in IncomingService to See that it doesn't activates the MuteBroadcastReceiver mistakenly , sleep should help or we should do something else
-                    Thread.sleep(300,0);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) - 1 ,0); // decrease volume
+                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) - 1, 0); // decrease volume
 
             }
         });
+        mSpecialCallVolumeDownBtn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
 
+                volumeChangeByMCButtons = true;
+
+                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // decrease volume
+
+                return true;
+            }
+        });
 
         //ImageView for Closing Special Incoming Call
         mSpecialCallVolumeUpBtn = new ImageView(this);
@@ -488,7 +484,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         lp2.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
        // Log.i(TAG, " mSpecialCallVolumeDownBtn.getHeight() : " + String.valueOf(mSpecialCallVolumeDownBtn.getMaxHeight()));
         lp2.setMargins(0,0,0,400); // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
-        lp2.addRule(RelativeLayout.ALIGN_TOP,mSpecialCallVolumeDownBtn.getId());
+        lp2.addRule(RelativeLayout.ALIGN_TOP, mSpecialCallVolumeDownBtn.getId());
         mSpecialCallVolumeUpBtn.setImageResource(R.drawable.plus);//TODO : setImageResource need to be replaced ? memory issue ?
         mSpecialCallVolumeUpBtn.setBackgroundColor(Color.WHITE);
         mSpecialCallVolumeUpBtn.setLayoutParams(lp2);
@@ -497,23 +493,30 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mSpecialCallVolumeUpBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 volumeChangeByMCButtons = true;
-                try { // TODO Rony Test Many Buttons Presses in IncomingService to See that it doesn't activates the MuteBroadcastReceiver mistakenly , sleep should help or we should do something else
-                    Thread.sleep(300,0);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) + 1 ,0); // increase volume
+
+                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) + 1, 0); // increase volume
 
             }
         });
 
+        mSpecialCallVolumeUpBtn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                volumeChangeByMCButtons = true;
+
+                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0); // increase volume
+
+                return true;
+            }
+        });
 
 
     }
 
     private void prepareBlockButton()
     {
-        Log.i(TAG, "Preparing Mute Button");
+        Log.i(TAG, "Preparing Block Button");
 
         //ImageView for Closing Special Incoming Call
         mSpecialCallBlockBtn = new ImageView(this);

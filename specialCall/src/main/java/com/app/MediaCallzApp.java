@@ -4,26 +4,13 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-import android.view.ViewConfiguration;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.batch.android.Batch;
 import com.batch.android.Config;
 import com.data_objects.Constants;
 import com.services.GetTokenIntentService;
-import com.special.app.R;
-
-import com.ui.activities.MainActivity;
 import com.utils.InitUtils;
 import com.utils.UI_Utils;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
 
 import DataObjects.SharedConstants;
 
@@ -37,7 +24,7 @@ public class MediaCallzApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        android.os.Process.setThreadPriority(-20);
         Context context = getApplicationContext();
 
         // Initializing Batch for push notifications

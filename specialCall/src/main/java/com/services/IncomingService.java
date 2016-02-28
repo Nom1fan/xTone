@@ -336,7 +336,7 @@ public class IncomingService extends AbstractStandOutService {
     }
 
     private void registerVolumeReceiver() {
-
+/*   // TODO UNCOMMENT IT IF WE NEED TO MUTE THE STREAM THROUGH THE HARD VOLUME BUTTONS  (WE COMMENTED THIS BECAUSE IT HAD SOME ISSUES WITH THE MC VOLUME BUTTON) , IF UNCOMMENT QA THE SHIT OUT OF IT.
         Runnable r = new Runnable() {
             public void run() {
 
@@ -358,7 +358,7 @@ public class IncomingService extends AbstractStandOutService {
         };
 
         new Thread(r).start();
-
+*/
     }
 
     private void closeSpecialCallWindowAndRingtone() {
