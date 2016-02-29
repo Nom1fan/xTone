@@ -4,18 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 //import android.telephony.PreciseCallState;
-import android.telephony.PhoneStateListener.*;
 
 import com.special.app.R;
 import com.utils.MCBlockListUtils;
@@ -87,7 +82,7 @@ public class OutgoingService extends AbstractStandOutService {
 
 
       // CHECK IF NUMBER BLOCKED OR NOT FOR MC
-     if(!MCBlockListUtils.checkIfNumberIsMCBlocked(incomingNumber,getApplicationContext()))
+     if(!MCBlockListUtils.checkIfNumberIsMCBlocked(incomingNumber, getApplicationContext()))
         switch(state)
         {
             case TelephonyManager.CALL_STATE_IDLE:
@@ -141,7 +136,7 @@ public class OutgoingService extends AbstractStandOutService {
                 Log.i(TAG, "mInRingingSession="+mInRingingSession +  " mOutgoingCallNumber="+ mOutgoingCallNumber);
 
                 // CHECK IF NUMBER BLOCKED OR NOT FOR MC
-                if(!MCBlockListUtils.checkIfNumberIsMCBlocked(mOutgoingCallNumber,getApplicationContext()))
+                if(!MCBlockListUtils.checkIfNumberIsMCBlocked(mOutgoingCallNumber, getApplicationContext()))
                 if (!mInRingingSession && mOutgoingCallNumber !=null)
                 {
 
@@ -219,8 +214,8 @@ public class OutgoingService extends AbstractStandOutService {
                 Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
                 mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true); // TODO Rony : Replace Deprecated !! Check All places
                 isMuted = true;
-                mSpecialCallMuteBtn.setImageResource(R.drawable.mute);  // TODO : setImageResource need to be replaced ? memory issue ?
-                mSpecialCallMuteBtn.bringToFront();
+                mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);  // TODO : setImageResource need to be replaced ? memory issue ?
+                mSpecialCallMutUnMuteBtn.bringToFront();
             }
         }
     }
@@ -235,8 +230,8 @@ public class OutgoingService extends AbstractStandOutService {
                 Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
                 mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true); // TODO Rony : Replace Deprecated !! Check All places
                 isMuted = true;
-                mSpecialCallMuteBtn.setImageResource(R.drawable.mute);  //TODO : setImageResource need to be replaced ? memory issue ?
-                mSpecialCallMuteBtn.bringToFront();
+                mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);  //TODO : setImageResource need to be replaced ? memory issue ?
+                mSpecialCallMutUnMuteBtn.bringToFront();
             }
         }
     }

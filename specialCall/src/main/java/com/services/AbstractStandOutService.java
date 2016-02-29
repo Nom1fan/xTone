@@ -15,6 +15,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -51,11 +52,12 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected int mHeight;
     protected TextView mSpecialCallTextView;
     protected ImageView mSpecialCallCloseBtn;
-    protected ImageView mSpecialCallMuteBtn;
+    protected ImageView mSpecialCallMutUnMuteBtn;
     protected ImageView mSpecialCallVolumeUpBtn;
     protected ImageView mSpecialCallVolumeDownBtn;
     protected ImageView mSpecialCallBlockBtn;
     protected RelativeLayout mRelativeLayout;
+    protected View mcButtonsOverlay;
     protected boolean isMuted=false;
     protected boolean mInRingingSession = false;
     protected MediaPlayer mMediaPlayer;
@@ -101,7 +103,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         Log.e(TAG, "Service onDestroy");
 
         if (mAudioManager!=null)
-        {mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC,false);  // TODO Rony : Replace Deprecated !! Check All places
+        {mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);  // TODO Rony : Replace Deprecated !! Check All places
         mAudioManager.setStreamMute(AudioManager.STREAM_RING,false);}  // TODO Rony : Replace Deprecated !! Check All places
     }
 
@@ -126,10 +128,25 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     public void createAndAttachView(int id, FrameLayout frame) {
 
         Log.i(TAG, "In createAndAttachView()");
+
         frame.addView(mRelativeLayout);
-        // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        mcButtonsOverlay = inflater.inflate(R.layout.mc_buttons_overlay, null);
+        prepareMCButtonsOnRelativeLayoutOverlay();
+
+        frame.addView(mcButtonsOverlay);
+
         frame.setBackgroundColor(Color.BLACK);
         windowCloseActionWasMade = false;
+    }
+
+    private void prepareMCButtonsOnRelativeLayoutOverlay() {
+
+        prepareCloseBtn();
+        prepareMuteBtn();
+        prepareVolumeBtn();
+        prepareBlockButton();
     }
 
     @Override
@@ -229,28 +246,14 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     private void prepareCloseBtn()
     {
+        mSpecialCallCloseBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.close_mc);
         Log.i(TAG, "Preparing close Button");
-
         //ImageView for Closing Special Incoming Call
-        mSpecialCallCloseBtn = new ImageView(this);
-        RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-        lp1.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-        lp1.addRule(RelativeLayout.ALIGN_TOP);
-        lp1.addRule(RelativeLayout.ALIGN_RIGHT);
-        lp1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        mSpecialCallCloseBtn.setImageResource(R.drawable.close);
-        mSpecialCallCloseBtn.setBackgroundColor(Color.BLACK);
-        mSpecialCallCloseBtn.setLayoutParams(lp1);
-        mSpecialCallCloseBtn.setClickable(true);
         mSpecialCallCloseBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 closeSpecialCallWindowWithoutRingtone();
             }
         });
-
-
 
     }
 
@@ -300,6 +303,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 
         mSpecialCallView.setLayoutParams(params);
+        //TODO should we use MediaController controls to control video ??? TBD
         // mediaController = new MediaController(this);
         // mediaController.setAnchorView(mSpecialCallView);
         // mediaController.setMediaPlayer(((VideoView)mSpecialCallView));
@@ -322,10 +326,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         prepareRelativeLayout();
         prepareCallNumberTextView(callNumber);
-        prepareCloseBtn();
-        prepareMuteBtn();
-        prepareVolumeBtn();
-        prepareBlockButton();
 
         mSpecialCallView = new ImageView(this);
         mSpecialCallView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
@@ -339,11 +339,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         mRelativeLayout.addView(mSpecialCallView);
         mRelativeLayout.addView(mSpecialCallTextView);
-        mRelativeLayout.addView(mSpecialCallCloseBtn);
-        mRelativeLayout.addView(mSpecialCallMuteBtn);
-        mRelativeLayout.addView(mSpecialCallVolumeDownBtn);
-        mRelativeLayout.addView(mSpecialCallVolumeUpBtn);
-        mRelativeLayout.addView(mSpecialCallBlockBtn);
     }
 
     protected void prepareViewForSpecialCall(FileManager.FileType fileType , String mediaFilePath, String callNumber) {
@@ -354,10 +349,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         prepareRelativeLayout();
         prepareCallNumberTextView(callNumber);
-        prepareCloseBtn();
-        prepareMuteBtn();
-        prepareVolumeBtn();
-        prepareBlockButton();
 
         // Displaying image during call
         if (fileType == FileManager.FileType.IMAGE) {
@@ -374,60 +365,53 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         mRelativeLayout.addView(mSpecialCallView);
         mRelativeLayout.addView(mSpecialCallTextView);
-        mRelativeLayout.addView(mSpecialCallCloseBtn);
-        mRelativeLayout.addView(mSpecialCallMuteBtn);
-        mRelativeLayout.addView(mSpecialCallVolumeDownBtn);
-        mRelativeLayout.addView(mSpecialCallVolumeUpBtn);
-        mRelativeLayout.addView(mSpecialCallBlockBtn);
-
     }
 
     private void prepareMuteBtn() {
         Log.i(TAG, "Preparing Mute Button");
 
+        //TODO check if Togglebutton for imageView good also?
+        mSpecialCallMutUnMuteBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.mc_mute_unmute);
+        if (mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) ==  0)
+        {
+            mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
+            mSpecialCallMutUnMuteBtn.bringToFront();
+        }
+        else
+        {
+            mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
+            mSpecialCallMutUnMuteBtn.bringToFront();
+        }
+
         //ImageView for Closing Special Incoming Call
-        mSpecialCallMuteBtn = new ImageView(this);
-        RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-        lp1.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        lp1.addRule(RelativeLayout.ALIGN_BOTTOM);
-        lp1.addRule(RelativeLayout.ALIGN_RIGHT);
-        lp1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        mSpecialCallMuteBtn.setImageResource(R.drawable.unmute);  //TODO : setImageResource need to be replaced ? memory issue ?
-        mSpecialCallMuteBtn.setBackgroundColor(Color.WHITE);
-        mSpecialCallMuteBtn.setLayoutParams(lp1); // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
-        mSpecialCallMuteBtn.setClickable(true);
-        mSpecialCallMuteBtn.bringToFront();
-        mSpecialCallMuteBtn.setOnClickListener(new View.OnClickListener() {
+
+        mSpecialCallMutUnMuteBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                Log.i(TAG, "mute and Umute by click");
                 if (isMuted) {  // in versions of KITKAT and lower , we start in muted mode on the music stream , because we don't know when answering happens and we should stop it.
+                    Log.i(TAG, "UNMUTE by button");
                     volumeChangeByMCButtons = true;
                     mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false); // TODO Rony : Replace Deprecated !! Check All places
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
                     isMuted = false;
-                    mSpecialCallMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
-                    mSpecialCallMuteBtn.bringToFront();
-                    Log.i(TAG, "UNMUTE by button");
-                } else {
 
+                    mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
+                    mSpecialCallMutUnMuteBtn.bringToFront();
+
+                } else {
+                    Log.i(TAG, "MUTE by button");
                     volumeChangeByMCButtons = true;
                     mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
                     mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true); // TODO Rony : Replace Deprecated !! Check All places
                     isMuted = true;
-                    mSpecialCallMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
-                    mSpecialCallMuteBtn.bringToFront();
-                    Log.i(TAG, "MUTE by button");
+
+                    mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
+                    mSpecialCallMutUnMuteBtn.bringToFront();
+
                 }
             }
         });
-        mSpecialCallMuteBtn.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                // TODO Auto-generated method stub
-                return true;
-            }
-        });
+
 
 
     }
@@ -436,24 +420,11 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     {
         Log.i(TAG, "Preparing Volume Button");
 
-        //ImageView for Closing Special Incoming Call
-        mSpecialCallVolumeDownBtn = new ImageView(this);
-        RelativeLayout.LayoutParams lp1 = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-        lp1.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        lp1.addRule(RelativeLayout.ALIGN_BOTTOM);
-        lp1.addRule(RelativeLayout.ALIGN_RIGHT);
-        lp1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        lp1.addRule(RelativeLayout.ALIGN_TOP,mSpecialCallMuteBtn.getId());
-       // Log.i(TAG, " mSpecialCallMuteBtn.getHeight() : " + String.valueOf(mSpecialCallMuteBtn.getHeight()));
-        lp1.setMargins(0,0,0,200); // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
-        mSpecialCallVolumeDownBtn.setImageResource(R.drawable.minusvol);  //TODO : setImageResource need to be replaced ? memory issue ?
-        mSpecialCallVolumeDownBtn.setBackgroundColor(Color.WHITE);
-        mSpecialCallVolumeDownBtn.setLayoutParams(lp1);
-        mSpecialCallVolumeDownBtn.setClickable(true);
-        mSpecialCallVolumeDownBtn.bringToFront();
-        mSpecialCallVolumeDownBtn.setOnClickListener(new View.OnClickListener() {
+        mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
+        mSpecialCallVolumeUpBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_up);
+
+        //ImageView for volume down Special Incoming Call
+          mSpecialCallVolumeDownBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 volumeChangeByMCButtons = true;
@@ -473,22 +444,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             }
         });
 
-        //ImageView for Closing Special Incoming Call
-        mSpecialCallVolumeUpBtn = new ImageView(this);
-        RelativeLayout.LayoutParams lp2 = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-        lp2.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        lp2.addRule(RelativeLayout.ALIGN_BOTTOM);
-        lp2.addRule(RelativeLayout.ALIGN_RIGHT);
-        lp2.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-       // Log.i(TAG, " mSpecialCallVolumeDownBtn.getHeight() : " + String.valueOf(mSpecialCallVolumeDownBtn.getMaxHeight()));
-        lp2.setMargins(0,0,0,400); // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
-        lp2.addRule(RelativeLayout.ALIGN_TOP, mSpecialCallVolumeDownBtn.getId());
-        mSpecialCallVolumeUpBtn.setImageResource(R.drawable.plus);//TODO : setImageResource need to be replaced ? memory issue ?
-        mSpecialCallVolumeUpBtn.setBackgroundColor(Color.WHITE);
-        mSpecialCallVolumeUpBtn.setLayoutParams(lp2);
-        mSpecialCallVolumeUpBtn.setClickable(true);
+        //ImageView for volume up Special Incoming Call
         mSpecialCallVolumeUpBtn.bringToFront();
         mSpecialCallVolumeUpBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -517,24 +473,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     private void prepareBlockButton()
     {
         Log.i(TAG, "Preparing Block Button");
-
+        mSpecialCallBlockBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.block_mc);
         //ImageView for Closing Special Incoming Call
-        mSpecialCallBlockBtn = new ImageView(this);
-        RelativeLayout.LayoutParams lp2 = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-        lp2.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        lp2.addRule(RelativeLayout.ALIGN_BOTTOM);
-        lp2.addRule(RelativeLayout.ALIGN_RIGHT);
-        lp2.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        // Log.i(TAG, " mSpecialCallVolumeDownBtn.getHeight() : " + String.valueOf(mSpecialCallVolumeDownBtn.getMaxHeight()));
-        lp2.setMargins(0,0,0,600);  // TODO Rony make another RelativeLayout with transpernt and buttons already on on the old relative layout. and no need for stupid margins
-        lp2.addRule(RelativeLayout.ALIGN_TOP, mSpecialCallVolumeUpBtn.getId());
-        mSpecialCallBlockBtn.setImageResource(R.drawable.blocked_mc);//TODO : setImageResource need to be replaced ? memory issue ?
-        mSpecialCallBlockBtn.setBackgroundColor(Color.WHITE);
-        mSpecialCallBlockBtn.setLayoutParams(lp2);
-        mSpecialCallBlockBtn.setClickable(true);
-        mSpecialCallBlockBtn.bringToFront();
         mSpecialCallBlockBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
@@ -548,9 +488,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 closeSpecialCallWindowWithoutRingtone();
             }
         });
-
-
-
     }
 
     protected void startMediaSpecialCall(String mediaFilePath, String callNumber) {

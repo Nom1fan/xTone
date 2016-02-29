@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:id="@+id/close_mc"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/clear"
+        android:clickable="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:id="@+id/block_mc"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/volume_up"
+        android:src="@drawable/blocked_mc"
+        android:layout_marginBottom="30dp"
+        android:clickable="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:id="@+id/volume_up"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/volume_down"
+        android:src="@drawable/plus"
+        android:layout_marginBottom="30dp"
+        android:clickable="true" />
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:id="@+id/volume_down"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/mc_mute_unmute"
+        android:src="@drawable/minusvol"
+        android:layout_marginBottom="30dp"
+        android:clickable="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:id="@+id/mc_mute_unmute"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/unmute"
+        android:clickable="true" />
+
+</RelativeLayout>
