@@ -139,6 +139,16 @@
             android:priority="998" >
         </service>
 
+        <receiver android:name="com.receivers.StartStandOutServicesFallBackReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+                <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="com.android.special.specialcall.EVENT_ACTION"/>
+            </intent-filter>
+        </receiver>
+
+
         <receiver android:name="com.receivers.ConnectivityBroadcastReceiver" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />

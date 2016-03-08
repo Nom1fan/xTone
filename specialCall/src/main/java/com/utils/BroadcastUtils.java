@@ -19,4 +19,10 @@ public abstract class BroadcastUtils {
         broadcastEvent.putExtra(Event.EVENT_REPORT, report);
         context.sendBroadcast(broadcastEvent);
     }
+
+    public static void sendCustomBroadcast(Context context, String tag, Intent i) {
+
+        Log.i(tag, "Sending custom broadcast:" + i.getAction());
+        context.sendBroadcast(i);
+    }
 }

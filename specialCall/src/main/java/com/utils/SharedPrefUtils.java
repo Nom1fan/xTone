@@ -7,17 +7,18 @@ import java.util.Set;
 
 public abstract class SharedPrefUtils {
 
-	//region Shared prefs names
-	public static final String GENERAL = "General";
-	public static final String SETTINGS = "Settings";
-	public static final String RADIO_BUTTON_SETTINGS = "RadioButtonsSettings";
-	public static final String SERVER_PROXY = "AbstractServerProxy";
-	public static final String UPLOADED_CALLER_MEDIA_THUMBNAIL = "UploadedCallerMediaThumbnail";
-	public static final String UPLOADED_RINGTONE_PATH ="UploadedRingTonePath";
-	public static final String UPLOADED_PROFILE_MEDIA_THUMBNAIL = "UploadedProfileMediaThumbnail";
-	public static final String UPLOADED_FUNTONE_PATH = "UploadedFunTonePath";
-	public static final String CALLER_MEDIA_FILEPATH = "CallerMediaFilePath";
-	public static final String RINGTONE_FILEPATH = "RingToneFilePath";
+    //region Shared prefs names
+    public static final String GENERAL = "General";
+    public static final String SETTINGS = "Settings";
+    public static final String SERVICES = "Services";
+    public static final String RADIO_BUTTON_SETTINGS = "RadioButtonsSettings";
+    public static final String SERVER_PROXY = "AbstractServerProxy";
+    public static final String UPLOADED_CALLER_MEDIA_THUMBNAIL = "UploadedCallerMediaThumbnail";
+    public static final String UPLOADED_RINGTONE_PATH ="UploadedRingTonePath";
+    public static final String UPLOADED_PROFILE_MEDIA_THUMBNAIL = "UploadedProfileMediaThumbnail";
+    public static final String UPLOADED_FUNTONE_PATH = "UploadedFunTonePath";
+    public static final String CALLER_MEDIA_FILEPATH = "CallerMediaFilePath";
+    public static final String RINGTONE_FILEPATH = "RingToneFilePath";
     public static final String PROFILE_MEDIA_FILEPATH = "ProfileMediaFilePath";
     public static final String FUNTONE_FILEPATH = "FunToneFilePath";
     //endregion
@@ -38,10 +39,17 @@ public abstract class SharedPrefUtils {
     public static final String WAS_MID_ACTION = "WasMidAction";
     //endregion
 
+    //region Shared pref keys under SERVICES
+    public static final String OUTGOING_RINGING_SESSION = "OutgoingisInRingingSession";
+    public static final String INCOMING_RINGING_SESSION = "IncomingisInRingingSession";
+    public static final String RING_VOLUME = "RingVolume";
+    public static final String MUSIC_VOLUME = "MusicVolume";
+    //endregion
 
-	/* shared pref keys under SETTINGS */
-	public static final String WHO_CAN_MC_ME = "WhoCanMCMe";
-	public static final String BLOCK_LIST = "BlockList";
+
+    /* shared pref keys under SETTINGS */
+    public static final String WHO_CAN_MC_ME = "WhoCanMCMe";
+    public static final String BLOCK_LIST = "BlockList";
     //region Shared prefs action methods
     //region Getters
     public static int getInt(Context context, String prefsName, String key) {
@@ -66,10 +74,10 @@ public abstract class SharedPrefUtils {
 
     public static void setStringSet(Context context, String prefsName, String key, Set<String> value){
         SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
-		SharedPreferences.Editor edit = prefs.edit();
-		edit.clear();
-		edit.putStringSet(key, value);
-		edit.commit();
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.clear();
+        edit.putStringSet(key, value);
+        edit.commit();
     }
 
     public static Set<String> getStringSet(Context context, String prefsName, String key){

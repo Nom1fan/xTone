@@ -1,9 +1,9 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
+
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.0"
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         applicationId "com.special.app"
@@ -48,18 +48,18 @@ repositories {
 
 dependencies {
     compile project(':shared')
-    compile 'com.android.support:support-v4:19.1.0'
-    compile 'com.android.support:appcompat-v7:19.1.0'
     compile project(':ffmpeg4android_lib')
     compile project(':standOut_lib')
     compile project(':aFileChooser')
+
+
+    compile 'com.android.support:support-v4:23.1.1'
+    compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.nispok:snackbar:2.11.0'
-    compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
-    compile 'com.android.support:design:23.1.1'
-    compile 'com.google.android.gms:play-services-gcm:8.3.0'
-    compile 'com.google.android.gms:play-services-base:8.3.0'
-    compile 'com.google.android.gms:play-services-ads:8.3.0'
-    compile 'com.batch.android:batch-sdk:1.5+'
+compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
+compile 'com.android.support:design:23.1.1'
+compile 'com.google.android.gms:play-services-gcm:7.5.0'
 
-
+compile 'com.batch.android:batch-sdk:1.5.+'
 }
+apply plugin: 'com.google.gms.google-services'

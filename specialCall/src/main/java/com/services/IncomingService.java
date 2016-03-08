@@ -5,18 +5,18 @@ import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.PowerManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.FrameLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.MCBlockListUtils;
 import com.utils.SharedPrefUtils;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -26,18 +26,16 @@ import wei.mark.standout.StandOutWindow;
 
 public class IncomingService extends AbstractStandOutService {
 
+    public static boolean isLive =false;
     private boolean mWasSpecialRingTone = false;
-    private int mRingVolume;
-    private int mOldMediaVolume;
     private boolean mVolumeChangeByService = false;
     private boolean mAlreadyMuted = false;
     private boolean mKeyguardDismissed = false;
+    private boolean mAnswered = false;
     private KeyguardManager mKeyguardManager;
     private KeyguardManager.KeyguardLock mLock;
     private boolean mBugFixPatchForReceiverRegister =true;
-    private VolumeButtonReceiver mVolumeButtonReceiver;
-
-
+    PowerManager.WakeLock wakeLock ;
     /* Service methods */
 
     @Override
@@ -59,8 +57,9 @@ public class IncomingService extends AbstractStandOutService {
                     }
                 };
 
-            if(mVolumeButtonReceiver == null)
-                mVolumeButtonReceiver = new VolumeButtonReceiver();
+            // if(mVolumeButtonReceiver == null)
+            //     mVolumeButtonReceiver = new VolumeButtonReceiver();
+            isLive = true;
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -98,6 +97,22 @@ public class IncomingService extends AbstractStandOutService {
 
         }.start();
 
+        if (intent!=null)
+        {
+            String incomingPhoneNumber = intent.getStringExtra(StartStandOutServicesFallBackReceiver.INCOMING_PHONE_NUMBER_KEY);
+            Log.i(TAG, "intent.getStringExtra.IncomingPhoneNumberFromBroadcastReceiver mincomingnumber:"+ incomingPhoneNumber);
+
+            // do you start from FallBackReceiver ??
+            if (incomingPhoneNumber != null && !incomingPhoneNumber.isEmpty())
+            {
+                Log.i(TAG, "syncOnCallStateChange From FALLBACK mincomingnumber:" + incomingPhoneNumber);
+
+                StartStandOutServicesFallBackReceiver.completeWakefulIntent(intent);
+
+                syncOnCallStateChange(TelephonyManager.CALL_STATE_RINGING, incomingPhoneNumber);
+            }
+
+        }
 
         return START_STICKY;
 
@@ -112,6 +127,12 @@ public class IncomingService extends AbstractStandOutService {
         dismissKeyGuard(true);
     }
 
+    @Override
+    public void onDestroy() {
+
+        isLive = false;
+        super.onDestroy();
+    }
 
     /* AbstractStandOutService methods */
 
@@ -124,7 +145,7 @@ public class IncomingService extends AbstractStandOutService {
             mWasSpecialRingTone = true; // Marking that the ring sound will be ours (video stream) and not native
 
             try {
-                mAudioManager.setStreamMute(AudioManager.STREAM_RING, true); // TODO Rony : Replace Deprecated !! Check All places
+                disableRingStream();
                 Log.i(TAG, "MUTE STREAM_RING ");
                 Log.i(TAG, "VIDEO file detected MUTE Ring");
 
@@ -179,10 +200,10 @@ public class IncomingService extends AbstractStandOutService {
             if (!volumeChangeByMCButtons) { // this is not a mute by hard button only volume change \ mute by MC buttons , so ignore
                 int volumeDuringRun = (Integer) intent.getExtras().get("android.media.EXTRA_VOLUME_STREAM_VALUE");
 
-                Log.i(TAG, "BroadCastFlags: mAlreadyMuted: " + mAlreadyMuted + " mInRingingSession: " + mInRingingSession + " mBugFixPatchForReceiverRegister: " + mBugFixPatchForReceiverRegister);
-                if (!mAlreadyMuted && mInRingingSession && (volumeDuringRun != 0) && (volumeDuringRun != 1) && !mBugFixPatchForReceiverRegister/*&& !mVolumeChangeByService*/) {
+                Log.i(TAG, "BroadCastFlags: mAlreadyMuted: " + mAlreadyMuted + " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) + " mBugFixPatchForReceiverRegister: " + mBugFixPatchForReceiverRegister);
+                if (!mAlreadyMuted && isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && (volumeDuringRun != 0) && (volumeDuringRun != 1) && !mBugFixPatchForReceiverRegister/*&& !mVolumeChangeByService*/) {
                     try {
-                        mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true); // TODO Rony : Replace Deprecated !! Check All places
+                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
                         mAlreadyMuted = true;
                         Log.i(TAG, "MUTE STREAM_MUSIC ");
                     } catch (Exception e) {
@@ -193,7 +214,7 @@ public class IncomingService extends AbstractStandOutService {
                 if (mVolumeChangeByService)
                     mVolumeChangeByService = false;
 
-                Log.i(TAG, "Exited BroadCast mOldMediaVolume: " + mRingVolume + " volumeDuringRun: " + volumeDuringRun);
+                Log.i(TAG, "Exited BroadCast mOldMediaVolume: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME) + " volumeDuringRun: " + volumeDuringRun);
             }
             else
                 volumeChangeByMCButtons = false;
@@ -206,39 +227,44 @@ public class IncomingService extends AbstractStandOutService {
 
         mIncomingOutgoingNumber = incomingNumber;
         // CHECK IF NUMBER BLOCKED OR NOT FOR MC
-        if(!MCBlockListUtils.checkIfNumberIsMCBlocked(incomingNumber,getApplicationContext()) || (mInRingingSession))
+        if(!MCBlockListUtils.checkIfNumberIsMCBlocked(incomingNumber,getApplicationContext()) || (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)))
             switch(state)
             {
                 case TelephonyManager.CALL_STATE_RINGING:
 
-                    if (!mInRingingSession)
+                    if (!isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION))
                     {
                         try
                         {
+
+
+                            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                            wakeLock = pm.newWakeLock( PowerManager.PARTIAL_WAKE_LOCK, "My wakelook");
+                            wakeLock.acquire();
                             // Retrieving the ringtone volume
                             mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
                             if(mAudioManager!=null)
                                 Log.i(TAG, "mAudioManager initialize again" + mAudioManager.toString());
                             else
                                 throw new Exception("mAudioManager was returned as null from getSystemService!");
-
-                            mRingVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_RING);
-                            Log.i(TAG, "mRingVolume Original" + mRingVolume);
+                            //Backing up the ring volume of the user
+                            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME, mAudioManager.getStreamVolume(AudioManager.STREAM_RING));
+                            Log.i(TAG, "mRingVolume Original" + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME));
 
                             try
                             {
-                                // Backing up the music volume
-                                mOldMediaVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 
+                                // Backing up the music volume
+                                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME,mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
                                 // Setting music volume to equal the ringtone volume
-                                if (mRingVolume == 0) {
+                                if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME) == 0) {
                                     mVolumeChangeByService = true;
                                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
                                     Log.i(TAG, "STREAM_MUSIC Change : 0");
                                 } else {
                                     mVolumeChangeByService = true;
-                                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mRingVolume * 2 + 1, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
-                                    Log.i(TAG, "STREAM_MUSIC Change : " + String.valueOf(mRingVolume * 2 + 1));
+                                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME) * 2 + 1, 0); // ring volume max is 7(also System & Alarm max volume) , Music volume max is 15 (so we want to use full potential of the volume of the music stream)
+                                    Log.i(TAG, "STREAM_MUSIC Change : " + String.valueOf(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME) * 2 + 1));
                                 }
 
                             } catch(Exception e) {
@@ -252,8 +278,8 @@ public class IncomingService extends AbstractStandOutService {
                             //Check if Mute Was Needed if not return to UnMute.
                             if (ringtoneFile.exists())
                             {
-                                mAudioManager.setStreamMute(AudioManager.STREAM_RING, true); // TODO Rony : Replace Deprecated !! Check All places
-                                Log.i(TAG, "MUTE STREAM_RING ");
+                                disableRingStream();
+                                attachDefaultView = true;
 
                                 Runnable r = new Runnable() {
                                     public void run() {
@@ -269,21 +295,17 @@ public class IncomingService extends AbstractStandOutService {
                             }
                             else
                             {
-                                try {
-                                    mAudioManager.setStreamMute(AudioManager.STREAM_RING, false); // TODO Rony : Replace Deprecated !! Check All places
-                                    Log.i(TAG, "UNMUTE STREAM_RING ");
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                                enableRingStream();
+                                attachDefaultView = false;
                             }
+
 
                             String mediaFilePath
                                     = SharedPrefUtils.getString(getApplicationContext(),
                                     SharedPrefUtils.CALLER_MEDIA_FILEPATH, incomingNumber);
 
-                            startMediaSpecialCall(mediaFilePath, incomingNumber);
-
-                            mInRingingSession = true;
+                            startVisualMediaMC(mediaFilePath, incomingNumber);
+                            setRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION, true);
                         }
                         catch(Exception e)
                         {
@@ -293,21 +315,82 @@ public class IncomingService extends AbstractStandOutService {
                     }
                     break;
 
-                case TelephonyManager.CALL_STATE_IDLE:
+                // TODO RONY Iteratively  inside enableRingStream() and   i.setAction(StandOutWindow.ACTION_CLOSE_ALL); will be before this method enableRingStream iteratively logic
                 case TelephonyManager.CALL_STATE_OFFHOOK:
+                    if  (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)) {
+                        Log.i(TAG, "mAnswered = true");
+                        mAnswered = true;
+                        closeSpecialCallWindowAndRingtone();
+                    }
+                    break;
+                case TelephonyManager.CALL_STATE_IDLE:
                     Log.i(TAG, "TelephonyManager.CALL_STATE_IDLE");
                     if (mWasSpecialRingTone)
                     {
                         mWasSpecialRingTone = false;
                     }
                     closeSpecialCallWindowAndRingtone();
+                    if (mAnswered)
+                    {
 
-                    break;
+                        Runnable r = new Runnable() {
+                            public void run() {
+                                Log.i(TAG, "mAnswered = false");
+                                try {
+                                    Thread.sleep(2000, 0);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+
+                                enableRingStream();
+                                mAnswered = false;
+                            }
+                        };
+                        new Thread(r).start();
+                    }
 
             }
 
     }
 
+    private void enableRingStream() {
+
+        try {
+            mAudioManager.setStreamMute(AudioManager.STREAM_RING, false);
+            Log.e(TAG, "mAudioManager.setStreamMute(AudioManager.STREAM_RING, false);");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Failed mAudioManager.setStreamMute(AudioManager.STREAM_RING, false); error:" + e.getMessage());
+        }
+        try {
+            if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME) != mAudioManager.getStreamVolume(AudioManager.STREAM_RING))
+            {  // resuming previous Ring Volume
+                mAudioManager.setStreamVolume(AudioManager.STREAM_RING, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME), 0);
+                Log.e(TAG, "mAudioManager.setStreamVolume(AudioManager.STREAM_RING, : " + String.valueOf(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME)));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Failed  mAudioManager.setStreamVolume(AudioManager.STREAM_RING); error:" + e.getMessage());
+        }
+    }
+
+    private void disableRingStream() {
+        try {
+            mAudioManager.setStreamMute(AudioManager.STREAM_RING, true);
+            Log.e(TAG, "mAudioManager.setStreamMute(AudioManager.STREAM_RING, true);" );
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Failed mAudioManager.setStreamMute(AudioManager.STREAM_RING, true); error:"+e.getMessage());
+        }
+        try {
+            mAudioManager.setStreamVolume(AudioManager.STREAM_RING, 0, 0);
+            Log.e(TAG, "mAudioManager.setStreamVolume(AudioManager.STREAM_RING, : 0" );
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Failed  mAudioManager.setStreamVolume(AudioManager.STREAM_RING); error:" + e.getMessage());
+        }
+    }
 
 
     private void dismissKeyGuard(boolean dismissOrNot) {
@@ -363,72 +446,89 @@ public class IncomingService extends AbstractStandOutService {
 
     private void closeSpecialCallWindowAndRingtone() {
 
-        if  (mInRingingSession) {
+        if  (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)) {
 
-            dismissKeyGuard(false);
+            try {
+                wakeLock.release();
+                dismissKeyGuard(false);
+                enableRingStream();
 
-            Runnable r = new Runnable() {
-                public void run() {
-                    mInRingingSession = false;
-                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);// TODO Rony : Replace Deprecated !! Check All places
-                    try {
+                Runnable r = new Runnable() {
+                    public void run() {
+                        setRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION, false);
+
+                 /*   try {
                         if(mVolumeButtonReceiver!=null)
                             unregisterReceiver(mVolumeButtonReceiver);
                     } catch(Exception e) {
                         Log.e(TAG,"UnregisterReceiver failed. Exception:"+ (e.getMessage()!=null? e.getMessage() : e));
+                    }*/
+
+                        mVolumeChangeByService = false;
+                        mAlreadyMuted = false;
+
+                        try {
+                            Log.i(TAG, "mMediaPlayer.stop(); closeSpecialCallWindowAndRingtone");
+                            if (mMediaPlayer != null)
+                                mMediaPlayer.stop();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            Thread.sleep(2000, 0);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+
+                            if (mAudioManager==null)
+                                mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+
+                            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
+                            Log.i(TAG, "UNMUTE STREAM_MUSIC ");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        Log.i(TAG, "UNMUTED." + " mOldMediaVolume: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME) + " OldringVolume: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME));
+                        try {
+                            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
+                            Log.i(TAG, "STREAM_MUSIC Change : " + String.valueOf(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME)));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            enableRingStream();
+                            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
+                            Log.i(TAG, "UNMUTE STREAM_RING ");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                     }
+                };
 
-                    mVolumeChangeByService = false;
-                    mAlreadyMuted = false;
+                new Thread(r).start();
 
-                    try {
-                        Log.i(TAG, "mMediaPlayer.stop(); closeSpecialCallWindowAndRingtone");
-                        if(mMediaPlayer!=null)
-                            mMediaPlayer.stop();
-                    } catch(Exception e) {  e.printStackTrace();  }
-                    try {
-                        Thread.sleep(2000, 0);
-                    } catch (InterruptedException e) { e.printStackTrace(); }
-                    try {
-                        mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false); // TODO Rony : Replace Deprecated !! Check All places
-                        Log.i(TAG, "UNMUTE STREAM_MUSIC ");
-                    } catch(Exception e) {  e.printStackTrace();  }
 
-                    Log.i(TAG, "UNMUTED." + " mOldMediaVolume: " + mOldMediaVolume + " OldringVolume: " + mRingVolume);
-                    try {
-                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mOldMediaVolume, 0);
-                        Log.i(TAG, "STREAM_MUSIC Change : " + String.valueOf(mOldMediaVolume));
-                    } catch(Exception e) {  e.printStackTrace();  }
-                    try {
-                        mAudioManager.setStreamMute(AudioManager.STREAM_RING, false); // TODO Rony : Replace Deprecated !! Check All places
-                        mAudioManager.setStreamVolume(AudioManager.STREAM_RING, mRingVolume, 0);
-                        mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false); // TODO Rony : Replace Deprecated !! Check All places
-                        Log.i(TAG, "UNMUTE STREAM_RING ");
-                    } catch(Exception e) {  e.printStackTrace();  }
+                try {
+                    if (mAudioManager==null)
+                        mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            };
 
-            new Thread(r).start();
-
-            if (!windowCloseActionWasMade) {
                 Intent i = new Intent(getApplicationContext(), IncomingService.class);
-                i.setAction(StandOutWindow.ACTION_CLOSE);
+                i.setAction(StandOutWindow.ACTION_CLOSE_ALL);
                 startService(i);
-                windowCloseActionWasMade=true;
+            }finally {
+
+                releaseResources();
+
             }
         }
-
     }
 
-    /* UI methods */
 
-    private void callInfoToast(final String text, final int g) {
-
-        Toast toast = Toast.makeText(getApplicationContext(), text,
-                Toast.LENGTH_LONG);
-        TextView v = (TextView) toast.getView().findViewById(
-                android.R.id.message);
-        v.setTextColor(g);
-        toast.show();
-    }
 }

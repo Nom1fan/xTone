@@ -154,7 +154,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private void openVideoAndImageMediapath(int code) {
 
         // Create the ACTION_GET_CONTENT Intent
-        Intent intent = FileUtils.createGetContentIntent("image/*, video/*"); // // TODO rony: 31/01/2016 we may need to change it to "*/*" as it will give us filechooser support and more ways to open files. also i think in android 5 or 6 it's not supported the ("image/* , video/*") but not sure
+       // Intent intent = FileUtils.createGetContentIntent("image/*, video/*"); // // TODO rony: 31/01/2016 we may need to change it to "*/*" as it will give us filechooser support and more ways to open files. also i think in android 5 or 6 it's not supported the ("image/* , video/*") but not sure
+        Intent intent = FileUtils.createGetContentIntent("*/*");
         Intent chooserIntent = Intent.createChooser(intent, "Select Media File");
         startActivityForResult(chooserIntent, code);
 
