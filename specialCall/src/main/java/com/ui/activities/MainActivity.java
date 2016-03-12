@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -87,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ListView _DrawerList;
     private ActionBarDrawerToggle _mDrawerToggle;
     private DrawerLayout _mDrawerLayout;
+    private boolean _wasinitialized = false;
 
 
     //region Activity methods (OnStart(), OnPause(), ...)
@@ -114,6 +116,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             }
         }
         saveInstanceState();
+
+        if(AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_LOGGED_IN))
+            unbindDrawables(findViewById(R.id.mainActivity));
+        else if(AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_LOGGED_OUT))
+            unbindDrawables(findViewById(R.id.loginScreen));
+
+        System.gc();
+        _wasinitialized = false;
     }
 
     @Override
@@ -197,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         } else {
             initializeUI();
+            _wasinitialized = true;
 
             if (getState().equals(AppStateManager.STATE_LOGGED_IN)) {
                 stateIdle();
@@ -347,6 +358,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, _myPhoneNumber);
 
             initializeConnection();
+
+            unbindDrawables(findViewById(R.id.loginScreen));
 
             initializeUI();
 
@@ -681,6 +694,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         y.setClass(getApplicationContext(), BlockMCContacts.class);
         startActivity(y);
     }
+
+    private void unbindDrawables(View view) {
+        if (view.getBackground() != null) {
+            view.getBackground().setCallback(null);
+        }
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                unbindDrawables(((ViewGroup) view).getChildAt(i));
+            }
+            ((ViewGroup) view).removeAllViews();
+        }
+    }
     //endregion
 
     //region UI methods
@@ -777,6 +802,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     private void syncUIwithAppState() {
+
+        if(!_wasinitialized && !AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_LOGGED_OUT))
+            initializeUI();
 
         switch (AppStateManager.getAppState(getApplicationContext())) {
             case AppStateManager.STATE_LOGGED_OUT:
