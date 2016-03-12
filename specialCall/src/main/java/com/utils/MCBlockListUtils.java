@@ -17,7 +17,7 @@ public abstract class MCBlockListUtils {
 
     private static final String TAG = MCBlockListUtils.class.getSimpleName();
 
-    public static boolean checkIfNumberIsMCBlocked(String incomingNumber,Context context) {
+    public static boolean IsMCBlocked(String incomingNumber, Context context) {
         Log.i(TAG, "check if number blocked: " + incomingNumber);
         //MC Permissions: ALL , Only contacts , Specific Black List Contacts
         String permissionLevel = SharedPrefUtils.getString(context, SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);

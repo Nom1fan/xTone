@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import DataObjects.PushEventKeys;
 import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
@@ -42,8 +43,7 @@ public class MessageUploadFile extends MessageToServer {
         // Working directory
         fileFullPath.append(currentRelativePath.toAbsolutePath().toString());
 
-        switch(_td.get_spMediaType())
-        {
+        switch (_td.getSpMediaType()) {
             case CALLER_MEDIA:
                 // Caller Media is saved in the destination's caller media folder,
                 fileFullPath.append(SharedConstants.UPLOAD_FOLDER).append(_destId).append("\\").
@@ -69,7 +69,7 @@ public class MessageUploadFile extends MessageToServer {
 
         String infoMsg = "Initiating file upload. [Source]:" + _messageInitiaterId +
                 ". [Destination]:" + _destId + "." +
-                " [Special Media Type]:" + _td.get_spMediaType() +
+                " [Special Media Type]:" + _td.getSpMediaType() +
                 " [File size]:" +
                 FileManager.getFileSizeFormat(_td.getFileSize());
         _logger.info(infoMsg);
@@ -87,33 +87,30 @@ public class MessageUploadFile extends MessageToServer {
             DataInputStream dis = new DataInputStream(get_clientConnection().getClientSocket().getInputStream());
 
             _logger.info("Reading data...");
-            byte[] buf = new byte[1024*8];
+            byte[] buf = new byte[1024 * 8];
             long fileSize = _td.getFileSize();
             int bytesRead;
-            while (fileSize > 0 && (bytesRead = dis.read(buf, 0, (int)Math.min(buf.length, fileSize))) != -1)
-            {
-                bos.write(buf,0,bytesRead);
+            while (fileSize > 0 && (bytesRead = dis.read(buf, 0, (int) Math.min(buf.length, fileSize))) != -1) {
+                bos.write(buf, 0, bytesRead);
                 fileSize -= bytesRead;
             }
 
-            if(fileSize > 0)
+            if (fileSize > 0)
                 throw new IOException("Upload was stopped abruptly");
-            else if (fileSize < 0 )
+            else if (fileSize < 0)
                 throw new IOException("Read too many bytes. Upload seems corrupted.");
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-            _logger.severe("Upload from [Source]:"+_messageInitiaterId+" to [Destination]:"+_destId+" Failed. [Exception]:"+e.getMessage());
+            _logger.severe("Upload from [Source]:" + _messageInitiaterId + " to [Destination]:" + _destId + " Failed. [Exception]:" + e.getMessage());
             String title = "Oops!";
-            String errMsg = "Your media to "+_destId+ " was lost on the way! Please try again.";
-            String token = _clientsManager.getClientPushToken(_messageInitiaterId);
+            String errMsg = "Your media to " + _destId + " was lost on the way! Please try again.";
+            String token = _clientsManager.getUserPushToken(_messageInitiaterId);
             //_cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_FAILURE, errMsg, null)));
-            BatchPushSender.sendPush(token , PushEventKeys.SHOW_MESSAGE, title, errMsg);
+            BatchPushSender.sendPush(token, PushEventKeys.SHOW_MESSAGE, title, errMsg);
 
             return _cont;
-        }
-        finally {
-            if(bos!=null)
+        } finally {
+            if (bos != null)
                 try {
                     bos.close();
                 } catch (IOException e) {
@@ -126,25 +123,19 @@ public class MessageUploadFile extends MessageToServer {
         replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, _td)));
 
         // Inserting the record of the file upload, retrieving back the commId
-        int commId = _commHistoryManager.insertCommunicationRecord(
-                _td.get_spMediaType().toString(),
-                _td.getSourceId(),
-                _td.getDestinationId(),
-                _td.getExtension(),
-                (int) _td.getFileSize());
+        int commId = _commHistoryManager.insertMediaTransferRecord(_td);
 
         // Sending file to destination
         _td.set_commId(commId);
         _td.set_filePathOnServer(fileFullPath.toString());
-        String destToken = _clientsManager.getClientPushToken(_destId);
+        String destToken = _clientsManager.getUserPushToken(_destId);
         String pushEventAction = PushEventKeys.PENDING_DOWNLOAD;
         boolean sent = BatchPushSender.sendPush(destToken, pushEventAction, _td);
 
-        if(!sent)
-        {
+        if (!sent) {
             String title = "Media undelivered";
-            String errMsg = "Oops! "+ _destId +" did not receive your media! Try again.";
-            String initiaterToken = _clientsManager.getClientPushToken(_messageInitiaterId);
+            String errMsg = "Oops! " + _destId + " did not receive your media! Try again.";
+            String initiaterToken = _clientsManager.getUserPushToken(_messageInitiaterId);
             // Informing source (uploader) that the file was not sent to destination
             BatchPushSender.sendPush(initiaterToken, PushEventKeys.SHOW_MESSAGE, title, errMsg);
         }

@@ -44,6 +44,8 @@ public abstract class SharedPrefUtils {
     public static final String INCOMING_RINGING_SESSION = "IncomingisInRingingSession";
     public static final String RING_VOLUME = "RingVolume";
     public static final String MUSIC_VOLUME = "MusicVolume";
+    public static final String TEMP_VISUALMD5 = "TempVisualMd5";
+    public static final String TEMP_AUDIOMD5 = "TempAudioMd5";
     //endregion
 
 
@@ -125,6 +127,18 @@ public abstract class SharedPrefUtils {
         SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         prefs.edit().remove(key).apply();
     }
+
+    /**
+     * Removes all keys from shared preferences
+     * @param context The application context
+     * @param prefsName The shared preference to remove all keys from
+     */
+    public static void remove(Context context, String prefsName) {
+
+        SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
+        prefs.edit().clear();
+    }
+
     //endregion
 
 

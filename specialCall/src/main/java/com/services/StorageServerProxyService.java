@@ -13,8 +13,8 @@ import com.utils.FileCompressorUtil;
 
 import java.io.File;
 import java.io.IOException;
+
 import ClientObjects.ConnectionToServer;
-import ClientObjects.IServerProxy;
 import DataObjects.PushEventKeys;
 import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
@@ -35,7 +35,7 @@ import MessagesToServer.MessageRequestDownload;
  * - Upload file
  * @author Mor
  */
-public class StorageServerProxyService extends AbstractServerProxy implements IServerProxy, ICallbackListener {
+public class StorageServerProxyService extends AbstractServerProxy implements ICallbackListener {
 
     //region Service actions
     public static final String ACTION_DOWNLOAD = "com.services.StorageServerProxyService.DOWNLOAD";
@@ -48,7 +48,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IS
     public static final String FILE_TO_UPLOAD = "FILE_TO_UPLOAD";
     public static final String DESTINATION_ID = "DESTINATION_ID";
     public static final String SPECIAL_MEDIA_TYPE = "SPECIAL_MEDIA_TYPE";
-    public static final String TRANSFER_DETAILS = "TRANSFER_DETAILS";
+    public static final String TRANSFER_DETAILS = "CALL_RECORD";
     //endregion
 
     public StorageServerProxyService() {

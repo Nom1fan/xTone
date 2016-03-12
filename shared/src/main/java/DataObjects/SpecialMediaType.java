@@ -9,4 +9,5 @@ public enum SpecialMediaType {
     PROFILE_MEDIA,
     MY_DEFAULT_PROFILE_MEDIA,
     MY_DEFAULT_CALLER_MEDIA,
+    CLEAR_MEDIA,
 }

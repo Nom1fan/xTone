@@ -59,13 +59,13 @@ public class DownloadReceiver extends BroadcastReceiver {
 
             switch (fType) {
                 case RINGTONE:
-                    setNewRingTone(context, source);
+                    setNewRingTone(context, source, td.getMd5());
                     deleteFilesIfNecessary(context, fFullName, fType, source);
                     break;
 
                 case VIDEO:
                 case IMAGE:
-                    setNewVisualMedia(context, source);
+                    setNewVisualMedia(context, source, td.getMd5());
                     deleteFilesIfNecessary(context, fFullName, fType, source);
                     break;
             }
@@ -142,24 +142,31 @@ public class DownloadReceiver extends BroadcastReceiver {
 
     }
 
-    private void setNewRingTone(Context context, String source) {
+    private void setNewRingTone(Context context, String source, String md5) {
 
         Log.i(TAG, "setNewRingTone with sharedPrefs: " + _newFileFullPath);
         SharedPrefUtils.setString(context,
                 _sharedPrefKeyForAudioMedia, source, _newFileFullPath);
+
+        // Backing up audio file md5
+        SharedPrefUtils.setString(context,
+                _sharedPrefKeyForAudioMedia, _newFileFullPath, md5);
     }
 
-    private void setNewVisualMedia(Context context, String source) {
+    private void setNewVisualMedia(Context context, String source, String md5) {
 
         Log.i(TAG, "setNewVisualMedia with sharedPrefs: " + _newFileFullPath);
         SharedPrefUtils.setString(context,
                 _sharedPrefKeyForVisualMedia, source, _newFileFullPath);
+
+        // Backing up visual file md5
+        SharedPrefUtils.setString(context, _sharedPrefKeyForAudioMedia, _newFileFullPath, md5);
     }
 
     private void preparePathsAndDirs(TransferDetails td) {
 
         // Preparing for appropriate special media type
-        switch (td.get_spMediaType()) {
+        switch (td.getSpMediaType()) {
             case CALLER_MEDIA:
                 _newFileDir = Constants.INCOMING_FOLDER + td.getSourceId();
                 _sharedPrefKeyForVisualMedia = SharedPrefUtils.CALLER_MEDIA_FILEPATH;
@@ -183,7 +190,8 @@ public class DownloadReceiver extends BroadcastReceiver {
         try {
 
             File downloadedFile = new File(_newFileFullPath);
-            String md5 = FileManager.getMD5(_newFileFullPath);
+            String md5 = td.getMd5();
+
             String historyFileName = Constants.HISTORY_FOLDER + td.getFileType().toString() + "_" + md5 + "." + td.getExtension(); //give a unique name to the file and make sure there won't be any duplicates
             File copyToHistoryFile = new File(historyFileName);
 

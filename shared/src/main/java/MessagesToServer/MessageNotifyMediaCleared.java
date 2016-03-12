@@ -3,7 +3,6 @@ package MessagesToServer;
 import java.io.IOException;
 
 import DataObjects.PushEventKeys;
-import DataObjects.SpecialMediaType;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -32,9 +31,9 @@ public class MessageNotifyMediaCleared extends MessageToServer {
 
         _logger.info("Informing [Clear media requester]:" + clearRequesterId +
                      " that [User]:" + clearerId +
-                     " cleared his media of [SpecialMediaType]: " + _td.get_spMediaType());
+                     " cleared his media of [SpecialMediaType]: " + _td.getSpMediaType());
 
-        String clearRequesterToken = _clientsManager.getClientPushToken(clearRequesterId);
+        String clearRequesterToken = _clientsManager.getUserPushToken(clearRequesterId);
 
         String title = "Media cleared!";
         String msgBody = "Media for user " + clearerId + " is cleared!";
@@ -43,7 +42,7 @@ public class MessageNotifyMediaCleared extends MessageToServer {
         if(!sent) {
             _logger.severe("Failed to inform [Clear media requester]:" + clearRequesterId +
                     "that [User]:" + clearerId +
-                    " cleared his media of [SpecialMediaType]:" + _td.get_spMediaType());
+                    " cleared his media of [SpecialMediaType]:" + _td.getSpMediaType());
         }
 
         replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.NO_ACTION_REQUIRED, null, null)));
