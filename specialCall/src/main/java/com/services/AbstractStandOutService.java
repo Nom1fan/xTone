@@ -162,7 +162,7 @@ public abstract class AbstractStandOutService extends StandOutWindow  {
         return StandOutFlags.FLAG_DECORATION_SYSTEM
                 | StandOutFlags.FLAG_BODY_MOVE_ENABLE
                 | StandOutFlags.FLAG_WINDOW_HIDE_ENABLE
-                | StandOutFlags.FLAG_WINDOW_BRING_TO_FRONT_ON_TAP
+               // | StandOutFlags.FLAG_WINDOW_BRING_TO_FRONT_ON_TAP
                 | StandOutFlags.FLAG_WINDOW_EDGE_LIMITS_ENABLE
                 | StandOutFlags.FLAG_WINDOW_PINCH_RESIZE_ENABLE;
     }
@@ -177,17 +177,24 @@ public abstract class AbstractStandOutService extends StandOutWindow  {
     @Override
     public boolean onUpdate(int id, Window window, StandOutLayoutParams params) {
 
-        try {
-            ((VideoViewCustom) mSpecialCallView).setDimensions(window.getHeight(), window.getWidth());
-            ((VideoViewCustom) mSpecialCallView).getHolder().setFixedSize(window.getHeight(), window.getWidth());
-            ((VideoViewCustom) mSpecialCallView).invalidate(); // TODO Rony maybe not needed invalidate
-        }catch (Exception e) {
-            Log.i(TAG,"can't onUpdate mSpecialCallView video, i guess it's not a video");
-        }
-        Log.i(TAG, "onUpdate");
+        Log.i(TAG,"onUpdate");
+            try {
+                ((VideoViewCustom) mSpecialCallView).setDimensions(window.getHeight(), window.getWidth());
+                ((VideoViewCustom) mSpecialCallView).getHolder().setFixedSize(window.getHeight(), window.getWidth());
+                ((VideoViewCustom) mSpecialCallView).postInvalidate(); // TODO Rony maybe not needed invalidate
+            } catch (Exception e) {
+                Log.i(TAG, "can't onUpdate mSpecialCallView video, i guess it's not a video");
+            }
         return false;
     }
 
+    @Override
+    public boolean onClose(int id, Window window) {
+        Log.i(TAG, "onClose");
+        stopSound();
+
+        return false;
+    }
     //endregion
 
     //region Private classes and listeners

@@ -34,6 +34,11 @@ public class Window extends FrameLayout {
 	public static final int VISIBILITY_VISIBLE = 1;
 	public static final int VISIBILITY_TRANSITION = 2;
 
+	private int startingWidth;
+	private int startingHeighet;
+	private int startingX;
+	private int startingY;
+
 	static final String TAG = "Window";
 
 	/**
@@ -408,6 +413,13 @@ public class Window extends FrameLayout {
 		});
 		hide.setVisibility(View.GONE);
 
+		// getting the params of the initialize position and size of the standoutwindow.
+		StandOutLayoutParams params = getLayoutParams();
+		startingWidth = params.width;
+		startingHeighet = params.height;
+		startingX = params.x;
+		startingY = params.y;
+
 		// maximize
 		View maximize = decorations.findViewById(R.id.maximize);
 		maximize.setOnClickListener(new OnClickListener() {
@@ -421,15 +433,15 @@ public class Window extends FrameLayout {
 						&& params.height == displayHeight && params.x == 0
 						&& params.y == 0) {
 					data.putBoolean(WindowDataKeys.IS_MAXIMIZED, false);
-					int oldWidth = data.getInt(
+				/*	int oldWidth = data.getInt(
 							WindowDataKeys.WIDTH_BEFORE_MAXIMIZE, -1);
 					int oldHeight = data.getInt(
 							WindowDataKeys.HEIGHT_BEFORE_MAXIMIZE, -1);
 					int oldX = data
 							.getInt(WindowDataKeys.X_BEFORE_MAXIMIZE, -1);
 					int oldY = data
-							.getInt(WindowDataKeys.Y_BEFORE_MAXIMIZE, -1);
-					edit().setSize(oldWidth, oldHeight).setPosition(oldX, oldY)
+							.getInt(WindowDataKeys.Y_BEFORE_MAXIMIZE, -1);*/
+					edit().setSize(startingWidth, startingWidth).setPosition(startingX, startingY)
 							.commit();
 				} else {
 					data.putBoolean(WindowDataKeys.IS_MAXIMIZED, true);

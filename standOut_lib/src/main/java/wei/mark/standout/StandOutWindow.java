@@ -642,7 +642,7 @@ public abstract class StandOutWindow extends Service {
 	 */
 	public Notification getPersistentNotification(int id) {
 		// basic notification stuff
-		// http://developer.android.com/guide/topics/ui/notifiers/notifications.html
+		// http://developer.android.com/guide/flaics/ui/notifiers/notifications.html
 		int icon = getAppIcon();
 		long when = System.currentTimeMillis();
 		Context c = getApplicationContext();
@@ -1124,7 +1124,15 @@ public abstract class StandOutWindow extends Service {
 		StandOutLayoutParams params = window.getLayoutParams();
 
 		try {
-			// add the view to the window manager
+
+			/*// TODO MEdiaCallz: Removing window just in case the previous one got stuck, make sure this doesn't create problems
+			try {
+				if (window!=null)
+					mWindowManager.removeView(window);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}*/
+				// add the view to the window manager
 			mWindowManager.addView(window, params);
 
 			// animate
