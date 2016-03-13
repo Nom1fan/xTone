@@ -2,17 +2,23 @@ package com.services;
 
 import android.content.Intent;
 import android.os.IBinder;
+import android.telecom.Call;
 import android.util.Log;
 
 import com.app.AppStateManager;
 import com.data_objects.Constants;
 import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
+
 import java.io.IOException;
+
 import ClientObjects.ConnectionToServer;
+import DataObjects.CallRecord;
 import DataObjects.SharedConstants;
+import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
+import MessagesToServer.MessageInsertMediaCallRecord;
 import MessagesToServer.MessageIsRegistered;
 import MessagesToServer.MessageRegister;
 
@@ -23,30 +29,34 @@ import MessagesToServer.MessageRegister;
  * Provided operations:
  * - Register
  * - Check if user is registered
+ *
  * @author Mor
  */
 public class LogicServerProxyService extends AbstractServerProxy {
 
-    // Service actions
+    //region Service actions
     public static final String ACTION_REGISTER = "com.services.LogicServerProxyService.REGISTER";
     public static final String ACTION_ISREGISTERED = "com.services.LogicServerProxyService.ISREGISTERED";
+    public static final String ACTION_INSERT_CALL_RECORD = "com.services.LogicServerProxyService.INSERT_CALL_RECORD";
+    //endregion
 
-    // Service intent keys
+    //region Service intent keys
     public static final String DESTINATION_ID = "com.services.LogicServerProxyService.DESTINATION_ID";
+    public static final String CALL_RECORD = "CALL_RECORD";
+    //endregion
 
     public LogicServerProxyService() {
         super(LogicServerProxyService.class.getSimpleName());
     }
 
-    /* Service overriding methods */
-
+    //region Service methods
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         Log.i(TAG, "LogicServerProxyService started");
 
         boolean shouldStop = handleCrashedService(flags, startId);
-        if(shouldStop)
+        if (shouldStop)
             return START_REDELIVER_INTENT;
 
         final Intent intentForThread = intent;
@@ -55,8 +65,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
             @Override
             public void run() {
-                if (intentForThread != null)
-                {
+                if (intentForThread != null) {
                     String action = intentForThread.getAction();
                     Log.i(TAG, "Action:" + action);
 
@@ -68,13 +77,13 @@ public class LogicServerProxyService extends AbstractServerProxy {
                             case ACTION_REGISTER:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CONNECTING, "Connecting...", null));
-                                register(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
-                            break;
+                                actionRegister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
+                                break;
 
                             case ACTION_ISREGISTERED: {
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 String destId = intentForThread.getStringExtra(DESTINATION_ID);
-                                isRegistered(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), destId);
+                                actionIsRegistered(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), destId);
                             }
                             break;
 
@@ -82,12 +91,18 @@ public class LogicServerProxyService extends AbstractServerProxy {
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.RECONNECT_ATTEMPT, "Reconnecting...", null));
                                 reconnectIfNecessary();
-                            break;
+                                break;
 
                             case ACTION_RESET_RECONNECT_INTERVAL:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
-                            break;
+                                break;
+
+                            case ACTION_INSERT_CALL_RECORD:
+                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
+                                CallRecord callRecord = (CallRecord) intentForThread.getSerializableExtra(CALL_RECORD);
+                                actionInsertMediaCallRecord(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), callRecord);
+                                break;
 
                             default:
                                 setMidAction(false);
@@ -96,11 +111,11 @@ public class LogicServerProxyService extends AbstractServerProxy {
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
-                        String errMsg = "Action:"+action+" failed. Exception:"+e.getMessage();
+                        String errMsg = "Action:" + action + " failed. Exception:" + e.getMessage();
                         Log.e(TAG, errMsg);
                         handleDisconnection(errMsg);
-                    } catch(Exception e) {
-                        String errMsg = "Action failed:"+action+" Exception:"+e.getMessage();
+                    } catch (Exception e) {
+                        String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
                         Log.e(TAG, errMsg);
                     }
                 } else
@@ -119,55 +134,57 @@ public class LogicServerProxyService extends AbstractServerProxy {
     public IBinder onBind(Intent intent) {
         return null;
     }
+    //endregion
 
-          /* IServerProxy operations methods */
-
-
+    //region Action methods
     /**
      * Enables to check if a destination number is logged-in/online
      *
      * @param destinationId - The number of whom to check is logged-in
      */
-    public void isRegistered(ConnectionToServer connectionToServer, String destinationId)  throws IOException {
+    public void actionIsRegistered(ConnectionToServer connectionToServer, String destinationId) throws IOException {
         MessageIsRegistered msgIsLogin = new MessageIsRegistered(Constants.MY_ID(getApplicationContext()), destinationId);
         connectionToServer.sendToServer(msgIsLogin);
     }
 
-          /* Internal server operations methods */
+    private void actionRegister(ConnectionToServer connectionToServer) throws IOException {
 
-    /**
-     * Enables to register to the server
-     */
-    private void register(ConnectionToServer connectionToServer) throws IOException {
-
-        Log.i(TAG, "Initiating register sequence...");
+        Log.i(TAG, "Initiating actionRegister sequence...");
         MessageRegister msgRegister = new MessageRegister(Constants.MY_ID(getApplicationContext()), Constants.MY_BATCH_TOKEN(getApplicationContext()));
-        Log.i(TAG, "Sending register message to server...");
+        Log.i(TAG, "Sending actionRegister message to server...");
         connectionToServer.sendToServer(msgRegister);
     }
 
+    private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, CallRecord callRecord)  throws IOException {
+
+        Log.i(TAG, "Initiating actionInsertMediaCallRecord sequence...");
+        MessageInsertMediaCallRecord msgInsertMCrecord = new MessageInsertMediaCallRecord(callRecord.get_sourceId(), callRecord);
+        Log.i(TAG, "Sending actionInsertMediaCallRecord message to server...");
+        connectionToServer.sendToServer(msgInsertMCrecord);
+    }
+    //endregion
+
+    //region Networking methods
     private synchronized void reconnectIfNecessary() throws IOException {
 
-        if (isNetworkAvailable())
-        {
+        if (isNetworkAvailable()) {
             ConnectionToServer cts = openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT);
-            if(cts!=null) {
+            if (cts != null) {
                 BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CONNECTED, "Connected", null));
                 cancelReconnect();
                 SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
             }
-        }
-        else {
+        } else {
             scheduleReconnect(System.currentTimeMillis());
-            if(!AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_DISABLED))
-                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(),TAG, new EventReport(EventType.DISCONNECTED, "Disconnected. Check your internet connection", null));
+            if (!AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_DISABLED))
+                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DISCONNECTED, "Disconnected. Check your internet connection", null));
         }
     }
-
 
     /**
      * Deals with disconnection and schedules a reconnect
      * This method is called by ConnectionToServer connectionException() method
+     *
      * @param errMsg
      */
     @Override
@@ -178,6 +195,6 @@ public class LogicServerProxyService extends AbstractServerProxy {
         BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DISCONNECTED, errMsg, null));
         scheduleReconnect(System.currentTimeMillis());
     }
-
+    //endregion
 
 }

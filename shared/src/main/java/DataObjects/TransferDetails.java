@@ -6,17 +6,18 @@ import FilesManager.FileManager;
 
 public class TransferDetails implements Serializable {
 
-	private static final long serialVersionUID = 7408472793374531808L;
+    private static final long serialVersionUID = 7408472793374531808L;
     private int _commId;
-	private String _sourceId;
-	private String _destinationId;
-	private String _extension;
-	private long _fileSize;
-	private FileManager.FileType _fileType;
-	private String _filePathOnServer;
+    private String _sourceId;
+    private String _destinationId;
+    private String _extension;
+    private long _fileSize;
+    private FileManager.FileType _fileType;
+    private String _filePathOnServer;
     private String _fullFilePathSrcSD;
     private FileManager _managedFile;
     private SpecialMediaType _spMediaType;
+    private String _md5;
 
     /**
      * This constructor should be used in a message to transfer media
@@ -33,6 +34,7 @@ public class TransferDetails implements Serializable {
         _fileSize = managedFile.getFileSize();
         _fileType = managedFile.getFileType();
         _fullFilePathSrcSD = managedFile.getFileFullPath();
+        _md5 = FileManager.getMD5(_fullFilePathSrcSD);
         _managedFile = managedFile;
         _spMediaType = spMediaType;
 
@@ -99,8 +101,33 @@ public class TransferDetails implements Serializable {
         this._commId = _commId;
     }
 
-    public SpecialMediaType get_spMediaType() {
+    public SpecialMediaType getSpMediaType() {
         return _spMediaType;
+    }
+
+    public String getMd5() {
+        return _md5;
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuilder str = new StringBuilder();
+
+        str.
+                append("[Source]:").append(_sourceId).
+                append(", [Destination]:").append(_destinationId).
+                append(", [Special Media Type]:").append(_spMediaType);
+
+        if(_extension!=null) str.append(", [Extension]:").append(_extension);
+        if(_fileSize!=0) str.append(", [FileSize]:").append(_fileSize);
+        if(_fileType!=null) str.append(", [FileType]:").append(_fileType);
+        if(_fullFilePathSrcSD!=null) str.append(", [File Full Path]:").append(_fullFilePathSrcSD);
+        if(_md5!=null) str.append(", [Md5]:").append(_md5);
+        if(_managedFile!=null) str.append(", [Managed File]:").append(_managedFile);
+        if(_spMediaType!=null) str.append(", [Special Media Type]:").append(_spMediaType);
+
+        return str.toString();
     }
 
 }

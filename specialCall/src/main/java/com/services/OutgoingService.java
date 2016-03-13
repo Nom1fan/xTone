@@ -11,14 +11,17 @@ import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.data_objects.Constants;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.special.app.R;
 import com.utils.MCBlockListUtils;
+import com.utils.MCHistoryUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
 import java.io.IOException;
 
+import DataObjects.SpecialMediaType;
 import FilesManager.FileManager;
 
 //import android.telephony.PreciseCallState;
@@ -29,23 +32,21 @@ import FilesManager.FileManager;
  */
 public class OutgoingService extends AbstractStandOutService {
 
-    public static boolean isLive=false;
-    private OutgoingCallReceiver mOutgoingCallReceiver;
+    public static boolean isLive = false;
     private static int TIME_TO_SLEEP_AVOIDING_BUGGY_STATE_IDLE = 1000;
-    private  boolean funtoneFileExists=false;
-    //private String mOutgoingPhoneNumberFromFallBackReceiver = "";
+    private OutgoingCallReceiver mOutgoingCallReceiver;
+    private boolean funtoneFileExists = false;
 
     public OutgoingService() {
         super(OutgoingService.class.getSimpleName());
     }
 
-    /* Service methods */
-
+    //region Service methods
     @Override
     public void onCreate() {
         super.onCreate();
 
-        if(mOutgoingCallReceiver == null) {
+        if (mOutgoingCallReceiver == null) {
 
             mOutgoingCallReceiver = new OutgoingCallReceiver();
             IntentFilter filter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
@@ -54,7 +55,7 @@ public class OutgoingService extends AbstractStandOutService {
             registerReceiver(mOutgoingCallReceiver, filter);
         }
 
-        if(mVideoPreparedListener == null)
+        if (mVideoPreparedListener == null)
             mVideoPreparedListener = new OnVideoPreparedListener() {
 
                 @Override
@@ -74,34 +75,32 @@ public class OutgoingService extends AbstractStandOutService {
         unregisterReceiver(mOutgoingCallReceiver);
         isLive = false; // Service Is Dead !
     }
+    //endregion
 
+    //region AbstractStandOutService methods
     /**
-     *
-     * @param state The call state
+     * @param state          The call state
      * @param incomingNumber The incoming number in case of an incoming call. Otherwise (outgoing call), null.
      */
     @Override
     protected void syncOnCallStateChange(int state, String incomingNumber) {
 
+        if (!MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext()))
 
-        // CHECK IF NUMBER BLOCKED OR NOT FOR MC
-        if(!MCBlockListUtils.checkIfNumberIsMCBlocked(incomingNumber, getApplicationContext()))
-
-            switch(state)
-            {
+            switch (state) {
 
                 case TelephonyManager.CALL_STATE_IDLE:
                 case TelephonyManager.CALL_STATE_OFFHOOK:
 
-                    Log.i(TAG, "TelephonyManager IDLE=0, OFFHOOK=2. STATE WAS:"+state);
-                    if(isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION)) {
+                    Log.i(TAG, "TelephonyManager IDLE=0, OFFHOOK=2. STATE WAS:" + state);
+                    if (isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION)) {
                         Log.i(TAG, "TelephonyManager inside mInRingingSession IDLE=0, OFFHOOK=2. STATE WAS:" + state);
 
                         try {
                             closeSpecialCallWindowWithoutRingtone();
                             resumeMusicStreamBackToPrevious();
                             setRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION, false);
-                        }finally {
+                        } finally {
                             releaseResources();
                         }
                     }
@@ -109,141 +108,14 @@ public class OutgoingService extends AbstractStandOutService {
             }
     }
 
-    private void resumeMusicStreamBackToPrevious() {
-
-        new Thread()      {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000); // fix bug: sound in mute , closing call and it sounds for a second in the end.
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                if (mAudioManager==null)
-                    mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-
-
-                try {
-                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
-                } catch (Exception e) {
-                    Log.e(TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
-                }
-            }
-        }.start();
-    }
-
-    /* Private classes and listeners */
-
-    /**
-     * Listener for outgoing call state
-     * Responsible for setting and starting special data on call and restoring previous data once call is terminated
-     */
-    private class OutgoingCallReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            boolean arrivedFromFallBack = action.equals(StartStandOutServicesFallBackReceiver.ACTION_START_OUTGOING_SERVICE);
-
-            if (action.equals(Intent.ACTION_NEW_OUTGOING_CALL) || arrivedFromFallBack) {
-                String mOutgoingCallNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
-
-                if (arrivedFromFallBack)
-                {
-                    if (intent!=null)
-                        StartStandOutServicesFallBackReceiver.completeWakefulIntent(intent);
-                }
-
-                mIncomingOutgoingNumber = mOutgoingCallNumber;
-                Log.i(TAG, "Action: "  + action);
-                Log.i(TAG, "mInRingingSession="+isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) +  " mOutgoingCallNumber="+ mOutgoingCallNumber);
-
-                // CHECK IF NUMBER BLOCKED OR NOT FOR MC
-                if(!MCBlockListUtils.checkIfNumberIsMCBlocked(mOutgoingCallNumber, getApplicationContext()))
-                    if (!isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && mOutgoingCallNumber !=null)
-                    {
-
-                        try
-                        {
-                            mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                            String funTonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, mOutgoingCallNumber);
-                            final File funToneFile = new File(funTonePath);
-
-                            // Retrieving the ringtone volume
-                            if(mAudioManager!=null)
-                                Log.i(TAG, "mAudioManager initialize again :" + mAudioManager.toString());
-                            else
-                                throw new Exception("mAudioManager was returned as null from getSystemService!");
-
-
-                            // Backing up the music volume
-                            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME,mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
-
-                            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) -5 , 0); // setting max volume for music -5 as it's to high volume
-
-
-                            if (funToneFile.exists()) {
-                                funtoneFileExists = true;
-                                attachDefaultView = true;
-                            }
-                            else
-                            {
-                                attachDefaultView = false;
-                            }
-
-                            String mediaFilePath
-                                    = SharedPrefUtils.getString(getApplicationContext(),
-                                    SharedPrefUtils.PROFILE_MEDIA_FILEPATH, mOutgoingCallNumber);
-
-                            startVisualMediaMC(mediaFilePath, mOutgoingCallNumber);
-
-
-
-                            if (funtoneFileExists)
-                            {
-                                startAudioSpecialCall(funTonePath);
-                            }
-
-                            new Thread() {
-                                @Override
-                                public void run() {
-
-                                    try {
-                                        Thread.sleep(TIME_TO_SLEEP_AVOIDING_BUGGY_STATE_IDLE);
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                    Log.i(TAG, "Setting mInRingingSession=true");
-                                    setRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION, true);
-                                }
-                            }.start();
-
-
-                        }
-                        catch(Exception e)
-                        {
-                            e.printStackTrace();
-                            Log.e(TAG, "CALL_STATE_RINGING failed:"+e.getMessage());
-                        }
-
-                        funtoneFileExists=false;
-
-                    }
-            }
-        }
-    }
-
-
-
     @Override
-    protected void prepareViewForSpecialCall(FileManager.FileType fileType , String mediaFilePath, String callNumber) {
+    protected void prepareViewForSpecialCall(FileManager.FileType fileType, String mediaFilePath, String callNumber) {
         super.prepareViewForSpecialCall(fileType, mediaFilePath, callNumber);
         if (funtoneFileExists || ((fileType == FileManager.FileType.VIDEO))) {  // in case only an image without funtone, so there is no need for the mute button , but video should have it
 
             if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
-                if (mAudioManager==null)
+                if (mAudioManager == null)
                     mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
@@ -254,7 +126,7 @@ public class OutgoingService extends AbstractStandOutService {
         }
     }
 
-    @Override  // DEFAULT VIEW
+    @Override
     protected void prepareDefaultViewForSpecialCall(String callNumber) {
         super.prepareDefaultViewForSpecialCall(callNumber);
 
@@ -262,7 +134,7 @@ public class OutgoingService extends AbstractStandOutService {
 
             if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
-                if (mAudioManager==null)
+                if (mAudioManager == null)
                     mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
@@ -278,8 +150,7 @@ public class OutgoingService extends AbstractStandOutService {
 
         Log.i(TAG, "Playing funtone sound");
         mMediaPlayer = new MediaPlayer();
-        try
-        {
+        try {
             mMediaPlayer.setDataSource(context, alert);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.prepare();
@@ -291,4 +162,121 @@ public class OutgoingService extends AbstractStandOutService {
             Log.e(TAG, "Failed to play sound. Exception:" + e.getMessage());
         }
     }
+    //endregion
+
+    //region Internal helper methods
+    private void resumeMusicStreamBackToPrevious() {
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(2000); // fix bug: sound in mute , closing call and it sounds for a second in the end.
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if (mAudioManager == null)
+                    mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+
+
+                try {
+                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
+                } catch (Exception e) {
+                    Log.e(TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+                }
+            }
+        }.start();
+    }
+
+    private void syncWithBuggyIdleState() {
+
+        new Thread() {
+            @Override
+            public void run() {
+
+                try {
+                    Thread.sleep(TIME_TO_SLEEP_AVOIDING_BUGGY_STATE_IDLE);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Log.i(TAG, "Setting mInRingingSession=true");
+                setRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION, true);
+            }
+        }.start();
+    }
+    //endregion
+
+    //region Private classes and listeners
+    /**
+     * Listener for outgoing call state
+     * Responsible for setting and starting special data on call and restoring previous data once call is terminated
+     */
+    private class OutgoingCallReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            boolean arrivedFromFallBack = action.equals(StartStandOutServicesFallBackReceiver.ACTION_START_OUTGOING_SERVICE);
+
+            if (action.equals(Intent.ACTION_NEW_OUTGOING_CALL) || arrivedFromFallBack) {
+                String outgoingCallNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
+
+                if (arrivedFromFallBack)
+                    StartStandOutServicesFallBackReceiver.completeWakefulIntent(intent);
+
+                mIncomingOutgoingNumber = outgoingCallNumber;
+                Log.i(TAG, "Action: " + action);
+                Log.i(TAG, "mInRingingSession=" + isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) + " outgoingCallNumber=" + outgoingCallNumber);
+
+                // Checking if number is in black list
+                if (!MCBlockListUtils.IsMCBlocked(outgoingCallNumber, getApplicationContext()))
+                    if (!isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && outgoingCallNumber != null) {
+
+                        try {
+                            mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+
+                            String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, outgoingCallNumber);
+                            String funTonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, outgoingCallNumber);
+                            File mediaFile = new File(mediaFilePath);
+                            File funToneFile = new File(funTonePath);
+
+                            if(funToneFile.exists()) {
+                                funtoneFileExists = true;
+
+                            }
+
+                            verifyAudioManager();
+                            backupMusicVolume();
+
+                            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) - 5, 0); // setting max volume for music -5 as it's to high volume
+
+                            setTempMd5ForCallRecord(mediaFilePath,funTonePath);
+
+                            startVisualMediaMC(mediaFilePath, outgoingCallNumber, funtoneFileExists);
+                            startAudioSpecialCall(funTonePath);
+
+                            MCHistoryUtils.reportMC(
+                                    getApplicationContext(),
+                                    Constants.MY_ID(getApplicationContext()),
+                                    outgoingCallNumber,
+                                    mediaFilePath,
+                                    funTonePath,
+                                    SpecialMediaType.PROFILE_MEDIA);
+
+                            syncWithBuggyIdleState();
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Log.e(TAG, "CALL_STATE_RINGING failed:" + e.getMessage());
+                        }
+
+                        funtoneFileExists = false;
+
+                    }
+            }
+        }
+    }
+    //endregion
 }

@@ -5,8 +5,6 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import ClientObjects.ConnectionToServer;
 import DataObjects.SharedConstants;
@@ -14,7 +12,6 @@ import DataObjects.SpecialMediaType;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
-import FilesManager.FileManager;
 
 public class MessageDownloadFile extends MessageToClient {
 
@@ -31,7 +28,7 @@ public class MessageDownloadFile extends MessageToClient {
 		_fileName = _td.getSourceWithExtension();		
 		_sourceId = _td.getSourceId();
 		_myId = _td.getDestinationId();
-        _specialMediaType = _td.get_spMediaType();
+        _specialMediaType = _td.getSpMediaType();
 	}
 	
 	@Override
@@ -42,7 +39,7 @@ public class MessageDownloadFile extends MessageToClient {
 		  {
               File folderPath = null;
 
-              switch(_td.get_spMediaType())
+              switch(_td.getSpMediaType())
               {
                   case CALLER_MEDIA:
                       folderPath = new File(SharedConstants.INCOMING_FOLDER + _sourceId);

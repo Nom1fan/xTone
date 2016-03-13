@@ -121,7 +121,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 Log.i(TAG, "In: DESTINATION_DOWNLOAD_COMPLETE");
                 // Preparing data for uploaded media thumbnail display
                 TransferDetails td = (TransferDetails) report.data();
-                LUT_Utils lut_utils = new LUT_Utils(td.get_spMediaType());
+                LUT_Utils lut_utils = new LUT_Utils(td.getSpMediaType());
                 lut_utils.saveUploadedPerNumber(context, td.getDestinationId(), td.getFileType(), td.get_fullFilePathSrcSD());
 
                 // Setting parameters for snackbar message
@@ -133,7 +133,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
             case CLEAR_SUCCESS: {
                 // Preparing data for uploaded media thumbnail removal
                 TransferDetails td = (TransferDetails) report.data();
-                LUT_Utils lut_utils = new LUT_Utils(td.get_spMediaType());
+                LUT_Utils lut_utils = new LUT_Utils(td.getSpMediaType());
                 lut_utils.removeUploadedMediaPerNumber(context, td.getDestinationId());
                 lut_utils.removeUploadedTonePerNumber(context, td.getDestinationId());
 

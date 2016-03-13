@@ -40,7 +40,7 @@ public class ClearMediaIntentService extends IntentService {
         if(intent!=null) {
 
             TransferDetails td = (TransferDetails) intent.getSerializableExtra(TRANSFER_DETAILS);
-            SpecialMediaType specialMediaType = td.get_spMediaType();
+            SpecialMediaType specialMediaType = td.getSpMediaType();
             String phoneNumber = td.getSourceId();
 
             try {

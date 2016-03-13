@@ -53,7 +53,7 @@ public class PushService extends IntentService {
                     jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
                     td = new Gson().fromJson(jsonData, TransferDetails.class);
 
-                  if(MCBlockListUtils.checkIfNumberIsMCBlocked(td.getSourceId(), getApplicationContext())) //don't download if the number is blocked , just break and don't continue with the download flow
+                  if(MCBlockListUtils.IsMCBlocked(td.getSourceId(), getApplicationContext())) //don't download if the number is blocked , just break and don't continue with the download flow
                   {
                       Log.i(TAG,"NUMBER BLOCKED For DOWNLOAD: " + td.getSourceId());
                       break;

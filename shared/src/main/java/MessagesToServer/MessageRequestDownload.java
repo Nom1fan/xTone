@@ -69,7 +69,7 @@ public class MessageRequestDownload extends MessageToServer {
             // Informing source (uploader) that file received by user (downloader)
             String title = "Media ready!";
             String msg = "Media for "+_td.getDestinationId()+ " is ready!";
-            String token = _clientsManager.getClientPushToken(_td.getSourceId());
+            String token = _clientsManager.getUserPushToken(_td.getSourceId());
             sent = BatchPushSender.sendPush(token, PushEventKeys.TRANSFER_SUCCESS, title , msg, _td);
             if(!sent)
                 _logger.warning("Failed to inform user " + _td.getSourceId() + " of transfer success to user: " + _td.getDestinationId());
@@ -110,7 +110,7 @@ public class MessageRequestDownload extends MessageToServer {
         // Informing sender that file did not reach destination
         _logger.severe("Informing sender:"+_td.getSourceId()+" that file did not reach destination:"+_td.getDestinationId());
         String senderId = _td.getSourceId();
-        String senderToken = _clientsManager.getClientPushToken(senderId);
+        String senderToken = _clientsManager.getUserPushToken(senderId);
         if(!senderToken.equals(""))
             BatchPushSender.sendPush(senderToken, PushEventKeys.SHOW_MESSAGE, title, msgTransferFailed);
         else

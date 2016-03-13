@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
@@ -33,13 +34,13 @@ public class FileManager implements Serializable {
 
     private static final long serialVersionUID = -6478414954653475111L;
     private static final String[] imageFormats = { "jpg", "png", "jpeg", "bmp", "gif", "tiff" };
-    private static final String[] audioFormats = { "mp3", "ogg" , "3gp" };
+    private static final String[] audioFormats = { "mp3", "ogg" };
     private static final String[] videoFormats = { "avi", "mpeg", "mp4", "3gp", "wmv" };
 
     private File _file;
-	private String _extension;
+    private String _extension;
     private long _size;
-	private FileType _fileType;
+    private FileType _fileType;
     private String _uncompdFileFullPath;
     private boolean isCompressed = false;
 
@@ -85,10 +86,10 @@ public class FileManager implements Serializable {
      * @throws FileMissingExtensionException
      */
     public FileManager(String filePath) throws NullPointerException,FileInvalidFormatException,FileExceedsMaxSizeException, FileDoesNotExistException, FileMissingExtensionException {
-		
-		if(filePath!=null)
-		{
-			_file = new File(filePath);
+
+        if(filePath!=null)
+        {
+            _file = new File(filePath);
             if(doesFileExist()) {
                 validateFileSize();
                 _extension = extractExtension(filePath);
@@ -97,13 +98,12 @@ public class FileManager implements Serializable {
             }
             else
                 throw new FileDoesNotExistException("File does not exist:"+filePath);
-		}
-		else
-			throw new NullPointerException("The file path is null");
-	}
+        }
+        else
+            throw new NullPointerException("The file path is null");
+    }
 
-    /* Public instance methods */
-
+    //region Public instance methods
     public boolean isCompressed() {
         return isCompressed;
     }
@@ -130,6 +130,11 @@ public class FileManager implements Serializable {
         bis.read(fileData);
         bis.close();
         return fileData;
+    }
+
+    public String getMd5() {
+
+        return FileManager.getMD5(getFileFullPath());
     }
 
     /**
@@ -159,7 +164,6 @@ public class FileManager implements Serializable {
         return _size;
     }
 
-
     /**
      * Delete the file safely (rename first)
      */
@@ -183,9 +187,9 @@ public class FileManager implements Serializable {
 
         return _fileType;
     }
+    //endregion
 
-    /* Private instance methods */
-
+    //region Private instance methods
     /**
      * Validates if the file is among the valid file formats
      * @throws FileInvalidFormatException - Thrown if the file is not found in valid file formats lists
@@ -215,34 +219,34 @@ public class FileManager implements Serializable {
         if(fileSize >= MAX_FILE_SIZE)
             throw new FileExceedsMaxSizeException();
     }
+    //endregion
 
-    /* Public static methods */
-
+    //region Public static methods
     /**
      *
      * @param _fileSize - The size of the file in bytes
      * @return - The size of the files in common unit format (KB/MB)
      */
-	public static String getFileSizeFormat(double _fileSize) {
-		
-		double MB = (int)Math.pow(2, 20);
-		double KB = (int)Math.pow(2, 10);
-		DecimalFormat df = new DecimalFormat("#.00"); // rounding to max 2 decimal places
-		
-		if(_fileSize>=MB)
-		{
-			double fileSizeInMB = _fileSize/MB; // File size in MBs							
-			return df.format(fileSizeInMB)+"MB";
-		}
-		else if(_fileSize>=KB)
-		{
-			double fileSizeInKB = _fileSize/KB; // File size in KBs							
-			return df.format(fileSizeInKB)+"KB";
-		}
-		
-		// File size in Bytes		
-		return df.format(_fileSize)+"B";	
-	}
+    public static String getFileSizeFormat(double _fileSize) {
+
+        double MB = (int)Math.pow(2, 20);
+        double KB = (int)Math.pow(2, 10);
+        DecimalFormat df = new DecimalFormat("#.00"); // rounding to max 2 decimal places
+
+        if(_fileSize>=MB)
+        {
+            double fileSizeInMB = _fileSize/MB; // File size in MBs
+            return df.format(fileSizeInMB)+"MB";
+        }
+        else if(_fileSize>=KB)
+        {
+            double fileSizeInKB = _fileSize/KB; // File size in KBs
+            return df.format(fileSizeInKB)+"KB";
+        }
+
+        // File size in Bytes
+        return df.format(_fileSize)+"B";
+    }
 
     public static FileType getFileType(String filePath) throws FileInvalidFormatException, FileDoesNotExistException, FileMissingExtensionException {
 
@@ -340,49 +344,44 @@ public class FileManager implements Serializable {
      * @return md5 string
      * @throws Exception
      */
-    public static String getMD5(String filepath) throws Exception{
-        InputStream input =  new FileInputStream(filepath);
-        byte[] buffer = new byte[1024];
+    public static String getMD5(String filepath) {
 
-        MessageDigest hashMsgDigest = MessageDigest.getInstance("MD5");
+        try {
 
-        int read;
-        do {
-            read = input.read(buffer);
-            if (read > 0) {
-                hashMsgDigest.update(buffer, 0, read);
+            InputStream input =  new FileInputStream(filepath);
+            byte[] buffer = new byte[1024];
+
+            MessageDigest hashMsgDigest = null;
+            hashMsgDigest = MessageDigest.getInstance("MD5");
+
+            int read;
+            do {
+                read = input.read(buffer);
+                if (read > 0) {
+                    hashMsgDigest.update(buffer, 0, read);
+                }
+            } while (read != -1);
+            input.close();
+
+            StringBuffer hexString = new StringBuffer();
+            byte[] hash = hashMsgDigest.digest();
+
+            for (int i = 0; i < hash.length; i++) {
+                if ((0xff & hash[i]) < 0x10) {
+                    hexString.append("0"
+                            + Integer.toHexString((0xFF & hash[i])));
+                } else {
+                    hexString.append(Integer.toHexString(0xFF & hash[i]));
+                }
             }
-        } while (read != -1);
-        input.close();
 
-        StringBuffer hexString = new StringBuffer();
-        byte[] hash = hashMsgDigest.digest();
+            return hexString.toString();
 
-        for (int i = 0; i < hash.length; i++) {
-            if ((0xff & hash[i]) < 0x10) {
-                hexString.append("0"
-                        + Integer.toHexString((0xFF & hash[i])));
-            } else {
-                hexString.append(Integer.toHexString(0xFF & hash[i]));
-            }
+        } catch (NoSuchAlgorithmException | IOException e) {
+            e.printStackTrace();
+            return null;
         }
-
-        return hexString.toString();
-
     }
-
-    /* Private static methods*/
-
-    private static String extractExtension(String filePath) throws FileMissingExtensionException{
-
-        String tmp_str[] = filePath.split("\\.");
-        if(tmp_str.length<2)
-            throw new FileMissingExtensionException("File is missing extension:"+filePath);
-        String ext = tmp_str[1];
-        return ext;
-    }
-
-
 
     /**
      * Deleting a directory recursively
@@ -391,32 +390,54 @@ public class FileManager implements Serializable {
      * @throws NullPointerException
      * @throws FileNotFoundException
      */
+    public static boolean deleteDirectory(File directory) throws NullPointerException, FileNotFoundException {
 
-	public static boolean deleteDirectory(File directory) throws NullPointerException, FileNotFoundException {
+        if(directory == null)
+            throw new NullPointerException("The file parameter cannot be null");
 
-		if(directory == null)
-			throw new NullPointerException("The file parameter cannot be null");
+        if (directory.exists()) {
+            File[] files = directory.listFiles();
+            if (files == null) {
+                return true;
+            }
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].isDirectory()) {
+                    deleteDirectory(files[i]);
+                } else {
+                    files[i].delete();
+                }
+            }
+        }
+        else
+            throw new FileNotFoundException();
 
-		if (directory.exists()) {
-			File[] files = directory.listFiles();
-			if (files == null) {
-				return true;
-			}
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].isDirectory()) {
-					deleteDirectory(files[i]);
-				} else {
-					files[i].delete();
-				}
-			}
-		}
-		else
-			throw new FileNotFoundException();
+        return(directory.delete());
 
-		return(directory.delete());
+    }
 
-	}
+    public static String extractExtension(String filePath) throws FileMissingExtensionException{
 
+        String tmp_str[] = filePath.split("\\.");
+        if(tmp_str.length<2)
+            throw new FileMissingExtensionException("File is missing extension:"+filePath);
+        String ext = tmp_str[1];
+        return ext;
+    }
+    //endregion
+
+    @Override
+    public String toString() {
+
+        StringBuilder builder = new StringBuilder();
+
+        builder.
+                append("Filename:").append(getFileNameWithExtension(getFileFullPath())).append(", ").
+                append("FileSize:").append(_size).append(", ").
+                append("FileType:").append(_fileType).append(", ").
+                append("IsCompressed:").append(isCompressed);
+
+        return builder.toString();
+    }
 
 
 

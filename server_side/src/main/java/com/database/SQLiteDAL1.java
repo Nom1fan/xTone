@@ -73,7 +73,7 @@
 //    }
 //
 //    @Override
-//    public int insertCommunicationHistory(String type, String src, String dest, String extension, int size) throws SQLException {
+//    public int insertMediaTransferRecord(String type, String src, String dest, String extension, int size) throws SQLException {
 //        return 0;
 //    }
 //
@@ -103,12 +103,12 @@
 //    }
 //
 //    @Override
-//    public void updateCommunicationRecord(int commId, String column, Object value) {
+//    public void updateMediaTransferRecord(int commId, String column, Object value) {
 //
 //    }
 //
 //    @Override
-//    public void updateCommunicationRecord(int commId, String[] columns, Object[] values) {
+//    public void updateMediaTransferRecord(int commId, String[] columns, Object[] values) {
 //
 //    }
 //

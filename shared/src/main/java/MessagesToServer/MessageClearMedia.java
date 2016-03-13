@@ -3,8 +3,6 @@ package MessagesToServer;
 import java.io.IOException;
 
 import DataObjects.PushEventKeys;
-import DataObjects.SharedConstants;
-import DataObjects.SpecialMediaType;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -30,16 +28,9 @@ public class MessageClearMedia extends MessageToServer {
 
         initLogger();
 
-        StringBuilder infoMsg = new StringBuilder();
-        infoMsg.
-                append("Initiating clear media. ").
-                append("[Source]:").append(_messageInitiaterId).
-                append(". [Destination]:").append(_destId).
-                append(". [Special Media Type]:").append(_td.get_spMediaType());
+        _logger.info("Initiating clear media. " + _td.toString());
 
-        _logger.info(infoMsg.toString());
-
-        String destToken = _clientsManager.getClientPushToken(_destId);
+        String destToken = _clientsManager.getUserPushToken(_destId);
         String pushEventAction = PushEventKeys.CLEAR_MEDIA;
         boolean sent = BatchPushSender.sendPush(destToken, pushEventAction, _td);
 
