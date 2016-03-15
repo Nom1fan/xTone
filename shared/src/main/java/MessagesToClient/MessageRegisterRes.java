@@ -26,8 +26,8 @@ public class MessageRegisterRes extends MessageToClient {
             eventType = EventType.REGISTER_SUCCESS;
         }
         else {
-            msg = "Registration failed. Please reinstall.";
-            eventType = EventType.DISPLAY_ERROR;
+            msg = "Oops! Something went wrong. Try again...";
+            eventType = EventType.REGISTER_FAILURE;
         }
 
         return new EventReport(eventType, msg, null);

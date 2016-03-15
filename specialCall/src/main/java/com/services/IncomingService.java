@@ -434,8 +434,7 @@ public class IncomingService extends AbstractStandOutService {
                         }
                         try {
 
-                            if (mAudioManager == null)
-                                mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                           verifyAudioManager();
 
                             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
                             Log.i(TAG, "UNMUTE STREAM_MUSIC ");
@@ -465,8 +464,7 @@ public class IncomingService extends AbstractStandOutService {
 
 
                 try {
-                    if (mAudioManager == null)
-                        mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                    verifyAudioManager();
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
                 } catch (Exception e) {
                     e.printStackTrace();

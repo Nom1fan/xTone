@@ -330,6 +330,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         //TODO check if Togglebutton for imageView good also?
         mSpecialCallMutUnMuteBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.mc_mute_unmute);
+        verifyAudioManager();
         if (mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
             mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
             mSpecialCallMutUnMuteBtn.bringToFront();
@@ -347,8 +348,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     Log.i(TAG, "UNMUTE by button");
                     volumeChangeByMCButtons = true;
 
-                    if (mAudioManager == null)
-                        mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                    verifyAudioManager();
 
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
                     isMuted = false;
@@ -359,8 +359,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 } else {
                     Log.i(TAG, "MUTE by button");
                     volumeChangeByMCButtons = true;
-                    if (mAudioManager == null)
-                        mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                   verifyAudioManager();
                     mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
                     isMuted = true;
@@ -386,8 +385,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             public void onClick(View v) {
 
                 volumeChangeByMCButtons = true;
-                if (mAudioManager == null)
-                    mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+               verifyAudioManager();
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) - 1, 0); // decrease volume
 
             }
@@ -398,8 +396,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
                 volumeChangeByMCButtons = true;
 
-                if (mAudioManager == null)
-                    mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                verifyAudioManager();
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // decrease volume
 
                 return true;
@@ -412,8 +409,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             public void onClick(View v) {
                 volumeChangeByMCButtons = true;
 
-                if (mAudioManager == null)
-                    mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                verifyAudioManager();
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) + 1, 0); // increase volume
 
             }
@@ -425,8 +421,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
                 volumeChangeByMCButtons = true;
 
-                if (mAudioManager == null)
-                    mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                verifyAudioManager();
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0); // increase volume
 
                 return true;
@@ -508,12 +503,13 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         Log.i(TAG, "mRingVolume Original=" + ringVolume);
     }
 
-    protected void verifyAudioManager() throws Exception {
+    protected void verifyAudioManager() {
 
-        if (mAudioManager != null)
-            Log.i(TAG, "mAudioManager initialize again :" + mAudioManager.toString());
-        else
-            throw new Exception("mAudioManager was returned as null from getSystemService!");
+        if (mAudioManager == null)
+        {
+            Log.i(TAG , "Audio manager was null , re-instantiated");
+            mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        }
     }
     //endregion
 

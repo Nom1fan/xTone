@@ -23,10 +23,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -58,6 +56,7 @@ import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
 import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
+import com.utils.UI_Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,8 +74,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private final String TAG = MainActivity.class.getSimpleName();
     private final String shareBody = String.valueOf(R.string.invite);
-    private CustomDrawerAdapter mAdapter;
-    private String _myPhoneNumber = "";
     private String _destPhoneNumber = "";
     private String _destName = "";
     private ProgressBar _pFetchUserBar;
@@ -84,14 +81,31 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private BroadcastReceiver _eventReceiver;
     private IntentFilter _eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
     private AutoCompleteTextView _autoCompleteTextViewDestPhone;
-    private int _randomPIN = 0;
     private ListView _DrawerList;
     private ActionBarDrawerToggle _mDrawerToggle;
     private DrawerLayout _mDrawerLayout;
-    private boolean _wasinitialized = false;
 
+    //region Activity methods (onCreate(), onPause(), ...)
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.i(TAG, "onCreate()");
 
-    //region Activity methods (OnStart(), OnPause(), ...)
+        if(getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
+
+            Intent i = new Intent(this, LoginActivity.class);
+            startActivity(i);
+            finish();
+        }
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if (_mDrawerLayout != null)
+            _mDrawerToggle.syncState();
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -100,6 +114,44 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         Batch.onStart(this);
 
         prepareEventReceiver();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG, "onResume()");
+
+        String appState = getState();
+        Log.i(TAG, "App State:" + appState);
+
+        if(!getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
+            //TODO MediaCallz: Do we need these start services here?
+            // Starting service responsible for incoming media callz
+            Intent incomingServiceIntent = new Intent(this, IncomingService.class);
+            incomingServiceIntent.setAction(IncomingService.ACTION_START);
+            startService(incomingServiceIntent);
+
+            // Starting service responsible for outgoing media callz
+            Intent outgoingServiceIntent = new Intent(this, OutgoingService.class);
+            outgoingServiceIntent.setAction(OutgoingService.ACTION_START);
+            startService(outgoingServiceIntent);
+
+            initializeUI();
+            syncUIwithAppState();
+
+            // Taking Focus from AutoCompleteTextView in the end, so he won't pop up :) added also focus capabilities to the MainActivity Layout XML
+            findViewById(R.id.mainActivity).requestFocus();
+
+            prepareEventReceiver();
+
+            // ASYNC TASK To Populate all contacts , it can take long time and it delays the UI
+            new AutoCompletePopulateListAsyncTask(_autoCompleteTextViewDestPhone).execute(getApplicationContext());
+
+            if (appState.equals(AppStateManager.STATE_DISABLED))
+                reconnect();
+
+            restoreInstanceState();
+        }
 
     }
 
@@ -117,13 +169,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
         saveInstanceState();
 
-        if(AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_LOGGED_IN))
-            unbindDrawables(findViewById(R.id.mainActivity));
-        else if(AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_LOGGED_OUT))
-            unbindDrawables(findViewById(R.id.loginScreen));
-
+        UI_Utils.unbindDrawables(findViewById(R.id.mainActivity));
         System.gc();
-        _wasinitialized = false;
     }
 
     @Override
@@ -134,54 +181,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i(TAG, "onResume()");
-
-        String appState = getState();
-        Log.i(TAG, "App State:" + appState);
-
-        // Starting service responsible for incoming media callz
-        Intent incomingServiceIntent = new Intent(this, IncomingService.class);
-        incomingServiceIntent.setAction(IncomingService.ACTION_START);
-        startService(incomingServiceIntent);
-
-        // Starting service responsible for outgoing media callz
-        Intent outgoingServiceIntent = new Intent(this, OutgoingService.class);
-        outgoingServiceIntent.setAction(OutgoingService.ACTION_START);
-        startService(outgoingServiceIntent);
-
-        Log.i(TAG, "startService: IncomingService");
-
-        syncUIwithAppState();
-
-        if (!appState.equals(AppStateManager.STATE_LOGGED_OUT)) {
-
-            // Taking Focus from AutoCompleteTextView in the end, so he won't pop up :) added also focus capabilities to the MainActivity Layout XML
-            findViewById(R.id.mainActivity).requestFocus();
-
-            prepareEventReceiver();
-
-            // ASYNC TASK To Populate all contacts , it can take long time and it delays the UI
-            new AutoCompletePopulateListAsyncTask(_autoCompleteTextViewDestPhone).execute(getApplicationContext());
-
-            if (appState.equals(AppStateManager.STATE_DISABLED)) {
-
-                _myPhoneNumber = Constants.MY_ID(getApplicationContext());
-                initializeConnection();
-
-            }
-
-            restoreInstanceState();
-        }
-    }
-
-    @Override
     protected void onDestroy() {
         Log.i(TAG, "onDestroy()");
         Batch.onDestroy(this);
         super.onDestroy();
-
     }
 
     @Override
@@ -191,36 +194,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         super.onNewIntent(intent);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.i(TAG, "onCreate()");
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-            actionBar.setCustomView(R.layout.custom_action_bar);
-        }
-
-        if (getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
-            initializeLoginUI();
-
-        } else {
-            initializeUI();
-            _wasinitialized = true;
-
-            if (getState().equals(AppStateManager.STATE_LOGGED_IN)) {
-                stateIdle();
-            }
-        }
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        if (_mDrawerLayout != null)
-            _mDrawerToggle.syncState();
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -346,24 +319,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             } catch (Exception ex) {
                 writeErrStatBar(ex.getMessage());
             }
-        } else if (id == R.id.login_btn) {
-
-            String myVerificationcode = ((EditText) findViewById(R.id.SMSCodeEditText)).getText().toString();
-            //if (myVerificationcode.equals(String.valueOf(_randomPIN))){    // NEED TO FIND A SMS GATEWAY FIRST
-
-            _myPhoneNumber = ((EditText) findViewById(R.id.LoginNumber))
-                    .getText().toString();
-
-            SharedPrefUtils.setString(getApplicationContext(),
-                    SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, _myPhoneNumber);
-
-            initializeConnection();
-
-            unbindDrawables(findViewById(R.id.loginScreen));
-
-            initializeUI();
-
-            stateIdle();
         }
     }
 
@@ -396,18 +351,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         report.desc()));
                 break;
 
-            case TOKEN_RETRIEVED:
-                findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
-                findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
-                EditText loginET = (EditText) findViewById(R.id.LoginNumber);
-                CharSequence loginNumber = loginET.getText();
-                if (10 == loginNumber.length())
-                    findViewById(R.id.login_btn).setEnabled(true);
-                break;
-
             default: // Event not meant for MainActivity receiver
-                    return;
-
         }
     }
 
@@ -472,10 +416,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         // Restoring destination name
         _destName = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
         setDestNameTextView();
-
-        // Restoring my phone number
-        _myPhoneNumber = Constants.MY_ID(getApplicationContext());
-
     }
 
     private void setDestNameTextView() {
@@ -551,8 +491,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     _destPhoneNumber = destPhone;
                     new IsRegisteredTask(destPhone, instance).execute(instance.getApplicationContext());
 
-                }
-                else { // Invalid destination number
+                } else { // Invalid destination number
 
                     _destPhoneNumber = "";
                     _destName = "";
@@ -579,113 +518,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         new AutoCompletePopulateListAsyncTask(_autoCompleteTextViewDestPhone).execute(getApplicationContext());
     }
 
-    private void prepareLoginNumberEditText() {
-
-        EditText loginNumberET = (EditText) findViewById(R.id.LoginNumber);
-        loginNumberET.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                if (10 == s.length()) {
-
-                    String token = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN);
-                    if (token != null && !token.equals("")) {
-                        findViewById(R.id.GetSMSCode).setEnabled(true);
-                        findViewById(R.id.SMSCodeEditText).setEnabled(true);
-                        findViewById(R.id.login_btn).setEnabled(true);  // REMOVE // NEED TO FIND A SMS GATEWAY FIRST
-                    }
-                } else {
-                    findViewById(R.id.GetSMSCode).setEnabled(false);
-                    findViewById(R.id.SMSCodeEditText).setEnabled(false);
-                    findViewById(R.id.login_btn).setEnabled(false);   // REMOVE // // NEED TO FIND A SMS GATEWAY FIRST
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-    }
-
-    private void prepareLoginButton() {
-
-        Button loginBtn = (Button) findViewById(R.id.login_btn);
-        loginBtn.setOnClickListener(this);
-        loginBtn.setEnabled(false);
-        loginBtn.setText("Login");
-    }
-
-    private void prepareGetSmsCodeButton() {
-
-        Button GetSMSCode = (Button) findViewById(R.id.GetSMSCode);
-        GetSMSCode.setEnabled(false);
-
-        OnClickListener buttonListener = new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                EditText loginNumber = (EditText) findViewById(R.id.LoginNumber);
-
-                //generate a 4 digit integer 1000 <10000
-                _randomPIN = (int) (Math.random() * 9000) + 1000;
-                try {
-                    SmsManager smsManager = SmsManager.getDefault();
-                    smsManager.sendTextMessage(loginNumber.getText().toString(), null, "MediaCallz SmsVerificationCode: " + String.valueOf(_randomPIN), null, null);
-                    writeInfoSnackBar("Message Sent To: " + loginNumber.getText());
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-            }
-        };
-        GetSMSCode.setOnClickListener(buttonListener);
-    }
-
-    private void prepareSmsCodeVerificationEditText() {
-
-        EditText SmsCodeVerificationEditText = (EditText) findViewById(R.id.SMSCodeEditText);
-        SmsCodeVerificationEditText.setEnabled(false);
-        SmsCodeVerificationEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                if (4 == s.length()) {
-
-                    findViewById(R.id.login_btn).setEnabled(true);
-
-                } else
-                    findViewById(R.id.login_btn).setEnabled(false);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-    }
-
-    private void initializeConnection() {
+    private void reconnect() {
 
         Intent i = new Intent();
         i.setClass(getBaseContext(), LogicServerProxyService.class);
-        if (AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_LOGGED_OUT))
-            i.setAction(LogicServerProxyService.ACTION_REGISTER);
-        else
-            i.setAction(LogicServerProxyService.ACTION_RECONNECT);
-
+        i.setAction(LogicServerProxyService.ACTION_RECONNECT);
         startService(i);
-
     }
 
     private void BlockMCContacts() {
@@ -694,44 +532,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         y.setClass(getApplicationContext(), BlockMCContacts.class);
         startActivity(y);
     }
-
-    private void unbindDrawables(View view) {
-        if (view.getBackground() != null) {
-            view.getBackground().setCallback(null);
-        }
-        if (view instanceof ViewGroup) {
-            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
-                unbindDrawables(((ViewGroup) view).getChildAt(i));
-            }
-            ((ViewGroup) view).removeAllViews();
-        }
-    }
     //endregion
 
     //region UI methods
     //region UI initializers
-    private void initializeLoginUI() {
-
-        setContentView(R.layout.loginuser);
-
-        if (!Constants.MY_BATCH_TOKEN(getApplicationContext()).equals("")) {
-            findViewById(R.id.initProgressBar).setVisibility(ProgressBar.INVISIBLE);
-            findViewById(R.id.initTextView).setVisibility(TextView.INVISIBLE);
-        }
-
-        prepareLoginNumberEditText();
-        prepareLoginButton();
-        prepareGetSmsCodeButton();
-        prepareSmsCodeVerificationEditText();
-
-    }
-
     private void initializeUI() {
 
         setContentView(R.layout.activity_main);
 
+        setCustomActionBar();
         enableHamburgerIconWithSlideMenu();
-
         prepareAutoCompleteTextViewDestPhoneNumber();
 
         findViewById(R.id.CallNow).setOnClickListener(this);
@@ -803,13 +613,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void syncUIwithAppState() {
 
-        if(!_wasinitialized && !AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_LOGGED_OUT))
-            initializeUI();
-
         switch (AppStateManager.getAppState(getApplicationContext())) {
-            case AppStateManager.STATE_LOGGED_OUT:
-                initializeLoginUI();
-                break;
 
             case AppStateManager.STATE_IDLE:
                 stateIdle();
@@ -831,6 +635,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //endregion
 
     //region UI elements controls
+    private void setCustomActionBar() {
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            actionBar.setCustomView(R.layout.custom_action_bar);
+        }
+    }
+
     private void enableHamburgerIconWithSlideMenu() {
         ActionBar actionBar = getSupportActionBar();
 
@@ -877,7 +690,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         dataList.add(new DrawerItem("Report Bug", R.drawable.bug));
         dataList.add(new DrawerItem("App Settings", R.drawable.settingsicon));
 
-        mAdapter = new CustomDrawerAdapter(this, R.layout.custome_drawer_item,
+        CustomDrawerAdapter mAdapter = new CustomDrawerAdapter(this, R.layout.custome_drawer_item,
                 dataList);
 
         //   mAdapter = new ArrayAdapter<String>(this, R.layout.custome_drawer_item, osArray);
@@ -1263,10 +1076,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     enableMediaStatusArrived();
 
                 } else {// enabled but no uploaded media
-                    if (enabled)
-                        selectCallerMediaBtn.setImageResource(R.drawable.defaultpic_enabled);
-                    else
-                        selectCallerMediaBtn.setImageResource(R.drawable.defaultpic_disabled);
+                    selectCallerMediaBtn.setImageResource(R.drawable.defaultpic_enabled);
 
                     disableMediaStatusArrived();
                 }

@@ -115,8 +115,7 @@ public class OutgoingService extends AbstractStandOutService {
 
             if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
-                if (mAudioManager == null)
-                    mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                verifyAudioManager();
 
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
                 isMuted = true;
@@ -134,8 +133,7 @@ public class OutgoingService extends AbstractStandOutService {
 
             if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
                 Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
-                if (mAudioManager == null)
-                    mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                verifyAudioManager();
 
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
                 isMuted = true;
@@ -176,8 +174,7 @@ public class OutgoingService extends AbstractStandOutService {
                     e.printStackTrace();
                 }
 
-                if (mAudioManager == null)
-                    mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+              verifyAudioManager();
 
 
                 try {

@@ -2,13 +2,11 @@ package com.app;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 
 import com.batch.android.Batch;
 import com.batch.android.Config;
 import com.data_objects.Constants;
-import com.services.GetTokenIntentService;
 import com.utils.InitUtils;
 import com.utils.UI_Utils;
 
@@ -45,14 +43,8 @@ public class MediaCallzApp extends Application {
                 // Initializing SQLite db
                 // DAL_Manager.initialize(getApplicationContext());
 
-                Intent i = new Intent(context, GetTokenIntentService.class);
-                i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
-                context.startService(i);
-
                 // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
-                InitUtils.hideMediaFromGalleryScanner(Constants.INCOMING_FOLDER);
-                InitUtils.hideMediaFromGalleryScanner(Constants.OUTGOING_FOLDER);
-                InitUtils.hideMediaFromGalleryScanner(Constants.TEMP_COMPRESSED_FOLDER);
+                InitUtils.hideMediaFromGalleryScanner();
 
             }
         } catch (Exception e) {

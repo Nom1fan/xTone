@@ -25,6 +25,8 @@ public abstract class SharedPrefUtils {
 
     //region Shared pref keys under GENERAL
     public static final String DESTINATION_NUMBER = "DestinationNumber";
+    public static final String LOGIN_NUMBER = "LoginNumber";
+    public static final String SMS_CODE = "SmsCode";
     public static final String DESTINATION_NAME = "DestinationName";
     public static final String MY_NUMBER = "MyPhoneNumber";
     public static final String APP_STATE = "AppState";

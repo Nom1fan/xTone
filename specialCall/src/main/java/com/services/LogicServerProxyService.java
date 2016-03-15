@@ -76,7 +76,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
                             case ACTION_REGISTER:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CONNECTING, "Connecting...", null));
+                                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.REGISTERING, "Registering...", null));
                                 actionRegister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
                                 break;
 

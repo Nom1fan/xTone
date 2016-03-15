@@ -4,7 +4,9 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,6 +62,20 @@ public abstract class UI_Utils {
             }
         } catch (Exception e) {
             Log.d(TAG, e.getLocalizedMessage());
+        }
+    }
+
+    public static void unbindDrawables(View view) {
+        if (view != null) {
+            if (view.getBackground() != null) {
+                view.getBackground().setCallback(null);
+            }
+            if (view instanceof ViewGroup) {
+                for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                    unbindDrawables(((ViewGroup) view).getChildAt(i));
+                }
+                ((ViewGroup) view).removeAllViews();
+            }
         }
     }
 }

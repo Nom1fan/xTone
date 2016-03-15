@@ -169,12 +169,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 break;
 
             case REGISTER_SUCCESS:
-                // Setting state
-                AppStateManager.setAppState(context, TAG, AppStateManager.STATE_IDLE);
-
-                // Setting parameters for snackbar message
-                color = Color.GREEN;
-                sBarDuration = Snackbar.SnackbarDuration.LENGTH_LONG;
+                // Handled by LoginActivity
                 break;
 
             case USER_REGISTERED_FALSE:

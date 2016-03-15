@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.data_objects.Constants;
 import com.special.app.R;
 import com.ui.activities.MainActivity;
 
@@ -55,7 +56,14 @@ public abstract class InitUtils {
         context.sendBroadcast(addIntent);
     }
 
-    public static void hideMediaFromGalleryScanner(String path) {
+    public static void hideMediaFromGalleryScanner() {
+
+        hideMediaFromGalleryScanner(Constants.INCOMING_FOLDER);
+        hideMediaFromGalleryScanner(Constants.OUTGOING_FOLDER);
+        hideMediaFromGalleryScanner(Constants.TEMP_COMPRESSED_FOLDER);
+    }
+
+    private static void hideMediaFromGalleryScanner(String path) {
 
         Log.i(TAG, "create file : " + path + "/" + ".nomedia");
 
@@ -70,4 +78,5 @@ public abstract class InitUtils {
         }
 
     }
+
 }

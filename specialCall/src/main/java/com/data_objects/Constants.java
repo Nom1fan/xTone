@@ -10,10 +10,6 @@ import java.io.File;
 import DataObjects.SharedConstants;
 
 public class Constants {
-    //Constants for FallbackStartServicesBroadcastReceiver  // TODO can't use this in Services for the fallback why ??
-    public static final String OUTGOING_PHONENUMBER_BROADCAST = "OutGoingPhoneNumberFromBroadcastReceiver";
-    public static final String INCOMING_PHONENUMBER_BROADCAST = "IncomingPhoneNumberFromBroadcastReceiver";
-
 
     // Constants for Parse
     public static final String APPLICATION_ID = "7CL97UlX4EtpMyRJYshNlIQ3T12EEZ0OaZWxZjvR";

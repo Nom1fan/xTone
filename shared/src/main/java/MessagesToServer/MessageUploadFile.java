@@ -119,7 +119,7 @@ public class MessageUploadFile extends MessageToServer {
         }
 
         // Informing source (uploader) that the file is on the way
-        infoMsg = "File uploaded";
+        infoMsg = "Media on the way!";
         replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_SUCCESS, infoMsg, _td)));
 
         // Inserting the record of the file upload, retrieving back the commId

@@ -43,8 +43,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private Uri _outputFileUri;
     private int SMTypeCode;
     private String _destPhoneNumber = "";
-    private String _destName = "";
 
+    //region Activity methods (onCreate(), onPause()...)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +57,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         TextView mediaType = (TextView) findViewById(R.id.selectMediaType);
 
         _destPhoneNumber = intent.getStringExtra("DestinationNumber");
-        _destName = intent.getStringExtra("DestinationName");
+        String _destName = intent.getStringExtra("DestinationName");
         SMTypeCode = intent.getIntExtra("SpecialMediaType", 1);
 
         if (ActivityRequestCodes.SELECT_CALLER_MEDIA == SMTypeCode)
@@ -87,36 +87,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         Button recordAudioBtn = (Button) findViewById(R.id.recordAudio);
         recordAudioBtn.setOnClickListener(this);
 
-    }
-
-    @Override
-    public void onClick(View v) {
-
-        int id = v.getId();
-
-        if (id == R.id.back) {
-            SelectMediaActivity.this.finish();
-        }
-        else if (id == R.id.video_or_image) {
-
-            openVideoAndImageMediapath(SMTypeCode);
-
-        } else if (id == R.id.audio) {
-
-            openAudioMediapath(SMTypeCode);
-        }
-        else if (id == R.id.recordVideo) {
-
-            RecordVideo(SMTypeCode);
-        }
-        else if (id == R.id.takePicture) {
-
-            takePicture(SMTypeCode);
-        }
-        else if (id == R.id.recordAudio) {
-
-            RecordAudio(SMTypeCode);
-        }
     }
 
     @Override
@@ -150,18 +120,48 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         super.onDestroy();
         Log.i(TAG, "onDestroy()");
     }
+    //endregion
+
+    //region Assisting methods (onClick(), takePicture(), ...)
+    @Override
+    public void onClick(View v) {
+
+        int id = v.getId();
+
+        if (id == R.id.back) {
+            SelectMediaActivity.this.finish();
+        }
+        else if (id == R.id.video_or_image) {
+
+            openVideoAndImageMediapath(SMTypeCode);
+
+        } else if (id == R.id.audio) {
+
+            openAudioMediapath(SMTypeCode);
+        }
+        else if (id == R.id.recordVideo) {
+
+            RecordVideo(SMTypeCode);
+        }
+        else if (id == R.id.takePicture) {
+
+            takePicture(SMTypeCode);
+        }
+        else if (id == R.id.recordAudio) {
+
+            RecordAudio(SMTypeCode);
+        }
+    }
 
     private void openVideoAndImageMediapath(int code) {
 
         // Create the ACTION_GET_CONTENT Intent
-       // Intent intent = FileUtils.createGetContentIntent("image/*, video/*"); // // TODO rony: 31/01/2016 we may need to change it to "*/*" as it will give us filechooser support and more ways to open files. also i think in android 5 or 6 it's not supported the ("image/* , video/*") but not sure
+        // Intent intent = FileUtils.createGetContentIntent("image/*, video/*"); // // TODO rony: 31/01/2016 we may need to change it to "*/*" as it will give us filechooser support and more ways to open files. also i think in android 5 or 6 it's not supported the ("image/* , video/*") but not sure
         Intent intent = FileUtils.createGetContentIntent("*/*");
         Intent chooserIntent = Intent.createChooser(intent, "Select Media File");
         startActivityForResult(chooserIntent, code);
 
     }
-
-    	/* -------------- Assisting methods -------------- */
 
     private void openAudioMediapath(int code) {
 
@@ -374,25 +374,22 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         mProgressDialog.setButton("Stop recording", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 mProgressDialog.dismiss();
-                if (recorder != null) {
-                    recorder.stop();
-                    recorder.release();
+                recorder.stop();
+                recorder.release();
 
-                    uploadAudioFile(_outputFileUri); // Upload Recorded Audio File
-                }
+                uploadAudioFile(_outputFileUri); // Upload Recorded Audio File
             }
         });
 
         mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             public void onCancel(DialogInterface p1) {
-                if (recorder != null) {
-                    recorder.stop();
-                    recorder.release();
-                }
+                recorder.stop();
+                recorder.release();
             }
         });
         recorder.start();
         mProgressDialog.show();
     }
+    //endregion
 
 }

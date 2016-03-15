@@ -48,11 +48,11 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
             if (!mPhoneNumber.isEmpty() && (!intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)))
             {
                 Log.i(TAG, " Incoming with number: " + mPhoneNumber);
-                incomingServiceIntent.putExtra(Constants.INCOMING_PHONENUMBER_BROADCAST, mPhoneNumber );
+                incomingServiceIntent.putExtra(INCOMING_PHONE_NUMBER_KEY, mPhoneNumber );
                 mPhoneNumber = "";
             }
             else
-                incomingServiceIntent.putExtra(Constants.INCOMING_PHONENUMBER_BROADCAST, "" );
+                incomingServiceIntent.putExtra(INCOMING_PHONE_NUMBER_KEY, "" );
 
             Log.i(TAG, " Starting Incoming Service");
             //context.startService(incomingServiceIntent);

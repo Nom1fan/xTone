@@ -57,21 +57,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Initializing..."
         android:id="@+id/initTextView"
-        android:layout_marginTop="69dp"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/initProgressBar"
-        android:layout_toEndOf="@+id/initProgressBar"
-        android:layout_marginLeft="28dp"
-        android:layout_marginStart="28dp" />
+        android:layout_marginBottom="83dp"
+        android:layout_above="@+id/LoginNumber"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp" />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/initProgressBar"
-        android:layout_alignBottom="@+id/initTextView"
-        android:layout_toLeftOf="@+id/login_btn"
-        android:layout_toStartOf="@+id/login_btn" />
+        android:layout_above="@+id/initTextView"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
