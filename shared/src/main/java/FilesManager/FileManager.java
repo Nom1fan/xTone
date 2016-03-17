@@ -33,9 +33,9 @@ import Exceptions.FileMissingExtensionException;
 public class FileManager implements Serializable {
 
     private static final long serialVersionUID = -6478414954653475111L;
-    private static final String[] imageFormats = { "jpg", "png", "jpeg", "bmp", "gif", "tiff" };
-    private static final String[] audioFormats = { "mp3", "ogg" };
-    private static final String[] videoFormats = { "avi", "mpeg", "mp4", "3gp", "wmv" };
+    private static final String[] imageFormats = { "jpg", "png", "jpeg", "bmp", "gif" , "webp" };
+    private static final String[] audioFormats = { "mp3", "ogg" , "flac" , "mid" , "xmf" , "mxmf" , "rtx" , "ota" , "imy" , "wav" ,"m4a" , "aac"};
+    private static final String[] videoFormats = { "avi", "mpeg", "mp4", "3gp", "wmv" , "webm" , "mkv"  };
 
     private File _file;
     private String _extension;
@@ -417,7 +417,7 @@ public class FileManager implements Serializable {
 
     public static String extractExtension(String filePath) throws FileMissingExtensionException{
 
-        String tmp_str[] = filePath.split("\\.");
+        String tmp_str[] = filePath.split("\\.(?=[^\\.]+$)"); // getting last
         if(tmp_str.length<2)
             throw new FileMissingExtensionException("File is missing extension:"+filePath);
         String ext = tmp_str[1];
