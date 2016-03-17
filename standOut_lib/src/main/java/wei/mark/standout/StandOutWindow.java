@@ -413,7 +413,7 @@ public abstract class StandOutWindow extends Service {
 
 		// the service is started in foreground in show()
 		// so we don't expect Android to kill this service
-		return START_NOT_STICKY;
+		return START_STICKY;
 	}
 
 	@Override

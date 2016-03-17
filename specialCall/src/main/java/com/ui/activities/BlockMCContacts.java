@@ -1,11 +1,13 @@
 package com.ui.activities;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -32,7 +34,7 @@ import java.util.Set;
  */
 
 
-public class BlockMCContacts extends Activity implements View.OnClickListener {
+public class BlockMCContacts extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = BlockMCContacts.class.getSimpleName();
     private List<String> _namesInListView = new ArrayList<String>();
@@ -49,8 +51,27 @@ public class BlockMCContacts extends Activity implements View.OnClickListener {
         setContentView(R.layout.blocked_user_list);
         Log.i(TAG, "onCreate");
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            actionBar.setCustomView(R.layout.custom_action_bar);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+        }
+        return true;
+    }
+
 
     @Override
     protected void onResume() {

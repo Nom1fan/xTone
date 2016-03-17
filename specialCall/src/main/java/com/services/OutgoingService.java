@@ -16,6 +16,7 @@ import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.special.app.R;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
+import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
@@ -215,20 +216,22 @@ public class OutgoingService extends AbstractStandOutService {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             boolean arrivedFromFallBack = action.equals(StartStandOutServicesFallBackReceiver.ACTION_START_OUTGOING_SERVICE);
-
+            Log.i(TAG, "outgoingReceiver Action1: " + action);
             if (action.equals(Intent.ACTION_NEW_OUTGOING_CALL) || arrivedFromFallBack) {
                 String outgoingCallNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
+
+                outgoingCallNumber = PhoneNumberUtils.toValidPhoneNumber(outgoingCallNumber);
 
                 if (arrivedFromFallBack)
                     StartStandOutServicesFallBackReceiver.completeWakefulIntent(intent);
 
                 mIncomingOutgoingNumber = outgoingCallNumber;
-                Log.i(TAG, "Action: " + action);
+                Log.i(TAG, "outgoingReceiver Action2: " + action);
                 Log.i(TAG, "mInRingingSession=" + isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) + " outgoingCallNumber=" + outgoingCallNumber);
 
                 // Checking if number is in black list
                 if (!MCBlockListUtils.IsMCBlocked(outgoingCallNumber, getApplicationContext()))
-                    if (!isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && outgoingCallNumber != null) {
+                    if (!isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(outgoingCallNumber)) {
 
                         try {
                             mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);

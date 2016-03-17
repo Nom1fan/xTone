@@ -321,7 +321,14 @@ public class Window extends FrameLayout {
 			// set window manager params
 			StandOutLayoutParams params = getLayoutParams();
 			params.setFocusFlag(focus);
-			mContext.updateViewLayout(id, params);
+
+			try {
+				mContext.updateViewLayout(id, params);
+			}catch (Exception e)
+			{
+
+			}
+
 
 			if (focus) {
 				mContext.setFocusedWindow(this);
@@ -846,7 +853,12 @@ public class Window extends FrameLayout {
 		 */
 		public void commit() {
 			if (mParams != null) {
-				mContext.updateViewLayout(id, mParams);
+
+				try {
+					mContext.updateViewLayout(id, mParams);
+				}catch (Exception e)
+				{}
+
 				mParams = null;
 			}
 		}

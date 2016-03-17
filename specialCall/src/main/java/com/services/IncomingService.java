@@ -17,6 +17,7 @@ import com.data_objects.Constants;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
+import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
@@ -186,16 +187,19 @@ public class IncomingService extends AbstractStandOutService {
     @Override
     protected synchronized void syncOnCallStateChange(int state, String incomingNumber) {
 
+        incomingNumber = PhoneNumberUtils.toValidPhoneNumber(incomingNumber);
+        Log.i(TAG,"before incoming phone number : " + incomingNumber);
         mIncomingOutgoingNumber = incomingNumber;
         // Checking if number is in black list
+        Log.i(TAG, " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) );
         if (!MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext()) || (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)))
             switch (state) {
                 case TelephonyManager.CALL_STATE_RINGING:
-
-                    if (!isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)) {
+                    Log.i(TAG,"CALL_STATE_RINGING " + incomingNumber);
+                    if (!isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(incomingNumber)) {
                         try {
                             PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "My wakelock");
+                            wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "My wakelock");
                             wakeLock.acquire();
 
                             String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, incomingNumber);
@@ -402,7 +406,10 @@ public class IncomingService extends AbstractStandOutService {
         if (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)) {
 
             try {
-                wakeLock.release();
+
+                if (wakeLock!=null)
+                    wakeLock.release();
+
                 dismissKeyGuard(false);
                 enableRingStream();
 

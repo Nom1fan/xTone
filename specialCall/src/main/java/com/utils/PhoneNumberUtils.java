@@ -1,7 +1,5 @@
 package com.utils;
 
-import android.content.Context;
-
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 
@@ -11,18 +9,20 @@ import java.text.ParsePosition;
 public abstract class PhoneNumberUtils {
 
     public static String toValidPhoneNumber(String str) {
+        if (str != null) {
+            str = str.replaceAll("[^0-9]", "");
 
-        str = str.replaceAll("[^0-9]", "");
+            // TODO deal with other countries
+            if (str.startsWith("9720")) {
+                str = str.replaceFirst("9720", "0");
+            }
+            if (str.startsWith("972")) {
+                str = str.replaceFirst("972", "0");
+            }
 
-        // TODO deal with other countries
-        if (str.startsWith("9720")) {
-            str = str.replaceFirst("9720", "0");
-        }
-        if (str.startsWith("972")) {
-            str = str.replaceFirst("972", "0");
-        }
-        
-        return str;
+            return str;
+        } else
+            return "";
     }
 
     public static boolean isNumeric(String str) {
@@ -34,10 +34,13 @@ public abstract class PhoneNumberUtils {
 
     public static boolean isValidPhoneNumber(String destPhone) {
 
-        boolean lengthOK = 10 == destPhone.length();
-        boolean isNumeric = isNumeric(destPhone);
-        boolean isValidPrefix = destPhone.startsWith("0"); //TODO deal with other countries
+        if (destPhone != null) { // if it's null it's a Private Number (incoming calls)
+            boolean lengthOK = 10 == destPhone.length();
+            boolean isNumeric = isNumeric(destPhone);
+            boolean isValidPrefix = destPhone.startsWith("0"); //TODO deal with other countries
 
-        return lengthOK && isNumeric && isValidPrefix;
+            return lengthOK && isNumeric && isValidPrefix;
+        } else
+            return false;
     }
 }
