@@ -2,24 +2,18 @@ package com.services;
 
 import android.app.Activity;
 import android.app.KeyguardManager;
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.support.v7.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.FrameLayout;
 
 import com.data_objects.Constants;
 import com.receivers.StartStandOutServicesFallBackReceiver;
-import com.special.app.R;
-import com.ui.activities.MainActivity;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
 import com.utils.NotificationUtils;
@@ -146,7 +140,7 @@ public class IncomingService extends AbstractStandOutService {
 
         incomingNumber = PhoneNumberUtils.toValidPhoneNumber(incomingNumber);
         Log.i(TAG,"before incoming phone number : " + incomingNumber);
-        mIncomingOutgoingNumber = incomingNumber = "0542384176";
+        mIncomingOutgoingNumber = incomingNumber;
         // Checking if number is in black list
         Log.i(TAG, " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION));
         if (!MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext()) || (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)))
