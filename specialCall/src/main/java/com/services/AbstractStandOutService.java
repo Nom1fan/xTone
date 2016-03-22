@@ -53,7 +53,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     public static final String ACTION_STOP_RING = "com.services.AbstractStandOutService.ACTION_STOP_RING";
     public static final String ACTION_START = "com.services.AbstractStandOutService.ACTION_START";
-    private boolean isHidden = false;
+    protected boolean isHidden = false;
     protected String TAG;
     protected int mWidth;
     protected int mHeight;
@@ -707,6 +707,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         volumeChangeByMCButtons = false;
         mVolumeBeforeMute = 0;
         isHidden = false;
+        mPhoneListener = null;
         // TODO Release more Resources
 
     }

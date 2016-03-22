@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.FrameLayout;
 
 import com.data_objects.Constants;
 import com.receivers.StartStandOutServicesFallBackReceiver;
@@ -24,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 
 import DataObjects.SpecialMediaType;
+import wei.mark.standout.ui.Window;
 
 //import android.telephony.PreciseCallState;
 
@@ -68,6 +68,19 @@ public class OutgoingService extends AbstractStandOutService {
         super.onDestroy();
 
     }
+
+    @Override
+    public boolean onShow(int id, Window window) {
+
+        Log.i(TAG, "onShow Hidden: " + String.valueOf(isHidden) );
+        if (!isHidden) {
+            setVolumeSilentForOutgoingCalls(); // outgoing calls should start in MUTE first
+        }
+
+        super.onShow(id, window);  // at last so the volume will return to the previous(since when it was showed) , to make the volume always mute after Unhide move it to the Start of the method.
+
+        return false;
+    }
     //endregion
 
     //region AbstractStandOutService methods
@@ -102,9 +115,28 @@ public class OutgoingService extends AbstractStandOutService {
     }
 
     @Override
-    public void createAndAttachView(int id, FrameLayout frame) {
-        super.createAndAttachView(id,frame);
+    protected void playSound(Context context, Uri alert) {
 
+        Log.i(TAG, "Playing funtone sound");
+        mMediaPlayer = new MediaPlayer();
+        try {
+            mMediaPlayer.setDataSource(context, alert);
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mMediaPlayer.prepare();
+            mMediaPlayer.setLooping(true);
+            mMediaPlayer.start();
+
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Failed to play sound. Exception:" + e.getMessage());
+        }
+    }
+    //endregion
+
+    //region Internal helper methods
+    private void setVolumeSilentForOutgoingCalls() {
         // if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {//TODO PRECISE RING STATE can't be used so we can't know when the phone is answered. start outgoing in Mute.
         Log.i(TAG, "android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
         Log.i(TAG, "MUTE by button");
@@ -117,29 +149,8 @@ public class OutgoingService extends AbstractStandOutService {
         mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
         mSpecialCallMutUnMuteBtn.bringToFront();
         //  }
-
     }
 
-    @Override
-    protected void playSound(Context context, Uri alert) {
-
-        Log.i(TAG, "Playing funtone sound");
-        mMediaPlayer = new MediaPlayer();
-        try {
-            mMediaPlayer.setDataSource(context, alert);
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.prepare();
-            mMediaPlayer.setLooping(true);
-            mMediaPlayer.start();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e(TAG, "Failed to play sound. Exception:" + e.getMessage());
-        }
-    }
-    //endregion
-
-    //region Internal helper methods
     private void actionThread(Intent intent) {
         String action = null;
         if (intent != null)
@@ -168,6 +179,7 @@ public class OutgoingService extends AbstractStandOutService {
                     mp.setLooping(true);
                     mp.setVolume(1.0f, 1.0f);
                     mp.start();
+
                 }
             };
     }
