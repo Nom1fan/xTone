@@ -1,5 +1,7 @@
 package com.services;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -23,6 +25,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.special.app.R;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
@@ -32,7 +35,9 @@ import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
+import java.util.Calendar;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 import Exceptions.FileDoesNotExistException;
@@ -48,6 +53,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     public static final String ACTION_STOP_RING = "com.services.AbstractStandOutService.ACTION_STOP_RING";
     public static final String ACTION_START = "com.services.AbstractStandOutService.ACTION_START";
+    private boolean isHidden = false;
     protected String TAG;
     protected int mWidth;
     protected int mHeight;
@@ -68,21 +74,23 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected int mVolumeBeforeMute = 0;
     protected String mIncomingOutgoingNumber = "";
     protected String mContactTitleOnWindow = "";
+    private static final long REPEAT_TIME = 60000;
+    private static final String alarmActionIntent = "com.android.special.specialcall.ALARM_ACTION";
 
     public AbstractStandOutService(String TAG) {
         this.TAG = TAG;
     }
 
     //region Service methods
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        String action = null;
-        if (intent != null)
-            action = intent.getAction();
-        if (action != null)
-            Log.i(TAG, "Action:" + action);
+        android.os.Process.setThreadPriority(-20); // TODO Is this good or not ?
+        prepareCallStateListener();
+        prepareStandOutWindowDisplay();
+
         return START_STICKY;
     }
 
@@ -90,17 +98,23 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "Service onCreate");
-        android.os.Process.setThreadPriority(-20);
-        prepareCallStateListener();
-        prepareStandOutWindowDisplay();
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         Log.e(TAG, "Service onDestroy");
+        super.onDestroy();
 
+    }
 
+    @Override
+    public void onLowMemory() {
+        Log.e(TAG, "Service onLowMemory");
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        Log.e(TAG, "Service onTrimMemory Level: " + String.valueOf(level));
     }
 
     @Override
@@ -153,6 +167,27 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     @Override
+    public boolean onShow(int id, Window window) {
+        Log.i(TAG, "onShow");
+        if (isHidden) {
+            verifyAudioManager();
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
+            isHidden = false;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onHide(int id, Window window) {
+        Log.i(TAG, "onHide");
+        verifyAudioManager();
+        mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+        isHidden = true;
+        return false;
+    }
+
+    @Override
     public int getFlags(int id) {
         Log.i(TAG, "getFlags");
 
@@ -162,7 +197,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         return StandOutFlags.FLAG_DECORATION_SYSTEM
                 | StandOutFlags.FLAG_BODY_MOVE_ENABLE
                 | StandOutFlags.FLAG_WINDOW_HIDE_ENABLE
-               // | StandOutFlags.FLAG_WINDOW_BRING_TO_FRONT_ON_TAP
+                // | StandOutFlags.FLAG_WINDOW_BRING_TO_FRONT_ON_TAP
                 | StandOutFlags.FLAG_WINDOW_EDGE_LIMITS_ENABLE
                 | StandOutFlags.FLAG_WINDOW_PINCH_RESIZE_ENABLE;
     }
@@ -177,14 +212,14 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     @Override
     public boolean onUpdate(int id, Window window, StandOutLayoutParams params) {
 
-        Log.i(TAG,"onUpdate");
-            try {
-                ((VideoViewCustom) mSpecialCallView).setDimensions(window.getHeight(), window.getWidth());
-                ((VideoViewCustom) mSpecialCallView).getHolder().setFixedSize(window.getHeight(), window.getWidth());
-                ((VideoViewCustom) mSpecialCallView).postInvalidate(); // TODO Rony maybe not needed invalidate
-            } catch (Exception e) {
-                Log.i(TAG, "can't onUpdate mSpecialCallView video, i guess it's not a video");
-            }
+        Log.i(TAG, "onUpdate");
+        try {
+            ((VideoViewCustom) mSpecialCallView).setDimensions(window.getHeight(), window.getWidth());
+            ((VideoViewCustom) mSpecialCallView).getHolder().setFixedSize(window.getHeight(), window.getWidth());
+            ((VideoViewCustom) mSpecialCallView).postInvalidate(); // TODO Rony maybe not needed invalidate
+        } catch (Exception e) {
+            Log.i(TAG, "can't onUpdate mSpecialCallView video, i guess it's not a video");
+        }
         return false;
     }
 
@@ -339,7 +374,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             mSpecialCallMutUnMuteBtn.bringToFront();
         }
 
-        //ImageView for Closing Special Incoming Call
 
         mSpecialCallMutUnMuteBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -359,7 +393,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 } else {
                     Log.i(TAG, "MUTE by button");
                     volumeChangeByMCButtons = true;
-                   verifyAudioManager();
+                    verifyAudioManager();
                     mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
                     isMuted = true;
@@ -385,7 +419,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             public void onClick(View v) {
 
                 volumeChangeByMCButtons = true;
-               verifyAudioManager();
+                verifyAudioManager();
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) - 1, 0); // decrease volume
 
             }
@@ -492,12 +526,14 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     protected void backupMusicVolume() {
 
+        verifyAudioManager();
         Log.i(TAG, "mRingVolume Original" + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME));
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
     }
 
     protected void backupRingVolume() {
 
+        verifyAudioManager();
         int ringVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_RING);
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME, ringVolume);
         Log.i(TAG, "mRingVolume Original=" + ringVolume);
@@ -527,13 +563,15 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         String contactName = ContactsUtils.getContactName(getApplicationContext(), callNumber);
         mContactTitleOnWindow = (!contactName.equals("") ? contactName + " " + callNumber : callNumber);
+        Random r = new Random();
+        int randomWindowId = r.nextInt(Integer.MAX_VALUE);  // fixing a bug: when the same ID the window isn't released good enough so we need to make a different window in the mean time
 
         if (new File(visualMediaFilePath).exists()) {
             try {
                 FileManager fm = new FileManager(visualMediaFilePath);
                 prepareViewForSpecialCall(fm.getFileType(), fm.getFileFullPath(), callNumber);
                 Intent i = new Intent(this, this.getClass());
-                i.putExtra("id", DEFAULT_ID);
+                i.putExtra("id", randomWindowId);
                 i.setAction(StandOutWindow.ACTION_SHOW);
 
                 startService(i);
@@ -549,7 +587,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             prepareDefaultViewForSpecialCall(callNumber);
 
             Intent i = new Intent(this, this.getClass());
-            i.putExtra("id", DEFAULT_ID);
+            i.putExtra("id", randomWindowId);
             i.setAction(StandOutWindow.ACTION_SHOW);
             startService(i);
 
@@ -625,14 +663,50 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5, FileManager.getMD5(visualFilePath));
 
     }
+
+
+    public void setAlarm(Context context)
+    {
+        AlarmManager service = (AlarmManager) context
+                .getSystemService(Context.ALARM_SERVICE);
+        Intent i = new Intent(context, StartStandOutServicesFallBackReceiver.class);
+        i.setAction(alarmActionIntent);
+        PendingIntent pending = PendingIntent.getBroadcast(context, 0, i,
+                PendingIntent.FLAG_CANCEL_CURRENT);
+
+
+        Calendar cal = Calendar.getInstance();
+        // Start 30 seconds after boot completed
+        cal.add(Calendar.SECOND, 30);
+        //
+        // Fetch every 30 seconds
+        // InexactRepeating allows Android to optimize the energy consumption
+        service.setInexactRepeating(AlarmManager.RTC_WAKEUP,
+                cal.getTimeInMillis(), REPEAT_TIME, pending);
+    }
+
+/*    public void CancelAlarm(Context context)
+    {
+        Intent intent = new Intent(context, Alarm.class);
+        PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, 0);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(sender);
+    }*/
     //endregion
 
     //region Private classes and listeners
     protected void releaseResources() {
 
+        mMediaPlayer.release();
         mMediaPlayer = null;
         mAudioManager = null;
+        isMuted = false;
         removeTempMd5ForCallRecord();
+
+        windowCloseActionWasMade = true;
+        volumeChangeByMCButtons = false;
+        mVolumeBeforeMute = 0;
+        isHidden = false;
         // TODO Release more Resources
 
     }

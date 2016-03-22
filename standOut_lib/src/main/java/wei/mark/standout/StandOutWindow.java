@@ -1125,13 +1125,13 @@ public abstract class StandOutWindow extends Service {
 
 		try {
 
-			/*// TODO MEdiaCallz: Removing window just in case the previous one got stuck, make sure this doesn't create problems
+			// TODO MEdiaCallz: Removing window just in case the previous one got stuck, make sure this doesn't create problems
 			try {
 				if (window!=null)
 					mWindowManager.removeView(window);
 			} catch (Exception ex) {
 				ex.printStackTrace();
-			}*/
+			}
 				// add the view to the window manager
 			mWindowManager.addView(window, params);
 

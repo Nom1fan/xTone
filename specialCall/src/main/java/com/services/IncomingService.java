@@ -2,21 +2,27 @@ package com.services;
 
 import android.app.Activity;
 import android.app.KeyguardManager;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.PowerManager;
+import android.support.v7.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.FrameLayout;
 
 import com.data_objects.Constants;
 import com.receivers.StartStandOutServicesFallBackReceiver;
+import com.special.app.R;
+import com.ui.activities.MainActivity;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
+import com.utils.NotificationUtils;
 import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 
@@ -31,7 +37,6 @@ import wei.mark.standout.StandOutWindow;
 public class IncomingService extends AbstractStandOutService {
 
     public static boolean isLive = false;
-    PowerManager.WakeLock wakeLock;
     private boolean mWasSpecialRingTone = false;
     private boolean mVolumeChangeByService = false;
     private boolean mAlreadyMuted = false;
@@ -39,6 +44,8 @@ public class IncomingService extends AbstractStandOutService {
     private boolean mAnswered = false;
     private KeyguardManager mKeyguardManager;
     private KeyguardManager.KeyguardLock mLock;
+
+
 
     public IncomingService() {
         super(IncomingService.class.getSimpleName());
@@ -48,79 +55,29 @@ public class IncomingService extends AbstractStandOutService {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        try {
-            if (mVideoPreparedListener == null)
-                mVideoPreparedListener = new OnVideoPreparedListener() {
-
-                    @Override
-                    public void onPrepared(MediaPlayer mp) {
-                        mp.setLooping(true);
-                        mp.setVolume(1.0f, 1.0f);
-                        mp.start();
-                        Log.i(TAG, " Video registerVolumeReceiver");
-                        registerVolumeReceiver();
-                    }
-                };
-
-            // if(mVolumeButtonReceiver == null)
-            //     mVolumeButtonReceiver = new VolumeButtonReceiver();
-            isLive = true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, e.getMessage());
-        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        final Intent intentForThread = intent;
+        isLive = true;
 
-        new Thread() {
+        prepareVideoListener();
+        checkIntent(intent);
+        actionThread(intent);
 
-            @Override
-            public void run() {
-                if (intentForThread != null) {
-                    String action = intentForThread.getAction();
-                    switch (action) {
+        //check if the fallback receiver sent the intent and the service is down so we should use it.
+        checkIfItsFallBackReceiverIntent(intent);
 
-                        case ACTION_STOP_RING: {
-                            stopSound();
-                        }
-                        break;
-                        case ACTION_START: {
-                        }
-                        break;
-                    }
-                }
-            }
-
-        }.start();
-
-        if (intent != null) {
-            String incomingPhoneNumber = intent.getStringExtra(StartStandOutServicesFallBackReceiver.INCOMING_PHONE_NUMBER_KEY);
-            Log.i(TAG, "intent.getStringExtra.IncomingPhoneNumberFromBroadcastReceiver mincomingnumber:" + incomingPhoneNumber);
-
-            // do you start from FallBackReceiver ??
-            if (incomingPhoneNumber != null && !incomingPhoneNumber.isEmpty()) {
-                Log.i(TAG, "syncOnCallStateChange From FALLBACK mincomingnumber:" + incomingPhoneNumber);
-
-                StartStandOutServicesFallBackReceiver.completeWakefulIntent(intent);
-
-                syncOnCallStateChange(TelephonyManager.CALL_STATE_RINGING, incomingPhoneNumber);
-            }
-
-        }
+        // check if the Device has Strict Memory Manager like SPCM that always kills us on lowestscore package!
+        isForegroundAndAlarmNeeded();
 
         return START_STICKY;
-
     }
 
     @Override
     public void onDestroy() {
-
         isLive = false;
         super.onDestroy();
     }
@@ -189,18 +146,15 @@ public class IncomingService extends AbstractStandOutService {
 
         incomingNumber = PhoneNumberUtils.toValidPhoneNumber(incomingNumber);
         Log.i(TAG,"before incoming phone number : " + incomingNumber);
-        mIncomingOutgoingNumber = incomingNumber;
+        mIncomingOutgoingNumber = incomingNumber = "0542384176";
         // Checking if number is in black list
-        Log.i(TAG, " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) );
+        Log.i(TAG, " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION));
         if (!MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext()) || (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)))
             switch (state) {
                 case TelephonyManager.CALL_STATE_RINGING:
                     Log.i(TAG,"CALL_STATE_RINGING " + incomingNumber);
                     if (!isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(incomingNumber)) {
                         try {
-                            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-                            wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK, "My wakelock");
-                            wakeLock.acquire();
 
                             String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, incomingNumber);
                             String ringtonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, incomingNumber);
@@ -210,7 +164,7 @@ public class IncomingService extends AbstractStandOutService {
                             mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
                             backupRingVolume();
-                            verifyAudioManager();
+
 
                             try {
 
@@ -314,6 +268,89 @@ public class IncomingService extends AbstractStandOutService {
     //endregion
 
     //region Internal helper methods
+    private void isForegroundAndAlarmNeeded() {
+        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.STRICT_MEMORY_MANAGER_DEVICES))
+        {
+            //TODO ForeGroundService needed & Alarm Needed or this is solved after memory leakage solved????
+            startForeground(NotificationUtils.FOREGROUND_NOTIFICATION_ID, NotificationUtils.getCompatNotification(getApplicationContext()));
+            setAlarm(this);
+        }
+    }
+
+    private void checkIfItsFallBackReceiverIntent(Intent intent) {
+        if (intent != null) {
+            String incomingPhoneNumber = intent.getStringExtra(StartStandOutServicesFallBackReceiver.INCOMING_PHONE_NUMBER_KEY);
+            Log.i(TAG, "FallBackReceiver Gives incoming number:" + incomingPhoneNumber);
+
+            // do you start from FallBackReceiver ??
+            if (incomingPhoneNumber != null && !incomingPhoneNumber.isEmpty()) {
+                Log.i(TAG, "sending fallbackReceiver incoming number to SyncOnCallState: " + incomingPhoneNumber);
+                //release wakefulBroadcastReceiver WAKE_LOCK
+                StartStandOutServicesFallBackReceiver.completeWakefulIntent(intent);
+                //Initiating syncOnCallStateChange
+                syncOnCallStateChange(TelephonyManager.CALL_STATE_RINGING, incomingPhoneNumber);
+            }
+        }
+
+    }
+
+    private void checkIntent(Intent intent) {
+        String action = null;
+        if (intent != null)
+            action = intent.getAction();
+        if (action != null)
+            Log.i(TAG, "Action:" + action);
+    }
+
+    private void actionThread(Intent intent) {
+        final Intent intentForThread = intent;
+        new Thread() {
+
+            @Override
+            public void run() {
+                if (intentForThread != null) {
+                    String action = intentForThread.getAction();
+                    switch (action) {
+
+                        case ACTION_STOP_RING: {
+                            stopSound();
+                        }
+                        break;
+                        case ACTION_START: {
+                        }
+                        break;
+                    }
+                }
+            }
+
+        }.start();
+
+    }
+
+    private void prepareVideoListener() {
+        try {
+            if (mVideoPreparedListener == null)
+                mVideoPreparedListener = new OnVideoPreparedListener() {
+
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        mp.setLooping(true);
+                        mp.setVolume(1.0f, 1.0f);
+                        mp.start();
+                        Log.i(TAG, " Video registerVolumeReceiver");
+                        registerVolumeReceiver();
+                    }
+                };
+
+            // if(mVolumeButtonReceiver == null)
+            //     mVolumeButtonReceiver = new VolumeButtonReceiver();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
     private void enableRingStream() {
 
         try {
@@ -407,9 +444,6 @@ public class IncomingService extends AbstractStandOutService {
 
             try {
 
-                if (wakeLock!=null)
-                    wakeLock.release();
-
                 dismissKeyGuard(false);
                 enableRingStream();
 
@@ -441,7 +475,7 @@ public class IncomingService extends AbstractStandOutService {
                         }
                         try {
 
-                           verifyAudioManager();
+                            verifyAudioManager();
 
                             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
                             Log.i(TAG, "UNMUTE STREAM_MUSIC ");

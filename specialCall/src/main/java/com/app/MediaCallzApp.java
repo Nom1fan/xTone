@@ -46,6 +46,9 @@ public class MediaCallzApp extends Application {
                 // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
                 InitUtils.hideMediaFromGalleryScanner();
 
+                //Checking if The Device has Strict MemoryManager
+                InitUtils.checkIfDeviceHasStrictMemoryManager(context);
+
             }
         } catch (Exception e) {
             String errMsg = "Failed to initialize. Please try to install again. Error:" + (e.getMessage()!=null ? e.getMessage() : e);

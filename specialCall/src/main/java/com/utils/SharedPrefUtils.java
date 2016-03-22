@@ -34,6 +34,7 @@ public abstract class SharedPrefUtils {
     public static final String LOADING_MESSAGE = "LoadingMessage";
     public static final String MY_DEVICE_BATCH_TOKEN = "MyDeviceBatchToken";
     public static final String LAST_CHECKED_NUMBER_CACHE = "LastCheckedNumberCache";
+    public static final String STRICT_MEMORY_MANAGER_DEVICES = "StrictMemoryManagerDevices";
     //endregion
 
     //region Shared pref keys under SERVER_PROXY

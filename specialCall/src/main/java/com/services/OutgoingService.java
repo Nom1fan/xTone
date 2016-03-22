@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.FrameLayout;
 
 import com.data_objects.Constants;
 import com.receivers.StartStandOutServicesFallBackReceiver;
@@ -23,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 
 import DataObjects.SpecialMediaType;
-import FilesManager.FileManager;
 
 //import android.telephony.PreciseCallState;
 
@@ -46,35 +46,27 @@ public class OutgoingService extends AbstractStandOutService {
     @Override
     public void onCreate() {
         super.onCreate();
+    }
 
-        if (mOutgoingCallReceiver == null) {
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
 
-            mOutgoingCallReceiver = new OutgoingCallReceiver();
-            IntentFilter filter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
-            filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
-            filter.addAction(StartStandOutServicesFallBackReceiver.ACTION_START_OUTGOING_SERVICE);
-            registerReceiver(mOutgoingCallReceiver, filter);
-        }
+        isLive = true;
 
-        if (mVideoPreparedListener == null)
-            mVideoPreparedListener = new OnVideoPreparedListener() {
+        registerOutgoingReceiver();
+        prepareVideoListener();
+        actionThread(intent);
 
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    mp.setLooping(true);
-                    mp.setVolume(1.0f, 1.0f);
-                    mp.start();
-                }
-            };
-        isLive = true;  // Service Is Live !
+        return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
+        isLive = false; // Service Is Dead !
+        unregisterReceiver(mOutgoingCallReceiver);
         super.onDestroy();
 
-        unregisterReceiver(mOutgoingCallReceiver);
-        isLive = false; // Service Is Dead !
     }
     //endregion
 
@@ -110,38 +102,22 @@ public class OutgoingService extends AbstractStandOutService {
     }
 
     @Override
-    protected void prepareViewForSpecialCall(FileManager.FileType fileType, String mediaFilePath, String callNumber) {
-        super.prepareViewForSpecialCall(fileType, mediaFilePath, callNumber);
-        if (funtoneFileExists || ((fileType == FileManager.FileType.VIDEO))) {  // in case only an image without funtone, so there is no need for the mute button , but video should have it
+    public void createAndAttachView(int id, FrameLayout frame) {
+        super.createAndAttachView(id,frame);
 
-            if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-                Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
-                verifyAudioManager();
+        // if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {//TODO PRECISE RING STATE can't be used so we can't know when the phone is answered. start outgoing in Mute.
+        Log.i(TAG, "android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
+        Log.i(TAG, "MUTE by button");
+        volumeChangeByMCButtons = true;
+        verifyAudioManager();
+        mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+        isMuted = true;
 
-                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
-                isMuted = true;
-                mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);  // TODO : setImageResource need to be replaced ? memory issue ?
-                mSpecialCallMutUnMuteBtn.bringToFront();
-            }
-        }
-    }
+        mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
+        mSpecialCallMutUnMuteBtn.bringToFront();
+        //  }
 
-    @Override
-    protected void prepareDefaultViewForSpecialCall(String callNumber) {
-        super.prepareDefaultViewForSpecialCall(callNumber);
-
-        if (funtoneFileExists) {  // in case only an image without funtone, so there is no need for the mute button
-
-            if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-                Log.i(TAG, " android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
-                verifyAudioManager();
-
-                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
-                isMuted = true;
-                mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);  //TODO : setImageResource need to be replaced ? memory issue ?
-                mSpecialCallMutUnMuteBtn.bringToFront();
-            }
-        }
     }
 
     @Override
@@ -164,6 +140,38 @@ public class OutgoingService extends AbstractStandOutService {
     //endregion
 
     //region Internal helper methods
+    private void actionThread(Intent intent) {
+        String action = null;
+        if (intent != null)
+            action = intent.getAction();
+        if (action != null)
+            Log.i(TAG, "Action:" + action);
+    }
+
+    private void registerOutgoingReceiver() {
+        if (mOutgoingCallReceiver == null) {
+
+            mOutgoingCallReceiver = new OutgoingCallReceiver();
+            IntentFilter filter = new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL);
+            filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+            filter.addAction(StartStandOutServicesFallBackReceiver.ACTION_START_OUTGOING_SERVICE);
+            registerReceiver(mOutgoingCallReceiver, filter);
+        }
+    }
+
+    private void prepareVideoListener() {
+        if (mVideoPreparedListener == null)
+            mVideoPreparedListener = new OnVideoPreparedListener() {
+
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.setLooping(true);
+                    mp.setVolume(1.0f, 1.0f);
+                    mp.start();
+                }
+            };
+    }
+
     private void resumeMusicStreamBackToPrevious() {
 
         new Thread() {
@@ -175,7 +183,7 @@ public class OutgoingService extends AbstractStandOutService {
                     e.printStackTrace();
                 }
 
-              verifyAudioManager();
+                verifyAudioManager();
 
 
                 try {
