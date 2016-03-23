@@ -5,15 +5,15 @@
 
         <item
             android:id="@+id/selectcallermedia"
-            android:title="Select Media"/>
+            android:title="@string/select_media"/>
 
         <item
             android:id="@+id/previewcallermedia"
-            android:title="Preview"/>
+            android:title="@string/preview"/>
 
         <item
             android:id="@+id/clearcallermedia"
-            android:title="Clear"/>
+            android:title="@string/clear"/>
 
     </menu>
 

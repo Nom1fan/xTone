@@ -73,7 +73,6 @@ import FilesManager.FileManager;
 public class MainActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
 
     private final String TAG = MainActivity.class.getSimpleName();
-    private final String shareBody = String.valueOf(R.string.invite);
     private String _destPhoneNumber = "";
     private String _destName = "";
     private ProgressBar _pFetchUserBar;
@@ -313,8 +312,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             EditText callNumber = (EditText) findViewById(R.id.CallNumber);
             try {
                 SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(callNumber.getText().toString(), null, shareBody, null, null);
-                writeInfoSnackBar("Invitation Sent To: " + callNumber.getText().toString());
+                smsManager.sendTextMessage(callNumber.getText().toString(), null, getResources().getString(R.string.invite), null, null);
+                writeInfoSnackBar( getResources().getString(R.string.sent_invitation) + callNumber.getText().toString());
 
             } catch (Exception ex) {
                 writeErrStatBar(ex.getMessage());
@@ -682,13 +681,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         // Add Drawer Item to dataList
         List<DrawerItem> dataList = new ArrayList<>();
-        dataList.add(new DrawerItem("Media Management", R.drawable.mediaicon));
-        dataList.add(new DrawerItem("Who Can MC me", R.drawable.blackwhitelist));
-        dataList.add(new DrawerItem("How To ?", R.drawable.questionmark));
-        dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
-        dataList.add(new DrawerItem("Rate Us", R.drawable.rateus2));
-        dataList.add(new DrawerItem("Report Bug", R.drawable.bug));
-        dataList.add(new DrawerItem("App Settings", R.drawable.settingsicon));
+        dataList.add(new DrawerItem(getResources().getString(R.string.media_management), R.drawable.mediaicon));
+        dataList.add(new DrawerItem(getResources().getString(R.string.who_can_mc_me), R.drawable.blackwhitelist));
+        dataList.add(new DrawerItem(getResources().getString(R.string.how_to), R.drawable.questionmark));
+        dataList.add(new DrawerItem(getResources().getString(R.string.share_us), R.drawable.shareus));
+        dataList.add(new DrawerItem(getResources().getString(R.string.rate_us), R.drawable.rateus2));
+        dataList.add(new DrawerItem(getResources().getString(R.string.report_bug), R.drawable.bug));
+        dataList.add(new DrawerItem(getResources().getString(R.string.app_settings), R.drawable.settingsicon));
 
         CustomDrawerAdapter mAdapter = new CustomDrawerAdapter(this, R.layout.custome_drawer_item,
                 dataList);
@@ -738,10 +737,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
         sharingIntent.setType("text/plain");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "MediaCallz (Open it in Google Play Store to Download the Application)");
+        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getResources().getString(R.string.share_subject));
 
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
-        startActivity(Intent.createChooser(sharingIntent, "Share via"));
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, getResources().getString(R.string.invite));
+        startActivity(Intent.createChooser(sharingIntent,getResources().getString(R.string.share_via)));
     }
 
     private void appSettings() {
@@ -1172,7 +1171,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         SnackbarManager.show(
                 Snackbar.with(getApplicationContext()) // context
                         .text(text) // text to display
-                        .actionLabel("Close") // action button label
+                        .actionLabel(getResources().getString(R.string.snack_close)) // action button label
                         .duration(Snackbar.SnackbarDuration.LENGTH_LONG)
                         .actionListener(new ActionClickListener() {
                             @Override
@@ -1192,7 +1191,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 Snackbar.with(getApplicationContext()) // context
                         .text(text) // text to display
                         .textColor(color)
-                        .actionLabel("Close") // action button label
+                        .actionLabel(getResources().getString(R.string.snack_close)) // action button label
                         .duration(duration)
                         .actionListener(new ActionClickListener() {
                             @Override

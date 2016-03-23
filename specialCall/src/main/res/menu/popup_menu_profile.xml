@@ -5,19 +5,19 @@
 
         <item
             android:id="@+id/specificprofile"
-            android:title="Specific Profile"/>
+            android:title="@string/specificprofile"/>
 
         <item
             android:id="@+id/defaultprofile"
-            android:title="Default Profile"/>
+            android:title="@string/defaultprofile"/>
 
         <item
             android:id="@+id/previewprofilemedia"
-            android:title="Preview"/>
+            android:title="@string/preview"/>
 
         <item
             android:id="@+id/clearprofilemedia"
-            android:title="Clear"/>
+            android:title="@string/clear"/>
 
 
 

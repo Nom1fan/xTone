@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="initial_upload_text">העלאה בתור</string>
+    <string name="app_name">MediaCallz</string>
+    <string name="action_settings">הגדרות</string>
+    <string name="action_share">שתף אותנו</string>
+    <string name="select_caller_media_title">מדיה כשאתה מתקשר</string>
+    <string name="select_profile_media_title">מדיה כשמתקשרים אלייך</string>
+    <string name="drawer_open">פתח מגירה</string>
+    <string name="drawer_close">סגור מגירה</string>
+    <string name="invite">אשמח לשתף אותך ב MediaCallz https://play.google.com/apps/testing/com.special.specialcall</string>
+    <string name="upload_ticker">קובץ בהעלאה</string>
+    <string name="content_title">קובץ עלה בהצלחה</string>
+
+
+
+
+    <!-- ### Activities ###  -->
+    <!--  LoginActivity  -->
+    <string name="initializing">מאתחל...</string>
+    <string name="registering">נרשם...</string>
+    <string name="reconnecting">מתחבר...</string>
+    <string name="connected">מחובר</string>
+
+    <!--  NotificationUtils   -->
+    <string name="notification_title">MC</string>
+    <string name="notification_text">פעיל</string>
+    <string name="notification_ticker_text">MC פעיל</string>
+
+    <!--  MainActivity   -->
+    <string name="sent_invitation">הזמנה נשלחה ל:</string>
+    <string name="share_subject">MediaCallz (פתח בחנות של גוגל להוריד את האפליקציה)</string>
+    <string name="share_via">שתף דרך</string>
+    <!--  SnackBar  -->
+    <string name="snack_close">סגור</string>
+    <!--  DrawerItems   -->
+    <string name="media_management">ניהול מדיה</string>
+    <string name="who_can_mc_me">מי רשאי לשלוח לי MC</string>
+    <string name="how_to">איך להשתמש?</string>
+    <string name="share_us">שתף אותנו</string>
+    <string name="rate_us">דרג אותנו</string>
+    <string name="report_bug">דווח על באג</string>
+    <string name="app_settings">הגדרות אפליקציה</string>
+
+    <!--  BlockMCContacts  -->
+    <string name="uknown">לא ידוע</string>
+    <!--  SelectMediaActivity  -->
+    <string name="recording">מקליט...</string>
+    <string name="stop_recording">עצור הקלטה</string>
+
+
+    <!-- ### Layouts XML ###  -->
+    <!--  loginuser Layout   -->
+    <string name="get_sms_code">קבל קוד סמס</string>
+    <string name="login">התחבר</string>
+    <string name="sms_code_hint">קוד הסמס שקיבלת</string>
+    <string name="your_phone">מספר הנייד שלך</string>
+
+    <!--  activity_main Layout   -->
+    <string name="to_dest_hint">אל...</string>
+    <string name="call_now">התקשר</string>
+    <string name="ringtone_name">רינגטון</string>
+    <string name="ringtone_name_hint">לא נבחר רינגטון!</string>
+
+    <!--  blocked_user_list Layout   -->
+    <string name="all_can_mc_me">כולם</string>
+    <string name="contacts_only">אנשי קשר בלבד</string>
+    <string name="block_specific_contact">חסום אנשי קשר ספציפיים</string>
+    <string name="black_list">הרשימה השחורה:</string>
+
+    <!--  select_media Layout   -->
+    <string name="back">חזור</string>
+    <string name="media_type">סוג מדיה</string>
+    <string name="record_video">הקלט וידיאו</string>
+    <string name="audio">רינגטון</string>
+    <string name="contact_name_or_number">שם או מספר איש קשר</string>
+    <string name="video_image">וידיאו או תמונה</string>
+    <string name="take_picture">צלם תמונה</string>
+    <string name="record_audio">הקלט אודיו</string>
+    <string name="mediacallz_gallery">MediaCallz חנות</string>
+
+    <!--  select_spec_contacts Layout   -->
+    <string name="select_all">בחר הכל</string>
+    <string name="unselect_all">הסר הכל</string>
+
+    <!--  popup_menu_callermedia Layout   -->
+    <string name="select_media">בחר מדיה</string>
+    <string name="preview">קדימון</string>
+    <string name="clear">נקה</string>
+    <!--  popup_menu_profile Layout   -->
+    <string name="specificprofile">פרופיל ספציפי</string>
+    <string name="defaultprofile">פרופיל ברירת מחדל</string>
+
+    <!--  Settings Layout   -->
+    <string-array name="save_media">
+        <item >תמיד לשמור</item>
+        <item >תשאל אותי</item>
+        <item >אל תשמור</item>
+    </string-array>
+    <string-array name="types_values">
+        <item >תמיד לשמור</item>
+        <item >תשאל אותי</item>
+        <item >אל תשמור</item>
+    </string-array>
+
+
+</resources>

@@ -15,7 +15,7 @@
     <RadioButton
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="All can MC me"
+        android:text="@string/all_can_mc_me"
         android:button="@null"
         android:drawableRight="@android:drawable/btn_radio"
         android:background="@drawable/custome_divider"
@@ -25,7 +25,7 @@
     <RadioButton
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Contacts only"
+        android:text="@string/contacts_only"
         android:button="@null"
         android:drawableRight="@android:drawable/btn_radio"
         android:background="@drawable/custome_divider"
@@ -35,7 +35,7 @@
     <RadioButton
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Block specific  contacts ..."
+        android:text="@string/block_specific_contact"
         android:button="@null"
         android:drawableRight="@android:drawable/btn_radio"
         android:background="@drawable/custome_divider"
@@ -47,7 +47,7 @@
         android:layout_width="408dp"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Black List :"
+        android:text="@string/black_list"
         android:id="@+id/blacklist_title"
         android:textStyle="bold|normal|italic"
         android:gravity="center"

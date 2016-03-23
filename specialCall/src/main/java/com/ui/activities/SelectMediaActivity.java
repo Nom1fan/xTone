@@ -167,7 +167,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         // Create the ACTION_GET_CONTENT Intent
         final Intent intent = FileUtils.createGetContentIntent("audio/*");
-        Intent chooserIntent = Intent.createChooser(intent, "Select Media File");
+        Intent chooserIntent = Intent.createChooser(intent, "Select Audio File");
         startActivityForResult(chooserIntent, code);
 
     }
@@ -369,9 +369,9 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         }
 
         final ProgressDialog mProgressDialog = new ProgressDialog(SelectMediaActivity.this);  // // TODO rony: 31/01/2016  add seconds to the progress of the recording
-        mProgressDialog.setTitle("Recording...");
+        mProgressDialog.setTitle(getResources().getString(R.string.recording));
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        mProgressDialog.setButton("Stop recording", new DialogInterface.OnClickListener() {
+        mProgressDialog.setButton(getResources().getString(R.string.stop_recording), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 mProgressDialog.dismiss();
                 recorder.stop();

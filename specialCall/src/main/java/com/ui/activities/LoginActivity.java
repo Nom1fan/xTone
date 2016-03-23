@@ -25,6 +25,8 @@ import com.special.app.R;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
+import java.util.Locale;
+
 import EventObjects.Event;
 import EventObjects.EventReport;
 
@@ -44,6 +46,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
+        Locale current = getResources().getConfiguration().locale;
 
     }
 
@@ -91,7 +94,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
             startService(i);
 
-            setInitTextView("Initializing...");
+            setInitTextView(getResources().getString(R.string.initializing));
             enableProgressBar();
         }
         else
@@ -167,7 +170,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         Button loginBtn = (Button) findViewById(R.id.login_btn);
         loginBtn.setOnClickListener(this);
         loginBtn.setEnabled(false);
-        loginBtn.setText("Login");
+        loginBtn.setText(getResources().getString(R.string.login));
     }
 
     private void prepareGetSmsCodeButton() {

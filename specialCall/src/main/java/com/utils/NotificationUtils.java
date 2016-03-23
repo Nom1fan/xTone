@@ -48,9 +48,9 @@ public abstract class NotificationUtils {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setSmallIcon(R.drawable.notification_mc)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.color_mc))
-                .setContentTitle("MC")
-                .setContentText("Enabled")
-                .setTicker("MC Enabled")
+                .setContentTitle(context.getString(R.string.notification_title))
+                .setContentText(context.getString(R.string.notification_text))
+                .setTicker(context.getString(R.string.notification_ticker_text))
                 .setWhen((System.currentTimeMillis()));
         Intent StartIntent = new Intent (context,MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(context,FOREGROUND_NOTIFICATION_ID,StartIntent,0);

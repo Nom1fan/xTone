@@ -175,7 +175,7 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
             }
         }
 
-        String unkownName = "UKNOWN";
+        String unkownName = getResources().getString(R.string.uknown);
         for (String phone : blockedContactsSet) {
             if (!_phonesInListView.contains(phone)) {
                 Log.i(TAG, " adding phone to black list: " + phone);

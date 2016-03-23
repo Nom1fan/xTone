@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.app.AppStateManager;
 import com.data_objects.Constants;
+import com.special.app.R;
 import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 
@@ -76,7 +77,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
                             case ACTION_REGISTER:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.REGISTERING, "Registering...", null));
+                                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.REGISTERING, getResources().getString(R.string.registering), null));
                                 actionRegister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
                                 break;
 
@@ -89,7 +90,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
                             case ACTION_RECONNECT:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.RECONNECT_ATTEMPT, "Reconnecting...", null));
+                                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.RECONNECT_ATTEMPT, getResources().getString(R.string.reconnecting), null));
                                 reconnectIfNecessary();
                                 break;
 
@@ -170,7 +171,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
         if (isNetworkAvailable()) {
             ConnectionToServer cts = openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT);
             if (cts != null) {
-                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CONNECTED, "Connected", null));
+                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CONNECTED, getResources().getString(R.string.connected), null));
                 cancelReconnect();
                 SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
             }

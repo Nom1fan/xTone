@@ -245,7 +245,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         }
 
         // Handling Numbers That Are Not stored in Native Contacts
-        String unkownName = "UNKNOWN";
+        String unkownName =getResources().getString(R.string.uknown);
         for (String phone : _blockedSet) {
             if (!_phonesInListView.contains(phone) && PhoneNumberUtils.isValidPhoneNumber(phone))
             {

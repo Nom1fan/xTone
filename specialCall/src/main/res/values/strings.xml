@@ -1,36 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="initial_upload_text">Pending upload</string>
     <string name="app_name">MediaCallz</string>
-    <string name="hello_world">Hello world!</string>
-
-
     <string name="action_settings">Settings</string>
     <string name="action_share">Share Us</string>
-
-
     <string name="select_caller_media_title">SELECT CALLER MEDIA</string>
     <string name="select_profile_media_title">SELECT PROFILE MEDIA</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
-
     <string name="invite">You are Invited to MediaCallz https://play.google.com/apps/testing/com.special.specialcall</string>
-    <string name="hello">SimpleDialer</string>
-    <string name="main_label">My Friends</string>
-    <string name="title_activity_incoming_special_call">IncomingSpecialCall</string>
     <string name="upload_ticker">File upload in progress</string>
     <string name="content_title">File upload</string>
+
+
+
+    <!-- ### Activities ###  -->
+    <!--  LoginActivity  -->
+    <string name="initializing">Initializing...</string>
+    <string name="registering">Registering...</string>
+    <string name="reconnecting">Reconnecting...</string>
+    <string name="connected">Connected</string>
+
+    <!--  NotificationUtils   -->
+    <string name="notification_title">MC</string>
+    <string name="notification_text">Enabled</string>
+    <string name="notification_ticker_text">MC Enabled</string>
+
+    <!--  MainActivity   -->
+    <string name="sent_invitation">Invitation Sent To: </string>
+    <string name="share_subject">MediaCallz (Open it in Google Play Store to Download the Application)</string>
+    <string name="share_via">Share via</string>
+    <!--  SnackBar  -->
+    <string name="snack_close">Close</string>
+    <!--  DrawerItems   -->
+    <string name="media_management">Media Management</string>
+    <string name="who_can_mc_me">Who Can MC me</string>
+    <string name="how_to">How To ?</string>
+    <string name="share_us">Share Us</string>
+    <string name="rate_us">Rate Us</string>
+    <string name="report_bug">Report Bug</string>
+    <string name="app_settings">App Settings</string>
+
+    <!--  BlockMCContacts  -->
+    <string name="uknown">UKNOWN</string>
+    <!--  SelectMediaActivity  -->
+    <string name="recording">Recording...</string>
+    <string name="stop_recording">Stop recording</string>
+
+
+    <!-- ### Layouts XML ###  -->
+   <!--  loginuser Layout   -->
+    <string name="get_sms_code">Get SMS Code</string>
+    <string name="login">Login</string>
+    <string name="sms_code_hint">SMS code you received</string>
+    <string name="your_phone">Your phone number</string>
+
+    <!--  activity_main Layout   -->
+    <string name="to_dest_hint">To...</string>
+    <string name="call_now">Call Now</string>
+    <string name="ringtone_name">Ringtone Name</string>
+    <string name="ringtone_name_hint">No Ringtone Was Chosen !</string>
+
+    <!--  blocked_user_list Layout   -->
+    <string name="all_can_mc_me">All can MC me</string>
+    <string name="contacts_only">Contacts only</string>
+    <string name="block_specific_contact">Block specific contacts ...</string>
+    <string name="black_list">BLACK LIST:</string>
+
+    <!--  select_media Layout   -->
+    <string name="back">BACK</string>
+    <string name="media_type">Media Type</string>
+    <string name="record_video">Record Video</string>
+    <string name="audio">Audio</string>
+    <string name="contact_name_or_number">Contact Name or Number</string>
+    <string name="video_image">Video/Image</string>
+    <string name="take_picture">Take Picture</string>
+    <string name="record_audio">Record Audio</string>
+    <string name="mediacallz_gallery">MediaCallz Gallery</string>
+
+    <!--  select_spec_contacts Layout   -->
+    <string name="select_all">Select ALL</string>
+    <string name="unselect_all">UnSelect ALL</string>
+
+    <!--  popup_menu_callermedia Layout   -->
+    <string name="select_media">Select Media</string>
+    <string name="preview">Preview</string>
+    <string name="clear">Clear</string>
+    <!--  popup_menu_profile Layout   -->
+    <string name="specificprofile">Specific Profile</string>
+    <string name="defaultprofile">Default Profile</string>
+
+
+    <!--  Settings Layout   -->
     <string-array name="save_media">
         <item >Always save</item>
         <item >Ask me</item>
-        <item >Never save</item>        
+        <item >Never save</item>
     </string-array>
     <string-array name="types_values">
-     <item >"Always save"</item>
-     <item >"Ask me"</item>
-     <item >"Never save"</item>
+        <item >"Always save"</item>
+        <item >"Ask me"</item>
+        <item >"Never save"</item>
     </string-array>
+
+
+
+
+
 
 
 </resources>
