@@ -149,7 +149,7 @@ public class IncomingService extends AbstractStandOutService {
                     Log.i(TAG,"CALL_STATE_RINGING " + incomingNumber);
                     if (!isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && !isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(incomingNumber)) {
                         try {
-
+                            setRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION, true); // TODO placed here to fix a bug that sometimes it get entered twice (second time by the fallback receiver when we answer very quick) , is this a good place for it i don't know :/
                             String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, incomingNumber);
                             String ringtonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, incomingNumber);
                             File mediaFile = new File(mediaFilePath);
@@ -207,10 +207,10 @@ public class IncomingService extends AbstractStandOutService {
                             } else
                                 enableRingStream();
 
-                            setTempMd5ForCallRecord(mediaFilePath,ringtonePath);
+                            setTempMd5ForCallRecord(mediaFilePath, ringtonePath);
 
                             startVisualMediaMC(mediaFilePath, incomingNumber, ringtoneFile.exists());
-                            setRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION, true);
+
 
                             MCHistoryUtils.reportMC(
                                     getApplicationContext(),
