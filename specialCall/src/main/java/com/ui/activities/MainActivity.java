@@ -39,7 +39,6 @@ import com.async_tasks.AutoCompletePopulateListAsyncTask;
 import com.async_tasks.IsRegisteredTask;
 import com.batch.android.Batch;
 import com.data_objects.ActivityRequestCodes;
-import com.data_objects.Constants;
 import com.data_objects.Contact;
 import com.data_objects.SnackbarData;
 import com.interfaces.ICallbackListener;
@@ -200,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         if (resultCode == RESULT_OK) {
 
-            if (requestCode == ActivityRequestCodes.SELECT_MEDIA) {
+            if (requestCode == ActivityRequestCodes.SELECT_MEDIA && data!=null) {
                 writeInfoSnackBar(data.getStringExtra("msg"), Color.RED, Snackbar.SnackbarDuration.LENGTH_INDEFINITE);
             }
 

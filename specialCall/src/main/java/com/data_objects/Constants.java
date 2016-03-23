@@ -27,8 +27,8 @@ public class Constants {
     public static final String INCOMING_FOLDER = getIncomingFolder();
     public static final String OUTGOING_FOLDER = getOutgoingFolder();
     public static final String TEMP_COMPRESSED_FOLDER = getTempFolderForCompression();
-    public static final String HISTORY_FOLDER = ROOT_FOLDER + HISTORY_FOLDER_NAME + "/";
-    public static final String TEMP_RECORDING_FOLDER = TEMP_COMPRESSED_FOLDER + TEMP_RECORDING_FOLDER_NAME + "/";
+    public static final String HISTORY_FOLDER = getHistoryFolderForCompression();
+    public static final String TEMP_RECORDING_FOLDER = getRecordingTempFolderForCompression();
 
     public static String MY_ID(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER); }
 
@@ -56,6 +56,20 @@ public class Constants {
     private static String getTempFolderForCompression() {
 
         String path = ROOT_FOLDER + TEMP_COMP_FOLDER_NAME + "/";
+        File outgoingFolder = new File(path);
+        outgoingFolder.mkdirs();
+        return path;
+    }
+
+    private static String getRecordingTempFolderForCompression() {
+        String path = TEMP_COMPRESSED_FOLDER + TEMP_RECORDING_FOLDER_NAME + "/";
+        File outgoingFolder = new File(path);
+        outgoingFolder.mkdirs();
+        return path;
+    }
+
+    private static String getHistoryFolderForCompression() {
+        String path = ROOT_FOLDER + HISTORY_FOLDER_NAME + "/";
         File outgoingFolder = new File(path);
         outgoingFolder.mkdirs();
         return path;

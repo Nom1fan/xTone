@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- ### these 2 xmls should be aligned : values-he\strings.xml , values-iw\strings.xml ###  -->
+
     <string name="initial_upload_text">העלאה בתור</string>
     <string name="app_name">MediaCallz</string>
     <string name="action_settings">הגדרות</string>

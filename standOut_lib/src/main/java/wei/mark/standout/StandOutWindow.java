@@ -585,7 +585,7 @@ public abstract class StandOutWindow extends Service {
 	 * @return The title for the hidden notification.
 	 */
 	public String getHiddenNotificationTitle(int id) {
-		return getAppName() + " Hidden";
+		return getAppName() + " " + getResources().getString(R.string.hidden);
 	}
 
 	/**

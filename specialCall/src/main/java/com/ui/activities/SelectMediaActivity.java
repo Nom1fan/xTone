@@ -175,8 +175,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private void RecordVideo(int code) {
         // Determine Uri of camera image to save.
         String fname = "MyVideo.mp4";
-        File sdImageMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
-        _outputFileUri = Uri.fromFile(sdImageMainDirectory);
+        File sdVideoMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
+        _outputFileUri = Uri.fromFile(sdVideoMainDirectory);
 
 
         final Intent videoIntent = new Intent(
@@ -188,7 +188,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private void takePicture(int code) {
 
         // Determine Uri of camera image to save.
-        String fname = "MyImage";
+        String fname = "MyImage.jpeg";
         File sdImageMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
         _outputFileUri = Uri.fromFile(sdImageMainDirectory);
 
@@ -216,11 +216,11 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private void RecordAudio(int code) {
 
 
-        String fname = "MyAudioRecording.3gp";
-        File sdImageMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
-        _outputFileUri = Uri.fromFile(sdImageMainDirectory);
+        String fname = "MyAudioRecording.aac";
+        File sdAudioMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
+        _outputFileUri = Uri.fromFile(sdAudioMainDirectory);
 
-        recordAudio(sdImageMainDirectory.getAbsolutePath());
+        recordAudio(sdAudioMainDirectory.getAbsolutePath());
 
     }
 
@@ -357,8 +357,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         ContentValues values = new ContentValues(3);
         values.put(MediaStore.MediaColumns.TITLE, fileName);
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         recorder.setOutputFile(fileName);
 
 
