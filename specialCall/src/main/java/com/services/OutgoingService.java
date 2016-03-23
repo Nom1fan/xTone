@@ -71,13 +71,9 @@ public class OutgoingService extends AbstractStandOutService {
 
     @Override
     public boolean onShow(int id, Window window) {
-
-        Log.i(TAG, "onShow Hidden: " + String.valueOf(isHidden) );
-        if (!isHidden) {
-            setVolumeSilentForOutgoingCalls(); // outgoing calls should start in MUTE first
-        }
-
         super.onShow(id, window);  // at last so the volume will return to the previous(since when it was showed) , to make the volume always mute after Unhide move it to the Start of the method.
+
+            setVolumeSilentForOutgoingCalls(); // outgoing calls should start in MUTE first
 
         return false;
     }
@@ -251,7 +247,7 @@ public class OutgoingService extends AbstractStandOutService {
 
                 // Checking if number is in black list
                 if (!MCBlockListUtils.IsMCBlocked(outgoingCallNumber, getApplicationContext()))
-                    if (!isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(outgoingCallNumber)) {
+                    if (!isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && !isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(outgoingCallNumber)) {
 
                         try {
                             mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);

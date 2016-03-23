@@ -147,7 +147,7 @@ public class IncomingService extends AbstractStandOutService {
             switch (state) {
                 case TelephonyManager.CALL_STATE_RINGING:
                     Log.i(TAG,"CALL_STATE_RINGING " + incomingNumber);
-                    if (!isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(incomingNumber)) {
+                    if (!isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && !isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(incomingNumber)) {
                         try {
 
                             String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, incomingNumber);

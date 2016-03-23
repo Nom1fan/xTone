@@ -707,7 +707,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         volumeChangeByMCButtons = false;
         mVolumeBeforeMute = 0;
         isHidden = false;
-        mPhoneListener = null;
+        //mPhoneListener = null;
         // TODO Release more Resources
 
     }
