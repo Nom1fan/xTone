@@ -1,5 +1,6 @@
 package com.ui.activities;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,12 +26,14 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +42,6 @@ import com.async_tasks.AutoCompletePopulateListAsyncTask;
 import com.async_tasks.IsRegisteredTask;
 import com.batch.android.Batch;
 import com.data_objects.ActivityRequestCodes;
-import com.data_objects.Constants;
 import com.data_objects.Contact;
 import com.data_objects.SnackbarData;
 import com.interfaces.ICallbackListener;
@@ -56,7 +58,6 @@ import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
 import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
-import com.utils.UI_Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,9 +75,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private final String TAG = MainActivity.class.getSimpleName();
     private final String shareBody = String.valueOf(R.string.invite);
+
     private String _destPhoneNumber = "";
     private String _destName = "";
-    private ProgressBar _pFetchUserBar;
+
+    //region UI elements
+    private ImageView _userStatusPositive;
+    private ImageView _userStatusNegative;
+    private ImageButton _selectContactBtn;
+    private ImageButton _selectMediaBtn;
+    private Button _callBtn;
+    private ProgressBar _fetchUserPbar;
     private ProgressBar _pBar;
     private BroadcastReceiver _eventReceiver;
     private IntentFilter _eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
@@ -84,6 +93,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ListView _DrawerList;
     private ActionBarDrawerToggle _mDrawerToggle;
     private DrawerLayout _mDrawerLayout;
+    private ImageView _mediaStatus;
+    private ImageButton _defaultpic_enabled;
+    private TextView _ringToneNameTextView;
+    private ImageButton _inviteBtn;
+    private RelativeLayout _mainActivityLayout;
+    private ImageView _ringtoneStatus;
+    private AutoCompleteTextView _destinationEditText;
+    //endregion
 
     //region Activity methods (onCreate(), onPause(), ...)
     @Override
@@ -91,7 +108,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
 
-        if(getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
+        initializeUI();
+
+        if (getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
 
             Intent i = new Intent(this, LoginActivity.class);
             startActivity(i);
@@ -124,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         String appState = getState();
         Log.i(TAG, "App State:" + appState);
 
-        if(!getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
+        if (!getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
             //TODO MediaCallz: Do we need these start services here?
             // Starting service responsible for incoming media callz
             Intent incomingServiceIntent = new Intent(this, IncomingService.class);
@@ -136,11 +155,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             outgoingServiceIntent.setAction(OutgoingService.ACTION_START);
             startService(outgoingServiceIntent);
 
-            initializeUI();
             syncUIwithAppState();
 
             // Taking Focus from AutoCompleteTextView in the end, so he won't pop up :) added also focus capabilities to the MainActivity Layout XML
-            findViewById(R.id.mainActivity).requestFocus();
+            _mainActivityLayout.requestFocus();
 
             prepareEventReceiver();
 
@@ -169,12 +187,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
         saveInstanceState();
 
-        UI_Utils.unbindDrawables(findViewById(R.id.mainActivity));
-        System.gc();
+//        UI_Utils.unbindDrawables(findViewById(R.id.mainActivity));
+//        System.gc();
     }
 
     @Override
     protected void onStop() {
+        Log.i(TAG, "onStop()");
         Batch.onStop(this);
 
         super.onStop();
@@ -447,75 +466,77 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         final MainActivity instance = this;
 
         _autoCompleteTextViewDestPhone = (AutoCompleteTextView) findViewById(R.id.CallNumber);
-        _autoCompleteTextViewDestPhone.setRawInputType(InputType.TYPE_CLASS_TEXT);
-        _autoCompleteTextViewDestPhone.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> av, View arg1, int index, long arg3) {
+        if (_autoCompleteTextViewDestPhone != null) {
+            _autoCompleteTextViewDestPhone.setRawInputType(InputType.TYPE_CLASS_TEXT);
+            _autoCompleteTextViewDestPhone.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> av, View arg1, int index, long arg3) {
 
-                String[] nameAndPhone = ((String) av.getItemAtPosition(index)).split("\\\n");
-                String name = nameAndPhone[0];
-                String number = nameAndPhone[1];
-                String NumericNumber = PhoneNumberUtils.toValidPhoneNumber(number);
+                    String[] nameAndPhone = ((String) av.getItemAtPosition(index)).split("\\\n");
+                    String name = nameAndPhone[0];
+                    String number = nameAndPhone[1];
+                    String NumericNumber = PhoneNumberUtils.toValidPhoneNumber(number);
 
-                _autoCompleteTextViewDestPhone.setText(NumericNumber);
-                _destName = name;
-                setDestNameTextView();
-            }
-        });
+                    _autoCompleteTextViewDestPhone.setText(NumericNumber);
+                    _destName = name;
+                    setDestNameTextView();
+                }
+            });
 
-        _autoCompleteTextViewDestPhone.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            _autoCompleteTextViewDestPhone.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
 
-                v.setFocusable(true);
-                v.setFocusableInTouchMode(true);
-                v.performClick();
-                return false;
-            }
-        });
+                    v.setFocusable(true);
+                    v.setFocusableInTouchMode(true);
+                    v.performClick();
+                    return false;
+                }
+            });
 
-        _autoCompleteTextViewDestPhone.addTextChangedListener(new TextWatcher() {
+            _autoCompleteTextViewDestPhone.addTextChangedListener(new TextWatcher() {
 
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before,
-                                      int count) {
-
-                String destPhone = s.toString();
-
-                if (PhoneNumberUtils.isValidPhoneNumber(destPhone)) {
-
-                    _destPhoneNumber = destPhone;
-                    new IsRegisteredTask(destPhone, instance).execute(instance.getApplicationContext());
-
-                } else { // Invalid destination number
-
-                    _destPhoneNumber = "";
-                    _destName = "";
-
-                    disableUserStatusPositiveIcon();
-                    disableUserStatusNegativeIcon();
-                    vanishInviteButton();
-
-                    if (getState().equals(AppStateManager.STATE_READY)) {
-                        AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
-                        syncUIwithAppState();
-                    }
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 }
 
-                setDestNameTextView();
-                saveInstanceState();
-            }
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before,
+                                          int count) {
 
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+                    String destPhone = s.toString();
 
-        new AutoCompletePopulateListAsyncTask(_autoCompleteTextViewDestPhone).execute(getApplicationContext());
+                    if (PhoneNumberUtils.isValidPhoneNumber(destPhone)) {
+
+                        _destPhoneNumber = destPhone;
+                        new IsRegisteredTask(destPhone, instance).execute(instance.getApplicationContext());
+
+                    } else { // Invalid destination number
+
+                        _destPhoneNumber = "";
+                        _destName = "";
+
+                        disableUserStatusPositiveIcon();
+                        disableUserStatusNegativeIcon();
+                        vanishInviteButton();
+
+                        if (getState().equals(AppStateManager.STATE_READY)) {
+                            AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
+                            syncUIwithAppState();
+                        }
+                    }
+
+                    setDestNameTextView();
+                    saveInstanceState();
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                }
+            });
+
+            new AutoCompletePopulateListAsyncTask(_autoCompleteTextViewDestPhone).execute(getApplicationContext());
+        }
     }
 
     private void reconnect() {
@@ -540,18 +561,27 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         setContentView(R.layout.activity_main);
 
+        prepareMainActivityLayout();
+
         setCustomActionBar();
         enableHamburgerIconWithSlideMenu();
         prepareAutoCompleteTextViewDestPhoneNumber();
 
-        findViewById(R.id.CallNow).setOnClickListener(this);
-        findViewById(R.id.selectMediaBtn).setOnClickListener(this);
-        findViewById(R.id.selectContactBtn).setOnClickListener(this);
-        findViewById(R.id.selectProfileMediaBtn).setOnClickListener(this);
-        findViewById(R.id.clear).setOnClickListener(this);
-        findViewById(R.id.inviteButton).setOnClickListener(this);
+        prepareUserStatusNegative();
+        prepareUserStatusPositive();
+        prepareContactEditText();
+        prepareRingtoneStatus();
+        prepareProgressBar();
+        prepareFetchUserProgressBar();
+        prepareRingtoneNameTextView();
+        prepareMediaStatusImageView();
+        prepareCallNowButton();
+        prepareSelectMediaButton();
+        prepareSelectContactButton();
+        prepareSelectProfileMediaButton();
+        prepareClearTextButton();
+        prepareInviteButton();
     }
-
     //endregion
 
     //region UI States
@@ -635,12 +665,101 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //endregion
 
     //region UI elements controls
+    private void prepareUserStatusPositive() {
+
+        _userStatusPositive = (ImageView) findViewById(R.id.userStatusPositive);
+    }
+
+    private void prepareUserStatusNegative() {
+
+        _userStatusNegative = (ImageView) findViewById(R.id.userStatusNegative);
+    }
+
+    private void prepareContactEditText() {
+
+        _destinationEditText = (AutoCompleteTextView) findViewById(R.id.CallNumber);
+    }
+
+    private void prepareRingtoneStatus() {
+
+        _ringtoneStatus = (ImageView) findViewById(R.id.ringtoneStatusArrived);
+    }
+
+    private void prepareProgressBar() {
+
+        _pBar = (ProgressBar) findViewById(R.id.progressBar);
+    }
+
+    private void prepareMainActivityLayout() {
+
+        _mainActivityLayout = (RelativeLayout) findViewById(R.id.mainActivity);
+    }
+
+    private void prepareFetchUserProgressBar() {
+
+        _fetchUserPbar = (ProgressBar) findViewById(R.id.fetchuserprogress);
+    }
+
+    private void prepareMediaStatusImageView() {
+
+        _mediaStatus = (ImageView) findViewById(R.id.mediaStatusArrived);
+    }
+
+    private void prepareRingtoneNameTextView() {
+
+        _ringToneNameTextView = (TextView) findViewById(R.id.ringtoneName);
+    }
+
+    private void prepareInviteButton() {
+
+        _inviteBtn = (ImageButton) findViewById(R.id.inviteButton);
+        if (_inviteBtn != null)
+            _inviteBtn.setOnClickListener(this);
+    }
+
+    private void prepareClearTextButton() {
+
+        ImageButton clearText = (ImageButton) findViewById(R.id.clear);
+        if (clearText != null)
+            clearText.setOnClickListener(this);
+    }
+
+    private void prepareCallNowButton() {
+
+        _callBtn = (Button) findViewById(R.id.CallNow);
+        if (_callBtn != null)
+            _callBtn.setOnClickListener(this);
+    }
+
+    private void prepareSelectMediaButton() {
+
+        _selectMediaBtn = (ImageButton) findViewById(R.id.selectMediaBtn);
+        if (_selectMediaBtn != null)
+            _selectMediaBtn.setOnClickListener(this);
+    }
+
+    private void prepareSelectContactButton() {
+
+        _selectContactBtn = (ImageButton) findViewById(R.id.selectContactBtn);
+        if (_selectContactBtn != null) {
+            _selectContactBtn.setOnClickListener(this);
+        }
+
+    }
+
+    private void prepareSelectProfileMediaButton() {
+
+        _defaultpic_enabled = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
+        if (_defaultpic_enabled != null)
+            _defaultpic_enabled.setOnClickListener(this);
+    }
+
     private void setCustomActionBar() {
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-            actionBar.setCustomView(R.layout.custom_action_bar);
+        ActionBar _actionBar = getSupportActionBar();
+        if (_actionBar != null) {
+            _actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            _actionBar.setCustomView(R.layout.custom_action_bar);
         }
     }
 
@@ -653,29 +772,35 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
 
         _mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        _DrawerList = (ListView) findViewById(R.id.left_drawer);
-        addDrawerItems();
-        _DrawerList.setOnItemClickListener(new DrawerItemClickListener());
-        _mDrawerToggle = new ActionBarDrawerToggle(this, _mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
+        if (_mDrawerLayout != null) {
+            _DrawerList = (ListView) findViewById(R.id.left_drawer);
+            addDrawerItems();
+            _DrawerList.setOnItemClickListener(new DrawerItemClickListener());
+            _mDrawerToggle = new ActionBarDrawerToggle(this, _mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
 
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                //  getSupportActionBar().setTitle("Navigation!");
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
+                /**
+                 * Called when a drawer has settled in a completely open state.
+                 */
+                public void onDrawerOpened(View drawerView) {
+                    super.onDrawerOpened(drawerView);
+                    //  getSupportActionBar().setTitle("Navigation!");
+                    invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                }
 
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                //   getSupportActionBar().setTitle(mActivityTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
+                /**
+                 * Called when a drawer has settled in a completely closed state.
+                 */
+                public void onDrawerClosed(View view) {
+                    super.onDrawerClosed(view);
+                    //   getSupportActionBar().setTitle(mActivityTitle);
+                    invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                }
 
-        };
-        _mDrawerToggle.setDrawerIndicatorEnabled(true);
-        _mDrawerLayout.setDrawerListener(_mDrawerToggle);
-        _mDrawerToggle.syncState();
+            };
+            _mDrawerToggle.setDrawerIndicatorEnabled(true);
+            _mDrawerLayout.setDrawerListener(_mDrawerToggle);
+            _mDrawerToggle.syncState();
+        }
     }
 
     private void addDrawerItems() {
@@ -697,7 +822,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         _DrawerList.setAdapter(mAdapter);
     }
 
-    public void selectNavigationItem(int position) {
+    private void selectNavigationItem(int position) {
 
         switch (position) {
             case 0://Media Management
@@ -745,6 +870,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     private void appSettings() {
+
         saveInstanceState();
         Intent y = new Intent();
         y.setClass(getApplicationContext(), Settings.class);
@@ -829,146 +955,94 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void disableCallButton() {
 
-        runOnUiThread(new Runnable() {
-
-            public void run() {
-                findViewById(R.id.CallNow).setVisibility(View.INVISIBLE);
-            }
-
-        });
+        _callBtn.setVisibility(View.INVISIBLE);
     }
 
     private void enableCallButton() {
 
-        runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                findViewById(R.id.CallNow).setVisibility(View.VISIBLE);
-                findViewById(R.id.CallNow).setEnabled(true);
-            }
-        });
+        _callBtn.setVisibility(View.VISIBLE);
+        _callBtn.setEnabled(true);
     }
 
     private void disableSelectCallerMediaButton() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                findViewById(R.id.selectMediaBtn).setVisibility(View.INVISIBLE);
-                findViewById(R.id.ringtoneName).setVisibility(View.INVISIBLE);
-            }
-        });
+        _selectMediaBtn.setVisibility(View.INVISIBLE);
+        _ringToneNameTextView.setVisibility(View.INVISIBLE);
     }
 
     private void disableSelectProfileMediaButton() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                findViewById(R.id.selectProfileMediaBtn).setClickable(false);
-                drawSelectProfileMediaButton(false);
-            }
-        });
+        _defaultpic_enabled.setClickable(false);
+        drawSelectProfileMediaButton(false);
     }
 
     private void enableSelectMediaButton() {
 
-        findViewById(R.id.selectMediaBtn).setClickable(true);
+        _selectMediaBtn.setClickable(true);
         drawSelectMediaButton(true);
-        findViewById(R.id.selectMediaBtn).setVisibility(View.VISIBLE);
+        _selectMediaBtn.setVisibility(View.VISIBLE);
     }
 
     private void enableSelectProfileMediaButton() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                findViewById(R.id.selectProfileMediaBtn).setClickable(true);
-                drawSelectProfileMediaButton(true);
-            }
-        });
+        _defaultpic_enabled.setClickable(true);
+        drawSelectProfileMediaButton(true);
     }
 
     private void disableSelectContactButton() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                findViewById(R.id.selectContactBtn).setEnabled(false);
-                drawSelectContactButton(false);
-            }
-        });
+        _selectContactBtn.setEnabled(false);
+        drawSelectContactButton(false);
+
     }
 
     private void enableSelectContactButton() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                findViewById(R.id.selectContactBtn).setEnabled(true);
-                drawSelectContactButton(true);
-            }
-        });
+        _selectContactBtn.setEnabled(true);
+        drawSelectContactButton(true);
+
     }
 
     private void enableMediaStatusArrived() {
 
-        ImageView mediaStatus = (ImageView) findViewById(R.id.mediaStatusArrived);
-        mediaStatus.setVisibility(View.VISIBLE);
-        mediaStatus.bringToFront();
+        _mediaStatus.setVisibility(View.VISIBLE);
+        _mediaStatus.bringToFront();
     }
 
     private void disableMediaStatusArrived() {
 
-        ImageView mediaStatus = (ImageView) findViewById(R.id.mediaStatusArrived);
-        mediaStatus.setVisibility(View.INVISIBLE);
+        _mediaStatus.setVisibility(View.INVISIBLE);
     }
 
     private void disableProgressBar() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                _pBar = (ProgressBar) findViewById(R.id.progressBar);
-                _pBar.setVisibility(ProgressBar.GONE);
-            }
-        });
+        _pBar.setVisibility(ProgressBar.GONE);
     }
 
     private void enableProgressBar() {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                _pBar = (ProgressBar) findViewById(R.id.progressBar);
-                if (_pBar != null)
-                    _pBar.setVisibility(ProgressBar.VISIBLE);
-            }
-        });
+        if (_pBar != null)
+            _pBar.setVisibility(ProgressBar.VISIBLE);
     }
 
     private void disableContactEditText() {
 
-        findViewById(R.id.CallNumber).setEnabled(false);
+        _destinationEditText.setEnabled(false);
     }
 
     private void enableContactEditText() {
 
-        findViewById(R.id.CallNumber).setEnabled(true);
+        _destinationEditText.setEnabled(true);
     }
 
     private void disableUserFetchProgressBar() {
 
-        _pFetchUserBar = (ProgressBar) findViewById(R.id.fetchuserprogress);
-        _pFetchUserBar.setVisibility(ProgressBar.GONE);
-
+        _fetchUserPbar.setVisibility(ProgressBar.GONE);
     }
 
     private void enableUserFetchProgressBar() {
 
-        _pFetchUserBar = (ProgressBar) findViewById(R.id.fetchuserprogress);
-        _pFetchUserBar.setVisibility(ProgressBar.VISIBLE);
+        _fetchUserPbar.setVisibility(ProgressBar.VISIBLE);
 
         disableUserStatusPositiveIcon();
         disableUserStatusNegativeIcon();
@@ -985,23 +1059,20 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void vanishInviteButton() {
 
-        ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
-        invite.setVisibility(View.INVISIBLE);
-        invite.setClickable(false);
+        _inviteBtn.setVisibility(View.INVISIBLE);
+        _inviteBtn.setClickable(false);
     }
 
     private void disableInviteButton() {
 
-        ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
-        invite.setEnabled(false);
+        _inviteBtn.setEnabled(false);
     }
 
     private void enableInviteButton() {
 
-        ImageButton invite = (ImageButton) findViewById(R.id.inviteButton);
-        invite.setVisibility(View.VISIBLE);
-        invite.setClickable(true);
-        invite.bringToFront();
+        _inviteBtn.setVisibility(View.VISIBLE);
+        _inviteBtn.setClickable(true);
+        _inviteBtn.bringToFront();
     }
 
     private void userStatusUnregistered() {
@@ -1019,41 +1090,35 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void disableUserStatusPositiveIcon() {
 
-        ImageView userStatus = (ImageView) findViewById(R.id.userStatusPositive);
-        userStatus.setVisibility(View.INVISIBLE);
+        _userStatusPositive.setVisibility(View.INVISIBLE);
     }
 
     private void disableUserStatusNegativeIcon() {
 
-        ImageView userStatus = (ImageView) findViewById(R.id.userStatusNegative);
-        userStatus.setVisibility(View.INVISIBLE);
+        _userStatusNegative.setVisibility(View.INVISIBLE);
     }
 
     private void enableUserStatusPositiveIcon() {
 
-        ImageView userStatus = (ImageView) findViewById(R.id.userStatusPositive);
-        userStatus.setVisibility(View.VISIBLE);
-        userStatus.bringToFront();
+        _userStatusPositive.setVisibility(View.VISIBLE);
+        _userStatusPositive.bringToFront();
     }
 
     private void enableUserStatusNegativeIcon() {
 
-        ImageView userStatus = (ImageView) findViewById(R.id.userStatusNegative);
-        userStatus.setVisibility(View.VISIBLE);
-        userStatus.bringToFront();
+        _userStatusNegative.setVisibility(View.VISIBLE);
+        _userStatusNegative.bringToFront();
     }
 
     private void disableRingToneStatusArrived() {
 
-        ImageView ringtoneStatus = (ImageView) findViewById(R.id.ringtoneStatusArrived);
-        ringtoneStatus.setVisibility(View.INVISIBLE);
+        _ringtoneStatus.setVisibility(View.INVISIBLE);
     }
 
     private void enableRingToneStatusArrived() {
 
-        ImageView ringtoneStatus = (ImageView) findViewById(R.id.ringtoneStatusArrived);
-        ringtoneStatus.setVisibility(View.VISIBLE);
-        ringtoneStatus.bringToFront();
+        _ringtoneStatus.setVisibility(View.VISIBLE);
+        _ringtoneStatus.bringToFront();
     }
 
     private void drawSelectMediaButton(boolean enabled) {
@@ -1061,22 +1126,23 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.CALLER_MEDIA);
         try {
             FileManager.FileType fType;
-            ImageButton selectCallerMediaBtn = (ImageButton) findViewById(R.id.selectMediaBtn);
 
             if (!enabled)
-                selectCallerMediaBtn.setImageResource(R.drawable.defaultpic_disabled);
+                _selectMediaBtn.setImageResource(R.drawable.defaultpic_disabled);
             else {
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(getApplicationContext(), _destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
                     fType = FileManager.getFileType(lastUploadedMediaPath);
 
-                    BitmapUtils.execBitMapWorkerTask(selectCallerMediaBtn, fType, lastUploadedMediaPath, false);
+                    BitmapUtils.execBitMapWorkerTask(_selectMediaBtn, fType, lastUploadedMediaPath, false);
+                    _selectMediaBtn.setImageAlpha(0);
 
                     enableMediaStatusArrived();
 
                 } else {// enabled but no uploaded media
-                    selectCallerMediaBtn.setImageResource(R.drawable.defaultpic_enabled);
+                    _selectMediaBtn.setImageResource(R.drawable.select_media);
+                    _selectMediaBtn.setImageAlpha(35);
 
                     disableMediaStatusArrived();
                 }
@@ -1096,20 +1162,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         try {
 
-            ImageButton selectProfileMediaBtn = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
-
             if (!enabled) {
-                BitmapUtils.execBitmapWorkerTask(selectProfileMediaBtn, getApplicationContext(), getResources(), R.drawable.defaultpic_disabled, true);
+                BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, getApplicationContext(), getResources(), R.drawable.defaultpic_enabled, true);
             } else {
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(getApplicationContext(), _destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
                     FileManager.FileType fType = FileManager.getFileType(lastUploadedMediaPath);
 
-                    BitmapUtils.execBitMapWorkerTask(selectProfileMediaBtn, fType, lastUploadedMediaPath, true);
+                    BitmapUtils.execBitMapWorkerTask(_defaultpic_enabled, fType, lastUploadedMediaPath, true);
                 } else // enabled but no uploaded media
 
-                    BitmapUtils.execBitmapWorkerTask(selectProfileMediaBtn, getApplicationContext(), getResources(), R.drawable.defaultpic_enabled, true);
+                    BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, getApplicationContext(), getResources(), R.drawable.defaultpic_enabled, true);
             }
 
         } catch (FileInvalidFormatException |
@@ -1124,19 +1188,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.CALLER_MEDIA);
         String ringToneFilePath = lut_utils.getUploadedTonePerNumber(getApplicationContext(), _destPhoneNumber);
-        TextView ringtoneView = (TextView) findViewById(R.id.ringtoneName);
 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                ringtoneView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
-                ringtoneView.setBackgroundColor(0xFF00FF00);
-                ringtoneView.setVisibility(View.VISIBLE);
+                _ringToneNameTextView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
+                _ringToneNameTextView.setBackgroundColor(0xFF00FF00);
+                _ringToneNameTextView.setVisibility(View.VISIBLE);
 
                 enableRingToneStatusArrived();
 
             } else {
-                ringtoneView.setVisibility(View.INVISIBLE);
+                _ringToneNameTextView.setVisibility(View.INVISIBLE);
 
                 disableRingToneStatusArrived();
             }
@@ -1147,18 +1210,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void disableRingToneName() {
 
-        TextView ringtoneView = (TextView) findViewById(R.id.ringtoneName);
-        ringtoneView.setVisibility(View.INVISIBLE);
+        _ringToneNameTextView.setVisibility(View.INVISIBLE);
         disableRingToneStatusArrived();
     }
 
     private void drawSelectContactButton(boolean enabled) {
 
-        ImageButton selectContactButton = (ImageButton) findViewById(R.id.selectContactBtn);
         if (enabled)
-            selectContactButton.setImageResource(R.drawable.select_contact_enabled);
+            _selectContactBtn.setImageResource(R.drawable.select_contact_enabled);
         else
-            selectContactButton.setImageResource(R.drawable.select_contact_disabled);
+            _selectContactBtn.setImageResource(R.drawable.select_contact_disabled);
     }
 
     private void writeErrStatBar(final String text) {
@@ -1211,7 +1272,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 break;
 
             case SHOW:
-                if(snackbarData.getText()!=null && !snackbarData.getText().equals(""))
+                if (snackbarData.getText() != null && !snackbarData.getText().equals(""))
                     writeInfoSnackBar(snackbarData.getText(), snackbarData.getColor(), snackbarData.getmDuration());
                 break;
         }
@@ -1252,7 +1313,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
     //endregion
 
-    //region private classes
+    //region Private classes
     private class DrawerItemClickListener implements
             ListView.OnItemClickListener {
         @Override
