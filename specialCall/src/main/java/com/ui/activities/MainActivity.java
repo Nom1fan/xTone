@@ -1,6 +1,5 @@
 package com.ui.activities;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -1141,7 +1140,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     enableMediaStatusArrived();
 
                 } else {// enabled but no uploaded media
-                    _selectMediaBtn.setImageResource(R.drawable.select_media);
+                    _selectMediaBtn.setImageResource(R.drawable.select_caller_media);
                     _selectMediaBtn.setImageAlpha(35);
 
                     disableMediaStatusArrived();
@@ -1163,7 +1162,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!enabled) {
-                BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, getApplicationContext(), getResources(), R.drawable.defaultpic_enabled, true);
+                BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, getApplicationContext(), getResources(), R.drawable.select_profile_media_enabled, true);
             } else {
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(getApplicationContext(), _destPhoneNumber);
@@ -1173,7 +1172,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     BitmapUtils.execBitMapWorkerTask(_defaultpic_enabled, fType, lastUploadedMediaPath, true);
                 } else // enabled but no uploaded media
 
-                    BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, getApplicationContext(), getResources(), R.drawable.defaultpic_enabled, true);
+                    BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, getApplicationContext(), getResources(), R.drawable.select_profile_media_enabled, true);
             }
 
         } catch (FileInvalidFormatException |
