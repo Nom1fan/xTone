@@ -22,9 +22,11 @@
         android:contentDescription="contacts"
         android:src="@drawable/select_contact_enabled"
         android:textSize="18sp"
-        android:layout_above="@+id/selectMediaBtn"
-        android:layout_alignRight="@+id/selectMediaBtn"
-        android:layout_alignEnd="@+id/selectMediaBtn" />
+        android:layout_below="@+id/selectProfileMediaBtn"
+        android:layout_alignRight="@+id/ringtoneStatusArrived"
+        android:layout_alignEnd="@+id/ringtoneStatusArrived"
+        android:background="@android:color/transparent"
+        />
 
     <TextView
         android:id="@+id/destName"
@@ -35,7 +37,11 @@
         android:layout_alignStart="@+id/CallNumber"
         android:layout_alignRight="@+id/CallNumber"
         android:layout_alignEnd="@+id/CallNumber"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:text="Rony Eidlin"
+        android:layout_marginLeft="5dp"
+        android:layout_marginBottom="15dp"
+        />
 
     <ImageButton
         android:id="@+id/selectMediaBtn"
@@ -43,13 +49,17 @@
         android:layout_height="220dp"
         android:contentDescription="mypic"
         android:clickable="true"
-        android:src="@drawable/defaultpic_enabled"
+        android:src="@drawable/select_media"
         android:textSize="18sp"
-        android:layout_above="@+id/CallNow"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/destName"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/selectContactBtn"
+        android:layout_alignEnd="@+id/ringtoneStatusArrived"
+        android:layout_above="@+id/CallNow"
+        android:background="@color/white"
+        android:alpha="0.35"
+        />
 
     <ImageButton
         android:id="@+id/inviteButton"
@@ -59,12 +69,14 @@
         android:clickable="false"
         android:src="@drawable/invite"
         android:textSize="18sp"
-        android:layout_above="@+id/CallNow"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/destName"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:visibility="invisible" />
+        android:layout_alignLeft="@+id/CallNumber"
+        android:layout_alignRight="@+id/selectContactBtn"
+        android:visibility="invisible"
+        android:background="@android:color/transparent"
+        android:cropToPadding="false" />
 
     <AutoCompleteTextView
         android:id="@+id/CallNumber"
@@ -72,7 +84,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:enabled="true"
-        android:hint="@string/to_dest_hint"
+        android:hint="Type name or number"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:phoneNumber="true"
@@ -80,12 +92,12 @@
         android:singleLine="true"
         android:completionThreshold="1"
         android:inputType="textAutoComplete|text"
-        android:layout_alignTop="@+id/selectContactBtn"
-        android:layout_alignLeft="@+id/selectMediaBtn"
-        android:layout_alignStart="@+id/selectMediaBtn"
-        android:layout_alignRight="@+id/userStatusPositive"
-        android:layout_alignEnd="@+id/userStatusPositive">
-
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignBottom="@+id/selectContactBtn"
+        android:layout_toLeftOf="@+id/clear"
+        android:layout_toStartOf="@+id/clear"
+        android:layout_below="@+id/progressBar">
         <requestFocus />
     </AutoCompleteTextView>
 
@@ -95,9 +107,11 @@
         android:layout_height="wrap_content"
         android:enabled="true"
         android:textSize="18sp"
-        android:text="@string/call_now"
+        android:text="Call Now"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="20dp" />
 
     <ImageButton
         android:id="@+id/selectProfileMediaBtn"
@@ -106,24 +120,24 @@
         android:src="@drawable/defaultpic_enabled"
         android:layout_width="200dp"
         android:layout_height="120dp"
-
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_above="@+id/CallNumber"
         android:layout_alignLeft="@+id/CallNumber"
         android:layout_alignStart="@+id/CallNumber"
-
-        android:background="@android:color/transparent" />
+        android:background="@android:color/transparent"
+        android:layout_alignBottom="@+id/progressBar"
+        android:layout_toLeftOf="@+id/userStatusPositive"
+        android:layout_toStartOf="@+id/userStatusPositive" />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/progressBar"
+        android:layout_marginTop="46dp"
         android:layout_alignParentTop="true"
-        android:layout_alignLeft="@+id/selectContactBtn"
-        android:layout_alignStart="@+id/selectContactBtn"
-        android:layout_marginTop="49dp" />
+        android:layout_toRightOf="@+id/CallNumber"
+        android:layout_toEndOf="@+id/CallNumber" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -132,20 +146,21 @@
         android:clickable="true"
         android:background="@drawable/clear"
         android:layout_alignBottom="@+id/CallNumber"
-        android:layout_toRightOf="@+id/CallNumber"
-        android:layout_toEndOf="@+id/CallNumber"  />
+        android:layout_alignRight="@+id/userStatusPositive"
+        android:layout_alignEnd="@+id/userStatusPositive"
+        android:layout_marginBottom="20dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="@string/ringtone_name"
+        android:text="RingTone Name "
         android:id="@+id/ringtoneName"
         android:visibility="invisible"
         android:background="@android:color/white"
         android:textColor="@android:color/black"
         android:singleLine="true"
-        android:hint="@string/ringtone_name_hint"
+        android:hint="No Ringtone Was Chosen !"
         android:layout_above="@+id/CallNow"
         android:layout_alignLeft="@+id/selectMediaBtn"
         android:layout_alignStart="@+id/selectMediaBtn"
@@ -169,13 +184,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/userStatusNegative"
-        android:layout_alignBottom="@+id/CallNumber"
+        android:src="@drawable/negative"
         android:layout_alignTop="@+id/CallNumber"
         android:layout_alignRight="@+id/CallNow"
         android:layout_alignEnd="@+id/CallNow"
         android:layout_alignLeft="@+id/CallNow"
+        android:layout_alignBottom="@+id/CallNumber"
         android:layout_alignStart="@+id/CallNow"
-        android:src="@drawable/negative"
         android:visibility="invisible" />
 
     <ProgressBar
@@ -185,10 +200,8 @@
         android:layout_alignBottom="@+id/CallNumber"
         android:layout_toLeftOf="@+id/clear"
         android:layout_alignTop="@+id/CallNumber"
-
         android:layout_alignRight="@+id/CallNumber"
         android:layout_alignEnd="@+id/CallNumber"
-
         android:layout_alignLeft="@+id/CallNow"
         android:layout_alignStart="@+id/CallNow"
         android:visibility="gone" />
@@ -217,8 +230,6 @@
 
 </RelativeLayout>
 
-
-
     <ListView
         android:id="@+id/left_drawer"
         android:layout_width="240dp"
@@ -228,6 +239,5 @@
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp"
         android:background="#ffff"/>
-
 
 </android.support.v4.widget.DrawerLayout>
