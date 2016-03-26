@@ -988,6 +988,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void enableSelectMediaButton() {
 
         _selectMediaBtn.setClickable(true);
+
+        // make the drawable fit center and with padding, so it won't stretch
+        int sizeInDp = 30;
+        float scale = getResources().getDisplayMetrics().density;
+        int dpAsPixels = (int) (sizeInDp*scale + 0.5f);
+        _selectMediaBtn.setPadding(dpAsPixels,dpAsPixels,dpAsPixels,dpAsPixels);
+        _selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
         drawSelectMediaButton(true);
         _selectMediaBtn.setVisibility(View.VISIBLE);
     }
@@ -1145,13 +1153,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     fType = FileManager.getFileType(lastUploadedMediaPath);
 
                     BitmapUtils.execBitMapWorkerTask(_selectMediaBtn, fType, lastUploadedMediaPath, false);
-                    _selectMediaBtn.setImageAlpha(0);
 
                     enableMediaStatusArrived();
+                    // stretch the uploaded image as it won't stretch because we use a drawable instead that we don't want to stretch
+                    _selectMediaBtn.setPadding(0, 0, 0, 0);
+                    _selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_XY);
 
                 } else {// enabled but no uploaded media
                     _selectMediaBtn.setImageResource(R.drawable.select_caller_media);
-
                     disableMediaStatusArrived();
                 }
             }

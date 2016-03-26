@@ -58,7 +58,6 @@
         android:layout_above="@+id/CallNow"
         android:src="@drawable/select_caller_media"
         android:backgroundTint="#9effffff"
-        android:backgroundTintMode="src_in"
         android:padding="30dp"
         android:scaleType="fitCenter" />
 
@@ -70,14 +69,12 @@
         android:scaleType="fitCenter"
         android:clickable="false"
         android:src="@drawable/invite"
-        android:layout_below="@+id/destName"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignLeft="@+id/CallNumber"
-        android:layout_alignRight="@+id/selectContactBtn"
         android:visibility="invisible"
         android:cropToPadding="false"
-        android:background="@android:color/transparent" />
+        android:background="@android:color/transparent"
+        android:layout_alignTop="@+id/selectMediaBtn"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <AutoCompleteTextView
         android:id="@+id/CallNumber"
@@ -99,7 +96,6 @@
         android:layout_toStartOf="@+id/selectContactBtn"
         android:layout_below="@+id/selectProfileMediaBtn"
         android:backgroundTint="#9effffff"
-        android:backgroundTintMode="src_in"
         android:fontFamily="sans-serif-light"
         android:layout_toLeftOf="@+id/selectContactBtn"
         android:background="#ffffff"
