@@ -2,6 +2,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
+    android:theme="@style/DrawerArrowStyle"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -22,61 +23,61 @@
         android:contentDescription="contacts"
         android:src="@drawable/select_contact_enabled"
         android:textSize="18sp"
+        android:background="#00ffffff"
+        android:scaleType="fitCenter"
         android:layout_below="@+id/selectProfileMediaBtn"
-        android:layout_alignRight="@+id/ringtoneStatusArrived"
-        android:layout_alignEnd="@+id/ringtoneStatusArrived"
-        android:background="@android:color/transparent"
-        />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp" />
 
     <TextView
         android:id="@+id/destName"
         android:layout_width="175dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/CallNumber"
-        android:layout_alignLeft="@+id/CallNumber"
-        android:layout_alignStart="@+id/CallNumber"
-        android:layout_alignRight="@+id/CallNumber"
-        android:layout_alignEnd="@+id/CallNumber"
-        android:textStyle="bold"
+        android:fontFamily="sans-serif-light"
+        android:textSize="30dp"
+        android:textColor="@color/white"
         android:text="Rony Eidlin"
-        android:layout_marginLeft="5dp"
-        android:layout_marginBottom="15dp"
-        />
+        android:layout_below="@+id/media_calling"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/CallNumber"
+        android:layout_alignEnd="@+id/CallNumber" />
 
     <ImageButton
         android:id="@+id/selectMediaBtn"
-        android:layout_width="300dp"
-        android:layout_height="220dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:contentDescription="mypic"
         android:clickable="true"
-        android:src="@drawable/select_caller_media"
-        android:textSize="18sp"
         android:layout_below="@+id/destName"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentLeft="false"
         android:layout_alignParentStart="true"
         android:layout_alignRight="@+id/selectContactBtn"
         android:layout_alignEnd="@+id/ringtoneStatusArrived"
         android:layout_above="@+id/CallNow"
-        android:background="@color/white"
-        android:alpha="0.35"
-        />
+        android:src="@drawable/select_caller_media"
+        android:backgroundTint="#9effffff"
+        android:backgroundTintMode="src_in"
+        android:padding="30dp"
+        android:scaleType="fitCenter" />
 
     <ImageButton
         android:id="@+id/inviteButton"
         android:layout_width="300dp"
         android:layout_height="220dp"
         android:contentDescription="invite "
+        android:scaleType="fitCenter"
         android:clickable="false"
         android:src="@drawable/invite"
-        android:textSize="18sp"
         android:layout_below="@+id/destName"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignLeft="@+id/CallNumber"
         android:layout_alignRight="@+id/selectContactBtn"
         android:visibility="invisible"
-        android:background="@android:color/transparent"
-        android:cropToPadding="false" />
+        android:cropToPadding="false"
+        android:background="@android:color/transparent" />
 
     <AutoCompleteTextView
         android:id="@+id/CallNumber"
@@ -95,23 +96,30 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignBottom="@+id/selectContactBtn"
-        android:layout_toLeftOf="@+id/clear"
-        android:layout_toStartOf="@+id/clear"
-        android:layout_below="@+id/progressBar">
+        android:layout_toStartOf="@+id/selectContactBtn"
+        android:layout_below="@+id/selectProfileMediaBtn"
+        android:backgroundTint="#9effffff"
+        android:backgroundTintMode="src_in"
+        android:fontFamily="sans-serif-light"
+        android:layout_toLeftOf="@+id/selectContactBtn"
+        android:background="#ffffff"
+        android:textSize="25dp"
+        android:layout_marginTop="20dp">
         <requestFocus />
     </AutoCompleteTextView>
 
-    <Button
+    <ImageButton
         android:id="@+id/CallNow"
-        android:layout_width="100dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:src="@drawable/call_normal"
         android:enabled="true"
-        android:textSize="18sp"
-        android:text="Call Now"
+        android:scaleType="fitCenter"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="20dp"
+        android:background="#00ffffff" />
 
     <ImageButton
         android:id="@+id/selectProfileMediaBtn"
@@ -125,10 +133,11 @@
         android:layout_alignParentStart="true"
         android:layout_alignLeft="@+id/CallNumber"
         android:layout_alignStart="@+id/CallNumber"
-        android:background="@android:color/transparent"
         android:layout_alignBottom="@+id/progressBar"
-        android:layout_toLeftOf="@+id/userStatusPositive"
-        android:layout_toStartOf="@+id/userStatusPositive" />
+        android:layout_toStartOf="@+id/CallNow"
+        android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
+        android:layout_toLeftOf="@+id/CallNow" />
 
     <ProgressBar
         android:layout_width="wrap_content"
@@ -140,15 +149,18 @@
         android:layout_toEndOf="@+id/CallNumber" />
 
     <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:id="@+id/clear"
         android:clickable="true"
         android:background="@drawable/clear"
-        android:layout_alignBottom="@+id/CallNumber"
-        android:layout_alignRight="@+id/userStatusPositive"
-        android:layout_alignEnd="@+id/userStatusPositive"
-        android:layout_marginBottom="20dp"/>
+        android:layout_above="@+id/media_calling"
+        android:layout_alignTop="@+id/CallNumber"
+        android:layout_alignRight="@+id/CallNumber"
+        android:layout_alignEnd="@+id/CallNumber"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="8dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -171,27 +183,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/userStatusPositive"
-        android:layout_alignBottom="@+id/CallNumber"
-        android:layout_alignTop="@+id/CallNumber"
-        android:layout_alignRight="@+id/CallNow"
-        android:layout_alignEnd="@+id/CallNow"
-        android:layout_alignLeft="@+id/CallNow"
-        android:layout_alignStart="@+id/CallNow"
         android:src="@drawable/positive"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        android:layout_alignTop="@+id/CallNumber"
+        android:layout_toLeftOf="@+id/clear"
+        android:layout_toRightOf="@+id/CallNow"
+        android:layout_toEndOf="@+id/CallNow"
+        android:layout_above="@+id/media_calling" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/userStatusNegative"
         android:src="@drawable/negative"
-        android:layout_alignTop="@+id/CallNumber"
-        android:layout_alignRight="@+id/CallNow"
-        android:layout_alignEnd="@+id/CallNow"
-        android:layout_alignLeft="@+id/CallNow"
-        android:layout_alignBottom="@+id/CallNumber"
-        android:layout_alignStart="@+id/CallNow"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        android:layout_toLeftOf="@+id/clear"
+        android:layout_toEndOf="@+id/userStatusPositive"
+        android:layout_alignLeft="@+id/userStatusPositive"
+        android:layout_alignStart="@+id/userStatusPositive"
+        android:layout_above="@+id/media_calling"
+        android:layout_alignTop="@+id/CallNumber" />
 
     <ProgressBar
         android:layout_width="wrap_content"
@@ -227,6 +238,21 @@
         android:layout_alignParentEnd="true"
         android:layout_marginRight="@dimen/sb__text_size"
         android:src="@drawable/doublepositive" />
+
+    <TextView
+        android:id="@+id/media_calling"
+        android:layout_width="175dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-light"
+        android:textSize="20dp"
+        android:textColor="@color/white"
+        android:text="Media Calling"
+        android:layout_below="@+id/CallNumber"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/destName"
+        android:layout_alignEnd="@+id/destName"
+        android:layout_marginTop="10dp" />
 
 </RelativeLayout>
 

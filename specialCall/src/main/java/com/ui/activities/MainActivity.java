@@ -25,7 +25,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -83,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ImageView _userStatusNegative;
     private ImageButton _selectContactBtn;
     private ImageButton _selectMediaBtn;
-    private Button _callBtn;
+    private ImageButton _callBtn;
     private ProgressBar _fetchUserPbar;
     private ProgressBar _pBar;
     private BroadcastReceiver _eventReceiver;
@@ -387,7 +386,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         // Saving destination name
         final TextView ed_destinationName = ((TextView) findViewById(R.id.destName));
-        if (ed_destinationName != null) {
+        if (ed_destinationName != null && (!ed_destinationName.getText().toString().isEmpty())) {
             _destName = ed_destinationName.getText().toString();
             SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, _destName);
         }
@@ -440,8 +439,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         final TextView tv_destName =
                 (TextView) findViewById(R.id.destName);
+        final TextView tv_destNameTitle =
+                (TextView) findViewById(R.id.media_calling);
         if (tv_destName != null && _destName != null)
+        {
             tv_destName.setText(_destName);
+
+            if (!_destName.isEmpty())
+                 tv_destNameTitle.setVisibility(View.VISIBLE);
+            else
+                tv_destNameTitle.setVisibility(View.INVISIBLE);
+        }
+        else
+            tv_destNameTitle.setVisibility(View.INVISIBLE);
     }
 
     private void prepareEventReceiver() {
@@ -725,7 +735,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void prepareCallNowButton() {
 
-        _callBtn = (Button) findViewById(R.id.CallNow);
+        _callBtn = (ImageButton) findViewById(R.id.CallNow);
         if (_callBtn != null)
             _callBtn.setOnClickListener(this);
     }
@@ -1127,7 +1137,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             FileManager.FileType fType;
 
             if (!enabled)
-                _selectMediaBtn.setImageResource(R.drawable.defaultpic_disabled);
+                _selectMediaBtn.setImageResource(R.drawable.select_profile_media_disabled);
             else {
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(getApplicationContext(), _destPhoneNumber);
@@ -1141,7 +1151,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                 } else {// enabled but no uploaded media
                     _selectMediaBtn.setImageResource(R.drawable.select_caller_media);
-                    _selectMediaBtn.setImageAlpha(35);
 
                     disableMediaStatusArrived();
                 }
@@ -1162,7 +1171,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!enabled) {
-                BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, getApplicationContext(), getResources(), R.drawable.select_profile_media_enabled, true);
+                BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, getApplicationContext(), getResources(), R.drawable.select_profile_media_disabled, true);
             } else {
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(getApplicationContext(), _destPhoneNumber);
