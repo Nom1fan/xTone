@@ -2,6 +2,7 @@ package DalObjects;
 
 import java.sql.SQLException;
 
+import DataObjects.AppMetaRecord;
 import DataObjects.CallRecord;
 import DataObjects.TransferDetails;
 
@@ -50,6 +51,15 @@ public interface IDAL {
     //endregion
     //endregion
 
+    //region Table app_meta
+    String TABLE_APP_META           =   "app_meta";
+
+    //region Table keys
+    String COL_CURRENT_VERSION      =   "current_version";
+    String COL_LAST_SUPPORTED_VER   =   "last_supported_version";
+    //endregion
+    //endregion
+
     void initConn() throws SQLException;
     void closeConn();
     void registerUser(String uid, String token) throws SQLException;
@@ -62,5 +72,7 @@ public interface IDAL {
     void updateMediaTransferRecord(int commId, String column, Object value) throws SQLException;
     void updateMediaTransferRecord(int commId, String[] columns, Object[] values) throws SQLException;
     void incrementColumn(String table, String col, String whereCol, String whereVal) throws SQLException;
+    void updateAppRecord(double currentVersion, double lastSupportedVersion) throws SQLException;
+    AppMetaRecord getAppMetaRecord() throws SQLException;
 
 }

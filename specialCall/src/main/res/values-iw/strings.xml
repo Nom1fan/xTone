@@ -3,6 +3,10 @@
 
     <!-- ### these 2 xmls should be aligned : values-he\strings.xml , values-iw\strings.xml ###  -->
 
+    <string name="mandatory_update_title">שדרוג חובה</string>
+    <string name="mandatory_update_content">או או! אתה מוכרח לעדכן את האפליקציה</string>
+    <string name="update">עדכן</string>
+    <string name="close_app">סגור</string>
     <string name="initial_upload_text">העלאה בתור</string>
     <string name="app_name">MediaCallz</string>
     <string name="action_settings">הגדרות</string>

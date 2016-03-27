@@ -89,7 +89,6 @@ public class CallRecord implements Serializable {
         return _audioMediaFile;
     }
 
-
     public String get_visualMd5() {
         return _visualMd5;
     }

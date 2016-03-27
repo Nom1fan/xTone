@@ -51,6 +51,7 @@ import com.services.LogicServerProxyService;
 import com.services.OutgoingService;
 import com.services.StorageServerProxyService;
 import com.special.app.R;
+import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
@@ -61,6 +62,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import DataObjects.AppMetaRecord;
+import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
 import EventObjects.Event;
 import EventObjects.EventReport;
@@ -167,6 +170,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 reconnect();
 
             restoreInstanceState();
+
+            getAppRecord();
         }
 
     }
@@ -344,6 +349,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         final EventReport report = event.report();
 
         switch (report.status()) {
+
+            case APP_RECORD_RECEIVED:
+                AppMetaRecord appMetaRecord = (AppMetaRecord)report.data();
+
+                if(SharedConstants.APP_VERSION < appMetaRecord.get_lastSupportedVersion())
+                    showMandatoryUpdateDialog(appMetaRecord.get_appVersion());
+                break;
 
             case USER_REGISTERED_FALSE:
                 userStatusUnregistered();
@@ -1294,6 +1306,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 break;
         }
     }
+
+    private void showMandatoryUpdateDialog(double appVersion) {
+
+        MandatoryUpdateDialog mandatoryUpdateDialog = new MandatoryUpdateDialog(appVersion);
+        mandatoryUpdateDialog.show(getSupportFragmentManager(), TAG);
+    }
+
+    //TODO change this to campaign API push for all users in case of last supported version change
+    private void getAppRecord() {
+
+        Intent i = new Intent(this, LogicServerProxyService.class);
+        i.setAction(LogicServerProxyService.ACTION_GET_APP_RECORD);
+        startService(i);
+    }
+
     //endregion
     //endregion
 

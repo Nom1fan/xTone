@@ -3,7 +3,6 @@ package MessagesToClient;
 import java.io.IOException;
 
 import ClientObjects.ConnectionToServer;
-import ClientObjects.UserStatus;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 

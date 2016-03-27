@@ -3,9 +3,8 @@ package MessagesToServer;
 
 import java.io.IOException;
 
-import ClientObjects.UserStatus;
+import DataObjects.UserStatus;
 import MessagesToClient.MessageIsRegisteredRes;
-import ServerObjects.ClientsManager;
 
 public class MessageIsRegistered extends MessageToServer {
 		

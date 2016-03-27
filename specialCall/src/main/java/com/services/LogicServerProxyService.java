@@ -19,6 +19,7 @@ import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
+import MessagesToServer.MessageGetAppRecord;
 import MessagesToServer.MessageInsertMediaCallRecord;
 import MessagesToServer.MessageIsRegistered;
 import MessagesToServer.MessageRegister;
@@ -39,6 +40,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
     public static final String ACTION_REGISTER = "com.services.LogicServerProxyService.REGISTER";
     public static final String ACTION_ISREGISTERED = "com.services.LogicServerProxyService.ISREGISTERED";
     public static final String ACTION_INSERT_CALL_RECORD = "com.services.LogicServerProxyService.INSERT_CALL_RECORD";
+    public static final String ACTION_GET_APP_RECORD = "com.services.LogicServerProxyService.GET_APP_RECORD";
     //endregion
 
     //region Service intent keys
@@ -72,13 +74,17 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
                     try {
 
-                        //TODO Mor: Change all actions into methods (See StorageServerProxyService)
                         switch (action) {
 
                             case ACTION_REGISTER:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.REGISTERING, getResources().getString(R.string.registering), null));
                                 actionRegister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
+                                break;
+
+                            case ACTION_GET_APP_RECORD:
+                                setMidAction(true);
+                                actionGetAppRecord(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
                                 break;
 
                             case ACTION_ISREGISTERED: {
@@ -146,6 +152,12 @@ public class LogicServerProxyService extends AbstractServerProxy {
     public void actionIsRegistered(ConnectionToServer connectionToServer, String destinationId) throws IOException {
         MessageIsRegistered msgIsLogin = new MessageIsRegistered(Constants.MY_ID(getApplicationContext()), destinationId);
         connectionToServer.sendToServer(msgIsLogin);
+    }
+
+    private void actionGetAppRecord(ConnectionToServer connectionToServer) throws IOException {
+
+        Log.i(TAG , "Initiating actionGetAppRecord sequence...");
+        connectionToServer.sendToServer(new MessageGetAppRecord(Constants.MY_ID(getApplicationContext())));
     }
 
     private void actionRegister(ConnectionToServer connectionToServer) throws IOException {

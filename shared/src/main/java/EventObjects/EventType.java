@@ -36,4 +36,5 @@ public enum EventType implements Serializable {
 	FETCHING_USER_DATA,
 	CLEAR_SUCCESS,
 	REGISTERING,
+	APP_RECORD_RECEIVED,
 }

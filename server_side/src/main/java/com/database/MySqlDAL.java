@@ -1,5 +1,6 @@
 package com.database;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -10,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import DalObjects.IDAL;
+import DataObjects.AppMetaRecord;
 import DataObjects.CallRecord;
 import DataObjects.SharedConstants;
 import DataObjects.TransferDetails;
@@ -36,8 +38,8 @@ public class MySqlDAL implements IDAL {
         if (_dbConn != null)
             try {
                 _dbConn.close();
-            } catch (SQLException e) {
-            } //ignore
+            } catch (SQLException ignored) {
+            }
     }
 
     @Override
@@ -87,7 +89,7 @@ public class MySqlDAL implements IDAL {
     @Override
     public String getUserPushToken(String uid) throws SQLException {
 
-        String query = "SELECT " + COL_TOKEN + " FROM " + TABLE_USERS + " WHERE " + COL_UID + "=" + "\"" + uid + "\"";
+        String query = "SELECT " + COL_TOKEN + " FROM " + TABLE_USERS + " WHERE " + COL_UID + "=" + quote(uid);
         Statement st = null;
         ResultSet resultSet = null;
         String token = "";
@@ -105,16 +107,60 @@ public class MySqlDAL implements IDAL {
             if (st != null)
                 try {
                     st.close();
-                } catch (SQLException e) {
-                } // ignore
+                } catch (SQLException ignored) {
+                }
             if (resultSet != null)
                 try {
                     resultSet.close();
-                } catch (SQLException e) {
-                } // ignore
+                } catch (SQLException ignored) {
+                }
             closeConn();
         }
         return token;
+    }
+
+    @Override
+    public AppMetaRecord getAppMetaRecord() throws SQLException {
+
+        StringBuilder query = new StringBuilder();
+
+        query.
+                append("SELECT ").append("*").
+                append(" FROM ").append(TABLE_APP_META);
+
+        Statement st = null;
+        ResultSet resultSet = null;
+        AppMetaRecord appMetaRecord = null;
+
+        try {
+            initConn(); // Must init before each query since after 8 hours the connection is timed out
+            st = _dbConn.createStatement();
+            resultSet = st.executeQuery(query.toString());
+            double[] res = new double[2];
+            if (resultSet.first()) {
+                res[0] = resultSet.getDouble(1);
+                res[1] = resultSet.getDouble(2);
+            }
+
+            appMetaRecord = new AppMetaRecord(res[0], res[1]);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (st != null)
+                try {
+                    st.close();
+                } catch (SQLException ignored) {
+                }
+            if (resultSet != null)
+                try {
+                    resultSet.close();
+                } catch (SQLException ignored) {
+                }
+            closeConn();
+        }
+        return appMetaRecord;
     }
 
     //TODO Mor: Test this method
@@ -165,6 +211,30 @@ public class MySqlDAL implements IDAL {
 
         String query = "UPDATE " + TABLE_USERS + " SET " + COL_TOKEN + "=" + "\"" + token + "\"" + " WHERE " + COL_UID + "=" + "\"" + uid + "\"";
         executeQuery(query);
+    }
+
+    @Override
+    public void updateAppRecord(double currentVersion, double lastSupportedVersion) throws SQLException {
+
+        //TODO Solve bug currentVersion as index
+        StringBuilder query = new StringBuilder();
+
+        query.
+                append("UPDATE ").append(TABLE_APP_META).
+                append(" SET ").
+                append(COL_CURRENT_VERSION).
+                append("=").
+                append(currentVersion).
+                append(",").
+                append(COL_LAST_SUPPORTED_VER).
+                append("=").
+                append(lastSupportedVersion).
+                append(" WHERE ").
+                append(COL_CURRENT_VERSION).
+                append("=").
+                append(currentVersion);
+
+        executeQuery(query.toString());
     }
 
     @Override
@@ -232,7 +302,7 @@ public class MySqlDAL implements IDAL {
                 append(")").
                 append(" VALUES (").
                 append(quote(type)).append(",").
-                append(visualMd5!=null ? quote(visualMd5) : null).append(",").
+                append(visualMd5 != null ? quote(visualMd5) : null).append(",").
                 append(audioMd5!=null ? quote(audioMd5) : null).append(",").
                 append(quote(callRecord.get_sourceId())).append(",").
                 append(quote(callRecord.get_destinationId())).
@@ -306,8 +376,8 @@ public class MySqlDAL implements IDAL {
                 try {
                     preparedStatement.close();
                     preparedStatement = null;
-                } catch (SQLException e) {
-                } //ignore
+                } catch (SQLException ignored) {
+                }
             closeConn();
         }
     }
@@ -328,8 +398,8 @@ public class MySqlDAL implements IDAL {
                 try {
                     stmt.close();
                     stmt = null;
-                } catch (SQLException e) {
-                } // ignore
+                } catch (SQLException ignored) {
+                }
             }
             closeConn();
         }

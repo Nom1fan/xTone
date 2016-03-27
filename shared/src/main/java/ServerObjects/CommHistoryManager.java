@@ -3,6 +3,7 @@ package ServerObjects;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
+import DalObjects.DALAccesible;
 import DalObjects.IDAL;
 import DataObjects.CallRecord;
 import DataObjects.SpecialMediaType;
@@ -13,21 +14,10 @@ import LogObjects.LogsManager;
 /**
  * Created by Mor on 26/12/2015.
  */
-public class CommHistoryManager {
-
-    private Logger _logger = null;
-
-    private IDAL _dal;
+public class CommHistoryManager extends DALAccesible {
 
     public CommHistoryManager(IDAL dal) {
-
-        initLoggers();
-        this._dal = dal;
-    }
-
-    private void initLoggers() {
-
-        _logger = LogsManager.get_serverLogger();
+        super(dal);
     }
 
     public int insertMediaTransferRecord(TransferDetails td) {
@@ -77,13 +67,6 @@ public class CommHistoryManager {
             e.printStackTrace();
             _logger.severe("updateMediaTransferRecord failure. [Exception]:" + (e.getMessage() != null ? e.getMessage() : e));
         }
-    }
-
-    private void insertMediaFileRecord(String md5, String extension, int size, String countColToInc) throws SQLException {
-
-        _dal.insertMediaFileRecord(md5, extension, size, countColToInc);
-        _logger.info("insertMediaFileRecord success: " + "[md5]:" + md5 + ", [extension]:" + extension + ", " + "[size]:" + size);
-
     }
 
 }

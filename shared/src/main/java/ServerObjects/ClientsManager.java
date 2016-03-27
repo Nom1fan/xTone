@@ -1,11 +1,9 @@
 package ServerObjects;
 
-
-import java.util.logging.Logger;
-
-import ClientObjects.UserStatus;
+import DataObjects.UserStatus;
+import DalObjects.DALAccesible;
 import DalObjects.IDAL;
-import LogObjects.LogsManager;
+
 
 
 /**
@@ -13,16 +11,10 @@ import LogObjects.LogsManager;
  *
  * @author Mor
  */
-public class ClientsManager {
-
-    private Logger _logger = null;
-
-    private IDAL _dal;
+public class ClientsManager extends DALAccesible {
 
     public ClientsManager(IDAL dal) {
-
-        initLoggers();
-        this._dal = dal;
+        super(dal);
     }
 
     private static void logActiveConns() {
@@ -31,11 +23,6 @@ public class ClientsManager {
 ////		String str = "Connected clients:"+keys.toString();
 //
 //		_logger.info(str);
-    }
-
-    private void initLoggers() {
-
-        _logger = LogsManager.get_serverLogger();
     }
 
     public boolean registerUser(String userId, String token) {

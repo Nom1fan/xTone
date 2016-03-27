@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.logging.Logger;
 import LogObjects.LogsManager;
 import MessagesToClient.MessageToClient;
+import ServerObjects.AppMetaManager;
 import ServerObjects.ClientsManager;
 import ServerObjects.CommHistoryManager;
 import ServerObjects.ConnectionToClient;
@@ -20,6 +21,7 @@ public abstract class MessageToServer implements Serializable  {
     private ConnectionToClient _clientConnection;
     protected ClientsManager _clientsManager;
     protected CommHistoryManager _commHistoryManager;
+    protected AppMetaManager _appMetaManager;
 	protected String _messageInitiaterId;
 	protected boolean _cont = false;
 	protected Logger _logger = null;
@@ -37,7 +39,7 @@ public abstract class MessageToServer implements Serializable  {
 
             try
             {
-                _logger.info(_messageInitiaterId + " with message:" + msg.getClass().getSimpleName());
+                _logger.info(_messageInitiaterId + " [Message]:" + msg.getClass().getSimpleName());
 
                 if(_clientConnection == null)
                     throw(new NullPointerException("Could not get client connection for user:"+_messageInitiaterId));
@@ -47,9 +49,9 @@ public abstract class MessageToServer implements Serializable  {
             }
             catch (IOException | NullPointerException e)
             {
-                _logger.severe("Failed to send reply to [user]:" + _messageInitiaterId +
-                                " of [message]:" + msg.getClass().getSimpleName() +
-                                ". Received [Exception]:" + (e.getMessage()!=null ? e.getMessage() : e) + ".");
+                _logger.severe("Failed to send reply to [User]:" + _messageInitiaterId +
+                                ". [Message]:" + msg.getClass().getSimpleName() +
+                                ". [Exception]:" + (e.getMessage()!=null ? e.getMessage() : e));
                 e.printStackTrace();
 
                 return false;
@@ -60,6 +62,7 @@ public abstract class MessageToServer implements Serializable  {
 	public final void set_clientConnection(ConnectionToClient cc) { _clientConnection = cc; setId(); }
     public final void set_clientsManager(ClientsManager clientsManager) { _clientsManager = clientsManager; }
     public final void set_commHistoryManager (CommHistoryManager commHistoryManager) { _commHistoryManager = commHistoryManager; }
+    public final void set_appMetaManager(AppMetaManager appMetaManager) { _appMetaManager = appMetaManager; }
     private void setId() {
         _clientConnection.setInfo("id", _messageInitiaterId);
     }

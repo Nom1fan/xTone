@@ -3,14 +3,19 @@ package servers;
 import com.database.MySqlDAL;
 
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.sql.SQLException;
 import java.util.logging.Logger;
 
+import DataObjects.SharedConstants;
 import LogObjects.LogsManager;
 import MessagesToServer.MessageToServer;
 import ServerObjects.AbstractServer;
+import ServerObjects.AppMetaManager;
 import ServerObjects.ClientsManager;
 import ServerObjects.CommHistoryManager;
 import ServerObjects.ConnectionToClient;
+import data_objects.ServerConstants;
 
 /**
  * Created by Mor on 18/12/2015.
@@ -18,6 +23,17 @@ import ServerObjects.ConnectionToClient;
 public class GenericServer extends AbstractServer {
 
     protected static Logger _logger = null;
+
+    static {
+        try {
+            LogsManager.createServerLogsDir();
+            LogsManager.clearLogs();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        _logger = LogsManager.get_serverLogger();
+    }
 
     /**
      * Constructs a new server.
@@ -29,15 +45,12 @@ public class GenericServer extends AbstractServer {
         super(serverName, port);
         this.serverName = serverName;
         try {
-            LogsManager.createServerLogsDir();
-            LogsManager.clearLogs();
-            _logger = LogsManager.get_serverLogger();
+            new MySqlDAL().updateAppRecord(SharedConstants.APP_VERSION, ServerConstants.LAST_SUPPORTED_APP_VERSION);
 
             System.out.println("Starting " + serverName + "...");
-
             listen();
         }
-        catch (IOException e) {
+        catch (IOException | SQLException e) {
             e.printStackTrace();
             _logger.severe("Failed to initialize "+serverName+" components. Exception:" + e.getMessage());
             try {
@@ -48,16 +61,17 @@ public class GenericServer extends AbstractServer {
         }
     }
 
-    /* AbstractServer hook methods */
-
+    //region AbstractServer hook methods
     @Override
     protected void handleMessageFromClient(Object oMsg, ConnectionToClient ctc) {
         MessageToServer msg = (MessageToServer) oMsg;
 
         try {
             msg.set_clientConnection(ctc);
+            //TODO Develop a more generic way to pass managers to messages
             msg.set_clientsManager(new ClientsManager(new MySqlDAL()));
             msg.set_commHistoryManager(new CommHistoryManager(new MySqlDAL()));
+            msg.set_appMetaManager(new AppMetaManager(new MySqlDAL()));
             boolean cont = msg.doServerAction();
             if(!cont)
                 closeConnectionToClient(ctc);
@@ -137,9 +151,9 @@ public class GenericServer extends AbstractServer {
 
         //_logger.warning("Client " + client.getInfo("id") + " timed out. Socket closed.");
     }
+    //endregion
 
-    /* Assisting methods */
-
+    //region Assisting methods
     private void closeConnectionToClient(ConnectionToClient ctc) {
 
         //ClientsManager.removeClientConnection(ctc);
@@ -149,5 +163,6 @@ public class GenericServer extends AbstractServer {
             e.printStackTrace();
         }
     }
+    //endregion
 
 }

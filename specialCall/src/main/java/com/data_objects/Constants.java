@@ -11,10 +11,6 @@ import DataObjects.SharedConstants;
 
 public class Constants {
 
-    // Constants for Parse
-    public static final String APPLICATION_ID = "7CL97UlX4EtpMyRJYshNlIQ3T12EEZ0OaZWxZjvR";
-    public static final String CLIENT_KEY = "7Elu6v6XVyQRzxIqnlyIG9YGyzXuh65hD42ZUqZa";
-
     // Constants for Batch
     public static final String GCM_SENDER_ID = "908225653874";
 
@@ -34,6 +30,7 @@ public class Constants {
 
     public static String MY_BATCH_TOKEN(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN); }
     public static void MY_BATCH_TOKEN(Context context, String token) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN, token); }
+
 
     private static String getIncomingFolder() {
 
