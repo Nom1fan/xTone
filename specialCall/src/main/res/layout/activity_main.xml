@@ -57,9 +57,9 @@
         android:layout_alignEnd="@+id/ringtoneStatusArrived"
         android:layout_above="@+id/CallNow"
         android:src="@drawable/select_caller_media"
-        android:backgroundTint="#9effffff"
         android:padding="30dp"
-        android:scaleType="fitCenter" />
+        android:scaleType="fitCenter"
+        android:background="#73ffffff" />
 
     <ImageButton
         android:id="@+id/inviteButton"
@@ -95,10 +95,9 @@
         android:layout_alignBottom="@+id/selectContactBtn"
         android:layout_toStartOf="@+id/selectContactBtn"
         android:layout_below="@+id/selectProfileMediaBtn"
-        android:backgroundTint="#9effffff"
         android:fontFamily="sans-serif-light"
         android:layout_toLeftOf="@+id/selectContactBtn"
-        android:background="#ffffff"
+        android:background="#73ffffff"
         android:textSize="25dp"
         android:layout_marginTop="20dp">
         <requestFocus />
