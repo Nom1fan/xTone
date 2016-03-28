@@ -91,12 +91,12 @@
     <string name="unselect_all">הסר הכל</string>
 
     <!--  popup_menu_callermedia Layout   -->
-    <string name="select_media">בחר מדיה</string>
+    <string name="select_caller_media">בחר מדיה לשיחה יוצאת</string>
     <string name="preview">קדימון</string>
     <string name="clear">נקה</string>
     <!--  popup_menu_profile Layout   -->
-    <string name="specificprofile">פרופיל ספציפי</string>
-    <string name="defaultprofile">פרופיל ברירת מחדל</string>
+    <string name="select_profile_media">בחר מדיה לשיחה נכנסת</string>
+
 
     <!--  Settings Layout   -->
     <string-array name="save_media">

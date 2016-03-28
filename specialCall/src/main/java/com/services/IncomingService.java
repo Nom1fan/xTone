@@ -88,8 +88,8 @@ public class IncomingService extends AbstractStandOutService {
     }
 
     @Override
-    protected void prepareViewForSpecialCall(FileManager.FileType fileType, String mediaFilePath, String callNumber) {
-        super.prepareViewForSpecialCall(fileType, mediaFilePath, callNumber);
+    protected void prepareViewForSpecialCall(FileManager.FileType fileType, String mediaFilePath) {
+        super.prepareViewForSpecialCall(fileType, mediaFilePath);
 
         if (fileType == FileManager.FileType.VIDEO) {
 

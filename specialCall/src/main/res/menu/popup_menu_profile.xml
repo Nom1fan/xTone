@@ -3,23 +3,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.ui.activities.MainActivity" >
 
-        <item
-            android:id="@+id/specificprofile"
-            android:title="@string/specificprofile"/>
+    <item
+        android:id="@+id/specificprofile"
+        android:title="@string/select_profile_media"/>
 
-        <item
-            android:id="@+id/defaultprofile"
-            android:title="@string/defaultprofile"/>
 
-        <item
-            android:id="@+id/previewprofilemedia"
-            android:title="@string/preview"/>
+    <item
+        android:id="@+id/previewprofilemedia"
+        android:title="@string/preview"/>
 
-        <item
-            android:id="@+id/clearprofilemedia"
-            android:title="@string/clear"/>
+    <item
+        android:id="@+id/clearprofilemedia"
+        android:title="@string/clear"/>
 
 
 
-    </menu>
+</menu>
 

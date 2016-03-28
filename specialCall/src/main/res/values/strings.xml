@@ -53,7 +53,7 @@
 
 
     <!-- ### Layouts XML ###  -->
-   <!--  loginuser Layout   -->
+    <!--  loginuser Layout   -->
     <string name="get_sms_code">Get SMS Code</string>
     <string name="login">Login</string>
     <string name="sms_code_hint">SMS code you received</string>
@@ -87,12 +87,11 @@
     <string name="unselect_all">UnSelect ALL</string>
 
     <!--  popup_menu_callermedia Layout   -->
-    <string name="select_media">Select Media</string>
+    <string name="select_caller_media">Select Caller Media</string>
     <string name="preview">Preview</string>
     <string name="clear">Clear</string>
     <!--  popup_menu_profile Layout   -->
-    <string name="specificprofile">Specific Profile</string>
-    <string name="defaultprofile">Default Profile</string>
+    <string name="select_profile_media">Select Profile Media</string>
 
 
     <!--  Settings Layout   -->

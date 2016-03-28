@@ -3,17 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.ui.activities.MainActivity" >
 
-        <item
-            android:id="@+id/selectcallermedia"
-            android:title="@string/select_media"/>
+    <item
+        android:id="@+id/selectcallermedia"
+        android:title="@string/select_caller_media"/>
 
-        <item
-            android:id="@+id/previewcallermedia"
-            android:title="@string/preview"/>
+    <item
+        android:id="@+id/previewcallermedia"
+        android:title="@string/preview"/>
 
-        <item
-            android:id="@+id/clearcallermedia"
-            android:title="@string/clear"/>
+    <item
+        android:id="@+id/clearcallermedia"
+        android:title="@string/clear"/>
 
-    </menu>
+</menu>
 

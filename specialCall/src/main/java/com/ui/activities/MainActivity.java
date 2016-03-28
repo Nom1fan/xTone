@@ -33,7 +33,6 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.app.AppStateManager;
 import com.async_tasks.AutoCompletePopulateListAsyncTask;
@@ -46,6 +45,7 @@ import com.interfaces.ICallbackListener;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.listeners.ActionClickListener;
+import com.services.AbstractStandOutService;
 import com.services.IncomingService;
 import com.services.LogicServerProxyService;
 import com.services.OutgoingService;
@@ -286,6 +286,27 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //endregion (on
 
     //region Assisting methods (onClick(), eventReceived(), ...)
+    private void startPreviewStandoutWindow(SpecialMediaType specialMediaType) {
+
+        // close previous
+        Intent closePrevious = new Intent(getApplicationContext(), OutgoingService.class);
+        closePrevious.setAction(AbstractStandOutService.ACTION_CLOSE_ALL);
+        startService(closePrevious);
+
+        LUT_Utils lut_utils = new LUT_Utils(specialMediaType);
+        Intent showPreview = new Intent(getApplicationContext(), OutgoingService.class);
+        showPreview.setAction(AbstractStandOutService.ACTION_PREVIEW);
+
+        showPreview.putExtra(AbstractStandOutService.PREVIEW_AUDIO, lut_utils.getUploadedTonePerNumber(getApplicationContext(), _destPhoneNumber));
+        showPreview.putExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA, lut_utils.getUploadedMediaPerNumber(getApplicationContext(), _destPhoneNumber));
+
+
+        startService(showPreview);
+
+
+
+    }
+
     private void selectMedia(int specialMediaType) {
 
         /* Create an intent that will start the main activity. */
@@ -458,7 +479,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             tv_destName.setText(_destName);
 
             if (!_destName.isEmpty())
-                 tv_destNameTitle.setVisibility(View.VISIBLE);
+                tv_destNameTitle.setVisibility(View.VISIBLE);
             else
                 tv_destNameTitle.setVisibility(View.INVISIBLE);
         }
@@ -914,8 +935,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
                         break;
                     case R.id.previewcallermedia:
-                        //TODO Implement preview caller media
-                        Toast.makeText(MainActivity.this, "CallerMenu Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+
+                        startPreviewStandoutWindow(SpecialMediaType.CALLER_MEDIA);
+
                         break;
                     case R.id.clearcallermedia:
                         //TODO Mor: Disable this option in case no media has been uploaded
@@ -933,6 +955,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     }
 
+
+
     private void openProfileMediaMenu() {
         ImageButton profile = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
         //Creating the instance of PopupMenu
@@ -949,11 +973,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     case R.id.specificprofile:
                         selectMedia(ActivityRequestCodes.SELECT_PROFILE_MEDIA);
                         break;
-                    case R.id.defaultprofile:
-                        selectMedia(ActivityRequestCodes.SELECT_PROFILE_MEDIA);
-                        break;
                     case R.id.previewprofilemedia:
-                        Toast.makeText(MainActivity.this, "ProfileMenu Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                        startPreviewStandoutWindow(SpecialMediaType.PROFILE_MEDIA);
                         break;
                     case R.id.clearprofilemedia:
                         //TODO Mor: Disable this option in case no media has been uploaded

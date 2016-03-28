@@ -58,6 +58,22 @@ public class OutgoingService extends AbstractStandOutService {
         prepareVideoListener();
         actionThread(intent);
 
+        if (intent != null) {
+            String action = intent.getAction();
+            switch (action) {
+
+                case ACTION_PREVIEW: {
+
+                    Log.i(TAG, "ActionPreview Received");
+                    mPreviewStart = true;
+                    startPreviewWindow(intent);
+                }
+                default:
+                    Log.w(TAG, "Invalid Action: " + action);
+            }
+        }
+
+
         return START_STICKY;
     }
 
@@ -73,8 +89,16 @@ public class OutgoingService extends AbstractStandOutService {
     public boolean onShow(int id, Window window) {
         super.onShow(id, window);  // at last so the volume will return to the previous(since when it was showed) , to make the volume always mute after Unhide move it to the Start of the method.
 
+        Log.i(TAG, "mPreviewStart should mute : " + String.valueOf(mPreviewStart));
+        if(!mPreviewStart)
+        {
             setVolumeSilentForOutgoingCalls(); // outgoing calls should start in MUTE first
-
+        }
+        else
+        {
+            setVolumeOnForPreview(); // outgoing calls should start in MUTE first
+            mPreviewStart = false;
+        }
         return false;
     }
     //endregion
@@ -132,6 +156,29 @@ public class OutgoingService extends AbstractStandOutService {
     //endregion
 
     //region Internal helper methods
+    protected void startPreviewWindow(Intent intent) {
+
+        Log.i(TAG, "startPreviewWindow");
+        String mediaFilePath = intent.getStringExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA);
+        String funTonePath =   intent.getStringExtra(AbstractStandOutService.PREVIEW_AUDIO);
+        String standoutWindowUserTitle = Constants.MY_ID(getApplicationContext());
+
+        File funToneFile = new File(funTonePath);
+        startVisualMediaMC(mediaFilePath, standoutWindowUserTitle, funToneFile.exists());
+        startAudioSpecialCall(funTonePath);
+
+    }
+
+    private void setVolumeOnForPreview() {
+
+        Log.i(TAG, "setVolumeOnForPreview");
+        volumeChangeByMCButtons = true;
+        isMuted = false;
+        mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
+        mSpecialCallMutUnMuteBtn.bringToFront();
+
+    }
+
     private void setVolumeSilentForOutgoingCalls() {
         // if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {//TODO PRECISE RING STATE can't be used so we can't know when the phone is answered. start outgoing in Mute.
         Log.i(TAG, "android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
@@ -235,7 +282,7 @@ public class OutgoingService extends AbstractStandOutService {
             Log.i(TAG, "outgoingReceiver Action1: " + action);
             if (action.equals(Intent.ACTION_NEW_OUTGOING_CALL) || arrivedFromFallBack) {
                 String outgoingCallNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
-
+                mPreviewStart = false;
                 outgoingCallNumber = PhoneNumberUtils.toValidPhoneNumber(outgoingCallNumber);
 
                 if (arrivedFromFallBack)
@@ -254,7 +301,7 @@ public class OutgoingService extends AbstractStandOutService {
 
                             String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, outgoingCallNumber);
                             String funTonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, outgoingCallNumber);
-                            File mediaFile = new File(mediaFilePath);
+
                             File funToneFile = new File(funTonePath);
 
                             if(funToneFile.exists()) {

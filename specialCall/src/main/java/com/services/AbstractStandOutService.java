@@ -53,6 +53,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     public static final String ACTION_STOP_RING = "com.services.AbstractStandOutService.ACTION_STOP_RING";
     public static final String ACTION_START = "com.services.AbstractStandOutService.ACTION_START";
+    public static final String ACTION_PREVIEW = "com.services.AbstractStandOutService.ACTION_PREVIEW";
+
+    public static final String PREVIEW_VISUAL_MEDIA = "com.services.AbstractStandOutService.VisualMediaPreview";
+    public static final String PREVIEW_AUDIO = "com.services.AbstractStandOutService.AudioPreview";
     protected boolean isHidden = false;
     protected String TAG;
     protected int mWidth;
@@ -76,6 +80,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected String mContactTitleOnWindow = "";
     private static final long REPEAT_TIME = 60000;
     private static final String alarmActionIntent = "com.android.special.specialcall.ALARM_ACTION";
+    protected boolean mPreviewStart = false;
 
     public AbstractStandOutService(String TAG) {
         this.TAG = TAG;
@@ -336,7 +341,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mRelativeLayout.addView(mSpecialCallView);
     }
 
-    protected void prepareViewForSpecialCall(FileManager.FileType fileType, String mediaFilePath, String callNumber) {
+    protected void prepareViewForSpecialCall(FileManager.FileType fileType, String mediaFilePath) {
         Log.i(TAG, "Preparing SpecialCall view");
 
         // Attempting to induce garbage collection
@@ -569,7 +574,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         if (new File(visualMediaFilePath).exists()) {
             try {
                 FileManager fm = new FileManager(visualMediaFilePath);
-                prepareViewForSpecialCall(fm.getFileType(), fm.getFileFullPath(), callNumber);
+                prepareViewForSpecialCall(fm.getFileType(), fm.getFileFullPath());
                 Intent i = new Intent(this, this.getClass());
                 i.putExtra("id", randomWindowId);
                 i.setAction(StandOutWindow.ACTION_SHOW);
@@ -702,7 +707,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mAudioManager = null;
         isMuted = false;
         removeTempMd5ForCallRecord();
-
+        mPreviewStart = false;
         windowCloseActionWasMade = true;
         volumeChangeByMCButtons = false;
         mVolumeBeforeMute = 0;
