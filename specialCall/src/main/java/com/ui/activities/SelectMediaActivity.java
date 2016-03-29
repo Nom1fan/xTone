@@ -182,8 +182,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         final Intent videoIntent = new Intent(
                 MediaStore.ACTION_VIDEO_CAPTURE);
         videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, _outputFileUri);
-        videoIntent.putExtra( MediaStore.EXTRA_DURATION_LIMIT, 30);
-        videoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0); // set the video image quality to high
+        videoIntent.putExtra( MediaStore.EXTRA_DURATION_LIMIT, 30); // set video recording interval
+        videoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0); // set the video image quality to low
 
 
         startActivityForResult(videoIntent, code); // // TODO rony: 31/01/2016 see native camera opens and not other weird different cameras
