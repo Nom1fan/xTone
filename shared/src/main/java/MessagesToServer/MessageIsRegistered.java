@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import DataObjects.UserStatus;
 import MessagesToClient.MessageIsRegisteredRes;
+import ServerObjects.ClientsDataAccess;
 
 public class MessageIsRegistered extends MessageToServer {
 		
@@ -26,7 +27,7 @@ public class MessageIsRegistered extends MessageToServer {
 		_logger.info(_messageInitiaterId + " is checking if " + _id + " is logged in...");
 
 
-		MessageIsRegisteredRes msgReply = new MessageIsRegisteredRes(_id, _clientsManager.isRegistered(_id));
+		MessageIsRegisteredRes msgReply = new MessageIsRegisteredRes(_id, ClientsDataAccess.instance(_dal).isRegistered(_id));
 		replyToClient(msgReply);
 		
 		return _cont;

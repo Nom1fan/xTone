@@ -14,10 +14,15 @@ import LogObjects.LogsManager;
 /**
  * Created by Mor on 26/12/2015.
  */
-public class CommHistoryManager extends DALAccesible {
+public class CommHistoryAccess extends DALAccesible {
 
-    public CommHistoryManager(IDAL dal) {
+    private CommHistoryAccess(IDAL dal) {
         super(dal);
+    }
+
+    public static CommHistoryAccess instance(IDAL idal) {
+
+        return new CommHistoryAccess(idal);
     }
 
     public int insertMediaTransferRecord(TransferDetails td) {

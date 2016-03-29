@@ -6,6 +6,7 @@ import DataObjects.CallRecord;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import MessagesToClient.MessageTriggerEventOnly;
+import ServerObjects.CommHistoryAccess;
 
 /**
  * Created by Mor on 08/03/2016.
@@ -24,7 +25,7 @@ public class MessageInsertMediaCallRecord extends MessageToServer {
 
         initLogger();
 
-        _commHistoryManager.insertMediaCallRecord(_callRecord);
+        CommHistoryAccess.instance(_dal).insertMediaCallRecord(_callRecord);
 
         replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.NO_ACTION_REQUIRED, null, null)));
 

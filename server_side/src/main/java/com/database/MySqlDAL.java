@@ -209,7 +209,14 @@ public class MySqlDAL implements IDAL {
     @Override
     public void updateUserPushToken(String uid, String token) throws SQLException {
 
-        String query = "UPDATE " + TABLE_USERS + " SET " + COL_TOKEN + "=" + "\"" + token + "\"" + " WHERE " + COL_UID + "=" + "\"" + uid + "\"";
+        String query = "UPDATE " + TABLE_USERS + " SET " + COL_TOKEN + "=" + quote(token) + " WHERE " + COL_UID + "=" + quote(uid);
+        executeQuery(query);
+    }
+
+    @Override
+    public void updateUserSmsVerificationCode(String uid, int code) throws SQLException {
+
+        String query = "UPDATE " + TABLE_SMS_VERIFICATION + " SET " + COL_CODE + "=" + code + " WHERE " + COL_UID + "=" + quote(uid);
         executeQuery(query);
     }
 
@@ -240,7 +247,7 @@ public class MySqlDAL implements IDAL {
     @Override
     public int insertMediaTransferRecord(TransferDetails td) throws SQLException {
 
-        insertMediaFileRecord(td.getMd5(), td.getExtension(), (int)td.getFileSize(), COL_TRANSFER_COUNT);
+        insertMediaFileRecord(td.getMd5(), td.getExtension(), (int) td.getFileSize(), COL_TRANSFER_COUNT);
 
         StringBuilder query = new StringBuilder();
         query.
@@ -332,6 +339,60 @@ public class MySqlDAL implements IDAL {
         executeQuery(query.toString());
 
         incrementColumn(TABLE_MEDIA_FILES, countColToInc, COL_MD5, md5);
+    }
+
+    @Override
+    public void insertUserSmsVerificationCode(String uid, int code) throws SQLException {
+
+        StringBuilder query = new StringBuilder();
+        uid = quote(uid);
+
+        query.
+                append("INSERT INTO ").
+                append(TABLE_SMS_VERIFICATION).
+                append(" (").
+                append(COL_UID).append(",").
+                append(COL_CODE).
+                append(")").
+                append(" VALUES (").
+                append(uid).append(",").
+                append(code).
+                append(")");
+
+        executeQuery(query.toString());
+    }
+
+    @Override
+    public int getUserSmsVerificationCode(String uid) throws SQLException {
+
+        String query = "SELECT " + COL_CODE + " FROM " + TABLE_SMS_VERIFICATION + " WHERE " + COL_UID + "=" + quote(uid);
+        Statement st = null;
+        ResultSet resultSet = null;
+        int code = 0;
+
+        try {
+            initConn(); // Must init before each query since after 8 hours the connection is timed out
+            st = _dbConn.createStatement();
+            resultSet = st.executeQuery(query);
+            if (resultSet.first())
+                code = resultSet.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (st != null)
+                try {
+                    st.close();
+                } catch (SQLException ignored) {
+                }
+            if (resultSet != null)
+                try {
+                    resultSet.close();
+                } catch (SQLException ignored) {
+                }
+            closeConn();
+        }
+        return code;
     }
 
     @Override

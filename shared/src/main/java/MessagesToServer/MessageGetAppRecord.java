@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import DataObjects.AppMetaRecord;
 import MessagesToClient.MessageGetAppRecordRes;
+import ServerObjects.AppMetaAccess;
 
 /**
  * Created by Mor on 26/03/2016.
@@ -19,7 +20,7 @@ public class MessageGetAppRecord extends MessageToServer {
 
         initLogger();
 
-        AppMetaRecord appMetaRecord = _appMetaManager.getAppMeta();
+        AppMetaRecord appMetaRecord = AppMetaAccess.instance(_dal).getAppMeta();
         replyToClient(new MessageGetAppRecordRes(appMetaRecord));
 
         return false;

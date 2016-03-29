@@ -10,10 +10,15 @@ import log.Logged;
 /**
  * Created by Mor on 26/03/2016.
  */
-public class AppMetaManager extends DALAccesible {
+public class AppMetaAccess extends DALAccesible {
 
-    public AppMetaManager(IDAL dal) {
+    private AppMetaAccess(IDAL dal) {
         super(dal);
+    }
+
+    public static AppMetaAccess instance(IDAL idal) {
+
+        return new AppMetaAccess(idal);
     }
 
     public AppMetaRecord getAppMeta() {

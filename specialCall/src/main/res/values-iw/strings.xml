@@ -18,7 +18,7 @@
     <string name="invite">אשמח לשתף אותך ב MediaCallz https://play.google.com/apps/testing/com.special.specialcall</string>
     <string name="upload_ticker">קובץ בהעלאה</string>
     <string name="content_title">קובץ עלה בהצלחה</string>
-
+    <string name="sms_code_failed">אופס! קבלת מסרון קוד נכשלה. אנא נסה שוב...</string>
 
 
 

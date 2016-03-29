@@ -55,7 +55,7 @@ import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
-import com.utils.PhoneNumberUtils;
+import utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 
 import java.util.ArrayList;
@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     if (data != null) {
                         Uri uri = data.getData();
                         Contact contact = ContactsUtils.getContact(uri, getApplicationContext());
-                        saveInstanceState(contact.get_name(), PhoneNumberUtils.toValidPhoneNumber(contact.get_phoneNumber()));
+                        saveInstanceState(contact.get_name(), PhoneNumberUtils.toValidLocalPhoneNumber(contact.get_phoneNumber()));
                     }
 
                 } catch (Exception e) {
@@ -517,7 +517,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     String[] nameAndPhone = ((String) av.getItemAtPosition(index)).split("\\\n");
                     String name = nameAndPhone[0];
                     String number = nameAndPhone[1];
-                    String NumericNumber = PhoneNumberUtils.toValidPhoneNumber(number);
+                    String NumericNumber = PhoneNumberUtils.toValidLocalPhoneNumber(number);
 
                     _autoCompleteTextViewDestPhone.setText(NumericNumber);
                     _destName = name;

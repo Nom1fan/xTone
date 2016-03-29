@@ -16,7 +16,7 @@ import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.special.app.R;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
-import com.utils.PhoneNumberUtils;
+import utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
@@ -283,7 +283,7 @@ public class OutgoingService extends AbstractStandOutService {
             if (action.equals(Intent.ACTION_NEW_OUTGOING_CALL) || arrivedFromFallBack) {
                 String outgoingCallNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
                 mPreviewStart = false;
-                outgoingCallNumber = PhoneNumberUtils.toValidPhoneNumber(outgoingCallNumber);
+                outgoingCallNumber = PhoneNumberUtils.toValidLocalPhoneNumber(outgoingCallNumber);
 
                 if (arrivedFromFallBack)
                     StartStandOutServicesFallBackReceiver.completeWakefulIntent(intent);

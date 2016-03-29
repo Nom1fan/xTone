@@ -9,7 +9,7 @@
 //import java.sql.SQLException;
 //
 //import DalObjects.IDAL;
-//import ServerObjects.ClientsManager;
+//import ServerObjects.ClientsDataAccess;
 //
 ///**
 // * Created by Mor on 23/09/2015.

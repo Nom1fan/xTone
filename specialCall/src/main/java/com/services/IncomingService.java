@@ -17,7 +17,7 @@ import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
 import com.utils.NotificationUtils;
-import com.utils.PhoneNumberUtils;
+import utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
@@ -138,7 +138,7 @@ public class IncomingService extends AbstractStandOutService {
     @Override
     protected synchronized void syncOnCallStateChange(int state, String incomingNumber) {
 
-        incomingNumber = PhoneNumberUtils.toValidPhoneNumber(incomingNumber);
+        incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
         Log.i(TAG,"before incoming phone number : " + incomingNumber);
         mIncomingOutgoingNumber = incomingNumber;
         // Checking if number is in black list

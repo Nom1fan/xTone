@@ -15,7 +15,7 @@
     <string name="invite">You are Invited to MediaCallz https://play.google.com/apps/testing/com.special.specialcall</string>
     <string name="upload_ticker">File upload in progress</string>
     <string name="content_title">File upload</string>
-
+    <string name="sms_code_failed">Oops! Getting SMS code failed. Please try again...</string>
 
 
     <!-- ### Activities ###  -->

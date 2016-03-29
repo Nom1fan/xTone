@@ -21,11 +21,11 @@ import LogObjects.LogsManager;
  */
 public abstract class BatchPushSender {
 
-    private static final String REST_API_KEY = "2b2efabe088730905d0651656ffb642c";
-    private static final String LIVE_API_KEY = SharedConstants.LIVE_API_KEY;
-    private static final String API_VERSION = "1.0";
-    private static final String PUSH_URL = "https://api.batch.com/" + API_VERSION + "/" + LIVE_API_KEY + "/transactional/send";
-    private static Logger _logger = LogsManager.get_serverLogger();
+    private static final String REST_API_KEY    =   "2b2efabe088730905d0651656ffb642c";
+    private static final String LIVE_API_KEY    =   SharedConstants.LIVE_API_KEY;
+    private static final String API_VERSION     =   "1.0";
+    private static final String PUSH_URL        =   "https://api.batch.com/" + API_VERSION + "/" + LIVE_API_KEY + "/transactional/send";
+    private static Logger _logger               =   LogsManager.get_serverLogger();
 
     static
     {
@@ -62,7 +62,7 @@ public abstract class BatchPushSender {
 
         } catch (Exception e) {
             e.printStackTrace();
-            _logger.severe("Failed to send push to token:" + deviceToken + ". Exception:" + e.getMessage());
+            _logger.severe("Failed to send push to [Token]:" + deviceToken + ". [Exception]:" + (e.getMessage()!=null? e.getMessage() : e));
             return false;
         }
 

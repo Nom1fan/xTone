@@ -1,4 +1,4 @@
-package com.utils;
+package utils;
 
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -8,9 +8,14 @@ import java.text.ParsePosition;
  */
 public abstract class PhoneNumberUtils {
 
-    public static String toValidPhoneNumber(String str) {
-        if (str != null) {
-            str = str.replaceAll("[^0-9]", "");
+    public enum Country {
+        IL,
+    }
+
+    public static String toValidLocalPhoneNumber(String str) {
+
+        if(str!=null) {
+            str = toNumeric(str);
 
             // TODO deal with other countries
             if (str.startsWith("9720")) {
@@ -23,6 +28,34 @@ public abstract class PhoneNumberUtils {
             return str;
         } else
             return "";
+    }
+
+    public static String toValidInternationalPhoneNumber(String str, Country country) {
+
+        if(str!=null) {
+
+            str = toNumeric(str);
+
+            switch (country) {
+
+                case IL:
+                    if (str.startsWith("0"))
+                        str = str.replaceFirst("0", "972");
+                    break;
+
+                default:
+                    System.out.print("WARNING: No such country:" + country);
+            }
+        }
+
+        return str;
+    }
+
+    public static String toNumeric(String str) {
+
+        if (str != null)
+            str = str.replaceAll("[^0-9]", "");
+        return str;
     }
 
     public static boolean isNumeric(String str) {

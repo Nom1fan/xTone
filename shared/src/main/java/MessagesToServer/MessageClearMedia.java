@@ -8,6 +8,7 @@ import EventObjects.EventReport;
 import EventObjects.EventType;
 import MessagesToClient.MessageTriggerEventOnly;
 import ServerObjects.BatchPushSender;
+import ServerObjects.ClientsDataAccess;
 
 /**
  * Created by Mor on 18/02/2016.
@@ -30,7 +31,7 @@ public class MessageClearMedia extends MessageToServer {
 
         _logger.info("Initiating clear media. " + _td.toString());
 
-        String destToken = _clientsManager.getUserPushToken(_destId);
+        String destToken = ClientsDataAccess.instance(_dal).getUserPushToken(_destId);
         String pushEventAction = PushEventKeys.CLEAR_MEDIA;
         boolean sent = BatchPushSender.sendPush(destToken, pushEventAction, _td);
 

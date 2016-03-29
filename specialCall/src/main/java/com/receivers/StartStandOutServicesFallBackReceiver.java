@@ -1,7 +1,5 @@
 package com.receivers;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.WakefulBroadcastReceiver;
@@ -11,9 +9,7 @@ import android.util.Log;
 import com.services.IncomingService;
 import com.services.OutgoingService;
 import com.utils.BroadcastUtils;
-import com.utils.PhoneNumberUtils;
-
-import java.util.Calendar;
+import utils.PhoneNumberUtils;
 
 /**
  * Created by rony on 01/03/2016.
@@ -61,7 +57,7 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
             if (intent!= null && action !=null) // TODO check if Alarm sends action as null or intent. and make general if
                 if (intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
 
-                    outgoingPhoneNumber = PhoneNumberUtils.toValidPhoneNumber(intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER));
+                    outgoingPhoneNumber = PhoneNumberUtils.toValidLocalPhoneNumber(intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER));
 
                     final Context ctx = context;
                     new Thread(new Runnable() {
@@ -103,7 +99,7 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
                         e.printStackTrace();
                     }
                     // Incoming call
-                    String incomingNumber = PhoneNumberUtils.toValidPhoneNumber(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
+                    String incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
 
                     Intent incomingServiceIntent = new Intent(context, IncomingService.class);
                     incomingServiceIntent.setAction(IncomingService.ACTION_START);

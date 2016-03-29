@@ -28,7 +28,7 @@ import com.data_objects.Contact;
 import com.special.app.R;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
-import com.utils.PhoneNumberUtils;
+import utils.PhoneNumberUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -349,7 +349,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         public void onCheckedChanged(CompoundButton buttonView,
                                      boolean isChecked) {
 
-            String phoneInIndex = PhoneNumberUtils.toValidPhoneNumber(_phonesInListView.get((Integer) buttonView.getTag()));
+            String phoneInIndex = PhoneNumberUtils.toValidLocalPhoneNumber(_phonesInListView.get((Integer) buttonView.getTag()));
             String nameInIndex = _namesInListView.get((Integer) buttonView.getTag());
 
             try {

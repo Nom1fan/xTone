@@ -23,30 +23,38 @@ import com.services.GetTokenIntentService;
 import com.services.LogicServerProxyService;
 import com.special.app.R;
 import com.utils.SharedPrefUtils;
-import com.utils.UI_Utils;
-
-import java.util.Locale;
 
 import EventObjects.Event;
 import EventObjects.EventReport;
+import utils.PhoneNumberUtils;
 
 
 /**
  * Created by Mor on 14/03/2016.
  */
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     private BroadcastReceiver _eventReceiver;
     private IntentFilter _eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
 
+    //region UI elements
+    private EditText _loginNumberEditText;
+    private EditText _smsCodeVerEditText;
+    private Button _loginBtn;
+    private Button _getSmsCodeBtn;
+    private ProgressBar _initProgressBar;
+    private TextView _initTextView;
+    //endregion
+
     //region Activity methods (onCreate(), onPause(), ...)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
-        Locale current = getResources().getConfiguration().locale;
+
+        initializeLoginUI();
 
     }
 
@@ -74,9 +82,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         }
         saveInstanceState();
-
-        UI_Utils.unbindDrawables(findViewById(R.id.loginScreen));
-        System.gc();
     }
 
     @Override
@@ -85,7 +90,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         Log.i(TAG, "OnResume()");
 
-        initializeLoginUI();
         restoreInstanceState();
 
         if(Constants.MY_BATCH_TOKEN(this).equals("")) {
@@ -111,30 +115,29 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.loginuser);
 
         prepareLoginNumberEditText();
-        prepareLoginButton();
         prepareGetSmsCodeButton();
         prepareSmsCodeVerificationEditText();
+        prepareLoginButton();
+        prepareInitTextView();
+        prepareInitProgressBar();
 
     }
 
-    private void enableProgressBar() {
+    private void prepareInitProgressBar() {
 
-        ProgressBar initProgressBar = (ProgressBar)findViewById(R.id.initProgressBar);
-        if(initProgressBar!=null)
-            initProgressBar.setVisibility(ProgressBar.VISIBLE);
+        _initProgressBar = (ProgressBar)findViewById(R.id.initProgressBar);
+        _initProgressBar.setVisibility(ProgressBar.GONE);
     }
 
-    private void disableProgressBar() {
+    private void prepareInitTextView() {
 
-        ProgressBar initProgressBar = (ProgressBar)findViewById(R.id.initProgressBar);
-        if(initProgressBar!=null)
-            initProgressBar.setVisibility(ProgressBar.INVISIBLE);
+        _initTextView = (TextView)findViewById(R.id.initTextView);
     }
 
     private void prepareLoginNumberEditText() {
 
-        EditText loginNumberET = (EditText) findViewById(R.id.LoginNumber);
-        loginNumberET.addTextChangedListener(new TextWatcher() {
+        _loginNumberEditText = (EditText) findViewById(R.id.LoginNumber);
+        _loginNumberEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -145,16 +148,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 if (10 == s.length()) {
 
-                    String token = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN);
+                    String token = Constants.MY_BATCH_TOKEN(getApplicationContext());
                     if (token != null && !token.equals("")) {
-                        findViewById(R.id.GetSMSCode).setEnabled(true);
-                        findViewById(R.id.SMSCodeEditText).setEnabled(true);
-                        findViewById(R.id.login_btn).setEnabled(true);  // REMOVE // NEED TO FIND A SMS GATEWAY FIRST
+                        enableGetSmsCodeButton();
+                        enableSmsCodeEditText();
+
+                        if (4 == _smsCodeVerEditText.getText().toString().length())
+                            enableLoginButton();
                     }
                 } else {
-                    findViewById(R.id.GetSMSCode).setEnabled(false);
-                    findViewById(R.id.SMSCodeEditText).setEnabled(false);
-                    findViewById(R.id.login_btn).setEnabled(false);   // REMOVE // // NEED TO FIND A SMS GATEWAY FIRST
+                    enableSmsCodeEditText();
+                    disableGetSmsCodeButton();
                 }
             }
 
@@ -167,42 +171,56 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void prepareLoginButton() {
 
-        Button loginBtn = (Button) findViewById(R.id.login_btn);
-        loginBtn.setOnClickListener(this);
-        loginBtn.setEnabled(false);
-        loginBtn.setText(getResources().getString(R.string.login));
+        _loginBtn = (Button) findViewById(R.id.login_btn);
+        _loginBtn.setEnabled(false);
+        _loginBtn.setText(getResources().getString(R.string.login));
+        _loginBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String smsVerificationCode = _smsCodeVerEditText.getText().toString();
+                String loginNumber = _loginNumberEditText.getText().toString();
+
+                SharedPrefUtils.setString(getApplicationContext(),
+                        SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, loginNumber);
+
+                Intent i = new Intent(getApplicationContext(), LogicServerProxyService.class);
+                i.setAction(LogicServerProxyService.ACTION_REGISTER);
+                i.putExtra(LogicServerProxyService.SMS_CODE, Integer.parseInt(smsVerificationCode));
+                startService(i);
+            }
+        });
     }
 
     private void prepareGetSmsCodeButton() {
 
-        Button GetSMSCode = (Button) findViewById(R.id.GetSMSCode);
-        GetSMSCode.setEnabled(false);
-        View.OnClickListener buttonListener = new View.OnClickListener() {
+        _getSmsCodeBtn = (Button) findViewById(R.id.getSmsCode_btn);
+        _getSmsCodeBtn.setEnabled(false);
+        _getSmsCodeBtn.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-//                EditText loginNumber = (EditText) findViewById(R.id.LoginNumber);
-//
-//                //generate a 4 digit integer 1000 <10000
-//                //_randomPIN = (int) (Math.random() * 9000) + 1000;
-//                try {
-//                    SmsManager smsManager = SmsManager.getDefault();
-//                    smsManager.sendTextMessage(loginNumber.getText().toString(), null, "MediaCallz SmsVerificationCode: " + String.valueOf(_randomPIN), null, null);
-//                    writeInfoSnackBar("Message Sent To: " + loginNumber.getText());
-//                } catch (Exception ex) {
-//                    ex.printStackTrace();
-//                }
 
+                String phoneNumber = _loginNumberEditText.getText().toString();
+                String interPhoneNumber = PhoneNumberUtils.toValidInternationalPhoneNumber(
+                        phoneNumber,
+                        PhoneNumberUtils.Country.IL);
+
+                Constants.MY_ID(getApplicationContext(), phoneNumber);
+
+                Intent i = new Intent(getApplicationContext(), LogicServerProxyService.class);
+                i.setAction(LogicServerProxyService.ACTION_GET_SMS_CODE);
+                i.putExtra(LogicServerProxyService.INTER_PHONE, interPhoneNumber);
+                startService(i);
             }
-        };
-        GetSMSCode.setOnClickListener(buttonListener);
+        });
     }
 
     private void prepareSmsCodeVerificationEditText() {
 
-        EditText SmsCodeVerificationEditText = (EditText) findViewById(R.id.SMSCodeEditText);
-        SmsCodeVerificationEditText.setEnabled(false);
-        SmsCodeVerificationEditText.addTextChangedListener(new TextWatcher() {
+        _smsCodeVerEditText = (EditText) findViewById(R.id.SMSCodeEditText);
+        enableSmsCodeEditText();
+        _smsCodeVerEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -211,12 +229,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                if (4 == s.length()) {
-
-                    findViewById(R.id.login_btn).setEnabled(true);
-
+                if (4 == s.length() && 10 == _loginNumberEditText.getText().toString().length()) {
+                    enableLoginButton();
                 } else
-                    findViewById(R.id.login_btn).setEnabled(false);
+                   disableLoginButton();
             }
 
             @Override
@@ -226,57 +242,65 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         });
     }
 
-    private void disableInitTextView() {
+    private void enableProgressBar() {
 
-        final TextView initTextView = (TextView) findViewById(R.id.initTextView);
-        if(initTextView!=null) {
-            initTextView.setVisibility(View.INVISIBLE);
-        }
+        _initProgressBar.setVisibility(ProgressBar.VISIBLE);
+    }
+
+    private void disableProgressBar() {
+
+        _initProgressBar.setVisibility(ProgressBar.GONE);
     }
 
     private void setInitTextView(String str) {
 
-        final TextView initTextView = (TextView) findViewById(R.id.initTextView);
-        if(initTextView!=null) {
-            initTextView.setVisibility(View.VISIBLE);
-            initTextView.setText(str);
-        }
+        _initTextView.setVisibility(View.VISIBLE);
+        _initTextView.setText(str);
+    }
+
+    private void disableInitTextView() {
+
+        _initTextView.setVisibility(View.INVISIBLE);
     }
 
     private void enableLoginButton() {
 
-        Button loginBtn = (Button) findViewById(R.id.login_btn);
-        loginBtn.setEnabled(true);
-    }
-
-    private void enableLoginEditText() {
-
-        EditText loginNumberEditText = ((EditText) findViewById(R.id.LoginNumber));
-        loginNumberEditText.setEnabled(true);
-    }
-
-    private void disableSmsCodeEditText() {
-
-        EditText smsCodeVerificationEditText = (EditText) findViewById(R.id.SMSCodeEditText);
-        smsCodeVerificationEditText.setEnabled(false);
-    }
-
-    private void disableLoginEditText() {
-
-        EditText loginNumberEditText = ((EditText) findViewById(R.id.LoginNumber));
-        loginNumberEditText.setEnabled(false);
+        _loginBtn.setEnabled(true);
     }
 
     private void disableLoginButton() {
 
-        Button loginBtn = (Button) findViewById(R.id.login_btn);
-        loginBtn.setEnabled(false);
+        _loginBtn.setEnabled(false);
     }
 
-    private void disableSmsCodeButton() {
+    private void enableLoginEditText() {
 
-        Button smsCodeBtn = (Button) findViewById(R.id.GetSMSCode);
-        smsCodeBtn.setEnabled(false);
+        _loginNumberEditText.setEnabled(true);
+    }
+
+    private void disableLoginEditText() {
+
+        _loginNumberEditText.setEnabled(false);
+    }
+
+    private void enableSmsCodeEditText() {
+
+        _smsCodeVerEditText.setEnabled(true);
+    }
+
+    private void disableSmsCodeEditText() {
+
+        _smsCodeVerEditText.setEnabled(false);
+    }
+
+    private void enableGetSmsCodeButton() {
+
+        _getSmsCodeBtn.setEnabled(true);
+    }
+
+    private void disableGetSmsCodeButton() {
+
+        _getSmsCodeBtn.setEnabled(false);
 
     }
 
@@ -294,27 +318,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
     //endregion
 
-    //region Assisting methods (onClick(), eventReceived(), ...)
-    public void onClick(View v) {
-
-        int id = v.getId();
-
-        if (id == R.id.login_btn) {
-
-            String myVerificationcode = ((EditText) findViewById(R.id.SMSCodeEditText)).getText().toString();
-            //if (myVerificationcode.equals(String.valueOf(_randomPIN))){    // NEED TO FIND A SMS GATEWAY FIRST
-
-            String loginNumber = ((EditText) findViewById(R.id.LoginNumber))
-                    .getText().toString();
-
-            SharedPrefUtils.setString(getApplicationContext(),
-                    SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, loginNumber);
-
-            Intent i = new Intent(this, LogicServerProxyService.class);
-            i.setAction(LogicServerProxyService.ACTION_REGISTER);
-            startService(i);
-        }
-    }
+    //region Assisting methods (eventReceived(), ...)
 
     public void eventReceived(Event event) {
 
@@ -329,7 +333,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 break;
 
             case REGISTER_FAILURE:
+                disableProgressBar();
                 setInitTextView(report.desc());
+                enableSmsCodeEditText();
                 enableLoginEditText();
                 enableLoginButton();
                 break;
@@ -340,18 +346,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 disableLoginEditText();
                 disableSmsCodeEditText();
                 disableLoginButton();
-                disableSmsCodeButton();
+                disableGetSmsCodeButton();
                 break;
 
             case TOKEN_RETRIEVED:
                 disableProgressBar();
                 disableInitTextView();
-
-                // Enabling login button if necessary
-                EditText loginET = (EditText) findViewById(R.id.LoginNumber);
-                CharSequence loginNumber = loginET.getText();
-                if (10 == loginNumber.length())
-                    findViewById(R.id.login_btn).setEnabled(true);
                 break;
 
             case TOKEN_RETRIEVAL_FAILED:
@@ -360,7 +360,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 disableLoginEditText();
                 disableSmsCodeEditText();
                 disableLoginButton();
-                disableSmsCodeButton();
+                disableGetSmsCodeButton();
+                break;
+
+            case GET_SMS_CODE_FAILED:
+                disableProgressBar();
+                setInitTextView(getResources().getString(R.string.sms_code_failed));
                 break;
 
             default: // Event not meant for LoginActivity receiver
@@ -373,18 +378,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void saveInstanceState() {
 
         // Saving login number
-        final EditText loginNumberEditText = ((EditText) findViewById(R.id.LoginNumber));
-        if (loginNumberEditText != null) {
-            String loginNumber = loginNumberEditText.getText().toString();
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER, loginNumber);
-        }
+        String loginNumber = _loginNumberEditText.getText().toString();
+        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER, loginNumber);
 
         // Saving sms code
-        final EditText smsCodeEditText = ((EditText) findViewById(R.id.SMSCodeEditText));
-        if (smsCodeEditText != null) {
-            String smsCode = smsCodeEditText.getText().toString();
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SMS_CODE, smsCode);
-        }
+        String smsCode = _smsCodeVerEditText.getText().toString();
+        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SMS_CODE, smsCode);
     }
 
     private void restoreInstanceState() {
@@ -392,16 +391,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         Log.i(TAG, "Restoring instance state");
 
         // Restoring login number
-        final EditText loginNumberEditText = ((EditText) findViewById(R.id.LoginNumber));
         String loginNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER);
-        if (loginNumberEditText != null && loginNumber != null)
-            loginNumberEditText.setText(loginNumber);
+        if (_loginNumberEditText != null && loginNumber != null)
+            _loginNumberEditText.setText(loginNumber);
 
         // Restoring sms code
-        final EditText smsCodeEditText = ((EditText) findViewById(R.id.SMSCodeEditText));
         String smsCode = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SMS_CODE);
-        if(smsCodeEditText!=null && smsCode!=null)
-            smsCodeEditText.setText(smsCode);
+        if(_smsCodeVerEditText!=null && smsCode!=null)
+            _smsCodeVerEditText.setText(smsCode);
     }
 
     private void prepareEventReceiver() {

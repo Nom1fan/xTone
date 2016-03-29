@@ -8,6 +8,7 @@ import EventObjects.EventReport;
 import EventObjects.EventType;
 import MessagesToClient.MessageTriggerEventOnly;
 import ServerObjects.BatchPushSender;
+import ServerObjects.ClientsDataAccess;
 
 /**
  * Created by Mor on 18/02/2016.
@@ -33,7 +34,7 @@ public class MessageNotifyMediaCleared extends MessageToServer {
                      " that [User]:" + clearerId +
                      " cleared his media of [SpecialMediaType]: " + _td.getSpMediaType());
 
-        String clearRequesterToken = _clientsManager.getUserPushToken(clearRequesterId);
+        String clearRequesterToken = ClientsDataAccess.instance(_dal).getUserPushToken(clearRequesterId);
 
         String title = "Media cleared!";
         String msgBody = "Media for user " + clearerId + " is cleared!";

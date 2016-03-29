@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import utils.PhoneNumberUtils;
+
 /**
  * Created by rony on 27/02/2016.
  */
@@ -42,7 +44,7 @@ public abstract class MCBlockListUtils {
                         contactPhonenumbers.add(contactsList.get(i).get_phoneNumber());
                     }
 
-                    if(contactPhonenumbers.contains(PhoneNumberUtils.toValidPhoneNumber(incomingNumber)))
+                    if(contactPhonenumbers.contains(PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber)))
                         return false;
                     else
                         return true;
@@ -51,7 +53,7 @@ public abstract class MCBlockListUtils {
                 case PermissionBlockListLevel.BLACK_LIST_SPECIFIC:
                     Set<String> blockedSet = SharedPrefUtils.getStringSet(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
                     if (!blockedSet.isEmpty()) {
-                        incomingNumber = PhoneNumberUtils.toValidPhoneNumber(incomingNumber);
+                        incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
 
                         if (blockedSet.contains(incomingNumber)) {
                             Log.i(TAG, "NUMBER MC BLOCKED: " + incomingNumber);

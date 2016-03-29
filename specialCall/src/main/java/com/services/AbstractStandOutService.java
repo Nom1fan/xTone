@@ -30,7 +30,7 @@ import com.special.app.R;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
-import com.utils.PhoneNumberUtils;
+import utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -479,7 +479,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
                 Set<String> blockedNumbers = new HashSet<String>();
                 blockedNumbers = MCBlockListUtils.getBlockListFromShared(getApplicationContext());
-                blockedNumbers.add(PhoneNumberUtils.toValidPhoneNumber(mIncomingOutgoingNumber));
+                blockedNumbers.add(PhoneNumberUtils.toValidLocalPhoneNumber(mIncomingOutgoingNumber));
 
                 MCBlockListUtils.setBlockListFromShared(getApplicationContext(), blockedNumbers);
                 UI_Utils.callToast(mIncomingOutgoingNumber + " Is Now MC BLOCKED !!! ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());

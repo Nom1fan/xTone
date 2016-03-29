@@ -11,6 +11,8 @@ import com.data_objects.Contact;
 import java.util.ArrayList;
 import java.util.List;
 
+import utils.PhoneNumberUtils;
+
 /**
  * Created by Mor on 18/02/2016.
  */
@@ -95,7 +97,7 @@ public abstract class ContactsUtils {
 
                     contactName = people.getString(displayNameIndex);
                     phoneNumber = people.getString(phonesIndex);
-                    phoneNumber = PhoneNumberUtils.toValidPhoneNumber(phoneNumber);
+                    phoneNumber = PhoneNumberUtils.toValidLocalPhoneNumber(phoneNumber);
 
                     if(PhoneNumberUtils.isValidPhoneNumber(phoneNumber))
                         allContacts.add(new Contact(contactName, phoneNumber));

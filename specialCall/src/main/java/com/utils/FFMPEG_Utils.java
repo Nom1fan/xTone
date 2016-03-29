@@ -217,9 +217,18 @@ public abstract class FFMPEG_Utils {
                         cont = false;
                 }
 
-                int pivot_index = line.lastIndexOf(" ") + 1;
-                String unformattedResolution = line.substring(pivot_index, line.length());
-                String[] sArrayTmp = unformattedResolution.split("x");
+                int pivot_index = 0;
+                if (line != null) {
+                    pivot_index = line.lastIndexOf(" ") + 1;
+                }
+                String unformattedResolution = null;
+                if (line != null) {
+                    unformattedResolution = line.substring(pivot_index, line.length());
+                }
+                String[] sArrayTmp = new String[0];
+                if (unformattedResolution != null) {
+                    sArrayTmp = unformattedResolution.split("x");
+                }
                 int[] iArraytmp = new int[2];
                 iArraytmp[0] = Integer.parseInt(sArrayTmp[0]);
                 iArraytmp[1] = Integer.parseInt(sArrayTmp[1]);

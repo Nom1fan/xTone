@@ -18,6 +18,8 @@ import FilesManager.FileManager;
 import MessagesToClient.MessageDownloadFile;
 import MessagesToClient.MessageTriggerEventOnly;
 import ServerObjects.BatchPushSender;
+import ServerObjects.ClientsDataAccess;
+import ServerObjects.CommHistoryAccess;
 
 /**
  * Created by Mor on 09/10/2015.
@@ -69,14 +71,14 @@ public class MessageRequestDownload extends MessageToServer {
             // Informing source (uploader) that file received by user (downloader)
             String title = "Media ready!";
             String msg = "Media for "+_td.getDestinationId()+ " is ready!";
-            String token = _clientsManager.getUserPushToken(_td.getSourceId());
+            String token = ClientsDataAccess.instance(_dal).getUserPushToken(_td.getSourceId());
             sent = BatchPushSender.sendPush(token, PushEventKeys.TRANSFER_SUCCESS, title , msg, _td);
             if(!sent)
                 _logger.warning("Failed to inform user " + _td.getSourceId() + " of transfer success to user: " + _td.getDestinationId());
 
             // Marking in communication history record that the transfer was successful
             char TRUE = '1';
-            _commHistoryManager.updateCommunicationRecord(_td.get_commId(), IDAL.COL_TRANSFER_SUCCESS, TRUE);
+            CommHistoryAccess.instance(_dal).updateCommunicationRecord(_td.get_commId(), IDAL.COL_TRANSFER_SUCCESS, TRUE);
 
 
         } catch (FileInvalidFormatException  |
@@ -110,7 +112,7 @@ public class MessageRequestDownload extends MessageToServer {
         // Informing sender that file did not reach destination
         _logger.severe("Informing sender:"+_td.getSourceId()+" that file did not reach destination:"+_td.getDestinationId());
         String senderId = _td.getSourceId();
-        String senderToken = _clientsManager.getUserPushToken(senderId);
+        String senderToken = ClientsDataAccess.instance(_dal).getUserPushToken(senderId);
         if(!senderToken.equals(""))
             BatchPushSender.sendPush(senderToken, PushEventKeys.SHOW_MESSAGE, title, msgTransferFailed);
         else
@@ -123,7 +125,7 @@ public class MessageRequestDownload extends MessageToServer {
 
         // Marking in communication history record that the transfer has failed
         char FALSE = '0';
-        _commHistoryManager.updateCommunicationRecord(_td.get_commId(), IDAL.COL_TRANSFER_SUCCESS, FALSE);
+        CommHistoryAccess.instance(_dal).updateCommunicationRecord(_td.get_commId(), IDAL.COL_TRANSFER_SUCCESS, FALSE);
     }
 
 }

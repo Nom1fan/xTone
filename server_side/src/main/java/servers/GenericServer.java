@@ -1,9 +1,9 @@
 package servers;
 
+import com.database.DalFactory;
 import com.database.MySqlDAL;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
@@ -11,9 +11,6 @@ import DataObjects.SharedConstants;
 import LogObjects.LogsManager;
 import MessagesToServer.MessageToServer;
 import ServerObjects.AbstractServer;
-import ServerObjects.AppMetaManager;
-import ServerObjects.ClientsManager;
-import ServerObjects.CommHistoryManager;
 import ServerObjects.ConnectionToClient;
 import data_objects.ServerConstants;
 
@@ -38,7 +35,7 @@ public class GenericServer extends AbstractServer {
     /**
      * Constructs a new server.
      *
-     * @param serverName
+     * @param serverName The name of the server
      * @param port the port number on which to listen.
      */
     public GenericServer(String serverName, int port) {
@@ -68,10 +65,7 @@ public class GenericServer extends AbstractServer {
 
         try {
             msg.set_clientConnection(ctc);
-            //TODO Develop a more generic way to pass managers to messages
-            msg.set_clientsManager(new ClientsManager(new MySqlDAL()));
-            msg.set_commHistoryManager(new CommHistoryManager(new MySqlDAL()));
-            msg.set_appMetaManager(new AppMetaManager(new MySqlDAL()));
+            msg.set_dal(DalFactory.getCurrentDal());
             boolean cont = msg.doServerAction();
             if(!cont)
                 closeConnectionToClient(ctc);
@@ -91,9 +85,7 @@ public class GenericServer extends AbstractServer {
             try {
                 listen();
                 Thread.sleep(RESTART_INTERVAL);
-            } catch (IOException e)  {
-                e.printStackTrace();
-            } catch (InterruptedException e)  {
+            } catch (IOException | InterruptedException e)  {
                 e.printStackTrace();
             }
         }
@@ -109,8 +101,8 @@ public class GenericServer extends AbstractServer {
     @Override
     protected void serverStopped() {
 
-        System.out.println(serverName + "server stopped");
-        _logger.severe(serverName + "server stopped");
+        System.out.println(serverName + " stopped");
+        _logger.severe(serverName + " stopped");
 
         try {
             close();
@@ -122,6 +114,13 @@ public class GenericServer extends AbstractServer {
             e.printStackTrace();
             _logger.severe("Failed to close" + serverName + ". Exception:" + (e.getMessage()!=null ? e.getMessage() : e));
         }
+    }
+
+    @Override
+    protected  void serverClosed() {
+
+        System.out.println(serverName + " closed");
+        _logger.severe(serverName + " closed");
     }
 
     @Override
@@ -156,7 +155,6 @@ public class GenericServer extends AbstractServer {
     //region Assisting methods
     private void closeConnectionToClient(ConnectionToClient ctc) {
 
-        //ClientsManager.removeClientConnection(ctc);
         try {
             ctc.close();
         } catch (IOException e) {

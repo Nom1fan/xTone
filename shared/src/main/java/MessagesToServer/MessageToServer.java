@@ -3,11 +3,13 @@ package MessagesToServer;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.logging.Logger;
+
+import DalObjects.IDAL;
 import LogObjects.LogsManager;
 import MessagesToClient.MessageToClient;
-import ServerObjects.AppMetaManager;
-import ServerObjects.ClientsManager;
-import ServerObjects.CommHistoryManager;
+import ServerObjects.AppMetaAccess;
+import ServerObjects.ClientsDataAccess;
+import ServerObjects.CommHistoryAccess;
 import ServerObjects.ConnectionToClient;
 
 /**
@@ -19,9 +21,7 @@ public abstract class MessageToServer implements Serializable  {
 
 	private static final long serialVersionUID = -6478414954653475710L;
     private ConnectionToClient _clientConnection;
-    protected ClientsManager _clientsManager;
-    protected CommHistoryManager _commHistoryManager;
-    protected AppMetaManager _appMetaManager;
+    protected IDAL _dal;
 	protected String _messageInitiaterId;
 	protected boolean _cont = false;
 	protected Logger _logger = null;
@@ -60,14 +60,12 @@ public abstract class MessageToServer implements Serializable  {
 
 	abstract public boolean doServerAction() throws IOException, ClassNotFoundException;
 	public final void set_clientConnection(ConnectionToClient cc) { _clientConnection = cc; setId(); }
-    public final void set_clientsManager(ClientsManager clientsManager) { _clientsManager = clientsManager; }
-    public final void set_commHistoryManager (CommHistoryManager commHistoryManager) { _commHistoryManager = commHistoryManager; }
-    public final void set_appMetaManager(AppMetaManager appMetaManager) { _appMetaManager = appMetaManager; }
+    public void set_dal(IDAL _dal) { this._dal = _dal; }
     private void setId() {
         _clientConnection.setInfo("id", _messageInitiaterId);
     }
     protected final ConnectionToClient get_clientConnection() {
         return _clientConnection;
     }
-		
+
 }

@@ -2,18 +2,21 @@ package MessagesToServer;
 
 import java.io.IOException;
 import MessagesToClient.MessageRegisterRes;
-import ServerObjects.ClientsManager;
+import ServerObjects.ClientsDataAccess;
+import ServerObjects.SmsVerificationAccess;
 
 
 public class MessageRegister extends MessageToServer {
 	
 	private static final long serialVersionUID = 7382209934954570169L;
-	private String pushToken;
+	private String _pushToken;
+    private int _smsCode;
 	
-	public MessageRegister(String clientId, String pushToken) {
+	public MessageRegister(String clientId, String pushToken, int smsCode) {
 		
 		super(clientId);
-		this.pushToken = pushToken;
+		_pushToken = pushToken;
+        _smsCode = smsCode;
 	
 	}
 	
@@ -22,12 +25,23 @@ public class MessageRegister extends MessageToServer {
 			
 		initLogger();				
 		
-		_logger.info(_messageInitiaterId + " is registering...");
+		_logger.info(_messageInitiaterId + " is attempting to register...");
 
-		boolean isOK = _clientsManager.registerUser(_messageInitiaterId, pushToken);
-		MessageRegisterRes msgReply = new MessageRegisterRes(isOK);
-		replyToClient(msgReply);
-		
+        int expectedSmsCode = SmsVerificationAccess.instance(_dal).getSmsVerificationCode(_messageInitiaterId);
+
+        MessageRegisterRes msgReply;
+       if(_smsCode == expectedSmsCode) {
+           boolean isOK = ClientsDataAccess.instance(_dal).registerUser(_messageInitiaterId, _pushToken);
+           msgReply = new MessageRegisterRes(isOK);
+
+       } else {
+		   _logger.warning("Rejecting registration for [User]:" + _messageInitiaterId +
+				   ". [Expected smsCode]:" + expectedSmsCode + " [Received smsCode]:" + _smsCode);
+           msgReply = new MessageRegisterRes(false);
+       }
+
+        replyToClient(msgReply);
+
 		return _cont;
 	}
 }

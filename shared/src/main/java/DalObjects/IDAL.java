@@ -29,9 +29,9 @@ public interface IDAL {
 
     String TABLE_MEDIA_CALLS        =   "media_calls";
     //region Table media_calls keys
-    String COL_CALL_ID              = "call_id";
-    String COL_MD5_VISUAL           = "md5_visual";
-    String COL_MD5_AUDIO            = "md5_audio";
+    String COL_CALL_ID              =   "call_id";
+    String COL_MD5_VISUAL           =   "md5_visual";
+    String COL_MD5_AUDIO            =   "md5_audio";
     //endregion
 
     String TABLE_MEDIA_FILES        =   "media_files";
@@ -60,6 +60,14 @@ public interface IDAL {
     //endregion
     //endregion
 
+    //region Table sms_verification
+    String TABLE_SMS_VERIFICATION   =   "sms_verification";
+    //region Table keys
+    // COL_UID also used here
+    String COL_CODE                 =   "code";
+    //endregion
+    //endregion
+
     void initConn() throws SQLException;
     void closeConn();
     void registerUser(String uid, String token) throws SQLException;
@@ -74,5 +82,7 @@ public interface IDAL {
     void incrementColumn(String table, String col, String whereCol, String whereVal) throws SQLException;
     void updateAppRecord(double currentVersion, double lastSupportedVersion) throws SQLException;
     AppMetaRecord getAppMetaRecord() throws SQLException;
-
+    void insertUserSmsVerificationCode(String uid, int code) throws SQLException;
+    void updateUserSmsVerificationCode(String uid, int code) throws SQLException;
+    int getUserSmsVerificationCode(String uid) throws SQLException;
 }

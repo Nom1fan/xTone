@@ -20,9 +20,11 @@ import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import MessagesToServer.MessageGetAppRecord;
+import MessagesToServer.MessageGetSmsCode;
 import MessagesToServer.MessageInsertMediaCallRecord;
 import MessagesToServer.MessageIsRegistered;
 import MessagesToServer.MessageRegister;
+import utils.PhoneNumberUtils;
 
 
 /**
@@ -37,15 +39,18 @@ import MessagesToServer.MessageRegister;
 public class LogicServerProxyService extends AbstractServerProxy {
 
     //region Service actions
-    public static final String ACTION_REGISTER = "com.services.LogicServerProxyService.REGISTER";
-    public static final String ACTION_ISREGISTERED = "com.services.LogicServerProxyService.ISREGISTERED";
-    public static final String ACTION_INSERT_CALL_RECORD = "com.services.LogicServerProxyService.INSERT_CALL_RECORD";
-    public static final String ACTION_GET_APP_RECORD = "com.services.LogicServerProxyService.GET_APP_RECORD";
+    public static final String ACTION_REGISTER           =      "com.services.LogicServerProxyService.REGISTER";
+    public static final String ACTION_ISREGISTERED       =      "com.services.LogicServerProxyService.ISREGISTERED";
+    public static final String ACTION_INSERT_CALL_RECORD =      "com.services.LogicServerProxyService.INSERT_CALL_RECORD";
+    public static final String ACTION_GET_APP_RECORD     =      "com.services.LogicServerProxyService.GET_APP_RECORD";
+    public static final String ACTION_GET_SMS_CODE       =      "com.services.LogicServerProxyService.GET_SMS_CODE";
     //endregion
 
     //region Service intent keys
-    public static final String DESTINATION_ID = "com.services.LogicServerProxyService.DESTINATION_ID";
-    public static final String CALL_RECORD = "CALL_RECORD";
+    public static final String DESTINATION_ID            =      "com.services.LogicServerProxyService.DESTINATION_ID";
+    public static final String CALL_RECORD               =      "com.services.LogicServerProxyService.CALL_RECORD";
+    public static final String SMS_CODE                  =      "com.services.LogicServerProxyService.SMS_CODE";
+    public static final String INTER_PHONE               =      "com.services.LogicServerProxyService.INTER_PHONE"; // International phone number for SMS code reception
     //endregion
 
     public LogicServerProxyService() {
@@ -54,7 +59,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
     //region Service methods
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public int onStartCommand(final Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         Log.i(TAG, "LogicServerProxyService started");
 
@@ -79,7 +84,15 @@ public class LogicServerProxyService extends AbstractServerProxy {
                             case ACTION_REGISTER:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.REGISTERING, getResources().getString(R.string.registering), null));
-                                actionRegister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
+                                int smsCode = intentForThread.getIntExtra(SMS_CODE, 0);
+                                actionRegister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), smsCode);
+                                break;
+
+                            case ACTION_GET_SMS_CODE:
+                                setMidAction(true);
+                                String interPhoneNumber = intentForThread.getStringExtra(INTER_PHONE);
+                                actionGetSmsCode(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT),
+                                        Constants.MY_ID(getApplicationContext()) ,interPhoneNumber);
                                 break;
 
                             case ACTION_GET_APP_RECORD:
@@ -144,31 +157,38 @@ public class LogicServerProxyService extends AbstractServerProxy {
     //endregion
 
     //region Action methods
+
     /**
      * Enables to check if a destination number is logged-in/online
      *
      * @param destinationId - The number of whom to check is logged-in
      */
-    public void actionIsRegistered(ConnectionToServer connectionToServer, String destinationId) throws IOException {
+    private void actionIsRegistered(ConnectionToServer connectionToServer, String destinationId) throws IOException {
         MessageIsRegistered msgIsLogin = new MessageIsRegistered(Constants.MY_ID(getApplicationContext()), destinationId);
         connectionToServer.sendToServer(msgIsLogin);
     }
 
+    private void actionGetSmsCode(ConnectionToServer connectionToServer, String localNumber, String interPhoneNumber) throws IOException {
+
+        connectionToServer.sendToServer(new MessageGetSmsCode(localNumber, interPhoneNumber));
+    }
+
     private void actionGetAppRecord(ConnectionToServer connectionToServer) throws IOException {
 
-        Log.i(TAG , "Initiating actionGetAppRecord sequence...");
+        Log.i(TAG, "Initiating actionGetAppRecord sequence...");
         connectionToServer.sendToServer(new MessageGetAppRecord(Constants.MY_ID(getApplicationContext())));
     }
 
-    private void actionRegister(ConnectionToServer connectionToServer) throws IOException {
+    private void actionRegister(ConnectionToServer connectionToServer, int smsCode) throws IOException {
 
         Log.i(TAG, "Initiating actionRegister sequence...");
-        MessageRegister msgRegister = new MessageRegister(Constants.MY_ID(getApplicationContext()), Constants.MY_BATCH_TOKEN(getApplicationContext()));
+        MessageRegister msgRegister = new MessageRegister(Constants.MY_ID(getApplicationContext()),
+                Constants.MY_BATCH_TOKEN(getApplicationContext()), smsCode);
         Log.i(TAG, "Sending actionRegister message to server...");
         connectionToServer.sendToServer(msgRegister);
     }
 
-    private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, CallRecord callRecord)  throws IOException {
+    private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, CallRecord callRecord) throws IOException {
 
         Log.i(TAG, "Initiating actionInsertMediaCallRecord sequence...");
         MessageInsertMediaCallRecord msgInsertMCrecord = new MessageInsertMediaCallRecord(callRecord.get_sourceId(), callRecord);
