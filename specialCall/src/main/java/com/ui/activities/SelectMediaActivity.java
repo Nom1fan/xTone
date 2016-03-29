@@ -256,7 +256,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                 }
 
                 fm = new FileManager(path);
-                Log.i(TAG, "onActivityResult RESULT_OK _ Rony");
+                Log.i(TAG, "file selected: " + path );
                 Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
                 i.setAction(StorageServerProxyService.ACTION_UPLOAD);
                 i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);

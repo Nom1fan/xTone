@@ -9,14 +9,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
-import DataObjects.SharedConstants;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
@@ -421,7 +418,7 @@ public class FileManager implements Serializable {
         if(tmp_str.length<2)
             throw new FileMissingExtensionException("File is missing extension:"+filePath);
         String ext = tmp_str[1];
-        return ext;
+        return ext.toLowerCase();
     }
     //endregion
 
