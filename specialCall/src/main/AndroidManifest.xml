@@ -149,6 +149,8 @@
             <intent-filter>
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
                 <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="com.android.special.specialcall.EVENT_ACTION" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
                 <action android:name="com.android.special.specialcall.ALARM_ACTION"/>
             </intent-filter>
         </receiver>
