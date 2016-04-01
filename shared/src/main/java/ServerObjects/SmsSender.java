@@ -21,8 +21,8 @@ import utils.XmlUtils;
  */
 public abstract class SmsSender {
 
-    private static final String USER        =   "internationalsms";
-    private static final String PASSWORD    =   "hPMs3R";
+    private static final String USER        =   "ronyahae";
+    private static final String PASSWORD    =   "zzY7e0vk";
     private static final String TYPE        =   "longsms";
     private static final String SENDER      =   SharedConstants.APP_NAME;
     private static final String API         =   "http://193.105.74.159/api/v3/sendsms/plain?user=" + USER + "&password=" + PASSWORD +
