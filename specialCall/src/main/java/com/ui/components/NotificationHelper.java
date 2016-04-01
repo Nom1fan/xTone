@@ -6,7 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
-import com.special.app.R;
+import com.mediacallz.app.R;
 
 
 public class NotificationHelper {

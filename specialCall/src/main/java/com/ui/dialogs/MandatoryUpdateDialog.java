@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.widget.TextView;
-import com.special.app.R;
+import com.mediacallz.app.R;
 
 
 public class MandatoryUpdateDialog extends DialogFragment {

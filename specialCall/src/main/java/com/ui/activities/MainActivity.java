@@ -42,6 +42,7 @@ import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Contact;
 import com.data_objects.SnackbarData;
 import com.interfaces.ICallbackListener;
+import com.mediacallz.app.R;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.listeners.ActionClickListener;
@@ -50,12 +51,10 @@ import com.services.IncomingService;
 import com.services.LogicServerProxyService;
 import com.services.OutgoingService;
 import com.services.StorageServerProxyService;
-import com.special.app.R;
 import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
-import utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 
 import java.util.ArrayList;
@@ -71,6 +70,7 @@ import Exceptions.FileDoesNotExistException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
+import utils.PhoneNumberUtils;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
 

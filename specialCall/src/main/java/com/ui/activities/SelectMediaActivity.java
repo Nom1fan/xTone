@@ -21,7 +21,7 @@ import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.services.StorageServerProxyService;
-import com.special.app.R;
+import com.mediacallz.app.R;
 
 import java.io.File;
 import java.util.List;

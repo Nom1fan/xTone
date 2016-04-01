@@ -38,7 +38,6 @@ public class MediaCallzApp extends Application {
                 AppStateManager.setAppState(context, TAG, AppStateManager.STATE_LOGGED_OUT);
                 //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
                 UI_Utils.makeActionOverflowMenuShown(context);
-                InitUtils.addShortcutIcon(context);
 
                 // Initializing SQLite db
                 // DAL_Manager.initialize(getApplicationContext());

@@ -25,7 +25,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.data_objects.Contact;
-import com.special.app.R;
+import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import utils.PhoneNumberUtils;

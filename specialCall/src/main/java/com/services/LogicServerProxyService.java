@@ -2,12 +2,11 @@ package com.services;
 
 import android.content.Intent;
 import android.os.IBinder;
-import android.telecom.Call;
 import android.util.Log;
 
 import com.app.AppStateManager;
 import com.data_objects.Constants;
-import com.special.app.R;
+import com.mediacallz.app.R;
 import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 
@@ -16,7 +15,6 @@ import java.io.IOException;
 import ClientObjects.ConnectionToServer;
 import DataObjects.CallRecord;
 import DataObjects.SharedConstants;
-import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import MessagesToServer.MessageGetAppRecord;
@@ -24,7 +22,6 @@ import MessagesToServer.MessageGetSmsCode;
 import MessagesToServer.MessageInsertMediaCallRecord;
 import MessagesToServer.MessageIsRegistered;
 import MessagesToServer.MessageRegister;
-import utils.PhoneNumberUtils;
 
 
 /**

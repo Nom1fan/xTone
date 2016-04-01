@@ -25,12 +25,11 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;
-import com.special.app.R;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
-import utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -45,6 +44,7 @@ import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
+import utils.PhoneNumberUtils;
 import wei.mark.standout.StandOutWindow;
 import wei.mark.standout.constants.StandOutFlags;
 import wei.mark.standout.ui.Window;
@@ -61,6 +61,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected String TAG;
     protected int mWidth;
     protected int mHeight;
+    private int statusBarHeighet;
     protected ImageView mSpecialCallMutUnMuteBtn;
     protected ImageView mSpecialCallVolumeUpBtn;
     protected ImageView mSpecialCallVolumeDownBtn;
@@ -81,7 +82,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     private static final long REPEAT_TIME = 60000;
     private static final String alarmActionIntent = "com.android.special.specialcall.ALARM_ACTION";
     protected boolean mPreviewStart = false;
-
+    protected boolean showFirstTime = false;
     public AbstractStandOutService(String TAG) {
         this.TAG = TAG;
     }
@@ -102,6 +103,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        statusBarHeighet = getStatusBarHeight();
+
         Log.i(TAG, "Service onCreate");
     }
 
@@ -179,6 +183,14 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
             isHidden = false;
         }
+
+    if (showFirstTime) {
+        window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_X_LOCATION_BY_USER),
+                SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_Y_LOCATION_BY_USER)).commit();
+
+        showFirstTime = false;
+    }
+
         return false;
     }
 
@@ -231,6 +243,20 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     @Override
     public boolean onClose(int id, Window window) {
         Log.i(TAG, "onClose");
+        showFirstTime = false;
+        int coordinates[] = new int[2];
+        window.getLocationOnScreen(coordinates);
+
+        // get size of window set last by user
+        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_HEIGHET_BY_USER, window.getHeight());
+        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_WIDTH_BY_USER, window.getWidth());
+
+        // get location of window on screen set last by user
+        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_X_LOCATION_BY_USER,coordinates[0] );
+        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_Y_LOCATION_BY_USER,coordinates[1]-statusBarHeighet); // remove the Heighet of the status bar
+
+        Log.i(TAG, "Heighet: " + String.valueOf(window.getHeight()) + "Width: " + String.valueOf(window.getWidth()) + "X: " +String.valueOf(coordinates[0]) +"Y: " +String.valueOf(coordinates[1]-statusBarHeighet));
+
         stopSound();
 
         return false;
@@ -244,6 +270,16 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         display.getSize(size);
         mWidth = size.x;
         mHeight = size.y * 63 / 100;
+
+        showFirstTime = true;
+
+        if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_WIDTH_BY_USER) > 0)
+                mWidth = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_WIDTH_BY_USER);
+
+        if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_HEIGHET_BY_USER) > 0)
+              mHeight = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_HEIGHET_BY_USER);
+
+
     }
 
     private void prepareRelativeLayout() {
@@ -653,6 +689,15 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     //endregion
 
     //region Helper methods
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
     protected void removeTempMd5ForCallRecord() {
 
         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5);

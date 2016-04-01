@@ -21,7 +21,7 @@ import com.batch.android.Batch;
 import com.data_objects.Constants;
 import com.services.GetTokenIntentService;
 import com.services.LogicServerProxyService;
-import com.special.app.R;
+import com.mediacallz.app.R;
 import com.utils.SharedPrefUtils;
 
 import EventObjects.Event;

@@ -20,7 +20,7 @@ import android.widget.TextView;
 import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Contact;
 import com.data_objects.PermissionBlockListLevel;
-import com.special.app.R;
+import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.SharedPrefUtils;

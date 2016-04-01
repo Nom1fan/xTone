@@ -6,7 +6,7 @@ android {
     buildToolsVersion "22.0.1"
 
     defaultConfig {
-        applicationId "com.special.app"
+        applicationId "com.mediacallz.app"
         minSdkVersion 15
         targetSdkVersion 19
         compileOptions {

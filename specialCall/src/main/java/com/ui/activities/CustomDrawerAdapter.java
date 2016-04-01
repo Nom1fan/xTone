@@ -4,8 +4,6 @@ package com.ui.activities;
  * Created by rony on 06/02/2016.
  */
 
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.view.Gravity;
@@ -17,7 +15,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.special.app.R;
+import com.mediacallz.app.R;
+
+import java.util.List;
 
 public class CustomDrawerAdapter extends ArrayAdapter<DrawerItem> {
 

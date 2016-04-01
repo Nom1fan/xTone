@@ -8,7 +8,7 @@ import android.graphics.BitmapFactory;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
-import com.special.app.R;
+import com.mediacallz.app.R;
 import com.ui.activities.MainActivity;
 import com.ui.components.NotificationHelper;
 

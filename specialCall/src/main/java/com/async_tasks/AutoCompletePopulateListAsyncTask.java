@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 import android.widget.AutoCompleteTextView;
 
 import com.data_objects.Contact;
-import com.special.app.R;
+import com.mediacallz.app.R;
 import com.ui.components.FilterWithSpaceAdapter;
 import com.utils.ContactsUtils;
 

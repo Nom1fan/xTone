@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.data_objects.ActivityRequestCodes;
-import com.special.app.R;
+import com.mediacallz.app.R;
 
 public class Settings extends PreferenceActivity {
 
