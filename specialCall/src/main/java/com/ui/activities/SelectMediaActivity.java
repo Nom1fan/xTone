@@ -176,6 +176,9 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         // Determine Uri of camera image to save.
         String fname = "MyVideo.mp4";
         File sdVideoMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
+
+        sdVideoMainDirectory.delete();
+
         _outputFileUri = Uri.fromFile(sdVideoMainDirectory);
 
 
@@ -184,7 +187,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, _outputFileUri);
         videoIntent.putExtra( MediaStore.EXTRA_DURATION_LIMIT, 30); // set video recording interval
         videoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0); // set the video image quality to low
-
+        videoIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, 15000);
 
         startActivityForResult(videoIntent, code); // // TODO rony: 31/01/2016 see native camera opens and not other weird different cameras
     }
@@ -194,6 +197,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         // Determine Uri of camera image to save.
         String fname = "MyImage.jpeg";
         File sdImageMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
+        sdImageMainDirectory.delete();
         _outputFileUri = Uri.fromFile(sdImageMainDirectory);
 
         // Camera.
@@ -222,6 +226,9 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         String fname = "MyAudioRecording.aac";
         File sdAudioMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
+
+        sdAudioMainDirectory.delete();
+
         _outputFileUri = Uri.fromFile(sdAudioMainDirectory);
 
         recordAudio(sdAudioMainDirectory.getAbsolutePath());
