@@ -399,8 +399,13 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                 recorder.release();
             }
         });
+      try{
         recorder.start();
-        mProgressDialog.show();
+        mProgressDialog.show();}
+      catch (Exception e){
+          e.printStackTrace();
+      }
+
     }
     //endregion
 
