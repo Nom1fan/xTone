@@ -224,7 +224,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if (resultCode == RESULT_OK) {
 
             if (requestCode == ActivityRequestCodes.SELECT_MEDIA) {
-                writeInfoSnackBar(data.getStringExtra("msg"), Color.RED, Snackbar.SnackbarDuration.LENGTH_INDEFINITE);
+                if (data != null)
+                    writeInfoSnackBar(data.getStringExtra("msg"), Color.RED, Snackbar.SnackbarDuration.LENGTH_INDEFINITE);
             }
 
             if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {

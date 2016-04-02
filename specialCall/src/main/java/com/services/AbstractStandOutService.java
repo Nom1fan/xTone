@@ -80,7 +80,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected String mIncomingOutgoingNumber = "";
     protected String mContactTitleOnWindow = "";
     private static final long REPEAT_TIME = 60000;
-    private static final String alarmActionIntent = "com.android.special.specialcall.ALARM_ACTION";
+    private static final String alarmActionIntent = "com.android.mediacallz.ALARM_ACTION";
     protected boolean mPreviewStart = false;
     protected boolean showFirstTime = false;
     public AbstractStandOutService(String TAG) {

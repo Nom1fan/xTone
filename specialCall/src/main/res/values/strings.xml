@@ -12,7 +12,7 @@
     <string name="select_profile_media_title">SELECT PROFILE MEDIA</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
-    <string name="invite">You are Invited to MediaCallz https://play.google.com/apps/testing/com.special.specialcall</string>
+    <string name="invite">You are Invited to MediaCallz https://play.google.com/apps/testing/com.mediacallz.app</string>
     <string name="upload_ticker">File upload in progress</string>
     <string name="content_title">File upload</string>
     <string name="sms_code_failed">Oops! Getting SMS code failed. Please try again...</string>

@@ -145,9 +145,9 @@
             <intent-filter>
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
                 <action android:name="android.intent.action.PHONE_STATE" />
-                <action android:name="com.android.special.specialcall.EVENT_ACTION" />
+                <action android:name="com.android.mediacallz.EVENT_ACTION" />
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-                <action android:name="com.android.special.specialcall.ALARM_ACTION"/>
+                <action android:name="com.android.mediacallz.ALARM_ACTION"/>
             </intent-filter>
         </receiver>
 
@@ -160,13 +160,13 @@
 
         <receiver android:name="com.receivers.BackgroundBroadcastReceiver" >
             <intent-filter>
-                <action android:name="com.android.special.specialcall.EVENT_ACTION" />
+                <action android:name="com.android.mediacallz.EVENT_ACTION" />
             </intent-filter>
         </receiver>
 
         <receiver android:name="com.receivers.DownloadReceiver" >
             <intent-filter>
-                <action android:name="com.android.special.specialcall.EVENT_ACTION" />
+                <action android:name="com.android.mediacallz.EVENT_ACTION" />
             </intent-filter>
         </receiver>
 

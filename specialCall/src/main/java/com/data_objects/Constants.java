@@ -12,7 +12,7 @@ import DataObjects.SharedConstants;
 public class Constants {
 
     // Constants for Batch
-    public static final String GCM_SENDER_ID = "908225653874";
+    public static final String GCM_SENDER_ID = "817954308887";
 
     private static final String INCOMING_FOLDER_NAME = "Incoming_" + SharedConstants.APP_NAME;
     private static final String OUTGOING_FOLDER_NAME = "Outgoing_" + SharedConstants.APP_NAME;

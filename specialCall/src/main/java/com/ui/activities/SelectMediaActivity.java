@@ -195,7 +195,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private void takePicture(int code) {
 
         // Determine Uri of camera image to save.
-        String fname = "MyImage.jpeg";
+        String fname = "MyImage";
         File sdImageMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
         sdImageMainDirectory.delete();
         _outputFileUri = Uri.fromFile(sdImageMainDirectory);
