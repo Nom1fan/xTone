@@ -22,6 +22,7 @@ import MessagesToServer.MessageGetSmsCode;
 import MessagesToServer.MessageInsertMediaCallRecord;
 import MessagesToServer.MessageIsRegistered;
 import MessagesToServer.MessageRegister;
+import MessagesToServer.MessageUnregister;
 
 
 /**
@@ -37,6 +38,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
     //region Service actions
     public static final String ACTION_REGISTER           =      "com.services.LogicServerProxyService.REGISTER";
+    public static final String ACTION_UNREGISTER         =      "com.services.LogicServerProxyService.UNREGISTER";
     public static final String ACTION_ISREGISTERED       =      "com.services.LogicServerProxyService.ISREGISTERED";
     public static final String ACTION_INSERT_CALL_RECORD =      "com.services.LogicServerProxyService.INSERT_CALL_RECORD";
     public static final String ACTION_GET_APP_RECORD     =      "com.services.LogicServerProxyService.GET_APP_RECORD";
@@ -85,6 +87,11 @@ public class LogicServerProxyService extends AbstractServerProxy {
                                 actionRegister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), smsCode);
                                 break;
 
+                            case ACTION_UNREGISTER:
+                                setMidAction(true);
+                                actionUnregister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
+                                break;
+
                             case ACTION_GET_SMS_CODE:
                                 setMidAction(true);
                                 String interPhoneNumber = intentForThread.getStringExtra(INTER_PHONE);
@@ -102,7 +109,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
                                 String destId = intentForThread.getStringExtra(DESTINATION_ID);
                                 actionIsRegistered(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), destId);
                             }
-                            break;
+                                break;
 
                             case ACTION_RECONNECT:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
@@ -183,6 +190,16 @@ public class LogicServerProxyService extends AbstractServerProxy {
                 Constants.MY_BATCH_TOKEN(getApplicationContext()), smsCode);
         Log.i(TAG, "Sending actionRegister message to server...");
         connectionToServer.sendToServer(msgRegister);
+    }
+
+    private void actionUnregister(ConnectionToServer connectionToServer) throws IOException {
+
+        Log.i(TAG, "Initating actionUnregister sequence...");
+        MessageUnregister msgUnregister = new MessageUnregister(
+                Constants.MY_ID(getApplicationContext()),
+                Constants.MY_BATCH_TOKEN(getApplicationContext()));
+        Log.i(TAG, "Sending actionUnregister message to server...");
+        connectionToServer.sendToServer(msgUnregister);
     }
 
     private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, CallRecord callRecord) throws IOException {

@@ -1,10 +1,13 @@
 package DalObjects;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import DataObjects.AppMetaRecord;
 import DataObjects.CallRecord;
+import DataObjects.MediaTransferRecord;
 import DataObjects.TransferDetails;
+import DataObjects.UserRecord;
 
 /**
  * Created by Mor on 16/11/2015.
@@ -16,6 +19,10 @@ public interface IDAL {
     //region Table keys
     String COL_UID                  =   "uid";
     String COL_TOKEN                =   "token";
+    String COL_REGISTERED_DATE      =   "registered_date";
+    String COL_USER_STATUS          =   "user_status";
+    String COL_UNREGISTERED_DATE    =   "unregistered_date";
+    String COL_UNREGISTERED_COUNT   =   "unregistered_count";
     //endregion
     //endregion
 
@@ -72,11 +79,11 @@ public interface IDAL {
     void closeConn();
     void registerUser(String uid, String token) throws SQLException;
     void unregisterUser(String uid, String token) throws SQLException;
-    void updateUserPushToken(String uid, String token) throws SQLException;
+    void reRegisterUser(String uid, String token) throws SQLException;
     int insertMediaTransferRecord(TransferDetails td) throws SQLException;
     void insertMediaCallRecord(CallRecord callRecord) throws SQLException;
     void insertMediaFileRecord(String md5, String extension, int size, String countColToInc) throws SQLException;
-    String getUserPushToken(String uid) throws SQLException;
+    UserRecord getUserRecord(String uid) throws SQLException;
     void updateMediaTransferRecord(int commId, String column, Object value) throws SQLException;
     void updateMediaTransferRecord(int commId, String[] columns, Object[] values) throws SQLException;
     void incrementColumn(String table, String col, String whereCol, String whereVal) throws SQLException;
@@ -85,4 +92,6 @@ public interface IDAL {
     void insertUserSmsVerificationCode(String uid, int code) throws SQLException;
     void updateUserSmsVerificationCode(String uid, int code) throws SQLException;
     int getUserSmsVerificationCode(String uid) throws SQLException;
+    List<MediaTransferRecord> getAllUserMediaTransferRecords(String uid) throws SQLException;
 }
+

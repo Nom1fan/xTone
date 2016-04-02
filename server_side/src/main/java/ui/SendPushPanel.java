@@ -14,7 +14,7 @@ import javax.swing.JTextField;
 
 import DataObjects.PushEventKeys;
 import ServerObjects.BatchPushSender;
-import ServerObjects.ClientsDataAccess;
+import ServerObjects.UsersDataAccess;
 
 /**
  * Created by Mor on 28/03/2016.
@@ -53,14 +53,12 @@ public class SendPushPanel extends JPanel {
 
     private JLabel get_lblMessageContent() {
 
-        JLabel _lblMessageContent = new JLabel("Push content:");
-        return _lblMessageContent;
+        return new JLabel("Push content:");
     }
 
     private JLabel get_lblSendTo() {
 
-        JLabel _lblSendTo = new JLabel("Send push to:");
-        return _lblSendTo;
+        return new JLabel("Send push to:");
     }
 
     private JTextField get_txtFieldContent() {
@@ -87,7 +85,7 @@ public class SendPushPanel extends JPanel {
                 String dest = _txtFieldSendTo.getText();
                 String msg = _txtFieldContent.getText();
 
-                String token = ClientsDataAccess.instance(new MySqlDAL()).getUserPushToken(dest);
+                String token = UsersDataAccess.instance(new MySqlDAL()).getUserPushToken(dest);
 
                 BatchPushSender.sendPush(token, PushEventKeys.SHOW_MESSAGE, "Notification", msg);
             }

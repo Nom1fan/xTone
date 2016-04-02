@@ -2,7 +2,7 @@ package MessagesToServer;
 
 import java.io.IOException;
 import MessagesToClient.MessageRegisterRes;
-import ServerObjects.ClientsDataAccess;
+import ServerObjects.UsersDataAccess;
 import ServerObjects.SmsVerificationAccess;
 
 
@@ -31,7 +31,7 @@ public class MessageRegister extends MessageToServer {
 
         MessageRegisterRes msgReply;
        if(_smsCode == expectedSmsCode) {
-           boolean isOK = ClientsDataAccess.instance(_dal).registerUser(_messageInitiaterId, _pushToken);
+           boolean isOK = UsersDataAccess.instance(_dal).registerUser(_messageInitiaterId, _pushToken);
            msgReply = new MessageRegisterRes(isOK);
 
        } else {

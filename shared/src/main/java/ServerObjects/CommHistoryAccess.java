@@ -1,11 +1,13 @@
 package ServerObjects;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import DalObjects.DALAccesible;
 import DalObjects.IDAL;
 import DataObjects.CallRecord;
+import DataObjects.MediaTransferRecord;
 import DataObjects.SpecialMediaType;
 import DataObjects.TransferDetails;
 import FilesManager.FileManager;
@@ -71,6 +73,17 @@ public class CommHistoryAccess extends DALAccesible {
         } catch (SQLException e) {
             e.printStackTrace();
             _logger.severe("updateMediaTransferRecord failure. [Exception]:" + (e.getMessage() != null ? e.getMessage() : e));
+        }
+    }
+
+    public List<MediaTransferRecord> getAllUserMediaTransferRecords(String uid) {
+
+        try {
+            return _dal.getAllUserMediaTransferRecords(uid);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            _logger.severe("Failed to get all media transfers records for [User]:" + uid);
+            return null;
         }
     }
 

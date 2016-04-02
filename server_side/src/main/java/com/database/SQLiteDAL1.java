@@ -79,7 +79,7 @@
 //
 //
 //    @Override
-//    public String getUserPushToken(final String uid) {
+//    public String getUserRecord(final String uid) {
 //
 //        return myQueue.execute(new SQLiteJob<String>() {
 //            protected String job(SQLiteConnection connection) throws SQLiteException {

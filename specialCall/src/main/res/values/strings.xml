@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">MediaCallz</string>
     <string name="mandatory_update_title">Mandatory Update</string>
     <string name="mandatory_update_content">Uh oh! You must update the app to keep using it!</string>
+    <string name="delete_account_are_you_sure_text">Are you sure you want to delete your account and all data? This is irreversible!</string>
+    <string name="delete_account_failed">Failed to delete account! Please contact MediaCallz support</string>
+    <string name="deleting_account_msg">Deleting account...</string>
     <string name="update">Update</string>
     <string name="close_app">Close</string>
     <string name="action_settings">Settings</string>
@@ -92,7 +94,9 @@
     <string name="clear">Clear</string>
     <!--  popup_menu_profile Layout   -->
     <string name="select_profile_media">Select Profile Media</string>
-
+    <string name="delete_account_title">Delete Account</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
 
     <!--  Settings Layout   -->
     <string-array name="save_media">

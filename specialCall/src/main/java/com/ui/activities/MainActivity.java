@@ -109,14 +109,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
 
+        startLoginActivityIfLoggedOut();
+
         initializeUI();
-
-        if (getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
-
-            Intent i = new Intent(this, LoginActivity.class);
-            startActivity(i);
-            finish();
-        }
     }
 
     @Override
@@ -132,6 +127,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         Log.i(TAG, "onStart()");
 
         Batch.onStart(this);
+
+        startLoginActivityIfLoggedOut();
 
         prepareEventReceiver();
     }
@@ -287,6 +284,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //endregion (on
 
     //region Assisting methods (onClick(), eventReceived(), ...)
+    private void startLoginActivityIfLoggedOut() {
+
+        if (getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
+
+            Intent i = new Intent(this, LoginActivity.class);
+            startActivity(i);
+            finish();
+        }
+    }
+
     private void startPreviewStandoutWindow(SpecialMediaType specialMediaType) {
 
         // close previous
@@ -915,9 +922,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void appSettings() {
 
         saveInstanceState();
-        Intent y = new Intent();
-        y.setClass(getApplicationContext(), Settings.class);
-        startActivity(y);
+//        Intent y = new Intent();
+//        y.setClass(getApplicationContext(), Settings.class);
+//        startActivity(y);
+        Intent intent = new Intent();
+        intent.setClass(MainActivity.this, SetSettingsActivity.class);
+        startActivity(intent);
     }
 
     private void openCallerMediaMenu() {

@@ -1,6 +1,5 @@
 package com.database;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -9,12 +8,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import DalObjects.IDAL;
 import DataObjects.AppMetaRecord;
 import DataObjects.CallRecord;
+import DataObjects.MediaTransferRecord;
 import DataObjects.SharedConstants;
+import DataObjects.SpecialMediaType;
 import DataObjects.TransferDetails;
+import DataObjects.UserRecord;
+import DataObjects.UserStatus;
 import FilesManager.FileManager;
 
 /**
@@ -48,17 +53,20 @@ public class MySqlDAL implements IDAL {
         StringBuilder query = new StringBuilder();
         uid = quote(uid);
         token = quote(token);
+        String userStatus = quote(UserStatus.REGISTERED.toString());
 
         query.
                 append("INSERT INTO ").
                 append(TABLE_USERS).
                 append(" (").
                 append(COL_UID).append(",").
-                append(COL_TOKEN).
+                append(COL_TOKEN).append(",").
+                append(COL_USER_STATUS).
                 append(")").
                 append(" VALUES (").
                 append(uid).append(",").
-                append(token).
+                append(token).append(",").
+                append(userStatus).
                 append(")");
 
         executeQuery(query.toString());
@@ -68,38 +76,58 @@ public class MySqlDAL implements IDAL {
     public void unregisterUser(String uid, String token) throws SQLException {
 
         StringBuilder query = new StringBuilder();
-        uid = quote(uid);
         token = quote(token);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String sNow = quote(sdf.format(new Date()));
+        String userStatus = quote(UserStatus.UNREGISTERED.toString());
 
         query.
-                append("DELETE FROM ").
+                append("UPDATE ").
                 append(TABLE_USERS).
+                append(" SET ").
+                append(COL_USER_STATUS).
+                append("=").
+                append(userStatus).append(",").
+                append(COL_UNREGISTERED_DATE).
+                append("=").
+                append(sNow).
                 append(" WHERE ").
                 append(COL_UID).
                 append("=").
-                append(uid).
+                append(quote(uid)).
                 append(" AND ").
                 append(COL_TOKEN).
                 append("=").
                 append(token);
 
         executeQuery(query.toString());
+
+        incrementColumn(TABLE_USERS, COL_UNREGISTERED_COUNT, COL_UID, uid);
     }
 
     @Override
-    public String getUserPushToken(String uid) throws SQLException {
+    public UserRecord getUserRecord(String uid) throws SQLException {
 
-        String query = "SELECT " + COL_TOKEN + " FROM " + TABLE_USERS + " WHERE " + COL_UID + "=" + quote(uid);
+        String query = "SELECT *" + " FROM " + TABLE_USERS + " WHERE " + COL_UID + "=" + quote(uid);
         Statement st = null;
         ResultSet resultSet = null;
-        String token = "";
+        UserRecord record = null;
 
         try {
             initConn(); // Must init before each query since after 8 hours the connection is timed out
             st = _dbConn.createStatement();
             resultSet = st.executeQuery(query);
-            if (resultSet.first())
-                token = resultSet.getString(1);
+            while (resultSet.next()) {
+                record = new UserRecord(
+                        resultSet.getString(1), // uid
+                        resultSet.getString(2), // token
+                        resultSet.getDate(3),   // registered_date
+                        Enum.valueOf(UserStatus.class, // user_status
+                        resultSet.getString(4)),
+                        resultSet.getDate(5),   // unregistered_date
+                        resultSet.getInt(6)     // unregistered_count
+                );
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;
@@ -116,7 +144,7 @@ public class MySqlDAL implements IDAL {
                 }
             closeConn();
         }
-        return token;
+        return record;
     }
 
     @Override
@@ -207,10 +235,27 @@ public class MySqlDAL implements IDAL {
     }
 
     @Override
-    public void updateUserPushToken(String uid, String token) throws SQLException {
+    public void reRegisterUser(String uid, String token) throws SQLException {
 
-        String query = "UPDATE " + TABLE_USERS + " SET " + COL_TOKEN + "=" + quote(token) + " WHERE " + COL_UID + "=" + quote(uid);
-        executeQuery(query);
+        StringBuilder query = new StringBuilder();
+        String userStatus = quote(UserStatus.REGISTERED.toString());
+
+        query.
+                append("UPDATE ").
+                append(TABLE_USERS).
+                append(" SET ").
+                append(COL_TOKEN).
+                append("=").
+                append(quote(token)).append(",").
+                append(COL_USER_STATUS).
+                append("=").
+                append(userStatus).
+                append(" WHERE ").
+                append(COL_UID).
+                append("=").
+                append(quote(uid));
+
+        executeQuery(query.toString());
     }
 
     @Override
@@ -393,6 +438,51 @@ public class MySqlDAL implements IDAL {
             closeConn();
         }
         return code;
+    }
+
+    @Override
+    public List<MediaTransferRecord> getAllUserMediaTransferRecords(String uid) throws SQLException {
+
+        String query = "SELECT *" + " FROM " + TABLE_MEDIA_TRANSFERS + " WHERE " + COL_UID_SRC + "=" + quote(uid);
+        Statement st = null;
+        ResultSet resultSet = null;
+        List<MediaTransferRecord> records = new LinkedList<MediaTransferRecord>();
+
+        try {
+            initConn(); // Must init before each query since after 8 hours the connection is timed out
+            st = _dbConn.createStatement();
+            resultSet = st.executeQuery(query);
+            while (resultSet.next()) {
+
+                records.add(new MediaTransferRecord(
+                        resultSet.getInt(1),    // transfer_id
+                        Enum.valueOf(SpecialMediaType.class, resultSet.getString(2)), // type
+                        resultSet.getString(3), // md5
+                        resultSet.getString(4), // uid_src
+                        resultSet.getString(5), // uid_dest
+                        resultSet.getDate(6),   // datetime
+                        (resultSet.getInt(7)!=0), // transfer_success
+                        resultSet.getDate(8)    // transfer_datetime
+                ));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (st != null)
+                try {
+                    st.close();
+                } catch (SQLException ignored) {
+                }
+            if (resultSet != null)
+                try {
+                    resultSet.close();
+                } catch (SQLException ignored) {
+                }
+            closeConn();
+        }
+        return records;
     }
 
     @Override

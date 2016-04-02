@@ -2,6 +2,8 @@ package com.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,6 +24,23 @@ public abstract class SharedPrefUtils {
     public static final String PROFILE_MEDIA_FILEPATH = "ProfileMediaFilePath";
     public static final String FUNTONE_FILEPATH = "FunToneFilePath";
     //endregion
+
+    public static final Set<String> allSharedPrefs = new HashSet<> (Arrays.asList(
+
+                GENERAL,
+                SETTINGS,
+                SERVICES,
+                RADIO_BUTTON_SETTINGS,
+                SERVER_PROXY,
+                UPLOADED_CALLER_MEDIA_THUMBNAIL,
+                UPLOADED_RINGTONE_PATH,
+                UPLOADED_PROFILE_MEDIA_THUMBNAIL,
+                UPLOADED_FUNTONE_PATH,
+                CALLER_MEDIA_FILEPATH,
+                RINGTONE_FILEPATH,
+                PROFILE_MEDIA_FILEPATH,
+                FUNTONE_FILEPATH
+            ));
 
     //region Shared pref keys under GENERAL
     public static final String DESTINATION_NUMBER = "DestinationNumber";
@@ -145,7 +164,18 @@ public abstract class SharedPrefUtils {
     public static void remove(Context context, String prefsName) {
 
         SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
-        prefs.edit().clear();
+        prefs.edit().clear().commit();
+    }
+
+    /**
+     * Removes all keys from all shared preferences except app state
+     * @param context
+     */
+    public static void removeAll(Context context) {
+
+        for(String sharedPrefsName : allSharedPrefs) {
+            remove(context, sharedPrefsName);
+        }
     }
 
     //endregion

@@ -7,17 +7,23 @@ import android.graphics.Color;
 import android.util.Log;
 
 import com.app.AppStateManager;
+import com.data_objects.Constants;
 import com.data_objects.SnackbarData;
 import com.nispok.snackbar.Snackbar;
+import com.ui.activities.LoginActivity;
 import com.utils.BroadcastUtils;
 import com.utils.CacheUtils;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
 
+import java.io.File;
+import java.io.IOException;
+
 import DataObjects.TransferDetails;
 import EventObjects.Event;
 import EventObjects.EventReport;
 import EventObjects.EventType;
+import FilesManager.FileManager;
 
 /**
  * Created by Mor on 01/10/2015.
@@ -31,11 +37,13 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
         EventReport report = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
 
+        Log.i(TAG, "Receiving event:" + report.status());
+
         //Ignore refresh UI event sent from here on the same events channel
         if (report.status().equals(EventType.REFRESH_UI))
             return;
 
-        SnackbarData snackbarData = null;
+        SnackbarData snackbarData;
         Snackbar.SnackbarDuration sBarDuration = null;
         int color = 0;
 
@@ -45,8 +53,8 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 // Setting loading state
                 String timeOutMsg = "Oops! Please check your internet connection.";
                 AppStateManager.setAppState(context, TAG + " RECONNECT ATTEMPT",
-                        AppStateManager.createLoadingState(new EventReport(EventType.DISCONNECTED, timeOutMsg, null), 0));
-                SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, report.desc());
+                        AppStateManager.createLoadingState(new EventReport(EventType.DISCONNECTED, timeOutMsg, null), 0),
+                        report.desc());
 
                 // Setting parameters for snackbar message
                 color = Color.RED;
@@ -58,8 +66,8 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 // Setting loading state
                 String msg = "Oops! Please try again.";
                 AppStateManager.setAppState(context, TAG + " FETCHING_USER_DATA",
-                        AppStateManager.createLoadingState(new EventReport(EventType.ISREGISTERED_ERROR, msg, null), 10 * 1000));
-                SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, report.desc());
+                        AppStateManager.createLoadingState(new EventReport(EventType.ISREGISTERED_ERROR, msg, null), 10 * 1000),
+                        report.desc());
 
                 // Setting parameters for snackbar message
                 color = Color.GREEN;
@@ -71,9 +79,8 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 // Setting loading state
                 String msg = "Oops! Please check your internet connection.";
                 AppStateManager.setAppState(context, TAG + " CONNECTING",
-                        AppStateManager.createLoadingState(new EventReport(EventType.DISCONNECTED, msg, null), 0));
-                SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, report.desc());
-
+                        AppStateManager.createLoadingState(new EventReport(EventType.DISCONNECTED, msg, null), 0),
+                        report.desc());
                 // Setting parameters for snackbar message
                 color = Color.GREEN;
                 sBarDuration = Snackbar.SnackbarDuration.LENGTH_INDEFINITE;
@@ -84,8 +91,8 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 // Setting loading state
                 String timeoutMsg = "Oops! Compression took too long!";
                 AppStateManager.setAppState(context, TAG,
-                        AppStateManager.createLoadingState(new EventReport(EventType.REFRESH_UI, timeoutMsg, null), 15 * 1000));
-                SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, report.desc());
+                        AppStateManager.createLoadingState(new EventReport(EventType.REFRESH_UI, timeoutMsg, null), 15 * 1000),
+                        report.desc());
 
                 // Setting parameters for snackbar message
                 color = Color.GREEN;
@@ -97,8 +104,8 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 // Setting loading state
                 String timeoutMsg = "Oops! upload took too long!";
                 AppStateManager.setAppState(context, TAG,
-                        AppStateManager.createLoadingState(new EventReport(EventType.REFRESH_UI, timeoutMsg, null), 15 * 1000));
-                SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, report.desc());
+                        AppStateManager.createLoadingState(new EventReport(EventType.REFRESH_UI, timeoutMsg, null), 15 * 1000),
+                        report.desc());
 
                 // Setting parameters for snackbar message
                 color = Color.GREEN;
@@ -175,6 +182,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
             case USER_REGISTERED_FALSE:
             case ISREGISTERED_ERROR:
             case UPLOAD_FAILURE:
+            case UNREGISTER_FAILURE:
                 // Setting app state
                 AppStateManager.setAppState(context, TAG, AppStateManager.STATE_IDLE);
 
@@ -183,12 +191,30 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 sBarDuration = Snackbar.SnackbarDuration.LENGTH_LONG;
                 break;
 
-            //TODO Mor: Implement UNREGISTER_SUCCESS and UNREGISTER_FAILURE events handling
             case UNREGISTER_SUCCESS:
+                try {
+
+                    //TODO Decide if we should delete MEDIA_CALLZ_HISTORY folder contents too or not
+                    FileManager.deleteDirectoryContents(new File(Constants.INCOMING_FOLDER));
+                    FileManager.deleteDirectoryContents(new File(Constants.OUTGOING_FOLDER));
+                    FileManager.deleteDirectoryContents(new File(Constants.TEMP_RECORDING_FOLDER));
+
+                    //TODO Make sure this doesn't create issues since it delete all app states and such
+                    SharedPrefUtils.removeAll(context);
+
+                    AppStateManager.setAppState(context, TAG, AppStateManager.STATE_LOGGED_OUT);
+                    Intent i = new Intent(context, LoginActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    context.startActivity(i);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "Failed during unregister procedure. [Exception]:"
+                            + (e.getMessage() != null ? e.getMessage() : e));
+                }
                 break;
 
-            case UNREGISTER_FAILURE:
-                break;
             //endregion
 
             default: // Event not meant for background receiver

@@ -66,6 +66,7 @@ public class GenericServer extends AbstractServer {
         try {
             msg.set_clientConnection(ctc);
             msg.set_dal(DalFactory.getCurrentDal());
+            msg.verifyUserRegistration();
             boolean cont = msg.doServerAction();
             if(!cont)
                 closeConnectionToClient(ctc);

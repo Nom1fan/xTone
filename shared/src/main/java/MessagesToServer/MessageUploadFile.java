@@ -17,7 +17,7 @@ import EventObjects.EventType;
 import FilesManager.FileManager;
 import MessagesToClient.MessageTriggerEventOnly;
 import ServerObjects.BatchPushSender;
-import ServerObjects.ClientsDataAccess;
+import ServerObjects.UsersDataAccess;
 import ServerObjects.CommHistoryAccess;
 
 public class MessageUploadFile extends MessageToServer {
@@ -106,7 +106,7 @@ public class MessageUploadFile extends MessageToServer {
             _logger.severe("Upload from [Source]:" + _messageInitiaterId + " to [Destination]:" + _destId + " Failed. [Exception]:" + e.getMessage());
             String title = "Oops!";
             String errMsg = "Your media to " + _destId + " was lost on the way! Please try again.";
-            String token = ClientsDataAccess.instance(_dal).getUserPushToken(_messageInitiaterId);
+            String token = UsersDataAccess.instance(_dal).getUserPushToken(_messageInitiaterId);
             //_cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_FAILURE, errMsg, null)));
             BatchPushSender.sendPush(token, PushEventKeys.SHOW_MESSAGE, title, errMsg);
 
@@ -130,14 +130,14 @@ public class MessageUploadFile extends MessageToServer {
         // Sending file to destination
         _td.set_commId(commId);
         _td.set_filePathOnServer(fileFullPath.toString());
-        String destToken = ClientsDataAccess.instance(_dal).getUserPushToken(_destId);
+        String destToken = UsersDataAccess.instance(_dal).getUserPushToken(_destId);
         String pushEventAction = PushEventKeys.PENDING_DOWNLOAD;
         boolean sent = BatchPushSender.sendPush(destToken, pushEventAction, _td);
 
         if (!sent) {
             String title = "Media undelivered";
             String errMsg = "Oops! " + _destId + " did not receive your media! Try again.";
-            String initiaterToken = ClientsDataAccess.instance(_dal).getUserPushToken(_messageInitiaterId);
+            String initiaterToken = UsersDataAccess.instance(_dal).getUserPushToken(_messageInitiaterId);
             // Informing source (uploader) that the file was not sent to destination
             BatchPushSender.sendPush(initiaterToken, PushEventKeys.SHOW_MESSAGE, title, errMsg);
         }

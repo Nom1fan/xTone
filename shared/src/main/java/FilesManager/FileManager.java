@@ -1,5 +1,7 @@
 package FilesManager;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -410,6 +412,18 @@ public class FileManager implements Serializable {
 
         return(directory.delete());
 
+    }
+
+    /**
+     * Deleting a directory's contents recursively
+     * @param directory - The directory to delete its contents
+     * @return
+     * @throws NullPointerException
+     * @throws FileNotFoundException
+     */
+    public static void deleteDirectoryContents(File directory) throws NullPointerException, IOException {
+
+        FileUtils.cleanDirectory(directory);
     }
 
     public static String extractExtension(String filePath) throws FileMissingExtensionException{

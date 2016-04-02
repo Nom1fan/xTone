@@ -29,9 +29,6 @@ public abstract class SmsSender {
                                                 "&sender=" + SENDER + "&SMSText=%s" + "&type=" + TYPE + "&GSM=%s";
     private static Logger _logger           =   LogsManager.get_serverLogger();
 
-
-    //http://193.105.74.159/api/v3/sendsms/plain?user=internationalsms&password=GPDfmn4z&sender=KAPNFO&SMSText=TEST&type=longsms&GSM=9929882XXXX
-
     public static void sendSms(final String dest, final String msg) {
 
         new Thread() {

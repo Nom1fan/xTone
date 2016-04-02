@@ -1,6 +1,8 @@
 package com.utils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.data_objects.Constants;
@@ -243,4 +245,13 @@ public abstract class FFMPEG_Utils {
         return null;
     }
 
+    public static int[] getImageResolution(String filePath) {
+
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+        int height = bitmap.getHeight();
+        int width = bitmap.getWidth();
+        bitmap.recycle();
+
+        return new int[] {  width, height };
+    }
 }

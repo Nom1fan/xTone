@@ -5,11 +5,10 @@ import java.io.Serializable;
 import java.util.logging.Logger;
 
 import DalObjects.IDAL;
+import Exceptions.UserUnregisteredException;
 import LogObjects.LogsManager;
 import MessagesToClient.MessageToClient;
-import ServerObjects.AppMetaAccess;
-import ServerObjects.ClientsDataAccess;
-import ServerObjects.CommHistoryAccess;
+import ServerObjects.UsersDataAccess;
 import ServerObjects.ConnectionToClient;
 
 /**
@@ -59,6 +58,14 @@ public abstract class MessageToServer implements Serializable  {
     }
 
 	abstract public boolean doServerAction() throws IOException, ClassNotFoundException;
+    public final void verifyUserRegistration() throws UserUnregisteredException {
+
+        if(!(this instanceof MessageRegister) && !(this instanceof MessageGetSmsCode)) {
+            boolean isRegistered = UsersDataAccess.instance(_dal).isRegistered(_messageInitiaterId);
+            if(!isRegistered)
+                throw new UserUnregisteredException("User " + _messageInitiaterId + " has attempted to perform an action but is unregistered");
+        }
+    }
 	public final void set_clientConnection(ConnectionToClient cc) { _clientConnection = cc; setId(); }
     public void set_dal(IDAL _dal) { this._dal = _dal; }
     private void setId() {
@@ -67,5 +74,6 @@ public abstract class MessageToServer implements Serializable  {
     protected final ConnectionToClient get_clientConnection() {
         return _clientConnection;
     }
+
 
 }

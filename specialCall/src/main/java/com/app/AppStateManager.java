@@ -20,8 +20,8 @@ public class AppStateManager {
     public static final String STATE_READY = "Ready";
     public static final String STATE_IDLE = "Idle";
     public static final String STATE_LOADING = "Loading";
+    public static final int MAXIMUM_TIMEOUT_IN_MILLISECONDS = 20 * 1000;
     private static final String TAG = AppStateManager.class.getSimpleName();
-    private static final int MAXIMUM_TIMEOUT_IN_MILLISECONDS = 20 * 1000;
     private static Thread mLoadingTimeoutThread;
 
     /**
@@ -48,12 +48,14 @@ public class AppStateManager {
      * @param tag          The tag of the component setting the loading state
      * @param loadingState The loading state containing a loading timeout message and a timeout in milliseconds
      */
-    public synchronized static void setAppState(Context context, String tag, LoadingState loadingState) {
+    public synchronized static void setAppState(Context context, String tag, LoadingState loadingState, String loadingMsg) {
+
+        SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, loadingMsg);
 
         String curState = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE);
         Log.i(TAG, tag + " changes state from [" + curState + "] to: [" + STATE_LOADING + "]");
         saveCurrAppState(context, curState);
-        SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE, STATE_LOADING);
+        setAppState(context, tag, STATE_LOADING);
         if (loadingState.get_loadingTimeout() > 0)
             setLoadingTimeout(context, loadingState);
     }

@@ -3,7 +3,7 @@ package MessagesToServer;
 import java.io.IOException;
 
 import MessagesToClient.MessageUnregisterRes;
-import ServerObjects.ClientsDataAccess;
+import ServerObjects.UsersDataAccess;
 
 /**
  * Created by Mor on 29/01/2016.
@@ -25,11 +25,12 @@ public class MessageUnregister extends MessageToServer {
 
         initLogger();
 
-        boolean isSuccessful = ClientsDataAccess.instance(_dal).unregisterUser(_myId, _myToken);
+        boolean isSuccessful = UsersDataAccess.instance(_dal).unregisterUser(_myId, _myToken);
         if(isSuccessful)
             _logger.info("Unregister was successful");
         else
             _logger.info("Unregister failed. Check stack trace log for more information...");
+
         replyToClient(new MessageUnregisterRes(isSuccessful));
 
         return _cont;

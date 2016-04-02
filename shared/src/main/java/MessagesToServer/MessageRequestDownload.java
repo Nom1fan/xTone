@@ -18,8 +18,8 @@ import FilesManager.FileManager;
 import MessagesToClient.MessageDownloadFile;
 import MessagesToClient.MessageTriggerEventOnly;
 import ServerObjects.BatchPushSender;
-import ServerObjects.ClientsDataAccess;
 import ServerObjects.CommHistoryAccess;
+import ServerObjects.UsersDataAccess;
 
 /**
  * Created by Mor on 09/10/2015.
@@ -71,7 +71,7 @@ public class MessageRequestDownload extends MessageToServer {
             // Informing source (uploader) that file received by user (downloader)
             String title = "Media ready!";
             String msg = "Media for "+_td.getDestinationId()+ " is ready!";
-            String token = ClientsDataAccess.instance(_dal).getUserPushToken(_td.getSourceId());
+            String token = UsersDataAccess.instance(_dal).getUserPushToken(_td.getSourceId());
             sent = BatchPushSender.sendPush(token, PushEventKeys.TRANSFER_SUCCESS, title , msg, _td);
             if(!sent)
                 _logger.warning("Failed to inform user " + _td.getSourceId() + " of transfer success to user: " + _td.getDestinationId());
@@ -112,7 +112,7 @@ public class MessageRequestDownload extends MessageToServer {
         // Informing sender that file did not reach destination
         _logger.severe("Informing sender:"+_td.getSourceId()+" that file did not reach destination:"+_td.getDestinationId());
         String senderId = _td.getSourceId();
-        String senderToken = ClientsDataAccess.instance(_dal).getUserPushToken(senderId);
+        String senderToken = UsersDataAccess.instance(_dal).getUserPushToken(senderId);
         if(!senderToken.equals(""))
             BatchPushSender.sendPush(senderToken, PushEventKeys.SHOW_MESSAGE, title, msgTransferFailed);
         else

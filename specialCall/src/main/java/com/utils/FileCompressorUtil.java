@@ -76,13 +76,13 @@ public abstract class FileCompressorUtil {
 
                 BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.COMPRESSING, "Compressing file...", null));
 
-                int width = FFMPEG_Utils.getImageResolution(baseFile, context)[0];
+                int width = FFMPEG_Utils.getImageResolution(baseFile.getFileFullPath())[0];
 
                 // If image resolution is larger than IMAGE_MIN_RESOLUTION we start lowering resolution
                 while (width > IMAGE_MIN_RESOLUTION && modifiedFile.getFileSize() > IMAGE_SIZE_COMPRESS_NEEDED) {
 
                     modifiedFile = FFMPEG_Utils.compressImageFile(baseFile, outPath, width, context);
-                    width = FFMPEG_Utils.getImageResolution(baseFile, context)[0];
+                    width = FFMPEG_Utils.getImageResolution(modifiedFile.getFileFullPath())[0];
                 }
 
                 modifiedFile.set_uncompdFileFullPath(baseFile.getFileFullPath());

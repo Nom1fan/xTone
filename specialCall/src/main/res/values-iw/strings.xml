@@ -5,6 +5,10 @@
 
     <string name="mandatory_update_title">שדרוג חובה</string>
     <string name="mandatory_update_content">או או! אתה מוכרח לעדכן את האפליקציה</string>
+    <string name="delete_account_are_you_sure_text">אתה בטוח שברצונך למחוק את החשבון ואת כל המידע? הפעולה לא ניתנת לשחזור!</string>
+    <string name="delete_account_failed">מחיקת החשבון נכשלה! אנא צור קשר עם התמיכה</string>
+    <string name="delete_account_title">מחק חשבון</string>
+    <string name="deleting_account_msg">מחיקת החשבון מתבצעת...</string>
     <string name="update">עדכן</string>
     <string name="close_app">סגור</string>
     <string name="initial_upload_text">העלאה בתור</string>
@@ -96,7 +100,8 @@
     <string name="clear">נקה</string>
     <!--  popup_menu_profile Layout   -->
     <string name="select_profile_media">בחר מדיה לשיחה נכנסת</string>
-
+    <string name="confirm">אישור</string>
+    <string name="cancel">ביטול</string>
 
     <!--  Settings Layout   -->
     <string-array name="save_media">
