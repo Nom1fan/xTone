@@ -90,24 +90,26 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
             }
         }
 
-        Log.i(TAG, "Deleting "+_td.getDestinationId()+"'s outgoing folder after upload");
-        File specialCallOutgoingDir = new File(Constants.TEMP_COMPRESSED_FOLDER +_td.getDestinationId());
+        Log.i(TAG, "Deleting "+_td.getDestinationId()+"'s temp compressed folder after upload");
+        File tempCompressedDir = new File(Constants.TEMP_COMPRESSED_FOLDER +_td.getDestinationId());
 
-        String[] entries = specialCallOutgoingDir.list();
+        String[] entries = tempCompressedDir.list();
         for (String s : entries) {
-            File currentFile = new File(specialCallOutgoingDir.getPath(), s);
+            File currentFile = new File(tempCompressedDir.getPath(), s);
             currentFile.delete();
         }
 
         return null;
     }
 
+    @Override
     protected void onProgressUpdate(String... progress) {
         //This method runs on the UI thread, it receives progress updates
         //from the background thread and publishes them to the status bar
         //mNotificationHelper.progressUpdate(progress[0]);
     }
 
+    @Override
     protected void onPostExecute(Void result)    {
 
         // The task is complete, tell the status bar about it
@@ -115,6 +117,7 @@ public class UploadTask extends AsyncTask<Void,String,Void> {
         // NotificationUtils.freeHelperSpace();
         //The task is complete, tell the call back listener about it
         _callBackListener.doCallBackAction();
+        _context = null;
     }
 
 }

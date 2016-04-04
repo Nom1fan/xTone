@@ -23,7 +23,10 @@
     <string name="upload_ticker">קובץ בהעלאה</string>
     <string name="content_title">קובץ עלה בהצלחה</string>
     <string name="sms_code_failed">אופס! קבלת מסרון קוד נכשלה. אנא נסה שוב...</string>
-
+    <string name="get_sms_wait_text">הקוד צריך להגיע בעוד %1$d שניות...</string>
+    <string name="get_sms_not_arrived">קוד לא התקבל? נסה שוב!</string>
+    <string name="get_sms_time_till_retry">אתה רשאי לנסות שוב בעוד %1$d שניות...</string>
+    <string name="get_sms_you_may_retry">אתה רשאי לנסות שוב כעת</string>
 
 
     <!-- ### Activities ###  -->
@@ -102,6 +105,7 @@
     <string name="select_profile_media">בחר מדיה לשיחה נכנסת</string>
     <string name="confirm">אישור</string>
     <string name="cancel">ביטול</string>
+
 
     <!--  Settings Layout   -->
     <string-array name="save_media">

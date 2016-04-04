@@ -63,7 +63,7 @@ public abstract class MessageToServer implements Serializable  {
         if(!(this instanceof MessageRegister) && !(this instanceof MessageGetSmsCode)) {
             boolean isRegistered = UsersDataAccess.instance(_dal).isRegistered(_messageInitiaterId);
             if(!isRegistered)
-                throw new UserUnregisteredException("User " + _messageInitiaterId + " has attempted to perform an action but is unregistered");
+                throw new UserUnregisteredException("User " + _messageInitiaterId + " has attempted to perform an action:" + this.getClass() + " but is unregistered");
         }
     }
 	public final void set_clientConnection(ConnectionToClient cc) { _clientConnection = cc; setId(); }

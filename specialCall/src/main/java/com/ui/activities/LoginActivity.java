@@ -17,16 +17,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.app.AppStateManager;
+import com.async_tasks.GetSmsCodeTask;
 import com.batch.android.Batch;
 import com.data_objects.Constants;
+import com.mediacallz.app.R;
 import com.services.GetTokenIntentService;
 import com.services.LogicServerProxyService;
-import com.mediacallz.app.R;
 import com.utils.SharedPrefUtils;
 
 import EventObjects.Event;
 import EventObjects.EventReport;
-import utils.PhoneNumberUtils;
 
 
 /**
@@ -46,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button _getSmsCodeBtn;
     private ProgressBar _initProgressBar;
     private TextView _initTextView;
+    private GetSmsCodeTask _getSmsCodeTask;
     //endregion
 
     //region Activity methods (onCreate(), onPause(), ...)
@@ -181,13 +182,14 @@ public class LoginActivity extends AppCompatActivity {
                 String smsVerificationCode = _smsCodeVerEditText.getText().toString();
                 String loginNumber = _loginNumberEditText.getText().toString();
 
-                SharedPrefUtils.setString(getApplicationContext(),
-                        SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, loginNumber);
+                Constants.MY_ID(getApplicationContext(), loginNumber);
 
                 Intent i = new Intent(getApplicationContext(), LogicServerProxyService.class);
                 i.setAction(LogicServerProxyService.ACTION_REGISTER);
                 i.putExtra(LogicServerProxyService.SMS_CODE, Integer.parseInt(smsVerificationCode));
                 startService(i);
+
+                _getSmsCodeTask.cancel(true);
             }
         });
     }
@@ -202,16 +204,8 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 String phoneNumber = _loginNumberEditText.getText().toString();
-                String interPhoneNumber = PhoneNumberUtils.toValidInternationalPhoneNumber(
-                        phoneNumber,
-                        PhoneNumberUtils.Country.IL);
-
-                Constants.MY_ID(getApplicationContext(), phoneNumber);
-
-                Intent i = new Intent(getApplicationContext(), LogicServerProxyService.class);
-                i.setAction(LogicServerProxyService.ACTION_GET_SMS_CODE);
-                i.putExtra(LogicServerProxyService.INTER_PHONE, interPhoneNumber);
-                startService(i);
+                _getSmsCodeTask = new GetSmsCodeTask(getApplicationContext(), _initTextView, _getSmsCodeBtn);
+                _getSmsCodeTask.execute(phoneNumber);
             }
         });
     }

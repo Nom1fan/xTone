@@ -18,6 +18,10 @@
     <string name="upload_ticker">File upload in progress</string>
     <string name="content_title">File upload</string>
     <string name="sms_code_failed">Oops! Getting SMS code failed. Please try again...</string>
+    <string name="get_sms_wait_text">The code should arrive in %1$d seconds...</string>
+    <string name="get_sms_not_arrived">Code did not arrive? Try again!</string>
+    <string name="get_sms_time_till_retry">You may retry in %1$d seconds...</string>
+    <string name="get_sms_you_may_retry">You may now retry</string>
 
 
     <!-- ### Activities ###  -->
@@ -109,11 +113,5 @@
         <item >"Ask me"</item>
         <item >"Never save"</item>
     </string-array>
-
-
-
-
-
-
 
 </resources>

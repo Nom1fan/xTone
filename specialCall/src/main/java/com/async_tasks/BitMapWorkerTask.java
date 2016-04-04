@@ -27,7 +27,7 @@ import FilesManager.FileManager;
 public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
 
     private final String TAG = BitMapWorkerTask.class.getSimpleName();
-    private final WeakReference<ImageView> imageComponentWeakReference;
+    private final WeakReference<ImageView> _imageComponentWeakReference;
     private FileManager.FileType _fileType;
     private int _height;
     private int _width;
@@ -39,7 +39,7 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
 
     public BitMapWorkerTask(ImageView imageComponent) {
         // Use a WeakReference to ensure the ImageView can be garbage collected
-        imageComponentWeakReference = new WeakReference<>(imageComponent);
+        _imageComponentWeakReference = new WeakReference<>(imageComponent);
     }
 
     // Decode image in background.
@@ -79,8 +79,8 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
     // Once complete, see if ImageView is still around and set bitmap.
     @Override
     protected void onPostExecute(Bitmap bitmap) {
-        if (imageComponentWeakReference != null && bitmap != null) {
-            final ImageView imageComponent = imageComponentWeakReference.get();
+        if (_imageComponentWeakReference != null && bitmap != null) {
+            final ImageView imageComponent = _imageComponentWeakReference.get();
 
             if (imageComponent != null)
                 imageComponent.setImageBitmap(bitmap);
