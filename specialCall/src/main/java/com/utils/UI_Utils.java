@@ -1,5 +1,6 @@
 package com.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -9,6 +10,9 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import java.lang.reflect.Field;
 
@@ -78,4 +82,17 @@ public abstract class UI_Utils {
             }
         }
     }
+
+    public static void showCaseView(Activity activity, ViewTarget target, String title, String details) {
+
+        Log.i(TAG, "Title: "+ title + " details: " + details);
+        new ShowcaseView.Builder(activity)
+                .setTarget(target)
+                .setContentTitle(title)
+                .setContentText(details)
+                .hideOnTouchOutside().withMaterialShowcase()
+                .build();
+
+    }
+
 }

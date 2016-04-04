@@ -41,6 +41,9 @@ import com.batch.android.Batch;
 import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Contact;
 import com.data_objects.SnackbarData;
+import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.interfaces.ICallbackListener;
 import com.mediacallz.app.R;
 import com.nispok.snackbar.Snackbar;
@@ -56,6 +59,7 @@ import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
+import com.utils.UI_Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -169,6 +173,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             restoreInstanceState();
 
             getAppRecord();
+
+            showCaseViewCallNumber();
         }
 
     }
@@ -882,7 +888,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 BlockMCContacts();
                 break;
             case 2: // How To?
-                //TODO IMPLEMET Case
+                resetShowcases();
                 break;
             case 3: // Share Us
                 shareUs();
@@ -907,6 +913,112 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         setTitle(dataList.get(position).getItemName());*/
         _mDrawerLayout.closeDrawer(_DrawerList);
 
+    }
+
+    private void resetShowcases() {
+
+        _mDrawerLayout.closeDrawer(GravityCompat.START);
+        AutoCompleteTextView textViewToClear = (AutoCompleteTextView) findViewById(R.id.CallNumber);
+        textViewToClear.setText("");
+
+
+        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW, false);
+        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, false);
+        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW, false);
+
+        showCaseViewCallNumber();
+    }
+
+    private void showCaseViewCallNumber() {
+        if (!(SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))) {
+            ViewTarget targetCallNumber = new ViewTarget(R.id.CallNumber, MainActivity.this);
+            UI_Utils.showCaseView(MainActivity.this, targetCallNumber, getResources().getString(R.string.callnumber_sv_title), getResources().getString(R.string.callnumber_sv_details));
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW, true);
+        }
+    }
+
+    private void showCaseViewSelectMedia(){
+        if (!(SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW))) {
+            ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectMediaBtn, this);
+            ShowcaseView sv = new ShowcaseView.Builder(MainActivity.this)
+                    .setTarget(targetSelectMediaView)
+                    .setContentTitle(getResources().getString(R.string.callermedia_sv_title))
+                    .setContentText(getResources().getString(R.string.callermedia_sv_details))
+                    .hideOnTouchOutside().
+                            withMaterialShowcase().build();
+
+            sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
+                @Override
+                public void onShowcaseViewHide(ShowcaseView showcaseView) {
+
+                    showCaseViewSelectProfile();
+                }
+
+                @Override
+                public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+                }
+
+                @Override
+                public void onShowcaseViewShow(ShowcaseView showcaseView) {
+                }
+
+                @Override
+                public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
+                }
+            });
+
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, true);
+        }
+    }
+
+    private void showCaseViewSelectProfile() {
+
+        ViewTarget targetProfileView = new ViewTarget(R.id.selectProfileMediaBtn, this);
+        UI_Utils.showCaseView(MainActivity.this, targetProfileView, getResources().getString(R.string.profile_sv_title), getResources().getString(R.string.profile_sv_details));
+}
+
+    private void showCaseViewCall() {
+
+        ViewTarget targetCallView = new ViewTarget(R.id.CallNow, this);
+        UI_Utils.showCaseView(MainActivity.this, targetCallView, getResources().getString(R.string.call_sv_title), getResources().getString(R.string.call_sv_details));
+    }
+
+    private void showCaseViewAfterUploadAndCall() {
+
+      if (!(SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW)))
+        {
+        ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectMediaBtn, this);
+        ShowcaseView sv = new ShowcaseView.Builder(MainActivity.this)
+                .setTarget(targetSelectMediaView)
+                .setContentTitle(getResources().getString(R.string.callermedia_sv_title))
+                .setContentText(getResources().getString(R.string.callermedia_sv_details_image_ringtone))
+                .hideOnTouchOutside().
+                        withMaterialShowcase().build();
+
+        sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
+            @Override
+            public void onShowcaseViewHide(ShowcaseView showcaseView) {
+
+                showCaseViewCall();
+            }
+
+            @Override
+            public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+
+            }
+
+            @Override
+            public void onShowcaseViewShow(ShowcaseView showcaseView) {
+
+            }
+
+            @Override
+            public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
+
+            }
+        });
+        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW, true);
+    }
     }
 
     private void shareUs() {
@@ -1037,7 +1149,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         int sizeInDp = 30;
         float scale = getResources().getDisplayMetrics().density;
         int dpAsPixels = (int) (sizeInDp*scale + 0.5f);
-        _selectMediaBtn.setPadding(dpAsPixels,dpAsPixels,dpAsPixels,dpAsPixels);
+        _selectMediaBtn.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
         _selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
         drawSelectMediaButton(true);
@@ -1203,7 +1315,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     _selectMediaBtn.setPadding(0, 0, 0, 0);
                     _selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_XY);
 
+                        showCaseViewAfterUploadAndCall();
+
                 } else {// enabled but no uploaded media
+                    String ringToneFilePath = lut_utils.getUploadedTonePerNumber(getApplicationContext(), _destPhoneNumber);
+                    if (ringToneFilePath.isEmpty())
+                     showCaseViewSelectMedia();
                     _selectMediaBtn.setImageResource(R.drawable.select_caller_media);
                     disableMediaStatusArrived();
                 }
@@ -1258,7 +1375,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 _ringToneNameTextView.setVisibility(View.VISIBLE);
 
                 enableRingToneStatusArrived();
-
+                showCaseViewAfterUploadAndCall();
             } else {
                 _ringToneNameTextView.setVisibility(View.INVISIBLE);
 

@@ -55,6 +55,16 @@
     <string name="rate_us">דרג אותנו</string>
     <string name="report_bug">דווח על באג</string>
     <string name="app_settings">הגדרות אפליקציה</string>
+    <!--  ShowCases  -->
+    <string name="callnumber_sv_title">איש קשר או טלפון שאליו אתה שולח מדיה</string>
+    <string name="callnumber_sv_details">הכנס שם או טלפון של מישהו שיש לו MC</string>
+    <string name="profile_sv_title">העלה מדיית פרופיל (שיחה נכנסת)</string>
+    <string name="profile_sv_details">בחר את המדיה שברצונך תופעל כאשר איש הקשר הזה מתקשר אלייך</string>
+    <string name="callermedia_sv_title">העלה מדיית מתקשר (שיחה יוצאת)</string>
+    <string name="callermedia_sv_details">בחר את המדיה שברצונך תופעל כאשר אתה מתקשר לאיש הקשר שבחרת</string>
+    <string name="callermedia_sv_details_image_ringtone">מה אפשר להעלות : \n\t *תמונה + רינגטון  \n\t* רינגטון  \n\t* תמונה  \n\t* וידיאו</string>
+    <string name="call_sv_title">התקשר עכשיו</string>
+    <string name="call_sv_details">השיחה תצלצל אצל איש הקשר עם ה "מדיית מתקשר" שהעלאת</string>
 
     <!--  BlockMCContacts  -->
     <string name="uknown">לא ידוע</string>

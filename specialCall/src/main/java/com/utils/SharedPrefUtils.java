@@ -23,6 +23,7 @@ public abstract class SharedPrefUtils {
     public static final String RINGTONE_FILEPATH = "RingToneFilePath";
     public static final String PROFILE_MEDIA_FILEPATH = "ProfileMediaFilePath";
     public static final String FUNTONE_FILEPATH = "FunToneFilePath";
+    public static final String SHOWCASE = "Showcase";
     //endregion
 
     public static final Set<String> allSharedPrefs = new HashSet<> (Arrays.asList(
@@ -55,6 +56,13 @@ public abstract class SharedPrefUtils {
     public static final String LAST_CHECKED_NUMBER_CACHE = "LastCheckedNumberCache";
     public static final String STRICT_MEMORY_MANAGER_DEVICES = "StrictMemoryManagerDevices";
     //endregion
+
+    //region Shared pref keys under ShowCase
+    public static final String CALL_NUMBER_VIEW = "callNumberView";
+    public static final String SELECT_MEDIA_VIEW = "SelectMediaView";
+    public static final String UPLOAD_BEFORE_CALL_VIEW = "UploadBeforeCallView";
+    //endregion
+
 
     //region Shared pref keys under SERVER_PROXY
     public static final String RECONNECT_INTERVAL = "LogicServerProxyService.RECONNECT_INTERVAL";

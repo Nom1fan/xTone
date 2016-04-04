@@ -50,6 +50,17 @@
     <string name="rate_us">Rate Us</string>
     <string name="report_bug">Report Bug</string>
     <string name="app_settings">App Settings</string>
+    <!--  ShowCases  -->
+    <string name="callnumber_sv_title">who do you want to MC ?</string>
+    <string name="callnumber_sv_details">enter a name, phonenumber or choose a contact person that has MC Also.</string>
+    <string name="profile_sv_title">Your profile media (Incoming Call)</string>
+    <string name="profile_sv_details">choose the media that you want to be played to the contact you chose WHEN HE CALLS YOU</string>
+    <string name="callermedia_sv_title">Your Caller Media (Outgoing Call)</string>
+    <string name="callermedia_sv_details">choose the media that you want to be played to the contact you chose WHEN YOU CALL HIM</string>
+    <string name="callermedia_sv_details_image_ringtone">Upload Combinations: \n\t 1)Image \n\t 2)Image + Ringtone \n\t 3)Ringtone \n\t 4)Video</string>
+    <string name="call_sv_title">Call</string>
+    <string name="call_sv_details">Call will ring with your Caller Media you already uploaded</string>
+
 
     <!--  BlockMCContacts  -->
     <string name="uknown">UKNOWN</string>

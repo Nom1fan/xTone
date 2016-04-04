@@ -189,6 +189,7 @@ public class LoginActivity extends AppCompatActivity {
                 i.putExtra(LogicServerProxyService.SMS_CODE, Integer.parseInt(smsVerificationCode));
                 startService(i);
 
+                if (_getSmsCodeTask!=null)
                 _getSmsCodeTask.cancel(true);
             }
         });
