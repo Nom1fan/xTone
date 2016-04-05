@@ -28,9 +28,37 @@
     <string name="get_sms_time_till_retry">אתה רשאי לנסות שוב בעוד %1$d שניות...</string>
     <string name="get_sms_you_may_retry">אתה רשאי לנסות שוב כעת</string>
 
+    <string name="cant_send_to_self">אופס! אינך יכול לבחור מדיה לעצמך!</string>
+
+    <string name="file_invalid">אופס! קובץ או תיקייה לא חוקיים</string>
+    <string name="file_over_max_size">אופס! בחר קובץ קטן מ: %1$s</string>
+
+    <string name="destnumber_invalid">אופס! מספר לא תקין</string>
+
+    <string name="oops_try_again">אופס! אנא נסה שוב</string>
+
+    <string name="fetching_user_data">מושך נתוני משתמש...</string>
+
+    <string name="compression_took_too_long">אופס! דחיסה ערכה זמן רב מדי</string>
+
+    <string name="upload_took_too_long">אופס! העלאה לקחה זמן רב מדי</string>
+
+    <string name="compressing_file">דוחס קובץ...</string>
+
+    <string name="upload_success">המדיה בדרך!</string>
+    <string name="uploading">מעלה...</string>
+
+    <string name="disconnected">הא? אין אינטרנט?</string>
+
+    <string name="destination_download_complete">מדיה עבור %1$s מוכנה!</string>
+
+    <string name="destination_media_cleared">מדיה עבור %1$s נוקתה!</string>
+
+    <string name="user_is_registered">משתמש %1$s רשום לשירות</string>
 
     <!-- ### Activities ###  -->
     <!--  LoginActivity  -->
+    <string name="register_success">ההרשמה התבצעה</string>
     <string name="initializing">מאתחל...</string>
     <string name="registering">נרשם...</string>
     <string name="reconnecting">מתחבר...</string>
@@ -42,11 +70,15 @@
     <string name="notification_ticker_text">MC פעיל</string>
 
     <!--  MainActivity   -->
+
     <string name="sent_invitation">הזמנה נשלחה ל:</string>
     <string name="share_subject">MediaCallz (פתח בחנות של גוגל להוריד את האפליקציה)</string>
     <string name="share_via">שתף דרך</string>
+    <string name="user_is_unregistered">המשתמש %1$s אינו רשום לשירות</string>
+
     <!--  SnackBar  -->
     <string name="snack_close">סגור</string>
+
     <!--  DrawerItems   -->
     <string name="media_management">ניהול מדיה</string>
     <string name="who_can_mc_me">מי רשאי לשלוח לי MC</string>
@@ -55,16 +87,17 @@
     <string name="rate_us">דרג אותנו</string>
     <string name="report_bug">דווח על באג</string>
     <string name="app_settings">הגדרות אפליקציה</string>
+
     <!--  ShowCases  -->
-    <string name="callnumber_sv_title">איש קשר או טלפון שאליו אתה שולח מדיה</string>
-    <string name="callnumber_sv_details">הכנס שם או טלפון של מישהו שיש לו MC</string>
-    <string name="profile_sv_title">העלה מדיית פרופיל (שיחה נכנסת)</string>
-    <string name="profile_sv_details">בחר את המדיה שברצונך תופעל כאשר איש הקשר הזה מתקשר אלייך</string>
-    <string name="callermedia_sv_title">העלה מדיית מתקשר (שיחה יוצאת)</string>
-    <string name="callermedia_sv_details">בחר את המדיה שברצונך תופעל כאשר אתה מתקשר לאיש הקשר שבחרת</string>
-    <string name="callermedia_sv_details_image_ringtone">מה אפשר להעלות : \n\t *תמונה + רינגטון  \n\t* רינגטון  \n\t* תמונה  \n\t* וידיאו</string>
+    <string name="callnumber_sv_title">איש קשר או טלפון שעבורו אתה מגדיר מדיה</string>
+    <string name="callnumber_sv_details">הכנס שם או טלפון של יעד שיש לו MediaCallz</string>
+    <string name="profile_sv_title">העלה "מדיית פרופיל" (שיחה נכנסת)</string>
+    <string name="profile_sv_details">בחר את המדיה שברצונך שתופעל כאשר איש הקשר הזה מתקשר *אלייך*</string>
+    <string name="callermedia_sv_title">העלה "מדיית מתקשר" (שיחה יוצאת)</string>
+    <string name="callermedia_sv_details">בחר את המדיה שברצונך שתופעל כאשר *אתה* מתקשר לאיש ליעד שבחרת</string>
+    <string name="callermedia_sv_details_image_ringtone">מה אפשר להעלות : \n\t * תמונה \n\t* רינגטון  \n\t* תמונה + רינגטון  \n\t* וידיאו</string>
     <string name="call_sv_title">התקשר עכשיו</string>
-    <string name="call_sv_details">השיחה תצלצל אצל איש הקשר עם ה "מדיית מתקשר" שהעלאת</string>
+    <string name="call_sv_details">"מדיית המתקשר" שהגדרת תופיע אצל היעד בזמן הצלצול</string>
 
     <!--  BlockMCContacts  -->
     <string name="uknown">לא ידוע</string>

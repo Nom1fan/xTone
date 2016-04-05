@@ -78,6 +78,9 @@ public abstract class ContactsUtils {
         cursor.close();
         cursor = null;
 
+        if(contactName == null || contactName.equals(""))
+            return phoneNumber;
+
         return contactName;
     }
 

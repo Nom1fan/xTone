@@ -122,7 +122,6 @@ public class GetSmsCodeTask extends AsyncTask<String, String, String> {
 
     private String delayUntilNextRetry() {
 
-        //TODO change to one hour after testing
         int time = ONE_HOUR;
 
         for(int i=time; i>-1; i--) {

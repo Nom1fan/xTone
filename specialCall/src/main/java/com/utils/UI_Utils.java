@@ -11,10 +11,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.data_objects.SnackbarData;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
+import com.nispok.snackbar.Snackbar;
 
 import java.lang.reflect.Field;
+
+import EventObjects.EventReport;
+import EventObjects.EventType;
 
 /**
  * Created by Mor on 12/02/2016.
@@ -93,6 +98,12 @@ public abstract class UI_Utils {
                 .hideOnTouchOutside().withMaterialShowcase()
                 .build();
 
+    }
+
+    public static void showSnackBar(String msg, int color, Snackbar.SnackbarDuration sBarDuration, Context context) {
+
+        SnackbarData snackbarData = new SnackbarData(SnackbarData.SnackbarStatus.SHOW, color, sBarDuration, msg);
+        BroadcastUtils.sendEventReportBroadcast(context , TAG, new EventReport(EventType.REFRESH_UI, null, snackbarData));
     }
 
 }
