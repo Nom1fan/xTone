@@ -10,6 +10,7 @@ import com.app.AppStateManager;
 import com.services.IncomingService;
 import com.services.OutgoingService;
 import com.utils.BroadcastUtils;
+import com.utils.SharedPrefUtils;
 
 import utils.PhoneNumberUtils;
 
@@ -92,7 +93,7 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
                 String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
                 Log.d(TAG, "IncomingServiceFallBack PhoneStateReceiver**Call State=" + state);
 
-                if (state.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+                if (state.equals(TelephonyManager.EXTRA_STATE_RINGING) && !SharedPrefUtils.getBoolean(context, SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_RINGING_SESSION)) {
                     try {
                         Thread.sleep(1000, 0);  // TODO REMOVE SLEEP !! or decide a better technique
                     } catch (InterruptedException e) {
