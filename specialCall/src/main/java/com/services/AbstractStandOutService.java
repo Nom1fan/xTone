@@ -164,8 +164,13 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     private void prepareMCButtonsOnRelativeLayoutOverlay() {
 
-        prepareMuteBtn();
-        prepareVolumeBtn();
+        if (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS)) {
+            prepareMuteBtn();
+            prepareVolumeBtn();
+        }
+        else
+            disableVolumeButtons();
+
         prepareBlockButton();
     }
 
@@ -252,10 +257,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_WIDTH_BY_USER, window.getWidth());
 
         // get location of window on screen set last by user
-        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_X_LOCATION_BY_USER,coordinates[0] );
-        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_Y_LOCATION_BY_USER,coordinates[1]-statusBarHeighet); // remove the Heighet of the status bar
+        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_X_LOCATION_BY_USER, coordinates[0]);
+        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_Y_LOCATION_BY_USER, coordinates[1] - statusBarHeighet); // remove the Heighet of the status bar
 
-        Log.i(TAG, "Heighet: " + String.valueOf(window.getHeight()) + "Width: " + String.valueOf(window.getWidth()) + "X: " +String.valueOf(coordinates[0]) +"Y: " +String.valueOf(coordinates[1]-statusBarHeighet));
+        Log.i(TAG, "Heighet: " + String.valueOf(window.getHeight()) + "Width: " + String.valueOf(window.getWidth()) + "X: " + String.valueOf(coordinates[0]) + "Y: " + String.valueOf(coordinates[1] - statusBarHeighet));
 
         stopSound();
 
@@ -326,7 +331,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         Log.i(TAG, "Preparing VideoView");
         // VideoView on Relative Layout
         final File root = new File(mediaFilePath);
-
+        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
         Uri uri = Uri.fromFile(root);
         Log.i(TAG, "Video uri=" + uri);
 
@@ -400,7 +405,18 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         mRelativeLayout.addView(mSpecialCallView);
     }
+    private void disableVolumeButtons() {
+        Log.i(TAG, "Preparing disableVolumeButtons");
 
+        mSpecialCallMutUnMuteBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.mc_mute_unmute);
+        mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
+        mSpecialCallVolumeUpBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_up);
+
+        mSpecialCallMutUnMuteBtn.setVisibility(View.INVISIBLE);
+        mSpecialCallVolumeDownBtn.setVisibility(View.INVISIBLE);
+        mSpecialCallVolumeUpBtn.setVisibility(View.INVISIBLE);
+
+    }
     private void prepareMuteBtn() {
         Log.i(TAG, "Preparing Mute Button");
 
@@ -601,6 +617,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected void startVisualMediaMC(String visualMediaFilePath, String callNumber, boolean attachDefaultView) {
 
         Log.i(TAG, "startVisualMediaMC SharedPrefUtils visualMediaFilePath:" + visualMediaFilePath);
+    if (attachDefaultView)
+        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
+    else
+        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
 
         String contactName = ContactsUtils.getContactName(getApplicationContext(), callNumber);
         mContactTitleOnWindow = (!contactName.equals("") ? contactName + " " + callNumber : callNumber);
@@ -657,9 +677,12 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             FileManager audioFile = new FileManager(audioFilePath);
 
             if(audioFile.doesFileExist()) {
-
+                SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
                 Log.i(TAG, "Ringtone before playing sound. audioFilePath: " + audioFilePath + " URI: " + Uri.parse(audioFilePath).toString());
                 playSound(getApplicationContext(), Uri.parse(audioFilePath));
+            }else
+            {
+                SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
             }
 
         } catch (FileMissingExtensionException |
@@ -757,6 +780,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         volumeChangeByMCButtons = false;
         mVolumeBeforeMute = 0;
         isHidden = false;
+        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
         //mPhoneListener = null;
         // TODO Release more Resources
 

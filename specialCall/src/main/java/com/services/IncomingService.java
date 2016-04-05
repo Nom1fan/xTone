@@ -191,7 +191,7 @@ public class IncomingService extends AbstractStandOutService {
                             //Check if Mute Was Needed if not return to UnMute.
                             if (ringtoneFile.exists()) {
                                 disableRingStream();
-
+                                SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, false);
                                 Runnable r = new Runnable() {
                                     public void run() {
                                         Log.i(TAG, "startRingtoneSpecialCall Thread");
@@ -204,8 +204,10 @@ public class IncomingService extends AbstractStandOutService {
                                     }
                                 };
                                 new Thread(r).start();
-                            } else
+                            } else {
+                                SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
                                 enableRingStream();
+                            }
 
                             setTempMd5ForCallRecord(mediaFilePath, ringtonePath);
 

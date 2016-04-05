@@ -76,7 +76,7 @@ public abstract class SharedPrefUtils {
     public static final String MUSIC_VOLUME = "MusicVolume";
     public static final String TEMP_VISUALMD5 = "TempVisualMd5";
     public static final String TEMP_AUDIOMD5 = "TempAudioMd5";
-
+    public static final String DISABLE_VOLUME_BUTTONS = "DisableVolumeButtons";
     public static final String MC_WINDOW_WIDTH_BY_USER = "mcWindowWidthByUser";
     public static final String MC_WINDOW_HEIGHET_BY_USER = "mcWindowHeighetByUser";
     public static final String MC_WINDOW_X_LOCATION_BY_USER = "mcWindowXLocationByUser";

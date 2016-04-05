@@ -174,7 +174,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     private void RecordVideo(int code) {
         // Determine Uri of camera image to save.
-        String fname = "MyVideo.mp4";
+        String fname = "MyVideo_"+_destPhoneNumber+".mp4";
         File sdVideoMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
 
         sdVideoMainDirectory.delete();
@@ -195,7 +195,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private void takePicture(int code) {
 
         // Determine Uri of camera image to save.
-        String fname = "MyImage";
+        String fname = "MyImage_"+_destPhoneNumber;
         File sdImageMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
         sdImageMainDirectory.delete();
         _outputFileUri = Uri.fromFile(sdImageMainDirectory);
@@ -224,7 +224,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private void RecordAudio(int code) {
 
 
-        String fname = "MyAudioRecording.aac";
+        String fname = "MyAudioRecording_"+_destPhoneNumber+".aac";
         File sdAudioMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
 
         sdAudioMainDirectory.delete();
