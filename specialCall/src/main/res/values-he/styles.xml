@@ -53,16 +53,18 @@
     <style name="ShowcaseView">
         <item name="sv_titleTextAppearance">@style/TextAppearance.ShowcaseView.Title</item>
         <item name="sv_detailTextAppearance">@style/TextAppearance.ShowcaseView.Detail</item>
-        <item name="sv_backgroundColor">#dcffffff</item>
+        <item name="sv_backgroundColor">#d2000000</item>
         <item name="sv_buttonText">Skip</item>
     </style>
 
     <style name="TextAppearance.ShowcaseView.Title" parent="android:style/TextAppearance.Large">
         <item name="android:textColor">#33B5E5</item>
+        <item name="android:textSize">30sp</item>
     </style>
 
     <style name="TextAppearance.ShowcaseView.Detail" parent="android:style/TextAppearance">
-        <item name="android:textColor">#000000</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
     <style name="TextAppearance.ShowcaseView.Detail.Light">

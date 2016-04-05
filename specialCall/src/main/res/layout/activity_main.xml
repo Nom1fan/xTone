@@ -194,6 +194,7 @@
         android:visibility="invisible"
         android:layout_toLeftOf="@+id/clear"
         android:layout_toEndOf="@+id/userStatusPositive"
+        android:layout_toRightOf="@+id/userStatusPositive"
         android:layout_alignLeft="@+id/userStatusPositive"
         android:layout_alignStart="@+id/userStatusPositive"
         android:layout_above="@+id/media_calling"
