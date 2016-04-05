@@ -80,7 +80,6 @@ import utils.PhoneNumberUtils;
 public class MainActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
 
     private final String TAG = MainActivity.class.getSimpleName();
-    private final String shareBody = String.valueOf(R.string.invite);
 
     private String _destPhoneNumber = "";
     private String _destName = "";
@@ -371,7 +370,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             EditText callNumber = (EditText) findViewById(R.id.CallNumber);
             try {
                 SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(callNumber.getText().toString(), null, shareBody, null, null);
+                smsManager.sendTextMessage(callNumber.getText().toString(), null, getResources().getString(R.string.invite), null, null);
                 writeInfoSnackBar("Invitation Sent To: " + callNumber.getText().toString());
 
             } catch (Exception ex) {
@@ -1033,7 +1032,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         sharingIntent.setType("text/plain");
         sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "MediaCallz (Open it in Google Play Store to Download the Application)");
 
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, getResources().getString(R.string.invite));
         startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 
