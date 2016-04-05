@@ -164,7 +164,7 @@
         android:text="RingTone Name "
         android:id="@+id/ringtoneName"
         android:visibility="invisible"
-        android:background="@android:color/white"
+        android:background="#b000a0d1"
         android:textColor="@android:color/black"
         android:singleLine="true"
         android:hint="No Ringtone Was Chosen !"

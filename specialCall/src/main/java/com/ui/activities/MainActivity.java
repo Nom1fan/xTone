@@ -1371,7 +1371,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             if (!ringToneFilePath.isEmpty()) {
                 _ringToneNameTextView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
-                _ringToneNameTextView.setBackgroundColor(0xFF00FF00);
                 _ringToneNameTextView.setVisibility(View.VISIBLE);
 
                 enableRingToneStatusArrived();
