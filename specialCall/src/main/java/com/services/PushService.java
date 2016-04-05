@@ -67,11 +67,10 @@ public class PushService extends IntentService {
                     break;
 
                 case PushEventKeys.TRANSFER_SUCCESS: {
-                    String msg = intent.getStringExtra(Batch.Push.ALERT_KEY);
                     jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
                     td = new Gson().fromJson(jsonData, TransferDetails.class);
 
-                    BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, msg, td));
+                    BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, null, td));
                     Batch.Push.displayNotification(this, intent);
                 }
                     break;

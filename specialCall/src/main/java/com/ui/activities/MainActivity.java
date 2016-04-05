@@ -39,6 +39,7 @@ import com.async_tasks.AutoCompletePopulateListAsyncTask;
 import com.async_tasks.IsRegisteredTask;
 import com.batch.android.Batch;
 import com.data_objects.ActivityRequestCodes;
+import com.data_objects.Constants;
 import com.data_objects.Contact;
 import com.data_objects.SnackbarData;
 import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
@@ -228,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             if (requestCode == ActivityRequestCodes.SELECT_MEDIA) {
                 if (data != null)
-                    writeInfoSnackBar(data.getStringExtra("msg"), Color.RED, Snackbar.SnackbarDuration.LENGTH_INDEFINITE);
+                    writeInfoSnackBar(data.getStringExtra(SelectMediaActivity.RESULT_MSG), Color.RED, Snackbar.SnackbarDuration.LENGTH_INDEFINITE);
             }
 
             if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
@@ -564,8 +565,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                     if (PhoneNumberUtils.isValidPhoneNumber(destPhone)) {
 
-                        _destPhoneNumber = destPhone;
-                        new IsRegisteredTask(destPhone, instance).execute(instance.getApplicationContext());
+                        if (destPhone.equals(Constants.MY_ID(getApplicationContext()))) {
+                            UI_Utils.showSnackBar(getResources().getString(R.string.cant_send_to_self),
+                                    Color.YELLOW, Snackbar.SnackbarDuration.LENGTH_LONG, getApplicationContext());
+                        } else {
+                            _destPhoneNumber = destPhone;
+                            new IsRegisteredTask(destPhone, instance).execute(instance.getApplicationContext());
+                        }
 
                     } else { // Invalid destination number
 
@@ -931,7 +937,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void showCaseViewCallNumber() {
         if (!(SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))) {
-            ViewTarget targetCallNumber = new ViewTarget(R.id.CallNumber, MainActivity.this);
+            ViewTarget targetCallNumber = new ViewTarget(R.id.selectContactBtn, MainActivity.this);
             UI_Utils.showCaseView(MainActivity.this, targetCallNumber, getResources().getString(R.string.callnumber_sv_title), getResources().getString(R.string.callnumber_sv_details));
             SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW, true);
         }

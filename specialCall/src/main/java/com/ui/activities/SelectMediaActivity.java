@@ -20,8 +20,8 @@ import android.widget.TextView;
 import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.ipaulpro.afilechooser.utils.FileUtils;
-import com.services.StorageServerProxyService;
 import com.mediacallz.app.R;
+import com.services.StorageServerProxyService;
 
 import java.io.File;
 import java.util.List;
@@ -38,6 +38,8 @@ import FilesManager.FileManager;
  * Created by rony on 29/01/2016.
  */
 public class SelectMediaActivity extends Activity implements View.OnClickListener {
+
+    public static final String RESULT_MSG = "msg";
 
     private static final String TAG = SelectMediaActivity.class.getSimpleName();
     private Uri _outputFileUri;
@@ -235,31 +237,36 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     }
 
-    private void uploadFile(Intent data, SpecialMediaType specialMediaType) {
+    private void uploadFile(Intent intent, SpecialMediaType specialMediaType) {
 
-        FileManager fm = null;
+        FileManager fm;
+        Intent resultIntent = new Intent();
         Log.i(TAG,"Upload File");
         final boolean isCamera;
         try {
             checkDestinationNumber();
             Uri uri;
 
-            if (data == null) {
+            if (intent == null) {
                 isCamera = true;
             } else {
-                final String action = data.getAction();
+                final String action = intent.getAction();
                 isCamera = action != null && action.equals(MediaStore.ACTION_IMAGE_CAPTURE);
             }
             if (isCamera) {
                 uri = _outputFileUri;
             } else {
-                uri = data.getData();
+                uri = intent.getData();
             }
 
             // Get the File path from the Uri
             String path = FileUtils.getPath(this, uri);
             // Alternatively, use FileUtils.getFile(Context, Uri)
-            if (path != null) if (FileUtils.isLocal(path)) {
+            if(path == null) {
+                throw new FileDoesNotExistException("Path returned from URI was null");
+            }
+
+            if (FileUtils.isLocal(path)) {
 
                 if (isCamera) {
                     File file = new File(path);
@@ -267,7 +274,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                 }
 
                 fm = new FileManager(path);
-                Log.i(TAG, "file selected: " + path + " File Size: " + String.valueOf(fm.getFileSize()) );
+                Log.i(TAG, "[File selected]: " + path + ". [File Size]: " + fm.getFileSizeFormat(fm.getFileSize()));
 
                 Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
                 i.setAction(StorageServerProxyService.ACTION_UPLOAD);
@@ -277,25 +284,32 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                 getApplicationContext().startService(i);
 
             }
-            Log.i(TAG,"End Of Upload File");
+
+            Log.i(TAG,"End of upload file");
         } catch (NullPointerException e) {
             e.printStackTrace();
-            Log.e(TAG, "It seems there was a problem with the file path.");
-            data.putExtra("msg", "Oops! problem with file");
+            Log.e(TAG, getResources().getString(R.string.file_invalid));
+            resultIntent.putExtra(RESULT_MSG, getResources().getString(R.string.file_invalid));
+
         } catch (FileExceedsMaxSizeException e) {
-            data.putExtra("msg", "Oops! Select a file that weights less than:" +
+
+            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
                     FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+            Log.e(TAG, errMsg);
+            resultIntent.putExtra(RESULT_MSG, errMsg);
+
         } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
             e.printStackTrace();
-            data.putExtra("msg", "Oops! Invalid file");
+            resultIntent.putExtra(RESULT_MSG, getResources().getString(R.string.file_invalid));
+
         } catch (InvalidDestinationNumberException e) {
-            data.putExtra("msg", "Oops! Invalid destination number");
+            resultIntent.putExtra(RESULT_MSG, getResources().getString(R.string.destnumber_invalid));
         }
 
         if (getParent() == null) {
-            setResult(Activity.RESULT_OK, data);
+            setResult(Activity.RESULT_OK, resultIntent);
         } else {
-            getParent().setResult(Activity.RESULT_OK, data);
+            getParent().setResult(Activity.RESULT_OK, resultIntent);
         }
         SelectMediaActivity.this.finish();
     }
@@ -304,7 +318,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         Intent data = new Intent();
         FileManager fm = null;
         Log.i(TAG,"Upload Audio File");
-        final boolean isCamera;
         try {
             checkDestinationNumber();
 

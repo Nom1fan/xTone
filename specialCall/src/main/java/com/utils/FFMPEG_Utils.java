@@ -196,7 +196,9 @@ public abstract class FFMPEG_Utils {
      * @param managedFile The image file to retrieve
      * @param context
      * @return The image resolution as integer array (width in 0 index and height in 1), if possible. Otherwise, returns null.
+     * @deprecated Use the new {@link #getImageResolution(String)} instead
      */
+    @Deprecated
     public static int[] getImageResolution(FileManager managedFile, Context context) {
 
         if (GeneralUtils.isLicenseValid(context, workFolder) < 0)

@@ -190,7 +190,7 @@ public class LoginActivity extends AppCompatActivity {
                 startService(i);
 
                 if (_getSmsCodeTask!=null)
-                _getSmsCodeTask.cancel(true);
+                    _getSmsCodeTask.cancel(true);
             }
         });
     }
@@ -322,7 +322,7 @@ public class LoginActivity extends AppCompatActivity {
         switch (report.status()) {
 
             case REGISTER_SUCCESS:
-                setInitTextView(report.desc());
+                setInitTextView(getApplicationContext().getResources().getString(R.string.register_success));
                 AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
                 continueToMainActivity();
                 break;
