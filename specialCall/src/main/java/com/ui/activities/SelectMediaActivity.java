@@ -14,7 +14,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.data_objects.ActivityRequestCodes;
@@ -54,7 +54,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         Intent intent = getIntent();
         setContentView(R.layout.select_media);
 
-        Button button1 = (Button) findViewById(R.id.back);
+        ImageButton button1 = (ImageButton) findViewById(R.id.back);
         button1.setOnClickListener(this);
         TextView mediaType = (TextView) findViewById(R.id.selectMediaType);
 
@@ -74,19 +74,19 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         else
             nameOrPhone.setText(_destName);
 
-        Button videoBtn = (Button) findViewById(R.id.video_or_image);
+        ImageButton videoBtn = (ImageButton) findViewById(R.id.video_or_image);
         videoBtn.setOnClickListener(this);
 
-        Button recordVideoBtn = (Button) findViewById(R.id.recordVideo);
+        ImageButton recordVideoBtn = (ImageButton) findViewById(R.id.recordVideo);
         recordVideoBtn.setOnClickListener(this);
 
-        Button takePictureBtn = (Button) findViewById(R.id.takePicture);
+        ImageButton takePictureBtn = (ImageButton) findViewById(R.id.takePicture);
         takePictureBtn.setOnClickListener(this);
 
-        Button audioBtn = (Button) findViewById(R.id.audio);
+        ImageButton audioBtn = (ImageButton) findViewById(R.id.audio);
         audioBtn.setOnClickListener(this);
 
-        Button recordAudioBtn = (Button) findViewById(R.id.recordAudio);
+        ImageButton recordAudioBtn = (ImageButton) findViewById(R.id.recordAudio);
         recordAudioBtn.setOnClickListener(this);
 
     }

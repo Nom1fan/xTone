@@ -7,7 +7,7 @@
 
 
 
-    <Button
+    <ImageButton
         android:layout_width="60dp"
         android:layout_height="50dp"
         android:text="@string/back"
@@ -16,7 +16,9 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:textSize="15dip" />
+        android:textSize="15dip"
+        android:src="@android:drawable/arrow_down_float"
+        android:background="@drawable/media_btn_background" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -25,8 +27,9 @@
         android:text="@string/media_type"
         android:id="@+id/selectMediaType"
         android:layout_gravity="center_horizontal"
-        android:layout_alignBottom="@+id/back"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="#0d00ff" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -36,22 +39,30 @@
         android:id="@+id/contactNameOrNumber"
         android:layout_gravity="center_horizontal"
         android:layout_below="@+id/selectMediaType"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:textColor="#0d00ff" />
 
-    <Button
-        android:layout_width="204dp"
-        android:layout_height="wrap_content"
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
         android:text="@string/video_image"
+        android:background="@drawable/media_btn_background"
+        android:src="@drawable/image_and_film"
         android:id="@+id/video_or_image"
         android:layout_gravity="center_vertical"
-        android:layout_marginTop="44dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_below="@+id/contactNameOrNumber"
-        android:layout_centerHorizontal="true" />
+        android:layout_marginTop="10dp" />
 
-    <Button
-        android:layout_width="208dp"
-        android:layout_height="wrap_content"
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
         android:text="@string/record_video"
+        android:background="@drawable/media_btn_background"
+        android:src="@drawable/video_icon"
         android:id="@+id/recordVideo"
         android:layout_gravity="center_vertical"
         android:layout_below="@+id/audio"
@@ -60,22 +71,26 @@
         android:layout_alignLeft="@+id/audio"
         android:layout_alignStart="@+id/audio" />
 
-    <Button
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
         android:text="@string/audio"
+        android:background="@drawable/media_btn_background"
+        android:src="@drawable/ringtone_icon"
         android:id="@+id/audio"
         android:layout_gravity="center_horizontal"
         android:layout_below="@+id/video_or_image"
-        android:layout_alignRight="@+id/video_or_image"
-        android:layout_alignEnd="@+id/video_or_image"
         android:layout_alignLeft="@+id/video_or_image"
-        android:layout_alignStart="@+id/video_or_image" />
+        android:layout_alignStart="@+id/video_or_image"
+        android:layout_alignRight="@+id/video_or_image"
+        android:layout_alignEnd="@+id/video_or_image" />
 
-    <Button
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
         android:text="@string/take_picture"
+        android:background="@drawable/media_btn_background"
+        android:src="@drawable/camera_icon"
         android:id="@+id/takePicture"
         android:layout_gravity="center_horizontal"
         android:layout_below="@+id/recordVideo"
@@ -84,12 +99,14 @@
         android:layout_alignRight="@+id/audio"
         android:layout_alignEnd="@+id/audio" />
 
-    <Button
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
         android:text="@string/record_audio"
         android:id="@+id/recordAudio"
         android:layout_gravity="center_horizontal"
+        android:background="@drawable/media_btn_background"
+        android:src="@drawable/mic_icon"
         android:layout_below="@+id/takePicture"
         android:layout_alignLeft="@+id/video_or_image"
         android:layout_alignStart="@+id/video_or_image"
@@ -104,9 +121,9 @@
         android:layout_above="@+id/selectMediaType"
         android:layout_centerHorizontal="true" />
 
-    <Button
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
         android:text="@string/mediacallz_gallery"
         android:id="@+id/mediacallzBtn"
         android:layout_gravity="center_horizontal"
@@ -115,7 +132,10 @@
         android:layout_alignStart="@+id/recordAudio"
         android:layout_alignRight="@+id/recordAudio"
         android:layout_alignEnd="@+id/recordAudio"
+        android:background="@drawable/shop_btn_background"
+        android:src="@drawable/library"
         android:textColor="#fffb02"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+         />
 
 </RelativeLayout>

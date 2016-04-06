@@ -171,7 +171,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         else
             disableVolumeButtons();
 
-        prepareBlockButton();
+        if (!mPreviewStart)
+            prepareBlockButton();
     }
 
     @Override
