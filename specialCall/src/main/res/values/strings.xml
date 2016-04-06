@@ -54,6 +54,7 @@
     <string name="delete_account_failed">Failed to delete account! Please contact MediaCallz support</string>
     <string name="deleting_account_msg">Deleting account...</string>
 
+
     <!--  SelectMediaActivity  -->
     <string name="recording">Recording...</string>
     <string name="stop_recording">Stop recording</string>
@@ -120,6 +121,9 @@
     <string name="uknown">UNKNOWN</string>
 
     <!-- ### Layouts XML ###  -->
+
+    <!--  activity_main Layout   -->
+    <string name="call_number_hint">Type name or number</string>
 
     <!--  blocked_user_list Layout   -->
     <string name="all_can_mc_me">All can MC me</string>
