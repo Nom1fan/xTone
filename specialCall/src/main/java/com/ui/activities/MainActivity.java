@@ -369,9 +369,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             EditText callNumber = (EditText) findViewById(R.id.CallNumber);
             try {
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(callNumber.getText().toString(), null, getResources().getString(R.string.invite), null, null);
-                writeInfoSnackBar("Invitation Sent To: " + callNumber.getText().toString());
+
+                Intent intent = new Intent(Intent.ACTION_SENDTO,
+                        Uri.fromParts("sms", callNumber.getText().toString(), null));
+                intent.putExtra("sms_body",getResources().getString(R.string.invite));
+                startActivity(intent);
+
 
             } catch (Exception ex) {
                 writeErrStatBar(ex.getMessage());
