@@ -84,7 +84,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private String _destPhoneNumber = "";
     private String _destName = "";
 
-    //region UI elements
     private ImageView _userStatusPositive;
     private ImageView _userStatusNegative;
     private ImageButton _selectContactBtn;
@@ -270,21 +269,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 return true;
             }
 
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                appSettings();
-                break;
-            case R.id.action_share:
-                saveInstanceState();
-                shareUs();
-                break;
-            default:
-                saveInstanceState();
-                Intent o = new Intent();
-                o.setClass(getApplicationContext(), Settings.class);
-                startActivity(o);
-                break;
-        }
         return true;
     }
     //endregion (on
@@ -372,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                 Intent intent = new Intent(Intent.ACTION_SENDTO,
                         Uri.fromParts("sms", callNumber.getText().toString(), null));
-                intent.putExtra("sms_body",getResources().getString(R.string.invite));
+                intent.putExtra("sms_body", getResources().getString(R.string.invite));
                 startActivity(intent);
 
 
@@ -871,13 +855,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         // Add Drawer Item to dataList
         List<DrawerItem> dataList = new ArrayList<>();
-        dataList.add(new DrawerItem("Media Management", R.drawable.mediaicon));
-        dataList.add(new DrawerItem("Who Can MC me", R.drawable.blackwhitelist));
-        dataList.add(new DrawerItem("How To ?", R.drawable.questionmark));
-        dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
-        dataList.add(new DrawerItem("Rate Us", R.drawable.rateus2));
-        dataList.add(new DrawerItem("Report Bug", R.drawable.bug));
-        dataList.add(new DrawerItem("App Settings", R.drawable.settingsicon));
+
+        dataList.add(new DrawerItem(getResources().getString(R.string.media_management), R.drawable.mediaicon));
+        dataList.add(new DrawerItem(getResources().getString(R.string.who_can_mc_me), R.drawable.blackwhitelist));
+//        dataList.add(new DrawerItem("How To ?", R.drawable.questionmark));
+//        dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
+//        dataList.add(new DrawerItem("Rate Us", R.drawable.rateus2));
+        dataList.add(new DrawerItem(getResources().getString(R.string.app_settings), R.drawable.settingsicon));
+         dataList.add(new DrawerItem(getResources().getString(R.string.about_FAQ), R.drawable.color_mc));
 
         CustomDrawerAdapter mAdapter = new CustomDrawerAdapter(this, R.layout.custome_drawer_item,
                 dataList);
@@ -895,7 +880,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             case 1: // Who Can MC me
                 BlockMCContacts();
                 break;
-            case 2: // How To?
+            /*case 2: // How To?
                 resetShowcases();
                 break;
             case 3: // Share Us
@@ -905,11 +890,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 //TODO IMPLEMET Case
                 break;
             case 5: // Report BUG
-                //TODO IMPLEMET Case
-                break;
-            case 6: // App Settings
+                break;*/
+            case 2: // App Settings
                 appSettings();
+                break;
+            case 3: // About & Help
 
+                shareUs();  // share US
+                resetShowcases(); // How To ?
+                //ABOUT // RATE US
+                //TODO IMPLEMET Case
                 break;
 
             default:
@@ -929,7 +919,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         AutoCompleteTextView textViewToClear = (AutoCompleteTextView) findViewById(R.id.CallNumber);
         textViewToClear.setText("");
 
-
         SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW, false);
         SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, false);
         SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW, false);
@@ -943,90 +932,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             UI_Utils.showCaseView(MainActivity.this, targetCallNumber, getResources().getString(R.string.callnumber_sv_title), getResources().getString(R.string.callnumber_sv_details));
             SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW, true);
         }
-    }
-
-    private void showCaseViewSelectMedia(){
-        if (!(SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW))) {
-            ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectMediaBtn, this);
-            ShowcaseView sv = new ShowcaseView.Builder(MainActivity.this)
-                    .setTarget(targetSelectMediaView)
-                    .setContentTitle(getResources().getString(R.string.callermedia_sv_title))
-                    .setContentText(getResources().getString(R.string.callermedia_sv_details))
-                    .hideOnTouchOutside().
-                            withMaterialShowcase().build();
-
-            sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
-                @Override
-                public void onShowcaseViewHide(ShowcaseView showcaseView) {
-
-                    showCaseViewSelectProfile();
-                }
-
-                @Override
-                public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
-                }
-
-                @Override
-                public void onShowcaseViewShow(ShowcaseView showcaseView) {
-                }
-
-                @Override
-                public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
-                }
-            });
-
-            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, true);
-        }
-    }
-
-    private void showCaseViewSelectProfile() {
-
-        ViewTarget targetProfileView = new ViewTarget(R.id.selectProfileMediaBtn, this);
-        UI_Utils.showCaseView(MainActivity.this, targetProfileView, getResources().getString(R.string.profile_sv_title), getResources().getString(R.string.profile_sv_details));
-}
-
-    private void showCaseViewCall() {
-
-        ViewTarget targetCallView = new ViewTarget(R.id.CallNow, this);
-        UI_Utils.showCaseView(MainActivity.this, targetCallView, getResources().getString(R.string.call_sv_title), getResources().getString(R.string.call_sv_details));
-    }
-
-    private void showCaseViewAfterUploadAndCall() {
-
-      if (!(SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW)))
-        {
-        ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectMediaBtn, this);
-        ShowcaseView sv = new ShowcaseView.Builder(MainActivity.this)
-                .setTarget(targetSelectMediaView)
-                .setContentTitle(getResources().getString(R.string.callermedia_sv_title))
-                .setContentText(getResources().getString(R.string.callermedia_sv_details_image_ringtone))
-                .hideOnTouchOutside().
-                        withMaterialShowcase().build();
-
-        sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
-            @Override
-            public void onShowcaseViewHide(ShowcaseView showcaseView) {
-
-                showCaseViewCall();
-            }
-
-            @Override
-            public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
-
-            }
-
-            @Override
-            public void onShowcaseViewShow(ShowcaseView showcaseView) {
-
-            }
-
-            @Override
-            public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
-
-            }
-        });
-        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW, true);
-    }
     }
 
     private void shareUs() {
@@ -1323,12 +1228,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     _selectMediaBtn.setPadding(0, 0, 0, 0);
                     _selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_XY);
 
-                        showCaseViewAfterUploadAndCall();
+                        UI_Utils.showCaseViewAfterUploadAndCall(getApplicationContext(),MainActivity.this);
 
                 } else {// enabled but no uploaded media
                     String ringToneFilePath = lut_utils.getUploadedTonePerNumber(getApplicationContext(), _destPhoneNumber);
                     if (ringToneFilePath.isEmpty())
-                     showCaseViewSelectMedia();
+                        UI_Utils.showCaseViewSelectMedia(getApplicationContext(),MainActivity.this);
                     _selectMediaBtn.setImageResource(R.drawable.select_caller_media);
                     disableMediaStatusArrived();
                 }
@@ -1382,7 +1287,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 _ringToneNameTextView.setVisibility(View.VISIBLE);
 
                 enableRingToneStatusArrived();
-                showCaseViewAfterUploadAndCall();
+                UI_Utils.showCaseViewAfterUploadAndCall(getApplicationContext(), MainActivity.this);
             } else {
                 _ringToneNameTextView.setVisibility(View.INVISIBLE);
 

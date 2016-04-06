@@ -99,8 +99,8 @@
     <string name="share_us">Share Us</string>
     <string name="rate_us">Rate Us</string>
     <string name="report_bug">Report Bug</string>
-    <string name="app_settings">App Settings</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_settings">Settings</string>
+    <string name="about_FAQ">About &amp; Help</string>
     <string name="action_share">Share Us</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
@@ -122,8 +122,9 @@
 
     <!-- ### Layouts XML ###  -->
 
+
     <!--  activity_main Layout   -->
-    <string name="call_number_hint">Type name or number</string>
+    <string name="call_number_hint">Type name or phone</string>
 
     <!--  blocked_user_list Layout   -->
     <string name="all_can_mc_me">All can MC me</string>

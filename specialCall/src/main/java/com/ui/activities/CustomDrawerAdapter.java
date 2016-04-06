@@ -64,7 +64,8 @@ public class CustomDrawerAdapter extends ArrayAdapter<DrawerItem> {
         drawerHolder.ItemName.setText(dItem.getItemName());
 
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(150, 150);
-        layoutParams.gravity = Gravity.RIGHT;
+        layoutParams.gravity = Gravity.CENTER_VERTICAL;
+        layoutParams.setMargins(20,0,20,0);
         drawerHolder.icon.setLayoutParams(layoutParams);
 
 

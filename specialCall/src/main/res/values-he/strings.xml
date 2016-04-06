@@ -13,7 +13,6 @@
     <string name="close_app">סגור</string>
     <string name="initial_upload_text">העלאה בתור</string>
     <string name="app_name">MediaCallz</string>
-    <string name="action_settings">הגדרות</string>
     <string name="action_share">שתף אותנו</string>
     <string name="select_caller_media_title">מדיה כשאתה מתקשר</string>
     <string name="select_profile_media_title">מדיה כשמתקשרים אלייך</string>
@@ -86,7 +85,8 @@
     <string name="share_us">שתף אותנו</string>
     <string name="rate_us">דרג אותנו</string>
     <string name="report_bug">דווח על באג</string>
-    <string name="app_settings">הגדרות אפליקציה</string>
+    <string name="app_settings">הגדרות</string>
+    <string name="about_FAQ">אודות ועזרה</string>
 
     <!--  ShowCases  -->
     <string name="callnumber_sv_title">איש קשר או טלפון שעבורו אתה מגדיר מדיה</string>
@@ -94,7 +94,7 @@
     <string name="profile_sv_title">העלה "מדיית פרופיל" (שיחה נכנסת)</string>
     <string name="profile_sv_details">בחר את המדיה שברצונך שתופעל כאשר איש הקשר הזה מתקשר *אלייך*</string>
     <string name="callermedia_sv_title">העלה "מדיית מתקשר" (שיחה יוצאת)</string>
-    <string name="callermedia_sv_details">בחר את המדיה שברצונך שתופעל כאשר *אתה* מתקשר לאיש ליעד שבחרת</string>
+    <string name="callermedia_sv_details">בחר את המדיה שברצונך שתופעל כאשר *אתה* מתקשר ליעד שבחרת</string>
     <string name="callermedia_sv_details_image_ringtone">מה אפשר להעלות : \n\t * תמונה \n\t* רינגטון  \n\t* תמונה + רינגטון  \n\t* וידיאו</string>
     <string name="call_sv_title">התקשר עכשיו</string>
     <string name="call_sv_details">"מדיית המתקשר" שהגדרת תופיע אצל היעד בזמן הצלצול</string>

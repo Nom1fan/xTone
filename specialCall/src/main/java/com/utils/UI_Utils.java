@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
@@ -12,8 +13,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.data_objects.SnackbarData;
+import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
+import com.mediacallz.app.R;
 import com.nispok.snackbar.Snackbar;
 
 import java.lang.reflect.Field;
@@ -88,6 +91,15 @@ public abstract class UI_Utils {
         }
     }
 
+
+
+    public static void showSnackBar(String msg, int color, Snackbar.SnackbarDuration sBarDuration, Context context) {
+
+        SnackbarData snackbarData = new SnackbarData(SnackbarData.SnackbarStatus.SHOW, color, sBarDuration, msg);
+        BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, null, snackbarData));
+    }
+
+    //region ShowCaseView
     public static void showCaseView(Activity activity, ViewTarget target, String title, String details) {
 
         Log.i(TAG, "Title: "+ title + " details: " + details);
@@ -99,11 +111,89 @@ public abstract class UI_Utils {
                 .build();
 
     }
+    public static void showCaseViewSelectProfile(Context context,Activity activity) {
 
-    public static void showSnackBar(String msg, int color, Snackbar.SnackbarDuration sBarDuration, Context context) {
-
-        SnackbarData snackbarData = new SnackbarData(SnackbarData.SnackbarStatus.SHOW, color, sBarDuration, msg);
-        BroadcastUtils.sendEventReportBroadcast(context , TAG, new EventReport(EventType.REFRESH_UI, null, snackbarData));
+        ViewTarget targetProfileView = new ViewTarget(R.id.selectProfileMediaBtn, activity);
+        UI_Utils.showCaseView(activity, targetProfileView, context.getResources().getString(R.string.profile_sv_title), context.getResources().getString(R.string.profile_sv_details));
     }
+
+    public static void showCaseViewCall(Context context,Activity activity) {
+
+        ViewTarget targetCallView = new ViewTarget(R.id.CallNow, activity);
+        UI_Utils.showCaseView(activity, targetCallView, context.getResources().getString(R.string.call_sv_title), context.getResources().getString(R.string.call_sv_details));
+    }
+
+    public static void showCaseViewAfterUploadAndCall(final Context context, final Activity activity) {
+
+        if (!(SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW)))
+        {
+            ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectMediaBtn, activity);
+            ShowcaseView sv = new ShowcaseView.Builder(activity)
+                    .setTarget(targetSelectMediaView)
+                    .setContentTitle(context.getResources().getString(R.string.callermedia_sv_title))
+                    .setContentText(context.getResources().getString(R.string.callermedia_sv_details_image_ringtone))
+                    .hideOnTouchOutside().
+                            withMaterialShowcase().build();
+
+            sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
+                @Override
+                public void onShowcaseViewHide(ShowcaseView showcaseView) {
+
+                    showCaseViewCall(context,activity);
+                }
+
+                @Override
+                public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+
+                }
+
+                @Override
+                public void onShowcaseViewShow(ShowcaseView showcaseView) {
+
+                }
+
+                @Override
+                public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
+
+                }
+            });
+            SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW, true);
+        }
+    }
+
+    public static void showCaseViewSelectMedia(final Context context, final Activity activity){
+        if (!(SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW))) {
+            ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectMediaBtn, activity);
+            ShowcaseView sv = new ShowcaseView.Builder(activity)
+                    .setTarget(targetSelectMediaView)
+                    .setContentTitle(context.getResources().getString(R.string.callermedia_sv_title))
+                    .setContentText(context.getResources().getString(R.string.callermedia_sv_details))
+                    .hideOnTouchOutside().
+                            withMaterialShowcase().build();
+
+            sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
+                @Override
+                public void onShowcaseViewHide(ShowcaseView showcaseView) {
+
+                    showCaseViewSelectProfile(context,activity);
+                }
+
+                @Override
+                public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+                }
+
+                @Override
+                public void onShowcaseViewShow(ShowcaseView showcaseView) {
+                }
+
+                @Override
+                public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
+                }
+            });
+
+            SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, true);
+        }
+    }
+    //endregion
 
 }
