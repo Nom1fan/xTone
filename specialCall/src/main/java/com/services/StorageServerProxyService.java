@@ -104,7 +104,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
                         e.printStackTrace();
                         String errMsg = "Action failed:"+action+" Exception:"+e.getMessage();
                         Log.e(TAG, errMsg);
-                        handleDisconnection(errMsg);
+//                        handleDisconnection(errMsg); //TODO Maybe no need for this?
                     } catch(Exception e) {
                         String errMsg = "Action failed:"+action+" Exception:"+e.getMessage();
                         Log.e(TAG, errMsg);

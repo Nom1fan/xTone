@@ -48,9 +48,7 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
                 context.startService(i);
             }
         } else {
-            BroadcastUtils.sendEventReportBroadcast(context, TAG,
-                    new EventReport(EventType.DISCONNECTED,
-                            "Disconnected. Check your internet connection", null));
+            BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.DISCONNECTED, null, null));
         }
     }
 

@@ -78,8 +78,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     public void handleDisconnection(String errMsg) {
 
         Log.e(TAG, errMsg);
-
-        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
+        //BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
     }
 
     @Override
@@ -124,6 +123,16 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
             wakeLock.release();
             wakeLock = null;
         }
+    }
+
+    protected final void reconnect(String host, int port) throws IOException {
+
+        Log.i(TAG, "Reconnecting...");
+        ConnectionToServer connectionToServer = new ConnectionToServer(host, port, this);
+        connectionToServer.openConnection();
+        connectionToServer.closeConnection();
+        Log.i(TAG, "Reconnected successfully");
+
     }
 
     protected void cancelReconnect() {

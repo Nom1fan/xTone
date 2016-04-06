@@ -113,7 +113,6 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
                             case ACTION_RECONNECT:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.RECONNECT_ATTEMPT, getResources().getString(R.string.reconnecting), null));
                                 reconnectIfNecessary();
                                 break;
 
@@ -215,16 +214,17 @@ public class LogicServerProxyService extends AbstractServerProxy {
     private synchronized void reconnectIfNecessary() throws IOException {
 
         if (isNetworkAvailable()) {
-            ConnectionToServer cts = openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT);
-            if (cts != null) {
+            BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.RECONNECT_ATTEMPT, getResources().getString(R.string.reconnecting), null));
+            try {
+                reconnect(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT);
                 BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CONNECTED, getResources().getString(R.string.connected), null));
                 cancelReconnect();
                 SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
+            } catch(IOException e) {
+                handleDisconnection("Failed to reconnect to server. [Exception]:" + (e.getMessage()!=null ? e.getMessage() : e));
             }
         } else {
-            scheduleReconnect(System.currentTimeMillis());
-            if (!AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_DISABLED))
-                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DISCONNECTED, "Disconnected. Check your internet connection", null));
+            handleDisconnection("Failed to reconnect. No network connection");
         }
     }
 
@@ -237,9 +237,11 @@ public class LogicServerProxyService extends AbstractServerProxy {
     @Override
     public void handleDisconnection(String errMsg) {
 
-        Log.e(TAG, errMsg);
+        Log.e(TAG, "handleDisconnection:" + errMsg);
 
-        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DISCONNECTED, errMsg, null));
+        if (!AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_DISABLED))
+            BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DISCONNECTED, null, null));
+
         scheduleReconnect(System.currentTimeMillis());
     }
     //endregion
