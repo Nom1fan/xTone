@@ -32,6 +32,16 @@
         android:id="@+id/contacts_only"
         android:clickable="true" />
 
+        <RadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/no_one"
+            android:button="@null"
+            android:drawableRight="@android:drawable/btn_radio"
+            android:background="@drawable/custome_divider"
+            android:id="@+id/no_one"
+            android:clickable="true" />
+
     <RadioButton
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

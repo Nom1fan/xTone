@@ -49,6 +49,8 @@ public abstract class MCBlockListUtils {
                     else
                         return true;
 
+                case PermissionBlockListLevel.NO_ONE:
+                    return true;
 
                 case PermissionBlockListLevel.BLACK_LIST_SPECIFIC:
                     Set<String> blockedSet = SharedPrefUtils.getStringSet(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);

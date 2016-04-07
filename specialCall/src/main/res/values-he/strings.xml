@@ -126,6 +126,7 @@
     <!--  blocked_user_list Layout   -->
     <string name="all_can_mc_me">כולם</string>
     <string name="contacts_only">אנשי קשר בלבד</string>
+    <string name="no_one">אף אחד</string>
     <string name="block_specific_contact">חסום אנשי קשר ספציפיים</string>
     <string name="black_list">הרשימה השחורה:</string>
 

@@ -41,6 +41,7 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
     private List<String> _phonesInListView = new ArrayList<String>();
     private List<String> _allContactsNames = new ArrayList<String>();
     private List<String> _allContactsPhones = new ArrayList<String>();
+    private TextView blackListTitle;
     private BlackListAdapter _ma;
     private ListView _lv;
     private Set<String> _blockedContactsSet;
@@ -84,8 +85,12 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
         all_valid.setOnClickListener(this);
         RadioButton contacts_only = (RadioButton) findViewById(R.id.contacts_only);
         contacts_only.setOnClickListener(this);
+        RadioButton no_one = (RadioButton) findViewById(R.id.no_one);
+        no_one.setOnClickListener(this);
         RadioButton blacklist_specific = (RadioButton) findViewById(R.id.blacklist_specific);
         blacklist_specific.setOnClickListener(this);
+
+        blackListTitle = (TextView) findViewById(R.id.blacklist_title);
 
         String oldConfig = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
         if (oldConfig.isEmpty()) {
@@ -100,6 +105,10 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
 
                 case PermissionBlockListLevel.CONTACTS_ONLY:
                     contacts_only.setChecked(true);
+                    break;
+
+                case PermissionBlockListLevel.NO_ONE:
+                    no_one.setChecked(true);
                     break;
 
                 case PermissionBlockListLevel.BLACK_LIST_SPECIFIC:
@@ -119,6 +128,9 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
         }
         if (id == R.id.contacts_only) {
             SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.CONTACTS_ONLY);
+        }
+        if (id == R.id.no_one) {
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.NO_ONE);
         }
         if (id == R.id.blacklist_specific) {
             SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.BLACK_LIST_SPECIFIC);
@@ -191,6 +203,14 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
                 _phonesInListView.add(phone);
             }
         }
+
+
+
+        if (_phonesInListView.isEmpty())
+            blackListTitle.setVisibility(View.INVISIBLE);
+        else
+            blackListTitle.setVisibility(View.VISIBLE);
+
 
 
     }

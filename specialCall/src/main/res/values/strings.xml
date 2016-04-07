@@ -129,6 +129,7 @@
     <!--  blocked_user_list Layout   -->
     <string name="all_can_mc_me">All can MC me</string>
     <string name="contacts_only">Contacts only</string>
+    <string name="no_one">No one</string>
     <string name="block_specific_contact">Block specific contacts ...</string>
     <string name="black_list">BLACK LIST:</string>
 
