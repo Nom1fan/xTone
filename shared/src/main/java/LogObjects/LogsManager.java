@@ -1,15 +1,13 @@
 package LogObjects;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
-
-import org.apache.commons.io.FileUtils;
 
 /**
  * Manages all the server side logs
@@ -33,8 +31,8 @@ public abstract class LogsManager {
 			{
 				_serverLogger = Logger.getLogger("Server");
 				FileHandler fh;
-				int limit = 1000000; // 1 Mb
-				int numLogFiles = 3;
+				int limit = 5 * 1024 * 1024; // 5MB
+				int numLogFiles = 20;
 				String pattern = "Server"+"%g"+".log";
 				fh = new FileHandler(LOG_DIR +pattern, limit ,numLogFiles, true);
 				fh.setFormatter(new SingleLineFormatter());

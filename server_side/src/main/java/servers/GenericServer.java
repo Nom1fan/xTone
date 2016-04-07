@@ -24,7 +24,7 @@ public class GenericServer extends AbstractServer {
     static {
         try {
             LogsManager.createServerLogsDir();
-            LogsManager.clearLogs();
+            //LogsManager.clearLogs();
         } catch (IOException e) {
             e.printStackTrace();
         }
