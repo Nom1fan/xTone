@@ -135,6 +135,24 @@
         android:scaleType="fitCenter"
         android:layout_toLeftOf="@+id/CallNow" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="RingTone Name "
+        android:id="@+id/ringtoneNameForProfile"
+        android:visibility="invisible"
+        android:background="#b000a0d1"
+        android:textColor="@android:color/black"
+        android:singleLine="true"
+        android:hint="No Ringtone Was Chosen !"
+        android:layout_above="@+id/CallNumber"
+        android:layout_alignLeft="@+id/selectProfileMediaBtn"
+        android:layout_alignStart="@+id/selectProfileMediaBtn"
+        android:layout_alignRight="@+id/selectProfileMediaBtn"
+        android:layout_alignEnd="@+id/selectProfileMediaBtn" />
+
+
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

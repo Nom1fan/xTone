@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ImageView _mediaStatus;
     private ImageButton _defaultpic_enabled;
     private TextView _ringToneNameTextView;
+    private TextView _ringToneNameForProfileTextView;
     private ImageButton _inviteBtn;
     private RelativeLayout _mainActivityLayout;
     private ImageView _ringtoneStatus;
@@ -653,6 +654,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         disableSelectProfileMediaButton();
         disableSelectCallerMediaButton();
         disableRingToneName();
+        disableRingToneNameForProfile();
         disableCallButton();
 
     }
@@ -662,6 +664,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         disableProgressBar();
         enableSelectMediaButton();
         drawRingToneName();
+        drawRingToneNameForProfile();
         disableUserFetchProgressBar();
         enableSelectProfileMediaButton();
         enableContactEditText();
@@ -770,6 +773,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void prepareRingtoneNameTextView() {
 
         _ringToneNameTextView = (TextView) findViewById(R.id.ringtoneName);
+        _ringToneNameForProfileTextView = (TextView) findViewById(R.id.ringtoneNameForProfile);
     }
 
     private void prepareInviteButton() {
@@ -1066,6 +1070,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         _defaultpic_enabled.setClickable(false);
         drawSelectProfileMediaButton(false);
+        _ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
     }
 
     private void enableSelectMediaButton() {
@@ -1312,10 +1317,37 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
+    private void drawRingToneNameForProfile() {
+
+        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.PROFILE_MEDIA);
+        String ringToneFilePath = lut_utils.getUploadedTonePerNumber(getApplicationContext(), _destPhoneNumber);
+
+        try {
+
+            if (!ringToneFilePath.isEmpty()) {
+                _ringToneNameForProfileTextView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
+                _ringToneNameForProfileTextView.setVisibility(View.VISIBLE);
+
+                UI_Utils.showCaseViewAfterUploadAndCall(getApplicationContext(), MainActivity.this);
+            } else {
+                _ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to draw drawRingToneNameForProfile:" + (e.getMessage() != null ? e.getMessage() : e));
+        }
+    }
+
     private void disableRingToneName() {
 
         _ringToneNameTextView.setVisibility(View.INVISIBLE);
         disableRingToneStatusArrived();
+    }
+
+
+    private void disableRingToneNameForProfile() {
+
+        _ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
+
     }
 
     private void drawSelectContactButton(boolean enabled) {
