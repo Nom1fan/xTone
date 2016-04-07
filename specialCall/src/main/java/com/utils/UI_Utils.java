@@ -17,7 +17,6 @@ import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.mediacallz.app.R;
-import com.nispok.snackbar.Snackbar;
 
 import java.lang.reflect.Field;
 
@@ -91,15 +90,13 @@ public abstract class UI_Utils {
         }
     }
 
+    public static void showSnackBar(String msg, int color, int sBarDuration, boolean isLoading ,Context context) {
 
-
-    public static void showSnackBar(String msg, int color, Snackbar.SnackbarDuration sBarDuration, Context context) {
-
-        SnackbarData snackbarData = new SnackbarData(SnackbarData.SnackbarStatus.SHOW, color, sBarDuration, msg);
+        SnackbarData snackbarData = new SnackbarData(SnackbarData.SnackbarStatus.SHOW, color, sBarDuration, msg, isLoading);
         BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, null, snackbarData));
     }
 
-    //region ShowCaseView
+    //region ShowCaseView methods
     public static void showCaseView(Activity activity, ViewTarget target, String title, String details) {
 
         Log.i(TAG, "Title: "+ title + " details: " + details);
@@ -111,6 +108,7 @@ public abstract class UI_Utils {
                 .build();
 
     }
+
     public static void showCaseViewSelectProfile(Context context,Activity activity) {
 
         ViewTarget targetProfileView = new ViewTarget(R.id.selectProfileMediaBtn, activity);

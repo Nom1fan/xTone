@@ -8,13 +8,14 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.telephony.SmsManager;
 import android.text.Editable;
+import android.text.Html;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -42,14 +43,9 @@ import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.data_objects.Contact;
 import com.data_objects.SnackbarData;
-import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
-import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.interfaces.ICallbackListener;
 import com.mediacallz.app.R;
-import com.nispok.snackbar.Snackbar;
-import com.nispok.snackbar.SnackbarManager;
-import com.nispok.snackbar.listeners.ActionClickListener;
 import com.services.AbstractStandOutService;
 import com.services.IncomingService;
 import com.services.LogicServerProxyService;
@@ -84,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private String _destPhoneNumber = "";
     private String _destName = "";
 
+    //region UI elements
     private ImageView _userStatusPositive;
     private ImageView _userStatusNegative;
     private ImageButton _selectContactBtn;
@@ -226,8 +223,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if (resultCode == RESULT_OK) {
 
             if (requestCode == ActivityRequestCodes.SELECT_MEDIA) {
-                if (data != null)
-                    writeInfoSnackBar(data.getStringExtra(SelectMediaActivity.RESULT_MSG), Color.RED, Snackbar.SnackbarDuration.LENGTH_INDEFINITE);
+                if (data != null) {
+                    String msg = data.getStringExtra(SelectMediaActivity.RESULT_MSG);
+                    if(msg!=null) {
+                        SnackbarData snackbarData = new SnackbarData(SnackbarData.SnackbarStatus.SHOW,
+                                Color.RED,
+                                Snackbar.LENGTH_INDEFINITE,
+                                data.getStringExtra(SelectMediaActivity.RESULT_MSG));
+                        writeInfoSnackBar(snackbarData);
+                    }
+                }
             }
 
             if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
@@ -361,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
 
             } catch (Exception ex) {
-                writeErrStatBar(ex.getMessage());
+                Log.e(TAG, "Failed to open send SMS activity. [Exception]:" + (ex.getMessage()!=null ? ex.getMessage() : ex));
             }
         }
     }
@@ -398,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 handleSnackBar(new SnackbarData(
                         SnackbarData.SnackbarStatus.SHOW,
                         Color.GREEN,
-                        Snackbar.SnackbarDuration.LENGTH_LONG,
+                        Snackbar.LENGTH_LONG,
                         report.desc()));
                 break;
 
@@ -552,8 +557,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     if (PhoneNumberUtils.isValidPhoneNumber(destPhone)) {
 
                         if (destPhone.equals(Constants.MY_ID(getApplicationContext()))) {
-                            UI_Utils.showSnackBar(getResources().getString(R.string.cant_send_to_self),
-                                    Color.YELLOW, Snackbar.SnackbarDuration.LENGTH_LONG, getApplicationContext());
+
+                            SnackbarData snackbarData = new SnackbarData(
+                                    SnackbarData.SnackbarStatus.SHOW,
+                                    Color.YELLOW,
+                                    Snackbar.LENGTH_LONG,
+                                    getResources().getString(R.string.cant_send_to_self));
+
+                            writeInfoSnackBar(snackbarData);
                         } else {
                             _destPhoneNumber = destPhone;
                             new IsRegisteredTask(destPhone, instance).execute(instance.getApplicationContext());
@@ -675,7 +686,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     public void stateLoading() {
 
-        enableProgressBar();
         disableSelectCallerMediaButton();
         disableSelectProfileMediaButton();
         disableSelectContactButton();
@@ -691,7 +701,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void syncUIwithAppState() {
 
-        switch (AppStateManager.getAppState(getApplicationContext())) {
+        String appState = AppStateManager.getAppState(getApplication());
+
+        Log.i(TAG, "Syncing UI with appState:" + appState);
+
+        switch (appState) {
 
             case AppStateManager.STATE_IDLE:
                 stateIdle();
@@ -1228,7 +1242,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     _selectMediaBtn.setPadding(0, 0, 0, 0);
                     _selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_XY);
 
-                        UI_Utils.showCaseViewAfterUploadAndCall(getApplicationContext(),MainActivity.this);
+                        UI_Utils.showCaseViewAfterUploadAndCall(getApplicationContext(), MainActivity.this);
 
                 } else {// enabled but no uploaded media
                     String ringToneFilePath = lut_utils.getUploadedTonePerNumber(getApplicationContext(), _destPhoneNumber);
@@ -1312,58 +1326,44 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             _selectContactBtn.setImageResource(R.drawable.select_contact_disabled);
     }
 
-    private void writeErrStatBar(final String text) {
+    private void writeInfoSnackBar(final SnackbarData snackBarData) {
 
-    }
+        Log.i(TAG, "Snackbar showing:" + snackBarData.getText());
 
-    private void writeInfoSnackBar(final String text) {
+        int duration = snackBarData.getDuration();
+        if(duration == Snackbar.LENGTH_LONG)
+            duration = 2000;
 
-        Log.i(TAG, "Snackbar showing:" + text);
+        View mainActivity = findViewById(R.id.mainActivity);
 
-        SnackbarManager.show(
-                Snackbar.with(getApplicationContext()) // context
-                        .text(text) // text to display
-                        .actionLabel("Close") // action button label
-                        .duration(Snackbar.SnackbarDuration.LENGTH_LONG)
-                        .actionListener(new ActionClickListener() {
-                            @Override
-                            public void onActionClicked(Snackbar snackbar) {
-                                SnackbarManager.dismiss();
-                            }
-                        }) // action button's ActionClickListener
-                , this); // activity where it is displayed
+        if(mainActivity!=null && snackBarData.getText()!=null) {
+            final Snackbar snackbar = Snackbar
+                    .make(mainActivity, Html.fromHtml(snackBarData.getText()), duration)
+                            .setActionTextColor(snackBarData.getColor());
+            snackbar.setAction(R.string.close, new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    snackbar.dismiss();
+                }
+            });
 
-    }
-
-    private void writeInfoSnackBar(final String text, final int color, Snackbar.SnackbarDuration duration) {
-
-        Log.i(TAG, "Snackbar showing:" + text);
-
-        SnackbarManager.show(
-                Snackbar.with(getApplicationContext()) // context
-                        .text(text) // text to display
-                        .textColor(color)
-                        .actionLabel("Close") // action button label
-                        .duration(duration)
-                        .actionListener(new ActionClickListener() {
-                            @Override
-                            public void onActionClicked(Snackbar snackbar) {
-                                SnackbarManager.dismiss();
-                            }
-                        }) // action button's ActionClickListener
-                , this); // activity where it is displayed
+            if (snackBarData.isLoading()) {
+                Snackbar.SnackbarLayout snackbarLayout = (Snackbar.SnackbarLayout) snackbar.getView();
+                snackbarLayout.addView(new ProgressBar(getApplicationContext()));
+            }
+            snackbar.show();
+        }
     }
 
     private void handleSnackBar(SnackbarData snackbarData) {
 
         switch (snackbarData.getStatus()) {
             case CLOSE:
-                SnackbarManager.dismiss();
                 break;
 
             case SHOW:
                 if (snackbarData.getText() != null && !snackbarData.getText().equals(""))
-                    writeInfoSnackBar(snackbarData.getText(), snackbarData.getColor(), snackbarData.getmDuration());
+                    writeInfoSnackBar(snackbarData);
                 break;
         }
     }

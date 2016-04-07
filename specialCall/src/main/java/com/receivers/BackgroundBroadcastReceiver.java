@@ -4,12 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 
 import com.app.AppStateManager;
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
-import com.nispok.snackbar.Snackbar;
 import com.ui.activities.LoginActivity;
 import com.utils.CacheUtils;
 import com.utils.ContactsUtils;
@@ -45,8 +45,9 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
             return;
 
         String msg = "";
-        Snackbar.SnackbarDuration sBarDuration = null;
+        int sBarDuration = 0;
         int color = 0;
+        boolean isLoading = false;
 
         switch (report.status()) {
             //region Events in loading states
@@ -75,7 +76,8 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 // Setting parameters for snackbar message
                 msg = loadingMsg;
                 color = Color.GREEN;
-                sBarDuration = Snackbar.SnackbarDuration.LENGTH_LONG;
+                sBarDuration = Snackbar.LENGTH_LONG;
+                isLoading = true;
             }
             break;
 
@@ -103,7 +105,8 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 // Setting parameters for snackbar message
                 msg = loadingMsg;
                 color = Color.GREEN;
-                sBarDuration = Snackbar.SnackbarDuration.LENGTH_INDEFINITE;
+                sBarDuration = Snackbar.LENGTH_INDEFINITE;
+                isLoading = true;
             }
             break;
 
@@ -118,7 +121,8 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 // Setting parameters for snackbar message
                 msg = loadingMsg;
                 color = Color.GREEN;
-                sBarDuration = Snackbar.SnackbarDuration.LENGTH_INDEFINITE;
+                sBarDuration = Snackbar.LENGTH_INDEFINITE;
+                isLoading = true;
             }
             break;
             //endregion
@@ -131,7 +135,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 // Setting parameters for snackbar message
                 msg = context.getResources().getString(R.string.disconnected);
                 color = Color.RED;
-                sBarDuration = Snackbar.SnackbarDuration.LENGTH_INDEFINITE;
+                sBarDuration = Snackbar.LENGTH_INDEFINITE;
                 break;
 
             case DESTINATION_DOWNLOAD_COMPLETE: {
@@ -143,9 +147,9 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
                 // Setting parameters for snackbar message
                 msg = String.format(context.getResources().getString(R.string.destination_download_complete),
-                        ContactsUtils.getContactName(context, td.getDestinationId()));
+                        ContactsUtils.getContactNameHtml(context, td.getDestinationId()));
                 color = Color.GREEN;
-                sBarDuration = Snackbar.SnackbarDuration.LENGTH_LONG;
+                sBarDuration = Snackbar.LENGTH_LONG;
             }
                 break;
 
@@ -158,16 +162,16 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
                 // Setting parameters for snackbar message
                 msg = String.format(context.getResources().getString(R.string.destination_media_cleared),
-                        ContactsUtils.getContactName(context, td.getDestinationId()));
+                        ContactsUtils.getContactNameHtml(context, td.getDestinationId()));
                 color = Color.GREEN;
-                sBarDuration = Snackbar.SnackbarDuration.LENGTH_LONG;
+                sBarDuration = Snackbar.LENGTH_LONG;
             }
                 break;
 
             case USER_REGISTERED_TRUE: {
                 String destNumber = (String) report.data();
                 msg = String.format(context.getResources().getString(R.string.user_is_registered),
-                        ContactsUtils.getContactName(context, destNumber));
+                        ContactsUtils.getContactNameHtml(context, destNumber));
                 CacheUtils.setPhone(context, (String) report.data());
             }
             case UPLOAD_SUCCESS:
@@ -178,7 +182,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
                 // Setting parameters for snackbar message
                 color = Color.GREEN;
-                sBarDuration = Snackbar.SnackbarDuration.LENGTH_LONG;
+                sBarDuration = Snackbar.LENGTH_LONG;
                 break;
 
             case CONNECTED:
@@ -192,7 +196,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 // Setting parameters for snackbar message
                 msg = context.getResources().getString(R.string.connected);
                 color = Color.GREEN;
-                sBarDuration = Snackbar.SnackbarDuration.LENGTH_LONG;
+                sBarDuration = Snackbar.LENGTH_LONG;
                 break;
 
             case REGISTER_SUCCESS:
@@ -201,8 +205,8 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
             case USER_REGISTERED_FALSE: {
                 String destNumber = (String) report.data();
-                msg = String.format(context.getResources().getString(R.string.user_is_unregistered),
-                        ContactsUtils.getContactName(context, destNumber));
+                msg =  String.format(context.getResources().getString(R.string.user_is_unregistered),
+                        ContactsUtils.getContactNameHtml(context, destNumber));
             }
             case ISREGISTERED_ERROR:
             case UPLOAD_FAILURE:
@@ -214,7 +218,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
                 // Setting parameters for snackbar message
                 color = Color.RED;
-                sBarDuration = Snackbar.SnackbarDuration.LENGTH_LONG;
+                sBarDuration = Snackbar.LENGTH_LONG;
                 break;
 
             case UNREGISTER_SUCCESS:
@@ -248,7 +252,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
         }
 
-        UI_Utils.showSnackBar(msg, color, sBarDuration, context);
+        UI_Utils.showSnackBar(msg, color, sBarDuration, isLoading ,context);
     }
 
 }

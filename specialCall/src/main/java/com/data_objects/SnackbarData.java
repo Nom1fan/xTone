@@ -1,9 +1,5 @@
 package com.data_objects;
 
-import android.graphics.Color;
-
-import com.nispok.snackbar.Snackbar;
-
 import java.io.Serializable;
 
 /**
@@ -13,8 +9,26 @@ public class SnackbarData implements Serializable {
 
     private SnackbarStatus mStatus;
     private int mColor;
-    private Snackbar.SnackbarDuration mDuration;
+    private int mDuration;
     private String mText;
+    private boolean mIsLoading = false;
+
+    public SnackbarData(SnackbarStatus status, int color, int duration, String text) {
+
+        mStatus = status;
+        mColor = color;
+        mDuration = duration;
+        mText = text;
+    }
+
+    public SnackbarData(SnackbarStatus status, int color, int duration, String text, boolean isLoading) {
+
+        mStatus = status;
+        mColor = color;
+        mDuration = duration;
+        mText = text;
+        mIsLoading = isLoading;
+    }
 
     public SnackbarStatus getStatus() {
         return mStatus;
@@ -24,7 +38,7 @@ public class SnackbarData implements Serializable {
         return mColor;
     }
 
-    public Snackbar.SnackbarDuration getmDuration() {
+    public int getDuration() {
         return mDuration;
     }
 
@@ -32,23 +46,14 @@ public class SnackbarData implements Serializable {
         return mText;
     }
 
+    public boolean isLoading() {
+        return mIsLoading;
+    }
+
     public enum SnackbarStatus {
 
         SHOW,
         CLOSE
-    }
-
-    public SnackbarData(SnackbarStatus status, int color, Snackbar.SnackbarDuration duration, String text) {
-
-        mStatus = status;
-        mColor = color;
-        mDuration = duration;
-        mText = text;
-    }
-
-    public SnackbarData(SnackbarStatus status) {
-
-        mStatus = status;
     }
 
 }

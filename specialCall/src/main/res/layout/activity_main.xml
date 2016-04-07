@@ -217,25 +217,25 @@
         android:visibility="gone" />
 
     <ImageView
-        android:layout_width="@dimen/sb__text_size"
-        android:layout_height="@dimen/sb__text_size"
+        android:layout_width="14sp"
+        android:layout_height="14sp"
         android:id="@+id/mediaStatusArrived"
         android:layout_above="@+id/ringtoneName"
         android:layout_alignRight="@+id/selectMediaBtn"
         android:layout_alignEnd="@+id/selectMediaBtn"
         android:visibility="invisible"
-        android:layout_marginRight="@dimen/sb__text_size"
+        android:layout_marginRight="14sp"
         android:src="@drawable/doublepositive" />
 
     <ImageView
-        android:layout_width="@dimen/sb__text_size"
-        android:layout_height="@dimen/sb__text_size"
+        android:layout_width="14sp"
+        android:layout_height="14sp"
         android:id="@+id/ringtoneStatusArrived"
         android:visibility="invisible"
         android:layout_alignBottom="@+id/selectMediaBtn"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginRight="@dimen/sb__text_size"
+        android:layout_marginRight="14sp"
         android:src="@drawable/doublepositive" />
 
     <TextView

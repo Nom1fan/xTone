@@ -52,9 +52,8 @@ public class AppStateManager {
 
         SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE, loadingMsg);
 
-        String curState = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE);
+        String curState = getAppState(context);
         Log.i(TAG, tag + " changes state from [" + curState + "] to: [" + STATE_LOADING + "]");
-        saveCurrAppState(context, curState);
         setAppState(context, tag, STATE_LOADING);
         if (loadingState.get_loadingTimeout() > 0)
             setLoadingTimeout(context, loadingState);
@@ -74,6 +73,11 @@ public class AppStateManager {
                 !getAppState(context).equals(AppStateManager.STATE_LOADING);
     }
 
+    public synchronized static String getLoadingMsg(Context context) {
+
+        return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE);
+    }
+
     /**
      * Creates a loading state for the app. To use without a timeout, set timeoutInMilliseconds to be <= 0
      *
@@ -87,6 +91,9 @@ public class AppStateManager {
     }
 
     private synchronized static void setLoadingTimeout(final Context context, final LoadingState loadingState) {
+
+        Log.d(TAG, "Setting loading timeout. [Timeout in milliseconds]:" + loadingState.get_loadingTimeout() +
+                " [Event to fire after timeout]:" + loadingState.get_eventReport().status());
 
         mLoadingTimeoutThread = new Thread() {
             @Override
@@ -107,14 +114,18 @@ public class AppStateManager {
     }
 
     private synchronized static void stopLoadingTimeout() {
-        if (mLoadingTimeoutThread != null)
+
+        Log.d(TAG, "stopLoadingTimeout()");
+
+        if (mLoadingTimeoutThread != null) {
             mLoadingTimeoutThread.interrupt();
+        }
         mLoadingTimeoutThread = null;
     }
 
     private static void saveCurrAppState(Context context, String curState) {
 
-        if (!curState.equals(STATE_LOADING) && !curState.equals(STATE_DISABLED))
+        if (isNonBlockingState(context))
             SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_PREV_STATE, curState);
     }
 

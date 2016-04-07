@@ -76,12 +76,16 @@ public abstract class ContactsUtils {
         }
 
         cursor.close();
-        cursor = null;
 
         if(contactName == null || contactName.equals(""))
             return phoneNumber;
 
         return contactName;
+    }
+
+    public static String getContactNameHtml(Context context, String phoneNumber) {
+
+        return "<b><font color=\"#00FFFF\">" + getContactName(context, phoneNumber) + "</font></b>";
     }
 
     public static List<Contact> getAllContacts(Context context) {
