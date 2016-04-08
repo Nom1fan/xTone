@@ -30,7 +30,7 @@ public class MessageRegister extends MessageToServer {
         int expectedSmsCode = SmsVerificationAccess.instance(_dal).getSmsVerificationCode(_messageInitiaterId);
 
         MessageRegisterRes msgReply;
-       if(_smsCode == expectedSmsCode) {
+       if(_smsCode!=-1 && _smsCode == expectedSmsCode) {
            boolean isOK = UsersDataAccess.instance(_dal).registerUser(_messageInitiaterId, _pushToken);
            msgReply = new MessageRegisterRes(isOK);
 

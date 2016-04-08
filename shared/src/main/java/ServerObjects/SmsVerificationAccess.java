@@ -4,7 +4,6 @@ import java.sql.SQLException;
 
 import DalObjects.DALAccesible;
 import DalObjects.IDAL;
-import utils.RandUtils;
 
 /**
  * Created by Mor on 28/03/2016.
@@ -42,7 +41,8 @@ public class SmsVerificationAccess  extends DALAccesible {
     public int getSmsVerificationCode(String uid) {
 
         try {
-            return _dal.getUserSmsVerificationCode(uid);
+            int code = _dal.getUserSmsVerificationCode(uid);
+            return code!=0 ? code : -1;
         } catch (SQLException e) {
             e.printStackTrace();
             _logger.severe("Failed to get SMS verification code for [User]:" + uid + ". [Exception]:" + (e.getMessage()!=null ? e.getMessage(): e));
