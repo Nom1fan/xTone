@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -50,6 +51,7 @@ import com.services.AbstractStandOutService;
 import com.services.IncomingService;
 import com.services.LogicServerProxyService;
 import com.services.OutgoingService;
+import com.services.PreviewService;
 import com.services.StorageServerProxyService;
 import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
@@ -294,13 +296,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void startPreviewStandoutWindow(SpecialMediaType specialMediaType) {
 
+
+        AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, am.getStreamVolume(AudioManager.STREAM_MUSIC));
+        Log.i(TAG, "PreviewStart MUSIC_VOLUME Original" + String.valueOf(am.getStreamVolume(AudioManager.STREAM_MUSIC)));
+
+
         // close previous
-        Intent closePrevious = new Intent(getApplicationContext(), OutgoingService.class);
+        Intent closePrevious = new Intent(getApplicationContext(), PreviewService.class);
         closePrevious.setAction(AbstractStandOutService.ACTION_CLOSE_ALL);
         startService(closePrevious);
 
         LUT_Utils lut_utils = new LUT_Utils(specialMediaType);
-        Intent showPreview = new Intent(getApplicationContext(), OutgoingService.class);
+        Intent showPreview = new Intent(getApplicationContext(), PreviewService.class);
         showPreview.setAction(AbstractStandOutService.ACTION_PREVIEW);
 
         showPreview.putExtra(AbstractStandOutService.PREVIEW_AUDIO, lut_utils.getUploadedTonePerNumber(getApplicationContext(), _destPhoneNumber));

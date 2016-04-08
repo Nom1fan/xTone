@@ -73,6 +73,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected boolean windowCloseActionWasMade = true;
     protected View mSpecialCallView;
     protected AudioManager mAudioManager;
+    protected AudioManager mPreviewAudioManager;
     protected CallStateListener mPhoneListener;
     protected OnVideoPreparedListener mVideoPreparedListener;
     protected boolean volumeChangeByMCButtons = false;
@@ -154,6 +155,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         mcButtonsOverlay = inflater.inflate(R.layout.mc_buttons_overlay, null);
+
         prepareMCButtonsOnRelativeLayoutOverlay();
 
         frame.addView(mcButtonsOverlay);
@@ -165,8 +167,18 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     private void prepareMCButtonsOnRelativeLayoutOverlay() {
 
         if (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS)) {
-            prepareMuteBtn();
-            prepareVolumeBtn();
+
+            if (!mPreviewStart)
+            {   Log.i(TAG, "set Volume Buttons ");
+                prepareMuteBtn();
+                prepareVolumeBtn();}
+            else
+            {
+                Log.i(TAG, "set Preview Volume Buttons ");
+                previewPrepareMuteBtn();
+                previewPrepareVolumeBtn();
+            }
+
         }
         else
             disableVolumeButtons();
@@ -183,19 +195,42 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     @Override
     public boolean onShow(int id, Window window) {
-        Log.i(TAG, "onShow");
+        Log.i(TAG, "abstract : onShow");
+        try {
+
+            if (!mPreviewStart)
+                Log.i(TAG, "abstract MUSIC_VOLUME Original" + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+            else
+                Log.i(TAG, "abstract Preview MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+
+        } catch (Exception e) {
+            Log.i(TAG, "audiomanager confusion " + e.getMessage());
+        }
+
         if (isHidden) {
-            verifyAudioManager();
-            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
+
+            try {
+            if (!mPreviewStart) {
+                verifyAudioManager();
+                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
+            }else {
+                verifyPreviewAudioManager();
+                mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
+            }
+            } catch (Exception e) {
+                Log.i(TAG, "audiomanager confusion " + e.getMessage());
+            }
+
+            Log.i(TAG, "OnHide Mute Volume Now : " + String.valueOf(mVolumeBeforeMute));
             isHidden = false;
         }
 
-    if (showFirstTime) {
-        window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_X_LOCATION_BY_USER),
-                SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_Y_LOCATION_BY_USER)).commit();
-
-        showFirstTime = false;
-    }
+        if (showFirstTime) {
+            window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_X_LOCATION_BY_USER),
+                    SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_Y_LOCATION_BY_USER)).commit();
+            Log.i(TAG, "showFirstTime");
+            showFirstTime = false;
+        }
 
         return false;
     }
@@ -247,6 +282,19 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     @Override
+    public boolean onCloseAll() {
+        Log.i(TAG, "onCloseAll");
+       /* if (mPreviewStart) {
+            Log.i(TAG,"Incase outgoing call is made return volume music to 0");
+            verifyAudioManager();
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // setting max volume for music -5 as it's to high volume
+        }*/
+        stopSound();
+        releaseResources();
+        return false;
+    }
+
+    @Override
     public boolean onClose(int id, Window window) {
         Log.i(TAG, "onClose");
         showFirstTime = false;
@@ -261,9 +309,23 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_X_LOCATION_BY_USER, coordinates[0]);
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_Y_LOCATION_BY_USER, coordinates[1] - statusBarHeighet); // remove the Heighet of the status bar
 
+       /* if (mPreviewStart) {
+            Log.i(TAG,"Incase outgoing call is made return volume music to 0");
+            verifyAudioManager();
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // setting max volume for music -5 as it's to high volume
+        }*/
+
+
         Log.i(TAG, "Heighet: " + String.valueOf(window.getHeight()) + "Width: " + String.valueOf(window.getWidth()) + "X: " + String.valueOf(coordinates[0]) + "Y: " + String.valueOf(coordinates[1] - statusBarHeighet));
 
         stopSound();
+        releaseResources();
+
+
+
+
+
+
 
         return false;
     }
@@ -280,10 +342,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         showFirstTime = true;
 
         if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_WIDTH_BY_USER) > 0)
-                mWidth = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_WIDTH_BY_USER);
+            mWidth = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_WIDTH_BY_USER);
 
         if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_HEIGHET_BY_USER) > 0)
-              mHeight = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_HEIGHET_BY_USER);
+            mHeight = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_HEIGHET_BY_USER);
 
 
     }
@@ -435,14 +497,16 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         mSpecialCallMutUnMuteBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Log.i(TAG, "mute and Umute by click");
+
                 if (isMuted) {  // in versions of KITKAT and lower , we start in muted mode on the music stream , because we don't know when answering happens and we should stop it.
                     Log.i(TAG, "UNMUTE by button");
                     volumeChangeByMCButtons = true;
 
                     verifyAudioManager();
-
+                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
+
+                    Log.i(TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
                     isMuted = false;
 
                     mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
@@ -452,8 +516,11 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     Log.i(TAG, "MUTE by button");
                     volumeChangeByMCButtons = true;
                     verifyAudioManager();
+
                     mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                    Log.i(TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
                     isMuted = true;
 
                     mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
@@ -523,6 +590,120 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     }
 
+
+    private void previewPrepareMuteBtn() {
+        Log.i(TAG, "Preparing Mute Button");
+
+        //TODO check if Togglebutton for imageView good also?
+        mSpecialCallMutUnMuteBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.mc_mute_unmute);
+        verifyPreviewAudioManager();
+        if (mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
+            mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
+            mSpecialCallMutUnMuteBtn.bringToFront();
+        } else {
+            mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
+            mSpecialCallMutUnMuteBtn.bringToFront();
+        }
+
+
+        mSpecialCallMutUnMuteBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                if (isMuted) {  // in versions of KITKAT and lower , we start in muted mode on the music stream , because we don't know when answering happens and we should stop it.
+                    Log.i(TAG, "UNMUTE by button");
+                    volumeChangeByMCButtons = true;
+
+                    verifyPreviewAudioManager();
+                    mPreviewAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+                    mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
+
+                    Log.i(TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
+                    isMuted = false;
+
+                    mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
+                    mSpecialCallMutUnMuteBtn.bringToFront();
+
+                } else {
+                    Log.i(TAG, "MUTE by button");
+                    volumeChangeByMCButtons = true;
+                    verifyPreviewAudioManager();
+
+                    mVolumeBeforeMute = mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                    Log.i(TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
+                    mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+                    mPreviewAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                    isMuted = true;
+
+                    mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
+                    mSpecialCallMutUnMuteBtn.bringToFront();
+
+                }
+            }
+        });
+
+
+    }
+
+    private void previewPrepareVolumeBtn() {
+        Log.i(TAG, "Preparing Volume Button");
+
+        mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
+        mSpecialCallVolumeUpBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_up);
+
+        //ImageView for volume down Special Incoming Call
+        mSpecialCallVolumeDownBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                volumeChangeByMCButtons = true;
+                verifyPreviewAudioManager();
+                mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) - 1, 0); // decrease volume
+
+            }
+        });
+        mSpecialCallVolumeDownBtn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                volumeChangeByMCButtons = true;
+
+                verifyPreviewAudioManager();
+                mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // decrease volume
+
+                return true;
+            }
+        });
+
+        //ImageView for volume up Special Incoming Call
+        mSpecialCallVolumeUpBtn.bringToFront();
+        mSpecialCallVolumeUpBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                volumeChangeByMCButtons = true;
+
+                verifyPreviewAudioManager();
+                mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) + 1, 0); // increase volume
+
+            }
+        });
+
+        mSpecialCallVolumeUpBtn.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                volumeChangeByMCButtons = true;
+
+                verifyPreviewAudioManager();
+                mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mPreviewAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0); // increase volume
+
+                return true;
+            }
+        });
+
+
+    }
+
+
+
+
     private void prepareBlockButton() {
         Log.i(TAG, "Preparing Block Button");
         mSpecialCallBlockBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.block_mc);
@@ -585,8 +766,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected void backupMusicVolume() {
 
         verifyAudioManager();
-        Log.i(TAG, "mRingVolume Original" + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME));
+        Log.i(TAG, "RING_VOLUME Original" + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME));
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
+        Log.i(TAG, "MUSIC_VOLUME Original" + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
     }
 
     protected void backupRingVolume() {
@@ -605,6 +787,15 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         }
     }
+
+    protected void verifyPreviewAudioManager() {
+
+        if (mPreviewAudioManager == null)
+        {
+            Log.i(TAG , "Audio manager was null , re-instantiated");
+            mPreviewAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        }
+    }
     //endregion
 
     //region MC actions methods
@@ -618,10 +809,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected void startVisualMediaMC(String visualMediaFilePath, String callNumber, boolean attachDefaultView) {
 
         Log.i(TAG, "startVisualMediaMC SharedPrefUtils visualMediaFilePath:" + visualMediaFilePath);
-    if (attachDefaultView)
-        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
-    else
-        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
+        if (attachDefaultView)
+            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
+        else
+            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
 
         String contactName = ContactsUtils.getContactName(getApplicationContext(), callNumber);
         mContactTitleOnWindow = (!contactName.equals("") ? contactName + " " + callNumber : callNumber);
@@ -771,9 +962,29 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     //region Private classes and listeners
     protected void releaseResources() {
 
-        mMediaPlayer.release();
+
+        verifyAudioManager();
+        mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+
+        try {
+            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
+        } catch (Exception e) {
+            Log.e(TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+        }
+
+        try {
+            if (mMediaPlayer != null) {
+                mMediaPlayer.release();
+            } else
+                Log.i(TAG, "mMediaPlayer Fucking Null WTF !!!!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "Failed to Stop sound. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+        }
+
         mMediaPlayer = null;
         mAudioManager = null;
+        mPreviewAudioManager = null;
         isMuted = false;
         removeTempMd5ForCallRecord();
         mPreviewStart = false;
