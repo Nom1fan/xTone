@@ -17,7 +17,6 @@ import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
 import com.utils.NotificationUtils;
-import utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
@@ -25,6 +24,7 @@ import java.io.IOException;
 
 import DataObjects.SpecialMediaType;
 import FilesManager.FileManager;
+import utils.PhoneNumberUtils;
 import wei.mark.standout.StandOutWindow;
 
 
@@ -146,9 +146,11 @@ public class IncomingService extends AbstractStandOutService {
         if (!MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext()) || (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)))
             switch (state) {
                 case TelephonyManager.CALL_STATE_RINGING:
+
                     Log.i(TAG,"CALL_STATE_RINGING " + incomingNumber);
-                    if (!isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && !isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(incomingNumber)) {
+                    if (!isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && !isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(incomingNumber) && (mAnswered == false)) {
                         try {
+
                             setRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION, true); // TODO placed here to fix a bug that sometimes it get entered twice (second time by the fallback receiver when we answer very quick) , is this a good place for it i don't know :/
                             String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, incomingNumber);
                             String ringtonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, incomingNumber);
@@ -222,11 +224,13 @@ public class IncomingService extends AbstractStandOutService {
                                     ringtoneFile.exists() ? ringtonePath : null,
                                     SpecialMediaType.CALLER_MEDIA);
 
+
                         } catch (Exception e) {
                             e.printStackTrace();
                             Log.e(TAG, "CALL_STATE_RINGING failed:" + e.getMessage());
                         }
                     }
+
                     break;
                 // TODO RONY Iteratively  inside enableRingStream() and   i.setAction(StandOutWindow.ACTION_CLOSE_ALL); will be before this method enableRingStream iteratively logic
                 case TelephonyManager.CALL_STATE_OFFHOOK:
