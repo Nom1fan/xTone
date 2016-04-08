@@ -170,12 +170,21 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
             case USER_REGISTERED_TRUE: {
                 String destNumber = (String) report.data();
-                msg = String.format(context.getResources().getString(R.string.user_is_registered),
-                        ContactsUtils.getContactNameHtml(context, destNumber));
-                CacheUtils.setPhone(context, (String) report.data());
+                if(destNumber!=null) {
+                    msg = String.format(context.getResources().getString(R.string.user_is_registered),
+                            ContactsUtils.getContactNameHtml(context, destNumber));
+                    CacheUtils.setPhone(context, (String) report.data());
+
+                    // Setting parameters for snackbar message
+                    color = Color.GREEN;
+                    sBarDuration = Snackbar.LENGTH_LONG;
+                }
+                // Setting state
+                AppStateManager.setAppState(context, TAG, AppStateManager.STATE_READY);
             }
+                break;
             case UPLOAD_SUCCESS:
-                if(msg.equals("")) msg = context.getResources().getString(R.string.upload_success);
+                msg = context.getResources().getString(R.string.upload_success);
             //case COMPRESSION_COMPLETE: //TODO commented out by Mor - need to check if this is necessary or just bothers the user
                 // Setting state
                 AppStateManager.setAppState(context, TAG, AppStateManager.STATE_READY);

@@ -102,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private RelativeLayout _mainActivityLayout;
     private ImageView _ringtoneStatus;
     private AutoCompleteTextView _destinationEditText;
+    private TextView _destTextView;
+    private TextView _mediaCallingTextView;
     //endregion
 
     //region Activity methods (onCreate(), onPause(), ...)
@@ -226,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             if (requestCode == ActivityRequestCodes.SELECT_MEDIA) {
                 if (data != null) {
                     String msg = data.getStringExtra(SelectMediaActivity.RESULT_MSG);
-                    if(msg!=null) {
+                    if (msg != null) {
                         SnackbarData snackbarData = new SnackbarData(SnackbarData.SnackbarStatus.SHOW,
                                 Color.RED,
                                 Snackbar.LENGTH_INDEFINITE,
@@ -308,17 +310,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         startService(showPreview);
 
 
-
     }
 
     private void selectMedia(int specialMediaType) {
 
         /* Create an intent that will start the main activity. */
-        Intent mainIntent = new Intent(MainActivity.this,
-                SelectMediaActivity.class);
-        mainIntent.putExtra("SpecialMediaType", specialMediaType);
-        mainIntent.putExtra("DestinationNumber", _destPhoneNumber);
-        mainIntent.putExtra("DestinationName", _destName);
+        Intent mainIntent = new Intent(this, SelectMediaActivity.class);
+        mainIntent.putExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, specialMediaType);
+        mainIntent.putExtra(SelectMediaActivity.DESTINATION_NUMBER, _destPhoneNumber);
+        mainIntent.putExtra(SelectMediaActivity.DESTINATION_NAME, _destName);
         startActivityForResult(mainIntent, ActivityRequestCodes.SELECT_MEDIA);
 
          /* Apply our splash exit (fade out) and main
@@ -367,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
 
             } catch (Exception ex) {
-                Log.e(TAG, "Failed to open send SMS activity. [Exception]:" + (ex.getMessage()!=null ? ex.getMessage() : ex));
+                Log.e(TAG, "Failed to open send SMS activity. [Exception]:" + (ex.getMessage() != null ? ex.getMessage() : ex));
             }
         }
     }
@@ -379,9 +379,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         switch (report.status()) {
 
             case APP_RECORD_RECEIVED:
-                AppMetaRecord appMetaRecord = (AppMetaRecord)report.data();
+                AppMetaRecord appMetaRecord = (AppMetaRecord) report.data();
 
-                if(SharedConstants.APP_VERSION < appMetaRecord.get_lastSupportedVersion())
+                if (SharedConstants.APP_VERSION < appMetaRecord.get_lastSupportedVersion())
                     showMandatoryUpdateDialog(appMetaRecord.get_appVersion());
                 break;
 
@@ -418,16 +418,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void saveInstanceState() {
 
         // Saving destination number
-        final AutoCompleteTextView ed_destinationNumber = ((AutoCompleteTextView) findViewById(R.id.CallNumber));
-        if (ed_destinationNumber != null) {
-            _destPhoneNumber = ed_destinationNumber.getText().toString();
+        if (_autoCompleteTextViewDestPhone != null) {
+            _destPhoneNumber = _autoCompleteTextViewDestPhone.getText().toString();
             SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, _destPhoneNumber);
         }
 
         // Saving destination name
-        final TextView ed_destinationName = ((TextView) findViewById(R.id.destName));
-        if (ed_destinationName != null && (!ed_destinationName.getText().toString().isEmpty())) {
-            _destName = ed_destinationName.getText().toString();
+        if (_destTextView != null && (!_destTextView.getText().toString().isEmpty())) {
+            _destName = _destTextView.getText().toString();
             SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, _destName);
         }
     }
@@ -464,11 +462,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         Log.i(TAG, "Restoring instance state");
 
         // Restoring destination number
-        final AutoCompleteTextView ed_destinationNumber =
-                (AutoCompleteTextView) findViewById(R.id.CallNumber);
         String destNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
-        if (ed_destinationNumber != null && destNumber != null)
-            ed_destinationNumber.setText(destNumber);
+        if (_autoCompleteTextViewDestPhone != null && destNumber != null)
+            _autoCompleteTextViewDestPhone.setText(destNumber);
 
         // Restoring destination name
         _destName = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
@@ -477,21 +473,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void setDestNameTextView() {
 
-        final TextView tv_destName =
-                (TextView) findViewById(R.id.destName);
-        final TextView tv_destNameTitle =
-                (TextView) findViewById(R.id.media_calling);
-        if (tv_destName != null && _destName != null)
-        {
-            tv_destName.setText(_destName);
+        if (_destTextView != null) {
 
-            if (!_destName.isEmpty())
-                tv_destNameTitle.setVisibility(View.VISIBLE);
-            else
-                tv_destNameTitle.setVisibility(View.INVISIBLE);
+            if (_destName != null && !_destName.equals(""))
+                _destTextView.setText(_destName);
+            else if (_destPhoneNumber != null && !_destPhoneNumber.equals(""))
+                _destTextView.setText(_destPhoneNumber);
+            else {
+                disableDestinationTextView();
+                return;
+            }
+
+            enableDestinationTextView();
         }
-        else
-            tv_destNameTitle.setVisibility(View.INVISIBLE);
     }
 
     private void prepareEventReceiver() {
@@ -627,9 +621,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         enableHamburgerIconWithSlideMenu();
         prepareAutoCompleteTextViewDestPhoneNumber();
 
+        prepareDestNameTextView();
+        prepareMediaCallingTextView();
         prepareUserStatusNegative();
         prepareUserStatusPositive();
-        prepareContactEditText();
+        prepareDestinationEditText();
         prepareRingtoneStatus();
         prepareProgressBar();
         prepareFetchUserProgressBar();
@@ -649,13 +645,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         disableProgressBar();
         enableSelectContactButton();
-        enableContactEditText();
+        enableDestinationEditText();
         disableUserFetchProgressBar();
         disableSelectProfileMediaButton();
         disableSelectCallerMediaButton();
         disableRingToneName();
         disableRingToneNameForProfile();
         disableCallButton();
+        disableMediaCallingTextView();
+        disableDestinationTextView();
 
     }
 
@@ -667,7 +665,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         drawRingToneNameForProfile();
         disableUserFetchProgressBar();
         enableSelectProfileMediaButton();
-        enableContactEditText();
+        enableDestinationEditText();
         enableSelectContactButton();
         enableCallButton();
         userStatusRegistered();
@@ -681,7 +679,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         disableUserFetchProgressBar();
         disableProgressBar();
         disableSelectContactButton();
-        disableContactEditText();
+        disableDestinationEditText();
         disableCallButton();
         disableInviteButton();
 
@@ -689,11 +687,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     public void stateLoading() {
 
-        disableSelectCallerMediaButton();
-        disableSelectProfileMediaButton();
-        disableSelectContactButton();
-        disableContactEditText();
-        disableCallButton();
+        if (AppStateManager.isLoadingStateActive()) {
+
+            disableSelectCallerMediaButton();
+            disableSelectProfileMediaButton();
+            disableSelectContactButton();
+            disableDestinationEditText();
+            disableCallButton();
+        } else {
+            AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.getAppPrevState(getApplicationContext()));
+            syncUIwithAppState();
+        }
 
     }
 
@@ -704,7 +708,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void syncUIwithAppState() {
 
-        String appState = AppStateManager.getAppState(getApplication());
+        String appState = getState();
 
         Log.i(TAG, "Syncing UI with appState:" + appState);
 
@@ -730,6 +734,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //endregion
 
     //region UI elements controls
+    private void prepareMediaCallingTextView() {
+
+        _mediaCallingTextView = (TextView) findViewById(R.id.media_calling);
+    }
+
     private void prepareUserStatusPositive() {
 
         _userStatusPositive = (ImageView) findViewById(R.id.userStatusPositive);
@@ -740,9 +749,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         _userStatusNegative = (ImageView) findViewById(R.id.userStatusNegative);
     }
 
-    private void prepareContactEditText() {
+    private void prepareDestinationEditText() {
 
         _destinationEditText = (AutoCompleteTextView) findViewById(R.id.CallNumber);
+    }
+
+    private void prepareDestNameTextView() {
+
+        _destTextView = (TextView) findViewById(R.id.destName);
     }
 
     private void prepareRingtoneStatus() {
@@ -880,7 +894,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 //        dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
 //        dataList.add(new DrawerItem("Rate Us", R.drawable.rateus2));
         dataList.add(new DrawerItem(getResources().getString(R.string.app_settings), R.drawable.settingsicon));
-         dataList.add(new DrawerItem(getResources().getString(R.string.about_FAQ), R.drawable.color_mc));
+        dataList.add(new DrawerItem(getResources().getString(R.string.about_FAQ), R.drawable.color_mc));
 
         CustomDrawerAdapter mAdapter = new CustomDrawerAdapter(this, R.layout.custome_drawer_item,
                 dataList);
@@ -1009,8 +1023,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     }
 
-
-
     private void openProfileMediaMenu() {
         ImageButton profile = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
         //Creating the instance of PopupMenu
@@ -1080,7 +1092,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         // make the drawable fit center and with padding, so it won't stretch
         int sizeInDp = 30;
         float scale = getResources().getDisplayMetrics().density;
-        int dpAsPixels = (int) (sizeInDp*scale + 0.5f);
+        int dpAsPixels = (int) (sizeInDp * scale + 0.5f);
         _selectMediaBtn.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
         _selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
@@ -1130,12 +1142,35 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             _pBar.setVisibility(ProgressBar.VISIBLE);
     }
 
-    private void disableContactEditText() {
+    private void disableDestinationTextView() {
+
+        _destTextView.setText("");
+        _destTextView.setVisibility(TextView.INVISIBLE);
+        disableMediaCallingTextView();
+    }
+
+    private void enableDestinationTextView() {
+
+        _destTextView.setVisibility(TextView.VISIBLE);
+        enableMediaCallingTextView();
+    }
+
+    private void disableMediaCallingTextView() {
+
+        _mediaCallingTextView.setVisibility(TextView.INVISIBLE);
+    }
+
+    private void enableMediaCallingTextView() {
+
+        _mediaCallingTextView.setVisibility(TextView.VISIBLE);
+    }
+
+    private void disableDestinationEditText() {
 
         _destinationEditText.setEnabled(false);
     }
 
-    private void enableContactEditText() {
+    private void enableDestinationEditText() {
 
         _destinationEditText.setEnabled(true);
     }
@@ -1247,12 +1282,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     _selectMediaBtn.setPadding(0, 0, 0, 0);
                     _selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_XY);
 
-                        UI_Utils.showCaseViewAfterUploadAndCall(getApplicationContext(), MainActivity.this);
+                    UI_Utils.showCaseViewAfterUploadAndCall(getApplicationContext(), MainActivity.this);
 
                 } else {// enabled but no uploaded media
                     String ringToneFilePath = lut_utils.getUploadedTonePerNumber(getApplicationContext(), _destPhoneNumber);
                     if (ringToneFilePath.isEmpty())
-                        UI_Utils.showCaseViewSelectMedia(getApplicationContext(),MainActivity.this);
+                        UI_Utils.showCaseViewSelectMedia(getApplicationContext(), MainActivity.this);
                     _selectMediaBtn.setImageResource(R.drawable.select_caller_media);
                     disableMediaStatusArrived();
                 }
@@ -1343,7 +1378,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         disableRingToneStatusArrived();
     }
 
-
     private void disableRingToneNameForProfile() {
 
         _ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
@@ -1363,15 +1397,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         Log.i(TAG, "Snackbar showing:" + snackBarData.getText());
 
         int duration = snackBarData.getDuration();
-        if(duration == Snackbar.LENGTH_LONG)
+        if (duration == Snackbar.LENGTH_LONG)
             duration = 2000;
 
         View mainActivity = findViewById(R.id.mainActivity);
 
-        if(mainActivity!=null && snackBarData.getText()!=null) {
+        if (mainActivity != null && snackBarData.getText() != null) {
             final Snackbar snackbar = Snackbar
                     .make(mainActivity, Html.fromHtml(snackBarData.getText()), duration)
-                            .setActionTextColor(snackBarData.getColor());
+                    .setActionTextColor(snackBarData.getColor());
             snackbar.setAction(R.string.close, new OnClickListener() {
                 @Override
                 public void onClick(View v) {

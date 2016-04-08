@@ -22,7 +22,7 @@ public class AppStateManager {
     public static final String STATE_LOADING = "Loading";
     public static final int MAXIMUM_TIMEOUT_IN_MILLISECONDS = 20 * 1000;
     private static final String TAG = AppStateManager.class.getSimpleName();
-    private static Thread mLoadingTimeoutThread;
+    private static Thread mLoadingTimeoutThread = null;
 
     /**
      * Sets all states except for loading states
@@ -78,6 +78,11 @@ public class AppStateManager {
         return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE);
     }
 
+    public synchronized static boolean isLoadingStateActive() {
+
+        return mLoadingTimeoutThread!=null && mLoadingTimeoutThread.isAlive();
+    }
+
     /**
      * Creates a loading state for the app. To use without a timeout, set timeoutInMilliseconds to be <= 0
      *
@@ -104,9 +109,11 @@ public class AppStateManager {
                         Log.w(TAG, "Loading reached its timeout! Setting app state back to idle...");
                         setAppState(context, TAG, AppStateManager.STATE_IDLE);
                         BroadcastUtils.sendEventReportBroadcast(context, "LOADING_TIMEOUT", loadingState.get_eventReport());
+                        mLoadingTimeoutThread = null;
                     }
                 } catch (InterruptedException e) {
                     Log.i(TAG, "setLoadingTimeout interrupted, loading stopped before timeout");
+                    mLoadingTimeoutThread = null;
                 }
             }
         };

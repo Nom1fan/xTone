@@ -41,7 +41,7 @@ public class IsRegisteredTask extends AsyncTask<Context, Void, Void> {
         // Phone number is in registered cache - No need to check again
         if (isNonBlockingState && isPhoneInCache) {
             BroadcastUtils.sendEventReportBroadcast(context, TAG,
-                    new EventReport(EventType.USER_REGISTERED_TRUE, "", _destPhone));
+                    new EventReport(EventType.USER_REGISTERED_TRUE, null, null));
             return null;
         }
 
@@ -49,9 +49,8 @@ public class IsRegisteredTask extends AsyncTask<Context, Void, Void> {
 
         if (isNonBlockingState) {
 
-            String msg = "Fetching user data...";
             BroadcastUtils.sendEventReportBroadcast(context, TAG + " onTextchanged()",
-                    new EventReport(EventType.FETCHING_USER_DATA, msg, null));
+                    new EventReport(EventType.FETCHING_USER_DATA, null, null));
 
             // Sending action to find out if user is registered
             Intent i = new Intent(context, LogicServerProxyService.class);
