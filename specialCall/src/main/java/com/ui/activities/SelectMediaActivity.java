@@ -39,6 +39,9 @@ import FilesManager.FileManager;
  */
 public class SelectMediaActivity extends Activity implements View.OnClickListener {
 
+    public static final String SPECIAL_MEDIA_TYPE = "SpecialMediaType";
+    public static final String DESTINATION_NUMBER = "DestinationNumber";
+    public static final String DESTINATION_NAME = "DestinationName";
     public static final String RESULT_MSG = "msg";
 
     private static final String TAG = SelectMediaActivity.class.getSimpleName();
@@ -58,9 +61,9 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         button1.setOnClickListener(this);
         TextView mediaType = (TextView) findViewById(R.id.selectMediaType);
 
-        _destPhoneNumber = intent.getStringExtra("DestinationNumber");
-        String _destName = intent.getStringExtra("DestinationName");
-        SMTypeCode = intent.getIntExtra("SpecialMediaType", 1);
+        _destPhoneNumber = intent.getStringExtra(DESTINATION_NUMBER);
+        String _destName = intent.getStringExtra(DESTINATION_NAME);
+        SMTypeCode = intent.getIntExtra(SPECIAL_MEDIA_TYPE, 1);
 
         if (ActivityRequestCodes.SELECT_CALLER_MEDIA == SMTypeCode)
             mediaType.setText(R.string.select_caller_media_title);
@@ -187,7 +190,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         final Intent videoIntent = new Intent(
                 MediaStore.ACTION_VIDEO_CAPTURE);
         videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, _outputFileUri);
-        videoIntent.putExtra( MediaStore.EXTRA_DURATION_LIMIT, 30); // set video recording interval
+        videoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 30); // set video recording interval
         videoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0); // set the video image quality to low
         videoIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, 15000);
 

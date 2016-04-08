@@ -102,7 +102,6 @@ public class GenericServer extends AbstractServer {
     @Override
     protected void serverStopped() {
 
-        System.out.println(serverName + " stopped");
         _logger.severe(serverName + " stopped");
 
         try {
