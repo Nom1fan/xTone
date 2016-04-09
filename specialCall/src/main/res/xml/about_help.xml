@@ -1,0 +1,70 @@
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <PreferenceCategory
+        android:title="Help">
+        <PreferenceScreen
+            android:key="how_to_mc"
+            android:title="How To MC ?"
+            android:summary="return to step by step tutorial"
+            >
+
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:title="Offical Website Help"
+            android:summary="go to the help , FAQ and videos">
+
+            <intent android:action="android.intent.action.VIEW"
+                android:data="http://www.mediacallz.com" />
+
+        </PreferenceScreen>
+
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="Share And Rate">
+        <PreferenceScreen
+            android:key="share_us"
+            android:title="Share Us !"
+            >
+
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="rate_us"
+            android:title="Rate Us !"
+            >
+
+        </PreferenceScreen>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Contact Us ">
+
+
+        <PreferenceScreen
+            android:key="mail"
+            android:title="Mail Us"
+            android:summary="mediacallzapp@gmail.com"
+           />
+
+           <PreferenceScreen
+            android:title="Message us on facebook">
+
+            <intent android:action="android.intent.action.VIEW"
+                android:data="https://www.facebook.com/MediaCallz/?ref=aymt_homepage_panel" />
+
+        </PreferenceScreen>
+
+    </PreferenceCategory>
+
+    <Preference android:title="Version"
+        android:key="version"
+        android:summary="11.1.08"/>
+
+</PreferenceScreen>

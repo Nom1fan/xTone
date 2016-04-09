@@ -99,13 +99,20 @@ public abstract class UI_Utils {
     //region ShowCaseView methods
     public static void showCaseView(Activity activity, ViewTarget target, String title, String details) {
 
-        Log.i(TAG, "Title: "+ title + " details: " + details);
+        Log.i(TAG, "Title: " + title + " details: " + details);
+     try{
         new ShowcaseView.Builder(activity)
                 .setTarget(target)
                 .setContentTitle(title)
                 .setContentText(details)
                 .hideOnTouchOutside().withMaterialShowcase()
                 .build();
+
+    }
+    catch (NullPointerException | OutOfMemoryError e) {
+        e.printStackTrace();
+    }
+
 
     }
 
@@ -123,44 +130,56 @@ public abstract class UI_Utils {
 
     public static void showCaseViewAfterUploadAndCall(final Context context, final Activity activity) {
 
-        if (!(SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW)))
+        if (!(SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW)) && SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))
         {
-            ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectMediaBtn, activity);
-            ShowcaseView sv = new ShowcaseView.Builder(activity)
-                    .setTarget(targetSelectMediaView)
-                    .setContentTitle(context.getResources().getString(R.string.callermedia_sv_title))
-                    .setContentText(context.getResources().getString(R.string.callermedia_sv_details_image_ringtone))
-                    .hideOnTouchOutside().
-                            withMaterialShowcase().build();
 
-            sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
-                @Override
-                public void onShowcaseViewHide(ShowcaseView showcaseView) {
 
-                    showCaseViewCall(context,activity);
-                }
 
-                @Override
-                public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+          try {
+              ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectMediaBtn, activity);
+              ShowcaseView sv = new ShowcaseView.Builder(activity)
+                      .setTarget(targetSelectMediaView)
+                      .setContentTitle(context.getResources().getString(R.string.callermedia_sv_title))
+                      .setContentText(context.getResources().getString(R.string.callermedia_sv_details_image_ringtone))
+                      .hideOnTouchOutside().
+                              withMaterialShowcase().build();
 
-                }
+              sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
+                  @Override
+                  public void onShowcaseViewHide(ShowcaseView showcaseView) {
 
-                @Override
-                public void onShowcaseViewShow(ShowcaseView showcaseView) {
+                      showCaseViewCall(context, activity);
+                  }
 
-                }
+                  @Override
+                  public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
 
-                @Override
-                public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
+                  }
 
-                }
-            });
-            SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW, true);
+                  @Override
+                  public void onShowcaseViewShow(ShowcaseView showcaseView) {
+
+                  }
+
+                  @Override
+                  public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
+
+                  }
+              });
+          } catch (NullPointerException | OutOfMemoryError e) {
+                  e.printStackTrace();
+              }
+
+
+              SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW, true);
         }
+
+
     }
 
     public static void showCaseViewSelectMedia(final Context context, final Activity activity){
-        if (!(SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW))) {
+        if (!SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW)) {
+      try{
             ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectMediaBtn, activity);
             ShowcaseView sv = new ShowcaseView.Builder(activity)
                     .setTarget(targetSelectMediaView)
@@ -173,7 +192,7 @@ public abstract class UI_Utils {
                 @Override
                 public void onShowcaseViewHide(ShowcaseView showcaseView) {
 
-                    showCaseViewSelectProfile(context,activity);
+                    showCaseViewSelectProfile(context, activity);
                 }
 
                 @Override
@@ -188,8 +207,18 @@ public abstract class UI_Utils {
                 public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
                 }
             });
-
+        } catch (NullPointerException | OutOfMemoryError e) {
+            e.printStackTrace();
+        }
             SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, true);
+        }
+    }
+
+    public static void showCaseViewCallNumber(Context context,Activity activity) {
+        if (!(SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))) {
+            ViewTarget targetCallNumber = new ViewTarget(R.id.selectContactBtn, activity);
+            UI_Utils.showCaseView(activity, targetCallNumber, context.getResources().getString(R.string.callnumber_sv_title), context.getResources().getString(R.string.callnumber_sv_details));
+            SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW, true);
         }
     }
     //endregion
