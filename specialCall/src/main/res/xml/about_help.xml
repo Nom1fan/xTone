@@ -3,18 +3,18 @@
 
 
     <PreferenceCategory
-        android:title="Help">
+        android:title="@string/help_title">
         <PreferenceScreen
             android:key="how_to_mc"
-            android:title="How To MC ?"
-            android:summary="return to step by step tutorial"
+            android:title="@string/help_how_to_mc"
+            android:summary="@string/help_how_to_mc_summary"
             >
 
         </PreferenceScreen>
 
         <PreferenceScreen
-            android:title="Offical Website Help"
-            android:summary="go to the help , FAQ and videos">
+            android:title="@string/website_help"
+            android:summary="@string/website_help_summary">
 
             <intent android:action="android.intent.action.VIEW"
                 android:data="http://www.mediacallz.com" />
@@ -26,17 +26,17 @@
 
 
     <PreferenceCategory
-        android:title="Share And Rate">
+        android:title="@string/share_rate_title">
         <PreferenceScreen
             android:key="share_us"
-            android:title="Share Us !"
+            android:title="@string/share_title"
             >
 
         </PreferenceScreen>
 
         <PreferenceScreen
             android:key="rate_us"
-            android:title="Rate Us !"
+            android:title="@string/rate_title"
             >
 
         </PreferenceScreen>
@@ -44,17 +44,17 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="Contact Us ">
+        android:title="@string/contact_us_title">
 
 
         <PreferenceScreen
             android:key="mail"
-            android:title="Mail Us"
-            android:summary="mediacallzapp@gmail.com"
-           />
+            android:title="@string/mail_us"
+            android:summary="@string/mail_us_summary"
+            />
 
-           <PreferenceScreen
-            android:title="Message us on facebook">
+        <PreferenceScreen
+            android:title="@string/facebook_message">
 
             <intent android:action="android.intent.action.VIEW"
                 android:data="https://www.facebook.com/MediaCallz/?ref=aymt_homepage_panel" />
@@ -63,7 +63,7 @@
 
     </PreferenceCategory>
 
-    <Preference android:title="Version"
+    <Preference android:title="@string/version_title"
         android:key="version"
         android:summary="11.1.08"/>
 

@@ -147,4 +147,18 @@
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
 
+    <!--  about_help Layout   -->
+    <string name="help_title">Help</string>
+    <string name="help_how_to_mc">How to mc ?</string>
+    <string name="help_how_to_mc_summary">return to step by step tutorial</string>
+    <string name="website_help">Offical Website Help</string>
+    <string name="website_help_summary">go to the help , FAQ and videos</string>
+    <string name="share_rate_title">Share And Rate</string>
+    <string name="share_title">Share Us !</string>
+    <string name="rate_title">Rate Us !</string>
+    <string name="contact_us_title">Contact Us</string>
+    <string name="mail_us">Mail Us</string>
+    <string name="mail_us_summary">mediacallzapp@gmail.com</string>
+    <string name="facebook_message">Message us on facebook</string>
+    <string name="version_title">Version</string>
 </resources>
