@@ -10,6 +10,8 @@ import DalObjects.IDAL;
  */
 public class SmsVerificationAccess  extends DALAccesible {
 
+    public static final int NO_SMS_CODE = -1;
+
     private SmsVerificationAccess(IDAL dal) {
         super(dal);
     }
@@ -23,7 +25,7 @@ public class SmsVerificationAccess  extends DALAccesible {
 
         try {
 
-            if(getSmsVerificationCode(uid)==0)
+            if(getSmsVerificationCode(uid)==SmsVerificationAccess.NO_SMS_CODE)
                 _dal.insertUserSmsVerificationCode(uid, code);
             else
                 _dal.updateUserSmsVerificationCode(uid, code);
@@ -42,11 +44,11 @@ public class SmsVerificationAccess  extends DALAccesible {
 
         try {
             int code = _dal.getUserSmsVerificationCode(uid);
-            return code!=0 ? code : -1;
+            return code!=0 ? code : NO_SMS_CODE;
         } catch (SQLException e) {
             e.printStackTrace();
             _logger.severe("Failed to get SMS verification code for [User]:" + uid + ". [Exception]:" + (e.getMessage()!=null ? e.getMessage(): e));
-            return -1;
+            return NO_SMS_CODE;
         }
     }
 }
