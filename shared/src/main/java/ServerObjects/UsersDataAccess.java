@@ -1,15 +1,18 @@
 package ServerObjects;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import DalObjects.DALAccesible;
+import DalObjects.IDAL;
 import DataObjects.MediaTransferRecord;
 import DataObjects.PushEventKeys;
+import DataObjects.SpecialMediaType;
 import DataObjects.TransferDetails;
 import DataObjects.UserRecord;
 import DataObjects.UserStatus;
-import DalObjects.DALAccesible;
-import DalObjects.IDAL;
 
 
 
@@ -58,16 +61,29 @@ public class UsersDataAccess extends DALAccesible {
         try {
             List<MediaTransferRecord> records = CommHistoryAccess.instance(_dal).getAllUserMediaTransferRecords(userId);
 
-            // Clearing all media sent to destinations by user
-            for(MediaTransferRecord record : records) {
+            Set<String> destinations = new HashSet<>();
 
-                if(record.is_transfer_success()) {
-                    String pushEventAction = PushEventKeys.CLEAR_MEDIA;
-                    TransferDetails td = new TransferDetails(userId, record.get_dest_uid(), record.get_specialMediaType());
-                    String destToken = UsersDataAccess.instance(_dal).getUserPushToken(record.get_dest_uid());
+            // Creating a set of all destinations who received media from the user
+            for(MediaTransferRecord record : records) {
+                if(record.is_transfer_success())
+                    destinations.add(record.get_dest_uid());
+            }
+
+            // Clearing all media sent to these destinations by user
+            for(String destination : destinations) {
+
+                String pushEventAction = PushEventKeys.CLEAR_MEDIA;
+                String destToken = UsersDataAccess.instance(_dal).getUserPushToken(destination);
+
+                final SpecialMediaType[] specialMediaTypes = SpecialMediaType.values();
+
+                // Clearing all types of special media
+                for(SpecialMediaType specialMediaType : specialMediaTypes) {
+
+                    TransferDetails td = new TransferDetails(userId, destination, specialMediaType);
                     boolean sent = BatchPushSender.sendPush(destToken, pushEventAction, td);
                     if (!sent)
-                        throw new Exception("Failed to send push notification");
+                        _logger.warning("Failed to send push to clear media. [User]:" + destination + " [SpecialMediaType]:" + specialMediaType);
                 }
             }
 

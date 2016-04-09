@@ -25,14 +25,8 @@ public class MessageUnregister extends MessageToServer {
 
         initLogger();
 
-        boolean isSuccessful = UsersDataAccess.instance(_dal).unregisterUser(_myId, _myToken);
-        if(isSuccessful)
-            _logger.info("Unregister was successful");
-        else
-            _logger.info("Unregister failed. Check stack trace log for more information...");
-
-        replyToClient(new MessageUnregisterRes(isSuccessful));
-
+        replyToClient(new MessageUnregisterRes(true)); //TODO remove boolean, unregister always succeeds for user as long as connection exists. Backend operations are for the server only
+        UsersDataAccess.instance(_dal).unregisterUser(_myId, _myToken);
         return _cont;
     }
 }

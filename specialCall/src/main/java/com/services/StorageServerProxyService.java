@@ -9,6 +9,7 @@ import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
 import com.interfaces.ICallbackListener;
 import com.utils.BroadcastUtils;
+import com.utils.ContactsUtils;
 import com.utils.FileCompressorUtil;
 
 import java.io.File;
@@ -33,6 +34,7 @@ import MessagesToServer.MessageRequestDownload;
  * Provided operations:
  * - Download file
  * - Upload file
+ *
  * @author Mor
  */
 public class StorageServerProxyService extends AbstractServerProxy implements ICallbackListener {
@@ -62,7 +64,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
         Log.i(TAG, "Started");
 
         boolean shouldStop = handleCrashedService(flags, startId);
-        if(shouldStop)
+        if (shouldStop)
             return START_REDELIVER_INTENT;
 
         final Intent intentForThread = intent;
@@ -71,8 +73,7 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
             @Override
             public void run() {
 
-                if (intentForThread != null)
-                {
+                if (intentForThread != null) {
                     String action = intentForThread.getAction();
                     Log.i(TAG, "Action:" + action);
 
@@ -102,11 +103,11 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
-                        String errMsg = "Action failed:"+action+" Exception:"+e.getMessage();
+                        String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
                         Log.e(TAG, errMsg);
 //                        handleDisconnection(errMsg); //TODO Maybe no need for this?
-                    } catch(Exception e) {
-                        String errMsg = "Action failed:"+action+" Exception:"+e.getMessage();
+                    } catch (Exception e) {
+                        String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
                         Log.e(TAG, errMsg);
                     }
                 } else
@@ -175,11 +176,13 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
     //endregion
 
     //region Storage operations methods
+
     /**
      * Sends a clear media command to the server
+     *
      * @param connectionToServer
-     * @param destId The destination id of the user for which the media will be cleared
-     * @param specialMediaType The special media type of the media to clear
+     * @param destId             The destination id of the user for which the media will be cleared
+     * @param specialMediaType   The special media type of the media to clear
      * @throws IOException
      */
     private void sendClearCommandToServer(
@@ -194,10 +197,11 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
 
     /**
      * Uploads a file to the server, sending it to a destination number
+     *
      * @param connectionToServer
-     * @param destNumber The destination number to whom the file is for
-     * @param managedFile The file to upload inside a manager wrapper
-     * @param specialMediaType The special media type of the file to upload
+     * @param destNumber         The destination number to whom the file is for
+     * @param managedFile        The file to upload inside a manager wrapper
+     * @param specialMediaType   The special media type of the file to upload
      * @throws IOException
      */
     private void uploadFileToServer(
@@ -206,16 +210,23 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
             FileManager managedFile,
             SpecialMediaType specialMediaType) throws IOException {
 
-        TransferDetails td = new TransferDetails(Constants.MY_ID(getApplicationContext()), destNumber, managedFile, specialMediaType);
+        TransferDetails td = new TransferDetails(
+                Constants.MY_ID(getApplicationContext()),
+                destNumber,
+                ContactsUtils.getContactName(getApplicationContext(), destNumber),
+                managedFile,
+                specialMediaType);
+
         //NotificationUtils.createHelper(getApplicationContext(), "File upload to:" + td.getDestinationId() + " is pending");
-        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.UPLOADING, "Uploading...", null));
-        new UploadTask(getApplicationContext(), this ,connectionToServer, td).execute();
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.UPLOADING, null, null));
+        new UploadTask(getApplicationContext(), this, connectionToServer, td).execute();
     }
 
     /**
      * Requests a download from the server
+     *
      * @param connectionToServer
-     * @param td - The transfer details
+     * @param td                 - The transfer details
      */
     private void requestDownloadFromServer(ConnectionToServer connectionToServer, TransferDetails td) throws IOException {
 
