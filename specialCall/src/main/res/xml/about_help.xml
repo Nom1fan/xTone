@@ -1,0 +1,70 @@
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <PreferenceCategory
+        android:title="@string/help_title">
+        <PreferenceScreen
+            android:key="how_to_mc"
+            android:title="@string/help_how_to_mc"
+            android:summary="@string/help_how_to_mc_summary"
+            >
+
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:title="@string/website_help"
+            android:summary="@string/website_help_summary">
+
+            <intent android:action="android.intent.action.VIEW"
+                android:data="http://www.mediacallz.com" />
+
+        </PreferenceScreen>
+
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory
+        android:title="@string/share_rate_title">
+        <PreferenceScreen
+            android:key="share_us"
+            android:title="@string/share_title"
+            >
+
+        </PreferenceScreen>
+
+        <PreferenceScreen
+            android:key="rate_us"
+            android:title="@string/rate_title"
+            >
+
+        </PreferenceScreen>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/contact_us_title">
+
+
+        <PreferenceScreen
+            android:key="mail"
+            android:title="@string/mail_us"
+            android:summary="@string/mail_us_summary"
+            />
+
+        <PreferenceScreen
+            android:title="@string/facebook_message">
+
+            <intent android:action="android.intent.action.VIEW"
+                android:data="https://www.facebook.com/MediaCallz/?ref=aymt_homepage_panel" />
+
+        </PreferenceScreen>
+
+    </PreferenceCategory>
+
+    <Preference android:title="@string/version_title"
+        android:key="version"
+        android:summary="11.1.08"/>
+
+</PreferenceScreen>

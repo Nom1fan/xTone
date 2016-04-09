@@ -113,6 +113,14 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.ui.activities.SetAboutHelpActivity"
+            android:theme="@style/AppTheme" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+        </activity>
+
         <service
             android:name="com.services.IncomingService"
             android:enabled="true"

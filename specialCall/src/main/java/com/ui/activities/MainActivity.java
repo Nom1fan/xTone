@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             getAppRecord();
 
-            showCaseViewCallNumber();
+            UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
         }
 
     }
@@ -920,80 +920,38 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             case 1: // Who Can MC me
                 BlockMCContacts();
                 break;
-            /*case 2: // How To?
-                resetShowcases();
-                break;
-            case 3: // Share Us
-                shareUs();
-                break;
-            case 4: // Rate Us
-                //TODO IMPLEMET Case
-                break;
-            case 5: // Report BUG
-                break;*/
             case 2: // App Settings
                 appSettings();
                 break;
             case 3: // About & Help
+                appAboutAndHelp();
 
-                shareUs();  // share US
-                resetShowcases(); // How To ?
-                //ABOUT // RATE US
-                //TODO IMPLEMET Case
                 break;
 
             default:
                 break;
         }
 
-
-     /*   _DrawerList.setItemChecked(position, true);
-        setTitle(dataList.get(position).getItemName());*/
         _mDrawerLayout.closeDrawer(_DrawerList);
 
-    }
-
-    private void resetShowcases() {
-
-        _mDrawerLayout.closeDrawer(GravityCompat.START);
-        AutoCompleteTextView textViewToClear = (AutoCompleteTextView) findViewById(R.id.CallNumber);
-        textViewToClear.setText("");
-
-        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW, false);
-        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, false);
-        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW, false);
-
-        showCaseViewCallNumber();
-    }
-
-    private void showCaseViewCallNumber() {
-        if (!(SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))) {
-            ViewTarget targetCallNumber = new ViewTarget(R.id.selectContactBtn, MainActivity.this);
-            UI_Utils.showCaseView(MainActivity.this, targetCallNumber, getResources().getString(R.string.callnumber_sv_title), getResources().getString(R.string.callnumber_sv_details));
-            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW, true);
-        }
-    }
-
-    private void shareUs() {
-
-        Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
-        sharingIntent.setType("text/plain");
-        sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "MediaCallz (Open it in Google Play Store to Download the Application)");
-
-        sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, getResources().getString(R.string.invite));
-        startActivity(Intent.createChooser(sharingIntent, "Share via"));
     }
 
     private void appSettings() {
 
         saveInstanceState();
-//        Intent y = new Intent();
-//        y.setClass(getApplicationContext(), Settings.class);
-//        startActivity(y);
         Intent intent = new Intent();
         intent.setClass(MainActivity.this, SetSettingsActivity.class);
         startActivity(intent);
     }
+
+    private void appAboutAndHelp() {
+
+        saveInstanceState();
+        Intent intent = new Intent();
+        intent.setClass(MainActivity.this, SetAboutHelpActivity.class);
+        startActivity(intent);
+    }
+
 
     private void openCallerMediaMenu() {
 
