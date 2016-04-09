@@ -2,11 +2,46 @@
 <items version="2" >
 
     <item
-        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\org.jbundle.util.osgi.wrapped\org.jbundle.util.osgi.wrapped.org.apache.http.client\4.1.2\98c86e42679fe7ac066f6c242e0d14f0bce0bb7c\org.jbundle.util.osgi.wrapped.org.apache.http.client-4.1.2.jar"
+        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\design\23.1.1\jars\classes.jar"
         jumboMode="false"
         revision="22.0.1"
-        sha1="98c86e42679fe7ac066f6c242e0d14f0bce0bb7c">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\org.jbundle.util.osgi.wrapped.org.apache.http.client-4.1.2-de79446292087d081bfe71831ce4c82b85a21f60.jar" />
+        sha1="379471b2bd17d9737c050345c08e8c7d16589784">
+        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-f42eee3f01d05193ef1be03e2591a7f161f8fa98.jar" />
+    </item>
+    <item
+        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\com.google.code.gson\gson\2.3\5fc52c41ef0239d1093a1eb7c3697036183677ce\gson-2.3.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="5fc52c41ef0239d1093a1eb7c3697036183677ce">
+        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\gson-2.3-1f0975c4ea960954f666feeb6f730345bb668ba1.jar" />
+    </item>
+    <item
+        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-gcm\7.5.0\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="8d736fefa22d896e84a268354b3ed48a42663150">
+        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-3b587ff624109ce850ff6a933ded4196428fd3c9.jar" />
+    </item>
+    <item
+        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.github.amlcurran.showcaseview\library\5.4.1\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="ebc00058bde4597b48ab5c3358a7676e942902f2">
+        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-a614544e38a1d1dc8b61649da742ae2fa0460378.jar" />
+    </item>
+    <item
+        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.batch.android\batch-sdk\1.5.2\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="cf38c2163b87cf7dcc457df08856244fd7d5dfad">
+        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-fbaaa552a9ddf6fdfb0b736c6fae817fbac391c2.jar" />
+    </item>
+    <item
+        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.batch.android\batch-sdk\1.5.2\jars\libs\batch.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="d4e414296f7a8ce0a874fedfbb17e8cdb7ee2211">
+        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\batch-7bf5770a0f4e31c825a987f7cd0cf19c06b98f49.jar" />
     </item>
     <item
         jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\recyclerview-v7\23.1.1\jars\classes.jar"
@@ -16,6 +51,13 @@
         <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-df09aee06d5720000d787d7cb4f8988ef2b8b3a5.jar" />
     </item>
     <item
+        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\org.jbundle.util.osgi.wrapped\org.jbundle.util.osgi.wrapped.org.apache.http.client\4.1.2\98c86e42679fe7ac066f6c242e0d14f0bce0bb7c\org.jbundle.util.osgi.wrapped.org.apache.http.client-4.1.2.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="98c86e42679fe7ac066f6c242e0d14f0bce0bb7c">
+        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\org.jbundle.util.osgi.wrapped.org.apache.http.client-4.1.2-de79446292087d081bfe71831ce4c82b85a21f60.jar" />
+    </item>
+    <item
         jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\ffmpeg4android_lib\unspecified\jars\classes.jar"
         jumboMode="false"
         revision="22.0.1"
@@ -23,18 +65,25 @@
         <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-d623cdc01563de79e5dd1d3fe7ea4942377978e5.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\shared\build\libs\shared-1.0.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="fce4227c260a72b8803bb7419123d96277faba86">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\shared-1.0-6eb2c0f83cc0d769cf46a66965c834bd7e45e6ec.jar" />
-    </item>
-    <item
         jar="E:\Program Files\Eclipse Android SDK\adt-bundle-windows-x86_64-20140702\sdk\extras\android\m2repository\com\android\support\support-annotations\23.1.1\support-annotations-23.1.1.jar"
         jumboMode="false"
         revision="22.0.1"
         sha1="8d680ba5a623724d1fb0e81c36a790f023a6cede">
         <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\support-annotations-23.1.1-8a4c08462d4a1d9a45cbab87e4c4f4c4ca1b8a51.jar" />
+    </item>
+    <item
+        jar="E:\Workspaces\git_Workspace\SpecialCall\shared\build\libs\shared-1.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="32a6d7a24699489cefc6a89c7df30854aa8d77ce">
+        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\release\shared-1.0-6eb2c0f83cc0d769cf46a66965c834bd7e45e6ec.jar" />
+    </item>
+    <item
+        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\commons-io\commons-io\2.4\b1b6ea3b7e4aa4f492509a4952029cd8e48019ad\commons-io-2.4.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="b1b6ea3b7e4aa4f492509a4952029cd8e48019ad">
+        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\commons-io-2.4-33c13aea5c53c83b92841ff9d1ed0cfef8a1c915.jar" />
     </item>
     <item
         jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\standOut_lib\unspecified\jars\classes.jar"
@@ -51,25 +100,18 @@
         <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-326c97896afe9177ce92c107c70295b5b1afb13e.jar" />
     </item>
     <item
+        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.1.1\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="5c5699834e9722f1c288fea2de82725d078ba127">
+        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-09cdc0d95bdc5639e362580b935f9a50579aa7c5.jar" />
+    </item>
+    <item
         jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\jars\classes.jar"
         jumboMode="false"
         revision="22.0.1"
         sha1="6cbc7773921fcfedbe55657578f0cbfe614778dc">
         <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-a0c20a7fb5c1e9a1ffa8f2dab723c27bd9a66771.jar" />
-    </item>
-    <item
-        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\commons-io\commons-io\2.4\b1b6ea3b7e4aa4f492509a4952029cd8e48019ad\commons-io-2.4.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="b1b6ea3b7e4aa4f492509a4952029cd8e48019ad">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\commons-io-2.4-33c13aea5c53c83b92841ff9d1ed0cfef8a1c915.jar" />
-    </item>
-    <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\aFileChooser\unspecified\jars\classes.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="c858f5a53183a48d76854d2b808bf017bc0b09b3">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-18aa68fe3ea061fc8c4af0ef4729bbcbb57fed22.jar" />
     </item>
     <item
         jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\jars\libs\internal_impl-23.1.1.jar"
@@ -79,53 +121,11 @@
         <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\internal_impl-23.1.1-3c4cea9cd6a19b5705db3ea95a391e565caf5fd1.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.1.1\jars\classes.jar"
+        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\aFileChooser\unspecified\jars\classes.jar"
         jumboMode="false"
         revision="22.0.1"
-        sha1="5c5699834e9722f1c288fea2de82725d078ba127">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-09cdc0d95bdc5639e362580b935f9a50579aa7c5.jar" />
-    </item>
-    <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\design\23.1.1\jars\classes.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="379471b2bd17d9737c050345c08e8c7d16589784">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-f42eee3f01d05193ef1be03e2591a7f161f8fa98.jar" />
-    </item>
-    <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-gcm\7.5.0\jars\classes.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="8d736fefa22d896e84a268354b3ed48a42663150">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-3b587ff624109ce850ff6a933ded4196428fd3c9.jar" />
-    </item>
-    <item
-        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\com.google.code.gson\gson\2.3\5fc52c41ef0239d1093a1eb7c3697036183677ce\gson-2.3.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="5fc52c41ef0239d1093a1eb7c3697036183677ce">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\gson-2.3-1f0975c4ea960954f666feeb6f730345bb668ba1.jar" />
-    </item>
-    <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.batch.android\batch-sdk\1.5.2\jars\libs\batch.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="d4e414296f7a8ce0a874fedfbb17e8cdb7ee2211">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\batch-7bf5770a0f4e31c825a987f7cd0cf19c06b98f49.jar" />
-    </item>
-    <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.github.amlcurran.showcaseview\library\5.4.1\jars\classes.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="ebc00058bde4597b48ab5c3358a7676e942902f2">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-a614544e38a1d1dc8b61649da742ae2fa0460378.jar" />
-    </item>
-    <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.batch.android\batch-sdk\1.5.2\jars\classes.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="cf38c2163b87cf7dcc457df08856244fd7d5dfad">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-fbaaa552a9ddf6fdfb0b736c6fae817fbac391c2.jar" />
+        sha1="c858f5a53183a48d76854d2b808bf017bc0b09b3">
+        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-18aa68fe3ea061fc8c4af0ef4729bbcbb57fed22.jar" />
     </item>
 
 </items>

@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.services.LogicServerProxyService;
 
@@ -113,6 +114,8 @@ public class GetSmsCodeTask extends AsyncTask<String, String, String> {
         String interPhoneNumber = PhoneNumberUtils.toValidInternationalPhoneNumber(
                 phoneNumber,
                 PhoneNumberUtils.Country.IL);
+
+        Constants.MY_ID(_context, phoneNumber);
 
         Intent i = new Intent(_context, LogicServerProxyService.class);
         i.setAction(LogicServerProxyService.ACTION_GET_SMS_CODE);
