@@ -1,6 +1,7 @@
 package com.services;
 
 import android.app.Activity;
+import android.app.Instrumentation;
 import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.FrameLayout;
 
 import com.data_objects.Constants;
@@ -372,6 +374,10 @@ public class IncomingService extends AbstractStandOutService {
     }
 
     private void disableRingStream() {
+
+
+        mAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);  // SOLUTION For LG G4 that needs another motivation to be silent (if removed the audio isn't heared in LG G4 you need to press the volume hard keys to silent manually , this fixes it)
+
         try {
             mAudioManager.setStreamMute(AudioManager.STREAM_RING, true);
             Log.e(TAG, "mAudioManager.setStreamMute(AudioManager.STREAM_RING, true);");
