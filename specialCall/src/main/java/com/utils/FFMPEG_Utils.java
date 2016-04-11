@@ -3,6 +3,7 @@ package com.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.util.Log;
 
 import com.data_objects.Constants;
@@ -33,17 +34,14 @@ public abstract class FFMPEG_Utils {
 
 
     /**
-     * Compresses a video file if possible. Otherwise, returns the base (untouched) file.
+     * Resizes a video file resolution by 30%, maintaining aspect ratio.
      *
      * @param baseFile The base file to compress
      * @param outPath  The path of the compressed file
      * @param context
-     * @return The compressed file, if possible. Otherwise, the base file.
+     * @return The compressed file.
      */
-    public static FileManager compressVideoFile(FileManager baseFile, String outPath, Context context) {
-
-        if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
-            return baseFile;
+    public static FileManager compressVideoFile(FileManager baseFile, String outPath, double width, double height, Context context) {
 
         String extension = baseFile.getFileExtension();
         String vCodec = extension2vCodec.get(extension);
@@ -54,8 +52,12 @@ public abstract class FFMPEG_Utils {
         try {
             LoadJNI vk = new LoadJNI();
 
+//            double percent = 0.7;
+//            width = width * percent;
+//            height = height * percent;
+
             String[] complexCommand =
-                    {"ffmpeg", "-y", "-i", baseFile.getFileFullPath(), "-strict", "experimental", "-s", "320x240",
+                    {"ffmpeg", "-y", "-i", baseFile.getFileFullPath(), "-strict", "experimental", "-s", (int) width + "x" + (int) height,
                             "-r", "25", "-vcodec", vCodec, "-b", "150k", "-ab", "48000", "-ac", "2", "-ar", "22050",
                             compressedFile.getAbsolutePath()};
 
@@ -77,12 +79,9 @@ public abstract class FFMPEG_Utils {
      * @param outPath  The output of the compressed file
      * @param width    The width parameter of the original resolution
      * @param context
-     * @return The compressed file, if possible. Otherwise, the base file.
+     * @return The compressed file.
      */
     public static FileManager compressImageFile(FileManager baseFile, String outPath, double width, Context context) {
-
-        if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
-            return baseFile;
 
         String extension = baseFile.getFileExtension();
         File compressedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_comp." + extension);
@@ -123,7 +122,7 @@ public abstract class FFMPEG_Utils {
         try {
             LoadJNI vk = new LoadJNI();
             FileManager.FileType fType = baseFile.getFileType();
-            if (fType.equals(FileManager.FileType.RINGTONE) ||
+            if (fType.equals(FileManager.FileType.AUDIO) ||
                     fType.equals(FileManager.FileType.VIDEO)) {
 
                 String[] complexCommand =
@@ -191,12 +190,28 @@ public abstract class FFMPEG_Utils {
     }
 
     /**
+     * Retrieves video resolution using MediaMetadataRetriever
+     * @see MediaMetadataRetriever
+     * @param managedFile The video file to retrieve its resolution
+     * @return The image resolution
+     */
+    public static int[] getVideoResolution(FileManager managedFile) {
+
+        MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+        metaRetriever.setDataSource(managedFile.getFileFullPath());
+        String height = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+        String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+
+        return new int[] { Integer.parseInt(width), Integer.parseInt(height) };
+    }
+
+    /**
      * Retrieves image resolution from vk.log
      *
      * @param managedFile The image file to retrieve
      * @param context
      * @return The image resolution as integer array (width in 0 index and height in 1), if possible. Otherwise, returns null.
-     * @deprecated Use the new {@link #getImageResolution(String)} instead
+     * @deprecated Use the new {@link #getImageResolution(FileManager managedFile)} instead
      */
     @Deprecated
     public static int[] getImageResolution(FileManager managedFile, Context context) {
@@ -247,9 +262,15 @@ public abstract class FFMPEG_Utils {
         return null;
     }
 
-    public static int[] getImageResolution(String filePath) {
+    /**
+     * Retrieves image resolution by decoding to bitmap
+     * @see BitmapFactory
+     * @param managedFile The image file to retrieve its resolution
+     * @return The image resolution
+     */
+    public static int[] getImageResolution(FileManager managedFile) {
 
-        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+        Bitmap bitmap = BitmapFactory.decodeFile(managedFile.getFileFullPath());
         int height = bitmap.getHeight();
         int width = bitmap.getWidth();
         bitmap.recycle();

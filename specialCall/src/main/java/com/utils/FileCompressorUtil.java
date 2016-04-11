@@ -14,15 +14,14 @@ import FilesManager.FileManager;
  */
 public abstract class FileCompressorUtil {
 
-    private static final int VIDEO_SIZE_COMPRESS_NEEDED = 5242880; //5MB
-    private static final int AUDIO_SIZE_COMPRESS_NEEDED = 5242880; //5MB
-    private static final int IMAGE_SIZE_COMPRESS_NEEDED = 1048576; //1MB
-    private static final int IMAGE_MIN_RESOLUTION = 320;
-    private static final long ONE_MINUTE = 60;
-    private static final double PERCENT_TO_TRIM = 0.7;
-    private static final String tag = FileCompressorUtil.class.getSimpleName();
-    private static final String workFolder = Constants.TEMP_COMPRESSED_FOLDER;
-    private static final String TAG = FileCompressorUtil.class.getSimpleName();
+    private static final int VIDEO_SIZE_COMPRESS_NEEDED     =   5242880; //5MB
+    private static final int AUDIO_SIZE_COMPRESS_NEEDED     =   5242880; //5MB
+    private static final int IMAGE_SIZE_COMPRESS_NEEDED     =   1048576; //1MB
+    private static final int MIN_RESOLUTION                 =   320;
+    private static final long MAX_DURATION                  =   40;      // seconds
+    private static final double PERCENT_TO_TRIM             =   0.7;
+    private static final String workFolder                  =   Constants.TEMP_COMPRESSED_FOLDER;
+    private static final String TAG                         =   FileCompressorUtil.class.getSimpleName();
 
     /**
      * Compresses all file formats
@@ -37,60 +36,86 @@ public abstract class FileCompressorUtil {
         if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
             return baseFile;
 
-        FileManager modifiedFile = baseFile;
         switch (baseFile.getFileType()) {
 
             case VIDEO:
-                if (baseFile.getFileSize() <= VIDEO_SIZE_COMPRESS_NEEDED)
-                    return baseFile;
-
-                BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.COMPRESSING, "Compressing file...", null));
-
-                modifiedFile = trimMediaFile(baseFile, outPath, VIDEO_SIZE_COMPRESS_NEEDED, context);
-
-                if (modifiedFile.getFileSize() >= VIDEO_SIZE_COMPRESS_NEEDED)
-                    modifiedFile = FFMPEG_Utils.compressVideoFile(modifiedFile, outPath, context);
-
-                modifiedFile.set_uncompdFileFullPath(baseFile.getFileFullPath());
-                modifiedFile.setIsCompressed(true);
-                BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.COMPRESSION_COMPLETE, "Compression complete.", null));
-                return modifiedFile;
-            case RINGTONE:
-                if (baseFile.getFileSize() <= AUDIO_SIZE_COMPRESS_NEEDED)
-                    return baseFile;
-
-                BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.COMPRESSING, "Compressing file...", null));
-
-                modifiedFile = trimMediaFile(baseFile, outPath, AUDIO_SIZE_COMPRESS_NEEDED, context);
-
-                //if (modifiedFile.getFileSize() >= AUDIO_SIZE_COMPRESS_NEEDED)
-                // TODO See if there is a way to compress non-wav audio files
-
-                modifiedFile.set_uncompdFileFullPath(baseFile.getFileFullPath());
-                modifiedFile.setIsCompressed(true);
-                BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, "Compression complete.", null));
-                return modifiedFile;
+                return compressVideo(baseFile, outPath, context);
+            case AUDIO:
+                return compressAudio(baseFile, outPath, context);
             case IMAGE:
-                if (baseFile.getFileSize() <= IMAGE_SIZE_COMPRESS_NEEDED)
-                    return baseFile;
-
-                BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.COMPRESSING, "Compressing file...", null));
-
-                int width = FFMPEG_Utils.getImageResolution(baseFile.getFileFullPath())[0];
-
-                // If image resolution is larger than IMAGE_MIN_RESOLUTION we start lowering resolution
-                while (width > IMAGE_MIN_RESOLUTION && modifiedFile.getFileSize() > IMAGE_SIZE_COMPRESS_NEEDED) {
-
-                    modifiedFile = FFMPEG_Utils.compressImageFile(baseFile, outPath, width, context);
-                    width = FFMPEG_Utils.getImageResolution(modifiedFile.getFileFullPath())[0];
-                }
-
-                modifiedFile.set_uncompdFileFullPath(baseFile.getFileFullPath());
-                modifiedFile.setIsCompressed(true);
-                BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, "Compression complete.", null));
-                return modifiedFile;
+                return compressImage(baseFile, outPath, context);
         }
         return baseFile;
+    }
+
+    private static FileManager compressVideo(FileManager baseFile, String outPath, Context context) {
+
+        FileManager modifiedFile;
+        if (baseFile.getFileSize() <= VIDEO_SIZE_COMPRESS_NEEDED)
+            return baseFile;
+
+        BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.COMPRESSING, null, null));
+
+        modifiedFile = trimMediaFile(baseFile, outPath, VIDEO_SIZE_COMPRESS_NEEDED, context);
+
+        int[] res = FFMPEG_Utils.getVideoResolution(baseFile);
+        int width = res[0];
+        int height = res[1];
+
+        while (width > MIN_RESOLUTION && modifiedFile.getFileSize() >= VIDEO_SIZE_COMPRESS_NEEDED) {
+            modifiedFile = FFMPEG_Utils.compressVideoFile(modifiedFile, outPath, width, height, context);
+            res = FFMPEG_Utils.getVideoResolution(modifiedFile);
+            width = res[0];
+            height = res[1];
+        }
+
+        modifiedFile.set_uncompdFileFullPath(baseFile.getFileFullPath());
+        modifiedFile.setIsCompressed(true);
+        BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.COMPRESSION_COMPLETE, null, null));
+        return modifiedFile;
+    }
+
+    private static FileManager compressImage(FileManager baseFile, String outPath, Context context) {
+
+        FileManager modifiedFile = baseFile;
+        if (baseFile.getFileSize() <= IMAGE_SIZE_COMPRESS_NEEDED)
+            return baseFile;
+
+        BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.COMPRESSING, null, null));
+
+        int width = FFMPEG_Utils.getImageResolution(baseFile)[0];
+
+        // If image resolution is larger than MIN_RESOLUTION we start lowering resolution
+        while (width > MIN_RESOLUTION && modifiedFile.getFileSize() > IMAGE_SIZE_COMPRESS_NEEDED) {
+
+            modifiedFile = FFMPEG_Utils.compressImageFile(baseFile, outPath, width, context);
+            width = FFMPEG_Utils.getImageResolution(modifiedFile)[0];
+        }
+
+        modifiedFile.set_uncompdFileFullPath(baseFile.getFileFullPath());
+        modifiedFile.setIsCompressed(true);
+        BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, null, null));
+        return modifiedFile;
+    }
+
+    private static FileManager compressAudio(FileManager baseFile, String outPath, Context context) {
+
+        FileManager modifiedFile;
+        if (baseFile.getFileSize() <= AUDIO_SIZE_COMPRESS_NEEDED)
+            return baseFile;
+
+        BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.COMPRESSING, null, null));
+
+        modifiedFile = trimMediaFile(baseFile, outPath, AUDIO_SIZE_COMPRESS_NEEDED, context);
+
+        //if (modifiedFile.getFileSize() >= AUDIO_SIZE_COMPRESS_NEEDED)
+        // TODO See if there is a way to compress non-wav audio files
+
+        modifiedFile.set_uncompdFileFullPath(baseFile.getFileFullPath());
+        modifiedFile.setIsCompressed(true);
+        BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, null, null));
+        return modifiedFile;
+
     }
 
     private static FileManager trimMediaFile(FileManager baseFile, String outPath, int sizeToCompress, Context context) {
@@ -98,11 +123,11 @@ public abstract class FileCompressorUtil {
         FileManager modifiedFile = baseFile;
         Double duration = (double) FFMPEG_Utils.getFileDurationInSeconds(baseFile, context);
         // If media file is longer than 1 min start trimming procedure
-        if (duration >= ONE_MINUTE) {
+        if (duration >= MAX_DURATION) {
             modifiedFile = FFMPEG_Utils.trim(baseFile, outPath, PERCENT_TO_TRIM * duration, context);
             duration = (double) FFMPEG_Utils.getFileDurationInSeconds(modifiedFile, context);
 
-            while (duration >= ONE_MINUTE && modifiedFile.getFileSize() > sizeToCompress) {
+            while (duration >= MAX_DURATION && modifiedFile.getFileSize() > sizeToCompress) {
                 modifiedFile = FFMPEG_Utils.trim(modifiedFile, outPath, PERCENT_TO_TRIM * duration, context);
                 duration = (double) FFMPEG_Utils.getFileDurationInSeconds(modifiedFile, context);
             }

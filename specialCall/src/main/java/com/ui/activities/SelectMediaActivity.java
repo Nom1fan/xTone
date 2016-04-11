@@ -200,7 +200,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private void takePicture(int code) {
 
         // Determine Uri of camera image to save.
-        String fname = "MyImage_"+_destPhoneNumber;
+        String fname = "MyImage_"+_destPhoneNumber+".jpeg";
         File sdImageMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
         sdImageMainDirectory.delete();
         _outputFileUri = Uri.fromFile(sdImageMainDirectory);
@@ -273,7 +273,15 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
                 if (isCamera) {
                     File file = new File(path);
-                    file.renameTo(new File(path += ".jpeg"));
+
+                  try {
+                      String extension = FileManager.extractExtension(path);
+                      Log.i(TAG, "isCamera True, Extension saved in camera: " + extension);
+                  }catch (FileMissingExtensionException e){
+
+                      Log.e(TAG, "Missing Extension !!! will add jpeg as it likely to be camera" );
+                      file.renameTo(new File(path += ".jpeg"));
+                  }
                 }
 
                 fm = new FileManager(path);
