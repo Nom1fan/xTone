@@ -14,13 +14,13 @@ import FilesManager.FileManager;
  */
 public abstract class FileCompressorUtil {
 
+    public static final String workFolder                   =   Constants.TEMP_COMPRESSED_FOLDER;
     private static final int VIDEO_SIZE_COMPRESS_NEEDED     =   5242880; //5MB
     private static final int AUDIO_SIZE_COMPRESS_NEEDED     =   5242880; //5MB
     private static final int IMAGE_SIZE_COMPRESS_NEEDED     =   1048576; //1MB
     private static final int MIN_RESOLUTION                 =   320;
     private static final long MAX_DURATION                  =   40;      // seconds
     private static final double PERCENT_TO_TRIM             =   0.7;
-    private static final String workFolder                  =   Constants.TEMP_COMPRESSED_FOLDER;
     private static final String TAG                         =   FileCompressorUtil.class.getSimpleName();
 
     /**

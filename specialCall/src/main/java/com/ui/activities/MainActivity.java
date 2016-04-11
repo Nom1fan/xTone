@@ -44,9 +44,9 @@ import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.data_objects.Contact;
 import com.data_objects.SnackbarData;
-import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.interfaces.ICallbackListener;
 import com.mediacallz.app.R;
+import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.services.AbstractStandOutService;
 import com.services.IncomingService;
 import com.services.LogicServerProxyService;
@@ -56,6 +56,7 @@ import com.services.StorageServerProxyService;
 import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
+import com.utils.FileCompressorUtil;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
@@ -132,6 +133,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         Log.i(TAG, "onStart()");
 
         Batch.onStart(this);
+
+        //Copying FFMPEG license if necessary
+        GeneralUtils.copyLicenseFromAssetsToSDIfNeeded(this, FileCompressorUtil.workFolder);
 
         startLoginActivityIfLoggedOut();
 
