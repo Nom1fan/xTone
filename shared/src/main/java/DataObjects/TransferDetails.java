@@ -1,7 +1,7 @@
 package DataObjects;
 
-import java.io.IOException;
 import java.io.Serializable;
+
 import FilesManager.FileManager;
 
 public class TransferDetails implements Serializable {
@@ -10,6 +10,7 @@ public class TransferDetails implements Serializable {
     private int _commId;
     private String _sourceId;
     private String _destinationId;
+    private String _destinationContactName;
     private String _extension;
     private long _fileSize;
     private FileManager.FileType _fileType;
@@ -26,10 +27,11 @@ public class TransferDetails implements Serializable {
      * @param managedFile The managed file descriptor of the media being sent
      * @param spMediaType The special media type
      */
-    public TransferDetails(String source, String destination, FileManager managedFile, SpecialMediaType spMediaType) {
+    public TransferDetails(String source, String destination, String destinationContactName ,FileManager managedFile, SpecialMediaType spMediaType) {
 
         _sourceId = source;
         _destinationId = destination;
+        _destinationContactName = destinationContactName;
         _extension = managedFile.getFileExtension();
         _fileSize = managedFile.getFileSize();
         _fileType = managedFile.getFileType();
