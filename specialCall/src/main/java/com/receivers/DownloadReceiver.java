@@ -58,7 +58,7 @@ public class DownloadReceiver extends BroadcastReceiver {
             String source = td.getSourceId();
 
             switch (fType) {
-                case RINGTONE:
+                case AUDIO:
                     setNewRingTone(context, source, td.getMd5());
                     deleteFilesIfNecessary(context, fFullName, fType, source);
                     break;
@@ -80,7 +80,7 @@ public class DownloadReceiver extends BroadcastReceiver {
      * This method does not delete the new downloaded file.
      * lets mark newDownloadedFileType as nDFT.
      * nDFT = IMAGE --> deletes images and videos
-     * nDFT = RINGTONE --> deletes ringtones and videos
+     * nDFT = AUDIO --> deletes ringtones and videos
      * nDFT = VIDEO --> deletes all
      *
      * @param newDownloadedFileType The type of the files just downloaded and should be created in the source designated folder
@@ -92,7 +92,7 @@ public class DownloadReceiver extends BroadcastReceiver {
 
         try {
             switch (newDownloadedFileType) {
-                case RINGTONE:
+                case AUDIO:
 
                     for (File file : files) {
                         String fileName = file.getName(); // This includes extension
@@ -100,7 +100,7 @@ public class DownloadReceiver extends BroadcastReceiver {
 
                         if (!fileName.equals(addedFileName) &&
                                 (fileType == FileManager.FileType.VIDEO ||
-                                        fileType == FileManager.FileType.RINGTONE)) {
+                                        fileType == FileManager.FileType.AUDIO)) {
                             FileManager.delete(file);
                             SharedPrefUtils.remove(context, _sharedPrefKeyForVisualMedia, source);
                         }
@@ -199,7 +199,7 @@ public class DownloadReceiver extends BroadcastReceiver {
             {
                 FileUtils.copyFile(downloadedFile, copyToHistoryFile);
                 Log.i(TAG, "Creating a unique md5 file in the History Folder fileName:  " + copyToHistoryFile.getName());
-                if (td.getFileType() == FileManager.FileType.RINGTONE) {
+                if (td.getFileType() == FileManager.FileType.AUDIO) {
                     ContentValues values = new ContentValues();
                     values.put(MediaStore.MediaColumns.DATA, copyToHistoryFile.getName());
                     values.put(MediaStore.MediaColumns.TITLE, copyToHistoryFile.getName());

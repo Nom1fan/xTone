@@ -45,7 +45,7 @@ public class FileManager implements Serializable {
 
     public static final int MAX_FILE_SIZE = 16777216; // 16MB
 
-    public enum FileType { IMAGE, VIDEO, RINGTONE }
+    public enum FileType { IMAGE, VIDEO, AUDIO }
 
 
     /**
@@ -180,7 +180,7 @@ public class FileManager implements Serializable {
 
     /**
      *
-     * @return FileType - The type of the file of the supported formats: VIDEO/RINGTONE/IMAGE
+     * @return FileType - The type of the file of the supported formats: VIDEO/AUDIO/IMAGE
      */
     public FileType getFileType() {
 
@@ -199,7 +199,7 @@ public class FileManager implements Serializable {
         if(Arrays.asList(imageFormats).contains(_extension))
             return FileType.IMAGE;
         else if(Arrays.asList(audioFormats).contains(_extension))
-            return FileType.RINGTONE;
+            return FileType.AUDIO;
         else if (Arrays.asList(videoFormats).contains(_extension))
             return FileType.VIDEO;
 
@@ -255,7 +255,7 @@ public class FileManager implements Serializable {
             if (Arrays.asList(imageFormats).contains(extension))
                 return FileType.IMAGE;
             else if (Arrays.asList(audioFormats).contains(extension))
-                return FileType.RINGTONE;
+                return FileType.AUDIO;
             else if (Arrays.asList(videoFormats).contains(extension))
                 return FileType.VIDEO;
             else
@@ -277,7 +277,7 @@ public class FileManager implements Serializable {
             if (Arrays.asList(imageFormats).contains(extension))
                 return FileType.IMAGE;
             else if (Arrays.asList(audioFormats).contains(extension))
-                return FileType.RINGTONE;
+                return FileType.AUDIO;
             else if (Arrays.asList(videoFormats).contains(extension))
                 return FileType.VIDEO;
             else

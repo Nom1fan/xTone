@@ -87,7 +87,7 @@ public class LUT_Utils {
                 saveUploadedMediaPerNumber(context, destPhoneNumber, mediaPath);
                 removeUploadedTonePerNumber(context, destPhoneNumber);
                 break;
-            case RINGTONE:
+            case AUDIO:
                 saveUploadedTonePerNumber(context, destPhoneNumber, mediaPath);
 
                 // Checking if video was marked as last uploaded, if so need to delete (ringtone cannot co-exist with video)
