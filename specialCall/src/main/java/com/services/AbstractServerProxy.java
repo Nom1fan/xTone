@@ -36,10 +36,14 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     protected String TAG;
     protected PowerManager.WakeLock wakeLock;
     protected ConnectivityManager connManager;
-    protected ArrayList<ConnectionToServer> connections = new ArrayList<>();
+    protected static ArrayList<ConnectionToServer> connections = new ArrayList<>();
 
     public AbstractServerProxy(String tag) {
         TAG = tag;
+    }
+
+    public static ConnectionToServer getConn() {
+        return connections.get(connections.size()-1);
     }
 
     //region Service methods

@@ -5,7 +5,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
-import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
@@ -38,15 +37,12 @@ import MessagesToServer.MessageRequestDownload;
  */
 public class StorageServerProxyService extends AbstractServerProxy {
 
-    //region members
-    private static UploadTask _uploadTask;
-    //endregion
-
     //region Service actions
-    public static final String ACTION_DOWNLOAD = "com.services.StorageServerProxyService.DOWNLOAD";
-    public static final String ACTION_UPLOAD = "com.services.StorageServerProxyService.UPLOAD";
-    public static final String ACTION_NOTIFY_MEDIA_CLEARED = "com.services.StorageServerProxyService.NOTIFY_MEDIA_CLEARED";
-    public static final String ACTION_CLEAR_MEDIA = "com.services.StorageServerProxyService.CLEAR_MEDIA";
+    public static final String ACTION_DOWNLOAD              =   "com.services.StorageServerProxyService.DOWNLOAD";
+    public static final String ACTION_UPLOAD                =   "com.services.StorageServerProxyService.UPLOAD";
+    public static final String ACTION_NOTIFY_MEDIA_CLEARED  =   "com.services.StorageServerProxyService.NOTIFY_MEDIA_CLEARED";
+    public static final String ACTION_CLEAR_MEDIA           =   "com.services.StorageServerProxyService.CLEAR_MEDIA";
+    public static final String ACTION_CANCEL                =   "com.services.StorageServerProxyService.CANCEL";
     //endregion
 
     //region Service intent keys
@@ -98,6 +94,10 @@ public class StorageServerProxyService extends AbstractServerProxy {
 
                             case ACTION_NOTIFY_MEDIA_CLEARED:
                                 actionNotifyMediaCleared(intentForThread);
+                                break;
+
+                            case ACTION_CANCEL:
+                                actionCancel();
                                 break;
 
                             default:
@@ -154,12 +154,25 @@ public class StorageServerProxyService extends AbstractServerProxy {
         File tempCompressFolderDir = new File(tempCompressFolder);
         tempCompressFolderDir.mkdirs();
 
-        ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
         FileManager managedFile = (FileManager) intent.getSerializableExtra(FILE_TO_UPLOAD);
         managedFile = FileCompressorUtil.compressFileIfNecessary(managedFile, tempCompressFolder, getApplicationContext());
-        uploadFileToServer(connectionToServer, destId, managedFile, specialMediaType);
+        uploadFileToServer(destId, managedFile, specialMediaType);
         releaseLockIfNecessary();
 
+    }
+
+    private void actionCancel() {
+
+        ConnectionToServer connectionToServer  = connections.get(connections.size()-1);
+
+        try {
+            connectionToServer.closeConnection();
+        } catch(Exception e) {
+            Log.w(TAG, "Failed to close connection to server on action cancel", e);
+        }
+
+        connections.remove(connectionToServer);
+        releaseLockIfNecessary();
     }
 
     private void actionClear(Intent intent) throws IOException {
@@ -209,14 +222,12 @@ public class StorageServerProxyService extends AbstractServerProxy {
     /**
      * Uploads a file to the server, sending it to a destination number
      *
-     * @param connectionToServer
      * @param destNumber         The destination number to whom the file is for
      * @param managedFile        The file to upload inside a manager wrapper
      * @param specialMediaType   The special media type of the file to upload
      * @throws IOException
      */
     private void uploadFileToServer(
-            ConnectionToServer connectionToServer,
             String destNumber,
             FileManager managedFile,
             SpecialMediaType specialMediaType) throws IOException {
@@ -228,27 +239,20 @@ public class StorageServerProxyService extends AbstractServerProxy {
                 managedFile,
                 specialMediaType);
 
-        _uploadTask = new UploadTask(connectionToServer, td);
-        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.UPLOADING, null, null));
+        openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.UPLOADING, null, td));
     }
 
     /**
      * Requests a download from the server
      *
-     * @param connectionToServer
-     * @param td                 - The transfer details
+     * @param connectionToServer The connection to the server
+     * @param td The transfer details
      */
     private void requestDownloadFromServer(ConnectionToServer connectionToServer, TransferDetails td) throws IOException {
 
         MessageRequestDownload msgRD = new MessageRequestDownload(td);
         connectionToServer.sendToServer(msgRD);
-    }
-    //endregion
-
-    //region Getters
-    public static UploadTask getUploadTask() {
-
-        return _uploadTask;
     }
     //endregion
 }

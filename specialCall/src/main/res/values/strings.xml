@@ -53,6 +53,7 @@
     <string name="share_via">Share via</string>
     <string name="delete_account_failed">Failed to delete account! Please contact MediaCallz support</string>
     <string name="deleting_account_msg">Deleting account...</string>
+    <string name="action_cancelled">Action cancelled</string>
 
 
     <!--  SelectMediaActivity  -->

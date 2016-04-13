@@ -50,6 +50,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
         boolean isLoading = false;
 
         switch (report.status()) {
+
             //region Events in loading states
             case RECONNECT_ATTEMPT: {
                 //TODO commented out by Mor - need to check if this is necessary or just bothers the user
@@ -127,9 +128,17 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
             break;
             //endregion
 
+            case LOADING_CANCEL:
+                AppStateManager.setAppPrevState(context, TAG + " " + EventType.LOADING_CANCEL);
+
+                // Setting parameters for snackbar message
+                msg = context.getResources().getString(R.string.action_cancelled);
+                color = Color.YELLOW;
+                sBarDuration = Snackbar.LENGTH_LONG;
+                break;
+
             //region Events in Idle, ready and disabled states
             case DISCONNECTED:
-                // Setting state
                 AppStateManager.setAppState(context, TAG + " DISCONNECTED", AppStateManager.STATE_DISABLED);
 
                 // Setting parameters for snackbar message

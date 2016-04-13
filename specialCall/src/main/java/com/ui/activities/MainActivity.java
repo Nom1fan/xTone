@@ -3,11 +3,13 @@ package com.ui.activities;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.design.widget.Snackbar;
@@ -40,7 +42,6 @@ import android.widget.TextView;
 import com.app.AppStateManager;
 import com.async_tasks.AutoCompletePopulateListAsyncTask;
 import com.async_tasks.IsRegisteredTask;
-import com.async_tasks.UploadTask;
 import com.batch.android.Batch;
 import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
@@ -57,25 +58,36 @@ import com.services.PreviewService;
 import com.services.StorageServerProxyService;
 import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
+import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
 import com.utils.FileCompressorUtil;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ClientObjects.ConnectionToServer;
 import DataObjects.AppMetaRecord;
 import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
+import DataObjects.TransferDetails;
 import EventObjects.Event;
 import EventObjects.EventReport;
+import EventObjects.EventType;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
+import MessagesToServer.MessageUploadFile;
 import utils.PhoneNumberUtils;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
@@ -109,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private AutoCompleteTextView _destinationEditText;
     private TextView _destTextView;
     private TextView _mediaCallingTextView;
+    private ProgressDialog _progDialog;
     //endregion
 
     //region Activity methods (onCreate(), onPause(), ...)
@@ -393,9 +406,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         switch (report.status()) {
 
             case UPLOADING:
-                UploadTask uploadTask = StorageServerProxyService.getUploadTask();
-                uploadTask.set_context(MainActivity.this);
-                uploadTask.set_progDialog(new ProgressDialog(MainActivity.this));
+                TransferDetails td = (TransferDetails) report.data();
+                ConnectionToServer conn  = StorageServerProxyService.getConn();
+                _progDialog = new ProgressDialog(MainActivity.this);
+                UploadTask uploadTask = new UploadTask(conn, td);
                 uploadTask.execute();
                 break;
 
@@ -1463,7 +1477,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
     //endregion
 
-    //region Private classes
+    //region Private classes and AsyncTasks
     private class DrawerItemClickListener implements
             ListView.OnItemClickListener {
         @Override
@@ -1472,6 +1486,145 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             if (position != 0)
                 selectNavigationItem(position);
         }
+    }
+
+
+    private class UploadTask extends AsyncTask<Void,Integer,Void> {
+        private final String TAG = UploadTask.class.getSimpleName();
+        private ConnectionToServer _connectionToServer;
+        private TransferDetails _td;
+        private ProgressDialog _progDialog;
+        private UploadTask _taskInstance;
+        private DataOutputStream _dos;
+        private BufferedInputStream _bis;
+
+        public UploadTask(ConnectionToServer connectionToServer, TransferDetails td) {
+
+            _connectionToServer = connectionToServer;
+            _td = td;
+            _taskInstance = this;
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            String cancel = getResources().getString(R.string.cancel);
+
+            _progDialog = new ProgressDialog(MainActivity.this);
+            _progDialog.setIndeterminate(false);
+            _progDialog.setCancelable(false);
+            _progDialog.setTitle(getResources().getString(R.string.uploading));
+            _progDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            _progDialog.setProgress(0);
+            _progDialog.setMax((int)_td.getFileSize());
+            _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    _taskInstance.cancel(true);
+                }
+            });
+
+            _progDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            FileManager managedFile = _td.get_managedFile();
+            MessageUploadFile msgUF = new MessageUploadFile(_td.getSourceId(),_td);
+
+            DataOutputStream dos;
+            BufferedInputStream bis = null;
+            try {
+                _connectionToServer.sendToServer(msgUF);
+
+                Log.i(TAG, "Initiating file data upload...");
+
+                dos = new DataOutputStream(_connectionToServer.getClientSocket().getOutputStream());
+
+                FileInputStream fis = new FileInputStream(managedFile.getFile());
+                bis = new BufferedInputStream(fis);
+
+                byte[] buf = new byte[1024 * 8];
+                long fileSize = managedFile.getFileSize();
+                long bytesToRead = fileSize;
+                int bytesRead;
+                while (bytesToRead > 0 && (bytesRead = bis.read(buf, 0, (int) Math.min(buf.length, bytesToRead))) != -1 && !isCancelled()) {
+                    dos.write(buf, 0, bytesRead);
+                    //float percent = (float) ((fileSize - bytesToRead) / fileSize) * 100;
+                    publishProgress((int)bytesRead);
+                    bytesToRead -= bytesRead;
+                }
+
+                if(_progDialog!=null && _progDialog.isShowing()) {
+                    _progDialog.dismiss();
+                }
+
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                Log.e(TAG, "Failed:" + e.getMessage());
+                BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG,
+                        new EventReport(EventType.STORAGE_ACTION_FAILURE, "Upload to " + _td.getDestinationId() + " failed:" + e.getMessage(), null));
+            } finally {
+
+                if(bis!=null) {
+                    try {
+                        bis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                Log.i(TAG, "Deleting "+_td.getDestinationId()+"'s temp compressed folder after upload");
+                File tempCompressedDir = new File(Constants.TEMP_COMPRESSED_FOLDER +_td.getDestinationId());
+
+                String[] entries = tempCompressedDir.list();
+                for (String s : entries) {
+                    File currentFile = new File(tempCompressedDir.getPath(), s);
+                    currentFile.delete();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onCancelled() {
+
+            Intent i = new Intent(MainActivity.this, StorageServerProxyService.class);
+            i.setAction(StorageServerProxyService.ACTION_CANCEL);
+            startService(i);
+
+            if(_bis!=null) {
+                try {
+                    _bis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+
+            if(_progDialog!=null) {
+                _progDialog.incrementProgressBy(progress[0]);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void result)    {
+
+            if(_progDialog!=null && _progDialog.isShowing()) {
+                _progDialog.dismiss();
+            }
+        }
+
     }
     //endregion
 
