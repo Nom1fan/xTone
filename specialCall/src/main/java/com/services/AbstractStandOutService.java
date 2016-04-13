@@ -85,6 +85,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     private static final String alarmActionIntent = "com.android.mediacallz.ALARM_ACTION";
     protected boolean mPreviewStart = false;
     protected boolean showFirstTime = false;
+    protected boolean mOutgoingCall = false;
     protected boolean mShouldVibrate = false;
     protected Vibrator vibrator;
     public AbstractStandOutService(String TAG) {
@@ -305,7 +306,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         }*/
         stopSound();
         stopVibrator();
-        releaseResources();
+      //  releaseResources();
         return false;
     }
 
@@ -335,7 +336,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         stopSound();
         stopVibrator();
-        releaseResources();
+      //  releaseResources();
 
 
 
@@ -520,6 +521,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
                     verifyAudioManager();
                     mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+
+                   if (mVolumeBeforeMute!=0)
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
 
                     Log.i(TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
@@ -784,9 +787,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected void backupMusicVolume() {
 
         verifyAudioManager();
-        Log.i(TAG, "RING_VOLUME Original" + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME));
+        Log.i(TAG, "RING_VOLUME Original: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME));
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
-        Log.i(TAG, "MUSIC_VOLUME Original" + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        Log.i(TAG, "MUSIC_VOLUME Original: " + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
     }
 
     protected void backupRingVolume() {
@@ -794,7 +797,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         verifyAudioManager();
         int ringVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_RING);
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME, ringVolume);
-        Log.i(TAG, "mRingVolume Original=" + ringVolume);
+        Log.i(TAG, "mRingVolume Original: " + ringVolume);
     }
 
     protected void verifyAudioManager() {
@@ -999,6 +1002,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
 
         try {
+         if(!mOutgoingCall)
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
         } catch (Exception e) {
             Log.e(TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
@@ -1025,7 +1029,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         windowCloseActionWasMade = true;
         volumeChangeByMCButtons = false;
         mVolumeBeforeMute = 0;
-        isHidden = false;
+        mOutgoingCall=false;
+                isHidden = false;
         SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
         //mPhoneListener = null;
         // TODO Release more Resources

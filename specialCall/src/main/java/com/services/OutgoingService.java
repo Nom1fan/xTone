@@ -100,7 +100,7 @@ public class OutgoingService extends AbstractStandOutService {
 
                         try {
                             closeSpecialCallWindowWithoutRingtone();
-                            resumeMusicStreamBackToPrevious();
+                         //   resumeMusicStreamBackToPrevious();
                             setRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION, false);
                         } finally {
                             releaseResources();
@@ -140,7 +140,7 @@ public class OutgoingService extends AbstractStandOutService {
         verifyAudioManager();
         mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         Log.i(TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
-        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+      //  mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
         mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
         Log.i(TAG, "Set Silent , now volume: " + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
         isMuted = true;
@@ -253,7 +253,7 @@ public class OutgoingService extends AbstractStandOutService {
                     if (!isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && !isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(outgoingCallNumber)) {
 
                         try {
-
+                            mOutgoingCall=true;
 
                             String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, outgoingCallNumber);
                             String funTonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, outgoingCallNumber);
@@ -265,10 +265,9 @@ public class OutgoingService extends AbstractStandOutService {
 
                             }
 
-                            verifyAudioManager();
                             backupMusicVolume();
 
-                            mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // setting max volume for music -5 as it's to high volume
+                          //  mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // setting max volume for music -5 as it's to high volume
 
 
                             setTempMd5ForCallRecord(mediaFilePath,funTonePath);
