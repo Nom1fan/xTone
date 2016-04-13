@@ -1,7 +1,6 @@
 package com.services;
 
 import android.app.Activity;
-import android.app.Instrumentation;
 import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,9 +8,9 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Vibrator;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.widget.FrameLayout;
 
 import com.data_objects.Constants;
@@ -336,9 +335,11 @@ public class IncomingService extends AbstractStandOutService {
 
                     @Override
                     public void onPrepared(MediaPlayer mp) {
-                        mp.setLooping(true);
-                        mp.setVolume(1.0f, 1.0f);
-                        mp.start();
+                        mMediaPlayer = new MediaPlayer();
+                        mMediaPlayer = mp;
+                        mMediaPlayer.setLooping(true);
+                        mMediaPlayer.setVolume(1.0f, 1.0f);
+                        mMediaPlayer.start();
                         Log.i(TAG, " Video registerVolumeReceiver");
                         registerVolumeReceiver();
                     }
@@ -376,6 +377,8 @@ public class IncomingService extends AbstractStandOutService {
     private void disableRingStream() {
 
 
+        getRingerModeWithVibrateMode();
+
         mAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);  // SOLUTION For LG G4 that needs another motivation to be silent (if removed the audio isn't heared in LG G4 you need to press the volume hard keys to silent manually , this fixes it)
 
         try {
@@ -392,8 +395,67 @@ public class IncomingService extends AbstractStandOutService {
             e.printStackTrace();
             Log.e(TAG, "Failed  mAudioManager.setStreamVolume(AudioManager.STREAM_RING); error:" + e.getMessage());
         }
+
+
+        vibrateIfNeeded();
+
+
+
     }
 
+    private void vibrateIfNeeded() {
+
+   if(mShouldVibrate) {
+       try {
+           vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+           //Set the pattern, like vibrate for 300 milliseconds and then stop for 200 ms, then
+           //vibrate for 300 milliseconds and then stop for 500 ms and repeat the same style. You can change the pattern and
+           // test the result for better clarity.
+           long pattern[] = {300, 1800, 800, 1800, 800};
+           //start vibration with repeated count, use -1 if you don't want to repeat the vibration
+           vibrator.vibrate(pattern, 1);
+       }catch (Exception e) {
+           e.printStackTrace();
+       }
+
+
+   }
+
+
+    }
+
+    private void getRingerModeWithVibrateMode() {
+        int ringerMode = mAudioManager.getRingerMode();  // 0 silent 1 vibrate 2 normal
+        int vibrateSettings = mAudioManager.getVibrateSetting(AudioManager.VIBRATE_TYPE_RINGER);  //  0 off\related to ring 2 VIBRATE_SETTING_ONLY_SILENT
+
+        Log.i(TAG, "getRingerModeWithVibrateMode ringerMode:"  + String.valueOf(ringerMode) + "VibrateMode: " + String.valueOf(vibrateSettings) );
+        if (ringerMode == AudioManager.RINGER_MODE_NORMAL) {  // Check if Normal ring with Vibrate or not ?
+            if (vibrateSettings == AudioManager.VIBRATE_SETTING_OFF) {
+                Log.i(TAG, "Ringer Mode is ring with no vibraion");
+                mShouldVibrate = false;
+            } else if (vibrateSettings == AudioManager.VIBRATE_TYPE_RINGER || vibrateSettings == AudioManager.VIBRATE_SETTING_ONLY_SILENT){
+                Log.i(TAG, "Ringer Mode is ring with vibraion");
+                mShouldVibrate = true;
+            }
+        }
+         else if (ringerMode == AudioManager.RINGER_MODE_SILENT) { // Check if Silent with Vibrate or not ?
+
+                if (vibrateSettings == AudioManager.VIBRATE_SETTING_OFF) {
+                    Log.i(TAG, "Ringer Mode is  Silent with no vibraion");
+                    mShouldVibrate = false;
+                } else if (vibrateSettings == AudioManager.VIBRATE_TYPE_RINGER || vibrateSettings == AudioManager.VIBRATE_SETTING_ONLY_SILENT){
+                    Log.i(TAG, "Ringer Mode is  Silent with vibraion");
+                    mShouldVibrate = true;
+                }
+            } else { // has to be VIBRATE MODE only
+                Log.i(TAG, "Ringer Mode is  Silent with vibraion");
+            mShouldVibrate = true;
+
+            }
+
+
+    }
     private void dismissKeyGuard(boolean dismissOrNot) {
 
         boolean isKeyguardLocked = false;
@@ -453,6 +515,18 @@ public class IncomingService extends AbstractStandOutService {
                 dismissKeyGuard(false);
                 enableRingStream();
 
+                try {
+                    Log.i(TAG, "mMediaPlayer.stop(); closeSpecialCallWindowAndRingtone");
+                    if (mMediaPlayer != null && mMediaPlayer.isPlaying())
+                    {
+                        mMediaPlayer.setVolume(0,0);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                stopVibrator();
+
                 Runnable r = new Runnable() {
                     public void run() {
                         setRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION, false);
@@ -509,13 +583,13 @@ public class IncomingService extends AbstractStandOutService {
 
                 new Thread(r).start();
 
-
+/*
                 try {
                     verifyAudioManager();
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
                 } catch (Exception e) {
                     e.printStackTrace();
-                }
+                }*/
 
                 Intent i = new Intent(getApplicationContext(), IncomingService.class);
                 i.setAction(StandOutWindow.ACTION_CLOSE_ALL);

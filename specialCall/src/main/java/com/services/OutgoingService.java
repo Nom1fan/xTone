@@ -175,9 +175,11 @@ public class OutgoingService extends AbstractStandOutService {
 
                 @Override
                 public void onPrepared(MediaPlayer mp) {
-                    mp.setLooping(true);
-                    mp.setVolume(1.0f, 1.0f);
-                    mp.start();
+                    mMediaPlayer = new MediaPlayer();
+                    mMediaPlayer = mp;
+                    mMediaPlayer.setLooping(true);
+                    mMediaPlayer.setVolume(1.0f, 1.0f);
+                    mMediaPlayer.start();
                     Log.i(TAG, "prepareVideoListener MUSIC_VOLUME Original" + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                 }
             };
