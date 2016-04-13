@@ -138,7 +138,9 @@ public class LogicServerProxyService extends AbstractServerProxy {
                         Log.e(TAG, errMsg);
                         handleDisconnection(errMsg);
                     } catch (Exception e) {
+                        e.printStackTrace();
                         String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
+                        handleActionFailure();
                         Log.e(TAG, errMsg);
                     }
                 } else
@@ -207,6 +209,11 @@ public class LogicServerProxyService extends AbstractServerProxy {
         MessageInsertMediaCallRecord msgInsertMCrecord = new MessageInsertMediaCallRecord(callRecord.get_sourceId(), callRecord);
         Log.i(TAG, "Sending actionInsertMediaCallRecord message to server...");
         connectionToServer.sendToServer(msgInsertMCrecord);
+    }
+
+    private void handleActionFailure() {
+
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.LOGIC_ACTION_FAILURE, null, null));
     }
     //endregion
 

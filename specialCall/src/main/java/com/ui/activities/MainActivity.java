@@ -1,5 +1,6 @@
 package com.ui.activities;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +40,7 @@ import android.widget.TextView;
 import com.app.AppStateManager;
 import com.async_tasks.AutoCompletePopulateListAsyncTask;
 import com.async_tasks.IsRegisteredTask;
+import com.async_tasks.UploadTask;
 import com.batch.android.Batch;
 import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
@@ -389,6 +391,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         final EventReport report = event.report();
 
         switch (report.status()) {
+
+            case UPLOADING:
+                UploadTask uploadTask = StorageServerProxyService.getUploadTask();
+                uploadTask.set_context(MainActivity.this);
+                uploadTask.set_progDialog(new ProgressDialog(MainActivity.this));
+                uploadTask.execute();
+                break;
 
             case APP_RECORD_RECEIVED:
                 AppMetaRecord appMetaRecord = (AppMetaRecord) report.data();

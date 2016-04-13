@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
-import com.interfaces.ICallbackListener;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
 import com.utils.FileCompressorUtil;
@@ -37,7 +36,11 @@ import MessagesToServer.MessageRequestDownload;
  *
  * @author Mor
  */
-public class StorageServerProxyService extends AbstractServerProxy implements ICallbackListener {
+public class StorageServerProxyService extends AbstractServerProxy {
+
+    //region members
+    private static UploadTask _uploadTask;
+    //endregion
 
     //region Service actions
     public static final String ACTION_DOWNLOAD = "com.services.StorageServerProxyService.DOWNLOAD";
@@ -47,10 +50,10 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
     //endregion
 
     //region Service intent keys
-    public static final String FILE_TO_UPLOAD = "FILE_TO_UPLOAD";
-    public static final String DESTINATION_ID = "DESTINATION_ID";
-    public static final String SPECIAL_MEDIA_TYPE = "SPECIAL_MEDIA_TYPE";
-    public static final String TRANSFER_DETAILS = "CALL_RECORD";
+    public static final String FILE_TO_UPLOAD       =   "FILE_TO_UPLOAD";
+    public static final String DESTINATION_ID       =   "DESTINATION_ID";
+    public static final String SPECIAL_MEDIA_TYPE   =   "SPECIAL_MEDIA_TYPE";
+    public static final String TRANSFER_DETAILS     =   "CALL_RECORD";
     //endregion
 
     public StorageServerProxyService() {
@@ -104,10 +107,13 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
                     } catch (IOException e) {
                         e.printStackTrace();
                         String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
+                        handleActionFailed();
                         Log.e(TAG, errMsg);
-//                        handleDisconnection(errMsg); //TODO Maybe no need for this?
+                        //handleDisconnection(errMsg); //TODO Maybe no need for this?
                     } catch (Exception e) {
+                        e.printStackTrace();
                         String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
+                        handleActionFailed();
                         Log.e(TAG, errMsg);
                     }
                 } else
@@ -173,6 +179,11 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
         MessageNotifyMediaCleared msgNMC = new MessageNotifyMediaCleared(Constants.MY_ID(getApplicationContext()), td);
         connectionToServer.sendToServer(msgNMC);
     }
+
+    private void handleActionFailed() {
+
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.STORAGE_ACTION_FAILURE, null ,null));
+    }
     //endregion
 
     //region Storage operations methods
@@ -217,9 +228,8 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
                 managedFile,
                 specialMediaType);
 
-        //NotificationUtils.createHelper(getApplicationContext(), "File upload to:" + td.getDestinationId() + " is pending");
+        _uploadTask = new UploadTask(connectionToServer, td);
         BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.UPLOADING, null, null));
-        new UploadTask(getApplicationContext(), this, connectionToServer, td).execute();
     }
 
     /**
@@ -235,26 +245,10 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
     }
     //endregion
 
-    //region ICallbackListener methods
-    @Override
-    public void doCallBackAction() {
+    //region Getters
+    public static UploadTask getUploadTask() {
 
-        setMidAction(false);
-    }
-
-    @Override
-    public void doCallBackAction(Object... actions) {
-
+        return _uploadTask;
     }
     //endregion
-
-
-//
-//    @Override
-//    public void onTaskRemoved(Intent rootIntent) {
-//        super.onTaskRemoved(rootIntent);
-//        Log.i(TAG,"Entering onTaskRemoved()");
-//
-//
-//    }
 }

@@ -67,6 +67,11 @@ public class AppStateManager {
         return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_PREV_STATE);
     }
 
+    public synchronized static void setAppPrevState(Context context, String tag) {
+
+        setAppState(context, tag, getAppPrevState(context));
+    }
+
     public synchronized static boolean isNonBlockingState(Context context) {
 
         return !getAppState(context).equals(AppStateManager.STATE_DISABLED) &&

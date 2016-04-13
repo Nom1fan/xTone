@@ -218,7 +218,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                         ContactsUtils.getContactNameHtml(context, destNumber));
             }
             case ISREGISTERED_ERROR:
-            case UPLOAD_FAILURE:
+            case STORAGE_ACTION_FAILURE:
             case UNREGISTER_FAILURE:
                 if(msg.equals(""))
                     msg = context.getResources().getString(R.string.oops_try_again);
