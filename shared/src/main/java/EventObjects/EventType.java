@@ -39,4 +39,5 @@ public enum EventType implements Serializable {
 	REGISTERING,
 	APP_RECORD_RECEIVED,
 	GET_SMS_CODE_FAILED,
+	LOADING_CANCEL
 }

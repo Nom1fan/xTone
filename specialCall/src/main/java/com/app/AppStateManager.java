@@ -141,6 +141,16 @@ public class AppStateManager {
             SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_PREV_STATE, curState);
     }
 
+    public static void setAppInForeground(Context context, boolean b) {
+
+        SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_IN_FG, b);
+    }
+
+    public static boolean isAppInForeground(Context context) {
+
+        return SharedPrefUtils.getBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_IN_FG);
+    }
+
     private static class LoadingState {
 
         private int _loadingTimeout;

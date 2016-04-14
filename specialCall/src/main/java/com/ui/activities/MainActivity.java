@@ -66,7 +66,6 @@ import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -165,6 +164,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         String appState = getState();
         Log.i(TAG, "App State:" + appState);
 
+        AppStateManager.setAppInForeground(getApplicationContext(), true);
+
         if (!getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
             //TODO MediaCallz: Do we need these start services here?
             // Starting service responsible for incoming media callz
@@ -203,6 +204,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     protected void onPause() {
         super.onPause();
         Log.i(TAG, "onPause()");
+
+        AppStateManager.setAppInForeground(getApplicationContext(), false);
 
         if (_eventReceiver != null) {
             try {

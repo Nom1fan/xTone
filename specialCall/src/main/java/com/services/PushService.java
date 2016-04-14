@@ -1,9 +1,11 @@
 package com.services;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.app.AppStateManager;
 import com.batch.android.Batch;
 import com.google.gson.Gson;
 import com.receivers.PushReceiver;
@@ -34,7 +36,7 @@ public class PushService extends IntentService {
         String eventActionCode;
 
         try {
-            if( !Batch.Push.shouldDisplayPush(this, intent) ) // Check that the push is valid
+            if (!Batch.Push.shouldDisplayPush(this, intent)) // Check that the push is valid
             {
                 String errMsg = "Invalid push data! Push data was null. Terminating push receive";
                 Log.e(TAG, errMsg);
@@ -46,34 +48,33 @@ public class PushService extends IntentService {
             eventActionCode = intent.getStringExtra(PushEventKeys.PUSH_EVENT_ACTION);
             Log.i(TAG, "PushEventActionCode:" + eventActionCode);
 
-            switch(eventActionCode)
-            {
+            switch (eventActionCode) {
                 case PushEventKeys.PENDING_DOWNLOAD: {
                     Log.i(TAG, "In:" + PushEventKeys.PENDING_DOWNLOAD);
                     jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
                     td = new Gson().fromJson(jsonData, TransferDetails.class);
 
-                  if(MCBlockListUtils.IsMCBlocked(td.getSourceId(), getApplicationContext())) //don't download if the number is blocked , just break and don't continue with the download flow
-                  {
-                      Log.i(TAG,"NUMBER BLOCKED For DOWNLOAD: " + td.getSourceId());
-                      break;
-                  }
+                    if (MCBlockListUtils.IsMCBlocked(td.getSourceId(), getApplicationContext())) //don't download if the number is blocked , just break and don't continue with the download flow
+                    {
+                        Log.i(TAG, "NUMBER BLOCKED For DOWNLOAD: " + td.getSourceId());
+                        break;
+                    }
 
                     Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
                     i.setAction(StorageServerProxyService.ACTION_DOWNLOAD);
                     i.putExtra(PushEventKeys.PUSH_DATA, td);
                     startService(i);
                 }
-                    break;
+                break;
 
                 case PushEventKeys.TRANSFER_SUCCESS: {
                     jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
                     td = new Gson().fromJson(jsonData, TransferDetails.class);
 
                     BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, null, td));
-                    Batch.Push.displayNotification(this, intent);
+                    displayNotification(this, intent);
                 }
-                    break;
+                break;
 
                 case PushEventKeys.CLEAR_MEDIA: {
                     jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
@@ -82,23 +83,23 @@ public class PushService extends IntentService {
                     i.putExtra(ClearMediaIntentService.TRANSFER_DETAILS, td);
                     startService(i);
                 }
-                    break;
+                break;
 
                 case PushEventKeys.CLEAR_SUCCESS: {
                     String alert = intent.getStringExtra(Batch.Push.ALERT_KEY);
                     jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
                     td = new Gson().fromJson(jsonData, TransferDetails.class);
                     BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CLEAR_SUCCESS, alert, td));
-                    Batch.Push.displayNotification(this, intent);
+                    displayNotification(this, intent);
 
                 }
-                    break;
+                break;
 
                 case PushEventKeys.SHOW_MESSAGE: {
                     Log.i(TAG, "In:" + PushEventKeys.SHOW_MESSAGE);
-                    Batch.Push.displayNotification(this, intent);
+                    displayNotification(this, intent);
                 }
-                    break;
+                break;
             }
 
         } catch (Exception e) {
@@ -109,5 +110,12 @@ public class PushService extends IntentService {
         }
     }
 
+
+    private void displayNotification(Context context, Intent intent) {
+
+        if (!AppStateManager.isAppInForeground(context) &&
+                !AppStateManager.getAppState(context).equals(AppStateManager.STATE_LOGGED_OUT))
+            Batch.Push.displayNotification(this, intent);
+    }
 }
 
