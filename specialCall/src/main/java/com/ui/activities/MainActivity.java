@@ -84,8 +84,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private String _destName = "";
 
     //region UI elements
-    private ImageView _userStatusPositive;
-    private ImageView _userStatusNegative;
     private ImageButton _selectContactBtn;
     private ImageButton _selectMediaBtn;
     private ImageButton _callBtn;
@@ -107,6 +105,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private AutoCompleteTextView _destinationEditText;
     private TextView _destTextView;
     private TextView _mediaCallingTextView;
+    private boolean _profileHasMedia = false;
+    private boolean _callerHasMedia = false;
+    private boolean _profileHasRingtone = false;
+    private boolean _callerHasRingtone = false;
     //endregion
 
     //region Activity methods (onCreate(), onPause(), ...)
@@ -349,12 +351,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             launchDialer(_destPhoneNumber);
 
         } else if (id == R.id.selectMediaBtn) {
-
-            openCallerMediaMenu();
+            if (_callerHasMedia || _callerHasRingtone)
+                openCallerMediaMenu();
+            else
+                selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
 
         } else if (id == R.id.selectProfileMediaBtn) {
 
-            openProfileMediaMenu();
+            if (_profileHasMedia || _profileHasRingtone)
+                openProfileMediaMenu();
+            else
+                selectMedia(ActivityRequestCodes.SELECT_PROFILE_MEDIA);
 
         } else if (id == R.id.selectContactBtn) {
 
@@ -582,8 +589,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         _destPhoneNumber = "";
                         _destName = "";
 
-                        disableUserStatusPositiveIcon();
-                        disableUserStatusNegativeIcon();
                         vanishInviteButton();
 
                         if (getState().equals(AppStateManager.STATE_READY)) {
@@ -635,8 +640,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         prepareDestNameTextView();
         prepareMediaCallingTextView();
-        prepareUserStatusNegative();
-        prepareUserStatusPositive();
         prepareDestinationEditText();
         prepareRingtoneStatus();
         prepareProgressBar();
@@ -749,16 +752,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void prepareMediaCallingTextView() {
 
         _mediaCallingTextView = (TextView) findViewById(R.id.media_calling);
-    }
-
-    private void prepareUserStatusPositive() {
-
-        _userStatusPositive = (ImageView) findViewById(R.id.userStatusPositive);
-    }
-
-    private void prepareUserStatusNegative() {
-
-        _userStatusNegative = (ImageView) findViewById(R.id.userStatusNegative);
     }
 
     private void prepareDestinationEditText() {
@@ -1154,15 +1147,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         _fetchUserPbar.setVisibility(ProgressBar.VISIBLE);
 
-        disableUserStatusPositiveIcon();
-        disableUserStatusNegativeIcon();
         vanishInviteButton();
     }
 
     private void userStatusRegistered() {
 
-        disableUserStatusNegativeIcon();
-        enableUserStatusPositiveIcon();
         vanishInviteButton();
 
     }
@@ -1191,34 +1180,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             @Override
             public void run() {
 
-                disableUserStatusPositiveIcon();
-                enableUserStatusNegativeIcon();
                 enableInviteButton();
             }
         });
     }
 
-    private void disableUserStatusPositiveIcon() {
 
-        _userStatusPositive.setVisibility(View.INVISIBLE);
-    }
-
-    private void disableUserStatusNegativeIcon() {
-
-        _userStatusNegative.setVisibility(View.INVISIBLE);
-    }
-
-    private void enableUserStatusPositiveIcon() {
-
-        _userStatusPositive.setVisibility(View.VISIBLE);
-        _userStatusPositive.bringToFront();
-    }
-
-    private void enableUserStatusNegativeIcon() {
-
-        _userStatusNegative.setVisibility(View.VISIBLE);
-        _userStatusNegative.bringToFront();
-    }
 
     private void disableRingToneStatusArrived() {
 
@@ -1251,7 +1218,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     // stretch the uploaded image as it won't stretch because we use a drawable instead that we don't want to stretch
                     _selectMediaBtn.setPadding(0, 0, 0, 0);
                     _selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_XY);
-
+                    _callerHasMedia = true;
                     UI_Utils.showCaseViewAfterUploadAndCall(getApplicationContext(), MainActivity.this);
 
                 } else {// enabled but no uploaded media
@@ -1259,6 +1226,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     if (ringToneFilePath.isEmpty())
                         UI_Utils.showCaseViewSelectMedia(getApplicationContext(), MainActivity.this);
                     _selectMediaBtn.setImageResource(R.drawable.select_caller_media);
+                    _callerHasMedia = false;
                     disableMediaStatusArrived();
                 }
             }
@@ -1286,9 +1254,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     FileManager.FileType fType = FileManager.getFileType(lastUploadedMediaPath);
 
                     BitmapUtils.execBitMapWorkerTask(_defaultpic_enabled, fType, lastUploadedMediaPath, true);
+                    _profileHasMedia = true;
                 } else // enabled but no uploaded media
-
-                    BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, getApplicationContext(), getResources(), R.drawable.select_profile_media_enabled, true);
+                   {
+                            BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, getApplicationContext(), getResources(), R.drawable.select_profile_media_enabled, true);
+                           _profileHasMedia = false;
+                     }
             }
 
         } catch (FileInvalidFormatException |
@@ -1309,12 +1280,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             if (!ringToneFilePath.isEmpty()) {
                 _ringToneNameTextView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
                 _ringToneNameTextView.setVisibility(View.VISIBLE);
-
+                _callerHasRingtone = true;
                 enableRingToneStatusArrived();
                 UI_Utils.showCaseViewAfterUploadAndCall(getApplicationContext(), MainActivity.this);
             } else {
                 _ringToneNameTextView.setVisibility(View.INVISIBLE);
-
+                _callerHasRingtone = false;
                 disableRingToneStatusArrived();
             }
         } catch (Exception e) {
@@ -1332,10 +1303,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             if (!ringToneFilePath.isEmpty()) {
                 _ringToneNameForProfileTextView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
                 _ringToneNameForProfileTextView.setVisibility(View.VISIBLE);
-
+                _profileHasRingtone = true;
                 UI_Utils.showCaseViewAfterUploadAndCall(getApplicationContext(), MainActivity.this);
             } else {
                 _ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
+                _profileHasRingtone = false;
             }
         } catch (Exception e) {
             Log.e(TAG, "Failed to draw drawRingToneNameForProfile:" + (e.getMessage() != null ? e.getMessage() : e));

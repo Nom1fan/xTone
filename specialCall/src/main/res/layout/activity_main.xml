@@ -92,17 +92,15 @@
         android:singleLine="true"
         android:completionThreshold="1"
         android:inputType="textAutoComplete|text"
-
-        android:layout_alignBottom="@+id/selectContactBtn"
-
-
+        android:layout_alignBottom="@+id/clear"
         android:fontFamily="sans-serif-light"
         android:background="#73ffffff"
         android:textSize="25dp"
         android:layout_alignParentStart="true"
-        android:layout_alignTop="@+id/selectContactBtn"
-        android:layout_toLeftOf="@+id/userStatusPositive"
-        android:layout_toRightOf="@+id/userStatusPositive">
+        android:layout_alignParentLeft="true"
+        android:layout_alignTop="@+id/clear"
+        android:layout_toLeftOf="@+id/clear"
+        android:layout_toStartOf="@+id/clear">
         <requestFocus />
     </AutoCompleteTextView>
 
@@ -173,7 +171,8 @@
         android:layout_alignTop="@+id/selectContactBtn"
         android:layout_alignBottom="@+id/selectContactBtn"
         android:padding="5dp"
-        android:layout_toStartOf="@+id/selectContactBtn" />
+        android:layout_toStartOf="@+id/selectContactBtn"
+        android:layout_toLeftOf="@+id/selectContactBtn" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -191,40 +190,6 @@
         android:layout_alignStart="@+id/selectMediaBtn"
         android:layout_alignRight="@+id/selectContactBtn"
         android:layout_alignEnd="@+id/selectContactBtn" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/userStatusPositive"
-        android:src="@drawable/positive"
-        android:visibility="invisible"
-        android:layout_alignTop="@+id/clear"
-        android:layout_alignBottom="@+id/clear"
-        android:layout_toLeftOf="@+id/clear"
-        android:layout_toStartOf="@+id/clear"
-        android:layout_alignStart="@+id/userStatusPositive" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/userStatusNegative"
-        android:src="@drawable/negative"
-        android:visibility="invisible"
-        android:layout_alignLeft="@+id/userStatusPositive"
-        android:layout_alignTop="@+id/userStatusPositive"
-        android:layout_alignRight="@+id/userStatusPositive"
-        android:layout_alignBottom="@+id/userStatusPositive" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/userStatusBackground"
-        android:visibility="visible"
-        android:layout_alignLeft="@+id/userStatusPositive"
-        android:layout_alignTop="@+id/userStatusPositive"
-        android:layout_alignRight="@+id/userStatusPositive"
-        android:layout_alignBottom="@+id/userStatusPositive"
-        android:background="#73ffffff" />
 
     <ProgressBar
         android:layout_width="wrap_content"

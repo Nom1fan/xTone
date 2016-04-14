@@ -139,11 +139,11 @@
     <string name="unselect_all">UnSelect ALL</string>
 
     <!--  popup_menu_callermedia Layout   -->
-    <string name="select_caller_media">Select Caller Media</string>
+    <string name="select_caller_media">Add/Replace Caller Media</string>
     <string name="preview">Preview</string>
     <string name="clear">Clear</string>
     <!--  popup_menu_profile Layout   -->
-    <string name="select_profile_media">Select Profile Media</string>
+    <string name="select_profile_media">Replace Profile Media</string>
     <string name="delete_account_title">Delete Account</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>

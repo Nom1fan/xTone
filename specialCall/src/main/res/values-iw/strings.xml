@@ -145,11 +145,11 @@
     <string name="unselect_all">הסר הכל</string>
 
     <!--  popup_menu_callermedia Layout   -->
-    <string name="select_caller_media">בחר מדיה לשיחה יוצאת</string>
+    <string name="select_caller_media">הוסף/החלף מדיה לשיחה יוצאת</string>
     <string name="preview">קדימון</string>
     <string name="clear">נקה</string>
     <!--  popup_menu_profile Layout   -->
-    <string name="select_profile_media">בחר מדיה לשיחה נכנסת</string>
+    <string name="select_profile_media">הוסף/החלף מדיה לשיחה נכנסת</string>
     <string name="confirm">אישור</string>
     <string name="cancel">ביטול</string>
 

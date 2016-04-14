@@ -12,7 +12,9 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.view.MotionEventCompat;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -48,6 +50,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private Uri _outputFileUri;
     private int SMTypeCode;
     private String _destPhoneNumber = "";
+    private float oldPosition =0;
+    private int moveLength= 0;
 
     //region Activity methods (onCreate(), onPause()...)
     @Override
@@ -124,6 +128,36 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "onDestroy()");
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+
+        int action = MotionEventCompat.getActionMasked(event);
+
+        switch(action) {
+            case (MotionEvent.ACTION_DOWN) :
+
+                oldPosition = event.getY();
+                moveLength = 0;
+                Log.d(TAG,"Action was DOWN Y is: " + String.valueOf(oldPosition));
+                return true;
+            case (MotionEvent.ACTION_MOVE) :
+
+                if (event.getY() > (oldPosition+5)) {
+                    moveLength++;
+                    oldPosition = event.getY();
+                }
+                    Log.d(TAG,"Action was MOVE Y is: " + String.valueOf(oldPosition) + " moveLength: " +String.valueOf(moveLength));
+                    if (moveLength > 4) {
+                        SelectMediaActivity.this.finish();
+                    }
+
+                return true;
+
+            default :
+                return super.onTouchEvent(event);
+        }
     }
     //endregion
 
