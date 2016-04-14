@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -582,6 +583,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         } else {
                             _destPhoneNumber = destPhone;
                             new IsRegisteredTask(destPhone, instance).execute(instance.getApplicationContext());
+
+                            hideSoftKeyboardForView(_autoCompleteTextViewDestPhone); // hide keyboard so it won't bother
+
                         }
 
                     } else { // Invalid destination number
@@ -628,6 +632,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     //region UI methods
     //region UI initializers
+    private void hideSoftKeyboardForView(View view) {
+
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+
+    }
+
     private void initializeUI() {
 
         setContentView(R.layout.activity_main);
