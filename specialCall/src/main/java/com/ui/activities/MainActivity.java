@@ -411,7 +411,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             case UPLOADING:
                 TransferDetails td = (TransferDetails) report.data();
                 ConnectionToServer conn  = StorageServerProxyService.getConn();
-                _progDialog = new ProgressDialog(MainActivity.this);
                 UploadTask uploadTask = new UploadTask(conn, td);
                 uploadTask.execute();
                 break;

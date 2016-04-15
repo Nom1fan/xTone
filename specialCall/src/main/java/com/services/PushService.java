@@ -113,9 +113,15 @@ public class PushService extends IntentService {
 
     private void displayNotification(Context context, Intent intent) {
 
-        if (!AppStateManager.isAppInForeground(context) &&
-                !AppStateManager.getAppState(context).equals(AppStateManager.STATE_LOGGED_OUT))
-            Batch.Push.displayNotification(this, intent);
+        boolean isAppInForeground = AppStateManager.isAppInForeground(context);
+        String appState = AppStateManager.getAppState(context);
+
+        Log.i(TAG, String.format("In displayNotification. [isAppInForeground]: %1$b, [App state]: %2$s", isAppInForeground, appState));
+
+        if (isAppInForeground || appState.equals(AppStateManager.STATE_LOGGED_OUT)) {
+            return;
+        }
+        Batch.Push.displayNotification(this, intent);
     }
 }
 
