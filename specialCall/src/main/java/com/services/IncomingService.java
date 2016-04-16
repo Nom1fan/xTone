@@ -157,7 +157,7 @@ public class IncomingService extends AbstractStandOutService {
 
         incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
         Log.i(TAG,"before incoming phone number : " + incomingNumber);
-        mIncomingOutgoingNumber = incomingNumber;// = "0542384176" ;
+        mIncomingOutgoingNumber = incomingNumber;
         // Checking if number is in black list
         Log.i(TAG, " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION));
         if (!MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext()) || (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)))

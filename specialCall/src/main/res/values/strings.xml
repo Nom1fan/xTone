@@ -140,11 +140,11 @@
     <string name="unselect_all">UnSelect ALL</string>
 
     <!--  popup_menu_callermedia Layout   -->
-    <string name="select_caller_media">Add/Replace Caller Media</string>
+    <string name="select_caller_media">Add/Replace caller media</string>
     <string name="preview">Preview</string>
-    <string name="clear">Return to normal ring</string>
+    <string name="clear">No caller media</string>
     <!--  popup_menu_profile Layout   -->
-    <string name="select_profile_media">Replace Profile Media</string>
+    <string name="select_profile_media">Add/Replace profile media</string>
     <string name="delete_account_title">Delete Account</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>

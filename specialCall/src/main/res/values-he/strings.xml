@@ -150,7 +150,7 @@
     <!--  popup_menu_callermedia Layout   -->
     <string name="select_caller_media">הוסף/החלף מדיה לשיחה יוצאת</string>
     <string name="preview">קדימון</string>
-    <string name="clear">חזור לצלצול רגיל</string>
+    <string name="clear">בלי מדיה</string>
     <!--  popup_menu_profile Layout   -->
     <string name="select_profile_media">הוסף/החלף מדיה לשיחה נכנסת</string>
     <string name="confirm">אישור</string>
