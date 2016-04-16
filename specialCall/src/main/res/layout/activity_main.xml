@@ -63,21 +63,6 @@
         android:scaleType="fitCenter"
         android:background="#73ffffff" />
 
-    <ImageButton
-        android:id="@+id/inviteButton"
-        android:layout_width="300dp"
-        android:layout_height="220dp"
-        android:contentDescription="invite "
-        android:scaleType="fitCenter"
-        android:clickable="false"
-        android:src="@drawable/invite"
-        android:visibility="invisible"
-        android:cropToPadding="false"
-        android:background="@android:color/transparent"
-        android:layout_alignTop="@+id/selectMediaBtn"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
-
     <AutoCompleteTextView
         android:id="@+id/CallNumber"
         android:layout_width="wrap_content"

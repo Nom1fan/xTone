@@ -5,6 +5,7 @@ import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -12,13 +13,16 @@ import android.os.Vibrator;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.data_objects.Constants;
 import com.receivers.StartStandOutServicesFallBackReceiver;
+import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
 import com.utils.NotificationUtils;
 import com.utils.SharedPrefUtils;
+import com.utils.UI_Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -160,7 +164,18 @@ public class IncomingService extends AbstractStandOutService {
         mIncomingOutgoingNumber = incomingNumber;
         // Checking if number is in black list
         Log.i(TAG, " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION));
-        if (!MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext()) || (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)))
+        boolean isBlocked = MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext());
+        if (isBlocked) {
+            _contactName = ContactsUtils.getContactName(getApplicationContext(), incomingNumber);
+
+            if(_contactName.isEmpty())
+                UI_Utils.callToast(incomingNumber + " is MC BLOCKED !!!  ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+            else
+                UI_Utils.callToast(_contactName + " is MC BLOCKED !!! ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+
+
+        }
+        if (!isBlocked || (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)))
             switch (state) {
                 case TelephonyManager.CALL_STATE_RINGING:
 

@@ -4,19 +4,23 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;
+import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
 import com.utils.SharedPrefUtils;
+import com.utils.UI_Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -248,8 +252,20 @@ public class OutgoingService extends AbstractStandOutService {
                 mIncomingOutgoingNumber = outgoingCallNumber;
                 Log.i(TAG, "mInRingingSession=" + isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) + " outgoingCallNumber=" + outgoingCallNumber);
 
+                boolean isBlocked = MCBlockListUtils.IsMCBlocked(outgoingCallNumber, getApplicationContext());
+                if (isBlocked) {
+                    _contactName = ContactsUtils.getContactName(getApplicationContext(), outgoingCallNumber);
+
+                    if(_contactName.isEmpty())
+                        UI_Utils.callToast(outgoingCallNumber + " is MC BLOCKED !!!  ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+                    else
+                        UI_Utils.callToast(_contactName + " is MC BLOCKED !!! ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+
+
+                }
+
                 // Checking if number is in black list
-                if (!MCBlockListUtils.IsMCBlocked(outgoingCallNumber, getApplicationContext()))
+                if (!isBlocked)
                     if (!isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && !isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(outgoingCallNumber)) {
 
                         try {

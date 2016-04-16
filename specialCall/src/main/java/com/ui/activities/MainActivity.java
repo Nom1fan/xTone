@@ -54,6 +54,7 @@ import com.services.LogicServerProxyService;
 import com.services.OutgoingService;
 import com.services.PreviewService;
 import com.services.StorageServerProxyService;
+import com.ui.dialogs.InviteDialog;
 import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
@@ -100,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ImageButton _defaultpic_enabled;
     private TextView _ringToneNameTextView;
     private TextView _ringToneNameForProfileTextView;
-    private ImageButton _inviteBtn;
     private RelativeLayout _mainActivityLayout;
     private ImageView _ringtoneStatus;
     private AutoCompleteTextView _destinationEditText;
@@ -375,20 +375,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             AutoCompleteTextView textViewToClear = (AutoCompleteTextView) findViewById(R.id.CallNumber);
             textViewToClear.setText("");
 
-        } else if (id == R.id.inviteButton) {
-
-            EditText callNumber = (EditText) findViewById(R.id.CallNumber);
-            try {
-
-                Intent intent = new Intent(Intent.ACTION_SENDTO,
-                        Uri.fromParts("sms", callNumber.getText().toString(), null));
-                intent.putExtra("sms_body", getResources().getString(R.string.invite));
-                startActivity(intent);
-
-
-            } catch (Exception ex) {
-                Log.e(TAG, "Failed to open send SMS activity. [Exception]:" + (ex.getMessage() != null ? ex.getMessage() : ex));
-            }
         }
     }
 
@@ -406,7 +392,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 break;
 
             case USER_REGISTERED_FALSE:
-                userStatusUnregistered();
+
+                InviteDialog inviteDialog = new InviteDialog();
+                inviteDialog.show(getFragmentManager(), TAG);
                 break;
 
             case REFRESH_UI:
@@ -593,7 +581,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         _destPhoneNumber = "";
                         _destName = "";
 
-                        vanishInviteButton();
 
                         if (getState().equals(AppStateManager.STATE_READY)) {
                             AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
@@ -664,7 +651,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         prepareSelectContactButton();
         prepareSelectProfileMediaButton();
         prepareClearTextButton();
-        prepareInviteButton();
     }
     //endregion
 
@@ -696,7 +682,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         enableDestinationEditText();
         enableSelectContactButton();
         enableCallButton();
-        userStatusRegistered();
 
     }
 
@@ -709,7 +694,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         disableSelectContactButton();
         disableDestinationEditText();
         disableCallButton();
-        disableInviteButton();
 
     }
 
@@ -806,13 +790,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         _ringToneNameTextView = (TextView) findViewById(R.id.ringtoneName);
         _ringToneNameForProfileTextView = (TextView) findViewById(R.id.ringtoneNameForProfile);
-    }
-
-    private void prepareInviteButton() {
-
-        _inviteBtn = (ImageButton) findViewById(R.id.inviteButton);
-        if (_inviteBtn != null)
-            _inviteBtn.setOnClickListener(this);
     }
 
     private void prepareClearTextButton() {
@@ -1162,43 +1139,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         _fetchUserPbar.setVisibility(ProgressBar.VISIBLE);
 
-        vanishInviteButton();
     }
 
-    private void userStatusRegistered() {
 
-        vanishInviteButton();
 
-    }
 
-    private void vanishInviteButton() {
 
-        _inviteBtn.setVisibility(View.INVISIBLE);
-        _inviteBtn.setClickable(false);
-    }
 
-    private void disableInviteButton() {
 
-        _inviteBtn.setEnabled(false);
-    }
-
-    private void enableInviteButton() {
-
-        _inviteBtn.setVisibility(View.VISIBLE);
-        _inviteBtn.setClickable(true);
-        _inviteBtn.bringToFront();
-    }
-
-    private void userStatusUnregistered() {
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-                enableInviteButton();
-            }
-        });
-    }
 
 
 

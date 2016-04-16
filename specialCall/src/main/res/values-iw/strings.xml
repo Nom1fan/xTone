@@ -26,6 +26,10 @@
     <string name="get_sms_not_arrived">קוד לא התקבל? נסה שוב!</string>
     <string name="get_sms_time_till_retry">אתה רשאי לנסות שוב בעוד %1$d שניות...</string>
     <string name="get_sms_you_may_retry">אתה רשאי לנסות שוב כעת</string>
+    <string name="invite_dialog_title">לא רשום</string>
+    <string name="invite_dialog_summary"> הזמן אותו לקבל שיחת מדיה !</string>
+    <string name="invite_btn">הזמן</string>
+
 
     <string name="cant_send_to_self">אופס! אינך יכול לבחור מדיה לעצמך!</string>
 

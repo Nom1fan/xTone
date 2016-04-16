@@ -88,6 +88,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected boolean mOutgoingCall = false;
     protected boolean mShouldVibrate = false;
     protected Vibrator vibrator;
+    protected String _contactName = "";
     public AbstractStandOutService(String TAG) {
         this.TAG = TAG;
     }
@@ -737,7 +738,11 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 blockedNumbers.add(PhoneNumberUtils.toValidLocalPhoneNumber(mIncomingOutgoingNumber));
 
                 MCBlockListUtils.setBlockListFromShared(getApplicationContext(), blockedNumbers);
-                UI_Utils.callToast(mIncomingOutgoingNumber + " Is Now MC BLOCKED !!! ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+
+                if(_contactName.isEmpty())
+                    UI_Utils.callToast(mIncomingOutgoingNumber + " Is Now MC BLOCKED !!! ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+                else
+                    UI_Utils.callToast(_contactName + " Is Now MC BLOCKED !!! ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
 
                 closeSpecialCallWindowWithoutRingtone();
             }
@@ -835,8 +840,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         else
             SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
 
-        String contactName = ContactsUtils.getContactName(getApplicationContext(), callNumber);
-        mContactTitleOnWindow = (!contactName.equals("") ? contactName + " " + callNumber : callNumber);
+        _contactName = ContactsUtils.getContactName(getApplicationContext(), callNumber);
+        mContactTitleOnWindow = (!_contactName.equals("") ? _contactName + " " + callNumber : callNumber);
         Random r = new Random();
         int randomWindowId = r.nextInt(Integer.MAX_VALUE);  // fixing a bug: when the same ID the window isn't released good enough so we need to make a different window in the mean time
 
@@ -1031,6 +1036,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mVolumeBeforeMute = 0;
         mOutgoingCall=false;
                 isHidden = false;
+        _contactName="";
         SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
         //mPhoneListener = null;
         // TODO Release more Resources

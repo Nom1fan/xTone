@@ -53,7 +53,9 @@
     <string name="share_via">Share via</string>
     <string name="delete_account_failed">Failed to delete account! Please contact MediaCallz support</string>
     <string name="deleting_account_msg">Deleting account...</string>
-
+    <string name="invite_dialog_title">Unregistered</string>
+    <string name="invite_dialog_summary"> Invite him now to get MediaCallz!</string>
+    <string name="invite_btn">Invite</string>
 
     <!--  SelectMediaActivity  -->
     <string name="recording">Recording...</string>
