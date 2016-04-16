@@ -48,6 +48,12 @@ public class MediaCallzApp extends Application {
                 //Checking if The Device has Strict MemoryManager
                 InitUtils.checkIfDeviceHasStrictMemoryManager(context);
 
+                //Checking if The Device has Strict MemoryManager
+                InitUtils.checkIfDeviceHasStrictRingingCapabilitiesAndNeedMotivation(context);
+
+                //Initialize Default Settings Values
+                InitUtils.initializeSettingsDefaultValues(context);
+
             }
         } catch (Exception e) {
             String errMsg = "Failed to initialize. Please try to install again. Error:" + (e.getMessage()!=null ? e.getMessage() : e);

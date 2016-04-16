@@ -55,6 +55,7 @@ public abstract class SharedPrefUtils {
     public static final String MY_DEVICE_BATCH_TOKEN = "MyDeviceBatchToken";
     public static final String LAST_CHECKED_NUMBER_CACHE = "LastCheckedNumberCache";
     public static final String STRICT_MEMORY_MANAGER_DEVICES = "StrictMemoryManagerDevices";
+    public static final String STRICT_RINGING_CAPABILITIES_DEVICES = "StrictRingingCapabilitiesDevices";
     //endregion
 
     //region Shared pref keys under ShowCase
@@ -88,6 +89,9 @@ public abstract class SharedPrefUtils {
     /* shared pref keys under SETTINGS */
     public static final String WHO_CAN_MC_ME = "WhoCanMCMe";
     public static final String BLOCK_LIST = "BlockList";
+    public static final String ALWAYS_SAVE_MEDIA = "AlwaysSaveMedia";
+    public static final String DOWNLOAD_ONLY_ON_WIFI = "DownloadOnlyOnWifi";
+
     //region Shared prefs action methods
     //region Getters
     public static int getInt(Context context, String prefsName, String key) {

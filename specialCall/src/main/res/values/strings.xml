@@ -93,6 +93,7 @@
     <string name="snack_close">Close</string>
 
     <!--  DrawerItems   -->
+    <string name="side_menu">MC Menu: </string>
     <string name="media_management">Media Management</string>
     <string name="who_can_mc_me">Who Can MC me</string>
     <string name="how_to">How To ?</string>
@@ -141,7 +142,7 @@
     <!--  popup_menu_callermedia Layout   -->
     <string name="select_caller_media">Add/Replace Caller Media</string>
     <string name="preview">Preview</string>
-    <string name="clear">Clear</string>
+    <string name="clear">Return to normal ring</string>
     <!--  popup_menu_profile Layout   -->
     <string name="select_profile_media">Replace Profile Media</string>
     <string name="delete_account_title">Delete Account</string>
@@ -151,15 +152,35 @@
     <!--  about_help Layout   -->
     <string name="help_title">Help</string>
     <string name="help_how_to_mc">How to mc ?</string>
-    <string name="help_how_to_mc_summary">return to step by step tutorial</string>
-    <string name="website_help">Offical Website Help</string>
-    <string name="website_help_summary">go to the help , FAQ and videos</string>
-    <string name="share_rate_title">Share And Rate</string>
-    <string name="share_title">Share Us !</string>
-    <string name="rate_title">Rate Us !</string>
-    <string name="contact_us_title">Contact Us</string>
-    <string name="mail_us">Mail Us</string>
+    <string name="help_how_to_mc_summary">Return to step by step tutorial</string>
+    <string name="website_help">Offical website help</string>
+    <string name="website_help_summary">Go to the help , FAQ and videos</string>
+    <string name="share_rate_title">Share and rate</string>
+    <string name="share_title">Share us !</string>
+    <string name="rate_title">Rate us !</string>
+    <string name="contact_us_title">Contact us</string>
+    <string name="mail_us">Mail us</string>
     <string name="mail_us_summary">mediacallzapp@gmail.com</string>
     <string name="facebook_message">Message us on facebook</string>
+    <string name="about">About</string>
+    <string name="privacy">Privacy policy</string>
+    <string name="terms_of_service">Terms of service</string>
     <string name="version_title">Version</string>
+
+
+    <!--  settings.xml Layout   -->
+    <string name="wifi_title">Wifi auto-download</string>
+    <string name="wifi_summary">Download media ONLY on wifi</string>
+    <string name="save_media_title">Save MC media</string>
+    <string name="save_media_sumary">All MC media will be save in history folder and will be shown in gallery</string>
+    <string name="advancd_settings">Advanced settings</string>
+    <string name="enable_adv_settings">Enable advanced settings</string>
+    <string name="enable_adv_settings_summary">In case you have bugs in receiving MC calls</string>
+    <string name="foreground_settings_title">Enable forground MC service</string>
+    <string name="foreground_settings_summary">In case you are missing MC calls ,enable this. may use more battery and (need app restart)</string>
+    <string name="ringing_override_settings_title">Enable ringing buggy override</string>
+    <string name="ringing_override_settings_summary">In case you receive Silent MC calls, this may fix your bug</string>
+    <string name="delete_account_summary">Delete account and all data</string>
+
+
 </resources>

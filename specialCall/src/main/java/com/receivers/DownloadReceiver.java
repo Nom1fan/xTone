@@ -51,7 +51,8 @@ public class DownloadReceiver extends BroadcastReceiver {
             preparePathsAndDirs(td);
 
             // copy new downloaded file to History Folder so it will show up in Gallery and don't make any duplicates with MD5 signature
-            copyToHistoryForGalleryShow(context, td);
+            if(SharedPrefUtils.getBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ALWAYS_SAVE_MEDIA))
+                 copyToHistoryForGalleryShow(context, td);
 
             FileManager.FileType fType = td.getFileType();
             String fFullName = td.getSourceWithExtension();

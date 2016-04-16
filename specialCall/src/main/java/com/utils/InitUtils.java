@@ -20,7 +20,10 @@ public abstract class InitUtils {
             {
                     "samsung sm-g920f" , "samsung sm-g920i" ,"samsung sm-g920w8"  // samsung galaxy S6 (has SPCM)
             };
-
+    private static final String[] StrictRingingCapabilitiesDevices =
+            {
+                    "lge lg-h815" , "lge lg-h815t"   // LGE LG-H815 (LG G4)
+            };
 
 
     public static void hideMediaFromGalleryScanner() {
@@ -72,5 +75,25 @@ public abstract class InitUtils {
         }
     }
 
+    public static void checkIfDeviceHasStrictRingingCapabilitiesAndNeedMotivation(Context context)
+    {
+        String deviceName = getDeviceName();
+        if (Arrays.asList(StrictRingingCapabilitiesDevices).contains(deviceName))
+        {
+            Log.i(TAG,"Device has strict Ringing Capabilities : " + deviceName);
+            SharedPrefUtils.setBoolean(context , SharedPrefUtils.GENERAL , SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES , true);
+        }
+        else
+        {
+            Log.i(TAG,"Device doesn't have strict Ringing Capabilities : " + deviceName);
+            SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES , false);
+        }
+    }
 
+    public static void initializeSettingsDefaultValues(Context context) {
+
+        SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DOWNLOAD_ONLY_ON_WIFI, false);
+        SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ALWAYS_SAVE_MEDIA, true);
+
+    }
 }

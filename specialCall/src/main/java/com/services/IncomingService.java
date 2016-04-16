@@ -39,7 +39,8 @@ public class IncomingService extends AbstractStandOutService {
     private boolean mAnswered = false;
     private KeyguardManager mKeyguardManager;
     private KeyguardManager.KeyguardLock mLock;
-
+    public static final String ACTION_START_FOREGROUND = "com.services.IncomingService.ACTION_START_FOREGROUND";
+    public static final String ACTION_STOP_FOREGROUND = "com.services.IncomingService.ACTION_STOP_FOREGROUND";
 
 
     public IncomingService() {
@@ -62,11 +63,26 @@ public class IncomingService extends AbstractStandOutService {
         checkIntent(intent);
         actionThread(intent);
 
+
+
+        if (intent != null) {
+            if (intent.getAction().equals(
+                    ACTION_STOP_FOREGROUND)) {
+                Log.i(TAG, "Received Stop Foreground Intent");
+                stopForeground(true);
+            } else if (intent.getAction().equals(
+                    ACTION_START_FOREGROUND)) {
+                Log.i(TAG, "Received Start Foreground Intent ");
+                isForegroundAndAlarmNeeded(); // check if the Device has Strict Memory Manager like SPCM that always kills us on lowestscore package!
+            }
+        }
+
         //check if the fallback receiver sent the intent and the service is down so we should use it.
         checkIfItsFallBackReceiverIntent(intent);
 
         // check if the Device has Strict Memory Manager like SPCM that always kills us on lowestscore package!
         isForegroundAndAlarmNeeded();
+
 
         return START_STICKY;
     }
@@ -141,7 +157,7 @@ public class IncomingService extends AbstractStandOutService {
 
         incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
         Log.i(TAG,"before incoming phone number : " + incomingNumber);
-        mIncomingOutgoingNumber = incomingNumber ;
+        mIncomingOutgoingNumber = incomingNumber;// = "0542384176" ;
         // Checking if number is in black list
         Log.i(TAG, " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION));
         if (!MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext()) || (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)))
@@ -270,13 +286,25 @@ public class IncomingService extends AbstractStandOutService {
 
     //region Internal helper methods
     private void isForegroundAndAlarmNeeded() {
-        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.STRICT_MEMORY_MANAGER_DEVICES))
+      boolean shouldStartForeground = SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.STRICT_MEMORY_MANAGER_DEVICES);
+        Log.i(TAG, "shouldStartForeground : " + String.valueOf(shouldStartForeground));
+        if (shouldStartForeground)
         {
             //TODO ForeGroundService needed & Alarm Needed or this is solved after memory leakage solved????
-            startForeground(NotificationUtils.FOREGROUND_NOTIFICATION_ID, NotificationUtils.getCompatNotification(getApplicationContext()));
+
+            startForegoundService();
+
+            //startForeground(NotificationUtils.FOREGROUND_NOTIFICATION_ID, NotificationUtils.getCompatNotification(getApplicationContext()));
             setAlarm(this);
         }
     }
+
+    public void startForegoundService() {
+        startForeground(NotificationUtils.FOREGROUND_NOTIFICATION_ID, NotificationUtils.getCompatNotification(getApplicationContext()));
+    }
+
+
+
 
     private void checkIfItsFallBackReceiverIntent(Intent intent) {
         if (intent != null) {
@@ -377,9 +405,9 @@ public class IncomingService extends AbstractStandOutService {
     private void disableRingStream() {
 
 
-        getRingerModeWithVibrateMode();
 
-        mAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);  // SOLUTION For LG G4 that needs another motivation to be silent (if removed the audio isn't heared in LG G4 you need to press the volume hard keys to silent manually , this fixes it)
+        // check if the Device has Strict Ringing Capabilities that hard to be silent like in LG G4
+        isSilentingRingingHarder();
 
         try {
             mAudioManager.setStreamMute(AudioManager.STREAM_RING, true);
@@ -395,12 +423,17 @@ public class IncomingService extends AbstractStandOutService {
             e.printStackTrace();
             Log.e(TAG, "Failed  mAudioManager.setStreamVolume(AudioManager.STREAM_RING); error:" + e.getMessage());
         }
+    }
 
+    private void isSilentingRingingHarder() {
 
-        vibrateIfNeeded();
-
-
-
+        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES))
+        {
+            //TODO Find Better way to silent phones who need this motivation
+            getRingerModeWithVibrateMode();
+            mAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);  // SOLUTION For LG G4 that needs another motivation to be silent (if removed the audio isn't heared in LG G4 you need to press the volume hard keys to silent manually , this fixes it)
+            vibrateIfNeeded();
+        }
     }
 
     private void vibrateIfNeeded() {
@@ -519,7 +552,7 @@ public class IncomingService extends AbstractStandOutService {
                     Log.i(TAG, "mMediaPlayer.stop(); closeSpecialCallWindowAndRingtone");
                     if (mMediaPlayer != null && mMediaPlayer.isPlaying())
                     {
-                        mMediaPlayer.setVolume(0,0);
+                        mMediaPlayer.setVolume(0, 0);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

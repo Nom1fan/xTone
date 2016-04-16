@@ -78,6 +78,7 @@
     <string name="snack_close">סגור</string>
 
     <!--  DrawerItems   -->
+    <string name="side_menu">תפריט MC:</string>
     <string name="media_management">ניהול מדיה</string>
     <string name="who_can_mc_me">מי רשאי לשלוח לי MC</string>
     <string name="how_to">איך להשתמש?</string>
@@ -147,7 +148,7 @@
     <!--  popup_menu_callermedia Layout   -->
     <string name="select_caller_media">הוסף/החלף מדיה לשיחה יוצאת</string>
     <string name="preview">קדימון</string>
-    <string name="clear">נקה</string>
+    <string name="clear">חזור לצלצול רגיל</string>
     <!--  popup_menu_profile Layout   -->
     <string name="select_profile_media">הוסף/החלף מדיה לשיחה נכנסת</string>
     <string name="confirm">אישור</string>
@@ -176,10 +177,26 @@
     <string name="share_title">שתף אותנו !</string>
     <string name="rate_title">דרג אותנו !</string>
     <string name="contact_us_title">צור קשר</string>
+    <string name="about">אודות</string>
+    <string name="privacy">מדיניות הפרטיות</string>
+    <string name="terms_of_service">התנאים של השירות</string>
     <string name="mail_us">שלח לנו מייל</string>
     <string name="mail_us_summary">mediacallzapp@gmail.com</string>
     <string name="facebook_message">שלח לנו הודעה בפייסבוק</string>
     <string name="version_title">גירסה</string>
 
+    <!--  settings.xml Layout   -->
+    <string name="wifi_title">הורדה ברשת אלחוטית</string>
+    <string name="wifi_summary">להוריד מדיה רק דרך חיבור לרשת אלחוטית</string>
+    <string name="save_media_title">שמירת מדיה</string>
+    <string name="save_media_sumary">כל המדיה שתתקבל תישמר בתיקיית היסטוריה ותוצג בגלריה</string>
+    <string name="advancd_settings">הגדרות מתקדמות</string>
+    <string name="enable_adv_settings">אפשר הגדרות מתקדמות</string>
+    <string name="enable_adv_settings_summary">במקרה ואתה חווה באגים בקבלת שיחות מדיה</string>
+    <string name="foreground_settings_title">אפשר לאפליקציה להופיע תמיד </string>
+    <string name="foreground_settings_summary">במקרה ואתה מפספס שיחות מדיה , אפשר את זה. עלול לנצל יותר סוללה. אתחל אפליקציה מחדש</string>
+    <string name="ringing_override_settings_title">אפשר צלצול עוקף מחמיר יותר</string>
+    <string name="ringing_override_settings_summary">במקרה ואתה מקבל שיחות עם צלצול שקט , זה יכול לתקן את הבעיה</string>
+    <string name="delete_account_summary">מחיקת חשבון וכל המדיה שנשמרה</string>
 
 </resources>

@@ -10,6 +10,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -58,16 +59,28 @@ public class CustomDrawerAdapter extends ArrayAdapter<DrawerItem> {
 
         DrawerItem dItem = this._drawerItemList.get(position);
 
-        drawerHolder.icon.setImageDrawable(view.getResources().getDrawable(
-                dItem.getImgResID()));
+        if (!dItem.getItemName().isEmpty()) {
+            drawerHolder.icon.setImageDrawable(view.getResources().getDrawable(
+                    dItem.getImgResID()));
 
-        drawerHolder.ItemName.setText(dItem.getItemName());
 
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(150, 150);
-        layoutParams.gravity = Gravity.CENTER_VERTICAL;
-        layoutParams.setMargins(20,0,20,0);
-        drawerHolder.icon.setLayoutParams(layoutParams);
+            drawerHolder.ItemName.setText(dItem.getItemName());
 
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(150, 150);
+            layoutParams.gravity = Gravity.CENTER_VERTICAL;
+            layoutParams.setMargins(20, 0, 20, 0);
+            drawerHolder.icon.setLayoutParams(layoutParams);
+        }else
+        {
+            drawerHolder.ItemName.setText(getContext().getResources().getString(R.string.side_menu));
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
+            layoutParams.gravity = Gravity.CENTER;
+            //layoutParams.setMargins(50, 0, 50, 0);
+            drawerHolder.ItemName.setLayoutParams(layoutParams);
+
+            view.setClickable(false);
+            view.setBackgroundColor(0xb000a0d1);
+        }
 
         return view;
     }

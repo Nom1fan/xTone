@@ -906,7 +906,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         // Add Drawer Item to dataList
         List<DrawerItem> dataList = new ArrayList<>();
 
-        dataList.add(new DrawerItem(getResources().getString(R.string.media_management), R.drawable.mediaicon));
+     //   dataList.add(new DrawerItem(getResources().getString(R.string.media_management), R.drawable.mediaicon));
+        dataList.add(new DrawerItem("",  R.drawable.color_mc));
         dataList.add(new DrawerItem(getResources().getString(R.string.who_can_mc_me), R.drawable.blackwhitelist));
 //        dataList.add(new DrawerItem("How To ?", R.drawable.questionmark));
 //        dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
@@ -924,9 +925,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void selectNavigationItem(int position) {
 
         switch (position) {
-            case 0://Media Management
-                appSettings();
-                break;
+           // case 0://Media Management
+             //   appSettings();
+          //      break;
             case 1: // Who Can MC me
                 BlockMCContacts();
                 break;
@@ -941,6 +942,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             default:
                 break;
         }
+
 
         _mDrawerLayout.closeDrawer(_DrawerList);
 

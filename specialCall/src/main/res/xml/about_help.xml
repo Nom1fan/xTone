@@ -46,7 +46,6 @@
     <PreferenceCategory
         android:title="@string/contact_us_title">
 
-
         <PreferenceScreen
             android:key="mail"
             android:title="@string/mail_us"
@@ -63,8 +62,25 @@
 
     </PreferenceCategory>
 
-    <Preference android:title="@string/version_title"
-        android:key="version"
-        android:summary="11.1.08"/>
+    <PreferenceCategory
+        android:title="@string/about">
+
+
+        <PreferenceScreen
+            android:key="privacy_policy"
+            android:title="@string/privacy"
+            />
+
+        <PreferenceScreen
+            android:key="terms_of_service"
+            android:title="@string/terms_of_service"
+            />
+
+        <Preference android:title="@string/version_title"
+            android:key="version"
+            android:summary="13.1.10"/>
+
+    </PreferenceCategory>
+
 
 </PreferenceScreen>
