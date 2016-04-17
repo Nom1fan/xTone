@@ -41,7 +41,7 @@
     <string name="compression_took_too_long">אופס! דחיסה ערכה זמן רב מדי</string>
 
     <string name="compressing_file">דוחס קובץ...</string>
-    <string name="trimming_file">חותך קובץ...</string>
+    <string name="loading">טוען. אנא המתן...</string>
     <string name="upload_took_too_long">אופס! העלאה לקחה זמן רב מדי</string>
 
     <string name="upload_success">המדיה בדרך!</string>

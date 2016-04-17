@@ -1620,10 +1620,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     bytesToRead -= bytesRead;
                 }
 
+                try {
+                    Thread.sleep(1000); // Sleeping so in fast uploads the dialog won't appear and disappear too fast (link a blink)
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 if(_progDialog!=null && _progDialog.isShowing()) {
                     _progDialog.dismiss();
                 }
-
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -1681,16 +1686,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         @Override
         protected void onPostExecute(Void result)    {
-
-            try {
-                Thread.sleep(1000); // Sleeping so in fast uploads the dialog won't appear and disappear too fast (link a blink)
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            if(_progDialog!=null && _progDialog.isShowing()) {
-                _progDialog.dismiss();
-            }
 
             String msg = MainActivity.this.getResources().getString(R.string.upload_success);
             // Setting state
@@ -1815,7 +1810,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             _progDialog = new ProgressDialog(MainActivity.this);
             _progDialog.setIndeterminate(false);
             _progDialog.setCancelable(false);
-            _progDialog.setTitle(getResources().getString(R.string.trimming_file));
+            _progDialog.setTitle(getResources().getString(R.string.loading));
             _progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             _progDialog.setProgress(0);
             _progDialog.setMax(100);
