@@ -5,14 +5,10 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
-import com.async_tasks.UploadTask;
 import com.data_objects.Constants;
-import com.interfaces.ICallbackListener;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
-import com.utils.FileCompressorUtil;
 
-import java.io.File;
 import java.io.IOException;
 
 import ClientObjects.ConnectionToServer;
@@ -37,20 +33,21 @@ import MessagesToServer.MessageRequestDownload;
  *
  * @author Mor
  */
-public class StorageServerProxyService extends AbstractServerProxy implements ICallbackListener {
+public class StorageServerProxyService extends AbstractServerProxy {
 
     //region Service actions
-    public static final String ACTION_DOWNLOAD = "com.services.StorageServerProxyService.DOWNLOAD";
-    public static final String ACTION_UPLOAD = "com.services.StorageServerProxyService.UPLOAD";
-    public static final String ACTION_NOTIFY_MEDIA_CLEARED = "com.services.StorageServerProxyService.NOTIFY_MEDIA_CLEARED";
-    public static final String ACTION_CLEAR_MEDIA = "com.services.StorageServerProxyService.CLEAR_MEDIA";
+    public static final String ACTION_DOWNLOAD              =   "com.services.StorageServerProxyService.DOWNLOAD";
+    public static final String ACTION_UPLOAD                =   "com.services.StorageServerProxyService.UPLOAD";
+    public static final String ACTION_NOTIFY_MEDIA_CLEARED  =   "com.services.StorageServerProxyService.NOTIFY_MEDIA_CLEARED";
+    public static final String ACTION_CLEAR_MEDIA           =   "com.services.StorageServerProxyService.CLEAR_MEDIA";
+    public static final String ACTION_CANCEL                =   "com.services.StorageServerProxyService.CANCEL";
     //endregion
 
     //region Service intent keys
-    public static final String FILE_TO_UPLOAD = "FILE_TO_UPLOAD";
-    public static final String DESTINATION_ID = "DESTINATION_ID";
-    public static final String SPECIAL_MEDIA_TYPE = "SPECIAL_MEDIA_TYPE";
-    public static final String TRANSFER_DETAILS = "CALL_RECORD";
+    public static final String FILE_TO_UPLOAD       =   "FILE_TO_UPLOAD";
+    public static final String DESTINATION_ID       =   "DESTINATION_ID";
+    public static final String SPECIAL_MEDIA_TYPE   =   "SPECIAL_MEDIA_TYPE";
+    public static final String TRANSFER_DETAILS     =   "CALL_RECORD";
     //endregion
 
     public StorageServerProxyService() {
@@ -97,6 +94,10 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
                                 actionNotifyMediaCleared(intentForThread);
                                 break;
 
+                            case ACTION_CANCEL:
+                                actionCancel();
+                                break;
+
                             default:
                                 setMidAction(false);
                                 Log.w(TAG, "Service started with invalid action:" + action);
@@ -104,10 +105,13 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
                     } catch (IOException e) {
                         e.printStackTrace();
                         String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
+                        handleActionFailed();
                         Log.e(TAG, errMsg);
-//                        handleDisconnection(errMsg); //TODO Maybe no need for this?
+                        //handleDisconnection(errMsg); //TODO Maybe no need for this?
                     } catch (Exception e) {
+                        e.printStackTrace();
                         String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
+                        handleActionFailed();
                         Log.e(TAG, errMsg);
                     }
                 } else
@@ -144,16 +148,24 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
 
         String destId = intent.getStringExtra(DESTINATION_ID);
         SpecialMediaType specialMediaType = (SpecialMediaType) intent.getSerializableExtra(SPECIAL_MEDIA_TYPE);
-        String tempCompressFolder = Constants.TEMP_COMPRESSED_FOLDER + destId;
-        File tempCompressFolderDir = new File(tempCompressFolder);
-        tempCompressFolderDir.mkdirs();
-
-        ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
         FileManager managedFile = (FileManager) intent.getSerializableExtra(FILE_TO_UPLOAD);
-        managedFile = FileCompressorUtil.compressFileIfNecessary(managedFile, tempCompressFolder, getApplicationContext());
-        uploadFileToServer(connectionToServer, destId, managedFile, specialMediaType);
+        uploadFileToServer(destId, managedFile, specialMediaType);
         releaseLockIfNecessary();
 
+    }
+
+    private void actionCancel() {
+
+        ConnectionToServer connectionToServer  = connections.get(connections.size()-1);
+
+        try {
+            connectionToServer.closeConnection();
+        } catch(Exception e) {
+            Log.w(TAG, "Failed to close connection to server on action cancel", e);
+        }
+
+        connections.remove(connectionToServer);
+        releaseLockIfNecessary();
     }
 
     private void actionClear(Intent intent) throws IOException {
@@ -172,6 +184,11 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
         TransferDetails td = (TransferDetails) intent.getSerializableExtra(TRANSFER_DETAILS);
         MessageNotifyMediaCleared msgNMC = new MessageNotifyMediaCleared(Constants.MY_ID(getApplicationContext()), td);
         connectionToServer.sendToServer(msgNMC);
+    }
+
+    private void handleActionFailed() {
+
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.STORAGE_ACTION_FAILURE, null ,null));
     }
     //endregion
 
@@ -198,14 +215,12 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
     /**
      * Uploads a file to the server, sending it to a destination number
      *
-     * @param connectionToServer
      * @param destNumber         The destination number to whom the file is for
      * @param managedFile        The file to upload inside a manager wrapper
      * @param specialMediaType   The special media type of the file to upload
      * @throws IOException
      */
     private void uploadFileToServer(
-            ConnectionToServer connectionToServer,
             String destNumber,
             FileManager managedFile,
             SpecialMediaType specialMediaType) throws IOException {
@@ -217,16 +232,15 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
                 managedFile,
                 specialMediaType);
 
-        //NotificationUtils.createHelper(getApplicationContext(), "File upload to:" + td.getDestinationId() + " is pending");
-        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.UPLOADING, null, null));
-        new UploadTask(getApplicationContext(), this, connectionToServer, td).execute();
+        openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.UPLOADING, null, td));
     }
 
     /**
      * Requests a download from the server
      *
-     * @param connectionToServer
-     * @param td                 - The transfer details
+     * @param connectionToServer The connection to the server
+     * @param td The transfer details
      */
     private void requestDownloadFromServer(ConnectionToServer connectionToServer, TransferDetails td) throws IOException {
 
@@ -234,27 +248,4 @@ public class StorageServerProxyService extends AbstractServerProxy implements IC
         connectionToServer.sendToServer(msgRD);
     }
     //endregion
-
-    //region ICallbackListener methods
-    @Override
-    public void doCallBackAction() {
-
-        setMidAction(false);
-    }
-
-    @Override
-    public void doCallBackAction(Object... actions) {
-
-    }
-    //endregion
-
-
-//
-//    @Override
-//    public void onTaskRemoved(Intent rootIntent) {
-//        super.onTaskRemoved(rootIntent);
-//        Log.i(TAG,"Entering onTaskRemoved()");
-//
-//
-//    }
 }

@@ -1,18 +1,9 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.ui.activities.MainActivity" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never"/>
-
-    <item
-        android:id="@+id/action_share"
-        android:orderInCategory="100"
-        android:title="@string/action_share"
-        app:showAsAction="never"/>
+        android:id="@+id/action_about"
+        android:title="About"
+        android:showAsAction="never" />
 
 </menu>
+<!-- From: file:/C:/Git_Projects/SpecialCall_Repository/ffmpeg4android_lib/src/main/res/menu/main.xml --><!-- From: file:/C:/Git_Projects/SpecialCall_Repository/specialCall/build/intermediates/exploded-aar/SpecialCall_Repository/ffmpeg4android_lib/unspecified/res/menu/main.xml -->

@@ -10,20 +10,20 @@ import java.util.Set;
 public abstract class SharedPrefUtils {
 
     //region Shared prefs names
-    public static final String GENERAL = "General";
-    public static final String SETTINGS = "Settings";
-    public static final String SERVICES = "Services";
-    public static final String RADIO_BUTTON_SETTINGS = "RadioButtonsSettings";
-    public static final String SERVER_PROXY = "AbstractServerProxy";
-    public static final String UPLOADED_CALLER_MEDIA_THUMBNAIL = "UploadedCallerMediaThumbnail";
-    public static final String UPLOADED_RINGTONE_PATH ="UploadedRingTonePath";
-    public static final String UPLOADED_PROFILE_MEDIA_THUMBNAIL = "UploadedProfileMediaThumbnail";
-    public static final String UPLOADED_FUNTONE_PATH = "UploadedFunTonePath";
-    public static final String CALLER_MEDIA_FILEPATH = "CallerMediaFilePath";
-    public static final String RINGTONE_FILEPATH = "RingToneFilePath";
-    public static final String PROFILE_MEDIA_FILEPATH = "ProfileMediaFilePath";
-    public static final String FUNTONE_FILEPATH = "FunToneFilePath";
-    public static final String SHOWCASE = "Showcase";
+    public static final String GENERAL                          =   "General";
+    public static final String SETTINGS                         =   "Settings";
+    public static final String SERVICES                         =   "Services";
+    public static final String RADIO_BUTTON_SETTINGS            =   "RadioButtonsSettings";
+    public static final String SERVER_PROXY                     =   "AbstractServerProxy";
+    public static final String UPLOADED_CALLER_MEDIA_THUMBNAIL  =   "UploadedCallerMediaThumbnail";
+    public static final String UPLOADED_RINGTONE_PATH           =   "UploadedRingTonePath";
+    public static final String UPLOADED_PROFILE_MEDIA_THUMBNAIL =   "UploadedProfileMediaThumbnail";
+    public static final String UPLOADED_FUNTONE_PATH            =   "UploadedFunTonePath";
+    public static final String CALLER_MEDIA_FILEPATH            =   "CallerMediaFilePath";
+    public static final String RINGTONE_FILEPATH                =   "RingToneFilePath";
+    public static final String PROFILE_MEDIA_FILEPATH           =   "ProfileMediaFilePath";
+    public static final String FUNTONE_FILEPATH                 =   "FunToneFilePath";
+    public static final String SHOWCASE                         =   "Showcase";
     //endregion
 
     public static final Set<String> allSharedPrefs = new HashSet<> (Arrays.asList(
@@ -44,54 +44,54 @@ public abstract class SharedPrefUtils {
             ));
 
     //region Shared pref keys under GENERAL
-    public static final String DESTINATION_NUMBER = "DestinationNumber";
-    public static final String LOGIN_NUMBER = "LoginNumber";
-    public static final String SMS_CODE = "SmsCode";
-    public static final String DESTINATION_NAME = "DestinationName";
-    public static final String MY_NUMBER = "MyPhoneNumber";
-    public static final String APP_STATE = "AppState";
-    public static final String APP_PREV_STATE = "AppPrevState";
-    public static final String LOADING_MESSAGE = "LoadingMessage";
-    public static final String MY_DEVICE_BATCH_TOKEN = "MyDeviceBatchToken";
-    public static final String LAST_CHECKED_NUMBER_CACHE = "LastCheckedNumberCache";
-    public static final String STRICT_MEMORY_MANAGER_DEVICES = "StrictMemoryManagerDevices";
-    public static final String STRICT_RINGING_CAPABILITIES_DEVICES = "StrictRingingCapabilitiesDevices";
+    public static final String DESTINATION_NUMBER                   =   "DestinationNumber";
+    public static final String LOGIN_NUMBER                         =   "LoginNumber";
+    public static final String SMS_CODE                             =   "SmsCode";
+    public static final String DESTINATION_NAME                     =   "DestinationName";
+    public static final String MY_NUMBER                            =   "MyPhoneNumber";
+    public static final String APP_STATE                            =   "AppState";
+    public static final String APP_PREV_STATE                       =   "AppPrevState";
+    public static final String LOADING_MESSAGE                      =   "LoadingMessage";
+    public static final String MY_DEVICE_BATCH_TOKEN                =   "MyDeviceBatchToken";
+    public static final String LAST_CHECKED_NUMBER_CACHE            =   "LastCheckedNumberCache";
+    public static final String STRICT_MEMORY_MANAGER_DEVICES        =   "StrictMemoryManagerDevices";
+    public static final String APP_IN_FG                            =   "AppInForeground";
+    public static final String STRICT_RINGING_CAPABILITIES_DEVICES  =    "StrictRingingCapabilitiesDevices";
     //endregion
 
     //region Shared pref keys under ShowCase
-    public static final String CALL_NUMBER_VIEW = "callNumberView";
-    public static final String SELECT_MEDIA_VIEW = "SelectMediaView";
-    public static final String UPLOAD_BEFORE_CALL_VIEW = "UploadBeforeCallView";
+    public static final String CALL_NUMBER_VIEW                 =   "callNumberView";
+    public static final String SELECT_MEDIA_VIEW                =   "SelectMediaView";
+    public static final String UPLOAD_BEFORE_CALL_VIEW          =   "UploadBeforeCallView";
     //endregion
 
 
     //region Shared pref keys under SERVER_PROXY
-    public static final String RECONNECT_INTERVAL = "LogicServerProxyService.RECONNECT_INTERVAL";
-    public static final String WAS_MID_ACTION = "WasMidAction";
+    public static final String RECONNECT_INTERVAL               =   "LogicServerProxyService.RECONNECT_INTERVAL";
+    public static final String WAS_MID_ACTION                   =   "WasMidAction";
     //endregion
 
     //region Shared pref keys under SERVICES
-    public static final String OUTGOING_RINGING_SESSION = "OutgoingisInRingingSession";
-    public static final String INCOMING_RINGING_SESSION = "IncomingisInRingingSession";
-    public static final String RING_VOLUME = "RingVolume";
-    public static final String MUSIC_VOLUME = "MusicVolume";
-    public static final String TEMP_VISUALMD5 = "TempVisualMd5";
-    public static final String TEMP_AUDIOMD5 = "TempAudioMd5";
-    public static final String DISABLE_VOLUME_BUTTONS = "DisableVolumeButtons";
-    public static final String MC_WINDOW_WIDTH_BY_USER = "mcWindowWidthByUser";
-    public static final String MC_WINDOW_HEIGHET_BY_USER = "mcWindowHeighetByUser";
-    public static final String MC_WINDOW_X_LOCATION_BY_USER = "mcWindowXLocationByUser";
-    public static final String MC_WINDOW_Y_LOCATION_BY_USER = "mcWindowYLocationByUser";
+    public static final String OUTGOING_RINGING_SESSION         =   "OutgoingisInRingingSession";
+    public static final String INCOMING_RINGING_SESSION         =   "IncomingisInRingingSession";
+    public static final String RING_VOLUME                      =   "RingVolume";
+    public static final String MUSIC_VOLUME                     =   "MusicVolume";
+    public static final String TEMP_VISUALMD5                   =   "TempVisualMd5";
+    public static final String TEMP_AUDIOMD5                    =   "TempAudioMd5";
+    public static final String DISABLE_VOLUME_BUTTONS           =   "DisableVolumeButtons";
+    public static final String MC_WINDOW_WIDTH_BY_USER          =   "mcWindowWidthByUser";
+    public static final String MC_WINDOW_HEIGHET_BY_USER        =   "mcWindowHeighetByUser";
+    public static final String MC_WINDOW_X_LOCATION_BY_USER     =   "mcWindowXLocationByUser";
+    public static final String MC_WINDOW_Y_LOCATION_BY_USER     =   "mcWindowYLocationByUser";
 
     //endregion
 
 
     /* shared pref keys under SETTINGS */
-    public static final String WHO_CAN_MC_ME = "WhoCanMCMe";
-    public static final String BLOCK_LIST = "BlockList";
-    public static final String ALWAYS_SAVE_MEDIA = "AlwaysSaveMedia";
-    public static final String DOWNLOAD_ONLY_ON_WIFI = "DownloadOnlyOnWifi";
-
+    public static final String WHO_CAN_MC_ME                    =   "WhoCanMCMe";
+    public static final String BLOCK_LIST                       =   "BlockList";
+    public static final String ALWAYS_SAVE_MEDIA                =   "AlwaysSaveMedia";
+    public static final String DOWNLOAD_ONLY_ON_WIFI            =   "DownloadOnlyOnWifi";
     //region Shared prefs action methods
     //region Getters
     public static int getInt(Context context, String prefsName, String key) {

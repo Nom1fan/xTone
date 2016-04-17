@@ -47,7 +47,7 @@
     <string name="compression_took_too_long">אופס! דחיסה ערכה זמן רב מדי</string>
 
     <string name="compressing_file">דוחס קובץ...</string>
-
+    <string name="loading">טוען. אנא המתן...</string>
     <string name="upload_took_too_long">אופס! העלאה לקחה זמן רב מדי</string>
 
     <string name="upload_success">המדיה בדרך!</string>
@@ -79,6 +79,7 @@
     <string name="share_subject">MediaCallz (פתח בחנות של גוגל להוריד את האפליקציה)</string>
     <string name="share_via">שתף דרך</string>
     <string name="user_is_unregistered">המשתמש %1$s אינו רשום לשירות</string>
+    <string name="action_cancelled">הפעולה בוטלה</string>
 
     <!--  SnackBar  -->
     <string name="snack_close">סגור</string>

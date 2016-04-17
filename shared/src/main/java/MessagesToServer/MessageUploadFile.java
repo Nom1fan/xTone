@@ -107,7 +107,7 @@ public class MessageUploadFile extends MessageToServer {
             String title = "Oops!";
             String errMsg = "Your media to " + _destId + " was lost on the way! Please try again.";
             String token = UsersDataAccess.instance(_dal).getUserPushToken(_messageInitiaterId);
-            //_cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.UPLOAD_FAILURE, errMsg, null)));
+            //_cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.STORAGE_ACTION_FAILURE, errMsg, null)));
             BatchPushSender.sendPush(token, PushEventKeys.SHOW_MESSAGE, title, errMsg);
 
             return _cont;

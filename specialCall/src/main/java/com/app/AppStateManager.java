@@ -67,6 +67,11 @@ public class AppStateManager {
         return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_PREV_STATE);
     }
 
+    public synchronized static void setAppPrevState(Context context, String tag) {
+
+        setAppState(context, tag, getAppPrevState(context));
+    }
+
     public synchronized static boolean isNonBlockingState(Context context) {
 
         return !getAppState(context).equals(AppStateManager.STATE_DISABLED) &&
@@ -134,6 +139,16 @@ public class AppStateManager {
 
         if (isNonBlockingState(context))
             SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_PREV_STATE, curState);
+    }
+
+    public static void setAppInForeground(Context context, boolean b) {
+
+        SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_IN_FG, b);
+    }
+
+    public static boolean isAppInForeground(Context context) {
+
+        return SharedPrefUtils.getBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_IN_FG);
     }
 
     private static class LoadingState {
