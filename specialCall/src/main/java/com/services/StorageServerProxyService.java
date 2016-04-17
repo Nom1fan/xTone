@@ -8,9 +8,7 @@ import android.util.Log;
 import com.data_objects.Constants;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
-import com.utils.FileCompressorUtil;
 
-import java.io.File;
 import java.io.IOException;
 
 import ClientObjects.ConnectionToServer;
@@ -150,12 +148,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
 
         String destId = intent.getStringExtra(DESTINATION_ID);
         SpecialMediaType specialMediaType = (SpecialMediaType) intent.getSerializableExtra(SPECIAL_MEDIA_TYPE);
-        String tempCompressFolder = Constants.TEMP_COMPRESSED_FOLDER + destId;
-        File tempCompressFolderDir = new File(tempCompressFolder);
-        tempCompressFolderDir.mkdirs();
-
         FileManager managedFile = (FileManager) intent.getSerializableExtra(FILE_TO_UPLOAD);
-        managedFile = FileCompressorUtil.compressFileIfNecessary(managedFile, tempCompressFolder, getApplicationContext());
         uploadFileToServer(destId, managedFile, specialMediaType);
         releaseLockIfNecessary();
 

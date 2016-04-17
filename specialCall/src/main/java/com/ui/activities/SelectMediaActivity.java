@@ -42,7 +42,9 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     public static final String SPECIAL_MEDIA_TYPE = "SpecialMediaType";
     public static final String DESTINATION_NUMBER = "DestinationNumber";
     public static final String DESTINATION_NAME = "DestinationName";
-    public static final String RESULT_MSG = "msg";
+    public static final String RESULT_ERR_MSG = "ResultErrMsg";
+    public static final String RESULT_SPECIAL_MEDIA_TYPE = "ResultSpecialMediaType";
+    public static final String RESULT_FILE = "ResultFile";
 
     private static final String TAG = SelectMediaActivity.class.getSimpleName();
     private Uri _outputFileUri;
@@ -104,11 +106,11 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             if (requestCode == ActivityRequestCodes.SELECT_CALLER_MEDIA) {
 
                 SpecialMediaType specialMediaType = SpecialMediaType.CALLER_MEDIA;
-                uploadFile(data, specialMediaType);
+                extractAndReturnFile(data, specialMediaType);
             } else if (requestCode == ActivityRequestCodes.SELECT_PROFILE_MEDIA) {
 
                 SpecialMediaType specialMediaType = SpecialMediaType.PROFILE_MEDIA;
-                uploadFile(data, specialMediaType);
+                extractAndReturnFile(data, specialMediaType);
             }
         }
     }
@@ -240,11 +242,11 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     }
 
-    private void uploadFile(Intent intent, SpecialMediaType specialMediaType) {
+    private void extractAndReturnFile(Intent intent, SpecialMediaType specialMediaType) {
 
         FileManager fm;
         Intent resultIntent = new Intent();
-        Log.i(TAG,"Upload File");
+        Log.i(TAG,"extractAndReturnFile");
         final boolean isCamera;
         try {
             checkDestinationNumber();
@@ -277,44 +279,39 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                   try {
                       String extension = FileManager.extractExtension(path);
                       Log.i(TAG, "isCamera True, Extension saved in camera: " + extension);
-                  }catch (FileMissingExtensionException e){
+                  } catch (FileMissingExtensionException e){
 
-                      Log.e(TAG, "Missing Extension !!! will add jpeg as it likely to be camera" );
+                      Log.w(TAG, "Missing Extension! Adding .jpeg as it is likely to be image file from camera" );
                       file.renameTo(new File(path += ".jpeg"));
                   }
                 }
 
                 fm = new FileManager(path);
-                Log.i(TAG, "[File selected]: " + path + ". [File Size]: " + fm.getFileSizeFormat(fm.getFileSize()));
+                Log.i(TAG, "[File selected]: " + path + ". [File Size]: " + FileManager.getFileSizeFormat(fm.getFileSize()));
 
-                Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
-                i.setAction(StorageServerProxyService.ACTION_UPLOAD);
-                i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);
-                i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, specialMediaType);
-                i.putExtra(StorageServerProxyService.FILE_TO_UPLOAD, fm);
-                getApplicationContext().startService(i);
-
+                resultIntent.putExtra(RESULT_SPECIAL_MEDIA_TYPE, specialMediaType);
+                resultIntent.putExtra(RESULT_FILE, fm);
             }
 
-            Log.i(TAG,"End of upload file");
+            Log.i(TAG,"End extractAndReturnFile");
         } catch (NullPointerException e) {
             e.printStackTrace();
             Log.e(TAG, getResources().getString(R.string.file_invalid));
-            resultIntent.putExtra(RESULT_MSG, getResources().getString(R.string.file_invalid));
+            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
 
         } catch (FileExceedsMaxSizeException e) {
 
             String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
                     FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
             Log.e(TAG, errMsg);
-            resultIntent.putExtra(RESULT_MSG, errMsg);
+            resultIntent.putExtra(RESULT_ERR_MSG, errMsg);
 
         } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
             e.printStackTrace();
-            resultIntent.putExtra(RESULT_MSG, getResources().getString(R.string.file_invalid));
+            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
 
         } catch (InvalidDestinationNumberException e) {
-            resultIntent.putExtra(RESULT_MSG, getResources().getString(R.string.destnumber_invalid));
+            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.destnumber_invalid));
         }
 
         if (getParent() == null) {
@@ -381,7 +378,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     private void checkDestinationNumber() throws InvalidDestinationNumberException {
 
-        if(_destPhoneNumber ==null)
+        if(_destPhoneNumber == null)
             throw new InvalidDestinationNumberException();
         if(_destPhoneNumber.equals("") || _destPhoneNumber.length() < 10)
             throw new InvalidDestinationNumberException();

@@ -23,7 +23,7 @@ import FilesManager.FileManager;
 /**
  * Created by mor on 09/11/2015.
  */
-public abstract class FFMPEG_Utils {
+public class FFMPEG_Utils {
 
     private static final String TAG = FFMPEG_Utils.class.getSimpleName();
     private static final String workFolder = Constants.TEMP_COMPRESSED_FOLDER;
@@ -31,7 +31,12 @@ public abstract class FFMPEG_Utils {
         put("mp4", "mpeg4");
 
     }};
+    private LoadJNI _vk;
 
+    public FFMPEG_Utils(LoadJNI vk) {
+
+        _vk = vk;
+    }
 
     /**
      * Resizes a video file resolution by 30%, maintaining aspect ratio.
@@ -41,7 +46,7 @@ public abstract class FFMPEG_Utils {
      * @param context
      * @return The compressed file.
      */
-    public static FileManager compressVideoFile(FileManager baseFile, String outPath, double width, double height, Context context) {
+    public FileManager compressVideoFile(FileManager baseFile, String outPath, double width, double height, Context context) {
 
         String extension = baseFile.getFileExtension();
         String vCodec = extension2vCodec.get(extension);
@@ -50,8 +55,6 @@ public abstract class FFMPEG_Utils {
             FileManager.delete(compressedFile);
 
         try {
-            LoadJNI vk = new LoadJNI();
-
 //            double percent = 0.7;
 //            width = width * percent;
 //            height = height * percent;
@@ -61,7 +64,7 @@ public abstract class FFMPEG_Utils {
                             "-r", "25", "-vcodec", vCodec, "-b", "150k", "-ab", "48000", "-ac", "2", "-ar", "22050",
                             compressedFile.getAbsolutePath()};
 
-            vk.run(complexCommand, workFolder, context);
+            _vk.run(complexCommand, workFolder, context);
             return new FileManager(compressedFile);
 
         } catch (Throwable e) {
@@ -81,7 +84,7 @@ public abstract class FFMPEG_Utils {
      * @param context
      * @return The compressed file.
      */
-    public static FileManager compressImageFile(FileManager baseFile, String outPath, double width, Context context) {
+    public FileManager compressImageFile(FileManager baseFile, String outPath, double width, Context context) {
 
         String extension = baseFile.getFileExtension();
         File compressedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_comp." + extension);
@@ -89,14 +92,13 @@ public abstract class FFMPEG_Utils {
             FileManager.delete(compressedFile);
 
         try {
-            LoadJNI vk = new LoadJNI();
             double percent = 0.7;
             width = width * percent;
 
             String[] complexCommand =
                     {"ffmpeg", "-i", baseFile.getFileFullPath(), "-vf", "scale=" + (int) width + ":-1", compressedFile.getAbsolutePath()};
 
-            vk.run(complexCommand, workFolder, context);
+            _vk.run(complexCommand, workFolder, context);
             return new FileManager(compressedFile);
 
         } catch (Throwable e) {
@@ -114,20 +116,20 @@ public abstract class FFMPEG_Utils {
      * @param context
      * @return The duration of a video/audio file in seconds, if possible. Otherwise returns 0.
      */
-    public static long getFileDurationInSeconds(FileManager baseFile, Context context) {
+    public long getFileDurationInSeconds(FileManager baseFile, Context context) {
 
         if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
             return 0;
 
         try {
-            LoadJNI vk = new LoadJNI();
+
             FileManager.FileType fType = baseFile.getFileType();
             if (fType.equals(FileManager.FileType.AUDIO) ||
                     fType.equals(FileManager.FileType.VIDEO)) {
 
                 String[] complexCommand =
                         {"ffmpeg", "-i", baseFile.getFileFullPath()};
-                vk.run(complexCommand, workFolder, context);
+                _vk.run(complexCommand, workFolder, context);
                 BufferedReader br = new BufferedReader(new FileReader(workFolder + "vk.log"));
                 String line = "";
                 boolean cont = true;
@@ -136,7 +138,7 @@ public abstract class FFMPEG_Utils {
                     if (line.contains("Duration"))
                         cont = false;
                 }
-                String unformattedDuration = line.substring(12, 20);
+                String unformattedDuration = line != null ? line.substring(12, 20) : null;
                 DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
                 Date reference = dateFormat.parse("00:00:00");
                 Date date = dateFormat.parse(unformattedDuration);
@@ -161,7 +163,7 @@ public abstract class FFMPEG_Utils {
      * @param context
      * @return The trimmed video/audio file, if possible. Otherwise, the base file.
      */
-    public static FileManager trim(FileManager baseFile, String outPath, Double endTime, Context context) {
+    public FileManager trim(FileManager baseFile, String outPath, Double endTime, Context context) {
 
         if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
             return baseFile;
@@ -172,13 +174,13 @@ public abstract class FFMPEG_Utils {
             FileManager.delete(trimmedFile);
 
         try {
-            LoadJNI vk = new LoadJNI();
+
 
             String[] complexCommand =
                     {"ffmpeg", "-i", baseFile.getFileFullPath(), "-vcodec", "copy", "-acodec",
                             "copy", "-ss", "0", "-t", endTime.toString(), trimmedFile.getAbsolutePath()};
 
-            vk.run(complexCommand, workFolder, context);
+            _vk.run(complexCommand, workFolder, context);
             return new FileManager(trimmedFile);
 
         } catch (Throwable e) {
@@ -195,7 +197,7 @@ public abstract class FFMPEG_Utils {
      * @param managedFile The video file to retrieve its resolution
      * @return The image resolution
      */
-    public static int[] getVideoResolution(FileManager managedFile) {
+    public int[] getVideoResolution(FileManager managedFile) {
 
         MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
         metaRetriever.setDataSource(managedFile.getFileFullPath());
@@ -214,19 +216,19 @@ public abstract class FFMPEG_Utils {
      * @deprecated Use the new {@link #getImageResolution(FileManager managedFile)} instead
      */
     @Deprecated
-    public static int[] getImageResolution(FileManager managedFile, Context context) {
+    public int[] getImageResolution(FileManager managedFile, Context context) {
 
         if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
             return null;
 
         try {
-            LoadJNI vk = new LoadJNI();
+
             FileManager.FileType fType = managedFile.getFileType();
             if (fType.equals(FileManager.FileType.IMAGE)) {
 
                 String[] complexCommand =
                         {"ffmpeg", "-i", managedFile.getFileFullPath()};
-                vk.run(complexCommand, workFolder, context);
+                _vk.run(complexCommand, workFolder, context);
                 BufferedReader br = new BufferedReader(new FileReader(workFolder + "vk.log"));
                 String line = "";
                 boolean cont = true;
@@ -268,7 +270,7 @@ public abstract class FFMPEG_Utils {
      * @param managedFile The image file to retrieve its resolution
      * @return The image resolution
      */
-    public static int[] getImageResolution(FileManager managedFile) {
+    public int[] getImageResolution(FileManager managedFile) {
 
         Bitmap bitmap = BitmapFactory.decodeFile(managedFile.getFileFullPath());
         int height = bitmap.getHeight();

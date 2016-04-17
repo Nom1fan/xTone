@@ -192,16 +192,16 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 AppStateManager.setAppState(context, TAG, AppStateManager.STATE_READY);
             }
                 break;
-            case UPLOAD_SUCCESS:
-                msg = context.getResources().getString(R.string.upload_success);
-            //case COMPRESSION_COMPLETE: //TODO commented out by Mor - need to check if this is necessary or just bothers the user
-                // Setting state
-                AppStateManager.setAppState(context, TAG, AppStateManager.STATE_READY);
-
-                // Setting parameters for snackbar message
-                color = Color.GREEN;
-                sBarDuration = Snackbar.LENGTH_LONG;
-                break;
+//            case UPLOAD_SUCCESS:
+//                msg = context.getResources().getString(R.string.upload_success);
+//            //case COMPRESSION_COMPLETE: //TODO commented out by Mor - need to check if this is necessary or just bothers the user
+//                // Setting state
+//                AppStateManager.setAppState(context, TAG, AppStateManager.STATE_READY);
+//
+//                // Setting parameters for snackbar message
+//                color = Color.GREEN;
+//                sBarDuration = Snackbar.LENGTH_LONG;
+//                break;
 
             case CONNECTED:
                 // Setting state based on previous state
@@ -270,7 +270,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
         }
 
-        UI_Utils.showSnackBar(msg, color, sBarDuration, isLoading ,context);
+        UI_Utils.showSnackBar(msg, color, sBarDuration, isLoading, context);
     }
 
 }

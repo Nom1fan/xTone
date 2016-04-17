@@ -1,5 +1,6 @@
 package com.ui.activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,6 +12,9 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.PowerManager;
 import android.provider.ContactsContract;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -50,6 +54,8 @@ import com.data_objects.SnackbarData;
 import com.interfaces.ICallbackListener;
 import com.mediacallz.app.R;
 import com.netcompss.ffmpeg4android.GeneralUtils;
+import com.netcompss.ffmpeg4android.ProgressCalculator;
+import com.netcompss.loader.LoadJNI;
 import com.services.AbstractStandOutService;
 import com.services.IncomingService;
 import com.services.LogicServerProxyService;
@@ -95,6 +101,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private String _destPhoneNumber = "";
     private String _destName = "";
+    private LoadJNI _vk;
+    private FileManager _fileForUpload;
+    private SpecialMediaType _specialMediaType;
 
     //region UI elements
     private ImageView _userStatusPositive;
@@ -248,21 +257,40 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
-
             if (requestCode == ActivityRequestCodes.SELECT_MEDIA) {
                 if (data != null) {
-                    String msg = data.getStringExtra(SelectMediaActivity.RESULT_MSG);
+                    String msg = data.getStringExtra(SelectMediaActivity.RESULT_ERR_MSG);
                     if (msg != null) {
                         SnackbarData snackbarData = new SnackbarData(SnackbarData.SnackbarStatus.SHOW,
                                 Color.RED,
                                 Snackbar.LENGTH_INDEFINITE,
-                                data.getStringExtra(SelectMediaActivity.RESULT_MSG));
+                                data.getStringExtra(SelectMediaActivity.RESULT_ERR_MSG));
                         writeInfoSnackBar(snackbarData);
                     }
-                }
-            }
+                    else
+                    {
+                        _specialMediaType = (SpecialMediaType) data.getSerializableExtra(SelectMediaActivity.RESULT_SPECIAL_MEDIA_TYPE);
+                        FileManager fm = (FileManager) data.getSerializableExtra(SelectMediaActivity.RESULT_FILE);
 
-            if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
+                        if(FileCompressorUtil.isCompressionNeeded(fm)) {
+                            TrimTask trimTask = new TrimTask(fm);
+                            trimTask.execute();
+                        }
+                        else
+                        {
+                            _fileForUpload = fm;
+                            Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
+                            i.setAction(StorageServerProxyService.ACTION_UPLOAD);
+                            i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);
+                            i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, _specialMediaType);
+                            i.putExtra(StorageServerProxyService.FILE_TO_UPLOAD, _fileForUpload);
+                            startService(i);
+                        }
+                    }
+                }
+
+            }
+            else if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
                 try {
                     if (data != null) {
                         Uri uri = data.getData();
@@ -407,6 +435,20 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         final EventReport report = event.report();
 
         switch (report.status()) {
+
+            case TRIMMING_COMPLETE:
+                CompressTask compressTask = new CompressTask(_fileForUpload);
+                compressTask.execute();
+                break;
+
+            case COMPRESSION_COMPLETE:
+                Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
+                i.setAction(StorageServerProxyService.ACTION_UPLOAD);
+                i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);
+                i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, _specialMediaType);
+                i.putExtra(StorageServerProxyService.FILE_TO_UPLOAD, _fileForUpload);
+                startService(i);
+                break;
 
             case UPLOADING:
                 TransferDetails td = (TransferDetails) report.data();
@@ -1393,7 +1435,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         int duration = snackBarData.getDuration();
         if (duration == Snackbar.LENGTH_LONG)
-            duration = 2000;
+            duration = 3500;
 
         View mainActivity = findViewById(R.id.mainActivity);
 
@@ -1479,6 +1521,26 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
     //endregion
 
+    //region Handlers
+    private Handler _compressHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Log.i(TAG, "Handler got message:" + msg.what);
+            if (_progDialog != null) {
+                _progDialog.dismiss();
+
+                // Stopping the transcoding native
+                if (msg.what == FileCompressorUtil.STOP_TRANSCODING_MSG) {
+                    Log.i(TAG, "Got cancel message, calling fexit");
+                    _vk.fExit(getApplicationContext());
+
+
+                }
+            }
+        }
+    };
+    //endregion
+
     //region Private classes and AsyncTasks
     private class DrawerItemClickListener implements
             ListView.OnItemClickListener {
@@ -1497,7 +1559,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         private TransferDetails _td;
         private ProgressDialog _progDialog;
         private UploadTask _taskInstance;
-        private DataOutputStream _dos;
         private BufferedInputStream _bis;
 
         public UploadTask(ConnectionToServer connectionToServer, TransferDetails td) {
@@ -1538,7 +1599,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             MessageUploadFile msgUF = new MessageUploadFile(_td.getSourceId(),_td);
 
             DataOutputStream dos;
-            BufferedInputStream bis = null;
             try {
                 _connectionToServer.sendToServer(msgUF);
 
@@ -1547,13 +1607,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 dos = new DataOutputStream(_connectionToServer.getClientSocket().getOutputStream());
 
                 FileInputStream fis = new FileInputStream(managedFile.getFile());
-                bis = new BufferedInputStream(fis);
+                _bis = new BufferedInputStream(fis);
 
                 byte[] buf = new byte[1024 * 8];
                 long fileSize = managedFile.getFileSize();
                 long bytesToRead = fileSize;
                 int bytesRead;
-                while (bytesToRead > 0 && (bytesRead = bis.read(buf, 0, (int) Math.min(buf.length, bytesToRead))) != -1 && !isCancelled()) {
+                while (bytesToRead > 0 && (bytesRead = _bis.read(buf, 0, (int) Math.min(buf.length, bytesToRead))) != -1 && !isCancelled()) {
                     dos.write(buf, 0, bytesRead);
                     //float percent = (float) ((fileSize - bytesToRead) / fileSize) * 100;
                     publishProgress((int)bytesRead);
@@ -1572,9 +1632,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         new EventReport(EventType.STORAGE_ACTION_FAILURE, "Upload to " + _td.getDestinationId() + " failed:" + e.getMessage(), null));
             } finally {
 
-                if(bis!=null) {
+                if(_bis!=null) {
                     try {
-                        bis.close();
+                        _bis.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -1622,11 +1682,207 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         @Override
         protected void onPostExecute(Void result)    {
 
+            try {
+                Thread.sleep(1000); // Sleeping so in fast uploads the dialog won't appear and disappear too fast (link a blink)
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             if(_progDialog!=null && _progDialog.isShowing()) {
                 _progDialog.dismiss();
             }
+
+            String msg = MainActivity.this.getResources().getString(R.string.upload_success);
+            // Setting state
+            AppStateManager.setAppState(MainActivity.this, TAG, AppStateManager.STATE_READY);
+
+            // Setting parameters for snackbar message
+            int color = Color.GREEN;
+            int sBarDuration = Snackbar.LENGTH_LONG;
+
+            UI_Utils.showSnackBar(msg, color, sBarDuration, false, MainActivity.this);
         }
 
+    }
+
+    private class CompressTask extends AsyncTask<Void, Integer, Void> {
+
+        private FileCompressorUtil _fileCompressor;
+        private FileManager _baseFile;
+        private final String TAG = CompressTask.class.getSimpleName();
+        private CompressTask _instance = this;
+
+        public CompressTask(FileManager baseFile) {
+
+            _baseFile = baseFile;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            String cancel = getResources().getString(R.string.cancel);
+
+            _progDialog = new ProgressDialog(MainActivity.this);
+            _progDialog.setIndeterminate(false);
+            _progDialog.setCancelable(false);
+            _progDialog.setTitle(getResources().getString(R.string.compressing_file));
+            _progDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            _progDialog.setProgress(0);
+            _progDialog.setMax(100);
+            _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    _compressHandler.sendEmptyMessage(FileCompressorUtil.STOP_TRANSCODING_MSG);
+                    _instance.cancel(true);
+                }
+            });
+
+            _progDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            // Worker thread
+            new Thread() {
+                public void run() {
+                    Log.d(TAG, "Worker started");
+
+                    _vk = new LoadJNI();
+                    PowerManager powerManager = (PowerManager)MainActivity.this.getSystemService(Activity.POWER_SERVICE);
+                    PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VK_LOCK");
+
+                    _fileCompressor = new FileCompressorUtil(_vk, wakeLock);
+                    _fileForUpload = _fileCompressor.compressFileIfNecessary(_baseFile, _destPhoneNumber, getApplicationContext());
+                    _compressHandler.sendEmptyMessage(FileCompressorUtil.FINISHED_TRANSCODING_MSG);
+                    if(isCancelled()) {
+                        BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
+                        return;
+                    }
+
+                    BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.COMPRESSION_COMPLETE, null, null));
+                }
+            }.start();
+
+            // Progress update thread
+            new Thread() {
+                ProgressCalculator pc = new ProgressCalculator(FileCompressorUtil.VK_LOG_PATH);
+                public void run() {
+                    Log.d(TAG,"Progress update started");
+                    int progress = -1;
+                    try {
+                        while (true) {
+                            sleep(300);
+                            progress = pc.calcProgress();
+                            if (progress != 0 && progress < 100) {
+                                _progDialog.setProgress(progress);
+                            }
+                            else if (progress == 100) {
+                                Log.i(TAG, "Progress is 100, exiting progress update thread");
+                                pc.initCalcParamsForNextInter();
+                                break;
+                            }
+                        }
+
+                    } catch(Exception e) {
+                        Log.e(TAG, e.getMessage(), e);
+                    }
+                }
+            }.start();
+
+            return null;
+        }
+    }
+
+    private class TrimTask extends AsyncTask<Void, Integer, Void> {
+
+        private FileCompressorUtil _fileCompressor;
+        private FileManager _baseFile;
+        private final String TAG = CompressTask.class.getSimpleName();
+        TrimTask _instance = this;
+
+        public TrimTask(FileManager baseFile) {
+
+            _baseFile = baseFile;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            String cancel = getResources().getString(R.string.cancel);
+
+            _progDialog = new ProgressDialog(MainActivity.this);
+            _progDialog.setIndeterminate(false);
+            _progDialog.setCancelable(false);
+            _progDialog.setTitle(getResources().getString(R.string.trimming_file));
+            _progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            _progDialog.setProgress(0);
+            _progDialog.setMax(100);
+            _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    _compressHandler.sendEmptyMessage(FileCompressorUtil.STOP_TRANSCODING_MSG);
+                    _instance.cancel(true);
+                }
+            });
+
+            _progDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            // Worker thread
+            new Thread() {
+                public void run() {
+                    Log.d(TAG, "Worker started");
+
+                    _vk = new LoadJNI();
+                    PowerManager powerManager = (PowerManager)MainActivity.this.getSystemService(Activity.POWER_SERVICE);
+                    PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VK_LOCK");
+
+                    _fileCompressor = new FileCompressorUtil(_vk, wakeLock);
+                    _fileForUpload = _fileCompressor.trimFileIfNecessary(_baseFile, _destPhoneNumber, getApplicationContext());
+                    _compressHandler.sendEmptyMessage(FileCompressorUtil.FINISHED_TRANSCODING_MSG);
+                    if(isCancelled()) {
+                        BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
+                        return;
+                    }
+
+                    BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.TRIMMING_COMPLETE, null, null));
+                }
+            }.start();
+
+            // Progress update thread
+            new Thread() {
+                ProgressCalculator pc = new ProgressCalculator(FileCompressorUtil.VK_LOG_PATH);
+                public void run() {
+                    Log.d(TAG,"Progress update started");
+                    int progress = -1;
+                    try {
+                        while (true) {
+                            sleep(300);
+                            progress = pc.calcProgress();
+                            if (progress != 0 && progress < 100) {
+                                _progDialog.setProgress(progress);
+                            }
+                            else if (progress == 100) {
+                                Log.i(TAG, "Progress is 100, exiting progress update thread");
+                                pc.initCalcParamsForNextInter();
+                                break;
+                            }
+                        }
+
+                    } catch(Exception e) {
+                        Log.e(TAG, e.getMessage(), e);
+                    }
+                }
+            }.start();
+
+            return null;
+        }
     }
     //endregion
 
