@@ -29,7 +29,9 @@
     <string name="invite_dialog_title">לא רשום</string>
     <string name="invite_dialog_summary"> הזמן אותו לקבל שיחת מדיה !</string>
     <string name="invite_btn">הזמן</string>
-
+    <string name="clear_dialog_title">חזור לצלצול רגיל</string>
+    <string name="clear_dialog_summary"> למחוק את המדיה שנשלחה לאיש הקשר הזה ולחזור לצלצול רגיל</string>
+    <string name="clear_btn">מחק</string>
 
     <string name="cant_send_to_self">אופס! אינך יכול לבחור מדיה לעצמך!</string>
 
@@ -152,7 +154,7 @@
     <!--  popup_menu_callermedia Layout   -->
     <string name="select_caller_media">הוסף/החלף מדיה לשיחה יוצאת</string>
     <string name="preview">קדימון</string>
-    <string name="clear">בלי מדיה</string>
+    <string name="clear">חזור לצלצול רגיל</string>
     <!--  popup_menu_profile Layout   -->
     <string name="select_profile_media">הוסף/החלף מדיה לשיחה נכנסת</string>
     <string name="confirm">אישור</string>

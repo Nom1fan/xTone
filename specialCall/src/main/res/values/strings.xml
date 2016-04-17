@@ -56,6 +56,9 @@
     <string name="invite_dialog_title">Unregistered</string>
     <string name="invite_dialog_summary"> Invite him now to get MediaCallz!</string>
     <string name="invite_btn">Invite</string>
+    <string name="clear_dialog_title">Return to normal ringing (without media)</string>
+    <string name="clear_dialog_summary"> this will remove MC media from that user, so you will call without media</string>
+    <string name="clear_btn">Remove</string>
 
     <!--  SelectMediaActivity  -->
     <string name="recording">Recording...</string>
@@ -144,7 +147,7 @@
     <!--  popup_menu_callermedia Layout   -->
     <string name="select_caller_media">Add/Replace caller media</string>
     <string name="preview">Preview</string>
-    <string name="clear">No media</string>
+    <string name="clear">Return to normal ring</string>
     <!--  popup_menu_profile Layout   -->
     <string name="select_profile_media">Add/Replace profile media</string>
     <string name="delete_account_title">Delete Account</string>

@@ -53,7 +53,7 @@ import com.services.IncomingService;
 import com.services.LogicServerProxyService;
 import com.services.OutgoingService;
 import com.services.PreviewService;
-import com.services.StorageServerProxyService;
+import com.ui.dialogs.ClearMediaDialog;
 import com.ui.dialogs.InviteDialog;
 import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
@@ -454,15 +454,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         // Saving destination name
         _destName = destName;
         SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, _destName);
-    }
-
-    private void clearMedia(SpecialMediaType spMediaType) {
-
-        Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
-        i.setAction(StorageServerProxyService.ACTION_CLEAR_MEDIA);
-        i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);
-        i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, spMediaType);
-        getApplicationContext().startService(i);
     }
 
     private void restoreInstanceState() {
@@ -963,10 +954,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                         break;
                     case R.id.clearcallermedia:
-                        //TODO Mor: Disable this option in case no media has been uploaded
-                        //TODO Mor: "Are you sure" dialog
-
-                        clearMedia(SpecialMediaType.CALLER_MEDIA);
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.CALLER_MEDIA,_destPhoneNumber);
+                        clearDialog.show(getFragmentManager(), TAG);
                         break;
 
                 }
@@ -998,10 +987,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         startPreviewStandoutWindow(SpecialMediaType.PROFILE_MEDIA);
                         break;
                     case R.id.clearprofilemedia:
-                        //TODO Mor: Disable this option in case no media has been uploaded
-                        //TODO Mor: "Are you sure" dialog
 
-                        clearMedia(SpecialMediaType.PROFILE_MEDIA);
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.PROFILE_MEDIA,_destPhoneNumber);
+                        clearDialog.show(getFragmentManager(), TAG);
+
                         break;
                 }
                 return true;
