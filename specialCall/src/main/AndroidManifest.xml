@@ -37,7 +37,7 @@
         android:name="com.app.MediaCallzApp"
         android:allowBackup="true"
         android:supportsRtl="true"
-        android:icon="@drawable/color_mc"
+        android:icon="@mipmap/color_mc"
         android:label="@string/app_name" >
         <activity
             android:name="com.ui.activities.MainActivity"
