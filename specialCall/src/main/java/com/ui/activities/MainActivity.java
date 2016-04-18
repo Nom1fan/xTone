@@ -540,6 +540,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void setDestNameTextView() {
 
+        if (_destPhoneNumber != null && !_destPhoneNumber.equals(""))
+            _destName = ContactsUtils.getContactName(getApplicationContext(),_destPhoneNumber);
+        else
+            _destName = "";
+
         if (_destTextView != null) {
 
             if (_destName != null && !_destName.equals(""))
