@@ -58,5 +58,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-gcm:7.5.0'
     compile 'com.batch.android:batch-sdk:1.5.+'
     compile 'com.github.amlcurran.showcaseview:library:5.4.1'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.15'
 }
 apply plugin: 'com.google.gms.google-services'

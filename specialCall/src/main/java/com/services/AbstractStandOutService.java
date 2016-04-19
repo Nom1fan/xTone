@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -35,6 +36,7 @@ import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Random;
@@ -45,6 +47,8 @@ import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageView;
 import utils.PhoneNumberUtils;
 import wei.mark.standout.StandOutWindow;
 import wei.mark.standout.constants.StandOutFlags;
@@ -73,6 +77,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected MediaPlayer mMediaPlayer;
     protected boolean windowCloseActionWasMade = true;
     protected View mSpecialCallView;
+    protected GifDrawable mGifDrawable;
     protected AudioManager mAudioManager;
     protected AudioManager mPreviewAudioManager;
     protected CallStateListener mPhoneListener;
@@ -387,25 +392,74 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     private void prepareImageView(String mediaFilePath) {
         Log.i(TAG, "Preparing ImageView");
 
-        mSpecialCallView = new ImageView(this);
-        mSpecialCallView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT));
-        //     ((ImageView)mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_XY); STRECTH IMAGE ON FULL SCREEN <<< NOT SURE IT's GOOD !!!!!
-        ((ImageView) mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_CENTER); // <<  just place the image Center of Window and fit it with ratio
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(mediaFilePath, options);
-        options.inSampleSize = BitmapUtils.calculateInSampleSize(options, mWidth, mHeight);
+        boolean gifEnabled=false;
+        String ext="";
 
-        options.inJustDecodeBounds = false;
-        Bitmap spCallBitmap = BitmapFactory.decodeFile(mediaFilePath, options);
-
-        if (spCallBitmap != null)
-            ((ImageView) mSpecialCallView).setImageBitmap(spCallBitmap);
-        else {
-            spCallBitmap = BitmapFactory.decodeFile(mediaFilePath);
-            ((ImageView) mSpecialCallView).setImageBitmap(spCallBitmap);
+        try {
+            ext = FileManager.extractExtension(mediaFilePath);
+        } catch (FileMissingExtensionException e) {
+            e.printStackTrace();
         }
+
+        if (ext.equals("gif"))
+            gifEnabled =true;
+        else
+            gifEnabled=false;
+
+
+        if (gifEnabled)
+        {
+            Log.i(TAG, "GIF Found");
+            mSpecialCallView = new GifImageView(this);
+
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mSpecialCallView.getLayoutParams();
+
+            params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+            params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+
+            try {
+                mGifDrawable = new GifDrawable(mediaFilePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            ((GifImageView)mSpecialCallView).setImageURI(Uri.fromFile(new File(mediaFilePath)));
+            final MediaController mc = new MediaController( this );
+            mc.setMediaPlayer(mGifDrawable);
+            mc.setAnchorView((mSpecialCallView));
+
+            mGifDrawable.start();
+
+            ((GifImageView)mSpecialCallView).setLayoutParams(params);
+
+        }
+            else {
+            mSpecialCallView = new ImageView(this);
+
+            mSpecialCallView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT));
+            //     ((ImageView)mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_XY); STRECTH IMAGE ON FULL SCREEN <<< NOT SURE IT's GOOD !!!!!
+            ((ImageView) mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_CENTER); // <<  just place the image Center of Window and fit it with ratio
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(mediaFilePath, options);
+            options.inSampleSize = BitmapUtils.calculateInSampleSize(options, mWidth, mHeight);
+
+            options.inJustDecodeBounds = false;
+            Bitmap spCallBitmap = BitmapFactory.decodeFile(mediaFilePath, options);
+
+            if (spCallBitmap != null)
+                ((ImageView) mSpecialCallView).setImageBitmap(spCallBitmap);
+            else {
+                spCallBitmap = BitmapFactory.decodeFile(mediaFilePath);
+                ((ImageView) mSpecialCallView).setImageBitmap(spCallBitmap);
+            }
+
+        }
+
+
     }
 
     private void prepareVideoView(String mediaFilePath) {
@@ -1023,6 +1077,13 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             e.printStackTrace();
             Log.e(TAG, "Failed to Stop sound. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
         }
+
+        try {
+        mGifDrawable.recycle();
+        } catch (Exception e) {
+            Log.e(TAG, "trying to recycle Gif Image. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+        }
+        mGifDrawable = null;
         mShouldVibrate=false;
         vibrator=null;
         mMediaPlayer = null;
