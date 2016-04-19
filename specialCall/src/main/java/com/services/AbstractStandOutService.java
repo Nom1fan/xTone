@@ -412,6 +412,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             Log.i(TAG, "GIF Found");
             mSpecialCallView = new GifImageView(this);
 
+            mSpecialCallView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.MATCH_PARENT));
+
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mSpecialCallView.getLayoutParams();
 
             params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
