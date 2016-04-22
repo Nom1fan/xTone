@@ -1183,6 +1183,21 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                     .playOn(findViewById(R.id.ringtoneName));
 
         }
+        else if(SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION)
+                &&
+                (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW)
+                || !SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW)))
+        {
+            Techniques tech = UI_Utils.getRandomInTechniques();
+            YoYo.with(tech)
+                    .duration(100)
+                    .playOn(findViewById(R.id.selectMediaBtn));
+
+            YoYo.with(tech)
+                    .duration(100)
+                    .playOn(findViewById(R.id.ringtoneName));
+
+        }
     }
 
     private void enableSelectProfileMediaButton() {

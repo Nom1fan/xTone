@@ -149,7 +149,7 @@ public abstract class UI_Utils {
 
         if (!(SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW)) && SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))
         {
-
+            SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW, true);
 
 
           try {
@@ -188,7 +188,7 @@ public abstract class UI_Utils {
               }
 
 
-              SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW, true);
+
         }
 
 
@@ -197,6 +197,7 @@ public abstract class UI_Utils {
     public static void showCaseViewSelectMedia(final Context context, final Activity activity){
         if (!SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW)) {
       try{
+          SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, true);
             ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectMediaBtn, activity);
             ShowcaseView sv = new ShowcaseView.Builder(activity)
                     .setTarget(targetSelectMediaView)
@@ -227,7 +228,7 @@ public abstract class UI_Utils {
         } catch (NullPointerException | OutOfMemoryError e) {
             e.printStackTrace();
         }
-            SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, true);
+
         }
     }
 
