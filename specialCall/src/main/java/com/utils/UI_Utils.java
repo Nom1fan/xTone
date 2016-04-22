@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.daimajia.androidanimations.library.Techniques;
 import com.data_objects.SnackbarData;
 import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
@@ -19,6 +20,7 @@ import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.mediacallz.app.R;
 
 import java.lang.reflect.Field;
+import java.util.Random;
 
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -29,6 +31,11 @@ import EventObjects.EventType;
 public abstract class UI_Utils {
 
     private static final String TAG = UI_Utils.class.getSimpleName();
+    private static final Techniques[] inTechniques = { Techniques.Landing ,Techniques.StandUp,Techniques.RollIn,Techniques.BounceIn,Techniques.FadeIn
+            ,Techniques.FlipInX,Techniques.RotateIn,Techniques.RotateInUpRight,Techniques.ZoomInDown  };
+
+    private static final Techniques[] outTechniques = { Techniques.Hinge,Techniques.TakingOff,Techniques.RollOut,Techniques.FadeOut
+            ,Techniques.FlipOutX,Techniques.RotateOut,Techniques.SlideOutRight,Techniques.ZoomOutUp  };
 
     public static void callToast(final String text, final int color, final Context context) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -94,6 +101,16 @@ public abstract class UI_Utils {
 
         SnackbarData snackbarData = new SnackbarData(SnackbarData.SnackbarStatus.SHOW, color, sBarDuration, msg, isLoading);
         BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, null, snackbarData));
+    }
+
+    public static Techniques getRandomInTechniques()
+    {
+     return inTechniques[new Random().nextInt(inTechniques.length)];
+    }
+
+    public static Techniques getRandomOutTechniques()
+    {
+        return outTechniques[new Random().nextInt(outTechniques.length)];
     }
 
     //region ShowCaseView methods

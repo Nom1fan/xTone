@@ -35,7 +35,6 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -43,6 +42,8 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 
 import com.app.AppStateManager;
 import com.async_tasks.AutoCompletePopulateListAsyncTask;
@@ -218,6 +219,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         super.onPause();
         Log.i(TAG, "onPause()");
 
+        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, false);
         AppStateManager.setAppInForeground(getApplicationContext(), false);
 
         if (_eventReceiver != null) {
@@ -419,6 +421,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         } else if (id == R.id.clear) {
 
+           SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, true);
             AutoCompleteTextView textViewToClear = (AutoCompleteTextView) findViewById(R.id.CallNumber);
             textViewToClear.setText("");
 
@@ -540,6 +543,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void setDestNameTextView() {
 
+if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION)) {
+    YoYo.with(Techniques.StandUp)
+            .duration(1000)
+            .playOn(findViewById(R.id.destName));
+
+    YoYo.with(Techniques.StandUp)
+            .duration(1000)
+            .playOn(findViewById(R.id.media_calling));
+}
+
         if (_destPhoneNumber != null && !_destPhoneNumber.equals(""))
             _destName = ContactsUtils.getContactName(getApplicationContext(),_destPhoneNumber);
         else
@@ -634,6 +647,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                             writeInfoSnackBar(snackbarData);
                         } else {
                             _destPhoneNumber = destPhone;
+                            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, true);
                             new IsRegisteredTask(destPhone, instance).execute(instance.getApplicationContext());
 
                             hideSoftKeyboardForView(_autoCompleteTextViewDestPhone); // hide keyboard so it won't bother
@@ -733,6 +747,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         disableMediaCallingTextView();
         disableDestinationTextView();
 
+        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION))
+                   SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, false);
+
     }
 
     public void stateReady() {
@@ -746,6 +763,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         enableDestinationEditText();
         enableSelectContactButton();
         enableCallButton();
+        enableMediaCallingTextView();
+        enableSelectMediaButton();
+        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION))
+                    SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, false);
+
 
     }
 
@@ -1080,19 +1102,50 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void disableCallButton() {
 
+        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION))
+            YoYo.with(Techniques.SlideOutRight)
+                    .duration(300)
+                    .playOn(findViewById(R.id.CallNow));
+        else
         _callBtn.setVisibility(View.INVISIBLE);
     }
 
     private void enableCallButton() {
 
+        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION))
+        {
+            _callBtn.setVisibility(View.VISIBLE);
+            _callBtn.setEnabled(true);
+
+            YoYo.with(Techniques.SlideInLeft)
+                    .duration(1000)
+                    .playOn(findViewById(R.id.CallNow));
+        }
+        else
+        {
         _callBtn.setVisibility(View.VISIBLE);
         _callBtn.setEnabled(true);
+        }
     }
+
 
     private void disableSelectCallerMediaButton() {
 
-        _selectMediaBtn.setVisibility(View.INVISIBLE);
-        _ringToneNameTextView.setVisibility(View.INVISIBLE);
+
+        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION))
+        {
+            Techniques tech = UI_Utils.getRandomOutTechniques();
+            YoYo.with(tech)
+                .duration(1000)
+                .playOn(findViewById(R.id.selectMediaBtn));
+
+            YoYo.with(tech)
+                    .duration(1000)
+                    .playOn(findViewById(R.id.ringtoneName));}
+        else {
+            _selectMediaBtn.setVisibility(View.INVISIBLE);
+            _ringToneNameTextView.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void disableSelectProfileMediaButton() {
@@ -1115,6 +1168,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         drawSelectMediaButton(true);
         _selectMediaBtn.setVisibility(View.VISIBLE);
+
+        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION)
+                && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW)
+                && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW) )
+        {
+            Techniques tech = UI_Utils.getRandomInTechniques();
+            YoYo.with(tech)
+                    .duration(1000)
+                    .playOn(findViewById(R.id.selectMediaBtn));
+
+            YoYo.with(tech)
+                    .duration(1000)
+                    .playOn(findViewById(R.id.ringtoneName));
+
+        }
     }
 
     private void enableSelectProfileMediaButton() {
