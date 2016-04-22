@@ -1141,7 +1141,9 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
 
             YoYo.with(tech)
                     .duration(1000)
-                    .playOn(findViewById(R.id.ringtoneName));}
+                    .playOn(findViewById(R.id.ringtoneName));
+            _selectMediaBtn.setClickable(false);
+        }
         else {
             _selectMediaBtn.setVisibility(View.INVISIBLE);
             _ringToneNameTextView.setVisibility(View.INVISIBLE);

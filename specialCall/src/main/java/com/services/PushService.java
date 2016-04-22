@@ -3,6 +3,9 @@ package com.services;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.util.Log;
 
 import com.app.AppStateManager;
@@ -72,7 +75,18 @@ public class PushService extends IntentService {
                     td = new Gson().fromJson(jsonData, TransferDetails.class);
 
                     BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, null, td));
+
+                 if(AppStateManager.isAppInForeground(getApplicationContext())) {
+                     try {
+                         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                         Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+                         r.play();
+                     } catch (Exception e) {
+                         e.printStackTrace();
+                     }
+                 }
                     displayNotification(this, intent);
+
                 }
                 break;
 
