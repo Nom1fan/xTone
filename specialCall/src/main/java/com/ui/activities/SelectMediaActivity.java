@@ -1,31 +1,46 @@
 package com.ui.activities;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.database.Cursor;
+import android.graphics.Color;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.view.MotionEventCompat;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.MimeTypeMap;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
 import com.services.StorageServerProxyService;
+import com.utils.UI_Utils;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import DataObjects.SpecialMediaType;
@@ -54,6 +69,11 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private String _destPhoneNumber = "";
     private float oldPosition =0;
     private int moveLength= 0;
+    private WebView mwebView;
+    private ProgressBar mProgressbar;
+    private TextView mprogressTextView;
+
+    private final String MEDIACALLZ_GALLERY_URL = "http://download.wavetlan.com/SVV/Media/HTTP/http-mp4.htm";
 
     //region Activity methods (onCreate(), onPause()...)
     @Override
@@ -98,7 +118,27 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         ImageButton recordAudioBtn = (ImageButton) findViewById(R.id.recordAudio);
         recordAudioBtn.setOnClickListener(this);
 
+        ImageButton mediacallzBtn = (ImageButton) findViewById(R.id.mediacallzBtn);
+        mediacallzBtn.setOnClickListener(this);
+
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_BACK:
+                if(mwebView!=null)
+                    {if (mwebView.canGoBack()) {  mwebView.goBack();  }
+                    else
+                    finish();}
+                   return true;
+            }
+
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -142,7 +182,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
                 oldPosition = event.getY();
                 moveLength = 0;
-                Log.d(TAG,"Action was DOWN Y is: " + String.valueOf(oldPosition));
+               // Log.d(TAG,"Action was DOWN Y is: " + String.valueOf(oldPosition));
                 return true;
             case (MotionEvent.ACTION_MOVE) :
 
@@ -150,7 +190,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                     moveLength++;
                     oldPosition = event.getY();
                 }
-                    Log.d(TAG,"Action was MOVE Y is: " + String.valueOf(oldPosition) + " moveLength: " +String.valueOf(moveLength));
+               //     Log.d(TAG,"Action was MOVE Y is: " + String.valueOf(oldPosition) + " moveLength: " +String.valueOf(moveLength));
                     if (moveLength > 4) {
                         SelectMediaActivity.this.finish();
                     }
@@ -192,6 +232,289 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
             RecordAudio(SMTypeCode);
         }
+        else {
+            if (id == R.id.mediacallzBtn) {
+
+                mediacallzGalleryWebView();
+
+            }
+        }
+    }
+
+
+    private void mediacallzGalleryWebView(){
+
+        mwebView = new WebView(this);
+        mwebView.setWebChromeClient(new WebChromeClient());
+        WebViewClient client = new ChildBrowserClient();
+        mwebView.setWebViewClient(client);
+        WebSettings settings = mwebView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        mwebView.setInitialScale(1);
+        mwebView.getSettings().setUseWideViewPort(true);
+        settings.setJavaScriptCanOpenWindowsAutomatically(false);
+        settings.setBuiltInZoomControls(true);
+        settings.setPluginState(WebSettings.PluginState.ON);
+        settings.setDomStorageEnabled(true);
+        mwebView.loadUrl(MEDIACALLZ_GALLERY_URL);
+        mwebView.setId(5);
+        mwebView.setInitialScale(0);
+        mwebView.requestFocus();
+        mwebView.requestFocusFromTouch();
+        mwebView.setEnabled(true);
+
+        RelativeLayout layout = new RelativeLayout(this);
+        mProgressbar = new ProgressBar(getApplicationContext(),null,android.R.attr.progressBarStyleLarge);
+        mProgressbar.setIndeterminate(true);
+        mProgressbar.setVisibility(View.VISIBLE);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(400,400);
+        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+
+        mprogressTextView = new TextView(getApplicationContext());
+        RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams(400,400);
+        params1.addRule(RelativeLayout.CENTER_IN_PARENT);
+        params1.addRule(RelativeLayout.BELOW, mProgressbar.getId());
+        params1.setMargins(0,300,0,300);
+        mprogressTextView.setVisibility(View.VISIBLE);
+
+        layout.addView(mProgressbar, params);
+        layout.addView(mprogressTextView, params1);
+        layout.addView(mwebView);
+
+
+        setContentView(layout);
+    }
+
+    public class ChildBrowserClient extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+
+
+            boolean value = true;
+            String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+            if (extension != null) {
+                MimeTypeMap mime = MimeTypeMap.getSingleton();
+                String mimeType = mime.getMimeTypeFromExtension(extension);
+            Log.i(TAG, "extension: " +extension+ " mimetype: " + mimeType);
+                if (mimeType != null) {
+                    if (Arrays.asList(FileManager.imageFormats).contains(extension) ||
+                            Arrays.asList(FileManager.videoFormats).contains(extension) ||
+                            Arrays.asList(FileManager.audioFormats).contains(extension)) {
+
+                       final DownloadManager mdDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                        DownloadManager.Request request = new DownloadManager.Request(
+                                Uri.parse(url));
+
+                        final File destinationFile = new File(
+                                Constants.HISTORY_FOLDER,System.currentTimeMillis() + "." +extension );
+                        request.setDescription("MediaCallz Downloading...");
+                        request.allowScanningByMediaScanner();
+                        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                        request.setDestinationUri(Uri.fromFile(destinationFile));
+                        final long downloadId  = mdDownloadManager.enqueue(request);
+
+                        new Thread(new Runnable() {
+
+                            @Override
+                            public void run() {
+
+                                boolean downloading = true;
+
+                                while (downloading) {
+
+                                    DownloadManager.Query q = new DownloadManager.Query();
+                                    q.setFilterById(downloadId);
+
+                                    Cursor cursor = mdDownloadManager.query(q);
+                                    cursor.moveToFirst();
+                                    int bytes_downloaded = cursor.getInt(cursor
+                                            .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                                    int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+
+                                    if (bytes_total > FileManager.MAX_FILE_SIZE)
+                                    {
+                                        UI_Utils.callToast("File Size is too large : " + humanReadableByteCount(Long.valueOf(bytes_total),true) + " Max Allowed: " +humanReadableByteCount(Long.valueOf(FileManager.MAX_FILE_SIZE),true), Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+                                        disableProgressBar();
+
+
+                                        break;
+                                    }
+
+                                    if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
+                                        downloading = false;
+                                    }
+
+                                    final int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
+
+
+                                    runOnUiThread(new Runnable() {
+
+                                        @Override
+                                        public void run() {
+
+                                            mwebView.setVisibility(View.INVISIBLE);
+                                            mProgressbar.setProgress((int) dl_progress);
+                                            mProgressbar.setVisibility(View.VISIBLE);
+                                            mProgressbar.bringToFront();
+                                            mprogressTextView.setText("  " + String.valueOf(dl_progress) + "% / 100%");
+                                            mprogressTextView.setTextSize(10);
+                                            mprogressTextView.setTextColor(Color.BLACK);
+                                            mprogressTextView.setVisibility(View.VISIBLE);
+                                            mprogressTextView.bringToFront();
+
+                                        }
+                                    });
+
+                                    if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL)
+                                    {
+
+                                        try {
+                                            Thread.sleep(500);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+
+
+                                        uploadDownloadedFile(destinationFile, SMTypeCode);
+                                    }
+
+                                    Log.d(TAG, statusMessage(cursor));
+                                    cursor.close();
+                                }
+
+                            }
+                        }).start();
+
+
+                        Log.i(TAG, "destinationfiles: " + Constants.HISTORY_FOLDER + String.valueOf(System.currentTimeMillis() + "." + extension));
+
+                        value = false;
+                    }
+                }
+                if (value) {
+                    view.loadUrl(url);
+                }
+            }
+            return value;
+        }
+    }
+
+    public static String humanReadableByteCount(long bytes, boolean si) {
+        int unit = si ? 1000 : 1024;
+        if (bytes < unit) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
+
+    private String statusMessage(Cursor c) {
+        String msg = "???";
+
+        switch (c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
+            case DownloadManager.STATUS_FAILED:
+                msg = "Download failed!";
+                disableProgressBar();
+                break;
+
+            case DownloadManager.STATUS_PAUSED:
+                msg = "Download paused!";
+                disableProgressBar();
+                break;
+
+            case DownloadManager.STATUS_PENDING:
+                msg = "Download pending!";
+                disableProgressBar();
+                break;
+
+            case DownloadManager.STATUS_RUNNING:
+                msg = "Download in progress!";
+                break;
+
+            case DownloadManager.STATUS_SUCCESSFUL:
+                msg = "Download complete!";
+                disableProgressBar();
+                break;
+
+            default:
+                msg = "Download is nowhere in sight";
+                break;
+        }
+
+        return (msg);
+    }
+
+    private void uploadDownloadedFile(File downloadedFile, int SMTypeCode) {
+
+        FileManager fm;
+        Intent resultIntent = new Intent();
+        Log.i(TAG,"extractAndReturnFile");
+
+        try {
+            checkDestinationNumber();
+
+
+            if (downloadedFile.exists()) {
+               String path = downloadedFile.getAbsolutePath();
+                fm = new FileManager(path);
+                Log.i(TAG, "[File selected]: " + path + ". [File Size]: " + FileManager.getFileSizeFormat(fm.getFileSize()));
+
+                Log.i(TAG, "TypeCode when uploading: " + String.valueOf(SMTypeCode));
+
+                if (ActivityRequestCodes.SELECT_CALLER_MEDIA == SMTypeCode)
+                    resultIntent.putExtra(RESULT_SPECIAL_MEDIA_TYPE, SpecialMediaType.CALLER_MEDIA);
+                else
+                    resultIntent.putExtra(RESULT_SPECIAL_MEDIA_TYPE, SpecialMediaType.PROFILE_MEDIA);
+
+
+
+
+                resultIntent.putExtra(RESULT_FILE, fm);
+            }
+
+            Log.i(TAG,"End extractAndReturnFile");
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            Log.e(TAG, getResources().getString(R.string.file_invalid));
+            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
+
+        } catch (FileExceedsMaxSizeException e) {
+
+            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
+                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+            Log.e(TAG, errMsg);
+            resultIntent.putExtra(RESULT_ERR_MSG, errMsg);
+
+        } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
+            e.printStackTrace();
+            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
+
+        } catch (InvalidDestinationNumberException e) {
+            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.destnumber_invalid));
+        }
+
+        if (getParent() == null) {
+            setResult(Activity.RESULT_OK, resultIntent);
+        } else {
+            getParent().setResult(Activity.RESULT_OK, resultIntent);
+        }
+        SelectMediaActivity.this.finish();
+
+
+    }
+
+    private void disableProgressBar() {
+
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                mProgressbar.setVisibility(View.INVISIBLE);
+                mprogressTextView.setVisibility(View.INVISIBLE);
+
+                mwebView.setVisibility(View.VISIBLE);
+
+            }
+        });
     }
 
     private void openVideoAndImageMediapath(int code) {
