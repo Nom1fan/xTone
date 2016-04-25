@@ -1,34 +1,31 @@
-package MessagesToServer;
+package actions;
 
-import java.io.IOException;
+import java.util.Map;
 
 import DataObjects.CallRecord;
+import DataObjects.DataKeys;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import MessagesToClient.MessageTriggerEventOnly;
+import MessagesToServer.ActionType;
 import ServerObjects.CommHistoryAccess;
 
 /**
- * Created by Mor on 08/03/2016.
+ * Created by Mor on 23/04/2016.
  */
-public class MessageInsertMediaCallRecord extends MessageToServer {
+public class ActionInsertMediaCallRecord extends Action {
 
     private CallRecord _callRecord;
 
-    public MessageInsertMediaCallRecord(String messageInitiaterId, CallRecord callRecord) {
-        super(messageInitiaterId);
-        this._callRecord = callRecord;
+    public ActionInsertMediaCallRecord() {
+        super(ActionType.INSERT_MEDIA_CALL_RECORD);
     }
 
     @Override
-    public boolean doServerAction() throws IOException, ClassNotFoundException {
+    public void doAction(Map data) {
 
-        initLogger();
-
+        _callRecord = (CallRecord) data.get(DataKeys.CALL_RECORD);
         CommHistoryAccess.instance(_dal).insertMediaCallRecord(_callRecord);
-
         replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.NO_ACTION_REQUIRED, null, null)));
-
-        return false;
     }
 }

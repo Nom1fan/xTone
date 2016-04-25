@@ -63,7 +63,6 @@ import com.services.IncomingService;
 import com.services.LogicServerProxyService;
 import com.services.OutgoingService;
 import com.services.PreviewService;
-import com.services.StorageServerProxyService;
 import com.ui.dialogs.ClearMediaDialog;
 import com.ui.dialogs.InviteDialog;
 import com.ui.dialogs.MandatoryUpdateDialog;
@@ -82,13 +81,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import ClientObjects.ConnectionToServer;
+import ClientObjects.IServerProxy;
 import DataObjects.AppMetaRecord;
+import DataObjects.DataKeys;
 import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
-import DataObjects.TransferDetails;
 import EventObjects.Event;
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -96,7 +98,9 @@ import Exceptions.FileDoesNotExistException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
-import MessagesToServer.MessageUploadFile;
+import MessagesToClient.MessageToClient;
+import MessagesToServer.ActionType;
+import MessagesToServer.GenericMessageToServer;
 import utils.PhoneNumberUtils;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
@@ -135,6 +139,26 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private boolean _profileHasRingtone = false;
     private boolean _callerHasRingtone = false;
     private ProgressDialog _progDialog;
+    //endregion
+
+    //region Handlers
+    private Handler _compressHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Log.i(TAG, "Handler got message:" + msg.what);
+            if (_progDialog != null) {
+                _progDialog.dismiss();
+
+                // Stopping the transcoding native
+                if (msg.what == FileCompressorUtil.STOP_TRANSCODING_MSG) {
+                    Log.i(TAG, "Got cancel message, calling fexit");
+                    _vk.fExit(getApplicationContext());
+
+
+                }
+            }
+        }
+    };
     //endregion
 
     //region Activity methods (onCreate(), onPause(), ...)
@@ -257,7 +281,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         super.onNewIntent(intent);
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -272,31 +295,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                                 Snackbar.LENGTH_INDEFINITE,
                                 data.getStringExtra(SelectMediaActivity.RESULT_ERR_MSG));
                         writeInfoSnackBar(snackbarData);
-                    }
-                    else
-                    {
+                    } else {
                         _specialMediaType = (SpecialMediaType) data.getSerializableExtra(SelectMediaActivity.RESULT_SPECIAL_MEDIA_TYPE);
                         FileManager fm = (FileManager) data.getSerializableExtra(SelectMediaActivity.RESULT_FILE);
 
-                        if(FileCompressorUtil.isCompressionNeeded(fm)) {
+                        if (FileCompressorUtil.isCompressionNeeded(fm)) {
                             TrimTask trimTask = new TrimTask(fm);
                             trimTask.execute();
-                        }
-                        else
-                        {
+                        } else {
                             _fileForUpload = fm;
-                            Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
-                            i.setAction(StorageServerProxyService.ACTION_UPLOAD);
-                            i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);
-                            i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, _specialMediaType);
-                            i.putExtra(StorageServerProxyService.FILE_TO_UPLOAD, _fileForUpload);
-                            startService(i);
+                            executeUploadTask();
                         }
                     }
                 }
 
-            }
-            else if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
+            } else if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
                 try {
                     if (data != null) {
                         Uri uri = data.getData();
@@ -326,6 +339,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
         return super.onKeyDown(keyCode, e);
     }
+    //endregion (on
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -337,7 +351,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         return true;
     }
-    //endregion (on
 
     //region Assisting methods (onClick(), eventReceived(), ...)
     private void startLoginActivityIfLoggedOut() {
@@ -374,6 +387,27 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         startService(showPreview);
 
 
+    }
+
+    private void executeUploadTask() {
+
+        HashMap<DataKeys, Object> data = new HashMap();
+        String myId = Constants.MY_ID(getApplicationContext());
+        data.put(DataKeys.SOURCE_ID, myId);
+        data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
+        data.put(DataKeys.DESTINATION_ID, _destPhoneNumber);
+        data.put(DataKeys.DESTINATION_CONTACT_NAME, _destName);
+        data.put(DataKeys.MANAGED_FILE, _fileForUpload);
+        data.put(DataKeys.MD5, _fileForUpload.getMd5());
+        data.put(DataKeys.EXTENSION, _fileForUpload.getFileExtension());
+        data.put(DataKeys.FILE_PATH_ON_SRC_SD, _fileForUpload.getFileFullPath());
+        data.put(DataKeys.FILE_SIZE, _fileForUpload.getFileSize());
+        data.put(DataKeys.FILE_TYPE, _fileForUpload.getFileType());
+        data.put(DataKeys.SPECIAL_MEDIA_TYPE, _specialMediaType);
+        data.put(DataKeys.SOURCE_WITH_EXTENSION, myId + "." + _fileForUpload.getFileExtension());
+
+        UploadTask uploadTask = new UploadTask(data);
+        uploadTask.execute();
     }
 
     private void selectMedia(int specialMediaType) {
@@ -440,20 +474,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 break;
 
             case COMPRESSION_COMPLETE:
-                Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
-                i.setAction(StorageServerProxyService.ACTION_UPLOAD);
-                i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);
-                i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, _specialMediaType);
-                i.putExtra(StorageServerProxyService.FILE_TO_UPLOAD, _fileForUpload);
-                startService(i);
+                executeUploadTask();
                 break;
 
-            case UPLOADING:
-                TransferDetails td = (TransferDetails) report.data();
-                ConnectionToServer conn  = StorageServerProxyService.getConn();
-                UploadTask uploadTask = new UploadTask(conn, td);
-                uploadTask.execute();
-                break;
+//            case UPLOADING:
+//
+//                break;
 
             case APP_RECORD_RECEIVED:
                 AppMetaRecord appMetaRecord = (AppMetaRecord) report.data();
@@ -463,7 +489,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 break;
 
             case USER_REGISTERED_FALSE:
-
                 InviteDialog inviteDialog = new InviteDialog();
                 inviteDialog.show(getFragmentManager(), TAG);
                 break;
@@ -600,7 +625,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                 @Override
                 public void onItemClick(AdapterView<?> av, View arg1, int index, long arg3) {
 
-                    String[] nameAndPhone = ((String) av.getItemAtPosition(index)).split("\\\n");
+                    String[] nameAndPhone = ((String) av.getItemAtPosition(index)).split("\\n");
                     String name = nameAndPhone[0];
                     String number = nameAndPhone[1];
                     String NumericNumber = PhoneNumberUtils.toValidLocalPhoneNumber(number);
@@ -700,11 +725,12 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
     private void hideSoftKeyboardForView(View view) {
 
         if (view != null) {
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
 
     }
+    //endregion
 
     private void initializeUI() {
 
@@ -730,7 +756,6 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         prepareSelectProfileMediaButton();
         prepareClearTextButton();
     }
-    //endregion
 
     //region UI States
     public void stateIdle() {
@@ -803,6 +828,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
 
         return AppStateManager.getAppState(getApplicationContext());
     }
+    //endregion
 
     private void syncUIwithAppState() {
 
@@ -829,7 +855,6 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                 break;
         }
     }
-    //endregion
 
     //region UI elements controls
     private void prepareMediaCallingTextView() {
@@ -969,8 +994,8 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         // Add Drawer Item to dataList
         List<DrawerItem> dataList = new ArrayList<>();
 
-     //   dataList.add(new DrawerItem(getResources().getString(R.string.media_management), R.drawable.mediaicon));
-        dataList.add(new DrawerItem("",  R.drawable.color_mc));
+        //   dataList.add(new DrawerItem(getResources().getString(R.string.media_management), R.drawable.mediaicon));
+        dataList.add(new DrawerItem("", R.drawable.color_mc));
         dataList.add(new DrawerItem(getResources().getString(R.string.who_can_mc_me), R.drawable.blackwhitelist));
 //        dataList.add(new DrawerItem("How To ?", R.drawable.questionmark));
 //        dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
@@ -988,9 +1013,9 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
     private void selectNavigationItem(int position) {
 
         switch (position) {
-           // case 0://Media Management
-             //   appSettings();
-          //      break;
+            // case 0://Media Management
+            //   appSettings();
+            //      break;
             case 1: // Who Can MC me
                 BlockMCContacts();
                 break;
@@ -1027,7 +1052,6 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         startActivity(intent);
     }
 
-
     private void openCallerMediaMenu() {
 
         ImageButton callerMedia = (ImageButton) findViewById(R.id.selectMediaBtn);
@@ -1049,7 +1073,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
 
                         break;
                     case R.id.clearcallermedia:
-                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.CALLER_MEDIA,_destPhoneNumber);
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.CALLER_MEDIA, _destPhoneNumber);
                         clearDialog.show(getFragmentManager(), TAG);
                         break;
 
@@ -1083,7 +1107,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                         break;
                     case R.id.clearprofilemedia:
 
-                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.PROFILE_MEDIA,_destPhoneNumber);
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.PROFILE_MEDIA, _destPhoneNumber);
                         clearDialog.show(getFragmentManager(), TAG);
 
                         break;
@@ -1238,12 +1262,6 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         _pBar.setVisibility(ProgressBar.GONE);
     }
 
-    private void enableProgressBar() {
-
-        if (_pBar != null)
-            _pBar.setVisibility(ProgressBar.VISIBLE);
-    }
-
     private void disableDestinationTextView() {
 
         _destTextView.setText("");
@@ -1357,10 +1375,10 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                     BitmapUtils.execBitMapWorkerTask(_defaultpic_enabled, fType, lastUploadedMediaPath, true);
                     _profileHasMedia = true;
                 } else // enabled but no uploaded media
-                   {
-                            BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, getApplicationContext(), getResources(), R.drawable.select_profile_media_enabled, true);
-                           _profileHasMedia = false;
-                     }
+                {
+                    BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, getApplicationContext(), getResources(), R.drawable.select_profile_media_enabled, true);
+                    _profileHasMedia = false;
+                }
             }
 
         } catch (FileInvalidFormatException |
@@ -1483,6 +1501,9 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         mandatoryUpdateDialog.show(getSupportFragmentManager(), TAG);
     }
 
+    //endregion
+    //endregion
+
     //TODO change this to campaign API push for all users in case of last supported version change
     private void getAppRecord() {
 
@@ -1491,14 +1512,12 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         startService(i);
     }
 
-    //endregion
-    //endregion
-
     //region ICallbackListener methods
     @Override
     public void doCallBackAction() {
 
     }
+    //endregion
 
     @Override
     public void doCallBackAction(final Object... params) {
@@ -1527,26 +1546,6 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
     }
     //endregion
 
-    //region Handlers
-    private Handler _compressHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            Log.i(TAG, "Handler got message:" + msg.what);
-            if (_progDialog != null) {
-                _progDialog.dismiss();
-
-                // Stopping the transcoding native
-                if (msg.what == FileCompressorUtil.STOP_TRANSCODING_MSG) {
-                    Log.i(TAG, "Got cancel message, calling fexit");
-                    _vk.fExit(getApplicationContext());
-
-
-                }
-            }
-        }
-    };
-    //endregion
-
     //region Private classes and AsyncTasks
     private class DrawerItemClickListener implements
             ListView.OnItemClickListener {
@@ -1558,19 +1557,22 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         }
     }
 
-
-    private class UploadTask extends AsyncTask<Void,Integer,Void> {
+    private class UploadTask extends AsyncTask<Void, Integer, Void> implements IServerProxy {
         private final String TAG = UploadTask.class.getSimpleName();
         private ConnectionToServer _connectionToServer;
-        private TransferDetails _td;
+        private HashMap _data;
         private ProgressDialog _progDialog;
         private UploadTask _taskInstance;
         private BufferedInputStream _bis;
+        private PowerManager.WakeLock _wakeLock;
 
-        public UploadTask(ConnectionToServer connectionToServer, TransferDetails td) {
+        public UploadTask(HashMap data) {
 
-            _connectionToServer = connectionToServer;
-            _td = td;
+            _connectionToServer = new ConnectionToServer(
+                    SharedConstants.STROAGE_SERVER_HOST,
+                    SharedConstants.STORAGE_SERVER_PORT,
+                    this);
+            _data = data;
             _taskInstance = this;
 
         }
@@ -1586,7 +1588,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
             _progDialog.setTitle(getResources().getString(R.string.uploading));
             _progDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             _progDialog.setProgress(0);
-            _progDialog.setMax((int)_td.getFileSize());
+            _progDialog.setMax((int)_fileForUpload.getFileSize());
             _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -1601,11 +1603,17 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         @Override
         protected Void doInBackground(Void... voids) {
 
-            FileManager managedFile = _td.get_managedFile();
-            MessageUploadFile msgUF = new MessageUploadFile(_td.getSourceId(),_td);
+            FileManager managedFile = (FileManager) _data.get(DataKeys.MANAGED_FILE);
+            GenericMessageToServer msgUF = new GenericMessageToServer(Constants.MY_ID(getApplicationContext()), _data, ActionType.UPLOAD_FILE);
 
             DataOutputStream dos;
             try {
+
+                PowerManager powerManager = (PowerManager) MainActivity.this.getSystemService(Activity.POWER_SERVICE);
+                _wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "UploadTask_Lock");
+                _wakeLock.acquire();
+
+                _connectionToServer.openConnection();
                 _connectionToServer.sendToServer(msgUF);
 
                 Log.i(TAG, "Initiating file data upload...");
@@ -1616,34 +1624,31 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                 _bis = new BufferedInputStream(fis);
 
                 byte[] buf = new byte[1024 * 8];
-                long fileSize = managedFile.getFileSize();
-                long bytesToRead = fileSize;
+                long bytesToRead = managedFile.getFileSize();
                 int bytesRead;
                 while (bytesToRead > 0 && (bytesRead = _bis.read(buf, 0, (int) Math.min(buf.length, bytesToRead))) != -1 && !isCancelled()) {
                     dos.write(buf, 0, bytesRead);
-                    //float percent = (float) ((fileSize - bytesToRead) / fileSize) * 100;
-                    publishProgress((int)bytesRead);
+                    publishProgress((int) bytesRead);
                     bytesToRead -= bytesRead;
                 }
 
                 try {
-                    Thread.sleep(1000); // Sleeping so in fast uploads the dialog won't appear and disappear too fast (link a blink)
+                    Thread.sleep(1000); // Sleeping so in fast uploads the dialog won't appear and disappear too fast (like a blink)
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                if(_progDialog!=null && _progDialog.isShowing()) {
+                if (_progDialog != null && _progDialog.isShowing()) {
                     _progDialog.dismiss();
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "Failed:" + e.getMessage());
                 BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG,
-                        new EventReport(EventType.STORAGE_ACTION_FAILURE, "Upload to " + _td.getDestinationId() + " failed:" + e.getMessage(), null));
+                        new EventReport(EventType.STORAGE_ACTION_FAILURE, null, null));
             } finally {
 
-                if(_bis!=null) {
+                if (_bis != null) {
                     try {
                         _bis.close();
                     } catch (IOException e) {
@@ -1651,8 +1656,10 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                     }
                 }
 
-                Log.i(TAG, "Deleting "+_td.getDestinationId()+"'s temp compressed folder after upload");
-                File tempCompressedDir = new File(Constants.TEMP_COMPRESSED_FOLDER +_td.getDestinationId());
+                _wakeLock.release();
+
+                Log.i(TAG, "Deleting " + _destPhoneNumber + "'s temp compressed folder after upload");
+                File tempCompressedDir = new File(Constants.TEMP_COMPRESSED_FOLDER + _destPhoneNumber);
 
                 String[] entries = tempCompressedDir.list();
                 for (String s : entries) {
@@ -1667,16 +1674,18 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         @Override
         protected void onCancelled() {
 
-            Intent i = new Intent(MainActivity.this, StorageServerProxyService.class);
-            i.setAction(StorageServerProxyService.ACTION_CANCEL);
-            startService(i);
-
-            if(_bis!=null) {
+            if (_bis != null) {
                 try {
                     _bis.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+
+            try {
+                _connectionToServer.closeConnection();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
             BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
@@ -1685,13 +1694,13 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         @Override
         protected void onProgressUpdate(Integer... progress) {
 
-            if(_progDialog!=null) {
+            if (_progDialog != null) {
                 _progDialog.incrementProgressBy(progress[0]);
             }
         }
 
         @Override
-        protected void onPostExecute(Void result)    {
+        protected void onPostExecute(Void result) {
 
             String msg = MainActivity.this.getResources().getString(R.string.upload_success);
             // Setting state
@@ -1704,13 +1713,42 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
             UI_Utils.showSnackBar(msg, color, sBarDuration, false, MainActivity.this);
         }
 
+        @Override
+        public void handleMessageFromServer(MessageToClient msg, ConnectionToServer connectionToServer) {
+
+            try {
+                EventReport eventReport = msg
+                        .doClientAction(connectionToServer);
+
+                if (eventReport.status() != EventType.NO_ACTION_REQUIRED)
+                    BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, eventReport);
+
+            } catch (Exception e) {
+                String errMsg = "Handling message from server failed. Reason:" + e.getMessage();
+                Log.i(TAG, errMsg);
+            } finally {
+
+                // Finished handling request-response transaction
+                try {
+                    connectionToServer.closeConnection();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        public void handleDisconnection(String errMsg) {
+
+            Log.e(TAG, errMsg);
+        }
     }
 
     private class CompressTask extends AsyncTask<Void, Integer, Void> {
 
+        private final String TAG = CompressTask.class.getSimpleName();
         private FileCompressorUtil _fileCompressor;
         private FileManager _baseFile;
-        private final String TAG = CompressTask.class.getSimpleName();
         private CompressTask _instance = this;
 
         public CompressTask(FileManager baseFile) {
@@ -1751,13 +1789,13 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                     Log.d(TAG, "Worker started");
 
                     _vk = new LoadJNI();
-                    PowerManager powerManager = (PowerManager)MainActivity.this.getSystemService(Activity.POWER_SERVICE);
+                    PowerManager powerManager = (PowerManager) MainActivity.this.getSystemService(Activity.POWER_SERVICE);
                     PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VK_LOCK");
 
                     _fileCompressor = new FileCompressorUtil(_vk, wakeLock);
                     _fileForUpload = _fileCompressor.compressFileIfNecessary(_baseFile, _destPhoneNumber, getApplicationContext());
                     _compressHandler.sendEmptyMessage(FileCompressorUtil.FINISHED_TRANSCODING_MSG);
-                    if(isCancelled()) {
+                    if (isCancelled()) {
                         BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
                         return;
                     }
@@ -1769,24 +1807,24 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
             // Progress update thread
             new Thread() {
                 ProgressCalculator pc = new ProgressCalculator(FileCompressorUtil.VK_LOG_PATH);
+
                 public void run() {
-                    Log.d(TAG,"Progress update started");
-                    int progress = -1;
+                    Log.d(TAG, "Progress update started");
+                    int progress;
                     try {
                         while (true) {
                             sleep(300);
                             progress = pc.calcProgress();
                             if (progress != 0 && progress < 100) {
                                 _progDialog.setProgress(progress);
-                            }
-                            else if (progress == 100) {
+                            } else if (progress == 100) {
                                 Log.i(TAG, "Progress is 100, exiting progress update thread");
                                 pc.initCalcParamsForNextInter();
                                 break;
                             }
                         }
 
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         Log.e(TAG, e.getMessage(), e);
                     }
                 }
@@ -1798,10 +1836,10 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
 
     private class TrimTask extends AsyncTask<Void, Integer, Void> {
 
-        private FileCompressorUtil _fileCompressor;
-        private FileManager _baseFile;
         private final String TAG = CompressTask.class.getSimpleName();
         TrimTask _instance = this;
+        private FileCompressorUtil _fileCompressor;
+        private FileManager _baseFile;
 
         public TrimTask(FileManager baseFile) {
 
@@ -1841,13 +1879,13 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                     Log.d(TAG, "Worker started");
 
                     _vk = new LoadJNI();
-                    PowerManager powerManager = (PowerManager)MainActivity.this.getSystemService(Activity.POWER_SERVICE);
+                    PowerManager powerManager = (PowerManager) MainActivity.this.getSystemService(Activity.POWER_SERVICE);
                     PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VK_LOCK");
 
                     _fileCompressor = new FileCompressorUtil(_vk, wakeLock);
                     _fileForUpload = _fileCompressor.trimFileIfNecessary(_baseFile, _destPhoneNumber, getApplicationContext());
                     _compressHandler.sendEmptyMessage(FileCompressorUtil.FINISHED_TRANSCODING_MSG);
-                    if(isCancelled()) {
+                    if (isCancelled()) {
                         BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
                         return;
                     }
@@ -1859,24 +1897,24 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
             // Progress update thread
             new Thread() {
                 ProgressCalculator pc = new ProgressCalculator(FileCompressorUtil.VK_LOG_PATH);
+
                 public void run() {
-                    Log.d(TAG,"Progress update started");
-                    int progress = -1;
+                    Log.d(TAG, "Progress update started");
+                    int progress;
                     try {
                         while (true) {
                             sleep(300);
                             progress = pc.calcProgress();
                             if (progress != 0 && progress < 100) {
                                 _progDialog.setProgress(progress);
-                            }
-                            else if (progress == 100) {
+                            } else if (progress == 100) {
                                 Log.i(TAG, "Progress is 100, exiting progress update thread");
                                 pc.initCalcParamsForNextInter();
                                 break;
                             }
                         }
 
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         Log.e(TAG, e.getMessage(), e);
                     }
                 }

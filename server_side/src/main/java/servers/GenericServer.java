@@ -9,9 +9,11 @@ import java.util.logging.Logger;
 
 import DataObjects.SharedConstants;
 import LogObjects.LogsManager;
-import MessagesToServer.MessageToServer;
+import MessagesToServer.GenericMessageToServer;
 import ServerObjects.AbstractServer;
 import ServerObjects.ConnectionToClient;
+import actions.Action;
+import actions.ActionFactory;
 import data_objects.ServerConstants;
 
 /**
@@ -61,15 +63,16 @@ public class GenericServer extends AbstractServer {
     //region AbstractServer hook methods
     @Override
     protected void handleMessageFromClient(Object oMsg, ConnectionToClient ctc) {
-        MessageToServer msg = (MessageToServer) oMsg;
+        GenericMessageToServer msg = (GenericMessageToServer) oMsg;
 
         try {
-            msg.set_clientConnection(ctc);
-            msg.set_dal(DalFactory.getCurrentDal());
-            msg.verifyUserRegistration();
-            boolean cont = msg.doServerAction();
-            if(!cont)
-                closeConnectionToClient(ctc);
+            Action action = ActionFactory.instance().getAction(msg.getActionType());
+            action.set_messageInitiaterId(msg.get_messageInitiaterId());
+            action.set_clientConnection(ctc);
+            action.set_dal(DalFactory.getCurrentDal());
+            action.verifyUserRegistration();
+            action.doAction(msg.getData());
+            closeConnectionToClient(ctc);
         }
 
         catch (Exception e) {

@@ -11,18 +11,16 @@ import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import ClientObjects.ConnectionToServer;
 import DataObjects.CallRecord;
+import DataObjects.DataKeys;
 import DataObjects.SharedConstants;
 import EventObjects.EventReport;
 import EventObjects.EventType;
-import MessagesToServer.MessageGetAppRecord;
-import MessagesToServer.MessageGetSmsCode;
-import MessagesToServer.MessageInsertMediaCallRecord;
-import MessagesToServer.MessageIsRegistered;
-import MessagesToServer.MessageRegister;
-import MessagesToServer.MessageUnregister;
+import MessagesToServer.ActionType;
+import MessagesToServer.GenericMessageToServer;
 
 
 /**
@@ -169,44 +167,70 @@ public class LogicServerProxyService extends AbstractServerProxy {
      * @param destinationId - The number of whom to check is logged-in
      */
     private void actionIsRegistered(ConnectionToServer connectionToServer, String destinationId) throws IOException {
-        MessageIsRegistered msgIsLogin = new MessageIsRegistered(Constants.MY_ID(getApplicationContext()), destinationId);
+
+        HashMap data = new HashMap();
+        data.put(DataKeys.DESTINATION_ID, destinationId);
+
+        GenericMessageToServer msgIsLogin = new GenericMessageToServer(Constants.MY_ID(getApplicationContext()), data, ActionType.IS_REGISTERED);
         connectionToServer.sendToServer(msgIsLogin);
     }
 
     private void actionGetSmsCode(ConnectionToServer connectionToServer, String localNumber, String interPhoneNumber) throws IOException {
 
-        connectionToServer.sendToServer(new MessageGetSmsCode(localNumber, interPhoneNumber));
+        HashMap data = new HashMap();
+        data.put(DataKeys.INTERNATIONAL_PHONE_NUMBER, interPhoneNumber);
+
+        connectionToServer.sendToServer(new GenericMessageToServer(localNumber, data, ActionType.GET_SMS_CODE));
     }
 
     private void actionGetAppRecord(ConnectionToServer connectionToServer) throws IOException {
 
         Log.i(TAG, "Initiating actionGetAppRecord sequence...");
-        connectionToServer.sendToServer(new MessageGetAppRecord(Constants.MY_ID(getApplicationContext())));
+        connectionToServer.sendToServer(new GenericMessageToServer(Constants.MY_ID(getApplicationContext()), ActionType.GET_APP_RECORD));
     }
 
     private void actionRegister(ConnectionToServer connectionToServer, int smsCode) throws IOException {
 
         Log.i(TAG, "Initiating actionRegister sequence...");
-        MessageRegister msgRegister = new MessageRegister(Constants.MY_ID(getApplicationContext()),
-                Constants.MY_BATCH_TOKEN(getApplicationContext()), smsCode);
+
+        HashMap data = new HashMap();
+        data.put(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(getApplicationContext()));
+        data.put(DataKeys.SMS_CODE, smsCode);
+
+        GenericMessageToServer msgRegister = new GenericMessageToServer(
+                Constants.MY_ID(getApplicationContext()),
+                data,
+                ActionType.REGISTER);
+
         Log.i(TAG, "Sending actionRegister message to server...");
+
         connectionToServer.sendToServer(msgRegister);
     }
 
     private void actionUnregister(ConnectionToServer connectionToServer) throws IOException {
 
         Log.i(TAG, "Initating actionUnregister sequence...");
-        MessageUnregister msgUnregister = new MessageUnregister(
+
+        HashMap data = new HashMap();
+        data.put(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(getApplicationContext()));
+
+        GenericMessageToServer msgUnregister = new GenericMessageToServer(
                 Constants.MY_ID(getApplicationContext()),
-                Constants.MY_BATCH_TOKEN(getApplicationContext()));
+                data,
+                ActionType.UNREGISTER);
+
         Log.i(TAG, "Sending actionUnregister message to server...");
+
         connectionToServer.sendToServer(msgUnregister);
     }
 
     private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, CallRecord callRecord) throws IOException {
 
         Log.i(TAG, "Initiating actionInsertMediaCallRecord sequence...");
-        MessageInsertMediaCallRecord msgInsertMCrecord = new MessageInsertMediaCallRecord(callRecord.get_sourceId(), callRecord);
+        HashMap data = new HashMap();
+        data.put(DataKeys.CALL_RECORD, callRecord);
+
+        GenericMessageToServer msgInsertMCrecord = new GenericMessageToServer(callRecord.get_sourceId(), data, ActionType.INSERT_MEDIA_CALL_RECORD);
         Log.i(TAG, "Sending actionInsertMediaCallRecord message to server...");
         connectionToServer.sendToServer(msgInsertMCrecord);
     }

@@ -77,17 +77,17 @@ public abstract class AbstractClient implements Runnable
     private Socket clientSocket;
 
     /**
-     * The stream to handle data going to the server.
+     * The stream to handle _data going to the server.
      */
     private ObjectOutputStream output;
 
     /**
-     * The stream to handle data from the server.
+     * The stream to handle _data from the server.
      */
     private ObjectInputStream input;
 
     /**
-     * The thread created to read data from the server.
+     * The thread created to read _data from the server.
      */
     private Thread clientReader;
 
@@ -137,14 +137,14 @@ public abstract class AbstractClient implements Runnable
         if(isConnected())
             return;
 
-        //Create the sockets and the data streams
+        //Create the sockets and the _data streams
         try
         {
             clientSocket= new Socket(host, port);
             output = new ObjectOutputStream(clientSocket.getOutputStream());
             input = new ObjectInputStream(clientSocket.getInputStream());
 
-            clientReader = new Thread(this);  //Create the data reader thread
+            clientReader = new Thread(this);  //Create the _data reader thread
             readyToStop = false;
             clientReader.start();  //Start the thread
         }
@@ -268,13 +268,13 @@ public abstract class AbstractClient implements Runnable
         // The message from the server
         Object msg;
 
-        // Loop waiting for data
+        // Loop waiting for _data
 
         try
         {
             while(!readyToStop)
             {
-                // Get data from Server and send it to the handler
+                // Get _data from Server and send it to the handler
                 // The thread waits indefinitely at the following
                 // statement until something is received from the server
 

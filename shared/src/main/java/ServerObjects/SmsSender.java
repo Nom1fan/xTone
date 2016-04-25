@@ -1,10 +1,11 @@
 package ServerObjects;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 
@@ -49,31 +50,37 @@ public abstract class SmsSender {
     }
 
     private static void sendSmsGET(String getData) throws Exception {
-        DefaultHttpClient httpClient = new DefaultHttpClient();
-        HttpResponse response;
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpResponse response;
         HttpEntity entity;
         String responseString = null;
         HttpGet httpGet = new HttpGet(getData);
         response = httpClient.execute(httpGet);
-        entity = response.getEntity();
-        if (entity != null) {
-            responseString = EntityUtils.toString(response.getEntity());
-        }
-        int statusCode = response.getStatusLine().getStatusCode();
-        if (statusCode != HttpStatus.SC_OK) {
-            String reason = response.getStatusLine().getReasonPhrase();
-            throw new Exception("SMS GET failed. [Status code]:" + statusCode + ". [Reason]:" + reason);
-        }
+        try {
+            entity = response.getEntity();
+            if (entity != null) {
+                responseString = EntityUtils.toString(response.getEntity());
+            }
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                String reason = response.getStatusLine().getReasonPhrase();
+                throw new Exception("SMS GET failed. [Status code]:" + statusCode + ". [Reason]:" + reason);
+            }
 
-        Document resXml = XmlUtils.loadXMLFromString(responseString);
-        String status = resXml.getElementsByTagName("status").item(0).getTextContent();
-        String messageId = resXml.getElementsByTagName("messageid").item(0).getTextContent();
+            Document resXml = XmlUtils.loadXMLFromString(responseString);
+            String status = resXml.getElementsByTagName("status").item(0).getTextContent();
+            String messageId = resXml.getElementsByTagName("messageid").item(0).getTextContent();
 
-        if(!status.equals("0")) {
-            System.out.println("SMS GET failed. [Response String]:" + responseString);
-            throw new Exception("SMS GET failed. [Status]:" + status + ". [Message Id]:" + messageId);
+            if (!status.equals("0")) {
+                System.out.println("SMS GET failed. [Response String]:" + responseString);
+                throw new Exception("SMS GET failed. [Status]:" + status + ". [Message Id]:" + messageId);
+            }
+
+            EntityUtils.consume(entity);
+            _logger.info("SMS GET succeeded. [Message Id]:" + messageId);
+        } finally {
+
+            response.close();
         }
-
-        _logger.info("SMS GET succeeded. [Message Id]:" + messageId);
     }
 }

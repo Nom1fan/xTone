@@ -4,7 +4,6 @@ import java.io.IOException;
 import ClientObjects.ConnectionToServer;
 import EventObjects.EventReport;
 import EventObjects.EventType;
-import MessagesToServer.MessageUnregister;
 
 /**
  * Created by Mor on 29/01/2016.

@@ -48,7 +48,7 @@ public abstract class ContactsUtils {
                 }
             }
         } else
-            throw new Exception("SELECT_CONTACT: data is null");
+            throw new Exception("SELECT_CONTACT: _data is null");
 
         return new Contact(name, number);
     }
@@ -64,18 +64,18 @@ public abstract class ContactsUtils {
             mBaseUri = (Uri) c.getField("CONTENT_FILTER_URI").get(mBaseUri);
             projection = new String[]{"display_name"};
         } catch (Exception e) {
-        } // Why are we obsorbing the exception?
+            e.printStackTrace();
+        }
 
         uri = Uri.withAppendedPath(mBaseUri, Uri.encode(phoneNumber));
         Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
 
         String contactName = "";
 
-        if (cursor.moveToFirst()) {
+        if (cursor != null && cursor.moveToFirst()) {
             contactName = cursor.getString(0);
+            cursor.close();
         }
-
-        cursor.close();
 
         if(contactName == null || contactName.equals(""))
             return phoneNumber;

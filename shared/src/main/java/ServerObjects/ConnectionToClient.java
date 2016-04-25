@@ -12,7 +12,7 @@ import java.util.*;
 /**
  * An instance of this class is created by the server when a client
  * connects. It accepts messages coming from the client and is
- * responsible for sending data to the client since the socket is
+ * responsible for sending _data to the client since the socket is
  * private to this class. The AbstractServer contains a set of
  * instances of this class and is responsible for adding and deleting
  * them.<p>
@@ -146,7 +146,7 @@ public class ConnectionToClient extends Thread
     }
 
     readyToStop = false;
-    start(); // Start the thread waits for data from the socket
+    start(); // Start the thread waits for _data from the socket
   }
 
 // INSTANCE METHODS *************************************************

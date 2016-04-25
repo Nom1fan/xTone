@@ -14,9 +14,11 @@ import com.utils.SharedPrefUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.util.HashMap;
 
+import DataObjects.DataKeys;
 import DataObjects.SharedConstants;
-import DataObjects.TransferDetails;
+import DataObjects.SpecialMediaType;
 import EventObjects.Event;
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -47,33 +49,31 @@ public class DownloadReceiver extends BroadcastReceiver {
         if (eventReport.status() == EventType.DOWNLOAD_SUCCESS) {
             Log.i(TAG, "In: DOWNLOAD_SUCCESS");
 
-            TransferDetails td = (TransferDetails) eventReport.data();
+            HashMap td = (HashMap) eventReport.data();
             preparePathsAndDirs(td);
 
             // copy new downloaded file to History Folder so it will show up in Gallery and don't make any duplicates with MD5 signature
             if(SharedPrefUtils.getBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ALWAYS_SAVE_MEDIA))
                  copyToHistoryForGalleryShow(context, td);
 
-            FileManager.FileType fType = td.getFileType();
-            String fFullName = td.getSourceWithExtension();
-            String source = td.getSourceId();
+            FileManager.FileType fType = FileManager.FileType.valueOf(td.get(DataKeys.FILE_TYPE).toString());
+            String fFullName = td.get(DataKeys.SOURCE_WITH_EXTENSION).toString();
+            String source = td.get(DataKeys.SOURCE_ID).toString();
+            String md5 = td.get(DataKeys.MD5).toString();
 
             switch (fType) {
                 case AUDIO:
-                    setNewRingTone(context, source, td.getMd5());
+                    setNewRingTone(context, source, md5);
                     deleteFilesIfNecessary(context, fFullName, fType, source);
                     break;
 
                 case VIDEO:
                 case IMAGE:
-                    setNewVisualMedia(context, source, td.getMd5());
+                    setNewVisualMedia(context, source, md5);
                     deleteFilesIfNecessary(context, fFullName, fType, source);
                     break;
             }
-
-
         }
-
     }
 
     /**
@@ -164,17 +164,21 @@ public class DownloadReceiver extends BroadcastReceiver {
         SharedPrefUtils.setString(context, _sharedPrefKeyForAudioMedia, _newFileFullPath, md5);
     }
 
-    private void preparePathsAndDirs(TransferDetails td) {
+    private void preparePathsAndDirs(HashMap td) {
+
+        String specialMediaType = td.get(DataKeys.SPECIAL_MEDIA_TYPE).toString();
+        String srcId = td.get(DataKeys.SOURCE_ID).toString();
+        String srcWithExtension = td.get(DataKeys.SOURCE_WITH_EXTENSION).toString();
 
         // Preparing for appropriate special media type
-        switch (td.getSpMediaType()) {
+        switch (SpecialMediaType.valueOf(specialMediaType)) {
             case CALLER_MEDIA:
-                _newFileDir = Constants.INCOMING_FOLDER + td.getSourceId();
+                _newFileDir = Constants.INCOMING_FOLDER + srcId;
                 _sharedPrefKeyForVisualMedia = SharedPrefUtils.CALLER_MEDIA_FILEPATH;
                 _sharedPrefKeyForAudioMedia = SharedPrefUtils.RINGTONE_FILEPATH;
                 break;
             case PROFILE_MEDIA:
-                _newFileDir = Constants.OUTGOING_FOLDER + td.getSourceId();
+                _newFileDir = Constants.OUTGOING_FOLDER + srcId;
                 _sharedPrefKeyForVisualMedia = SharedPrefUtils.PROFILE_MEDIA_FILEPATH;
                 _sharedPrefKeyForAudioMedia = SharedPrefUtils.FUNTONE_FILEPATH;
                 break;
@@ -183,24 +187,26 @@ public class DownloadReceiver extends BroadcastReceiver {
                 throw new UnsupportedOperationException("Invalid SpecialMediaType received");
         }
 
-        _newFileFullPath = _newFileDir + "/" + td.getSourceWithExtension();
+        _newFileFullPath = _newFileDir + "/" + srcWithExtension;
     }
 
-    private void copyToHistoryForGalleryShow(Context context, TransferDetails td) {
+    private void copyToHistoryForGalleryShow(Context context, HashMap td) {
 
         try {
 
             File downloadedFile = new File(_newFileFullPath);
-            String md5 = td.getMd5();
+            String extension = td.get(DataKeys.EXTENSION).toString();
+            String md5 = td.get(DataKeys.MD5).toString();
+            FileManager.FileType fileType = FileManager.FileType.valueOf(td.get(DataKeys.FILE_TYPE).toString());
 
-            String historyFileName = Constants.HISTORY_FOLDER + td.getFileType().toString() + "_" + md5 + "." + td.getExtension(); //give a unique name to the file and make sure there won't be any duplicates
+            String historyFileName = Constants.HISTORY_FOLDER + fileType + "_" + md5 + "." + extension; //give a unique name to the file and make sure there won't be any duplicates
             File copyToHistoryFile = new File(historyFileName);
 
             if (!copyToHistoryFile.exists()) // if the file exist don't do any duplicate
             {
                 FileUtils.copyFile(downloadedFile, copyToHistoryFile);
                 Log.i(TAG, "Creating a unique md5 file in the History Folder fileName:  " + copyToHistoryFile.getName());
-                if (td.getFileType() == FileManager.FileType.AUDIO) {
+                if (fileType == FileManager.FileType.AUDIO) {
                     ContentValues values = new ContentValues();
                     values.put(MediaStore.MediaColumns.DATA, copyToHistoryFile.getName());
                     values.put(MediaStore.MediaColumns.TITLE, copyToHistoryFile.getName());

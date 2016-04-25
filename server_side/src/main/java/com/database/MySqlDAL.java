@@ -10,14 +10,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import DalObjects.IDAL;
 import DataObjects.AppMetaRecord;
 import DataObjects.CallRecord;
+import DataObjects.DataKeys;
 import DataObjects.MediaTransferRecord;
 import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
-import DataObjects.TransferDetails;
 import DataObjects.UserRecord;
 import DataObjects.UserStatus;
 import FilesManager.FileManager;
@@ -290,9 +291,15 @@ public class MySqlDAL implements IDAL {
     }
 
     @Override
-    public int insertMediaTransferRecord(TransferDetails td) throws SQLException {
+    public int insertMediaTransferRecord(Map data) throws SQLException {
 
-        insertMediaFileRecord(td.getMd5(), td.getExtension(), (int) td.getFileSize(), COL_TRANSFER_COUNT);
+        FileManager managedFile = (FileManager) data.get(DataKeys.MANAGED_FILE);
+
+        insertMediaFileRecord(
+                data.get(DataKeys.MD5).toString(),
+                managedFile.getFileExtension(),
+                (int) managedFile.getFileSize(),
+                COL_TRANSFER_COUNT);
 
         StringBuilder query = new StringBuilder();
         query.
@@ -305,10 +312,10 @@ public class MySqlDAL implements IDAL {
                 append(COL_UID_DEST).
                 append(")").
                 append(" VALUES (").
-                append(quote(td.getSpMediaType().toString())).append(",").
-                append(quote(td.getMd5())).append(",").
-                append(quote(td.getSourceId())).append(",").
-                append(quote(td.getDestinationId())).
+                append(quote(data.get(DataKeys.SPECIAL_MEDIA_TYPE).toString())).append(",").
+                append(quote(data.get(DataKeys.MD5).toString())).append(",").
+                append(quote(data.get(DataKeys.SOURCE_ID).toString())).append(",").
+                append(quote(data.get(DataKeys.DESTINATION_ID).toString())).
                 append(")");
 
         return executeReturnGenKeyQuery(query.toString());

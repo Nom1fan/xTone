@@ -19,8 +19,10 @@ import com.utils.UI_Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
-import DataObjects.TransferDetails;
+import DataObjects.DataKeys;
+import DataObjects.SpecialMediaType;
 import EventObjects.Event;
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -149,29 +151,35 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
             case DESTINATION_DOWNLOAD_COMPLETE: {
                 Log.i(TAG, "In: DESTINATION_DOWNLOAD_COMPLETE");
-                // Preparing data for uploaded media thumbnail display
-                TransferDetails td = (TransferDetails) report.data();
-                LUT_Utils lut_utils = new LUT_Utils(td.getSpMediaType());
-                lut_utils.saveUploadedPerNumber(context, td.getDestinationId(), td.getFileType(), td.get_fullFilePathSrcSD());
+                // Preparing _data for uploaded media thumbnail display
+                Map data = (Map) report.data();
+                String destId = data.get(DataKeys.DESTINATION_ID).toString();
+                LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.valueOf(data.get(DataKeys.SPECIAL_MEDIA_TYPE).toString()));
+                lut_utils.saveUploadedPerNumber(
+                        context,
+                        destId,
+                        FileManager.FileType.valueOf(data.get(DataKeys.FILE_TYPE).toString()),
+                        data.get(DataKeys.FILE_PATH_ON_SRC_SD).toString());
 
                 // Setting parameters for snackbar message
                 msg = String.format(context.getResources().getString(R.string.destination_download_complete),
-                        ContactsUtils.getContactNameHtml(context, td.getDestinationId()));
+                        ContactsUtils.getContactNameHtml(context, destId));
                 color = Color.GREEN;
                 sBarDuration = Snackbar.LENGTH_LONG;
             }
                 break;
 
             case CLEAR_SUCCESS: {
-                // Preparing data for uploaded media thumbnail removal
-                TransferDetails td = (TransferDetails) report.data();
-                LUT_Utils lut_utils = new LUT_Utils(td.getSpMediaType());
-                lut_utils.removeUploadedMediaPerNumber(context, td.getDestinationId());
-                lut_utils.removeUploadedTonePerNumber(context, td.getDestinationId());
+                // Preparing _data for uploaded media thumbnail removal
+                Map data = (Map) report.data();
+                String destId = data.get(DataKeys.DESTINATION_ID).toString();
+                LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.valueOf(data.get(DataKeys.SPECIAL_MEDIA_TYPE).toString()));
+                lut_utils.removeUploadedMediaPerNumber(context, destId);
+                lut_utils.removeUploadedTonePerNumber(context, destId);
 
                 // Setting parameters for snackbar message
                 msg = String.format(context.getResources().getString(R.string.destination_media_cleared),
-                        ContactsUtils.getContactNameHtml(context, td.getDestinationId()));
+                        ContactsUtils.getContactNameHtml(context, destId));
                 color = Color.GREEN;
                 sBarDuration = Snackbar.LENGTH_LONG;
             }

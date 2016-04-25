@@ -5,30 +5,28 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
 import ClientObjects.ConnectionToServer;
+import DataObjects.DataKeys;
 import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
-import DataObjects.TransferDetails;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 
 public class MessageDownloadFile extends MessageToClient {
 
 	private static final long serialVersionUID = -5843761837634526608L;	
-	private TransferDetails _td;
+	private Map _data;
 	private String _fileName;	
 	private String _sourceId;
-	private String _myId;
-    private SpecialMediaType _specialMediaType;
 
-	public MessageDownloadFile(TransferDetails td) {
-						
-		_td = td;		
-		_fileName = _td.getSourceWithExtension();		
-		_sourceId = _td.getSourceId();
-		_myId = _td.getDestinationId();
-        _specialMediaType = _td.getSpMediaType();
+
+	public MessageDownloadFile(Map data) {
+
+		_data = data;
+		_fileName = (String) _data.get(DataKeys.SOURCE_WITH_EXTENSION);
+		_sourceId = (String) _data.get(DataKeys.SOURCE_ID);
 	}
 	
 	@Override
@@ -39,7 +37,7 @@ public class MessageDownloadFile extends MessageToClient {
 		  {
               File folderPath = null;
 
-              switch(_td.getSpMediaType())
+              switch(SpecialMediaType.valueOf(_data.get(DataKeys.SPECIAL_MEDIA_TYPE).toString()))
               {
                   case CALLER_MEDIA:
                       folderPath = new File(SharedConstants.INCOMING_FOLDER + _sourceId);
@@ -62,9 +60,9 @@ public class MessageDownloadFile extends MessageToClient {
 			  bos = new BufferedOutputStream(fos);
 			  DataInputStream dis = new DataInputStream(connectionToServer.getClientSocket().getInputStream());
 
-			  System.out.println("Reading data...");
+			  System.out.println("Reading _data...");
 			  byte[] buf = new byte[1024*8];
-			  long fileSize = _td.getFileSize();
+			  long fileSize = ((Double)_data.get(DataKeys.FILE_SIZE)).longValue();
 			  int bytesRead;
 			  while (fileSize > 0 && (bytesRead = dis.read(buf, 0, (int)Math.min(buf.length, fileSize))) != -1)
 			  {
@@ -76,21 +74,13 @@ public class MessageDownloadFile extends MessageToClient {
 				  throw new IOException("download was stopped abruptly");
 
 		  }
-		  catch(IOException e)
-		  {
-
-			e.printStackTrace();
-		  	String errMsg = "DOWNLOAD_FAILURE:" + (e.getMessage() != null ? e.getMessage() : "");
-
-			return new EventReport(EventType.DOWNLOAD_FAILURE,errMsg,_fileName);
-		  } finally {
+		  finally {
 			  if(bos!=null)
 			  	bos.close();
 		  }
 
-				
 		  String desc = "DOWNLOAD_SUCCESS. Filename:"+_fileName;
-		  return new EventReport(EventType.DOWNLOAD_SUCCESS,desc,_td);
+		  return new EventReport(EventType.DOWNLOAD_SUCCESS, desc, _data);
 	}
 
 }

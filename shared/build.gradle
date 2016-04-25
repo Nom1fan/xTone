@@ -19,6 +19,6 @@ task fatJarShared(type: Jar) {
 
 dependencies {
     compile files('lib/commons-io-2.4.jar')
-    compile 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
+    compile 'org.apache.httpcomponents:httpclient:4.5.2'
     compile 'com.google.code.gson:gson:2.3'
 }

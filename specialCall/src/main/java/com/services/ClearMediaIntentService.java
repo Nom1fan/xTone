@@ -9,9 +9,11 @@ import com.utils.SharedPrefUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
+import java.util.Map;
 
+import DataObjects.DataKeys;
 import DataObjects.SpecialMediaType;
-import DataObjects.TransferDetails;
 import FilesManager.FileManager;
 
 /**
@@ -39,9 +41,9 @@ public class ClearMediaIntentService extends IntentService {
         Log.i(TAG, "Handling intent");
         if(intent!=null) {
 
-            TransferDetails td = (TransferDetails) intent.getSerializableExtra(TRANSFER_DETAILS);
-            SpecialMediaType specialMediaType = td.getSpMediaType();
-            String phoneNumber = td.getSourceId();
+            Map data = (Map) intent.getSerializableExtra(TRANSFER_DETAILS);
+            SpecialMediaType specialMediaType = SpecialMediaType.valueOf(data.get(DataKeys.SPECIAL_MEDIA_TYPE).toString());
+            String phoneNumber = data.get(DataKeys.SOURCE_ID).toString();
 
             try {
                 String folderPath;
@@ -75,7 +77,7 @@ public class ClearMediaIntentService extends IntentService {
                 // Notifying clear requester that media was successfully cleared
                 Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
                 i.setAction(StorageServerProxyService.ACTION_NOTIFY_MEDIA_CLEARED);
-                i.putExtra(StorageServerProxyService.TRANSFER_DETAILS, td);
+                i.putExtra(StorageServerProxyService.TRANSFER_DETAILS, (Serializable) data);
                 startService(i);
 
             } catch (FileNotFoundException e) {

@@ -1,0 +1,26 @@
+package DataObjects;
+
+/**
+ * Created by Mor on 23/04/2016.
+ */
+public enum DataKeys {
+
+    COMM_ID,
+    DESTINATION_CONTACT_NAME,
+    EXTENSION,
+    FILE_SIZE,
+    FILE_TYPE,
+    FILE_PATH_ON_SERVER,
+    FILE_PATH_ON_SRC_SD,
+    MANAGED_FILE,
+    SPECIAL_MEDIA_TYPE,
+    MD5,
+    SOURCE_ID,
+    DESTINATION_ID,
+    FILE_PATH,
+    INTERNATIONAL_PHONE_NUMBER,
+    CALL_RECORD,
+    SOURCE_LOCALE,
+    SMS_CODE,
+    PUSH_TOKEN, SOURCE_WITH_EXTENSION,
+}

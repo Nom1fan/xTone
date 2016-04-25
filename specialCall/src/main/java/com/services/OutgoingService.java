@@ -233,7 +233,7 @@ public class OutgoingService extends AbstractStandOutService {
     //region Private classes and listeners
     /**
      * Listener for outgoing call state
-     * Responsible for setting and starting special data on call and restoring previous data once call is terminated
+     * Responsible for setting and starting special _data on call and restoring previous _data once call is terminated
      */
     private class OutgoingCallReceiver extends BroadcastReceiver {
 

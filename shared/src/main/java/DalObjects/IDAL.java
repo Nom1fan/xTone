@@ -2,11 +2,11 @@ package DalObjects;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import DataObjects.AppMetaRecord;
 import DataObjects.CallRecord;
 import DataObjects.MediaTransferRecord;
-import DataObjects.TransferDetails;
 import DataObjects.UserRecord;
 
 /**
@@ -80,7 +80,7 @@ public interface IDAL {
     void registerUser(String uid, String token) throws SQLException;
     void unregisterUser(String uid, String token) throws SQLException;
     void reRegisterUser(String uid, String token) throws SQLException;
-    int insertMediaTransferRecord(TransferDetails td) throws SQLException;
+    int insertMediaTransferRecord(Map data) throws SQLException;
     void insertMediaCallRecord(CallRecord callRecord) throws SQLException;
     void insertMediaFileRecord(String md5, String extension, int size, String countColToInc) throws SQLException;
     UserRecord getUserRecord(String uid) throws SQLException;

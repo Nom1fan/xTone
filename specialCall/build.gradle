@@ -56,7 +56,7 @@ dependencies {
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
     compile 'com.android.support:design:23.1.1'
     compile 'com.google.android.gms:play-services-gcm:7.5.0'
-    compile 'com.batch.android:batch-sdk:1.5.+'
+    compile 'com.batch.android:batch-sdk:1.5.3'
     compile 'com.github.amlcurran.showcaseview:library:5.4.1'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.15'
 

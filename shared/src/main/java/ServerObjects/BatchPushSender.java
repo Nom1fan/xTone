@@ -3,11 +3,13 @@ package ServerObjects;
 import com.google.gson.Gson;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import java.util.logging.Logger;
@@ -15,6 +17,7 @@ import java.util.logging.Logger;
 import DataObjects.PushEventKeys;
 import DataObjects.SharedConstants;
 import LogObjects.LogsManager;
+
 
 /**
  * Created by Mor on 15/09/2015.
@@ -35,12 +38,12 @@ public abstract class BatchPushSender {
     }
 
     /**
-     * Sending a push containing title, message and data
+     * Sending a push containing title, message and _data
      * @param deviceToken The device token of the push will be sent to
      * @param pushEventAction The push event action. Valid values are in PushEventKeys class.
      * @param title The title of the push notification
      * @param msg The body of the push notification
-     * @param pushEventData The data payload to add to the push
+     * @param pushEventData The _data payload to add to the push
      * @see PushEventKeys
      * @return
      */
@@ -70,10 +73,10 @@ public abstract class BatchPushSender {
     }
 
     /**
-     * Sending a push containing only data
+     * Sending a push containing only _data
      * @param deviceToken The device token of the push will be sent to
      * @param pushEventAction The push event action. Valid values are in PushEventKeys class.
-     * @param pushEventData The data payload to add to the push
+     * @param pushEventData The _data payload to add to the push
      * @see PushEventKeys
      * @return
      */
@@ -136,27 +139,31 @@ public abstract class BatchPushSender {
 
 
     private static void pushData(String postData) throws Exception {
-        DefaultHttpClient httpClient = new DefaultHttpClient();
-        HttpResponse response = null;
-        HttpEntity entity = null;
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpResponse response;
+        HttpEntity entity;
         String responseString = null;
         HttpPost httpPost = new HttpPost(PUSH_URL);
         httpPost.addHeader("X-Authorization", REST_API_KEY);
         httpPost.addHeader("Content-Type", "application/json");
-        StringEntity reqEntity = new StringEntity(postData);
+        StringEntity reqEntity = new StringEntity(postData, ContentType.APPLICATION_JSON);
         httpPost.setEntity(reqEntity);
         response = httpClient.execute(httpPost);
-        entity = response.getEntity();
-        if (entity != null) {
-            responseString = EntityUtils.toString(response.getEntity());
-        }
-        int statusCode = response.getStatusLine().getStatusCode();
-        if (statusCode != HttpStatus.SC_CREATED) {
-            String reason = response.getStatusLine().getReasonPhrase();
-            throw new Exception("Push POST failed. Status code:" + statusCode + ". Reason:" + reason);
-        }
+        try {
+            entity = response.getEntity();
+            if (entity != null) {
+                responseString = EntityUtils.toString(response.getEntity());
+            }
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_CREATED) {
+                String reason = response.getStatusLine().getReasonPhrase();
+                throw new Exception("Push POST failed. Status code:" + statusCode + ". Reason:" + reason);
+            }
+            _logger.info("Push response:" + responseString);
 
-        _logger.info("Push response:" + responseString);
+        } finally {
+            response.close();
+        }
     }
 
     private static String toJson(Object data) {

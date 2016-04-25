@@ -38,7 +38,7 @@ import android.widget.TextView;
  * An adapter class which has the exact same behavior as the
  * {@link ArrayAdapter} with the sole difference that it allows to be filtered
  * using the exact filter constraint and not use spaces as a word delimiter for
- * the data item.
+ * the _data item.
  */
 public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
         Filterable {
@@ -46,11 +46,11 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
      * Lock used to modify the content of {@link #mObjects}. Any write operation
      * performed on the array should be synchronized on this lock. This lock is
      * also used by the filter (see {@link #getFilter()} to make a synchronized
-     * copy of the original array of data.
+     * copy of the original array of _data.
      */
     private final Object mLock = new Object();
     /**
-     * Contains the list of objects that represent the data of this
+     * Contains the list of objects that represent the _data of this
      * ArrayAdapter. The content of this list is referred to as "the array" in
      * the documentation.
      */
@@ -178,7 +178,7 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
      * {@link android.content.res.Resources#getTextArray(int)}.
      *
      * @param context        The application's environment.
-     * @param textArrayResId The identifier of the array to use as the data source.
+     * @param textArrayResId The identifier of the array to use as the _data source.
      * @param textViewResId  The identifier of the layout used to create views.
      * @return An ArrayAdapter<CharSequence>.
      */

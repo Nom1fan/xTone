@@ -36,14 +36,10 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     protected String TAG;
     protected PowerManager.WakeLock wakeLock;
     protected ConnectivityManager connManager;
-    protected static ArrayList<ConnectionToServer> connections = new ArrayList<>();
+    protected ArrayList<ConnectionToServer> connections = new ArrayList<>();
 
     public AbstractServerProxy(String tag) {
         TAG = tag;
-    }
-
-    public static ConnectionToServer getConn() {
-        return connections.get(connections.size()-1);
     }
 
     //region Service methods
@@ -95,16 +91,17 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
             if (eventReport.status() != EventType.NO_ACTION_REQUIRED)
                 BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, eventReport);
 
-            // Finished handling request-response transaction
-            connectionToServer.closeConnection();
-            connections.remove(connectionToServer);
             setMidAction(false);
 
         } catch (Exception e) {
             String errMsg = "Handling message from server failed. Reason:" + e.getMessage();
-            Log.i(TAG, errMsg);
-            //handleDisconnection(errMsg);
+            Log.e(TAG, errMsg, e);
         } finally {
+            try {
+                // Finished handling request-response transaction
+                connectionToServer.closeConnection();
+            } catch(Exception ignored) { }
+            connections.remove(connectionToServer);
             releaseLockIfNecessary();
         }
     }

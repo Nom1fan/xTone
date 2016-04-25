@@ -2,16 +2,12 @@ package ServerObjects;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Logger;
+import java.util.Map;
 
 import DalObjects.DALAccesible;
 import DalObjects.IDAL;
 import DataObjects.CallRecord;
 import DataObjects.MediaTransferRecord;
-import DataObjects.SpecialMediaType;
-import DataObjects.TransferDetails;
-import FilesManager.FileManager;
-import LogObjects.LogsManager;
 
 /**
  * Created by Mor on 26/12/2015.
@@ -27,15 +23,20 @@ public class CommHistoryAccess extends DALAccesible {
         return new CommHistoryAccess(idal);
     }
 
-    public int insertMediaTransferRecord(TransferDetails td) {
+    public int insertMediaTransferRecord(Map data) {
 
         try {
 
-            int commId = _dal.insertMediaTransferRecord(td);
+            int commId = _dal.insertMediaTransferRecord(data);
 
-            _logger.info("insertMediaTransferRecord success: " + td);
+            _logger.info("insertMediaTransferRecord success: " + data);
             return commId;
         } catch (SQLException e) {
+            e.printStackTrace();
+            _logger.severe("insertMediaTransferRecord failure. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+            return -1;
+        }
+        catch(Exception e) {
             e.printStackTrace();
             _logger.severe("insertMediaTransferRecord failure. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
             return -1;

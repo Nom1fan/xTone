@@ -1,32 +1,32 @@
-package MessagesToServer;
+package actions;
 
-import java.io.IOException;
+import java.util.Map;
 
+import DataObjects.DataKeys;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import MessagesToClient.MessageTriggerEventOnly;
+import MessagesToServer.ActionType;
 import ServerObjects.SmsSender;
 import ServerObjects.SmsVerificationAccess;
 import utils.RandUtils;
 
 /**
- * Created by Mor on 28/03/2016.
+ * Created by Mor on 23/04/2016.
  */
-public class MessageGetSmsCode extends MessageToServer {
+public class ActionGetSmsCode extends Action {
 
-    private static final int MIN = 1000;
-    private static final int MAX = 9999;
-    private String _internationePhoneNumber;
+    public static final int MIN = 1000;
+    public static final int MAX = 9999;
 
-    public MessageGetSmsCode(String messageInitiaterId, String internationalPhoneNumber) {
-        super(messageInitiaterId);
-        _internationePhoneNumber = internationalPhoneNumber;
+    public ActionGetSmsCode() {
+        super(ActionType.GET_SMS_CODE);
     }
 
     @Override
-    public boolean doServerAction() throws IOException, ClassNotFoundException {
+    public void doAction(Map data) {
 
-        initLogger();
+        String _internationePhoneNumber = (String) data.get(DataKeys.INTERNATIONAL_PHONE_NUMBER);
 
         _logger.info("Generating SMS code for [User]:" + _internationePhoneNumber);
 
@@ -40,7 +40,5 @@ public class MessageGetSmsCode extends MessageToServer {
             replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.NO_ACTION_REQUIRED, null, null)));
         else
             replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.GET_SMS_CODE_FAILED, null, null)));
-
-        return false;
     }
 }

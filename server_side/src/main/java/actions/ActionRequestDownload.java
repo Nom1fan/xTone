@@ -1,0 +1,141 @@
+package actions;
+
+import java.io.BufferedInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Map;
+
+import DalObjects.IDAL;
+import DataObjects.DataKeys;
+import DataObjects.PushEventKeys;
+import DataObjects.SpecialMediaType;
+import EventObjects.EventReport;
+import EventObjects.EventType;
+import Exceptions.DownloadRequestFailedException;
+import Exceptions.FileDoesNotExistException;
+import Exceptions.FileExceedsMaxSizeException;
+import Exceptions.FileInvalidFormatException;
+import Exceptions.FileMissingExtensionException;
+import FilesManager.FileManager;
+import MessagesToClient.MessageDownloadFile;
+import MessagesToClient.MessageTriggerEventOnly;
+import MessagesToServer.ActionType;
+import ServerObjects.BatchPushSender;
+import ServerObjects.CommHistoryAccess;
+import ServerObjects.ILangStrings;
+import ServerObjects.UsersDataAccess;
+import data_objects.StringsFactory;
+
+/**
+ * Created by Mor on 23/04/2016.
+ */
+public class ActionRequestDownload extends Action {
+
+    private ILangStrings strings = StringsFactory.instance().getStrings(ILangStrings.ENGLISH);
+    private String _sourceId;
+    private String _destId;
+    private String _destContact;
+    private String _sourceLocale;
+    private String _filePathOnServer;
+    private SpecialMediaType _specialMediaType;
+    private int _commId;
+
+    public ActionRequestDownload() {
+        super(ActionType.REQUEST_DOWNLOAD);
+    }
+
+    @Override
+    public void doAction(Map data) throws IOException {
+
+        _sourceId = (String) data.get(DataKeys.SOURCE_ID);
+        _destId = (String) data.get(DataKeys.DESTINATION_ID);
+        _destContact = (String) data.get(DataKeys.DESTINATION_CONTACT_NAME);
+        _sourceLocale = (String) data.get(DataKeys.SOURCE_LOCALE);
+        _filePathOnServer = (String) data.get(DataKeys.FILE_PATH_ON_SERVER);
+        _specialMediaType = SpecialMediaType.valueOf((String)data.get(DataKeys.SPECIAL_MEDIA_TYPE));
+        _commId = ((Double)data.get(DataKeys.COMM_ID)).intValue();
+
+        if(_sourceLocale!=null)
+            strings = StringsFactory.instance().getStrings(_sourceLocale);
+
+        _logger.info(_messageInitiaterId + " is requesting download from:" + _sourceId + ". File path on server:" + _filePathOnServer  + "...");
+
+        BufferedInputStream bis = null;
+        try {
+            FileManager fileForDownload = new FileManager(_filePathOnServer);
+            MessageDownloadFile msgDF = new MessageDownloadFile(data);
+            boolean sent = replyToClient(msgDF);
+            if(!sent)
+                throw new DownloadRequestFailedException("Failed to initiate download sequence.");
+
+            _logger.info("Initiating _data send...");
+
+            DataOutputStream dos = new DataOutputStream(_clientConnection.getClientSocket().getOutputStream());
+            FileInputStream fis = new FileInputStream(fileForDownload.getFile());
+            bis = new BufferedInputStream(fis);
+
+            byte[] buf = new byte[1024 * 8];
+            long bytesToRead = fileForDownload.getFileSize();
+            int bytesRead;
+            while (bytesToRead > 0 && (bytesRead = bis.read(buf, 0, (int) Math.min(buf.length, bytesToRead))) != -1) {
+                dos.write(buf, 0, bytesRead);
+                bytesToRead -= bytesRead;
+            }
+
+            // Informing source (uploader) that file received by user (downloader)
+            String title = strings.media_ready_title();
+            String msg = String.format(strings.media_ready_body(), !_destContact.equals("") ? _destContact : _destId);
+            String token = UsersDataAccess.instance(_dal).getUserPushToken(_sourceId);
+            sent = BatchPushSender.sendPush(token, PushEventKeys.TRANSFER_SUCCESS, title , msg, data);
+            if(!sent)
+                _logger.warning("Failed to inform user " + _sourceId + " of transfer success to user: " + _destId);
+
+            // Marking in communication history record that the transfer was successful
+            char TRUE = '1';
+            CommHistoryAccess.instance(_dal).updateCommunicationRecord(_commId, IDAL.COL_TRANSFER_SUCCESS, TRUE);
+
+
+        } catch (FileInvalidFormatException |
+                FileExceedsMaxSizeException |
+                FileDoesNotExistException |
+                DownloadRequestFailedException |
+                FileMissingExtensionException e) {
+
+            handleDownloadFailure(e);
+
+        } catch (IOException e) {
+
+            handleDownloadFailure(e);
+            throw e; //In case of IOException we need to notify the server infra
+        } finally {
+            if(bis!=null)
+                bis.close();
+        }
+    }
+
+    private void handleDownloadFailure(Exception e) {
+
+        _logger.severe("User " + _messageInitiaterId + " download request failed. Exception:" + e.getMessage());
+
+        String title = strings.media_undelivered_title();
+        String msgTransferFailed = String.format(strings.media_undelivered_body(), !_destContact.equals("") ? _destContact : _destId);
+
+        // Informing sender that file did not reach destination
+        _logger.severe("Informing sender:" + _sourceId + " that file did not reach destination:" + _destId);
+        String senderToken = UsersDataAccess.instance(_dal).getUserPushToken(_sourceId);
+        if(!senderToken.equals(""))
+            BatchPushSender.sendPush(senderToken, PushEventKeys.SHOW_MESSAGE, title, msgTransferFailed);
+        else
+            _logger.severe("Failed trying to Inform sender:" + _sourceId + " that file did not reach destination:" + _destId + ". Empty token");
+
+        // informing destination of request failure
+        String msgDownloadFailed = "DOWNLOAD_FAILURE: File send from user:" + _destId + " failed.";
+        _logger.severe("Informing destination:" + _destId + " that download request failed");
+        replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.DOWNLOAD_FAILURE, msgDownloadFailed, null)));
+
+        // Marking in communication history record that the transfer has failed
+        char FALSE = '0';
+        CommHistoryAccess.instance(_dal).updateCommunicationRecord(_commId, IDAL.COL_TRANSFER_SUCCESS, FALSE);
+    }
+}
