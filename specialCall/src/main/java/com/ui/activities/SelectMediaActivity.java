@@ -36,11 +36,9 @@ import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
-import com.services.StorageServerProxyService;
 import com.utils.UI_Utils;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 
 import DataObjects.SpecialMediaType;
@@ -65,15 +63,16 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     private static final String TAG = SelectMediaActivity.class.getSimpleName();
     private Uri _outputFileUri;
+    private String _recordedAudioFilePath;
     private int SMTypeCode;
     private String _destPhoneNumber = "";
     private float oldPosition =0;
     private int moveLength= 0;
     private WebView mwebView;
-    private ProgressBar mProgressbar;
+    private ProgressBar mProgressbar;  // TODO progressDialog , Try it out
     private TextView mprogressTextView;
-
-    private final String MEDIACALLZ_GALLERY_URL = "http://download.wavetlan.com/SVV/Media/HTTP/http-mp4.htm";
+    private long mDownloadId;
+    private final String MEDIACALLZ_GALLERY_URL = "http://download.wavetlan.com/SVV/Media/HTTP/http-mp4.htm"; // TODO Place it in Constants
 
     //region Activity methods (onCreate(), onPause()...)
     @Override
@@ -129,9 +128,12 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             switch (keyCode) {
                 case KeyEvent.KEYCODE_BACK:
                 if(mwebView!=null)
-                    {if (mwebView.canGoBack()) {  mwebView.goBack();  }
+                    {if (mwebView.canGoBack()) {
+                        mwebView.goBack();
+
+                    }
                     else
-                    finish();}
+                    finish();}  // TODO get back to the Select Media Activity
                    return true;
             }
 
@@ -230,7 +232,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         }
         else if (id == R.id.recordAudio) {
 
-            RecordAudio(SMTypeCode);
+            recordAudio();
         }
         else {
             if (id == R.id.mediacallzBtn) {
@@ -290,122 +292,125 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
 
 
-            boolean value = true;
+         //   boolean isURL = true;
             String extension = MimeTypeMap.getFileExtensionFromUrl(url);
             if (extension != null) {
-                MimeTypeMap mime = MimeTypeMap.getSingleton();
-                String mimeType = mime.getMimeTypeFromExtension(extension);
-            Log.i(TAG, "extension: " +extension+ " mimetype: " + mimeType);
-                if (mimeType != null) {
-                    if (Arrays.asList(FileManager.imageFormats).contains(extension) ||
-                            Arrays.asList(FileManager.videoFormats).contains(extension) ||
-                            Arrays.asList(FileManager.audioFormats).contains(extension)) {
+                    if (FileManager.isExtensionValid(extension)) {
 
-                       final DownloadManager mdDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-                        DownloadManager.Request request = new DownloadManager.Request(
-                                Uri.parse(url));
+                        try {
+                            final DownloadManager mdDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                            DownloadManager.Request request = new DownloadManager.Request(
+                                    Uri.parse(url));
 
-                        final File destinationFile = new File(
-                                Constants.HISTORY_FOLDER,System.currentTimeMillis() + "." +extension );
-                        request.setDescription("MediaCallz Downloading...");
-                        request.allowScanningByMediaScanner();
-                        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                        request.setDestinationUri(Uri.fromFile(destinationFile));
-                        final long downloadId  = mdDownloadManager.enqueue(request);
+                            final File destinationFile = new File(
+                                    Constants.HISTORY_FOLDER, System.currentTimeMillis() + "." + extension);
+                            request.setDescription("MediaCallz " + getResources().getString(R.string.downloading));
+                            request.allowScanningByMediaScanner();
+                            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                            request.setDestinationUri(Uri.fromFile(destinationFile));
+                            final long downloadId = mdDownloadManager.enqueue(request);
 
-                        new Thread(new Runnable() {
+                            //mDownloadId = downloadId;
 
-                            @Override
-                            public void run() {
+                            new Thread(new Runnable() { // TODO AsyncTask
 
-                                boolean downloading = true;
+                                @Override
+                                public void run() {
 
-                                while (downloading) {
+                                    boolean downloading = true;
 
-                                    DownloadManager.Query q = new DownloadManager.Query();
-                                    q.setFilterById(downloadId);
+                                    while (downloading) {
 
-                                    Cursor cursor = mdDownloadManager.query(q);
-                                    cursor.moveToFirst();
-                                    int bytes_downloaded = cursor.getInt(cursor
-                                            .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                                    int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                                        DownloadManager.Query q = new DownloadManager.Query();
+                                        q.setFilterById(downloadId);
 
-                                    if (bytes_total > FileManager.MAX_FILE_SIZE)
-                                    {
-                                        UI_Utils.callToast("File Size is too large : " + humanReadableByteCount(Long.valueOf(bytes_total),true) + " Max Allowed: " +humanReadableByteCount(Long.valueOf(FileManager.MAX_FILE_SIZE),true), Color.RED, Toast.LENGTH_LONG, getApplicationContext());
-                                        disableProgressBar();
+                                        Cursor cursor = mdDownloadManager.query(q);
 
+                                        cursor.moveToFirst();
+                                        int bytes_downloaded = cursor.getInt(cursor
+                                                .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                                        int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
 
-                                        break;
-                                    }
+                                        if (bytes_total > FileManager.MAX_FILE_SIZE) {
 
-                                    if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
-                                        downloading = false;
-                                    }
+                                            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
+                                                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
 
-                                    final int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
+                                            UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
 
 
-                                    runOnUiThread(new Runnable() {
+                                            disableProgressBar();
+                                            mdDownloadManager.remove(downloadId);
 
-                                        @Override
-                                        public void run() {
-
-                                            mwebView.setVisibility(View.INVISIBLE);
-                                            mProgressbar.setProgress((int) dl_progress);
-                                            mProgressbar.setVisibility(View.VISIBLE);
-                                            mProgressbar.bringToFront();
-                                            mprogressTextView.setText("  " + String.valueOf(dl_progress) + "% / 100%");
-                                            mprogressTextView.setTextSize(10);
-                                            mprogressTextView.setTextColor(Color.BLACK);
-                                            mprogressTextView.setVisibility(View.VISIBLE);
-                                            mprogressTextView.bringToFront();
-
-                                        }
-                                    });
-
-                                    if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL)
-                                    {
-
-                                        try {
-                                            Thread.sleep(500);
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
+                                            break;
                                         }
 
+                                        if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
+                                            downloading = false;
+                                        }
 
-                                        uploadDownloadedFile(destinationFile, SMTypeCode);
+                                        final int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
+
+
+                                        runOnUiThread(new Runnable() {
+
+                                            @Override
+                                            public void run() {
+
+                                                mwebView.setVisibility(View.INVISIBLE);
+                                                mProgressbar.setProgress((int) dl_progress);
+                                                mProgressbar.setVisibility(View.VISIBLE);
+                                                mProgressbar.bringToFront();
+                                                mprogressTextView.setText(getResources().getString(R.string.downloading)+"\n" + String.valueOf(dl_progress) + "% / 100%");
+                                                mprogressTextView.setTextSize(10);
+                                                mprogressTextView.setTextColor(Color.BLACK);
+                                                mprogressTextView.setVisibility(View.VISIBLE);
+                                                mprogressTextView.bringToFront();
+
+                                            }
+                                        });
+
+                                        if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
+
+                                            try {
+                                                Thread.sleep(500);
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
+
+
+                                                returnFile(destinationFile.getAbsolutePath());
+
+                                        }
+
+                                       Log.d(TAG, statusMessage(cursor)); // for debug purposes only
+                                        cursor.close();
+
                                     }
 
-                                    Log.d(TAG, statusMessage(cursor));
-                                    cursor.close();
                                 }
-
-                            }
-                        }).start();
+                            }).start();
 
 
-                        Log.i(TAG, "destinationfiles: " + Constants.HISTORY_FOLDER + String.valueOf(System.currentTimeMillis() + "." + extension));
+                            Log.i(TAG, "destinationfiles: " + Constants.HISTORY_FOLDER + String.valueOf(System.currentTimeMillis() + "." + extension));
+/*
+                            isURL = false;
 
-                        value = false;
-                    }
-                }
-                if (value) {
-                    view.loadUrl(url);
-                }
+                        if (isURL) {
+                            view.loadUrl(url);
+                        }*/
+                    }catch (Exception e)
+                        {
+                            UI_Utils.callToast(getResources().getString(R.string.oops_try_again), Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+                            Log.i(TAG, "shouldOverrideUrlLoading exception: " + (e.getMessage()!=null ? e.getMessage() : e));
+                        }
+
+                        }
             }
-            return value;
+            return false;
         }
     }
 
-    public static String humanReadableByteCount(long bytes, boolean si) {
-        int unit = si ? 1000 : 1024;
-        if (bytes < unit) return bytes + " B";
-        int exp = (int) (Math.log(bytes) / Math.log(unit));
-        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
-        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
-    }
 
     private String statusMessage(Cursor c) {
         String msg = "???";
@@ -441,65 +446,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         }
 
         return (msg);
-    }
-
-    private void uploadDownloadedFile(File downloadedFile, int SMTypeCode) {
-
-        FileManager fm;
-        Intent resultIntent = new Intent();
-        Log.i(TAG,"extractAndReturnFile");
-
-        try {
-            checkDestinationNumber();
-
-
-            if (downloadedFile.exists()) {
-               String path = downloadedFile.getAbsolutePath();
-                fm = new FileManager(path);
-                Log.i(TAG, "[File selected]: " + path + ". [File Size]: " + FileManager.getFileSizeFormat(fm.getFileSize()));
-
-                Log.i(TAG, "TypeCode when uploading: " + String.valueOf(SMTypeCode));
-
-                if (ActivityRequestCodes.SELECT_CALLER_MEDIA == SMTypeCode)
-                    resultIntent.putExtra(RESULT_SPECIAL_MEDIA_TYPE, SpecialMediaType.CALLER_MEDIA);
-                else
-                    resultIntent.putExtra(RESULT_SPECIAL_MEDIA_TYPE, SpecialMediaType.PROFILE_MEDIA);
-
-
-
-
-                resultIntent.putExtra(RESULT_FILE, fm);
-            }
-
-            Log.i(TAG,"End extractAndReturnFile");
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            Log.e(TAG, getResources().getString(R.string.file_invalid));
-            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
-
-        } catch (FileExceedsMaxSizeException e) {
-
-            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
-                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
-            Log.e(TAG, errMsg);
-            resultIntent.putExtra(RESULT_ERR_MSG, errMsg);
-
-        } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
-            e.printStackTrace();
-            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
-
-        } catch (InvalidDestinationNumberException e) {
-            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.destnumber_invalid));
-        }
-
-        if (getParent() == null) {
-            setResult(Activity.RESULT_OK, resultIntent);
-        } else {
-            getParent().setResult(Activity.RESULT_OK, resultIntent);
-        }
-        SelectMediaActivity.this.finish();
-
-
     }
 
     private void disableProgressBar() {
@@ -585,25 +531,11 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     }
 
-    private void RecordAudio(int code) {
-
-
-        String fname = "MyAudioRecording_"+_destPhoneNumber+".aac";
-        File sdAudioMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
-
-        sdAudioMainDirectory.delete();
-
-        _outputFileUri = Uri.fromFile(sdAudioMainDirectory);
-
-        recordAudio(sdAudioMainDirectory.getAbsolutePath());
-
-    }
-
-    private void extractAndReturnFile(Intent intent, SpecialMediaType specialMediaType) {
+     private void extractAndReturnFile(Intent intent, SpecialMediaType specialMediaType) {
 
         FileManager fm;
         Intent resultIntent = new Intent();
-        Log.i(TAG,"extractAndReturnFile");
+        Log.i(TAG, "extractAndReturnFile");
         final boolean isCamera;
         try {
             checkDestinationNumber();
@@ -679,58 +611,52 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         SelectMediaActivity.this.finish();
     }
 
-    private void uploadAudioFile(Uri uri) {
-        Intent data = new Intent();
-        FileManager fm = null;
-        Log.i(TAG,"Upload Audio File");
+    private void returnFile(String filePath) {
+
+        SpecialMediaType specialMediaType = null;
+
+        if (SMTypeCode == ActivityRequestCodes.SELECT_CALLER_MEDIA) {
+             specialMediaType = SpecialMediaType.CALLER_MEDIA;
+        } else if (SMTypeCode == ActivityRequestCodes.SELECT_PROFILE_MEDIA) {
+             specialMediaType = SpecialMediaType.PROFILE_MEDIA;
+        }
+
+        FileManager fm;
+        Intent resultIntent = new Intent();
+        Log.i(TAG,"ReturnFile");
         try {
-            checkDestinationNumber();
 
-            // Get the File path from the Uri
-            String path = FileUtils.getPath(this, uri);
+                fm = new FileManager(filePath);
+                Log.i(TAG, "[File selected]: " + filePath + ". [File Size]: " + FileManager.getFileSizeFormat(fm.getFileSize()));
 
-            // Alternatively, use FileUtils.getFile(Context, Uri)
-            if (path != null) if (FileUtils.isLocal(path)) {
+                resultIntent.putExtra(RESULT_SPECIAL_MEDIA_TYPE, specialMediaType);
+                resultIntent.putExtra(RESULT_FILE, fm);
 
-                fm = new FileManager(path);
-                Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
-                i.setAction(StorageServerProxyService.ACTION_UPLOAD);
-                i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);
-
-
-                if (ActivityRequestCodes.SELECT_CALLER_MEDIA == SMTypeCode)
-                    i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, SpecialMediaType.CALLER_MEDIA);
-                else
-                    i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, SpecialMediaType.PROFILE_MEDIA);
-
-
-                i.putExtra(StorageServerProxyService.FILE_TO_UPLOAD, fm);
-                getApplicationContext().startService(i);
-
-            }
-            Log.i(TAG,"End Of Upload Audio File");
+            Log.i(TAG,"End ReturnFile");
         } catch (NullPointerException e) {
             e.printStackTrace();
-            Log.e(TAG, "It seems there was a problem with the file path.");
-            data.putExtra("msg", "Oops! problem with file");
+            Log.e(TAG, getResources().getString(R.string.file_invalid));
+            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
+
         } catch (FileExceedsMaxSizeException e) {
-            data.putExtra("msg", "Oops! Select a file that weights less than:" +
+
+            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
                     FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+            Log.e(TAG, errMsg);
+            resultIntent.putExtra(RESULT_ERR_MSG, errMsg);
+
         } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
             e.printStackTrace();
-            data.putExtra("msg", "Oops! Invalid file");
-        } catch (InvalidDestinationNumberException e) {
-            data.putExtra("msg", "Oops! Invalid destination number");
+            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
+
         }
 
         if (getParent() == null) {
-            setResult(Activity.RESULT_OK, data);
+            setResult(Activity.RESULT_OK, resultIntent);
         } else {
-            getParent().setResult(Activity.RESULT_OK, data);
+            getParent().setResult(Activity.RESULT_OK, resultIntent);
         }
-
         SelectMediaActivity.this.finish();
-
     }
 
     private void checkDestinationNumber() throws InvalidDestinationNumberException {
@@ -741,15 +667,22 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             throw new InvalidDestinationNumberException();
     }
 
-    public void recordAudio(String fileName) {
+    public void recordAudio() {
+
+        String fname = "MyAudioRecording_"+_destPhoneNumber+".aac";
+        File sdAudioFile = new File(Constants.TEMP_RECORDING_FOLDER, fname);
+
+        sdAudioFile.delete();
+        _recordedAudioFilePath = sdAudioFile.getAbsolutePath();
+
 
         final MediaRecorder recorder = new MediaRecorder();
         ContentValues values = new ContentValues(3);
-        values.put(MediaStore.MediaColumns.TITLE, fileName);
+        values.put(MediaStore.MediaColumns.TITLE, fname);
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        recorder.setOutputFile(fileName);
+        recorder.setOutputFile(_recordedAudioFilePath);
 
 
         try {
@@ -767,7 +700,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                 recorder.stop();
                 recorder.release();
 
-                uploadAudioFile(_outputFileUri); // Upload Recorded Audio File
+                returnFile(_recordedAudioFilePath);
+
             }
         });
 

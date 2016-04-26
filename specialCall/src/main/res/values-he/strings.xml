@@ -141,6 +141,7 @@
 
     <!--  select_media Layout   -->
     <string name="back">חזור</string>
+    <string name="downloading">הורדה מתבצעת...</string>
     <string name="media_type">סוג מדיה</string>
     <string name="record_video">הקלט וידיאו</string>
     <string name="audio">רינגטון</string>
