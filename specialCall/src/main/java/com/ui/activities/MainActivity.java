@@ -1216,11 +1216,11 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         {
             Techniques tech = UI_Utils.getRandomInTechniques();
             YoYo.with(tech)
-                    .duration(100)
+                    .duration(10)
                     .playOn(findViewById(R.id.selectMediaBtn));
 
             YoYo.with(tech)
-                    .duration(100)
+                    .duration(10)
                     .playOn(findViewById(R.id.ringtoneName));
 
         }
