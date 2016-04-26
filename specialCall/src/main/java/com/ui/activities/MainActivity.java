@@ -1616,7 +1616,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                 _connectionToServer.openConnection();
                 _connectionToServer.sendToServer(msgUF);
 
-                Log.i(TAG, "Initiating file data upload...");
+                Log.i(TAG, "Initiating file data upload. [Filepath]: " + managedFile.getFileFullPath());
 
                 dos = new DataOutputStream(_connectionToServer.getClientSocket().getOutputStream());
 
