@@ -434,6 +434,16 @@ public class FileManager implements Serializable {
         String ext = tmp_str[1];
         return ext.toLowerCase();
     }
+
+    public static boolean isExtensionValid(String extension) {
+
+      return Arrays.asList(FileManager.imageFormats).contains(extension) ||
+                Arrays.asList(FileManager.videoFormats).contains(extension) ||
+                Arrays.asList(FileManager.audioFormats).contains(extension);
+
+
+    }
+
     //endregion
 
     @Override

@@ -66,6 +66,7 @@
     <string name="recording">Recording...</string>
     <string name="stop_recording">Stop recording</string>
     <string name="back">Back</string>
+    <string name="downloading">Downloading...</string>
     <string name="media_type">Media Type</string>
     <string name="record_video">Record Video</string>
     <string name="audio">Audio</string>
