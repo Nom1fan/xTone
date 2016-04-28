@@ -12,8 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import DalObjects.IDAL;
-import DataObjects.AppMetaRecord;
+import com.database.records.AppMetaRecord;
 import DataObjects.CallRecord;
 import DataObjects.DataKeys;
 import DataObjects.MediaTransferRecord;

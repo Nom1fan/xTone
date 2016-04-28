@@ -1,10 +1,5 @@
 package ClientObjects;
 
-import java.io.IOException;
-import java.sql.Connection;
-
-import DataObjects.TransferDetails;
-import FilesManager.FileManager;
 import MessagesToClient.MessageToClient;
 
 public interface IServerProxy {

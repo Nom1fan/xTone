@@ -19,8 +19,8 @@ import DataObjects.DataKeys;
 import DataObjects.SharedConstants;
 import EventObjects.EventReport;
 import EventObjects.EventType;
-import MessagesToServer.ActionType;
-import MessagesToServer.GenericMessageToServer;
+import MessagesToServer.MessageToServer;
+import MessagesToServer.ServerActionType;
 
 
 /**
@@ -171,7 +171,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
         HashMap data = new HashMap();
         data.put(DataKeys.DESTINATION_ID, destinationId);
 
-        GenericMessageToServer msgIsLogin = new GenericMessageToServer(Constants.MY_ID(getApplicationContext()), data, ActionType.IS_REGISTERED);
+        MessageToServer msgIsLogin = new MessageToServer(ServerActionType.IS_REGISTERED, Constants.MY_ID(getApplicationContext()), data);
         connectionToServer.sendToServer(msgIsLogin);
     }
 
@@ -180,13 +180,13 @@ public class LogicServerProxyService extends AbstractServerProxy {
         HashMap data = new HashMap();
         data.put(DataKeys.INTERNATIONAL_PHONE_NUMBER, interPhoneNumber);
 
-        connectionToServer.sendToServer(new GenericMessageToServer(localNumber, data, ActionType.GET_SMS_CODE));
+        connectionToServer.sendToServer(new MessageToServer(ServerActionType.GET_SMS_CODE, localNumber, data));
     }
 
     private void actionGetAppRecord(ConnectionToServer connectionToServer) throws IOException {
 
         Log.i(TAG, "Initiating actionGetAppRecord sequence...");
-        connectionToServer.sendToServer(new GenericMessageToServer(Constants.MY_ID(getApplicationContext()), ActionType.GET_APP_RECORD));
+        connectionToServer.sendToServer(new MessageToServer(ServerActionType.GET_APP_RECORD, Constants.MY_ID(getApplicationContext())));
     }
 
     private void actionRegister(ConnectionToServer connectionToServer, int smsCode) throws IOException {
@@ -197,10 +197,10 @@ public class LogicServerProxyService extends AbstractServerProxy {
         data.put(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(getApplicationContext()));
         data.put(DataKeys.SMS_CODE, smsCode);
 
-        GenericMessageToServer msgRegister = new GenericMessageToServer(
-                Constants.MY_ID(getApplicationContext()),
-                data,
-                ActionType.REGISTER);
+        MessageToServer msgRegister = new MessageToServer(
+                ServerActionType.REGISTER, Constants.MY_ID(getApplicationContext()),
+                data
+        );
 
         Log.i(TAG, "Sending actionRegister message to server...");
 
@@ -214,10 +214,10 @@ public class LogicServerProxyService extends AbstractServerProxy {
         HashMap data = new HashMap();
         data.put(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(getApplicationContext()));
 
-        GenericMessageToServer msgUnregister = new GenericMessageToServer(
-                Constants.MY_ID(getApplicationContext()),
-                data,
-                ActionType.UNREGISTER);
+        MessageToServer msgUnregister = new MessageToServer(
+                ServerActionType.UNREGISTER, Constants.MY_ID(getApplicationContext()),
+                data
+        );
 
         Log.i(TAG, "Sending actionUnregister message to server...");
 
@@ -230,7 +230,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
         HashMap data = new HashMap();
         data.put(DataKeys.CALL_RECORD, callRecord);
 
-        GenericMessageToServer msgInsertMCrecord = new GenericMessageToServer(callRecord.get_sourceId(), data, ActionType.INSERT_MEDIA_CALL_RECORD);
+        MessageToServer msgInsertMCrecord = new MessageToServer(ServerActionType.INSERT_MEDIA_CALL_RECORD, callRecord.get_sourceId(), data);
         Log.i(TAG, "Sending actionInsertMediaCallRecord message to server...");
         connectionToServer.sendToServer(msgInsertMCrecord);
     }

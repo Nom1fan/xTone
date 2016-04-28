@@ -1,6 +1,6 @@
 package actions;
 
-import MessagesToServer.ActionType;
+import MessagesToServer.ServerActionType;
 import log.Logged;
 
 /**
@@ -21,47 +21,47 @@ public class ActionFactory extends Logged {
         return _instance;
     }
 
-    public Action getAction(ActionType actionType) {
+    public ServerAction getAction(ServerActionType serverServerActionType) {
 
-        Action resultAction = null;
+        ServerAction resultServerAction = null;
 
-        switch(actionType) {
+        switch(serverServerActionType) {
 
             case CLEAR_MEDIA:
-                resultAction = new ActionClearMedia();
+                resultServerAction = new ServerActionClearMedia();
                 break;
             case GET_APP_RECORD:
-                resultAction = new ActionGetAppRecord();
+                resultServerAction = new ServerActionGetAppRecord();
                 break;
             case GET_SMS_CODE:
-                resultAction = new ActionGetSmsCode();
+                resultServerAction = new ServerActionGetSmsCode();
                 break;
             case INSERT_MEDIA_CALL_RECORD:
-                resultAction = new ActionInsertMediaCallRecord();
+                resultServerAction = new ServerActionInsertMediaCallRecord();
                 break;
             case IS_REGISTERED:
-                resultAction = new ActionIsRegistered();
+                resultServerAction = new ServerActionIsRegistered();
                 break;
             case NOTIFY_MEDIA_CLEARED:
-                resultAction = new ActionNotifyMediaCleared();
+                resultServerAction = new ServerActionNotifyMediaCleared();
                 break;
             case REGISTER:
-                resultAction = new ActionRegister();
+                resultServerAction = new ServerActionRegister();
                 break;
             case REQUEST_DOWNLOAD:
-                resultAction = new ActionRequestDownload();
+                resultServerAction = new ServerActionRequestDownload();
                 break;
             case UNREGISTER:
-                resultAction = new ActionUnregister();
+                resultServerAction = new ServerActionUnregister();
                 break;
             case UPLOAD_FILE:
-                resultAction = new ActionUploadFile();
+                resultServerAction = new ServerActionUploadFile();
                 break;
 
             default:
-                _logger.severe(String.format("Failure to perform action. No such _actionType: %s", actionType));
+                _logger.severe(String.format("Failure to perform action. No such _serverActionType: %s", serverServerActionType));
 
         }
-        return resultAction;
+        return resultServerAction;
     }
 }

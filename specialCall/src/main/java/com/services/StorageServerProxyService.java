@@ -20,8 +20,8 @@ import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
 import EventObjects.EventReport;
 import EventObjects.EventType;
-import MessagesToServer.ActionType;
-import MessagesToServer.GenericMessageToServer;
+import MessagesToServer.ServerActionType;
+import MessagesToServer.MessageToServer;
 
 
 /**
@@ -72,7 +72,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
 
                 if (intentForThread != null) {
                     String action = intentForThread.getAction();
-                    Log.i(TAG, "Action:" + action);
+                    Log.i(TAG, "ClientActionType:" + action);
 
                     PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
 
@@ -100,13 +100,13 @@ public class StorageServerProxyService extends AbstractServerProxy {
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
-                        String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
+                        String errMsg = "ClientActionType failed:" + action + " Exception:" + e.getMessage();
                         handleActionFailed();
                         Log.e(TAG, errMsg);
                         //handleDisconnection(errMsg); //TODO Maybe no need for this?
                     } catch (Exception e) {
                         e.printStackTrace();
-                        String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
+                        String errMsg = "ClientActionType failed:" + action + " Exception:" + e.getMessage();
                         handleActionFailed();
                         Log.e(TAG, errMsg);
                     }
@@ -126,7 +126,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
     }
     //endregion
 
-    //region Action methods
+    //region ClientActionType methods
     private void actionDownload(Intent intent, PowerManager powerManager) throws IOException {
 
         setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
@@ -164,7 +164,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
         setMidAction(true);
         ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
         HashMap data = (HashMap) intent.getSerializableExtra(TRANSFER_DETAILS);
-        GenericMessageToServer msgNMC = new GenericMessageToServer(Constants.MY_ID(getApplicationContext()), data, ActionType.NOTIFY_MEDIA_CLEARED);
+        MessageToServer msgNMC = new MessageToServer(ServerActionType.NOTIFY_MEDIA_CLEARED, Constants.MY_ID(getApplicationContext()), data);
         connectionToServer.sendToServer(msgNMC);
     }
 
@@ -197,7 +197,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
         data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
         data.put(DataKeys.DESTINATION_CONTACT_NAME, ContactsUtils.getContactName(getApplicationContext(), destId));
 
-        GenericMessageToServer msgCM = new GenericMessageToServer(srcId, data, ActionType.CLEAR_MEDIA);
+        MessageToServer msgCM = new MessageToServer(ServerActionType.CLEAR_MEDIA, srcId, data);
         connectionToServer.sendToServer(msgCM);
     }
 
@@ -235,7 +235,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
      */
     private void requestDownloadFromServer(ConnectionToServer connectionToServer, HashMap data) throws IOException {
 
-        GenericMessageToServer msgRD = new GenericMessageToServer(Constants.MY_ID(getApplicationContext()), data, ActionType.REQUEST_DOWNLOAD);
+        MessageToServer msgRD = new MessageToServer(ServerActionType.REQUEST_DOWNLOAD, Constants.MY_ID(getApplicationContext()), data);
         connectionToServer.sendToServer(msgRD);
     }
     //endregion

@@ -5,13 +5,11 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.services.LogicServerProxyService;
-import com.services.StorageServerProxyService;
 
 import java.io.File;
 
 import DataObjects.CallRecord;
 import DataObjects.SpecialMediaType;
-import DataObjects.TransferDetails;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;

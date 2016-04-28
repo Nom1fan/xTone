@@ -10,6 +10,8 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.actions.ClientAction;
+import com.actions.ActionFactory;
 import com.data_objects.Constants;
 import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
@@ -85,8 +87,9 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     public void handleMessageFromServer(MessageToClient msg, ConnectionToServer connectionToServer) {
 
         try {
-            EventReport eventReport = msg
-                    .doClientAction(connectionToServer);
+            ClientAction clientAction = ActionFactory.instance().getAction(msg.getActionType());
+            clientAction.setConnectionToServer(connectionToServer);
+            EventReport eventReport = clientAction.doClientAction(msg.getData());
 
             if (eventReport.status() != EventType.NO_ACTION_REQUIRED)
                 BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, eventReport);

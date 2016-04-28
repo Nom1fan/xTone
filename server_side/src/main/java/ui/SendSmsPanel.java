@@ -11,7 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import ServerObjects.SmsSender;
+import sms_service.SmsSender;
 
 /**
  * Created by Mor on 28/03/2016.

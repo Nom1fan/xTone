@@ -42,6 +42,9 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.actions.ClientAction;
+import com.actions.ActionFactory;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 
@@ -87,7 +90,6 @@ import java.util.Locale;
 
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
-import DataObjects.AppMetaRecord;
 import DataObjects.DataKeys;
 import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
@@ -99,8 +101,8 @@ import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
 import MessagesToClient.MessageToClient;
-import MessagesToServer.ActionType;
-import MessagesToServer.GenericMessageToServer;
+import MessagesToServer.MessageToServer;
+import MessagesToServer.ServerActionType;
 import utils.PhoneNumberUtils;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
@@ -478,14 +480,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 break;
 
 //            case UPLOADING:
-//
 //                break;
 
-            case APP_RECORD_RECEIVED:
-                AppMetaRecord appMetaRecord = (AppMetaRecord) report.data();
+            case APP_RECORD_RECEIVED: {
+                HashMap<DataKeys, Object> data = (HashMap) report.data();
 
-                if (SharedConstants.APP_VERSION < appMetaRecord.get_lastSupportedVersion())
-                    showMandatoryUpdateDialog(appMetaRecord.get_appVersion());
+                if (SharedConstants.APP_VERSION < (double) data.get(DataKeys.MIN_SUPPORTED_VERSION))
+                    showMandatoryUpdateDialog((double) data.get(DataKeys.APP_VERSION));
+            }
                 break;
 
             case USER_REGISTERED_FALSE:
@@ -1604,7 +1606,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         protected Void doInBackground(Void... voids) {
 
             FileManager managedFile = (FileManager) _data.get(DataKeys.MANAGED_FILE);
-            GenericMessageToServer msgUF = new GenericMessageToServer(Constants.MY_ID(getApplicationContext()), _data, ActionType.UPLOAD_FILE);
+            MessageToServer msgUF = new MessageToServer(ServerActionType.UPLOAD_FILE, Constants.MY_ID(getApplicationContext()), _data);
 
             DataOutputStream dos;
             try {
@@ -1717,8 +1719,10 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         public void handleMessageFromServer(MessageToClient msg, ConnectionToServer connectionToServer) {
 
             try {
-                EventReport eventReport = msg
-                        .doClientAction(connectionToServer);
+
+                ClientAction clientAction = ActionFactory.instance().getAction(msg.getActionType());
+                clientAction.setConnectionToServer(connectionToServer);
+                EventReport eventReport = clientAction.doClientAction(msg.getData());
 
                 if (eventReport.status() != EventType.NO_ACTION_REQUIRED)
                     BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, eventReport);

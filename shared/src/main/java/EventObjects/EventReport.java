@@ -31,4 +31,15 @@ public class EventReport implements Serializable {
 		return _data;
 	}
 
+	@Override
+	public String toString() {
+
+		String str;
+		if(_desc!=null)
+			str = String.format("[EventType]: %s [EventDesc]: %s [EventData]: %s", _status, _desc, _desc);
+		else
+			str = String.format("[EventType]: %s [EventData]: %s", _status, _data);
+		return str;
+	}
+
 }

@@ -13,8 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import DataObjects.PushEventKeys;
-import ServerObjects.BatchPushSender;
-import ServerObjects.UsersDataAccess;
+import pushservice.BatchPushSender;
+import com.database.UsersDataAccess;
 
 /**
  * Created by Mor on 28/03/2016.

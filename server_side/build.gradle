@@ -20,5 +20,7 @@ dependencies {
     compile 'org.kie.modules:org-apache-commons-io-main:6.3.0.CR2'
     compile 'org.kie.modules:org-apache-commons-collections-main:6.3.0.CR2'
     compile 'org.kie.modules:org-apache-commons-logging-main:6.3.0.Final'
+    compile 'org.apache.httpcomponents:httpclient:4.5.2'
+    compile 'org.apache.httpcomponents:httpcore:4.4.4'
 }
 
