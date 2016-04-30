@@ -449,7 +449,9 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             String path = FileUtils.getPath(this, uri);
             // Alternatively, use FileUtils.getFile(Context, Uri)
             if(path == null) {
-                throw new FileDoesNotExistException("Path returned from URI was null");
+                path = uri.getLastPathSegment();
+                if(path == null)
+                  throw new FileDoesNotExistException("Path returned from URI was null");
             }
 
             if (FileUtils.isLocal(path)) {
@@ -495,7 +497,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.destnumber_invalid));
         }
 
-        if (getParent() == null) {
+         if (getParent() == null) {
             setResult(Activity.RESULT_OK, resultIntent);
         } else {
             getParent().setResult(Activity.RESULT_OK, resultIntent);
