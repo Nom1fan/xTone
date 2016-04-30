@@ -65,6 +65,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private Uri _outputFileUri;
     private String _recordedAudioFilePath;
     private int SMTypeCode;
+    private String _destName = "";
     private String _destPhoneNumber = "";
     private float oldPosition =0;
     private int moveLength= 0;
@@ -78,15 +79,22 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
         Intent intent = getIntent();
+        _destPhoneNumber = intent.getStringExtra(DESTINATION_NUMBER);
+        _destName = intent.getStringExtra(DESTINATION_NAME);
+        SMTypeCode = intent.getIntExtra(SPECIAL_MEDIA_TYPE, 1);
+
+        initializeSelectMediaUI();
+
+    }
+
+    private void initializeSelectMediaUI() {
         setContentView(R.layout.select_media);
 
         ImageButton button1 = (ImageButton) findViewById(R.id.back);
         button1.setOnClickListener(this);
         TextView mediaType = (TextView) findViewById(R.id.selectMediaType);
 
-        _destPhoneNumber = intent.getStringExtra(DESTINATION_NUMBER);
-        String _destName = intent.getStringExtra(DESTINATION_NAME);
-        SMTypeCode = intent.getIntExtra(SPECIAL_MEDIA_TYPE, 1);
+
 
         if (ActivityRequestCodes.SELECT_CALLER_MEDIA == SMTypeCode)
             mediaType.setText(R.string.select_caller_media_title);
@@ -117,7 +125,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         ImageButton mediacallzBtn = (ImageButton) findViewById(R.id.mediacallzBtn);
         mediacallzBtn.setOnClickListener(this);
-
     }
 
     @Override
@@ -131,7 +138,9 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
                     }
                     else
-                    finish();}  // TODO get back to the Select Media Activity
+                        initializeSelectMediaUI();
+
+                    }
                    return true;
             }
 
