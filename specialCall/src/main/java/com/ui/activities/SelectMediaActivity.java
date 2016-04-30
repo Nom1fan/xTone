@@ -14,6 +14,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.view.MotionEventCompat;
@@ -27,7 +28,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -69,10 +69,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private float oldPosition =0;
     private int moveLength= 0;
     private WebView mwebView;
-    private ProgressBar mProgressbar;  // TODO progressDialog , Try it out
-    private TextView mprogressTextView;
-    private long mDownloadId;
     private final String MEDIACALLZ_GALLERY_URL = "http://download.wavetlan.com/SVV/Media/HTTP/http-mp4.htm"; // TODO Place it in Constants
+    private ProgressDialog _progDialog;
 
     //region Activity methods (onCreate(), onPause()...)
     @Override
@@ -266,21 +264,9 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         mwebView.setEnabled(true);
 
         RelativeLayout layout = new RelativeLayout(this);
-        mProgressbar = new ProgressBar(getApplicationContext(),null,android.R.attr.progressBarStyleLarge);
-        mProgressbar.setIndeterminate(true);
-        mProgressbar.setVisibility(View.VISIBLE);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(400,400);
         params.addRule(RelativeLayout.CENTER_IN_PARENT);
 
-        mprogressTextView = new TextView(getApplicationContext());
-        RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams(400,400);
-        params1.addRule(RelativeLayout.CENTER_IN_PARENT);
-        params1.addRule(RelativeLayout.BELOW, mProgressbar.getId());
-        params1.setMargins(0,300,0,300);
-        mprogressTextView.setVisibility(View.VISIBLE);
-
-        layout.addView(mProgressbar, params);
-        layout.addView(mprogressTextView, params1);
         layout.addView(mwebView);
 
 
@@ -308,97 +294,13 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                             request.allowScanningByMediaScanner();
                             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                             request.setDestinationUri(Uri.fromFile(destinationFile));
-                            final long downloadId = mdDownloadManager.enqueue(request);
+                            long downloadId = mdDownloadManager.enqueue(request);
 
-                            //mDownloadId = downloadId;
-
-                            new Thread(new Runnable() { // TODO AsyncTask
-
-                                @Override
-                                public void run() {
-
-                                    boolean downloading = true;
-
-                                    while (downloading) {
-
-                                        DownloadManager.Query q = new DownloadManager.Query();
-                                        q.setFilterById(downloadId);
-
-                                        Cursor cursor = mdDownloadManager.query(q);
-
-                                        cursor.moveToFirst();
-                                        int bytes_downloaded = cursor.getInt(cursor
-                                                .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                                        int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-
-                                        if (bytes_total > FileManager.MAX_FILE_SIZE) {
-
-                                            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
-                                                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
-
-                                            UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
-
-
-                                            disableProgressBar();
-                                            mdDownloadManager.remove(downloadId);
-
-                                            break;
-                                        }
-
-                                        if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
-                                            downloading = false;
-                                        }
-
-                                        final int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
-
-
-                                        runOnUiThread(new Runnable() {
-
-                                            @Override
-                                            public void run() {
-
-                                                mwebView.setVisibility(View.INVISIBLE);
-                                                mProgressbar.setProgress((int) dl_progress);
-                                                mProgressbar.setVisibility(View.VISIBLE);
-                                                mProgressbar.bringToFront();
-                                                mprogressTextView.setText(getResources().getString(R.string.downloading)+"\n" + String.valueOf(dl_progress) + "% / 100%");
-                                                mprogressTextView.setTextSize(10);
-                                                mprogressTextView.setTextColor(Color.BLACK);
-                                                mprogressTextView.setVisibility(View.VISIBLE);
-                                                mprogressTextView.bringToFront();
-
-                                            }
-                                        });
-
-                                        if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
-
-                                            try {
-                                                Thread.sleep(500);
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
-                                            }
-
-
-                                                returnFile(destinationFile.getAbsolutePath());
-
-                                        }
-
-                                       Log.d(TAG, statusMessage(cursor)); // for debug purposes only
-                                        cursor.close();
-
-                                    }
-
-                                }
-                            }).start();
-
+                                downloadFileFromWebView downloadTask = new downloadFileFromWebView(downloadId, destinationFile.getAbsolutePath());
+                                downloadTask.execute();
 
                             Log.i(TAG, "destinationfiles: " + Constants.HISTORY_FOLDER + String.valueOf(System.currentTimeMillis() + "." + extension));
-/*
-                            isURL = false;
 
-                        if (isURL) {
-                            view.loadUrl(url);
-                        }*/
                     }catch (Exception e)
                         {
                             UI_Utils.callToast(getResources().getString(R.string.oops_try_again), Color.RED, Toast.LENGTH_LONG, getApplicationContext());
@@ -418,17 +320,14 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         switch (c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
             case DownloadManager.STATUS_FAILED:
                 msg = "Download failed!";
-                disableProgressBar();
                 break;
 
             case DownloadManager.STATUS_PAUSED:
                 msg = "Download paused!";
-                disableProgressBar();
                 break;
 
             case DownloadManager.STATUS_PENDING:
                 msg = "Download pending!";
-                disableProgressBar();
                 break;
 
             case DownloadManager.STATUS_RUNNING:
@@ -437,7 +336,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
             case DownloadManager.STATUS_SUCCESSFUL:
                 msg = "Download complete!";
-                disableProgressBar();
                 break;
 
             default:
@@ -446,21 +344,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         }
 
         return (msg);
-    }
-
-    private void disableProgressBar() {
-
-        runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                mProgressbar.setVisibility(View.INVISIBLE);
-                mprogressTextView.setVisibility(View.INVISIBLE);
-
-                mwebView.setVisibility(View.VISIBLE);
-
-            }
-        });
     }
 
     private void openVideoAndImageMediapath(int code) {
@@ -720,5 +603,187 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     }
     //endregion
+
+    private class downloadFileFromWebView extends AsyncTask<Void, Integer, Void> {
+
+        private final String TAG = SelectMediaActivity.class.getSimpleName();
+        private downloadFileFromWebView _instance = this;
+        private Long _iD;
+        private DownloadManager _downloadManager;
+        private String _filePath;
+        private Boolean _downloading = false;
+        private Cursor cursor;
+
+        public downloadFileFromWebView(long downloadId , String filePath) {
+
+            _downloadManager =  (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            _iD = downloadId;
+            _filePath = filePath;
+            _downloading=true;
+            _instance = this;
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            String cancel = getResources().getString(R.string.cancel);
+
+            _progDialog = new ProgressDialog(SelectMediaActivity.this);
+            _progDialog.setIndeterminate(false);
+            _progDialog.setCancelable(false);
+            _progDialog.setTitle(getResources().getString(R.string.downloading));
+            _progDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            _progDialog.setProgress(0);
+            _progDialog.setMax(100);
+            _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    _instance.cancel(true);
+
+                    Log.i(TAG , " cancel start");
+                    _downloadManager =  (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                    DownloadManager.Query q = new DownloadManager.Query();
+                    q.setFilterById(_iD);
+
+                    Cursor cursor = _downloadManager.query(q);
+
+                    cursor.moveToFirst();
+
+                    _downloadManager.remove(_iD);
+
+                    _downloading=false;
+
+                   if (cursor!=null)
+                        cursor.close();
+
+                    if(mwebView!=null)
+                    if (mwebView.canGoBack()) {
+                        mwebView.goBack();
+
+                    }
+
+                    Log.i(TAG , " cancel end");
+
+                }
+            });
+
+            _progDialog.show();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            // Worker thread
+            new Thread(new Runnable() { // TODO AsyncTask
+
+                @Override
+                public void run() {
+
+
+                    while (_downloading) {
+
+                        try {
+                            DownloadManager.Query q = new DownloadManager.Query();
+                            q.setFilterById(_iD);
+
+                            cursor = _downloadManager.query(q);
+
+                            cursor.moveToFirst();
+                            int bytes_downloaded = cursor.getInt(cursor
+                                    .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                            int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+
+                            if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
+                                _downloading = false;
+                            }
+
+                          //  _progDialog.setMax(bytes_total);
+
+                            if (bytes_total > FileManager.MAX_FILE_SIZE) {
+
+                                String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
+                                        FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+
+                                UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+
+                                _downloadManager =  (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                                _downloadManager.remove(_iD);
+
+                                _downloading=false;
+
+                                if (cursor!=null)
+                                    cursor.close();
+
+                                _progDialog.dismiss();
+
+                                if(mwebView!=null)
+                                    if (mwebView.canGoBack()) {
+                                        mwebView.goBack();
+
+                                    }
+
+
+                            }
+
+                            int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
+
+
+                          //   publishProgress(dl_progress);
+
+
+                           _progDialog.setProgress(dl_progress);
+
+                            if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
+
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+
+                                if (_progDialog != null && _progDialog.isShowing()) {
+                                    _progDialog.dismiss();
+                                }
+
+                                returnFile(_filePath);
+                                _downloading = false;
+                            }
+
+                           // Log.d(TAG, statusMessage(cursor)); // for debug purposes only
+                            if (cursor != null)
+                                cursor.close();
+
+                        }
+                        catch(Exception e){
+
+                            _downloading=false;
+                            e.printStackTrace();
+                            Log.e(TAG, "Failed:" + e.getMessage());
+
+                        }
+                    }
+                    }
+            }).start();
+
+            return null;
+        }
+
+      /*  @Override
+        protected void onProgressUpdate(Integer... progress) {
+
+            if (_progDialog != null) {
+                {
+
+                    _progDialog.setProgress(progress[0]);
+
+
+                }
+            }
+        }*/
+
+    }
+
 
 }
