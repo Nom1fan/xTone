@@ -20,7 +20,7 @@ public abstract class ClientAction {
         _clientActionType = clientActionType;
     }
 
-    abstract public EventReport doClientAction(Map data) throws IOException;
+    abstract public EventReport doClientAction(Map DATA) throws IOException;
 
     public void setConnectionToServer(ConnectionToServer connectionToServer) {
         _connectionToServer = connectionToServer;

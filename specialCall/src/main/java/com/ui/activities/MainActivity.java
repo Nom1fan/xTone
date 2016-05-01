@@ -302,6 +302,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         FileManager fm = (FileManager) data.getSerializableExtra(SelectMediaActivity.RESULT_FILE);
 
                         if (FileCompressorUtil.isCompressionNeeded(fm)) {
+                            File tempCompressedDir = new File(Constants.TEMP_COMPRESSED_FOLDER + _destPhoneNumber);
+                            tempCompressedDir.mkdir();
                             TrimTask trimTask = new TrimTask(fm);
                             trimTask.execute();
                         } else {
@@ -1660,13 +1662,14 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
 
                 _wakeLock.release();
 
-                Log.i(TAG, "Deleting " + _destPhoneNumber + "'s temp compressed folder after upload");
                 File tempCompressedDir = new File(Constants.TEMP_COMPRESSED_FOLDER + _destPhoneNumber);
-
-                String[] entries = tempCompressedDir.list();
-                for (String s : entries) {
-                    File currentFile = new File(tempCompressedDir.getPath(), s);
-                    currentFile.delete();
+                if(tempCompressedDir.exists()) {
+                    Log.i(TAG, "Deleting " + _destPhoneNumber + "'s temp compressed folder after upload");
+                    String[] entries = tempCompressedDir.list();
+                    for (String s : entries) {
+                        File currentFile = new File(tempCompressedDir.getPath(), s);
+                        currentFile.delete();
+                    }
                 }
             }
 
