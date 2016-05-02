@@ -1,5 +1,7 @@
 package actions;
 
+import com.database.SmsVerificationAccess;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,8 +11,9 @@ import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
+import ServerObjects.ILangStrings;
+import lang.StringsFactory;
 import sms_service.SmsSender;
-import com.database.SmsVerificationAccess;
 import utils.RandUtils;
 
 /**
@@ -34,12 +37,15 @@ public class ServerActionGetSmsCode extends ServerAction {
 
         int code = RandUtils.getRand(MIN,MAX);
 
-        String msg = "Your verification code:" + code;
-        SmsSender.sendSms(_internationePhoneNumber, msg);
+        ILangStrings strings = StringsFactory.instance().getStrings(data.get(DataKeys.SOURCE_LOCALE).toString());
+        //String msg = String.format(strings.your_verification_code(), code); //TODO use this after fixing SmsSender to send hebrew
+        String msg = "Your SMS verification code:" + code;
+
         boolean isOK = SmsVerificationAccess.instance(_dal).insertSmsVerificationCode(_messageInitiaterId, code);
 
         HashMap replyData = new HashMap();
         if(isOK) {
+            SmsSender.sendSms(_internationePhoneNumber, msg);
             replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.NO_ACTION_REQUIRED, null, null));
             replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
         }

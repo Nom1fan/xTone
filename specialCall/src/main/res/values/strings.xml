@@ -12,6 +12,7 @@
     <!-- ### Activities ###  -->
     <!--  LoginActivity  -->
     <string name="register_success">Registration successful</string>
+    <string name="register_failure">Oops! Registration failed. Please Try again.</string>
     <string name="initializing">Initializing...</string>
     <string name="registering">Registering...</string>
     <string name="reconnecting">Reconnecting...</string>
@@ -189,6 +190,5 @@
     <string name="ringing_override_settings_title">Enable ringing buggy override</string>
     <string name="ringing_override_settings_summary">In case you receive Silent MC calls, this may fix your bug</string>
     <string name="delete_account_summary">Delete account and all data</string>
-
 
 </resources>

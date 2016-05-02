@@ -3,6 +3,7 @@ package com.async_tasks;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -19,19 +20,20 @@ import utils.PhoneNumberUtils;
  */
 public class GetSmsCodeTask extends AsyncTask<String, String, String> {
 
+    private static final String TAG = GetSmsCodeTask.class.getSimpleName();
     private Context _context;
     private final WeakReference<TextView> _textViewWeakReference;
-    private final WeakReference<Button> _buttonWeakReference;
+    private final WeakReference<Button> _getSmsButtonWeakReference;
     private static final int ONE_MINUTE = 60;
     private static final int ONE_HOUR = 60*ONE_MINUTE;
     private static final int MAX_RETRIES = 3;
     private static int _tryCount = 0;
 
-    public GetSmsCodeTask(Context context, TextView textView, Button button) {
+    public GetSmsCodeTask(Context context, TextView textView, Button getSmsButton) {
 
         _context = context;
         _textViewWeakReference = new WeakReference<>(textView);
-        _buttonWeakReference = new WeakReference<>(button);
+        _getSmsButtonWeakReference = new WeakReference<>(getSmsButton);
     }
 
     @Override
@@ -50,21 +52,25 @@ public class GetSmsCodeTask extends AsyncTask<String, String, String> {
     }
 
     @Override
-    protected void onCancelled(String str) {
+    protected void onCancelled() {
 
+        Log.i(TAG, "Got cancelled.");
         final TextView textView = _textViewWeakReference.get();
+        final Button getSmsCodeButton = _getSmsButtonWeakReference.get();
         if(textView!=null)
             textView.setText("");
+        if(getSmsCodeButton!=null)
+            getSmsCodeButton.setEnabled(true);
     }
 
     @Override
     protected void onProgressUpdate(String ... msg) {
 
         final TextView textView = _textViewWeakReference.get();
-        final Button button = _buttonWeakReference.get();
+        final Button getSmsButton = _getSmsButtonWeakReference.get();
 
-        if(button!=null && button.isEnabled())
-            button.setEnabled(false);
+        if(getSmsButton!=null && getSmsButton.isEnabled())
+            getSmsButton.setEnabled(false);
         if(textView!=null) {
             textView.setVisibility(TextView.VISIBLE);
             textView.setText(msg[0]);
@@ -80,9 +86,9 @@ public class GetSmsCodeTask extends AsyncTask<String, String, String> {
             textView.setText(msg);
         }
 
-        final Button button = _buttonWeakReference.get();
-        if(button!=null)
-            button.setEnabled(true);
+        final Button getSmsButton = _getSmsButtonWeakReference.get();
+        if(getSmsButton!=null)
+            getSmsButton.setEnabled(true);
 
         _context = null;
     }

@@ -37,15 +37,15 @@ public class StorageServerProxyService extends AbstractServerProxy {
 
     //region Service actions
     public static final String ACTION_DOWNLOAD              =   "com.services.StorageServerProxyService.DOWNLOAD";
-    public static final String ACTION_UPLOAD                =   "com.services.StorageServerProxyService.UPLOAD";
+    //public static final String ACTION_UPLOAD                =   "com.services.StorageServerProxyService.UPLOAD";
     public static final String ACTION_NOTIFY_MEDIA_CLEARED  =   "com.services.StorageServerProxyService.NOTIFY_MEDIA_CLEARED";
     public static final String ACTION_CLEAR_MEDIA           =   "com.services.StorageServerProxyService.CLEAR_MEDIA";
     //endregion
 
     //region Service intent keys
-    public static final String FILE_TO_UPLOAD               =   "FILE_TO_UPLOAD";
+    //public static final String FILE_TO_UPLOAD               =   "FILE_TO_UPLOAD";
     public static final String DESTINATION_ID               =   "DESTINATION_ID";
-    public static final String DESTINATION_CONTACT          =   "DESTINATION_CONTACT";
+    //public static final String DESTINATION_CONTACT          =   "DESTINATION_CONTACT";
     public static final String SPECIAL_MEDIA_TYPE           =   "SPECIAL_MEDIA_TYPE";
     public static final String TRANSFER_DETAILS             =   "TRANSFER_DETAILS";
     //endregion

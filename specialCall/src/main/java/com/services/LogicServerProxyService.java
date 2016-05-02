@@ -12,6 +12,7 @@ import com.utils.SharedPrefUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
 
 import ClientObjects.ConnectionToServer;
 import DataObjects.CallRecord;
@@ -179,6 +180,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
         HashMap data = new HashMap();
         data.put(DataKeys.INTERNATIONAL_PHONE_NUMBER, interPhoneNumber);
+        data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
 
         connectionToServer.sendToServer(new MessageToServer(ServerActionType.GET_SMS_CODE, localNumber, data));
     }

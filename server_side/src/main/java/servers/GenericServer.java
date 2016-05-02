@@ -66,8 +66,10 @@ public class GenericServer extends AbstractServer {
         MessageToServer msg = (MessageToServer) oMsg;
 
         try {
+            String clientId = msg.get_messageInitiaterId();
+            ctc.setInfo("id", clientId);
             ServerAction serverAction = ActionFactory.instance().getAction(msg.getActionType());
-            serverAction.set_messageInitiaterId(msg.get_messageInitiaterId());
+            serverAction.set_messageInitiaterId(clientId);
             serverAction.set_clientConnection(ctc);
             serverAction.set_dal(DalFactory.getCurrentDal());
             serverAction.verifyUserRegistration();

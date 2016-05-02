@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -116,11 +117,11 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.loginuser);
 
         prepareLoginNumberEditText();
-        prepareGetSmsCodeButton();
         prepareSmsCodeVerificationEditText();
         prepareLoginButton();
         prepareInitTextView();
         prepareInitProgressBar();
+        prepareGetSmsCodeButton();
 
     }
 
@@ -189,13 +190,14 @@ public class LoginActivity extends AppCompatActivity {
                 i.putExtra(LogicServerProxyService.SMS_CODE, Integer.parseInt(smsVerificationCode));
                 startService(i);
 
-                if (_getSmsCodeTask!=null)
+                if(_getSmsCodeTask!=null)
                     _getSmsCodeTask.cancel(true);
             }
         });
     }
 
     private void prepareGetSmsCodeButton() {
+
 
         _getSmsCodeBtn = (Button) findViewById(R.id.getSmsCode_btn);
         _getSmsCodeBtn.setEnabled(false);
@@ -204,8 +206,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                String phoneNumber = _loginNumberEditText.getText().toString();
                 _getSmsCodeTask = new GetSmsCodeTask(getApplicationContext(), _initTextView, _getSmsCodeBtn);
+                String phoneNumber = _loginNumberEditText.getText().toString();
                 _getSmsCodeTask.execute(phoneNumber);
             }
         });
@@ -290,26 +292,35 @@ public class LoginActivity extends AppCompatActivity {
 
     private void enableGetSmsCodeButton() {
 
-        _getSmsCodeBtn.setEnabled(true);
+        boolean shouldEnable = true;
+
+        if(_getSmsCodeTask!=null && _getSmsCodeTask.getStatus().equals(AsyncTask.Status.RUNNING))
+            shouldEnable = false;
+
+        if(shouldEnable)
+            _getSmsCodeBtn.setEnabled(true);
     }
 
     private void disableGetSmsCodeButton() {
 
+        Log.i(TAG, "Disabling getSmsButton");
         _getSmsCodeBtn.setEnabled(false);
 
     }
 
     private void continueToMainActivity() {
 
+        int millisToWait = 1500;
+        Log.i(TAG, String.format("Waiting %d milliseconds before continuing to MainActivity", millisToWait));
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-
+                Log.i(TAG, "Continuing to MainActivity");
                 final Intent i = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(i);
                 finish();
             }
-        }, 1500);
+        }, millisToWait);
     }
     //endregion
 
@@ -318,19 +329,21 @@ public class LoginActivity extends AppCompatActivity {
     public void eventReceived(Event event) {
 
         final EventReport report = event.report();
+        Log.i(TAG, "Receiving event:" + report.status());
 
         switch (report.status()) {
 
             case REGISTER_SUCCESS:
-                setInitTextView(getApplicationContext().getResources().getString(R.string.register_success));
+                setInitTextView(getResources().getString(R.string.register_success));
                 AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
                 continueToMainActivity();
                 break;
 
             case REGISTER_FAILURE:
                 disableProgressBar();
-                setInitTextView(report.desc());
+                setInitTextView(getResources().getString(R.string.register_failure));
                 enableSmsCodeEditText();
+                enableGetSmsCodeButton();
                 enableLoginEditText();
                 enableLoginButton();
                 break;

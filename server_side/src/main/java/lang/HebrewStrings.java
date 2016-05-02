@@ -15,41 +15,36 @@ public class HebrewStrings implements ILangStrings {
     public static final String MEDIA_UNDELIVERED_BODY   =   "אופס! %1$s לא קיבל את המדיה שלך";
     public static final String MEDIA_CLEARED_TITLE      =   "שוחזר צלצול רגיל!";
     public static final String MEDIA_CLEARED_BODY       =   "צלצול עבור %1$s שוחזר לצלצול רגיל";
+    public static final String YOUR_VERIFICATION_CODE   =   "קוד האימות שלך: %1$d";
 
 
     @Override
     public String upload_failed() {
-
         return UPLOAD_FAILED;
     }
 
     @Override
     public String oops() {
-
         return OOPS;
     }
 
     @Override
     public String media_ready_title() {
-
         return MEDIA_READY_TITLE;
     }
 
     @Override
     public String media_ready_body() {
-
         return MEDIA_READY_BODY;
     }
 
     @Override
     public String media_undelivered_title() {
-
         return MEDIA_UNDELIVERED_TITLE;
     }
 
     @Override
     public String media_undelivered_body() {
-
         return MEDIA_UNDELIVERED_BODY;
     }
 
@@ -61,5 +56,10 @@ public class HebrewStrings implements ILangStrings {
     @Override
     public String media_cleared_body() {
         return MEDIA_CLEARED_BODY;
+    }
+
+    @Override
+    public String your_verification_code() {
+        return YOUR_VERIFICATION_CODE;
     }
 }

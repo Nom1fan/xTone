@@ -17,5 +17,5 @@ public interface ILangStrings {
     String media_undelivered_body();
     String media_cleared_title();
     String media_cleared_body();
-
+    String your_verification_code();
 }
