@@ -292,6 +292,19 @@ public class FileManager implements Serializable {
 
     }
 
+    public static FileType getFileTypeByExtension(String extension) throws FileInvalidFormatException {
+
+        if (Arrays.asList(imageFormats).contains(extension))
+            return FileType.IMAGE;
+        else if (Arrays.asList(audioFormats).contains(extension))
+            return FileType.AUDIO;
+        else if (Arrays.asList(videoFormats).contains(extension))
+            return FileType.VIDEO;
+        else
+            throw new FileInvalidFormatException(extension);
+    }
+
+
     /**
      * Allows to delete a file safely (renaming first)
      * @param file - The file to delete
