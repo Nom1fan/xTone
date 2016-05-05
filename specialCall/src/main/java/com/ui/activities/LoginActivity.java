@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -87,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
+       protected void onResume() {
         super.onResume();
 
         Log.i(TAG, "OnResume()");
@@ -312,15 +311,17 @@ public class LoginActivity extends AppCompatActivity {
 
         int millisToWait = 1500;
         Log.i(TAG, String.format("Waiting %d milliseconds before continuing to MainActivity", millisToWait));
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Log.i(TAG, "Continuing to MainActivity");
-                final Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(i);
-                finish();
-            }
-        }, millisToWait);
+
+        try {
+            Thread.sleep(millisToWait);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Log.i(TAG, "Continuing to MainActivity");
+        final Intent i = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(i);
+        finish();
+
     }
     //endregion
 
