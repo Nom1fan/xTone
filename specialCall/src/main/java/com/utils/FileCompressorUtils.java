@@ -15,7 +15,7 @@ import FilesManager.FileManager;
 /**
  * Created by mor on 12/11/2015.
  */
-public class FileCompressorUtil {
+public class FileCompressorUtils {
 
     public static final String workFolder                   =   Constants.TEMP_COMPRESSED_FOLDER;
     public static final int STOP_TRANSCODING_MSG            =   -1;
@@ -27,12 +27,12 @@ public class FileCompressorUtil {
     private static final int MIN_RESOLUTION                 =   320;
     private static final long MAX_DURATION                  =   40;      // seconds
     private static final double PERCENT_TO_TRIM             =   0.7;
-    private static final String TAG                         =   FileCompressorUtil.class.getSimpleName();
+    private static final String TAG                         =   FileCompressorUtils.class.getSimpleName();
     
     private FFMPEG_Utils _ffmpeg_utils;
     private PowerManager.WakeLock _wakeLock;
 
-    public FileCompressorUtil(LoadJNI vk, PowerManager.WakeLock wakeLock) {
+    public FileCompressorUtils(LoadJNI vk, PowerManager.WakeLock wakeLock) {
         
         _ffmpeg_utils = new FFMPEG_Utils(vk);
         _wakeLock = wakeLock;

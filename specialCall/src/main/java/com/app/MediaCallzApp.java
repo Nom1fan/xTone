@@ -39,9 +39,6 @@ public class MediaCallzApp extends Application {
                 //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
                 UI_Utils.makeActionOverflowMenuShown(context);
 
-                // Initializing SQLite db
-                // DAL_Manager.initialize(getApplicationContext());
-
                 // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
                 InitUtils.hideMediaFromGalleryScanner();
 

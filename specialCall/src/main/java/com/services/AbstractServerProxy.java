@@ -208,13 +208,8 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
     protected boolean isNetworkAvailable() {
 
-        NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        boolean wifiConnected = (wifiInfo != null && wifiInfo.isConnected());
-
-        NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
-
-        return wifiConnected || mobileConnected;
+        NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
+        return activeNetwork!=null && activeNetwork.isConnected();
     }
     //endregion
 }

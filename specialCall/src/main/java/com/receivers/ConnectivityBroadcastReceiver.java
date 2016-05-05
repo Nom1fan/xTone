@@ -1,25 +1,24 @@
 package com.receivers;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
+import com.app.AppStateManager;
 import com.services.LogicServerProxyService;
+import com.utils.BroadcastUtils;
+import com.utils.DownloadsUtils;
 
-import EventObjects.Event;
 import EventObjects.EventReport;
 import EventObjects.EventType;
-
-import com.app.AppStateManager;
-import com.utils.BroadcastUtils;
 
 /**
  * Created by mor on 01/10/2015.
  */
-public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
+public class ConnectivityBroadcastReceiver extends WakefulBroadcastReceiver {
 
     private static final String TAG = ConnectivityBroadcastReceiver.class.getSimpleName();
 
@@ -27,18 +26,24 @@ public class ConnectivityBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        boolean wifiConnected = (wifiInfo != null && wifiInfo.isConnected());
+        boolean wifiConnected = false, mobileConnected = false;
 
-        NetworkInfo mobileInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        boolean mobileConnected = (mobileInfo != null && mobileInfo.isConnected());
+        NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
+        if (activeNetwork != null && activeNetwork.isConnected()) {
+            if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+                wifiConnected = true;
+                DownloadsUtils.handlePendingDownloads(context);
+            } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
+                mobileConnected = true;
+            }
+        }
 
         Log.i(TAG, "Connectivity changed. Wifi=" + wifiConnected + ". Mobile=" + mobileConnected);
 
         if (wifiConnected || mobileConnected) {
 
             String appState = AppStateManager.getAppState(context);
-            Log.i(TAG, "App State:" + appState);
+            Log.i(TAG, "App State:" +    appState);
             if (!appState.equals(AppStateManager.STATE_LOGGED_OUT) && appState.equals(AppStateManager.STATE_DISABLED)) {
                 Log.i(TAG, "Starting LogicServerProxyService...");
                 Intent i = new Intent(context, LogicServerProxyService.class);

@@ -26,14 +26,14 @@ public class Settings extends PreferenceFragment {
 
         CheckBoxPreference wifi_download_only = (CheckBoxPreference) findPreference("wifi_download_only");
 
-        wifi_download_only.setChecked(SharedPrefUtils.getBoolean(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DOWNLOAD_ONLY_ON_WIFI));
+        wifi_download_only.setChecked(SharedPrefUtils.getBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.DOWNLOAD_ONLY_ON_WIFI));
         wifi_download_only.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean checked = Boolean.valueOf(newValue.toString());
 
-                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DOWNLOAD_ONLY_ON_WIFI, checked);
+                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.DOWNLOAD_ONLY_ON_WIFI, checked);
 
                 return true;
             }

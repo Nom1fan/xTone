@@ -40,7 +40,8 @@ public abstract class SharedPrefUtils {
                 CALLER_MEDIA_FILEPATH,
                 RINGTONE_FILEPATH,
                 PROFILE_MEDIA_FILEPATH,
-                FUNTONE_FILEPATH
+                FUNTONE_FILEPATH,
+                SHOWCASE
             ));
 
     //region Shared pref keys under GENERAL
@@ -62,12 +63,11 @@ public abstract class SharedPrefUtils {
 
     //endregion
 
-    //region Shared pref keys under ShowCase
+    //region Shared pref keys under SHOWCASE
     public static final String CALL_NUMBER_VIEW                 =   "callNumberView";
     public static final String SELECT_MEDIA_VIEW                =   "SelectMediaView";
     public static final String UPLOAD_BEFORE_CALL_VIEW          =   "UploadBeforeCallView";
     //endregion
-
 
     //region Shared pref keys under SERVER_PROXY
     public static final String RECONNECT_INTERVAL               =   "LogicServerProxyService.RECONNECT_INTERVAL";
@@ -89,12 +89,13 @@ public abstract class SharedPrefUtils {
 
     //endregion
 
-
-    /* shared pref keys under SETTINGS */
+    //region Shared pref keys under SETTINGS
     public static final String WHO_CAN_MC_ME                    =   "WhoCanMCMe";
     public static final String BLOCK_LIST                       =   "BlockList";
     public static final String SAVE_MEDIA_OPTION                =   "SaveMediaOption";
     public static final String DOWNLOAD_ONLY_ON_WIFI            =   "DownloadOnlyOnWifi";
+    //endregion
+
     //region Shared prefs action methods
     //region Getters
     public static int getInt(Context context, String prefsName, String key) {
@@ -160,6 +161,8 @@ public abstract class SharedPrefUtils {
     }
     //endregion
 
+    //region Removers
+
     /**
      * Removes a key from shared preferences
      * @param context The application context
@@ -192,8 +195,7 @@ public abstract class SharedPrefUtils {
             remove(context, sharedPrefsName);
         }
     }
-
     //endregion
-
+    //endregion
 
 }

@@ -72,7 +72,7 @@ import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
-import com.utils.FileCompressorUtil;
+import com.utils.FileCompressorUtils;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 _progDialog.dismiss();
 
                 // Stopping the transcoding native
-                if (msg.what == FileCompressorUtil.STOP_TRANSCODING_MSG) {
+                if (msg.what == FileCompressorUtils.STOP_TRANSCODING_MSG) {
                     Log.i(TAG, "Got cancel message, calling fexit");
                     _vk.fExit(getApplicationContext());
 
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         Batch.onStart(this);
 
         //Copying FFMPEG license if necessary
-        GeneralUtils.copyLicenseFromAssetsToSDIfNeeded(this, FileCompressorUtil.workFolder);
+        GeneralUtils.copyLicenseFromAssetsToSDIfNeeded(this, FileCompressorUtils.workFolder);
 
         startLoginActivityIfLoggedOut();
 
@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         _specialMediaType = (SpecialMediaType) data.getSerializableExtra(SelectMediaActivity.RESULT_SPECIAL_MEDIA_TYPE);
                         FileManager fm = (FileManager) data.getSerializableExtra(SelectMediaActivity.RESULT_FILE);
 
-                        if (FileCompressorUtil.isCompressionNeeded(fm)) {
+                        if (FileCompressorUtils.isCompressionNeeded(fm)) {
                             File tempCompressedDir = new File(Constants.TEMP_COMPRESSED_FOLDER + _destPhoneNumber);
                             tempCompressedDir.mkdir();
                             TrimTask trimTask = new TrimTask(fm);
@@ -1754,7 +1754,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
     private class CompressTask extends AsyncTask<Void, Integer, Void> {
 
         private final String TAG = CompressTask.class.getSimpleName();
-        private FileCompressorUtil _fileCompressor;
+        private FileCompressorUtils _fileCompressor;
         private FileManager _baseFile;
         private CompressTask _instance = this;
 
@@ -1779,7 +1779,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
-                    _compressHandler.sendEmptyMessage(FileCompressorUtil.STOP_TRANSCODING_MSG);
+                    _compressHandler.sendEmptyMessage(FileCompressorUtils.STOP_TRANSCODING_MSG);
                     _instance.cancel(true);
                 }
             });
@@ -1799,9 +1799,9 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                     PowerManager powerManager = (PowerManager) MainActivity.this.getSystemService(Activity.POWER_SERVICE);
                     PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VK_LOCK");
 
-                    _fileCompressor = new FileCompressorUtil(_vk, wakeLock);
+                    _fileCompressor = new FileCompressorUtils(_vk, wakeLock);
                     _fileForUpload = _fileCompressor.compressFileIfNecessary(_baseFile, _destPhoneNumber, getApplicationContext());
-                    _compressHandler.sendEmptyMessage(FileCompressorUtil.FINISHED_TRANSCODING_MSG);
+                    _compressHandler.sendEmptyMessage(FileCompressorUtils.FINISHED_TRANSCODING_MSG);
                     if (isCancelled()) {
                         BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
                         return;
@@ -1813,7 +1813,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
 
             // Progress update thread
             new Thread() {
-                ProgressCalculator pc = new ProgressCalculator(FileCompressorUtil.VK_LOG_PATH);
+                ProgressCalculator pc = new ProgressCalculator(FileCompressorUtils.VK_LOG_PATH);
 
                 public void run() {
                     Log.d(TAG, "Progress update started");
@@ -1845,7 +1845,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
 
         private final String TAG = CompressTask.class.getSimpleName();
         TrimTask _instance = this;
-        private FileCompressorUtil _fileCompressor;
+        private FileCompressorUtils _fileCompressor;
         private FileManager _baseFile;
 
         public TrimTask(FileManager baseFile) {
@@ -1869,7 +1869,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
 
-                    _compressHandler.sendEmptyMessage(FileCompressorUtil.STOP_TRANSCODING_MSG);
+                    _compressHandler.sendEmptyMessage(FileCompressorUtils.STOP_TRANSCODING_MSG);
                     _instance.cancel(true);
                 }
             });
@@ -1889,9 +1889,9 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                     PowerManager powerManager = (PowerManager) MainActivity.this.getSystemService(Activity.POWER_SERVICE);
                     PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VK_LOCK");
 
-                    _fileCompressor = new FileCompressorUtil(_vk, wakeLock);
+                    _fileCompressor = new FileCompressorUtils(_vk, wakeLock);
                     _fileForUpload = _fileCompressor.trimFileIfNecessary(_baseFile, _destPhoneNumber, getApplicationContext());
-                    _compressHandler.sendEmptyMessage(FileCompressorUtil.FINISHED_TRANSCODING_MSG);
+                    _compressHandler.sendEmptyMessage(FileCompressorUtils.FINISHED_TRANSCODING_MSG);
                     if (isCancelled()) {
                         BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
                         return;
@@ -1903,7 +1903,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
 
             // Progress update thread
             new Thread() {
-                ProgressCalculator pc = new ProgressCalculator(FileCompressorUtil.VK_LOG_PATH);
+                ProgressCalculator pc = new ProgressCalculator(FileCompressorUtils.VK_LOG_PATH);
 
                 public void run() {
                     Log.d(TAG, "Progress update started");

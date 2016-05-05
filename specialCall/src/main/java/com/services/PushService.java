@@ -14,7 +14,10 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.receivers.PushReceiver;
 import com.utils.BroadcastUtils;
+import com.utils.DownloadsUtils;
 import com.utils.MCBlockListUtils;
+import com.utils.NetworkingUtils;
+import com.utils.SharedPrefUtils;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -32,17 +35,14 @@ public class PushService extends IntentService {
 
     private static final String TAG = PushService.class.getSimpleName();
 
+    private static final Type HASHMAP_TYPE = new TypeToken<Map<DataKeys, Object>>() { }.getType();
+
     public PushService() {
         super(PushService.class.getSimpleName());
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-
-        String jsonData;
-        HashMap<DataKeys, Object> transferDetails;
-        Type typeOfHashMap = new TypeToken<Map<DataKeys, Object>>() { }.getType();
-        String eventActionCode;
 
         try {
             if (!Batch.Push.shouldDisplayPush(this, intent)) // Check that the push is valid
@@ -54,60 +54,29 @@ public class PushService extends IntentService {
 
             //String alert = intent.getStringExtra(Batch.Push.ALERT_KEY);
             //BatchPushData pushData = new BatchPushData(this, intent);
-            eventActionCode = intent.getStringExtra(PushEventKeys.PUSH_EVENT_ACTION);
+
+            String eventActionCode = intent.getStringExtra(PushEventKeys.PUSH_EVENT_ACTION);
             Log.i(TAG, "PushEventActionCode:" + eventActionCode);
 
             switch (eventActionCode) {
-                case PushEventKeys.PENDING_DOWNLOAD: {
-                    Log.i(TAG, "In:" + PushEventKeys.PENDING_DOWNLOAD);
-                    jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
-                    transferDetails = new Gson().fromJson(jsonData, typeOfHashMap);
-                    String sourceId = (String)transferDetails.get(DataKeys.SOURCE_ID);
-
-                    if (MCBlockListUtils.IsMCBlocked(sourceId, getApplicationContext())) //don't download if the number is blocked , just break and don't continue with the download flow
-                    {
-                        Log.i(TAG, "NUMBER BLOCKED For DOWNLOAD: " + sourceId);
-                        break;
-                    }
-
-                    Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
-                    i.setAction(StorageServerProxyService.ACTION_DOWNLOAD);
-                    i.putExtra(PushEventKeys.PUSH_DATA, transferDetails);
-                    startService(i);
-                }
+                case PushEventKeys.PENDING_DOWNLOAD:
+                    pendingDownload(intent);
                 break;
 
-                case PushEventKeys.TRANSFER_SUCCESS: {
-                    jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
-                    transferDetails = new Gson().fromJson(jsonData,typeOfHashMap);
+                case PushEventKeys.TRANSFER_SUCCESS:
+                    transferSuccess(intent);
+                break;
 
-                    BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, null, transferDetails));
+                case PushEventKeys.CLEAR_MEDIA:
+                    clearMedia(intent);
+                break;
+
+                case PushEventKeys.CLEAR_SUCCESS:
+                    clearSuccess(intent);
+                break;
+
+                case PushEventKeys.SHOW_MESSAGE:
                     displayNotification(this, intent);
-                }
-                break;
-
-                case PushEventKeys.CLEAR_MEDIA: {
-                    jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
-                    transferDetails = new Gson().fromJson(jsonData, typeOfHashMap);
-                    Intent i = new Intent(getApplicationContext(), ClearMediaIntentService.class);
-                    i.putExtra(ClearMediaIntentService.TRANSFER_DETAILS, transferDetails);
-                    startService(i);
-                }
-                break;
-
-                case PushEventKeys.CLEAR_SUCCESS: {
-                    jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
-                    transferDetails = new Gson().fromJson(jsonData, typeOfHashMap);
-                    BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CLEAR_SUCCESS, null, transferDetails));
-                    displayNotification(this, intent);
-
-                }
-                break;
-
-                case PushEventKeys.SHOW_MESSAGE: {
-                    Log.i(TAG, "In:" + PushEventKeys.SHOW_MESSAGE);
-                    displayNotification(this, intent);
-                }
                 break;
             }
 
@@ -119,9 +88,68 @@ public class PushService extends IntentService {
         }
     }
 
+    //region Event action methods
+    private void pendingDownload(Intent intent) {
+
+        Log.i(TAG, "In:" + PushEventKeys.PENDING_DOWNLOAD);
+        String jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
+        HashMap transferDetails = new Gson().fromJson(jsonData, HASHMAP_TYPE);
+        String sourceId = (String)transferDetails.get(DataKeys.SOURCE_ID);
+
+        if (MCBlockListUtils.IsMCBlocked(sourceId, getApplicationContext())) // Don't download if the number is blocked , just break and don't continue with the download flow
+        {
+            Log.w(TAG, "Number blocked for download:" + sourceId);
+            return;
+        }
+
+        boolean isDownloadOnWifiOnly = SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.DOWNLOAD_ONLY_ON_WIFI);
+        if(isDownloadOnWifiOnly)
+        {
+            if(NetworkingUtils.isWifiConnected(this)) {
+                DownloadsUtils.sendActionDownload(this, transferDetails);
+            }
+            else // Enqueuing pending download for later
+            {
+                DownloadsUtils.enqueuePendingDownload(this, transferDetails);
+            }
+        }
+        else {
+            DownloadsUtils.sendActionDownload(this, transferDetails);
+        }
+    }
+
+    private void transferSuccess(Intent intent) {
+
+        Log.i(TAG, "In:" + PushEventKeys.TRANSFER_SUCCESS);
+        String jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
+        HashMap transferDetails = new Gson().fromJson(jsonData, HASHMAP_TYPE);
+
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, null, transferDetails));
+        displayNotification(this, intent);
+    }
+
+    private void clearMedia(Intent intent) {
+
+        Log.i(TAG, "In:" + PushEventKeys.CLEAR_MEDIA);
+        String jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
+        HashMap transferDetails = new Gson().fromJson(jsonData, HASHMAP_TYPE);
+        Intent i = new Intent(getApplicationContext(), ClearMediaIntentService.class);
+        i.putExtra(ClearMediaIntentService.TRANSFER_DETAILS, transferDetails);
+        startService(i);
+    }
+
+    private void clearSuccess(Intent intent) {
+
+        Log.i(TAG, "In:" + PushEventKeys.CLEAR_SUCCESS);
+        String jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
+        HashMap transferDetails = new Gson().fromJson(jsonData, HASHMAP_TYPE);
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CLEAR_SUCCESS, null, transferDetails));
+        displayNotification(this, intent);
+    }
 
     private void displayNotification(Context context, Intent intent) {
 
+        Log.i(TAG, "In:" + PushEventKeys.SHOW_MESSAGE);
         boolean isAppInForeground = AppStateManager.isAppInForeground(context);
         String appState = AppStateManager.getAppState(context);
 
@@ -139,5 +167,6 @@ public class PushService extends IntentService {
         else
             Batch.Push.displayNotification(this, intent);
     }
+    //endregion
 }
 

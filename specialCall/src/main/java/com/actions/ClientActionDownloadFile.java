@@ -58,8 +58,9 @@ public class ClientActionDownloadFile extends ClientAction {
             DataInputStream dis = new DataInputStream(_connectionToServer.getClientSocket().getInputStream());
 
             System.out.println("Reading data...");
+            Object oFileSize = data.get(DataKeys.FILE_SIZE);
             byte[] buf = new byte[1024*8];
-            long fileSize = ((Double)data.get(DataKeys.FILE_SIZE)).longValue();
+            long fileSize = oFileSize instanceof Long ? (Long)oFileSize : ((Double)oFileSize).longValue();
             int bytesRead;
             while (fileSize > 0 && (bytesRead = dis.read(buf, 0, (int)Math.min(buf.length, fileSize))) != -1)
             {
