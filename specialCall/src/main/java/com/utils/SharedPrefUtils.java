@@ -93,7 +93,7 @@ public abstract class SharedPrefUtils {
     /* shared pref keys under SETTINGS */
     public static final String WHO_CAN_MC_ME                    =   "WhoCanMCMe";
     public static final String BLOCK_LIST                       =   "BlockList";
-    public static final String ALWAYS_SAVE_MEDIA                =   "AlwaysSaveMedia";
+    public static final String SAVE_MEDIA_OPTION                =   "SaveMediaOption";
     public static final String DOWNLOAD_ONLY_ON_WIFI            =   "DownloadOnlyOnWifi";
     //region Shared prefs action methods
     //region Getters

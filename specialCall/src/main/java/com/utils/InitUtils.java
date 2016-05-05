@@ -93,7 +93,7 @@ public abstract class InitUtils {
     public static void initializeSettingsDefaultValues(Context context) {
 
         SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DOWNLOAD_ONLY_ON_WIFI, false);
-        SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ALWAYS_SAVE_MEDIA, true);
+        SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION, 0);
 
     }
 }

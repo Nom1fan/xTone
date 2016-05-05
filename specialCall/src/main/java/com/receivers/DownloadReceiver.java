@@ -9,12 +9,16 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import com.data_objects.Constants;
+import com.data_objects.Contact;
+import com.utils.ContactsUtils;
 import com.utils.SharedPrefUtils;
 
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import DataObjects.DataKeys;
 import DataObjects.SharedConstants;
@@ -26,6 +30,7 @@ import Exceptions.FileDoesNotExistException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
+import utils.PhoneNumberUtils;
 
 
 public class DownloadReceiver extends BroadcastReceiver {
@@ -53,7 +58,7 @@ public class DownloadReceiver extends BroadcastReceiver {
             preparePathsAndDirs(td);
 
             // copy new downloaded file to History Folder so it will show up in Gallery and don't make any duplicates with MD5 signature
-            if(SharedPrefUtils.getBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ALWAYS_SAVE_MEDIA))
+            if(isAuthorizedToLeaveMedia(context,td.get(DataKeys.SOURCE_ID).toString()))
                  copyToHistoryForGalleryShow(context, td);
 
             FileManager.FileType fType = FileManager.FileType.valueOf(td.get(DataKeys.FILE_TYPE).toString());
@@ -74,6 +79,30 @@ public class DownloadReceiver extends BroadcastReceiver {
                     break;
             }
         }
+    }
+
+    private boolean isAuthorizedToLeaveMedia(Context context,String incomingNumber) {
+
+
+        if(SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION) == 0)
+            return true;
+        else if (SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION) == 1 )
+        {            // GET ALL CONTACTS
+        List<Contact> contactsList = ContactsUtils.getAllContacts(context);
+        List<String> contactPhonenumbers = new ArrayList<>();
+
+        for (int i=0; i<contactsList.size(); i++) {
+            contactPhonenumbers.add(contactsList.get(i).get_phoneNumber());
+        }
+
+        if(contactPhonenumbers.contains(PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber)))
+            return true; // authorized to save media
+        else
+            return false; // not authorized
+        }
+        else
+            return  false;
+
     }
 
     /**

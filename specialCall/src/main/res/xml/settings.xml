@@ -10,10 +10,13 @@
             android:summary="@string/wifi_summary" />
 
 
-        <CheckBoxPreference
+        <ListPreference
             android:key="save_media"
             android:title="@string/save_media_title"
-            android:summary="@string/save_media_sumary"/>
+            android:summary="@string/save_media_sumary"
+            android:entries="@array/save_media"
+            android:entryValues="@array/types_values"
+            android:dialogTitle="@string/save_media_title" />
 
 
     </PreferenceCategory>

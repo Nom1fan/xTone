@@ -3,8 +3,10 @@ package com.ui.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.util.Log;
 
 import com.mediacallz.app.R;
 import com.services.IncomingService;
@@ -38,16 +40,19 @@ public class Settings extends PreferenceFragment {
         });
 
 
-        CheckBoxPreference save_media = (CheckBoxPreference) findPreference("save_media");
-
-        save_media.setChecked(SharedPrefUtils.getBoolean(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ALWAYS_SAVE_MEDIA));
-        save_media.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        // SAVE MEDIA : 0 - always , 1 - contacts only , 2 - never save
+        ListPreference save_media_listPreference = (ListPreference) findPreference("save_media");
+        save_media_listPreference.setValueIndex(SharedPrefUtils.getInt(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION, 0));
+        save_media_listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                boolean checked = Boolean.valueOf(newValue.toString());
 
-                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ALWAYS_SAVE_MEDIA, checked);
+                int checked = Integer.parseInt(newValue.toString());
+
+                SharedPrefUtils.setInt(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION, checked);
+                Log.i(TAG,"save Media Option: " + String.valueOf(checked) );
+
 
                 return true;
             }

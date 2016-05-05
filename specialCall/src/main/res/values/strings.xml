@@ -82,13 +82,13 @@
     <!--  SettingsActivity   -->
     <string-array name="save_media">
         <item >Always save</item>
-        <item >Ask me</item>
+        <item >Contacts only</item>
         <item >Never save</item>
     </string-array>
     <string-array name="types_values">
-        <item >"Always save"</item>
-        <item >"Ask me"</item>
-        <item >"Never save"</item>
+        <item >0</item>
+        <item >1</item>
+        <item >2</item>
     </string-array>
     <string name="delete_account_are_you_sure_text">Are you sure you want to delete your account and all data? This is irreversible!</string>
 
