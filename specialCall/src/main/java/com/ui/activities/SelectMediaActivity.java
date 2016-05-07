@@ -376,8 +376,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     private void RecordVideo(int code) {
         // Determine Uri of camera image to save.
-        String fname = "MyVideo_"+_destPhoneNumber+".mp4";
-        File sdVideoMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
+        String fname =  "MyVideo_"+System.currentTimeMillis()+".mp4";
+        File sdVideoMainDirectory = new File(Constants.HISTORY_FOLDER, fname);
 
         sdVideoMainDirectory.delete();
 
@@ -397,8 +397,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private void takePicture(int code) {
 
         // Determine Uri of camera image to save.
-        String fname = "MyImage_"+_destPhoneNumber+".jpeg";
-        File sdImageMainDirectory = new File(Constants.TEMP_RECORDING_FOLDER, fname);
+        String fname = "MyImage_"+System.currentTimeMillis()+".jpeg";
+        File sdImageMainDirectory = new File(Constants.HISTORY_FOLDER, fname);
         sdImageMainDirectory.delete();
         _outputFileUri = Uri.fromFile(sdImageMainDirectory);
 
@@ -453,6 +453,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                 if(path == null)
                   throw new FileDoesNotExistException("Path returned from URI was null");
             }
+
+            getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(path))));
 
             if (FileUtils.isLocal(path)) {
 
@@ -520,6 +522,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         Log.i(TAG,"ReturnFile");
         try {
 
+            getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(filePath))));
+
                 fm = new FileManager(filePath);
                 Log.i(TAG, "[File selected]: " + filePath + ". [File Size]: " + FileManager.getFileSizeFormat(fm.getFileSize()));
 
@@ -563,8 +567,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     public void recordAudio() {
 
-        String fname = "MyAudioRecording_"+_destPhoneNumber+".aac";
-        File sdAudioFile = new File(Constants.TEMP_RECORDING_FOLDER, fname);
+        String fname = "MyAudioRecording_"+System.currentTimeMillis()+".aac";
+        File sdAudioFile = new File(Constants.HISTORY_FOLDER, fname);
 
         sdAudioFile.delete();
         _recordedAudioFilePath = sdAudioFile.getAbsolutePath();

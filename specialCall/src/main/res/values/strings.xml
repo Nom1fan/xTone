@@ -85,7 +85,7 @@
         <item >Contacts only</item>
         <item >Never save</item>
     </string-array>
-    <string-array name="types_values">
+    <string-array name="save_media_array_values">
         <item >0</item>
         <item >1</item>
         <item >2</item>
@@ -134,8 +134,12 @@
 
 
     <!--  activity_main Layout   -->
-    <string name="call_number_hint">Type name or phone</string>
-    <string name="media_calling">Media Calling</string>
+    <string name="call_number_hint">Type name or number</string>
+    <string name="me">Me</string>
+    <string name="profile_textview">Tap to change</string>
+    <string name="contact_textview">Tap to choose from your contacts Or type below</string>
+    <string name="caller_textview">Tap to choose media for contact</string>
+    <string name="callbtn_textview">Tap to dial or change contact</string>
 
     <!--  blocked_user_list Layout   -->
     <string name="all_can_mc_me">All can MC me</string>

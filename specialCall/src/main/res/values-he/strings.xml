@@ -120,7 +120,12 @@
     <!--  activity_main Layout   -->
     <string name="call_number_hint">הכנס שם או מספר</string>
     <string name="media_calling">מתקשר עם מדיה ל</string>
-    
+    <string name="me">אני</string>
+    <string name="profile_textview">לחץ כדי לשנות</string>
+    <string name="contact_textview">בחר איש קשר או הקלד למטה</string>
+    <string name="caller_textview">לחץ לבחירת מדיית מתקשר</string>
+    <string name="callbtn_textview">לחץ להתקשר או חזור לבחירת איש קשר</string>
+
     <!--  loginuser Layout   -->
     <string name="get_sms_code">קבל קוד סמס</string>
     <string name="login">התחבר</string>

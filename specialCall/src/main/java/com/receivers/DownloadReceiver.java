@@ -84,9 +84,9 @@ public class DownloadReceiver extends BroadcastReceiver {
     private boolean isAuthorizedToLeaveMedia(Context context,String incomingNumber) {
 
 
-        if(SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION) == 0)
+        if(SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION) == 0) // Save Always
             return true;
-        else if (SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION) == 1 )
+        else if (SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION) == 1 ) // Contacts Only Save
         {            // GET ALL CONTACTS
         List<Contact> contactsList = ContactsUtils.getAllContacts(context);
         List<String> contactPhonenumbers = new ArrayList<>();
@@ -100,7 +100,7 @@ public class DownloadReceiver extends BroadcastReceiver {
         else
             return false; // not authorized
         }
-        else
+        else // 2 - never save
             return  false;
 
     }

@@ -15,7 +15,7 @@
             android:title="@string/save_media_title"
             android:summary="@string/save_media_sumary"
             android:entries="@array/save_media"
-            android:entryValues="@array/types_values"
+            android:entryValues="@array/save_media_array_values"
             android:dialogTitle="@string/save_media_title" />
 
 

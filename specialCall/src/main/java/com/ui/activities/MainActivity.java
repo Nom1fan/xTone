@@ -43,15 +43,14 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.actions.ClientAction;
 import com.actions.ActionFactory;
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
-
+import com.actions.ClientAction;
 import com.app.AppStateManager;
 import com.async_tasks.AutoCompletePopulateListAsyncTask;
 import com.async_tasks.IsRegisteredTask;
 import com.batch.android.Batch;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.data_objects.Contact;
@@ -75,6 +74,7 @@ import com.utils.ContactsUtils;
 import com.utils.FileCompressorUtils;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
+import com.utils.SpecialDevicesUtils;
 import com.utils.UI_Utils;
 
 import java.io.BufferedInputStream;
@@ -118,9 +118,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //region UI elements
     private ImageButton _selectContactBtn;
     private ImageButton _selectMediaBtn;
+    private ImageButton _selectMediaBtn_small;
+    private TextView _selectMediaBtn_textview;
+    private TextView _callBtn_textview;
     private ImageButton _callBtn;
     private ProgressBar _fetchUserPbar;
-    private ProgressBar _pBar;
     private BroadcastReceiver _eventReceiver;
     private IntentFilter _eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
     private AutoCompleteTextView _autoCompleteTextViewDestPhone;
@@ -135,7 +137,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ImageView _ringtoneStatus;
     private AutoCompleteTextView _destinationEditText;
     private TextView _destTextView;
-    private TextView _mediaCallingTextView;
     private boolean _profileHasMedia = false;
     private boolean _callerHasMedia = false;
     private boolean _profileHasRingtone = false;
@@ -207,6 +208,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         AppStateManager.setAppInForeground(getApplicationContext(), true);
 
         if (!getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
+
+            SpecialDevicesUtils.checkIfDeviceHasStrictMemoryManager(getApplicationContext());
+            SpecialDevicesUtils.checkIfDeviceHasStrictRingingCapabilitiesAndNeedMotivation(getApplicationContext());
+
             //TODO MediaCallz: Do we need these start services here?
             // Starting service responsible for incoming media callz
             Intent incomingServiceIntent = new Intent(this, IncomingService.class);
@@ -444,7 +449,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             else
                 selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
 
-        } else if (id == R.id.selectProfileMediaBtn) {
+        }  else if (id == R.id.selectmedia_btn_small) {
+            if (_callerHasMedia || _callerHasRingtone)
+                openCallerMediaMenu();
+            else
+                selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
+
+        }else if (id == R.id.selectProfileMediaBtn) {
 
             if (_profileHasMedia || _profileHasRingtone)
                 openProfileMediaMenu();
@@ -459,7 +470,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         } else if (id == R.id.clear) {
 
-           SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, true);
+            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, true);
             AutoCompleteTextView textViewToClear = (AutoCompleteTextView) findViewById(R.id.CallNumber);
             textViewToClear.setText("");
 
@@ -572,15 +583,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void setDestNameTextView() {
 
-if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION)) {
-    YoYo.with(Techniques.StandUp)
-            .duration(1000)
-            .playOn(findViewById(R.id.destName));
+        if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION)) {
+            YoYo.with(Techniques.StandUp)
+                    .duration(1000)
+                    .playOn(findViewById(R.id.destName));
 
-    YoYo.with(Techniques.StandUp)
-            .duration(1000)
-            .playOn(findViewById(R.id.media_calling));
-}
+        }
 
         if (_destPhoneNumber != null && !_destPhoneNumber.equals(""))
             _destName = ContactsUtils.getContactName(getApplicationContext(),_destPhoneNumber);
@@ -747,10 +755,8 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         prepareAutoCompleteTextViewDestPhoneNumber();
 
         prepareDestNameTextView();
-        prepareMediaCallingTextView();
         prepareDestinationEditText();
         prepareRingtoneStatus();
-        prepareProgressBar();
         prepareFetchUserProgressBar();
         prepareRingtoneNameTextView();
         prepareMediaStatusImageView();
@@ -764,7 +770,6 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
     //region UI States
     public void stateIdle() {
 
-        disableProgressBar();
         enableSelectContactButton();
         enableDestinationEditText();
         disableUserFetchProgressBar();
@@ -773,7 +778,6 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         disableRingToneName();
         disableRingToneNameForProfile();
         disableCallButton();
-        disableMediaCallingTextView();
         disableDestinationTextView();
 
         if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION))
@@ -783,7 +787,6 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
 
     public void stateReady() {
 
-        disableProgressBar();
         enableSelectMediaButton();
         drawRingToneName();
         drawRingToneNameForProfile();
@@ -792,7 +795,6 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         enableDestinationEditText();
         enableSelectContactButton();
         enableCallButton();
-        enableMediaCallingTextView();
         enableSelectMediaButton();
         if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION))
                     SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, false);
@@ -805,7 +807,6 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         disableSelectCallerMediaButton();
         disableSelectProfileMediaButton();
         disableUserFetchProgressBar();
-        disableProgressBar();
         disableSelectContactButton();
         disableDestinationEditText();
         disableCallButton();
@@ -861,11 +862,6 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
     }
 
     //region UI elements controls
-    private void prepareMediaCallingTextView() {
-
-        _mediaCallingTextView = (TextView) findViewById(R.id.media_calling);
-    }
-
     private void prepareDestinationEditText() {
 
         _destinationEditText = (AutoCompleteTextView) findViewById(R.id.CallNumber);
@@ -879,11 +875,6 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
     private void prepareRingtoneStatus() {
 
         _ringtoneStatus = (ImageView) findViewById(R.id.ringtoneStatusArrived);
-    }
-
-    private void prepareProgressBar() {
-
-        _pBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
     private void prepareMainActivityLayout() {
@@ -919,6 +910,8 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         _callBtn = (ImageButton) findViewById(R.id.CallNow);
         if (_callBtn != null)
             _callBtn.setOnClickListener(this);
+
+        _callBtn_textview = (TextView) findViewById(R.id.dial_textview);
     }
 
     private void prepareSelectMediaButton() {
@@ -926,6 +919,13 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         _selectMediaBtn = (ImageButton) findViewById(R.id.selectMediaBtn);
         if (_selectMediaBtn != null)
             _selectMediaBtn.setOnClickListener(this);
+
+        _selectMediaBtn_small = (ImageButton) findViewById(R.id.selectmedia_btn_small);
+        if (_selectMediaBtn_small != null)
+            _selectMediaBtn_small.setOnClickListener(this);
+
+        _selectMediaBtn_textview = (TextView) findViewById(R.id.media_textview);
+
     }
 
     private void prepareSelectContactButton() {
@@ -1130,35 +1130,34 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
 
     private void disableCallButton() {
 
-        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION))
-            YoYo.with(Techniques.SlideOutRight)
-                    .duration(300)
-                    .playOn(findViewById(R.id.CallNow));
+        _callBtn_textview.setVisibility(View.INVISIBLE);
+        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION))
+        {  YoYo.with(Techniques.SlideOutRight)
+                .duration(300)
+                .playOn(findViewById(R.id.CallNow));
+
+        }
         else
-        _callBtn.setVisibility(View.INVISIBLE);
+            _callBtn.setVisibility(View.INVISIBLE);
+
     }
 
     private void enableCallButton() {
 
+        _callBtn_textview.setVisibility(View.VISIBLE);
+        _callBtn.setVisibility(View.VISIBLE);
+        _callBtn.setEnabled(true);
+
         if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION))
         {
-            _callBtn.setVisibility(View.VISIBLE);
-            _callBtn.setEnabled(true);
-
             YoYo.with(Techniques.SlideInLeft)
                     .duration(1000)
                     .playOn(findViewById(R.id.CallNow));
-        }
-        else
-        {
-        _callBtn.setVisibility(View.VISIBLE);
-        _callBtn.setEnabled(true);
         }
     }
 
 
     private void disableSelectCallerMediaButton() {
-
 
         if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION))
         {
@@ -1176,6 +1175,9 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
             _selectMediaBtn.setVisibility(View.INVISIBLE);
             _ringToneNameTextView.setVisibility(View.INVISIBLE);
         }
+        _selectMediaBtn_small.setVisibility(View.INVISIBLE);
+        _selectMediaBtn_textview.setVisibility(View.INVISIBLE);
+        disableMediaStatusArrived();
     }
 
     private void disableSelectProfileMediaButton() {
@@ -1188,21 +1190,13 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
     private void enableSelectMediaButton() {
 
         _selectMediaBtn.setClickable(true);
-
-        // make the drawable fit center and with padding, so it won't stretch
-        int sizeInDp = 30;
-        float scale = getResources().getDisplayMetrics().density;
-        int dpAsPixels = (int) (sizeInDp * scale + 0.5f);
-        _selectMediaBtn.setPadding(dpAsPixels, dpAsPixels, dpAsPixels, dpAsPixels);
-        _selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        _selectMediaBtn_small.setClickable(true);
 
         drawSelectMediaButton(true);
         _selectMediaBtn.setVisibility(View.VISIBLE);
+        _selectMediaBtn_small.setVisibility(View.VISIBLE);
+        _selectMediaBtn_textview.setVisibility(View.VISIBLE);
 
-        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION)
-                && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW)
-                && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW) )
-        {
             Techniques tech = UI_Utils.getRandomInTechniques();
             YoYo.with(tech)
                     .duration(1000)
@@ -1212,22 +1206,6 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                     .duration(1000)
                     .playOn(findViewById(R.id.ringtoneName));
 
-        }
-        else if(SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION)
-                &&
-                (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW)
-                || !SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW)))
-        {
-            Techniques tech = UI_Utils.getRandomInTechniques();
-            YoYo.with(tech)
-                    .duration(10)
-                    .playOn(findViewById(R.id.selectMediaBtn));
-
-            YoYo.with(tech)
-                    .duration(10)
-                    .playOn(findViewById(R.id.ringtoneName));
-
-        }
     }
 
     private void enableSelectProfileMediaButton() {
@@ -1261,32 +1239,15 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         _mediaStatus.setVisibility(View.INVISIBLE);
     }
 
-    private void disableProgressBar() {
-
-        _pBar.setVisibility(ProgressBar.GONE);
-    }
-
     private void disableDestinationTextView() {
 
         _destTextView.setText("");
         _destTextView.setVisibility(TextView.INVISIBLE);
-        disableMediaCallingTextView();
     }
 
     private void enableDestinationTextView() {
 
         _destTextView.setVisibility(TextView.VISIBLE);
-        enableMediaCallingTextView();
-    }
-
-    private void disableMediaCallingTextView() {
-
-        _mediaCallingTextView.setVisibility(TextView.INVISIBLE);
-    }
-
-    private void enableMediaCallingTextView() {
-
-        _mediaCallingTextView.setVisibility(TextView.VISIBLE);
     }
 
     private void disableDestinationEditText() {
@@ -1348,7 +1309,10 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
                     String ringToneFilePath = lut_utils.getUploadedTonePerNumber(getApplicationContext(), _destPhoneNumber);
                     if (ringToneFilePath.isEmpty())
                         UI_Utils.showCaseViewSelectMedia(getApplicationContext(), MainActivity.this);
-                    _selectMediaBtn.setImageResource(R.drawable.select_caller_media);
+
+                    _selectMediaBtn.setImageDrawable(null);
+                    _selectMediaBtn.setBackgroundColor(0x67000000);
+
                     _callerHasMedia = false;
                     disableMediaStatusArrived();
                 }
@@ -1454,7 +1418,7 @@ if( SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,
         if (enabled)
             _selectContactBtn.setImageResource(R.drawable.select_contact_enabled);
         else
-            _selectContactBtn.setImageResource(R.drawable.select_contact_disabled);
+            _selectContactBtn.setImageResource(android.R.color.transparent);
     }
 
     private void writeInfoSnackBar(final SnackbarData snackBarData) {

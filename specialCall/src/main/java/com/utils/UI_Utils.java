@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -118,12 +119,14 @@ public abstract class UI_Utils {
 
         Log.i(TAG, "Title: " + title + " details: " + details);
      try{
+
+
         new ShowcaseView.Builder(activity)
                 .setTarget(target)
                 .setContentTitle(title)
                 .setContentText(details)
                 .hideOnTouchOutside().withMaterialShowcase()
-                .build();
+                .build().setButtonPosition(centerlizeParams());
 
     }
     catch (NullPointerException | OutOfMemoryError e) {
@@ -131,6 +134,17 @@ public abstract class UI_Utils {
     }
 
 
+    }
+
+    private static RelativeLayout.LayoutParams centerlizeParams() {
+
+        RelativeLayout.LayoutParams rel_btn = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+
+        rel_btn.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
+        rel_btn.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        rel_btn.bottomMargin = 100;
+        return rel_btn;
     }
 
     public static void showCaseViewSelectProfile(Context context,Activity activity) {
@@ -153,7 +167,7 @@ public abstract class UI_Utils {
 
 
           try {
-              ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectMediaBtn, activity);
+              ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectmedia_btn_small, activity);
               ShowcaseView sv = new ShowcaseView.Builder(activity)
                       .setTarget(targetSelectMediaView)
                       .setContentTitle(context.getResources().getString(R.string.callermedia_sv_title))
@@ -161,6 +175,7 @@ public abstract class UI_Utils {
                       .hideOnTouchOutside().
                               withMaterialShowcase().build();
 
+              sv.setButtonPosition(centerlizeParams());
               sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
                   @Override
                   public void onShowcaseViewHide(ShowcaseView showcaseView) {
@@ -198,13 +213,14 @@ public abstract class UI_Utils {
         if (!SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW)) {
       try{
           SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, true);
-            ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectMediaBtn, activity);
+            ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectmedia_btn_small, activity);
             ShowcaseView sv = new ShowcaseView.Builder(activity)
                     .setTarget(targetSelectMediaView)
                     .setContentTitle(context.getResources().getString(R.string.callermedia_sv_title))
                     .setContentText(context.getResources().getString(R.string.callermedia_sv_details))
                     .hideOnTouchOutside().
                             withMaterialShowcase().build();
+            sv.setButtonPosition(centerlizeParams());
 
             sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
                 @Override

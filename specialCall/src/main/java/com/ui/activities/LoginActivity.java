@@ -67,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
 
         Batch.onStart(this);
 
-        prepareEventReceiver();
+
     }
 
     @Override
@@ -92,6 +92,8 @@ public class LoginActivity extends AppCompatActivity {
         Log.i(TAG, "OnResume()");
 
         restoreInstanceState();
+
+        prepareEventReceiver();
 
         if(Constants.MY_BATCH_TOKEN(this).equals("")) {
 

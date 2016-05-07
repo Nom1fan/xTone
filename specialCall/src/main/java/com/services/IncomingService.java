@@ -199,23 +199,26 @@ public class IncomingService extends AbstractStandOutService {
                                 backupMusicVolume();
 
                                 int ringVolume = SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME);
-                                boolean isSilent = (ringVolume == 0);
 
+                                // TODO maybe add GetRingerMode rule just in case volume is above 0 and mode is silent... never saw that but maybe we should cover this scenario if there is some weird devices :/ for now no need... need to check
                                 // Setting music volume to equal the ringtone volume
-                                if (isSilent) {
+                                     mVolumeChangeByService = true;
+                                    // Get the current ringer volume as a percentage of the max ringer volume.
+                                    int maxRingerVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_RING);
+                                    Log.i(TAG, "maxRingerVolume: " +maxRingerVolume);
+                                    double proportion = ringVolume/(double)maxRingerVolume;
 
-                                    mVolumeChangeByService = true;
-                                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // ring volume max is 7(also System & Alarm max volume) ,
-                                    // Music volume max is 15 (so we want to use full potential of the volume of the music stream)
-                                    Log.i(TAG, "STREAM_MUSIC Change : 0");
+                                    // Calculate a desired music volume as that same percentage of the max music volume.
+                                    int maxMusicVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+                                    Log.i(TAG, "maxMusicVolume: " +maxMusicVolume);
+                                    int desiredMusicVolume = (int)(proportion * maxMusicVolume);
 
-                                } else {
+                                    // Set the music stream volume.
+                                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, desiredMusicVolume, 0 /*flags*/);
 
-                                    mVolumeChangeByService = true;
-                                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, ringVolume * 2 + 1, 0); // ring volume max is 7(also System & Alarm max volume) ,
-                                    // Music volume max is 15 (so we want to use full potential of the volume of the music stream)
-                                    Log.i(TAG, "STREAM_MUSIC Change : " + (ringVolume * 2 + 1));
-                                }
+                                    Log.i(TAG, "STREAM_MUSIC Change : " + (desiredMusicVolume));
+
+
 
                             } catch (Exception e) {
                                 e.printStackTrace();
