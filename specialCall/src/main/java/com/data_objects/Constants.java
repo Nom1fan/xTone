@@ -14,6 +14,10 @@ public class Constants {
     // Constants for Batch
     public static final String GCM_SENDER_ID = "817954308887";
 
+    // Constants for Website
+    public static final String TERMS_AND_PRIVACY_URL = "http://www.mediacallz.com";
+    public static final String MEDIACALLZ_CONTENT_STORE_URL = "http://www.mediacallz.com";
+
     private static final String INCOMING_FOLDER_NAME = "Incoming_" + SharedConstants.APP_NAME;
     private static final String OUTGOING_FOLDER_NAME = "Outgoing_" + SharedConstants.APP_NAME;
     private static final String TEMP_COMP_FOLDER_NAME = "Compressed_" + SharedConstants.APP_NAME;

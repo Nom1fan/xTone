@@ -70,7 +70,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private float oldPosition =0;
     private int moveLength= 0;
     private WebView mwebView;
-    private final String MEDIACALLZ_GALLERY_URL = "http://download.wavetlan.com/SVV/Media/HTTP/http-mp4.htm"; // TODO Place it in Constants
     private ProgressDialog _progDialog;
 
     //region Activity methods (onCreate(), onPause()...)
@@ -265,7 +264,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         settings.setBuiltInZoomControls(true);
         settings.setPluginState(WebSettings.PluginState.ON);
         settings.setDomStorageEnabled(true);
-        mwebView.loadUrl(MEDIACALLZ_GALLERY_URL);
+        mwebView.loadUrl(Constants.MEDIACALLZ_CONTENT_STORE_URL);
         mwebView.setId(5);
         mwebView.setInitialScale(0);
         mwebView.requestFocus();

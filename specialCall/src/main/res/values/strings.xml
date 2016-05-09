@@ -26,6 +26,9 @@
     <string name="login">Login</string>
     <string name="sms_code_hint">SMS code you received</string>
     <string name="your_phone">Your phone number</string>
+    <string name="terms_and_conditions_title">Terms of Service and Privacy Policy</string>
+    <string name="terms_and_conditions">  Tap "Agree and Login" to accept the MediaCallz: <![CDATA[<b><font color=#0000FF><u>Terms of Service and Privacy Policy</u></b>]]></string>
+    <string name="terms_and_conditions_button">Agree and Login</string>
 
     <!--  NotificationUtils   -->
     <string name="notification_title">MC</string>

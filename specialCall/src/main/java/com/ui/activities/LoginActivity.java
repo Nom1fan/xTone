@@ -22,7 +22,7 @@ import com.batch.android.Batch;
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.services.GetTokenIntentService;
-import com.services.LogicServerProxyService;
+import com.ui.dialogs.TermsAndConditionsDialog;
 import com.utils.SharedPrefUtils;
 
 import EventObjects.Event;
@@ -184,12 +184,8 @@ public class LoginActivity extends AppCompatActivity {
                 String smsVerificationCode = _smsCodeVerEditText.getText().toString();
                 String loginNumber = _loginNumberEditText.getText().toString();
 
-                Constants.MY_ID(getApplicationContext(), loginNumber);
-
-                Intent i = new Intent(getApplicationContext(), LogicServerProxyService.class);
-                i.setAction(LogicServerProxyService.ACTION_REGISTER);
-                i.putExtra(LogicServerProxyService.SMS_CODE, Integer.parseInt(smsVerificationCode));
-                startService(i);
+                TermsAndConditionsDialog termsDialog = new TermsAndConditionsDialog(loginNumber, smsVerificationCode);
+                termsDialog.show(getFragmentManager(), TAG);
 
                 if(_getSmsCodeTask!=null)
                     _getSmsCodeTask.cancel(true);

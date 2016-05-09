@@ -69,7 +69,9 @@
     <string name="registering">נרשם...</string>
     <string name="reconnecting">מתחבר...</string>
     <string name="connected">מחובר</string>
-
+    <string name="terms_and_conditions_title"> התנאים של השירות ומדיניות הפרטיות</string>
+    <string name="terms_and_conditions"> לחץ הסכם והתחבר כדי להסכים לתנאים של  MediaCallz: <![CDATA[<b><font color=#0000FF><u>התנאים של השירות ומדיניות הפרטיות</u></b>]]></string>
+    <string name="terms_and_conditions_button">הסכם והתחבר</string>
     <!--  NotificationUtils   -->
     <string name="notification_title">MC</string>
     <string name="notification_text">פעיל</string>
