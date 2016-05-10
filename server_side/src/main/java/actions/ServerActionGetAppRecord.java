@@ -25,7 +25,6 @@ public class ServerActionGetAppRecord extends ServerAction {
 
         AppMetaRecord appMetaRecord = AppMetaAccess.instance(_dal).getAppMeta();
         HashMap replyData = new HashMap();
-        replyData.put(DataKeys.APP_VERSION, appMetaRecord.get_appVersion());
         replyData.put(DataKeys.MIN_SUPPORTED_VERSION, appMetaRecord.get_minSupportedVersion());
         replyToClient(new MessageToClient(ClientActionType.GET_APP_RECORD_RES, replyData));
     }

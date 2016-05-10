@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 
+import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.utils.SharedPrefUtils;
 
@@ -41,8 +42,6 @@ public class AboutAndHelp extends PreferenceFragment {
 
 
                 return true;
-
-
             }
         });
         //endregion
@@ -62,8 +61,6 @@ public class AboutAndHelp extends PreferenceFragment {
 
 
                 return true;
-
-
             }
         });
 
@@ -86,15 +83,16 @@ public class AboutAndHelp extends PreferenceFragment {
                             Uri.parse("http://play.google.com/store/apps/details?id=" + getActivity().getApplicationContext().getPackageName())));
                 }
 
-
                 return true;
-
-
             }
         });
         //endregion
 
-
+        //region About
+        Preference version = findPreference("version");
+        String appVersion = String.valueOf(Constants.APP_VERSION(getActivity()));
+        version.setSummary(appVersion);
+        //endregion
 
         Preference mailUs = findPreference("mail");
         mailUs.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -108,11 +106,7 @@ public class AboutAndHelp extends PreferenceFragment {
                 intent.putExtra(Intent.EXTRA_TEXT, "I'm email body.");*/
 
                 startActivity(Intent.createChooser(intent, "Send Email"));
-
-
                 return true;
-
-
             }
         });
     }

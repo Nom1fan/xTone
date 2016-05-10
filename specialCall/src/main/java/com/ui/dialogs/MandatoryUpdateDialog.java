@@ -14,13 +14,6 @@ import com.mediacallz.app.R;
 
 public class MandatoryUpdateDialog extends DialogFragment {
 
-    private double _appVersion;
-
-    public MandatoryUpdateDialog(double appVersion) {
-
-        _appVersion = appVersion;
-    }
-
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -30,7 +23,7 @@ public class MandatoryUpdateDialog extends DialogFragment {
         TextView content = new TextView(getContext());
         content.setText(R.string.mandatory_update_content);
 
-        String msg = getResources().getString(R.string.mandatory_update_title) + " " + _appVersion;;
+        String msg = getResources().getString(R.string.mandatory_update_title);
 
         builder.setTitle(msg)
                 .setView(content)

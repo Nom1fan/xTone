@@ -25,6 +25,9 @@ public class MediaCallzApp extends Application {
         android.os.Process.setThreadPriority(-20);
         Context context = getApplicationContext();
 
+        // Setting app version
+        InitUtils.initAppVersion(context);
+
         // Initializing Batch for push notifications
         Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
         Batch.Push.setManualDisplay(true);

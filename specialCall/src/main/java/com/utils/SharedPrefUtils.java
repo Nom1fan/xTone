@@ -45,6 +45,7 @@ public abstract class SharedPrefUtils {
             ));
 
     //region Shared pref keys under GENERAL
+    public static final String APP_VERSION                          =   "AppVersion";
     public static final String DESTINATION_NUMBER                   =   "DestinationNumber";
     public static final String LOGIN_NUMBER                         =   "LoginNumber";
     public static final String SMS_CODE                             =   "SmsCode";
@@ -60,7 +61,6 @@ public abstract class SharedPrefUtils {
     public static final String STRICT_RINGING_CAPABILITIES_DEVICES  =   "StrictRingingCapabilitiesDevices";
     public static final String ENABLE_UI_ELEMENTS_ANIMATION         =   "EnableUIElementsAnimation";
     public static final String DISABLE_UI_ELEMENTS_ANIMATION        =   "DisableUIElementsAnimation";
-
     //endregion
 
     //region Shared pref keys under SHOWCASE
@@ -137,9 +137,19 @@ public abstract class SharedPrefUtils {
         SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         return prefs.getBoolean(key, false);
     }
+
+    public static Double getDouble(Context context, String prefsName, String key) {
+        SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
+        return Double.longBitsToDouble(prefs.getLong(key, 0));
+    }
     //endregion
 
     //region Setters
+    public static void setDouble(Context context, String prefsName, String key, double value) {
+        SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
+        prefs.edit().putLong(key, Double.doubleToRawLongBits(value)).apply();
+    }
+
     public static void setInt(Context context, String prefsName, String key, int value) {
         SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
         prefs.edit().putInt(key, value).apply();

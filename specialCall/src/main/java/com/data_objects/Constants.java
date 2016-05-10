@@ -11,6 +11,10 @@ import DataObjects.SharedConstants;
 
 public class Constants {
 
+    // Initialized using InitUtils in MediaCallzApp class
+    public static void APP_VERSION(Context context, double appVersion) { SharedPrefUtils.setDouble(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_VERSION, appVersion); }
+    public static double APP_VERSION(Context context) { return SharedPrefUtils.getDouble(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_VERSION); }
+
     // Constants for Batch
     public static final String GCM_SENDER_ID = "817954308887";
 

@@ -77,8 +77,7 @@
             />
 
         <Preference android:title="@string/version_title"
-            android:key="version"
-            android:summary="13.1.10"/>
+            android:key="version" />
 
     </PreferenceCategory>
 

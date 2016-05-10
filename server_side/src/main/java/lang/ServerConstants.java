@@ -5,5 +5,5 @@ package lang;
  */
 public abstract class ServerConstants {
 
-    public static final double LAST_SUPPORTED_APP_VERSION = 0.2;
+    public static final double MIN_SUPPORTED_APP_VERSION = 0.2;
 }

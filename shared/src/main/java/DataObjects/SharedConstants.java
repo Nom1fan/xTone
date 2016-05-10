@@ -4,7 +4,6 @@ public abstract class SharedConstants {
 
 
     /* Client constants */
-    public static final double APP_VERSION = 0.1;
 	public static String ROOT_FOLDER;
     public static String INCOMING_FOLDER;
     public static String OUTGOING_FOLDER;

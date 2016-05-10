@@ -1,10 +1,11 @@
 package com.database;
 
+import com.database.records.AppMetaRecord;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import com.database.records.AppMetaRecord;
 import DataObjects.CallRecord;
 import DataObjects.MediaTransferRecord;
 import DataObjects.UserRecord;
@@ -87,7 +88,7 @@ public interface IDAL {
     void updateMediaTransferRecord(int commId, String column, Object value) throws SQLException;
     void updateMediaTransferRecord(int commId, String[] columns, Object[] values) throws SQLException;
     void incrementColumn(String table, String col, String whereCol, String whereVal) throws SQLException;
-    void updateAppRecord(double currentVersion, double lastSupportedVersion) throws SQLException;
+    void updateAppRecord(double lastSupportedVersion) throws SQLException;
     AppMetaRecord getAppMetaRecord() throws SQLException;
     void insertUserSmsVerificationCode(String uid, int code) throws SQLException;
     void updateUserSmsVerificationCode(String uid, int code) throws SQLException;

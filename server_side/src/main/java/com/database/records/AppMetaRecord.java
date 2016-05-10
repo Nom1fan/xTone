@@ -7,16 +7,10 @@ import java.io.Serializable;
  */
 public class AppMetaRecord implements Serializable {
 
-    private double _appVersion;
     private double _minSupportedVersion;
 
-    public AppMetaRecord(double _appVersion, double _minSupportedVersion) {
-        this._appVersion = _appVersion;
+    public AppMetaRecord(double _minSupportedVersion) {
         this._minSupportedVersion = _minSupportedVersion;
-    }
-
-    public double get_appVersion() {
-        return _appVersion;
     }
 
     public double get_minSupportedVersion() {
@@ -26,6 +20,6 @@ public class AppMetaRecord implements Serializable {
     @Override
     public String toString() {
 
-        return "[App Version]:" + _appVersion + " [MinSupportedVersion]:" + _minSupportedVersion;
+        return "[MinSupportedVersion]:" + _minSupportedVersion;
     }
 }

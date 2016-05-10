@@ -7,8 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -533,8 +531,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             case APP_RECORD_RECEIVED: {
                 HashMap<DataKeys, Object> data = (HashMap) report.data();
 
-                if (SharedConstants.APP_VERSION < (double) data.get(DataKeys.MIN_SUPPORTED_VERSION))
-                    showMandatoryUpdateDialog((double) data.get(DataKeys.APP_VERSION));
+                if (Constants.APP_VERSION(this) < (double) data.get(DataKeys.MIN_SUPPORTED_VERSION))
+                   showMandatoryUpdateDialog();
             }
                 break;
 
@@ -1487,9 +1485,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
-    private void showMandatoryUpdateDialog(double appVersion) {
+    private void showMandatoryUpdateDialog() {
 
-        MandatoryUpdateDialog mandatoryUpdateDialog = new MandatoryUpdateDialog(appVersion);
+        MandatoryUpdateDialog mandatoryUpdateDialog = new MandatoryUpdateDialog();
         mandatoryUpdateDialog.show(getSupportFragmentManager(), TAG);
     }
 

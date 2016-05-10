@@ -1,5 +1,7 @@
 package com.database;
 
+import com.database.records.AppMetaRecord;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -12,7 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.database.records.AppMetaRecord;
 import DataObjects.CallRecord;
 import DataObjects.DataKeys;
 import DataObjects.MediaTransferRecord;
@@ -167,10 +168,9 @@ public class MySqlDAL implements IDAL {
             double[] res = new double[2];
             if (resultSet.first()) {
                 res[0] = resultSet.getDouble(1);
-                res[1] = resultSet.getDouble(2);
             }
 
-            appMetaRecord = new AppMetaRecord(res[0], res[1]);
+            appMetaRecord = new AppMetaRecord(res[0]);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -266,7 +266,7 @@ public class MySqlDAL implements IDAL {
     }
 
     @Override
-    public void updateAppRecord(double currentVersion, double lastSupportedVersion) throws SQLException {
+    public void updateAppRecord(double lastSupportedVersion) throws SQLException {
 
         //TODO Solve bug currentVersion as index
         StringBuilder query = new StringBuilder();
@@ -274,17 +274,12 @@ public class MySqlDAL implements IDAL {
         query.
                 append("UPDATE ").append(TABLE_APP_META).
                 append(" SET ").
-                append(COL_CURRENT_VERSION).
-                append("=").
-                append(currentVersion).
-                append(",").
                 append(COL_LAST_SUPPORTED_VER).
                 append("=").
                 append(lastSupportedVersion).
                 append(" WHERE ").
-                append(COL_CURRENT_VERSION).
-                append("=").
-                append(currentVersion);
+                append(COL_LAST_SUPPORTED_VER).
+                append(" > 0");
 
         executeQuery(query.toString());
     }

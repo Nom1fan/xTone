@@ -7,13 +7,12 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
-import DataObjects.SharedConstants;
 import LogObjects.LogsManager;
 import MessagesToServer.MessageToServer;
 import ServerObjects.AbstractServer;
 import ServerObjects.ConnectionToClient;
-import actions.ServerAction;
 import actions.ActionFactory;
+import actions.ServerAction;
 import lang.ServerConstants;
 
 /**
@@ -44,7 +43,7 @@ public class GenericServer extends AbstractServer {
         super(serverName, port);
         this.serverName = serverName;
         try {
-            new MySqlDAL().updateAppRecord(SharedConstants.APP_VERSION, ServerConstants.LAST_SUPPORTED_APP_VERSION);
+            new MySqlDAL().updateAppRecord(ServerConstants.MIN_SUPPORTED_APP_VERSION);
 
             System.out.println("Starting " + serverName + "...");
             listen();
@@ -102,6 +101,7 @@ public class GenericServer extends AbstractServer {
 
         System.out.println(serverName + " running on port:" + port + "...");
         _logger.info(serverName + " running on port:" + port + "...");
+        _logger.info("Minimum supported app version: " + ServerConstants.MIN_SUPPORTED_APP_VERSION);
     }
 
     @Override
