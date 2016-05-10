@@ -66,15 +66,10 @@
         android:title="@string/about">
 
 
-        <PreferenceScreen
-            android:key="privacy_policy"
-            android:title="@string/privacy"
-            />
-
-        <PreferenceScreen
-            android:key="terms_of_service"
-            android:title="@string/terms_of_service"
-            />
+    <PreferenceScreen
+        android:key="terms"
+        android:title="@string/terms_and_conditions_title">
+    </PreferenceScreen>
 
         <Preference android:title="@string/version_title"
             android:key="version" />
