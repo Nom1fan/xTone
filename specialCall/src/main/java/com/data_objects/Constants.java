@@ -1,7 +1,10 @@
 package com.data_objects;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.util.Log;
 
 import com.utils.SharedPrefUtils;
 
@@ -11,9 +14,20 @@ import DataObjects.SharedConstants;
 
 public class Constants {
 
+    private static final String TAG = Constants.class.getSimpleName();
+
     // Initialized using InitUtils in MediaCallzApp class
-    public static void APP_VERSION(Context context, double appVersion) { SharedPrefUtils.setDouble(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_VERSION, appVersion); }
-    public static double APP_VERSION(Context context) { return SharedPrefUtils.getDouble(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_VERSION); }
+    public static double APP_VERSION(Context context) {
+        Double appVersion;
+        try {
+            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            appVersion = Double.valueOf(packageInfo.versionName);
+        } catch(PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Failed to retrieve app version. Setting default app version for emergency!");
+            appVersion = 1.10;
+        }
+        return appVersion;
+    }
 
     // Constants for Batch
     public static final String GCM_SENDER_ID = "817954308887";
