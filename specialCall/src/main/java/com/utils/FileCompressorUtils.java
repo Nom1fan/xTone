@@ -1,6 +1,9 @@
 package com.utils;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
 
@@ -17,23 +20,39 @@ import FilesManager.FileManager;
  */
 public class FileCompressorUtils {
 
-    public static final String workFolder                   =   Constants.TEMP_COMPRESSED_FOLDER;
+    private static final String TAG                         =   FileCompressorUtils.class.getSimpleName();
+
+    //region Constants for handler messages
+    public static final String COMPRESSION_ITER             =   "CompressionIteration";
     public static final int STOP_TRANSCODING_MSG            =   -1;
     public static final int FINISHED_TRANSCODING_MSG        =   0;
+    public static final int COMPRESSION_PHASE_2             =   1;
+    //endregion
+
+    //region Constants for FFMPEG compression algorithms
+    public static final String workFolder                   =   Constants.TEMP_COMPRESSED_FOLDER;
     public static final String VK_LOG_PATH                  =   workFolder + "vk.log";
-    private static final int VIDEO_SIZE_COMPRESS_NEEDED     =   5242880; //5MB
-    private static final int AUDIO_SIZE_COMPRESS_NEEDED     =   5242880; //5MB
-    private static final int IMAGE_SIZE_COMPRESS_NEEDED     =   1048576; //1MB
-    private static final int MIN_RESOLUTION                 =   320;
-    private static final long MAX_DURATION                  =   40;      // seconds
-    private static final double PERCENT_TO_TRIM             =   0.7;
-    private static final String TAG                         =   FileCompressorUtils.class.getSimpleName();
-    
+    public static final int VIDEO_SIZE_COMPRESS_NEEDED      =   3145728; // 3MB
+    public static final int AUDIO_SIZE_COMPRESS_NEEDED      =   3145728; // 3MB
+    public static final int IMAGE_SIZE_COMPRESS_NEEDED      =   1048576; // 1MB
+    public static final int MIN_RESOLUTION                  =   320;     // MIN width resolution
+    private static final int MIN_HZ_FOR_GIF                 =   3;       // Num of frames in GIF
+    private static final long MAX_DURATION                  =   30;      // seconds
+    //endregion
+
     private FFMPEG_Utils _ffmpeg_utils;
     private PowerManager.WakeLock _wakeLock;
+    private Handler _compressHandler;
+
+    public FileCompressorUtils(LoadJNI vk, PowerManager.WakeLock wakeLock, Handler compressHandler) {
+
+        _compressHandler = compressHandler;
+        _ffmpeg_utils = new FFMPEG_Utils(vk, compressHandler);
+        _wakeLock = wakeLock;
+    }
 
     public FileCompressorUtils(LoadJNI vk, PowerManager.WakeLock wakeLock) {
-        
+
         _ffmpeg_utils = new FFMPEG_Utils(vk);
         _wakeLock = wakeLock;
     }
@@ -90,7 +109,7 @@ public class FileCompressorUtils {
      * @param baseFile - The file to reduce its size if necessary
      * @param folderName  - The folder name to save the compressed file in
      * @param context
-     * @return The compressed file, if needed (and possible). Otherwise, the base file.
+     * @return The compressed file, if necessary (and possible). Otherwise, the base file.
      */
     public FileManager compressFileIfNecessary(FileManager baseFile, String folderName, Context context) {
 
@@ -135,15 +154,7 @@ public class FileCompressorUtils {
         int width = res[0];
         int height = res[1];
 
-        modifiedFile = baseFile;
-
-        while (width > MIN_RESOLUTION && modifiedFile.getFileSize() >= VIDEO_SIZE_COMPRESS_NEEDED) {
-            modifiedFile = _ffmpeg_utils.compressVideoFile(modifiedFile, outPath, width, height, context);
-            res = _ffmpeg_utils.getVideoResolution(modifiedFile);
-            width = res[0];
-            height = res[1];
-        }
-
+        modifiedFile = _ffmpeg_utils.compressVideoFile(baseFile, outPath, width, height, context);
         modifiedFile.set_uncompdFileFullPath(baseFile.getFileFullPath());
         modifiedFile.setIsCompressed(true);
         return modifiedFile;
@@ -157,13 +168,26 @@ public class FileCompressorUtils {
 
         BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.COMPRESSING, null, null));
 
-        int width = _ffmpeg_utils.getImageResolution(baseFile)[0];
+        if(modifiedFile.getFileExtension().equals("gif")) {
 
-        // If image resolution is larger than MIN_RESOLUTION we start lowering resolution
-        while (width > MIN_RESOLUTION && modifiedFile.getFileSize() > IMAGE_SIZE_COMPRESS_NEEDED) {
+            int hz = 10;
+            for (int cnt = 1; hz > MIN_HZ_FOR_GIF && modifiedFile.getFileSize() > IMAGE_SIZE_COMPRESS_NEEDED; cnt++) {
 
-            modifiedFile = _ffmpeg_utils.compressImageFile(baseFile, outPath, width, context);
-            width = _ffmpeg_utils.getImageResolution(modifiedFile)[0];
+                sendIterationToHandler(cnt);
+                modifiedFile = _ffmpeg_utils.compressGifImageFile(modifiedFile, outPath, hz, context);
+                hz/=2;
+            }
+        }
+        else {
+            int width = _ffmpeg_utils.getImageResolution(baseFile)[0];
+
+            // If image resolution is larger than MIN_RESOLUTION we start lowering resolution
+            for (int cnt = 1; width > MIN_RESOLUTION && modifiedFile.getFileSize() > IMAGE_SIZE_COMPRESS_NEEDED ; cnt++) {
+
+                sendIterationToHandler(cnt);
+                modifiedFile = _ffmpeg_utils.compressImageFile(modifiedFile, outPath, width, context);
+                width = _ffmpeg_utils.getImageResolution(modifiedFile)[0];
+            }
         }
 
         modifiedFile.set_uncompdFileFullPath(baseFile.getFileFullPath());
@@ -193,16 +217,10 @@ public class FileCompressorUtils {
     private FileManager trimMediaFile(FileManager baseFile, String outPath, int sizeToCompress, Context context) {
 
         FileManager modifiedFile = baseFile;
-        Double duration = (double) _ffmpeg_utils.getFileDurationInSeconds(baseFile, context);
-        // If media file is longer than 1 min start trimming procedure
-        if (duration >= MAX_DURATION) {
-            modifiedFile = _ffmpeg_utils.trim(baseFile, outPath, PERCENT_TO_TRIM * duration, context);
-            duration = (double) _ffmpeg_utils.getFileDurationInSeconds(modifiedFile, context);
+        long duration = _ffmpeg_utils.getFileDuration(context, modifiedFile);
 
-            while (duration >= MAX_DURATION && modifiedFile.getFileSize() > sizeToCompress) {
-                modifiedFile = _ffmpeg_utils.trim(modifiedFile, outPath, PERCENT_TO_TRIM * duration, context);
-                duration = (double) _ffmpeg_utils.getFileDurationInSeconds(modifiedFile, context);
-            }
+        if (duration >= MAX_DURATION && modifiedFile.getFileSize() > sizeToCompress) {
+            modifiedFile = _ffmpeg_utils.trim(modifiedFile, outPath, MAX_DURATION, context);
         }
 
         modifiedFile.set_uncompdFileFullPath(baseFile.getFileFullPath());
@@ -210,5 +228,13 @@ public class FileCompressorUtils {
         return modifiedFile;
     }
 
+    private void sendIterationToHandler(int iterationNum) {
 
+        Bundle bundle = new Bundle(1);
+        bundle.putInt(FileCompressorUtils.COMPRESSION_ITER, iterationNum);
+        Message msg = new Message();
+        msg.setData(bundle);
+        msg.what = FileCompressorUtils.COMPRESSION_PHASE_2;
+        _compressHandler.sendMessage(msg);
+    }
 }

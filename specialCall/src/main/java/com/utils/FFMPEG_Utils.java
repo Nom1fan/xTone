@@ -4,18 +4,17 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import com.data_objects.Constants;
 import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.netcompss.loader.LoadJNI;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 
 import FilesManager.FileManager;
@@ -25,6 +24,10 @@ import FilesManager.FileManager;
  */
 public class FFMPEG_Utils {
 
+    public static final double REDUCE_IMAGE_RES_MULTIPLIER = 0.7;
+    public static final double REDUCE_VIDEO_RES_MULTIPLIER = 0.5;
+
+
     private static final String TAG = FFMPEG_Utils.class.getSimpleName();
     private static final String workFolder = Constants.TEMP_COMPRESSED_FOLDER;
     private static final HashMap<String, String> extension2vCodec = new HashMap() {{
@@ -32,11 +35,19 @@ public class FFMPEG_Utils {
 
     }};
     private LoadJNI _vk;
+    private Handler _compressHandler;
 
     public FFMPEG_Utils(LoadJNI vk) {
 
         _vk = vk;
     }
+
+    public FFMPEG_Utils(LoadJNI vk, Handler compressHandler) {
+
+        _vk = vk;
+        _compressHandler = compressHandler;
+    }
+
 
     /**
      * Resizes a video file resolution by 30%, maintaining aspect ratio.
@@ -55,16 +66,34 @@ public class FFMPEG_Utils {
             FileManager.delete(compressedFile);
 
         try {
-//            double percent = 0.7;
-//            width = width * percent;
-//            height = height * percent;
+            long duration = getFileDuration(context, baseFile); // In seconds
+            String bitrate = String.valueOf(FileCompressorUtils.VIDEO_SIZE_COMPRESS_NEEDED * 8 / duration); // Units are bits/second
 
+            // Command to reduce video bitrate
             String[] complexCommand =
-                    {"ffmpeg", "-y", "-i", baseFile.getFileFullPath(), "-strict", "experimental", "-s", (int) width + "x" + (int) height,
-                            "-r", "25", "-vcodec", vCodec, "-b", "150k", "-ab", "48000", "-ac", "2", "-ar", "22050",
+                    {"ffmpeg", "-y", "-i", baseFile.getCompFileFullPath(), "-strict", "experimental", "-s", (int) width + "x" + (int) height,
+                            "-r", "25", "-vcodec", vCodec, "-b", bitrate, "-ab", "48000", "-ac", "2", "-ar", "22050",
                             compressedFile.getAbsolutePath()};
 
             _vk.run(complexCommand, workFolder, context);
+
+            // If not enough we reduce resolution iteratively
+            for (int cnt = 1 ;width > FileCompressorUtils.MIN_RESOLUTION && compressedFile.length() > FileCompressorUtils.VIDEO_SIZE_COMPRESS_NEEDED; cnt++) {
+
+                sendIterationToHandler(cnt);
+
+                double percent = REDUCE_VIDEO_RES_MULTIPLIER;
+                width = width * percent;
+                height = height * percent;
+
+                complexCommand = new String[]
+                        {"ffmpeg", "-y", "-i", baseFile.getCompFileFullPath(), "-strict", "experimental", "-s", (int) width + "x" + (int) height,
+                                "-r", "25", "-vcodec", vCodec, "-b", bitrate, "-ab", "48000", "-ac", "2", "-ar", "22050",
+                                compressedFile.getAbsolutePath()};
+
+                _vk.run(complexCommand, workFolder, context);
+            }
+
             return new FileManager(compressedFile);
 
         } catch (Throwable e) {
@@ -92,11 +121,13 @@ public class FFMPEG_Utils {
             FileManager.delete(compressedFile);
 
         try {
-            double percent = 0.7;
-            width = width * percent;
 
-            String[] complexCommand =
-                    {"ffmpeg", "-i", baseFile.getFileFullPath(), "-vf", "scale=" + (int) width + ":-1", compressedFile.getAbsolutePath()};
+            String[] complexCommand;
+
+            double percent = REDUCE_IMAGE_RES_MULTIPLIER;
+            width = width * percent;
+            complexCommand = new String[]
+                    {"ffmpeg", "-i", baseFile.getCompFileFullPath(), "-vf", "scale=" + (int) width + ":-1", compressedFile.getAbsolutePath()};
 
             _vk.run(complexCommand, workFolder, context);
             return new FileManager(compressedFile);
@@ -109,49 +140,24 @@ public class FFMPEG_Utils {
         return baseFile;
     }
 
-    /**
-     * getFileDurationInSeconds
-     *
-     * @param baseFile The Video/audio file to retrieve its duration
-     * @param context
-     * @return The duration of a video/audio file in seconds, if possible. Otherwise returns 0.
-     */
-    public long getFileDurationInSeconds(FileManager baseFile, Context context) {
+    public FileManager compressGifImageFile(FileManager baseFile, String outPath, Integer hz, Context context) {
 
-        if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
-            return 0;
+        String extension = baseFile.getFileExtension();
+        File compressedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_comp." + extension);
+        if (compressedFile.exists())
+            FileManager.delete(compressedFile);
 
         try {
 
-            FileManager.FileType fType = baseFile.getFileType();
-            if (fType.equals(FileManager.FileType.AUDIO) ||
-                    fType.equals(FileManager.FileType.VIDEO)) {
-
-                String[] complexCommand =
-                        {"ffmpeg", "-i", baseFile.getFileFullPath()};
-                _vk.run(complexCommand, workFolder, context);
-                BufferedReader br = new BufferedReader(new FileReader(workFolder + "vk.log"));
-                String line = "";
-                boolean cont = true;
-
-                while (cont && (line = br.readLine()) != null) {
-                    if (line.contains("Duration"))
-                        cont = false;
-                }
-                String unformattedDuration = line != null ? line.substring(12, 20) : null;
-                DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-                Date reference = dateFormat.parse("00:00:00");
-                Date date = dateFormat.parse(unformattedDuration);
-                long seconds = (date.getTime() - reference.getTime()) / 1000L;
-                return seconds;
-            }
+            String[] complexCommand = new String[]{"ffmpeg", "-f", "gif", "-i", baseFile.getCompFileFullPath(), "-strict", "experimental", "-r", hz.toString(), compressedFile.getAbsolutePath()};
+            _vk.run(complexCommand, workFolder, context);
+            return new FileManager(compressedFile);
 
         } catch (Throwable e) {
-            Log.e(TAG, "Getting duration of file failed", e);
+            Log.e(TAG, "Compressing image file failed", e);
         }
 
-        return 0;
-
+        return baseFile;
     }
 
     /**
@@ -163,7 +169,7 @@ public class FFMPEG_Utils {
      * @param context
      * @return The trimmed video/audio file, if possible. Otherwise, the base file.
      */
-    public FileManager trim(FileManager baseFile, String outPath, Double endTime, Context context) {
+    public FileManager trim(FileManager baseFile, String outPath, Long endTime, Context context) {
 
         if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
             return baseFile;
@@ -208,60 +214,18 @@ public class FFMPEG_Utils {
     }
 
     /**
-     * Retrieves image resolution from vk.log
-     *
-     * @param managedFile The image file to retrieve
-     * @param context
-     * @return The image resolution as integer array (width in 0 index and height in 1), if possible. Otherwise, returns null.
-     * @deprecated Use the new {@link #getImageResolution(FileManager managedFile)} instead
+     * Retrieves the file duration using MediaMetadataRetriever
+     * @see MediaMetadataRetriever
+     * @param managedFile The file to retrieve its duration
+     * @return The file duration in seconds
      */
-    @Deprecated
-    public int[] getImageResolution(FileManager managedFile, Context context) {
+    public long getFileDuration(Context context, FileManager managedFile) {
 
-        if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
-            return null;
-
-        try {
-
-            FileManager.FileType fType = managedFile.getFileType();
-            if (fType.equals(FileManager.FileType.IMAGE)) {
-
-                String[] complexCommand =
-                        {"ffmpeg", "-i", managedFile.getFileFullPath()};
-                _vk.run(complexCommand, workFolder, context);
-                BufferedReader br = new BufferedReader(new FileReader(workFolder + "vk.log"));
-                String line = "";
-                boolean cont = true;
-
-                while (cont && (line = br.readLine()) != null) {
-                    if (line.contains("sof0"))
-                        cont = false;
-                }
-
-                int pivot_index = 0;
-                if (line != null) {
-                    pivot_index = line.lastIndexOf(" ") + 1;
-                }
-                String unformattedResolution = null;
-                if (line != null) {
-                    unformattedResolution = line.substring(pivot_index, line.length());
-                }
-                String[] sArrayTmp = new String[0];
-                if (unformattedResolution != null) {
-                    sArrayTmp = unformattedResolution.split("x");
-                }
-                int[] iArraytmp = new int[2];
-                iArraytmp[0] = Integer.parseInt(sArrayTmp[0]);
-                iArraytmp[1] = Integer.parseInt(sArrayTmp[1]);
-
-                return iArraytmp;
-            }
-        } catch (Throwable e) {
-            Log.e(TAG, "Getting resolution of image failed", e);
-
-        }
-
-        return null;
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(context, Uri.fromFile(managedFile.getFile()));
+        String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        long timeInMilli = Long.parseLong(time );
+        return timeInMilli/1000;
     }
 
     /**
@@ -278,5 +242,15 @@ public class FFMPEG_Utils {
         bitmap.recycle();
 
         return new int[] {  width, height };
+    }
+
+    private void sendIterationToHandler(int iterationNum) {
+
+        Bundle bundle = new Bundle(1);
+        bundle.putInt(FileCompressorUtils.COMPRESSION_ITER, iterationNum);
+        Message msg = new Message();
+        msg.setData(bundle);
+        msg.what = FileCompressorUtils.COMPRESSION_PHASE_2;
+        _compressHandler.sendMessage(msg);
     }
 }

@@ -43,7 +43,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
         Log.i(TAG, "Receiving event:" + report.status());
 
         //Ignore refresh UI event sent from here on the same events channel
-        if (report.status().equals(EventType.REFRESH_UI))
+        if (report.status().equals(EventType.REFRESH_UI) || AppStateManager.getAppState(context).equals(AppStateManager.STATE_LOGGED_OUT))
             return;
 
         String msg = "";
@@ -140,6 +140,18 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 break;
 
             //region Events in Idle, ready and disabled states
+            case DISPLAY_MESSAGE:
+                msg = report.desc();
+                color = Color.GREEN;
+                sBarDuration = Snackbar.LENGTH_INDEFINITE;
+                break;
+
+            case DISPLAY_ERROR:
+                msg = report.desc();
+                color = Color.RED;
+                sBarDuration = Snackbar.LENGTH_INDEFINITE;
+                break;
+
             case DISCONNECTED:
                 AppStateManager.setAppState(context, TAG + " DISCONNECTED", AppStateManager.STATE_DISABLED);
 

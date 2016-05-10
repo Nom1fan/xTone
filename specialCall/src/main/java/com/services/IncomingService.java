@@ -67,8 +67,6 @@ public class IncomingService extends AbstractStandOutService {
         checkIntent(intent);
         actionThread(intent);
 
-
-
         if (intent != null) {
             if (intent.getAction().equals(
                     ACTION_STOP_FOREGROUND)) {
@@ -86,7 +84,6 @@ public class IncomingService extends AbstractStandOutService {
 
         // check if the Device has Strict Memory Manager like SPCM that always kills us on lowestscore package!
         isForegroundAndAlarmNeeded();
-
 
         return START_STICKY;
     }
@@ -233,7 +230,7 @@ public class IncomingService extends AbstractStandOutService {
                                     public void run() {
                                         Log.i(TAG, "startRingtoneSpecialCall Thread");
                                         try {
-                                            startAudioSpecialCall(ringtoneFile.getAbsolutePath());
+                                            startAudioMediaMC(ringtoneFile.getAbsolutePath());
 
                                         } catch (Exception e) {
                                             e.printStackTrace();

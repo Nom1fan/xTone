@@ -13,7 +13,6 @@ public class SQLiteManager extends SQLiteOpenHelper implements IDAL {
 
     private static final String TAG = SQLiteManager.class.getSimpleName();
     private static SQLiteManager _instance;
-    private static SQLiteDatabase _db;
     private static final String DB_NAME = "GENERAL";
 
     //endregion
@@ -27,6 +26,7 @@ public class SQLiteManager extends SQLiteOpenHelper implements IDAL {
     //region SQLiteOpenHelper methods
     @Override
     public void onCreate(SQLiteDatabase db) {
+
         StringBuilder query = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
         query.
                 append(TABLE_DOWNLOADS).
@@ -55,20 +55,20 @@ public class SQLiteManager extends SQLiteOpenHelper implements IDAL {
 
     }
 
-    @Override
-    public void finalize() { //TODO Due to comment text in superlcass implementation we might consider changing this override with regular method and call it at the end of each DB action
-
-        if(_instance!=null)
-            _instance.close();
-        if(_db!=null)
-            _db.close();
-
-        try {
-            super.finalize();
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        }
-    }
+//    @Override
+//    public void finalize() { //TODO Due to comment text in superlcass implementation we might consider changing this override with regular method and call it at the end of each DB action
+//
+//        if(_instance!=null)
+//            _instance.close();
+//        if(_db!=null)
+//            _db.close();
+//
+//        try {
+//            super.finalize();
+//        } catch (Throwable throwable) {
+//            throwable.printStackTrace();
+//        }
+//    }
     //endregion
 
     //region Manager methods
@@ -77,32 +77,33 @@ public class SQLiteManager extends SQLiteOpenHelper implements IDAL {
 
         if(_instance==null)
             _instance = new SQLiteManager(context);
-
-        _db = _instance.getWritableDatabase();
-
         return _instance;
     }
 
     private void setStringVal(String table, String whereCol, String whereRow ,String updateCol, String val) {
+        SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(updateCol,val);
-        _db.update(table, contentValues, whereCol + " = ? ", new String[] {whereRow});
+        db.update(table, contentValues, whereCol + " = ? ", new String[] {whereRow});
     }
 
     private void setBooleanVal(String table, String whereCol, String whereRow ,String updateCol, boolean val) {
+        SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(updateCol,val);
-        _db.update(table,contentValues, whereCol + " = ? ",new String[] {whereRow});
+        db.update(table,contentValues, whereCol + " = ? ",new String[] {whereRow});
     }
 
     private String getString(String table, String resCol, String whereCol, String val) {
-        Cursor cursor = _db.rawQuery("SELECT " + resCol + " FROM " + table + " WHERE " + whereCol + "='" + val + "'",null);
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + resCol + " FROM " + table + " WHERE " + whereCol + "='" + val + "'",null);
         cursor.moveToFirst();
         return cursor.getString(cursor.getColumnIndex(resCol));
     }
 
     private boolean getBoolean(String table, String resCol, String whereCol, String val) {
-        Cursor cursor = _db.rawQuery("SELECT " + resCol + " FROM " + table + " WHERE " + whereCol + "='" + val + "'", null);
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + resCol + " FROM " + table + " WHERE " + whereCol + "='" + val + "'", null);
         cursor.moveToFirst();
         return (Integer.parseInt(cursor.getString(cursor.getColumnIndex(resCol))) != 0);
     }
@@ -111,18 +112,20 @@ public class SQLiteManager extends SQLiteOpenHelper implements IDAL {
     //region IDAL methods
     @Override
     public void insertValues(String table, ContentValues values) {
-        _db.insert(table, null, values);
+        SQLiteDatabase db = getWritableDatabase();
+        db.insert(table, null, values);
     }
 
     @Override
     public Cursor getAllValues(String table) {
+        SQLiteDatabase db = getWritableDatabase();
         String query = String.format("SELECT * FROM %s", table);
-        return _db.rawQuery(query, null);
+        return db.rawQuery(query, null);
     }
 
     @Override
     public Cursor getValues(String table, String[] whereCols, String[] operators, String[] whereVals) {
-
+        SQLiteDatabase db = getWritableDatabase();
         StringBuilder whereClause = new StringBuilder();
 
         for(int i=0; i < whereCols.length; ++i) {
@@ -133,31 +136,32 @@ public class SQLiteManager extends SQLiteOpenHelper implements IDAL {
                     append(i < operators.length ? operators[i] + " " : "");
         }
 
-        return _db.rawQuery("SELECT * FROM " + table + " WHERE " + whereClause, whereVals);
+        return db.rawQuery("SELECT * FROM " + table + " WHERE " + whereClause, whereVals);
     }
 
     @Override
     public Cursor getValues(String table, String whereCol, String whereVal) {
-
-        return _db.rawQuery("SELECT * FROM " + table + " WHERE " + whereCol + "=?", new String[] { whereVal });
+        SQLiteDatabase db = getWritableDatabase();
+        return db.rawQuery("SELECT * FROM " + table + " WHERE " + whereCol + "=?", new String[] { whereVal });
     }
 
     @Override
     public Cursor getValuesRawQuery(String query) {
-
-        return _db.rawQuery(query, null);
+        SQLiteDatabase db = getWritableDatabase();
+        return db.rawQuery(query, null);
     }
 
     @Override
     public Cursor getOldestRow(String table, String primaryKeyCol) {
-
+        SQLiteDatabase db = getWritableDatabase();
         String query = String.format("SELECT * FROM %1$s WHERE %2$s = (SELECT MIN(%2$s) FROM %1$s)", table, primaryKeyCol);
-        return _db.rawQuery(query, null);
+        return db.rawQuery(query, null);
     }
 
     @Override
     public void deleteRow(String table, String[] whereCols, String[] operators, String[] whereVals) {
 
+        SQLiteDatabase db = getWritableDatabase();
         StringBuilder whereClause = new StringBuilder();
 
 
@@ -168,12 +172,13 @@ public class SQLiteManager extends SQLiteOpenHelper implements IDAL {
                     append("=? ").
                     append(i < operators.length ? operators[i] + " " : "");
         }
-        _db.delete(table, whereClause.toString(), whereVals);
+        db.delete(table, whereClause.toString(), whereVals);
     }
 
     @Override
     public void deleteRow(String table, String whereCol, String whereVal) {
-        _db.delete(table, whereCol + "=?", new String[] { whereVal });
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(table, whereCol + "=?", new String[] { whereVal });
     }
 
     //endregion

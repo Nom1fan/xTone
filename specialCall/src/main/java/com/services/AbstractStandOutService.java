@@ -893,9 +893,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         Log.i(TAG, "startVisualMediaMC SharedPrefUtils visualMediaFilePath:" + visualMediaFilePath);
         if (attachDefaultView)
-            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
+            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, false);
         else
-            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
+            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, true);
 
         _contactName = ContactsUtils.getContactName(getApplicationContext(), callNumber);
         mContactTitleOnWindow = (!_contactName.equals("") ? _contactName + " " + callNumber : callNumber);
@@ -945,26 +945,16 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         }
     }
 
-    protected void startAudioSpecialCall(String audioFilePath) {
+    protected void startAudioMediaMC(String audioFilePath) {
 
-        try {
+        if(new File(audioFilePath).exists()) {
 
-            FileManager audioFile = new FileManager(audioFilePath);
-
-            if(audioFile.doesFileExist()) {
-                SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
-                Log.i(TAG, "Ringtone before playing sound. audioFilePath: " + audioFilePath + " URI: " + Uri.parse(audioFilePath).toString());
-                playSound(getApplicationContext(), Uri.parse(audioFilePath));
-            }else
-            {
-                SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
-            }
-
-        } catch (FileMissingExtensionException |
-                FileDoesNotExistException |
-                FileExceedsMaxSizeException |
-                FileInvalidFormatException e) {
-            e.printStackTrace();
+            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
+            Log.i(TAG, "Ringtone before playing sound. audioFilePath: " + audioFilePath + " URI: " + Uri.parse(audioFilePath).toString());
+            playSound(getApplicationContext(), Uri.parse(audioFilePath));
+        } else
+        {
+            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
         }
     }
 

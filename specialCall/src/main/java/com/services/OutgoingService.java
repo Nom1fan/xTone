@@ -60,7 +60,7 @@ public class OutgoingService extends AbstractStandOutService {
 
         registerOutgoingReceiver();
         prepareVideoListener();
-        actionThread(intent);
+        checkIntent(intent);
 
         return START_STICKY;
     }
@@ -154,7 +154,7 @@ public class OutgoingService extends AbstractStandOutService {
         //  }
     }
 
-    private void actionThread(Intent intent) {
+    private void checkIntent(Intent intent) {
         String action = null;
         if (intent != null)
             action = intent.getAction();
@@ -271,14 +271,13 @@ public class OutgoingService extends AbstractStandOutService {
                         try {
                             mOutgoingCall=true;
 
-                            String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, outgoingCallNumber);
-                            String funTonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, outgoingCallNumber);
+                            String visualMediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, outgoingCallNumber);
+                            String audioMediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, outgoingCallNumber);
 
-                            File funToneFile = new File(funTonePath);
+                            File funToneFile = new File(audioMediaFilePath);
 
                             if(funToneFile.exists()) {
                                 funtoneFileExists = true;
-
                             }
 
                             backupMusicVolume();
@@ -286,17 +285,17 @@ public class OutgoingService extends AbstractStandOutService {
                           //  mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // setting max volume for music -5 as it's to high volume
 
 
-                            setTempMd5ForCallRecord(mediaFilePath,funTonePath);
+                            setTempMd5ForCallRecord(visualMediaFilePath,audioMediaFilePath);
 
-                            startVisualMediaMC(mediaFilePath, outgoingCallNumber, funtoneFileExists);
-                            startAudioSpecialCall(funTonePath);
+                            startVisualMediaMC(visualMediaFilePath, outgoingCallNumber, funtoneFileExists);
+                            startAudioMediaMC(audioMediaFilePath);
 
                             MCHistoryUtils.reportMC(
                                     getApplicationContext(),
                                     Constants.MY_ID(getApplicationContext()),
                                     outgoingCallNumber,
-                                    mediaFilePath,
-                                    funTonePath,
+                                    visualMediaFilePath,
+                                    audioMediaFilePath,
                                     SpecialMediaType.PROFILE_MEDIA);
 
                             syncWithBuggyIdleState();

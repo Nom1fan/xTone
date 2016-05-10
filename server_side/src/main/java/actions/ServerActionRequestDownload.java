@@ -1,5 +1,9 @@
 package actions;
 
+import com.database.CommHistoryAccess;
+import com.database.IDAL;
+import com.database.UsersDataAccess;
+
 import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
@@ -7,7 +11,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.database.IDAL;
 import DataObjects.DataKeys;
 import DataObjects.PushEventKeys;
 import DataObjects.SpecialMediaType;
@@ -22,11 +25,9 @@ import FilesManager.FileManager;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import pushservice.BatchPushSender;
-import com.database.CommHistoryAccess;
 import ServerObjects.ILangStrings;
-import com.database.UsersDataAccess;
 import lang.StringsFactory;
+import pushservice.BatchPushSender;
 
 /**
  * Created by Mor on 23/04/2016.
@@ -49,13 +50,13 @@ public class ServerActionRequestDownload extends ServerAction {
     @Override
     public void doAction(Map data) throws IOException {
 
-        _sourceId = (String) data.get(DataKeys.SOURCE_ID);
-        _destId = (String) data.get(DataKeys.DESTINATION_ID);
-        _destContact = (String) data.get(DataKeys.DESTINATION_CONTACT_NAME);
-        _sourceLocale = (String) data.get(DataKeys.SOURCE_LOCALE);
-        _filePathOnServer = (String) data.get(DataKeys.FILE_PATH_ON_SERVER);
-        _specialMediaType = SpecialMediaType.valueOf((String)data.get(DataKeys.SPECIAL_MEDIA_TYPE));
-        _commId = ((Double)data.get(DataKeys.COMM_ID)).intValue();
+        Object oCommId      = data.get(DataKeys.COMM_ID);
+        _commId             = oCommId instanceof Double ? ((Double)oCommId).intValue() : (int)oCommId;
+        _sourceId           = (String) data.get(DataKeys.SOURCE_ID);
+        _destId             = (String) data.get(DataKeys.DESTINATION_ID);
+        _destContact        = (String) data.get(DataKeys.DESTINATION_CONTACT_NAME);
+        _sourceLocale       = (String) data.get(DataKeys.SOURCE_LOCALE);
+        _filePathOnServer   = (String) data.get(DataKeys.FILE_PATH_ON_SERVER);
 
         if(_sourceLocale!=null)
             strings = StringsFactory.instance().getStrings(_sourceLocale);
@@ -126,7 +127,7 @@ public class ServerActionRequestDownload extends ServerAction {
         _logger.severe("Informing sender:" + _sourceId + " that file did not reach destination:" + _destId);
         String senderToken = UsersDataAccess.instance(_dal).getUserPushToken(_sourceId);
         if(!senderToken.equals(""))
-            BatchPushSender.sendPush(senderToken, PushEventKeys.SHOW_MESSAGE, title, msgTransferFailed);
+            BatchPushSender.sendPush(senderToken, PushEventKeys.SHOW_ERROR, title, msgTransferFailed);
         else
             _logger.severe("Failed trying to Inform sender:" + _sourceId + " that file did not reach destination:" + _destId + ". Empty token");
 

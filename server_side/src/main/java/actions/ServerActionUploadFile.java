@@ -113,7 +113,7 @@ public class ServerActionUploadFile extends ServerAction {
             String errMsg = "Your media to " + destId + " was lost on the way! Please try again.";
             String token = UsersDataAccess.instance(_dal).getUserPushToken(_messageInitiaterId);
             //_cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.STORAGE_ACTION_FAILURE, errMsg, null)));
-            BatchPushSender.sendPush(token, PushEventKeys.SHOW_MESSAGE, title, errMsg);
+            BatchPushSender.sendPush(token, PushEventKeys.SHOW_ERROR, title, errMsg);
 
         } finally {
             if (bos != null)
@@ -146,7 +146,7 @@ public class ServerActionUploadFile extends ServerAction {
             String errMsg = strings.media_undelivered_body();
             String initiaterToken = UsersDataAccess.instance(_dal).getUserPushToken(_messageInitiaterId);
             // Informing source (uploader) that the file was not sent to destination
-            BatchPushSender.sendPush(initiaterToken, PushEventKeys.SHOW_MESSAGE, title, errMsg);
+            BatchPushSender.sendPush(initiaterToken, PushEventKeys.SHOW_ERROR, title, errMsg);
         }
 
     }

@@ -26,8 +26,6 @@ public class PreviewService extends AbstractStandOutService {
 
     public static boolean isLive = false;
 
-    private boolean funtoneFileExists = false;
-
     public PreviewService() {
         super(PreviewService.class.getSimpleName());
     }
@@ -44,33 +42,26 @@ public class PreviewService extends AbstractStandOutService {
 
         isLive = true;
 
-
         prepareVideoListener();
-        actionThread(intent);
+        checkIntent(intent);
 
         if (intent != null) {
             String action = intent.getAction();
-            switch (action) {
-
+            switch (action)
+            {
                 case ACTION_PREVIEW: {
-
-
-                        Log.i(TAG, "ActionPreview Received");
-                        mPreviewStart = true;
-                        startPreviewWindow(intent);
-
-
+                    Log.i(TAG, "ActionPreview Received");
+                    mPreviewStart = true;
+                    startPreviewWindow(intent);
                 }
-                default:
-                    Log.w(TAG, "Invalid Action: " + action);
+                break;
             }
         }
-
 
         return START_NOT_STICKY;
     }
 
-      @Override
+    @Override
     public boolean onShow(int id, Window window) {
         super.onShow(id, window);  // at last so the volume will return to the previous(since when it was showed) , to make the volume always mute after Unhide move it to the Start of the method.
 
@@ -100,7 +91,6 @@ public class PreviewService extends AbstractStandOutService {
             mMediaPlayer.start();
 
 
-
         } catch (IOException e) {
             e.printStackTrace();
             Log.e(TAG, "Failed to play sound. Exception:" + e.getMessage());
@@ -112,29 +102,25 @@ public class PreviewService extends AbstractStandOutService {
     protected void startPreviewWindow(Intent intent) {
 
         Log.i(TAG, "startPreviewWindow");
-        if (mPreviewAudioManager == null)
-        {
-            Log.i(TAG , "Audio manager was null , re-instantiated");
+        if (mPreviewAudioManager == null) {
+            Log.i(TAG, "Audio manager was null , re-instantiated");
             mPreviewAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         }
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
         Log.i(TAG, "Preview MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
 
-        String mediaFilePath = intent.getStringExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA);
-        String funTonePath =   intent.getStringExtra(AbstractStandOutService.PREVIEW_AUDIO);
+        String visualMediaFilePath = intent.getStringExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA);
+        String audioMediafilePath = intent.getStringExtra(AbstractStandOutService.PREVIEW_AUDIO);
         String standoutWindowUserTitle = Constants.MY_ID(getApplicationContext());
 
-        File funToneFile = new File(funTonePath);
-        startVisualMediaMC(mediaFilePath, standoutWindowUserTitle, funToneFile.exists());
-
-        startAudioSpecialCall(funTonePath);
-
+        File audioMediaFile = new File(audioMediafilePath);
+        startAudioMediaMC(audioMediafilePath);
+        startVisualMediaMC(visualMediaFilePath, standoutWindowUserTitle, audioMediaFile.exists());
     }
 
     private void setVolumeOnForPreview() {
 
         Log.i(TAG, "setVolumeOnForPreview");
-
 
         try {
             mPreviewAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
@@ -151,7 +137,7 @@ public class PreviewService extends AbstractStandOutService {
     }
 
 
-    private void actionThread(Intent intent) {
+    private void checkIntent(Intent intent) {
         String action = null;
         if (intent != null)
             action = intent.getAction();
@@ -172,33 +158,6 @@ public class PreviewService extends AbstractStandOutService {
                     Log.i(TAG, "prepareVideoListener MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                 }
             };
-    }
-
-    private void resumeMusicStreamBackToPrevious() {
-
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000); // fix bug: sound in mute , closing call and it sounds for a second in the end.
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                if (mPreviewAudioManager == null)
-                {
-                    Log.i(TAG , "Audio manager was null , re-instantiated");
-                    mPreviewAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                }
-
-
-                try {
-                    mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
-                } catch (Exception e) {
-                    Log.e(TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
-                }
-            }
-        }.start();
     }
 
 }

@@ -39,7 +39,7 @@ public class ServerActionGetSmsCode extends ServerAction {
 
         ILangStrings strings = StringsFactory.instance().getStrings(data.get(DataKeys.SOURCE_LOCALE).toString());
         //String msg = String.format(strings.your_verification_code(), code); //TODO use this after fixing SmsSender to send hebrew
-        String msg = "Your SMS verification code:" + code;
+        String msg = "Your verification code:" + code;
 
         boolean isOK = SmsVerificationAccess.instance(_dal).insertSmsVerificationCode(_messageInitiaterId, code);
 

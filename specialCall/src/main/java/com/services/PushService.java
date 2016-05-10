@@ -52,7 +52,7 @@ public class PushService extends IntentService {
                 throw new Exception(errMsg);
             }
 
-            //String alert = intent.getStringExtra(Batch.Push.ALERT_KEY);
+            String alert = intent.getStringExtra(Batch.Push.ALERT_KEY);
             //BatchPushData pushData = new BatchPushData(this, intent);
 
             String eventActionCode = intent.getStringExtra(PushEventKeys.PUSH_EVENT_ACTION);
@@ -64,7 +64,7 @@ public class PushService extends IntentService {
                 break;
 
                 case PushEventKeys.TRANSFER_SUCCESS:
-                    transferSuccess(intent);
+                    transferSuccess(intent, alert);
                 break;
 
                 case PushEventKeys.CLEAR_MEDIA:
@@ -72,11 +72,15 @@ public class PushService extends IntentService {
                 break;
 
                 case PushEventKeys.CLEAR_SUCCESS:
-                    clearSuccess(intent);
+                    clearSuccess(intent, alert);
                 break;
 
                 case PushEventKeys.SHOW_MESSAGE:
-                    displayNotification(this, intent);
+                    displayNotification(this, intent, new EventReport(EventType.DISPLAY_MESSAGE, alert, null));
+                break;
+
+                case PushEventKeys.SHOW_ERROR:
+                    displayNotification(this, intent, new EventReport(EventType.DISPLAY_ERROR, alert, null));
                 break;
             }
 
@@ -118,14 +122,14 @@ public class PushService extends IntentService {
         }
     }
 
-    private void transferSuccess(Intent intent) {
+    private void transferSuccess(Intent intent, String alert) {
 
         Log.i(TAG, "In:" + PushEventKeys.TRANSFER_SUCCESS);
         String jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
         HashMap transferDetails = new Gson().fromJson(jsonData, HASHMAP_TYPE);
 
         BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, null, transferDetails));
-        displayNotification(this, intent);
+        displayNotificationInBgOnly(this, intent);
     }
 
     private void clearMedia(Intent intent) {
@@ -138,24 +142,47 @@ public class PushService extends IntentService {
         startService(i);
     }
 
-    private void clearSuccess(Intent intent) {
+    private void clearSuccess(Intent intent, String alert) {
 
         Log.i(TAG, "In:" + PushEventKeys.CLEAR_SUCCESS);
         String jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
         HashMap transferDetails = new Gson().fromJson(jsonData, HASHMAP_TYPE);
         BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CLEAR_SUCCESS, null, transferDetails));
-        displayNotification(this, intent);
+        displayNotificationInBgOnly(this, intent);
     }
 
-    private void displayNotification(Context context, Intent intent) {
+    private void displayNotification(Context context, Intent intent, EventReport eventReport) {
 
-        Log.i(TAG, "In:" + PushEventKeys.SHOW_MESSAGE);
+        Log.i(TAG, "In: displayNotification");
         boolean isAppInForeground = AppStateManager.isAppInForeground(context);
         String appState = AppStateManager.getAppState(context);
 
-        Log.i(TAG, String.format("In displayNotification. [isAppInForeground]: %1$b, [App state]: %2$s", isAppInForeground, appState));
+        Log.i(TAG, String.format("[isAppInForeground]: %1$b, [App state]: %2$s", isAppInForeground, appState));
 
-        if (isAppInForeground || appState.equals(AppStateManager.STATE_LOGGED_OUT)) {
+        if (isAppInForeground && !appState.equals(AppStateManager.STATE_LOGGED_OUT)) {
+            try {
+                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+                r.play();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            BroadcastUtils.sendEventReportBroadcast(context, TAG, eventReport);
+        }
+        else
+            Batch.Push.displayNotification(this, intent);
+    }
+
+    private void displayNotificationInBgOnly(Context context, Intent intent) {
+
+        Log.i(TAG, "In: displayNotificationInBgOnly");
+        boolean isAppInForeground = AppStateManager.isAppInForeground(context);
+        String appState = AppStateManager.getAppState(context);
+
+        Log.i(TAG, String.format("[isAppInForeground]: %1$b, [App state]: %2$s", isAppInForeground, appState));
+
+        if (isAppInForeground && !appState.equals(AppStateManager.STATE_LOGGED_OUT)) {
             try {
                 Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);

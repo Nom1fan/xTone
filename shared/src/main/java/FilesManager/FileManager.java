@@ -146,6 +146,14 @@ public class FileManager implements Serializable {
         return _file.getAbsolutePath();
     }
 
+    /**
+     * @return returns the file path of the compressed file if exists. Otherwise, the regular file path.
+     */
+    public String getCompFileFullPath() {
+
+        return _file.getAbsolutePath();
+    }
+
     public String getFileExtension() {
 
         return _extension;
