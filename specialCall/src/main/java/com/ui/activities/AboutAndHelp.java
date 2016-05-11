@@ -89,6 +89,22 @@ public class AboutAndHelp extends PreferenceFragment {
         //endregion
 
         //region About
+
+        Preference terms = findPreference("terms");
+        terms.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+
+                String url = Constants.TERMS_AND_PRIVACY_URL;
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+
+                return true;
+            }
+        });
+
+
         Preference version = findPreference("version");
         String appVersion = String.valueOf(Constants.APP_VERSION(getActivity()));
         version.setSummary(appVersion);
