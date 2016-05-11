@@ -71,6 +71,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private int moveLength= 0;
     private WebView mwebView;
     private ProgressDialog _progDialog;
+    private boolean _isInWebView = false;
 
     //region Activity methods (onCreate(), onPause()...)
     @Override
@@ -88,7 +89,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     private void initializeSelectMediaUI() {
         setContentView(R.layout.select_media);
-
+        _isInWebView = false;
         ImageButton button1 = (ImageButton) findViewById(R.id.back);
         button1.setOnClickListener(this);
         TextView mediaType = (TextView) findViewById(R.id.selectMediaType);
@@ -128,17 +129,17 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN && _isInWebView) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_BACK:
                 if(mwebView!=null)
-                    {if (mwebView.canGoBack()) {
+                    {
+                        if (mwebView.canGoBack()) {
                         mwebView.goBack();
 
                     }
                     else
                         initializeSelectMediaUI();
-
                     }
                    return true;
             }
@@ -244,7 +245,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             if (id == R.id.mediacallzBtn) {
 
                 mediacallzGalleryWebView();
-
+                _isInWebView = true;
             }
         }
     }
@@ -265,7 +266,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         settings.setPluginState(WebSettings.PluginState.ON);
         settings.setDomStorageEnabled(true);
         mwebView.loadUrl(Constants.MEDIACALLZ_CONTENT_STORE_URL);
-        mwebView.setId(5);
         mwebView.setInitialScale(0);
         mwebView.requestFocus();
         mwebView.requestFocusFromTouch();
