@@ -17,10 +17,12 @@ public abstract class SpecialDevicesUtils {
                     "samsung sm-g920f" , "samsung sm-g920i" ,"samsung sm-g920w8"  // samsung galaxy S6 (has SPCM)
             };
     private static final String[] StrictRingingCapabilitiesDevices =
-            {    // TODO maybe check LG G2 if it can have this strict ringing and if it good , than all LG models should be here , check for contains "lge" only and we cover all
+            {    // TODO maybe check LG G2(= lge lg-d802  )if it can have this strict ringing and if it good , than all LG models should be here , check for contains "lge" only and we cover all
                     "lge lg-h815" , "lge lg-h815t"  , "lge lg-d722" // LGE LG-H815 (LG G4) // TODO Add more LG models from LG G3 maybe we need also LG G5 or all LG devices , they are problematic . LG G2 is ok but above need to be added and QA to check it's good
-            };
+            };  // LG G2 = lge lg-d802
 
+    private static final String StrictRingingCapabilitiesLGDevice = "lge";
+    private static final String LG_G2_StrictRingingDisable = "lg-d802";
 
     /** Returns the consumer friendly device name */
     private static String getDeviceName() {
@@ -51,7 +53,7 @@ public abstract class SpecialDevicesUtils {
     public static void checkIfDeviceHasStrictRingingCapabilitiesAndNeedMotivation(Context context)
     {
         String deviceName = getDeviceName();
-        if (Arrays.asList(StrictRingingCapabilitiesDevices).contains(deviceName))
+        if (deviceName.contains(StrictRingingCapabilitiesLGDevice) && !deviceName.contains(LG_G2_StrictRingingDisable) )  // all LG devices except LG G2
         {
             Log.i(TAG,"Device has strict Ringing Capabilities : " + deviceName);
             SharedPrefUtils.setBoolean(context , SharedPrefUtils.GENERAL , SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES , true);
