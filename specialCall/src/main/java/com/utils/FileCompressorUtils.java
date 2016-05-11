@@ -35,9 +35,9 @@ public class FileCompressorUtils {
     public static final int VIDEO_SIZE_COMPRESS_NEEDED      =   3145728; // 3MB
     public static final int AUDIO_SIZE_COMPRESS_NEEDED      =   3145728; // 3MB
     public static final int IMAGE_SIZE_COMPRESS_NEEDED      =   1048576; // 1MB
+    public static final long MAX_DURATION                   =   30;      // seconds
     public static final int MIN_RESOLUTION                  =   320;     // MIN width resolution
     private static final int MIN_HZ_FOR_GIF                 =   3;       // Num of frames in GIF
-    private static final long MAX_DURATION                  =   30;      // seconds
     //endregion
 
     private FFMPEG_Utils _ffmpeg_utils;
@@ -171,15 +171,20 @@ public class FileCompressorUtils {
         if(modifiedFile.getFileExtension().equals("gif")) {
 
             int hz = 10;
+            modifiedFile = _ffmpeg_utils.compressGifImageFile(modifiedFile, outPath, hz, context);
+
             for (int cnt = 1; hz > MIN_HZ_FOR_GIF && modifiedFile.getFileSize() > IMAGE_SIZE_COMPRESS_NEEDED; cnt++) {
 
+                hz/=2;
                 sendIterationToHandler(cnt);
                 modifiedFile = _ffmpeg_utils.compressGifImageFile(modifiedFile, outPath, hz, context);
-                hz/=2;
             }
         }
         else {
             int width = _ffmpeg_utils.getImageResolution(baseFile)[0];
+
+            modifiedFile = _ffmpeg_utils.compressImageFile(modifiedFile, outPath, width, context);
+            width = _ffmpeg_utils.getImageResolution(modifiedFile)[0];
 
             // If image resolution is larger than MIN_RESOLUTION we start lowering resolution
             for (int cnt = 1; width > MIN_RESOLUTION && modifiedFile.getFileSize() > IMAGE_SIZE_COMPRESS_NEEDED ; cnt++) {

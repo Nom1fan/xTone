@@ -121,7 +121,8 @@ public class ServerActionRequestDownload extends ServerAction {
         _logger.severe("User " + _messageInitiaterId + " download request failed. Exception:" + e.getMessage());
 
         String title = strings.media_undelivered_title();
-        String msgTransferFailed = String.format(strings.media_undelivered_body(), !_destContact.equals("") ? _destContact : _destId);
+        String dest = "<b><font color=\"#00FFFF\">" + (!_destContact.equals("") ? _destContact : _destId) + "</font></b>";
+        String msgTransferFailed = String.format(strings.media_undelivered_body(), dest);
 
         // Informing sender that file did not reach destination
         _logger.severe("Informing sender:" + _sourceId + " that file did not reach destination:" + _destId);

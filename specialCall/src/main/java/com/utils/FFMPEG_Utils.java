@@ -37,6 +37,10 @@ public class FFMPEG_Utils {
     private LoadJNI _vk;
     private Handler _compressHandler;
 
+    public FFMPEG_Utils() {
+
+    }
+
     public FFMPEG_Utils(LoadJNI vk) {
 
         _vk = vk;

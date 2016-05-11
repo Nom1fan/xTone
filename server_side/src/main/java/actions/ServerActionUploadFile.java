@@ -1,5 +1,8 @@
 package actions;
 
+import com.database.CommHistoryAccess;
+import com.database.UsersDataAccess;
+
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -20,16 +23,18 @@ import FilesManager.FileManager;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import pushservice.BatchPushSender;
-import com.database.CommHistoryAccess;
 import ServerObjects.ILangStrings;
-import com.database.UsersDataAccess;
 import lang.StringsFactory;
+import pushservice.BatchPushSender;
 
 /**
  * Created by Mor on 23/04/2016.
  */
 public class ServerActionUploadFile extends ServerAction {
+
+    private String _destId;
+    private String _destContact;
+    private HashMap _data;
 
     public ServerActionUploadFile() {
         super(ServerActionType.UPLOAD_FILE);
@@ -38,25 +43,27 @@ public class ServerActionUploadFile extends ServerAction {
     @Override
     public void doAction(Map data) throws IOException {
 
+        _data = (HashMap) data;
         StringBuilder fileFullPath = new StringBuilder();
         Path currentRelativePath = Paths.get("");
 
         // Working directory
         fileFullPath.append(currentRelativePath.toAbsolutePath().toString());
 
-        FileManager managedFile = (FileManager) data.get(DataKeys.MANAGED_FILE);
+        FileManager managedFile = (FileManager) _data.get(DataKeys.MANAGED_FILE);
         String srcWithExtension = _messageInitiaterId + "." + managedFile.getFileExtension();
-        String destId = (String) data.get(DataKeys.DESTINATION_ID);
-        SpecialMediaType specialMediaType = (SpecialMediaType) data.get(DataKeys.SPECIAL_MEDIA_TYPE);
+        _destId = (String) _data.get(DataKeys.DESTINATION_ID);
+        _destContact = (String) data.get(DataKeys.DESTINATION_CONTACT_NAME);
+        SpecialMediaType specialMediaType = (SpecialMediaType) _data.get(DataKeys.SPECIAL_MEDIA_TYPE);
 
         switch (specialMediaType) {
             case CALLER_MEDIA:
                 // Caller Media is saved in the destination's caller media folder,
-                fileFullPath.append(SharedConstants.UPLOAD_FOLDER).append(destId).append("\\").
+                fileFullPath.append(SharedConstants.UPLOAD_FOLDER).append(_destId).append("\\").
                         append(SharedConstants.CALLER_MEDIA_FOLDER).append(srcWithExtension);
                 break;
             case PROFILE_MEDIA:
-                fileFullPath.append(SharedConstants.UPLOAD_FOLDER).append(destId).append("\\").
+                fileFullPath.append(SharedConstants.UPLOAD_FOLDER).append(_destId).append("\\").
                         append(SharedConstants.PROFILE_MEDIA_RECEIVED_FOLDER).append(srcWithExtension);
                 break;
             case MY_DEFAULT_PROFILE_MEDIA:
@@ -74,7 +81,7 @@ public class ServerActionUploadFile extends ServerAction {
         }
 
         String infoMsg = "Initiating file upload. [Source]:" + _messageInitiaterId +
-                ". [Destination]:" + destId + "." +
+                ". [Destination]:" + _destId + "." +
                 " [Special Media Type]:" + specialMediaType +
                 " [File size]:" +
                 FileManager.getFileSizeFormat(managedFile.getFileSize());
@@ -106,14 +113,29 @@ public class ServerActionUploadFile extends ServerAction {
             else if (fileSize < 0)
                 throw new IOException("Read too many bytes. Upload seems corrupted.");
 
+
+            // Informing source (uploader) that the file is on the way
+            HashMap<DataKeys, Object> replyData = new HashMap();
+            replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.UPLOAD_SUCCESS, null, _data));
+            replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
+
+            // Inserting the record of the file upload, retrieving back the commId
+            int commId = CommHistoryAccess.instance(_dal).insertMediaTransferRecord(_data);
+            _logger.info("commId returned:" + commId);
+
+            // Sending file to destination
+            _data.put(DataKeys.COMM_ID, commId);
+            _data.put(DataKeys.FILE_PATH_ON_SERVER, fileFullPath.toString());
+            String destToken = UsersDataAccess.instance(_dal).getUserPushToken(_destId);
+            String pushEventAction = PushEventKeys.PENDING_DOWNLOAD;
+            boolean sent = BatchPushSender.sendPush(destToken, pushEventAction, _data);
+
+            if (!sent) {
+                sendMediaUndeliveredMsgToUploader();
+            }
         } catch (IOException e) {
             e.printStackTrace();
-            _logger.severe("Upload from [Source]:" + _messageInitiaterId + " to [Destination]:" + destId + " Failed. [Exception]:" + e.getMessage());
-            String title = "Oops!";
-            String errMsg = "Your media to " + destId + " was lost on the way! Please try again.";
-            String token = UsersDataAccess.instance(_dal).getUserPushToken(_messageInitiaterId);
-            //_cont = replyToClient(new MessageTriggerEventOnly(new EventReport(EventType.STORAGE_ACTION_FAILURE, errMsg, null)));
-            BatchPushSender.sendPush(token, PushEventKeys.SHOW_ERROR, title, errMsg);
+            sendMediaUndeliveredMsgToUploader();
 
         } finally {
             if (bos != null)
@@ -124,30 +146,18 @@ public class ServerActionUploadFile extends ServerAction {
                 }
         }
 
-        // Informing source (uploader) that the file is on the way
-        HashMap<DataKeys, Object> replyData = new HashMap();
-        replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.UPLOAD_SUCCESS, null, data));
-        replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
+    }
 
-        // Inserting the record of the file upload, retrieving back the commId
-        int commId = CommHistoryAccess.instance(_dal).insertMediaTransferRecord(data);
-        _logger.info("commId returned:" + commId);
+    private void sendMediaUndeliveredMsgToUploader() {
 
-        // Sending file to destination
-        data.put(DataKeys.COMM_ID, commId);
-        data.put(DataKeys.FILE_PATH_ON_SERVER, fileFullPath.toString());
-        String destToken = UsersDataAccess.instance(_dal).getUserPushToken(destId);
-        String pushEventAction = PushEventKeys.PENDING_DOWNLOAD;
-        boolean sent = BatchPushSender.sendPush(destToken, pushEventAction, data);
+        _logger.severe("Upload from [Source]:" + _messageInitiaterId + " to [Destination]:" + _destId + " Failed.");
 
-        if (!sent) {
-            ILangStrings strings = StringsFactory.instance().getStrings((String)data.get(DataKeys.SOURCE_LOCALE));
-            String title = strings.media_undelivered_title();
-            String errMsg = strings.media_undelivered_body();
-            String initiaterToken = UsersDataAccess.instance(_dal).getUserPushToken(_messageInitiaterId);
-            // Informing source (uploader) that the file was not sent to destination
-            BatchPushSender.sendPush(initiaterToken, PushEventKeys.SHOW_ERROR, title, errMsg);
-        }
-
+        ILangStrings strings = StringsFactory.instance().getStrings((String) _data.get(DataKeys.SOURCE_LOCALE));
+        String title = strings.media_undelivered_title();
+        String dest = "<b><font color=\"#00FFFF\">" + (!_destContact.equals("") ? _destContact : _destId) + "</font></b>";
+        String errMsg = String.format(strings.media_undelivered_body(), dest);
+        String initiaterToken = UsersDataAccess.instance(_dal).getUserPushToken(_messageInitiaterId);
+        // Informing source (uploader) that the file was not sent to destination
+        BatchPushSender.sendPush(initiaterToken, PushEventKeys.SHOW_ERROR, title, errMsg);
     }
 }

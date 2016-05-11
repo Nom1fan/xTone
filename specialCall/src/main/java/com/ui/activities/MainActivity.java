@@ -71,6 +71,7 @@ import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
+import com.utils.FFMPEG_Utils;
 import com.utils.FileCompressorUtils;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
@@ -520,8 +521,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         switch (report.status()) {
 
             case TRIMMING_COMPLETE:
-                CompressTask compressTask = new CompressTask(_fileForUpload);
-                compressTask.execute();
+
+                if(FileCompressorUtils.isCompressionNeeded(_fileForUpload)) {
+                    CompressTask compressTask = new CompressTask(_fileForUpload);
+                    compressTask.execute();
+                }
+                else
+                    executeUploadTask();
                 break;
 
             case COMPRESSION_COMPLETE:
@@ -1810,13 +1816,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                             sleep(300);
                             progress = pc.calcProgress();
                             if (progress != 0 && progress < 100) {
+                                Log.i(TAG, "Progress update thread. Progress is:" + progress + "%");
                                 _progDialog.setProgress(progress);
                             } else if (progress == 100) {
                                 Log.i(TAG, "Progress is 100, exiting progress update thread");
+                                _progDialog.setProgress(100);
                                 pc.initCalcParamsForNextInter();
 
                                 // Waiting for next iteration
                                 synchronized (_lock) {
+                                    _lock.wait();
                                     while(!_updateThreadNextIterStarted)
                                         _lock.wait();
                                 }
@@ -1839,6 +1848,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         TrimTask _instance = this;
         private FileCompressorUtils _fileCompressor;
         private FileManager _baseFile;
+        private boolean calcProgress = false;
 
         public TrimTask(FileManager baseFile) {
 
@@ -1848,25 +1858,32 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         @Override
         protected void onPreExecute() {
 
-            String cancel = getResources().getString(R.string.cancel);
+            FFMPEG_Utils ffmpeg_utils = new FFMPEG_Utils();
+            if(!_baseFile.getFileType().equals(FileManager.FileType.IMAGE) &&
+                    ffmpeg_utils.getFileDuration(getApplicationContext(), _baseFile) > FileCompressorUtils.MAX_DURATION) {
 
-            _progDialog = new ProgressDialog(MainActivity.this);
-            _progDialog.setIndeterminate(false);
-            _progDialog.setCancelable(false);
-            _progDialog.setTitle(getResources().getString(R.string.trimming));
-            _progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            _progDialog.setProgress(0);
-            _progDialog.setMax(100);
-            _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+                calcProgress = true;
 
-                    _compressHandler.sendEmptyMessage(FileCompressorUtils.STOP_TRANSCODING_MSG);
-                    _instance.cancel(true);
-                }
-            });
+                String cancel = getResources().getString(R.string.cancel);
 
-            _progDialog.show();
+                _progDialog = new ProgressDialog(MainActivity.this);
+                _progDialog.setIndeterminate(false);
+                _progDialog.setCancelable(false);
+                _progDialog.setTitle(getResources().getString(R.string.trimming));
+                _progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                _progDialog.setProgress(0);
+                _progDialog.setMax(100);
+                _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        _compressHandler.sendEmptyMessage(FileCompressorUtils.STOP_TRANSCODING_MSG);
+                        _instance.cancel(true);
+                    }
+                });
+
+                _progDialog.show();
+            }
         }
 
         @Override
@@ -1908,15 +1925,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     Log.d(TAG, "Progress update started");
                     int progress;
                     try {
-                        while (true) {
+                        while (calcProgress) {
                             sleep(300);
                             progress = pc.calcProgress();
                             if (progress != 0 && progress < 100) {
                                 _progDialog.setProgress(progress);
                             } else if (progress == 100) {
                                 Log.i(TAG, "Progress is 100, exiting progress update thread");
+                                _progDialog.setProgress(100);
                                 pc.initCalcParamsForNextInter();
-                                break;
+                                calcProgress = false;
                             }
                         }
 
