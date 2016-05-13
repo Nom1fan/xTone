@@ -18,10 +18,10 @@ public abstract class SpecialDevicesUtils {
             };
     private static final String[] StrictRingingCapabilitiesDevices =
             {    // TODO maybe check LG G2(= lge lg-d802  )if it can have this strict ringing and if it good , than all LG models should be here , check for contains "lge" only and we cover all
-                    "lge lg-h815" , "lge lg-h815t"  , "lge lg-d722" // LGE LG-H815 (LG G4) // TODO Add more LG models from LG G3 maybe we need also LG G5 or all LG devices , they are problematic . LG G2 is ok but above need to be added and QA to check it's good
-            };  // LG G2 = lge lg-d802
+                    "lge lg-h815" , "lge lg-h815t"  , "lge lg-d722" // LGE LG-H815 (LG G4) //TODO QA The Shit out of it
+            };
 
-    private static final String StrictRingingCapabilitiesLGDevice = "lge";
+    private static final String StrictRingingCapabilitiesLGDevice = "lge lg";
     private static final String LG_G2_StrictRingingDisable = "lg-d802";
 
     /** Returns the consumer friendly device name */
