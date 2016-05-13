@@ -224,7 +224,7 @@ public class FileCompressorUtils {
         FileManager modifiedFile = baseFile;
         long duration = _ffmpeg_utils.getFileDuration(context, modifiedFile);
 
-        if (duration >= MAX_DURATION && modifiedFile.getFileSize() > sizeToCompress) {
+        if (duration > MAX_DURATION && modifiedFile.getFileSize() > sizeToCompress) {
             modifiedFile = _ffmpeg_utils.trim(modifiedFile, outPath, MAX_DURATION, context);
         }
 

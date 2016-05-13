@@ -282,7 +282,6 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                             + (e.getMessage() != null ? e.getMessage() : e));
                 }
                 break;
-
             //endregion
 
             default: // Event not meant for background receiver

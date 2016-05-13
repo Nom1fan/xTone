@@ -113,8 +113,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private String _destPhoneNumber = "";
     private String _destName = "";
     private LoadJNI _vk;
-    private FileManager _fileForUpload;
-    private SpecialMediaType _specialMediaType;
+    private final Object _lock = new Object();
+
+    //region Keys for bundle
+    private static final String DEST_ID             =   "DEST_ID";
+    private static final String DEST_NAME           =   "DEST_NAME";
+    private static final String FILE_FOR_UPLOAD     =   "FILE_FOR_UPLOAD";
+    private static final String SPEC_MEDIA_TYPE     =   "SPEC_MEDIA_TYPE";
+    //endregion
 
     //region UI elements
     private ImageButton _selectContactBtn;
@@ -142,10 +148,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private boolean _callerHasMedia = false;
     private boolean _profileHasRingtone = false;
     private boolean _callerHasRingtone = false;
-    private boolean _contCalcProgress = false;
-    private boolean _updateThreadNextIterStarted = false;
+    private volatile boolean _contCalcProgress = false;
+    private volatile boolean _updateThreadNextIterStarted = false;
     private ProgressDialog _progDialog;
-    private final Object _lock = new Object();
     //endregion
 
     //region Handlers
@@ -346,17 +351,23 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                                 data.getStringExtra(SelectMediaActivity.RESULT_ERR_MSG));
                         writeInfoSnackBar(snackbarData);
                     } else {
-                        _specialMediaType = (SpecialMediaType) data.getSerializableExtra(SelectMediaActivity.RESULT_SPECIAL_MEDIA_TYPE);
+                        SpecialMediaType _specialMediaType = (SpecialMediaType) data.getSerializableExtra(SelectMediaActivity.RESULT_SPECIAL_MEDIA_TYPE);
                         FileManager fm = (FileManager) data.getSerializableExtra(SelectMediaActivity.RESULT_FILE);
+
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(FILE_FOR_UPLOAD, fm);
+                        bundle.putString(DEST_ID, _destPhoneNumber);
+                        bundle.putString(DEST_NAME, _destName);
+                        bundle.putSerializable(SPEC_MEDIA_TYPE, _specialMediaType);
 
                         if (FileCompressorUtils.isCompressionNeeded(fm)) {
                             File tempCompressedDir = new File(Constants.TEMP_COMPRESSED_FOLDER + _destPhoneNumber);
                             tempCompressedDir.mkdir();
-                            TrimTask trimTask = new TrimTask(fm);
+                            TrimTask trimTask = new TrimTask(bundle);
                             trimTask.execute();
                         } else {
-                            _fileForUpload = fm;
-                            executeUploadTask();
+
+                            executeUploadTask(bundle);
                         }
                     }
                 }
@@ -435,24 +446,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         startService(showPreview);
     }
 
-    private void executeUploadTask() {
+    private void executeUploadTask(Bundle bundle) {
 
-        HashMap<DataKeys, Object> data = new HashMap();
-        String myId = Constants.MY_ID(getApplicationContext());
-        data.put(DataKeys.SOURCE_ID, myId);
-        data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
-        data.put(DataKeys.DESTINATION_ID, _destPhoneNumber);
-        data.put(DataKeys.DESTINATION_CONTACT_NAME, _destName);
-        data.put(DataKeys.MANAGED_FILE, _fileForUpload);
-        data.put(DataKeys.MD5, _fileForUpload.getMd5());
-        data.put(DataKeys.EXTENSION, _fileForUpload.getFileExtension());
-        data.put(DataKeys.FILE_PATH_ON_SRC_SD, _fileForUpload.getFileFullPath());
-        data.put(DataKeys.FILE_SIZE, _fileForUpload.getFileSize());
-        data.put(DataKeys.FILE_TYPE, _fileForUpload.getFileType());
-        data.put(DataKeys.SPECIAL_MEDIA_TYPE, _specialMediaType);
-        data.put(DataKeys.SOURCE_WITH_EXTENSION, myId + "." + _fileForUpload.getFileExtension());
-
-        UploadTask uploadTask = new UploadTask(data);
+        UploadTask uploadTask = new UploadTask(bundle);
         uploadTask.execute();
     }
 
@@ -519,20 +515,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         final EventReport report = event.report();
 
         switch (report.status()) {
-
-            case TRIMMING_COMPLETE:
-
-                if(FileCompressorUtils.isCompressionNeeded(_fileForUpload)) {
-                    CompressTask compressTask = new CompressTask(_fileForUpload);
-                    compressTask.execute();
-                }
-                else
-                    executeUploadTask();
-                break;
-
-            case COMPRESSION_COMPLETE:
-                executeUploadTask();
-                break;
 
             case APP_RECORD_RECEIVED: {
                 HashMap<DataKeys, Object> data = (HashMap) report.data();
@@ -1561,8 +1543,26 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         private UploadTask _taskInstance;
         private BufferedInputStream _bis;
         private PowerManager.WakeLock _wakeLock;
+        private FileManager _fileForUpload;
 
-        public UploadTask(HashMap data) {
+        public UploadTask(Bundle bundle) {
+
+            _fileForUpload = (FileManager) bundle.get(FILE_FOR_UPLOAD);
+
+            HashMap<DataKeys, Object> data = new HashMap();
+            String myId = Constants.MY_ID(getApplicationContext());
+            data.put(DataKeys.SOURCE_ID, myId);
+            data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
+            data.put(DataKeys.DESTINATION_ID, bundle.get(DEST_ID));
+            data.put(DataKeys.DESTINATION_CONTACT_NAME, bundle.get(DEST_NAME));
+            data.put(DataKeys.MANAGED_FILE, bundle.get(FILE_FOR_UPLOAD));
+            data.put(DataKeys.MD5, _fileForUpload.getMd5());
+            data.put(DataKeys.EXTENSION, _fileForUpload.getFileExtension());
+            data.put(DataKeys.FILE_PATH_ON_SRC_SD, _fileForUpload.getFileFullPath());
+            data.put(DataKeys.FILE_SIZE, _fileForUpload.getFileSize());
+            data.put(DataKeys.FILE_TYPE, _fileForUpload.getFileType());
+            data.put(DataKeys.SPECIAL_MEDIA_TYPE, bundle.get(SPEC_MEDIA_TYPE));
+            data.put(DataKeys.SOURCE_WITH_EXTENSION, myId + "." + _fileForUpload.getFileExtension());
 
             _connectionToServer = new ConnectionToServer(
                     SharedConstants.STROAGE_SERVER_HOST,
@@ -1652,7 +1652,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     }
                 }
 
-                _wakeLock.release();
+                if(_wakeLock.isHeld())
+                    _wakeLock.release();
 
                 File tempCompressedDir = new File(Constants.TEMP_COMPRESSED_FOLDER + _destPhoneNumber);
                 if(tempCompressedDir.exists()) {
@@ -1743,16 +1744,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
-    private class CompressTask extends AsyncTask<Void, Integer, Void> {
+    private class CompressTask extends AsyncTask<Void, Integer, Bundle> {
 
         private final String TAG = CompressTask.class.getSimpleName();
         private FileCompressorUtils _fileCompressor;
         private FileManager _baseFile;
+        private FileManager _compressedFile;
         private CompressTask _instance = this;
+        private String _destPhoneNumber;
+        private Bundle _bundle;
 
-        public CompressTask(FileManager baseFile) {
+        public CompressTask(Bundle bundle) {
 
-            _baseFile = baseFile;
+            _bundle = bundle;
+            _baseFile = (FileManager) bundle.get(FILE_FOR_UPLOAD);
+            _destPhoneNumber = (String) bundle.get(DEST_ID);
         }
 
         @Override
@@ -1780,40 +1786,36 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Bundle doInBackground(Void... params) {
 
-            // Worker thread
-            new Thread() {
+            Thread workerThread = new Thread(new Runnable() {
+
+                @Override
                 public void run() {
-                    Log.d(TAG, "Worker started");
 
+                    Log.d(TAG, "Worker started");
                     _vk = new LoadJNI();
                     PowerManager powerManager = (PowerManager) MainActivity.this.getSystemService(Activity.POWER_SERVICE);
                     PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VK_LOCK");
 
                     _fileCompressor = new FileCompressorUtils(_vk, wakeLock, _compressHandler);
-                    _fileForUpload = _fileCompressor.compressFileIfNecessary(_baseFile, _destPhoneNumber, getApplicationContext());
+                    _compressedFile = _fileCompressor.compressFileIfNecessary(_baseFile, _destPhoneNumber, getApplicationContext());
                     _compressHandler.sendEmptyMessage(FileCompressorUtils.FINISHED_TRANSCODING_MSG);
-                    if (isCancelled()) {
-                        BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
-                        return;
-                    }
-
-                    BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.COMPRESSION_COMPLETE, null, null));
                 }
-            }.start();
+            });
 
-            // Progress update thread
-            new Thread() {
+            Thread progressUpdateThread = new Thread(new Runnable() {
+
                 ProgressCalculator pc = new ProgressCalculator(FileCompressorUtils.VK_LOG_PATH);
 
+                @Override
                 public void run() {
                     Log.d(TAG, "Progress update started");
                     int progress;
                     try {
                         _contCalcProgress = true;
                         while (_contCalcProgress) {
-                            sleep(300);
+                            Thread.sleep(300);
                             progress = pc.calcProgress();
                             if (progress != 0 && progress < 100) {
                                 Log.i(TAG, "Progress update thread. Progress is:" + progress + "%");
@@ -1831,28 +1833,54 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                                 }
                             }
                         }
-
                     } catch (Exception e) {
                         Log.e(TAG, e.getMessage(), e);
                     }
                 }
-            }.start();
+            });
 
-            return null;
+            workerThread.start();
+            progressUpdateThread.start();
+
+            try {
+                workerThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if (isCancelled()) {
+                BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
+                return null;
+            }
+
+            _bundle.putSerializable(FILE_FOR_UPLOAD, _compressedFile);
+            return _bundle;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle bundle) {
+
+            executeUploadTask(bundle);
         }
     }
 
-    private class TrimTask extends AsyncTask<Void, Integer, Void> {
+    private class TrimTask extends AsyncTask<Void, Integer, Bundle> {
 
         private final String TAG = TrimTask.class.getSimpleName();
         TrimTask _instance = this;
         private FileCompressorUtils _fileCompressor;
         private FileManager _baseFile;
         private boolean calcProgress = false;
+        private FileManager _trimmedFile;
+        private String _destPhoneNumber;
+        private Bundle _bundle;
 
-        public TrimTask(FileManager baseFile) {
 
-            _baseFile = baseFile;
+        public TrimTask(Bundle bundle) {
+
+            _bundle = bundle;
+            _baseFile = (FileManager) _bundle.get(FILE_FOR_UPLOAD);
+            _destPhoneNumber = (String) _bundle.get(DEST_ID);
         }
 
         @Override
@@ -1887,19 +1915,22 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Bundle doInBackground(Void... params) {
 
-            // Worker thread
-            new Thread() {
+            Log.d(TAG, "Worker started");
+
+            _vk = new LoadJNI();
+
+            Thread workerThread = new Thread(new Runnable() {
+
+                @Override
                 public void run() {
-                    Log.d(TAG, "Worker started");
 
-                    _vk = new LoadJNI();
                     PowerManager powerManager = (PowerManager) MainActivity.this.getSystemService(Activity.POWER_SERVICE);
                     PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VK_LOCK");
 
                     _fileCompressor = new FileCompressorUtils(_vk, wakeLock);
-                    _fileForUpload = _fileCompressor.trimFileIfNecessary(_baseFile, _destPhoneNumber, getApplicationContext());
+                    _trimmedFile = _fileCompressor.trimFileIfNecessary(_baseFile, _destPhoneNumber, getApplicationContext());
 
                     try {
                         Thread.sleep(1000); // Sleeping so in fast trimmings the dialog won't appear and disappear too fast (like a blink)
@@ -1908,17 +1939,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     }
 
                     _compressHandler.sendEmptyMessage(FileCompressorUtils.FINISHED_TRANSCODING_MSG);
-                    if (isCancelled()) {
-                        BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
-                        return;
-                    }
 
-                    BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.TRIMMING_COMPLETE, null, null));
                 }
-            }.start();
+            });
 
-            // Progress update thread
-            new Thread() {
+            Thread updateProgressThread = new Thread(new Runnable() {
+
                 ProgressCalculator pc = new ProgressCalculator(FileCompressorUtils.VK_LOG_PATH);
 
                 public void run() {
@@ -1926,7 +1952,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     int progress;
                     try {
                         while (calcProgress) {
-                            sleep(300);
+                            Thread.sleep(300);
                             progress = pc.calcProgress();
                             if (progress != 0 && progress < 100) {
                                 _progDialog.setProgress(progress);
@@ -1942,9 +1968,39 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         Log.e(TAG, e.getMessage(), e);
                     }
                 }
-            }.start();
 
-            return null;
+            });
+
+            workerThread.start();
+            updateProgressThread.start();
+
+            try {
+                workerThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if (isCancelled()) {
+                BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
+                return null;
+            }
+
+            _bundle.putSerializable(FILE_FOR_UPLOAD, _trimmedFile);
+            return _bundle;
+        }
+
+        @Override
+        protected void onPostExecute(Bundle bundle) {
+
+            FileManager fileForUpload = (FileManager) bundle.get(FILE_FOR_UPLOAD);
+
+            if(fileForUpload != null) {
+                if (FileCompressorUtils.isCompressionNeeded(fileForUpload)) {
+                    CompressTask compressTask = new CompressTask(bundle);
+                    compressTask.execute();
+                } else
+                    executeUploadTask(bundle);
+            }
         }
     }
     //endregion
