@@ -151,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private volatile boolean _contCalcProgress = false;
     private volatile boolean _updateThreadNextIterStarted = false;
     private ProgressDialog _progDialog;
+    private Snackbar _snackBar;
     //endregion
 
     //region Handlers
@@ -283,6 +284,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             if (appState.equals(AppStateManager.STATE_DISABLED))
                 reconnect();
+            else if (!appState.equals(AppStateManager.STATE_LOADING))
+                handleSnackBar(new SnackbarData(SnackbarData.SnackbarStatus.CLOSE, 0 ,0 ,null));
 
             restoreInstanceState();
 
@@ -1442,21 +1445,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         View mainActivity = findViewById(R.id.mainActivity);
 
         if (mainActivity != null && snackBarData.getText() != null) {
-            final Snackbar snackbar = Snackbar
+           _snackBar = Snackbar
                     .make(mainActivity, Html.fromHtml(snackBarData.getText()), duration)
                     .setActionTextColor(snackBarData.getColor());
-            snackbar.setAction(R.string.close, new OnClickListener() {
+            _snackBar.setAction(R.string.snack_close, new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    snackbar.dismiss();
+                    _snackBar.dismiss();
                 }
             });
 
             if (snackBarData.isLoading()) {
-                Snackbar.SnackbarLayout snackbarLayout = (Snackbar.SnackbarLayout) snackbar.getView();
+                Snackbar.SnackbarLayout snackbarLayout = (Snackbar.SnackbarLayout) _snackBar.getView();
                 snackbarLayout.addView(new ProgressBar(getApplicationContext()));
             }
-            snackbar.show();
+            _snackBar.show();
         }
     }
 
@@ -1464,6 +1467,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         switch (snackbarData.getStatus()) {
             case CLOSE:
+                if(_snackBar!=null)
+                    _snackBar.dismiss();
                 break;
 
             case SHOW:
