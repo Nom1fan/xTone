@@ -154,10 +154,20 @@ public class ServerActionUploadFile extends ServerAction {
 
         ILangStrings strings = StringsFactory.instance().getStrings((String) _data.get(DataKeys.SOURCE_LOCALE));
         String title = strings.media_undelivered_title();
-        String dest = "<b><font color=\"#00FFFF\">" + (!_destContact.equals("") ? _destContact : _destId) + "</font></b>";
-        String errMsg = String.format(strings.media_undelivered_body(), dest);
+
+        String dest = (!_destContact.equals("") ? _destContact : _destId);
+        String errMsg   = String.format(strings.media_undelivered_body(), dest);
+
+        String destHtml = "<b><font color=\"#00FFFF\">" + (!_destContact.equals("") ? _destContact : _destId) + "</font></b>";
+        String errMsgHtml = String.format(strings.media_undelivered_body(), destHtml);
+
+        // Packing HTML string as push data
+        HashMap<DataKeys,Object> data = new HashMap();
+        data.put(DataKeys.HTML_STRING, errMsgHtml);
+
         String initiaterToken = UsersDataAccess.instance(_dal).getUserPushToken(_messageInitiaterId);
+
         // Informing source (uploader) that the file was not sent to destination
-        BatchPushSender.sendPush(initiaterToken, PushEventKeys.SHOW_ERROR, title, errMsg);
+        BatchPushSender.sendPush(initiaterToken, PushEventKeys.SHOW_ERROR, title, errMsg, data);
     }
 }

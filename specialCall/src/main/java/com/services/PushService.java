@@ -76,18 +76,17 @@ public class PushService extends IntentService {
                 break;
 
                 case PushEventKeys.SHOW_MESSAGE:
-                    displayNotification(this, intent, new EventReport(EventType.DISPLAY_MESSAGE, alert, null));
+                    displayNotification(this, intent, EventType.DISPLAY_MESSAGE);
                 break;
 
                 case PushEventKeys.SHOW_ERROR:
-                    displayNotification(this, intent, new EventReport(EventType.DISPLAY_ERROR, alert, null));
+                    displayNotification(this, intent, EventType.DISPLAY_ERROR);
                 break;
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-
             PushReceiver.completeWakefulIntent(intent);
         }
     }
@@ -151,7 +150,7 @@ public class PushService extends IntentService {
         displayNotificationInBgOnly(this, intent);
     }
 
-    private void displayNotification(Context context, Intent intent, EventReport eventReport) {
+    private void displayNotification(Context context, Intent intent, EventType eventType) {
 
         Log.i(TAG, "In: displayNotification");
         boolean isAppInForeground = AppStateManager.isAppInForeground(context);
@@ -167,6 +166,12 @@ public class PushService extends IntentService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            String jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
+            HashMap data = new Gson().fromJson(jsonData, HASHMAP_TYPE);
+
+            String msg = (String) data.get(DataKeys.HTML_STRING);
+            EventReport eventReport = new EventReport(eventType, msg, null);
 
             BroadcastUtils.sendEventReportBroadcast(context, TAG, eventReport);
         }

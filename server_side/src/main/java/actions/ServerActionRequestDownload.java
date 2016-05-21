@@ -121,14 +121,21 @@ public class ServerActionRequestDownload extends ServerAction {
         _logger.severe("User " + _messageInitiaterId + " download request failed. Exception:" + e.getMessage());
 
         String title = strings.media_undelivered_title();
-        String dest = "<b><font color=\"#00FFFF\">" + (!_destContact.equals("") ? _destContact : _destId) + "</font></b>";
+
+        String dest = (!_destContact.equals("") ? _destContact : _destId);
         String msgTransferFailed = String.format(strings.media_undelivered_body(), dest);
+
+        String destHtml = "<b><font color=\"#00FFFF\">" + (!_destContact.equals("") ? _destContact : _destId) + "</font></b>";
+        String msgTransferFailedHtml = String.format(strings.media_undelivered_body(), destHtml);
+
+        HashMap<DataKeys,Object> data = new HashMap<>();
+        data.put(DataKeys.HTML_STRING, msgTransferFailedHtml);
 
         // Informing sender that file did not reach destination
         _logger.severe("Informing sender:" + _sourceId + " that file did not reach destination:" + _destId);
         String senderToken = UsersDataAccess.instance(_dal).getUserPushToken(_sourceId);
         if(!senderToken.equals(""))
-            BatchPushSender.sendPush(senderToken, PushEventKeys.SHOW_ERROR, title, msgTransferFailed);
+            BatchPushSender.sendPush(senderToken, PushEventKeys.SHOW_ERROR, title, msgTransferFailed, data);
         else
             _logger.severe("Failed trying to Inform sender:" + _sourceId + " that file did not reach destination:" + _destId + ". Empty token");
 

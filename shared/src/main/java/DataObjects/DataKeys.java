@@ -30,4 +30,5 @@ public enum DataKeys {
     EVENT_REPORT,
     APP_VERSION,
     MIN_SUPPORTED_VERSION,
+    HTML_STRING,
 }
