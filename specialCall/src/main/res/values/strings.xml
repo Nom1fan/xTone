@@ -24,8 +24,8 @@
     <string name="get_sms_you_may_retry">You may now retry</string>
     <string name="get_sms_code">Get SMS Code</string>
     <string name="login">Login</string>
-    <string name="sms_code_hint">SMS code you received</string>
-    <string name="your_phone">Your phone number</string>
+    <string name="sms_code_hint"> SMS code you received</string>
+    <string name="your_phone"> Your phone number</string>
     <string name="terms_and_conditions_title">Terms of Service and Privacy Policy</string>
     <string name="terms_and_conditions">  Tap "Agree and Login" to accept the MediaCallz: <![CDATA[<b><font color=#0000FF><u>Terms of Service and Privacy Policy</u></b>]]></string>
     <string name="terms_and_conditions_button">Agree and Login</string>
@@ -79,9 +79,9 @@
     <string name="video_image">Video/Image</string>
     <string name="take_picture">Take Picture</string>
     <string name="record_audio">Record Audio</string>
-    <string name="mediacallz_gallery">MediaCallz Gallery</string>
-    <string name="select_caller_media_title">SELECT CALLER MEDIA</string>
-    <string name="select_profile_media_title">SELECT PROFILE MEDIA</string>
+    <string name="mediacallz_gallery">MC Gallery</string>
+    <string name="select_caller_media_title">Outgoing call media</string>
+    <string name="select_profile_media_title">Incoming call media</string>
 
     <!--  SettingsActivity   -->
     <string-array name="save_media">

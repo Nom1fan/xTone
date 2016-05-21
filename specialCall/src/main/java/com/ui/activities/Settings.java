@@ -1,6 +1,5 @@
 package com.ui.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -9,7 +8,6 @@ import android.preference.PreferenceFragment;
 import android.util.Log;
 
 import com.mediacallz.app.R;
-import com.services.IncomingService;
 import com.ui.dialogs.DeleteAccountDialog;
 import com.utils.SharedPrefUtils;
 
@@ -59,48 +57,6 @@ public class Settings extends PreferenceFragment {
         });
 
 
-        CheckBoxPreference foreground_checkbox = (CheckBoxPreference) findPreference("foreground_checkbox");
-
-        foreground_checkbox.setChecked(SharedPrefUtils.getBoolean(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.STRICT_MEMORY_MANAGER_DEVICES));
-        foreground_checkbox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                boolean checked = Boolean.valueOf(newValue.toString());
-
-                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.STRICT_MEMORY_MANAGER_DEVICES, checked);
-
-                if (!checked) {
-                    Intent incomingServiceIntent = new Intent(getActivity().getApplicationContext(), IncomingService.class);
-                    incomingServiceIntent.setAction(IncomingService.ACTION_STOP_FOREGROUND);
-                    getActivity().startService(incomingServiceIntent);
-                } else {
-                    Intent incomingServiceIntent = new Intent(getActivity().getApplicationContext(), IncomingService.class);
-                    incomingServiceIntent.setAction(IncomingService.ACTION_START_FOREGROUND);
-                    getActivity().startService(incomingServiceIntent);
-                }
-
-                return true;
-            }
-        });
-
-
-
-
-        CheckBoxPreference ringing_override_checkbox = (CheckBoxPreference) findPreference("ringing_override_checkbox");
-
-        ringing_override_checkbox.setChecked(SharedPrefUtils.getBoolean(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES));
-        ringing_override_checkbox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                boolean checked = Boolean.valueOf(newValue.toString());
-
-                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES, checked);
-
-                return true;
-            }
-        });
 
 
         Preference button = findPreference("Delete Account");

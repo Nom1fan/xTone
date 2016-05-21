@@ -23,8 +23,10 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
     public static final int WAIT_FOR_SERVICES_TO_START_IN_MILLI=300;
     private static final String TAG = StartStandOutServicesFallBackReceiver.class.getSimpleName();
     private static String outgoingPhoneNumber="";
-    public static String ACTION_START_OUTGOING_SERVICE = "com.receivers.StartStandOutServicesFallBackReceiver.START_OUTGOING_SERVICE";
-    public static String INCOMING_PHONE_NUMBER_KEY = "INCOMING_PHONE_NUMBER_KEY";
+    public final static String ACTION_START_OUTGOING_SERVICE = "com.receivers.StartStandOutServicesFallBackReceiver.START_OUTGOING_SERVICE";
+    public final static String INCOMING_PHONE_NUMBER_KEY = "INCOMING_PHONE_NUMBER_KEY";
+    public final static String WAKEFUL_INTENT = "WAKEFUL_INTENT";
+
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -32,6 +34,47 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
         String action = intent.getAction();
         Log.i(TAG, "onReceive ACTION INTENT : " + action);
 
+            if (action != null) {
+                String state1 = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+                Log.d(TAG, " PhoneStateReceiver**Call State=" + state1);
+
+            }
+            // Sending an incoming phone number for incoming service
+            if (action != null && !IncomingService.isLive) // TODO check if Alarm sends action as null or intent. and make general if
+                if (intent.getAction().equals("android.intent.action.PHONE_STATE")) {
+                    String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+                    Log.d(TAG, "IncomingServiceFallBack PhoneStateReceiver**Call State=" + state);
+
+                    if (state.equals(TelephonyManager.EXTRA_STATE_RINGING) && !SharedPrefUtils.getBoolean(context, SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_RINGING_SESSION)) {
+                        try {
+                            Thread.sleep(1000);  // TODO REMOVE SLEEP !! or decide a better technique
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        // Incoming call
+                        String incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
+
+                        Intent incomingServiceIntent = new Intent(context, IncomingService.class);
+                        incomingServiceIntent.setAction(IncomingService.ACTION_START);
+
+                        if (incomingNumber != null) // unidentified caller
+                            Log.i(TAG, "IncomingServiceFallBack  EXTRA_INCOMING_NUMBER : " + incomingNumber);
+
+                        //if it's incoming call
+                        if (incomingNumber != null)
+                            if (!incomingNumber.isEmpty()) {
+                                Log.i(TAG, "IncomingServiceFallBack putExtra Incoming with number: " + incomingNumber);
+                                incomingServiceIntent.putExtra(INCOMING_PHONE_NUMBER_KEY, incomingNumber);
+                            } else
+                                incomingServiceIntent.putExtra(INCOMING_PHONE_NUMBER_KEY, "");
+
+                        Log.i(TAG, " Starting Incoming Service");
+                        incomingServiceIntent.putExtra(WAKEFUL_INTENT, true);
+                        startWakefulService(context, incomingServiceIntent);
+
+                    }
+
+                }
 
         // Starting service responsible for incoming media callz
         Log.i(TAG, "IncomingService  is Live : " + String.valueOf(IncomingService.isLive));
@@ -40,11 +83,12 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
             Intent incomingServiceIntent = new Intent(context, IncomingService.class);
             incomingServiceIntent.setAction(IncomingService.ACTION_START);
             Log.i(TAG, " Starting Incoming Service");
+            incomingServiceIntent.putExtra(WAKEFUL_INTENT, true);
             startWakefulService(context, incomingServiceIntent);
 
         }
 
-
+        //region outgoing service
         // Starting service responsible for outgoing media callz
         Log.i(TAG, "OutgoingService  is Live : " + String.valueOf(OutgoingService.isLive));
         if (!OutgoingService.isLive) {
@@ -55,7 +99,7 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
             startWakefulService(context, outgoingServiceIntent);
 
             //if it's outgoing call
-            if (intent != null && action != null) // TODO check if Alarm sends action as null or intent. and make general if
+            if (action != null) // TODO check if Alarm sends action as null or intent. and make general if
                 if (intent.getAction().equals(Intent.ACTION_NEW_OUTGOING_CALL)) {
 
                     outgoingPhoneNumber = PhoneNumberUtils.toValidLocalPhoneNumber(intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER));
@@ -86,42 +130,9 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
                 }
 
         }
+        //endregion
 
-        // Sending an incoming phone number for incoming service
-        if (intent != null && action != null) // TODO check if Alarm sends action as null or intent. and make general if
-            if (intent.getAction().equals("android.intent.action.PHONE_STATE")) {
-                String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-                Log.d(TAG, "IncomingServiceFallBack PhoneStateReceiver**Call State=" + state);
 
-                if (state.equals(TelephonyManager.EXTRA_STATE_RINGING) && !SharedPrefUtils.getBoolean(context, SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_RINGING_SESSION)) {
-                    try {
-                        Thread.sleep(1000, 0);  // TODO REMOVE SLEEP !! or decide a better technique
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    // Incoming call
-                    String incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER));
-
-                    Intent incomingServiceIntent = new Intent(context, IncomingService.class);
-                    incomingServiceIntent.setAction(IncomingService.ACTION_START);
-
-                    if (incomingNumber != null) // unidentified caller
-                        Log.i(TAG, "IncomingServiceFallBack  EXTRA_INCOMING_NUMBER : " + incomingNumber);
-
-                    //if it's incoming call
-                    if (incomingNumber != null)
-                        if (!incomingNumber.isEmpty()) {
-                            Log.i(TAG, "IncomingServiceFallBack putExtra Incoming with number: " + incomingNumber);
-                            incomingServiceIntent.putExtra(INCOMING_PHONE_NUMBER_KEY, incomingNumber);
-                        } else
-                            incomingServiceIntent.putExtra(INCOMING_PHONE_NUMBER_KEY, "");
-
-                    Log.i(TAG, " Starting Incoming Service");
-                    startWakefulService(context, incomingServiceIntent);
-
-                }
-
-            }
     }
 
     }

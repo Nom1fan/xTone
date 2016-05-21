@@ -91,7 +91,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected boolean mPreviewStart = false;
     protected boolean showFirstTime = false;
     protected boolean mOutgoingCall = false;
-    protected boolean mShouldVibrate = false;
     protected Vibrator vibrator;
     protected String _contactName = "";
     public AbstractStandOutService(String TAG) {
@@ -849,14 +848,18 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected void backupMusicVolume() {
 
         verifyAudioManager();
-        Log.i(TAG, "RING_VOLUME Original: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME));
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
         Log.i(TAG, "MUSIC_VOLUME Original: " + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
     }
 
-    protected void backupRingVolume() {
+    protected void backupRingSettings() {
 
         verifyAudioManager();
+        int ringerMode = mAudioManager.getRingerMode();
+
+        Log.i(TAG, "RINGER_MODE Original: " + ringerMode);
+        SharedPrefUtils.setInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE , ringerMode);
+
         int ringVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_RING);
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME, ringVolume);
         Log.i(TAG, "mRingVolume Original: " + ringVolume);
@@ -1028,7 +1031,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     public void stopVibrator()
     {
         try {
-            if (vibrator!=null) {
+            if (vibrator!=null && mAudioManager.getRingerMode() != 0) {
                 vibrator.cancel();
                vibrator = null;
             }
@@ -1077,7 +1080,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             Log.e(TAG, "trying to recycle Gif Image. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
         }
         mGifDrawable = null;
-        mShouldVibrate=false;
         vibrator=null;
         mMediaPlayer = null;
         mAudioManager = null;

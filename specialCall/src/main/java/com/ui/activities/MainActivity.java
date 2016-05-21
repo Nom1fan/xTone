@@ -75,7 +75,6 @@ import com.utils.FFMPEG_Utils;
 import com.utils.FileCompressorUtils;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
-import com.utils.SpecialDevicesUtils;
 import com.utils.UI_Utils;
 
 import java.io.BufferedInputStream;
@@ -257,9 +256,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         AppStateManager.setAppInForeground(getApplicationContext(), true);
 
         if (!getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
-
-            SpecialDevicesUtils.checkIfDeviceHasStrictMemoryManager(getApplicationContext());
-            SpecialDevicesUtils.checkIfDeviceHasStrictRingingCapabilitiesAndNeedMotivation(getApplicationContext());
 
             //TODO MediaCallz: Do we need these start services here?
             // Starting service responsible for incoming media callz

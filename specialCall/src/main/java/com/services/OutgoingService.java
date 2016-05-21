@@ -287,8 +287,9 @@ public class OutgoingService extends AbstractStandOutService {
 
                             setTempMd5ForCallRecord(visualMediaFilePath,audioMediaFilePath);
 
-                            startVisualMediaMC(visualMediaFilePath, outgoingCallNumber, funtoneFileExists);
                             startAudioMediaMC(audioMediaFilePath);
+                            startVisualMediaMC(visualMediaFilePath, outgoingCallNumber, funtoneFileExists);
+
 
                             MCHistoryUtils.reportMC(
                                     getApplicationContext(),

@@ -79,6 +79,7 @@ public abstract class SharedPrefUtils {
     public static final String INCOMING_RINGING_SESSION         =   "IncomingisInRingingSession";
     public static final String RING_VOLUME                      =   "RingVolume";
     public static final String MUSIC_VOLUME                     =   "MusicVolume";
+    public static final String RINGER_MODE                      =   "RingerMode";
     public static final String TEMP_VISUALMD5                   =   "TempVisualMd5";
     public static final String TEMP_AUDIOMD5                    =   "TempAudioMd5";
     public static final String DISABLE_VOLUME_BUTTONS           =   "DisableVolumeButtons";

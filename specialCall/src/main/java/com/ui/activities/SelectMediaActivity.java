@@ -28,6 +28,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -90,11 +91,9 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private void initializeSelectMediaUI() {
         setContentView(R.layout.select_media);
         _isInWebView = false;
-        ImageButton button1 = (ImageButton) findViewById(R.id.back);
+        ImageView button1 = (ImageView) findViewById(R.id.mc_icon);
         button1.setOnClickListener(this);
         TextView mediaType = (TextView) findViewById(R.id.selectMediaType);
-
-
 
         if (ActivityRequestCodes.SELECT_CALLER_MEDIA == SMTypeCode)
             mediaType.setText(R.string.select_caller_media_title);
@@ -125,6 +124,26 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         ImageButton mediacallzBtn = (ImageButton) findViewById(R.id.mediacallzBtn);
         mediacallzBtn.setOnClickListener(this);
+
+        TextView imageVideoTextView = (TextView) findViewById(R.id.image_video_textview);
+        imageVideoTextView.setOnClickListener(this);
+
+        TextView audioTextView = (TextView) findViewById(R.id.audio_textview);
+        audioTextView.setOnClickListener(this);
+
+        TextView takePicTextView = (TextView) findViewById(R.id.take_picture_textview);
+        takePicTextView.setOnClickListener(this);
+
+        TextView recordVideoTextView = (TextView) findViewById(R.id.record_video_textview);
+        recordVideoTextView.setOnClickListener(this);
+
+        TextView recordAudioTextView = (TextView) findViewById(R.id.record_audio_textview);
+        recordAudioTextView.setOnClickListener(this);
+
+        TextView galleryTexView = (TextView) findViewById(R.id.mc_gallery_textview);
+        galleryTexView.setOnClickListener(this);
+
+
     }
 
     @Override
@@ -132,22 +151,19 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         if (event.getAction() == KeyEvent.ACTION_DOWN && _isInWebView) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_BACK:
-                if(mwebView!=null)
-                    {
+                    if (mwebView != null) {
                         if (mwebView.canGoBack()) {
-                        mwebView.goBack();
+                            mwebView.goBack();
+                        } else
+                            initializeSelectMediaUI();
+                    }
 
-                    }
-                    else
-                        initializeSelectMediaUI();
-                    }
-                   return true;
+                    return true;
             }
 
         }
         return super.onKeyDown(keyCode, event);
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -171,8 +187,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     @Override
     protected void onPause() {
         super.onPause();
+        overridePendingTransition(R.anim.no_animation_no_delay, R.anim.slide_out_up);// close drawer animation
         Log.i(TAG, "onPause()");
-        overridePendingTransition(R.anim.no_animation, R.anim.slide_out_up);// close drawer animation
     }
 
     @Override
@@ -218,31 +234,31 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         int id = v.getId();
 
-        if (id == R.id.back) {
+        if (id == R.id.mc_icon) {
             SelectMediaActivity.this.finish();
         }
-        else if (id == R.id.video_or_image) {
+        else if (id == R.id.video_or_image || id == R.id.image_video_textview) {
 
             openVideoAndImageMediapath(SMTypeCode);
 
-        } else if (id == R.id.audio) {
+        }else if (id == R.id.audio || id == R.id.audio_textview) {
 
             openAudioMediapath(SMTypeCode);
         }
-        else if (id == R.id.recordVideo) {
+        else if (id == R.id.recordVideo || id == R.id.record_video_textview) {
 
             RecordVideo(SMTypeCode);
         }
-        else if (id == R.id.takePicture) {
+        else if (id == R.id.takePicture || id == R.id.take_picture_textview) {
 
             takePicture(SMTypeCode);
         }
-        else if (id == R.id.recordAudio) {
+        else if (id == R.id.recordAudio || id == R.id.record_audio_textview) {
 
             recordAudio();
         }
         else {
-            if (id == R.id.mediacallzBtn) {
+            if (id == R.id.mediacallzBtn || id == R.id.mc_gallery_textview) {
 
                 mediacallzGalleryWebView();
                 _isInWebView = true;

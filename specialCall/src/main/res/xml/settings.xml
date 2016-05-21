@@ -21,32 +21,6 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/advancd_settings">
-
-        <CheckBoxPreference
-            android:key="advance_settings_checkbox"
-            android:title="@string/enable_adv_settings"
-            android:summary="@string/enable_adv_settings_summary" />
-
-        <!-- The visual style of a child is defined by this styled theme attribute. -->
-        <CheckBoxPreference
-            android:key="foreground_checkbox"
-            android:dependency="advance_settings_checkbox"
-            android:layout="?android:attr/preferenceLayoutChild"
-            android:title="@string/foreground_settings_title"
-            android:summary="@string/foreground_settings_summary" />
-
-        <CheckBoxPreference
-            android:key="ringing_override_checkbox"
-            android:dependency="advance_settings_checkbox"
-            android:layout="?android:attr/preferenceLayoutChild"
-            android:title="@string/ringing_override_settings_title"
-            android:summary="@string/ringing_override_settings_summary" />
-
-
-    </PreferenceCategory>
-
     <Preference android:title="@string/delete_account_title"
         android:key="Delete Account"
         android:summary="@string/delete_account_summary"/>

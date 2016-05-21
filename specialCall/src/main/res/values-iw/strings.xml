@@ -130,8 +130,8 @@
     <!--  loginuser Layout   -->
     <string name="get_sms_code">קבל קוד סמס</string>
     <string name="login">התחבר</string>
-    <string name="sms_code_hint">קוד הסמס שקיבלת</string>
-    <string name="your_phone">מספר הנייד שלך</string>
+    <string name="sms_code_hint"> קוד הסמס שקיבלת</string>
+    <string name="your_phone"> מספר הנייד שלך</string>
 
     <!--  activity_main Layout   -->
     <string name="to_dest_hint">אל...</string>
@@ -156,7 +156,7 @@
     <string name="video_image">וידיאו או תמונה</string>
     <string name="take_picture">צלם תמונה</string>
     <string name="record_audio">הקלט אודיו</string>
-    <string name="mediacallz_gallery">MediaCallz חנות</string>
+    <string name="mediacallz_gallery">הגלרייה שלנו</string>
 
     <!--  select_spec_contacts Layout   -->
     <string name="select_all">בחר הכל</string>
