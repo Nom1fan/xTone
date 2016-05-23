@@ -20,8 +20,8 @@ import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
 import EventObjects.EventReport;
 import EventObjects.EventType;
-import MessagesToServer.ServerActionType;
 import MessagesToServer.MessageToServer;
+import MessagesToServer.ServerActionType;
 
 
 /**
@@ -76,10 +76,12 @@ public class StorageServerProxyService extends AbstractServerProxy {
 
                     PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
 
+                    HashMap<DataKeys,Object> data = getDefaultMessageData();
+
                     try {
                         switch (action) {
                             case ACTION_DOWNLOAD:
-                                actionDownload(intentForThread, powerManager);
+                                actionDownload(intentForThread, powerManager, data);
                                 break;
 
 //                            case ACTION_UPLOAD:
@@ -87,11 +89,11 @@ public class StorageServerProxyService extends AbstractServerProxy {
 //                                break;
 
                             case ACTION_CLEAR_MEDIA:
-                                actionClear(intentForThread);
+                                actionClear(intentForThread, data);
                                 break;
 
                             case ACTION_NOTIFY_MEDIA_CLEARED:
-                                actionNotifyMediaCleared(intentForThread);
+                                actionNotifyMediaCleared(intentForThread, data);
                                 break;
 
                             default:
@@ -127,13 +129,14 @@ public class StorageServerProxyService extends AbstractServerProxy {
     //endregion
 
     //region ClientActionType methods
-    private void actionDownload(Intent intent, PowerManager powerManager) throws IOException {
+    private void actionDownload(Intent intent, PowerManager powerManager, HashMap<DataKeys,Object> data) throws IOException {
 
         setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
         wakeLock.acquire();
-        HashMap data = (HashMap) intent.getSerializableExtra(PushEventKeys.PUSH_DATA);
-        requestDownloadFromServer(openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT), data);
+        HashMap pushData = (HashMap) intent.getSerializableExtra(PushEventKeys.PUSH_DATA);
+        pushData.putAll(data);
+        requestDownloadFromServer(openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT), pushData);
     }
 
 //    private void actionUpload(Intent intent, PowerManager powerManager) throws IOException {
@@ -150,21 +153,22 @@ public class StorageServerProxyService extends AbstractServerProxy {
 //        releaseLockIfNecessary();
 //    }
 
-    private void actionClear(Intent intent) throws IOException {
+    private void actionClear(Intent intent, HashMap<DataKeys,Object> data) throws IOException {
 
         setMidAction(true);
         ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
         String destId = intent.getStringExtra(DESTINATION_ID);
         SpecialMediaType specialMediaType = (SpecialMediaType) intent.getSerializableExtra(SPECIAL_MEDIA_TYPE);
-        sendClearCommandToServer(connectionToServer, destId, specialMediaType);
+        sendClearCommandToServer(connectionToServer, destId, specialMediaType, data);
     }
 
-    private void actionNotifyMediaCleared(Intent intent) throws IOException {
+    private void actionNotifyMediaCleared(Intent intent, HashMap<DataKeys,Object> data) throws IOException {
 
         setMidAction(true);
         ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
-        HashMap data = (HashMap) intent.getSerializableExtra(TRANSFER_DETAILS);
-        MessageToServer msgNMC = new MessageToServer(ServerActionType.NOTIFY_MEDIA_CLEARED, Constants.MY_ID(getApplicationContext()), data);
+        HashMap tdData = (HashMap) intent.getSerializableExtra(TRANSFER_DETAILS);
+        tdData.putAll(data);
+        MessageToServer msgNMC = new MessageToServer(ServerActionType.NOTIFY_MEDIA_CLEARED, Constants.MY_ID(getApplicationContext()), tdData);
         connectionToServer.sendToServer(msgNMC);
     }
 
@@ -187,9 +191,9 @@ public class StorageServerProxyService extends AbstractServerProxy {
     private void sendClearCommandToServer(
             ConnectionToServer connectionToServer,
             String destId,
-            SpecialMediaType specialMediaType) throws IOException {
+            SpecialMediaType specialMediaType,
+            HashMap<DataKeys,Object> data) throws IOException {
 
-        HashMap data = new HashMap();
         String srcId = Constants.MY_ID(getApplicationContext());
         data.put(DataKeys.SOURCE_ID, srcId);
         data.put(DataKeys.DESTINATION_ID, destId);

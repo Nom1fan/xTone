@@ -74,6 +74,35 @@ public class MySqlDAL implements IDAL {
     }
 
     @Override
+    public void registerUser(String uid, String token, String deviceModel, String androidVersion) throws SQLException {
+
+        StringBuilder query = new StringBuilder();
+        deviceModel = quote(deviceModel);
+        androidVersion = quote(androidVersion);
+
+        registerUser(uid, token);
+        uid = quote(uid);
+
+        query.
+                append("UPDATE ").
+                append(TABLE_USERS).
+                append(" SET ").
+                append(COL_DEVICE_MODEL).
+                append("=").
+                append(deviceModel).
+                append(", ").
+                append(COL_ANDROID_VERSION).
+                append("=").
+                append(androidVersion).
+                append(" WHERE ").
+                append(COL_UID).
+                append("=").
+                append(uid);
+
+        executeQuery(query.toString());
+    }
+
+    @Override
     public void unregisterUser(String uid, String token) throws SQLException {
 
         StringBuilder query = new StringBuilder();
@@ -254,6 +283,34 @@ public class MySqlDAL implements IDAL {
                 append(COL_UID).
                 append("=").
                 append(quote(uid));
+
+        executeQuery(query.toString());
+    }
+
+    @Override
+    public void reRegisterUser(String uid, String token, String deviceModel, String androidVersion) throws SQLException {
+
+        StringBuilder query = new StringBuilder();
+        reRegisterUser(uid, token);
+
+        deviceModel = quote(deviceModel);
+        androidVersion = quote(androidVersion);
+
+        query.
+                append("UPDATE ").
+                append(TABLE_USERS).
+                append(" SET ").
+                append(COL_DEVICE_MODEL).
+                append("=").
+                append(deviceModel).
+                append(", ").
+                append(COL_ANDROID_VERSION).
+                append("=").
+                append(androidVersion).
+                append(" WHERE ").
+                append(COL_UID).
+                append("=").
+                append(uid);
 
         executeQuery(query.toString());
     }

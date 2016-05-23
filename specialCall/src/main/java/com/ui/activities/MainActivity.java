@@ -1552,6 +1552,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             HashMap<DataKeys, Object> data = new HashMap();
             String myId = Constants.MY_ID(getApplicationContext());
+            double appVersion = Constants.APP_VERSION(MainActivity.this);
+
+            data.put(DataKeys.APP_VERSION, appVersion);
             data.put(DataKeys.SOURCE_ID, myId);
             data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
             data.put(DataKeys.DESTINATION_ID, bundle.get(DEST_ID));

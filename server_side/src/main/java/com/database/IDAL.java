@@ -24,6 +24,8 @@ public interface IDAL {
     String COL_USER_STATUS          =   "user_status";
     String COL_UNREGISTERED_DATE    =   "unregistered_date";
     String COL_UNREGISTERED_COUNT   =   "unregistered_count";
+    String COL_DEVICE_MODEL         =   "device_model";
+    String COL_ANDROID_VERSION      =   "android_version";
     //endregion
     //endregion
 
@@ -79,8 +81,10 @@ public interface IDAL {
     void initConn() throws SQLException;
     void closeConn();
     void registerUser(String uid, String token) throws SQLException;
+    void registerUser(String uid, String token, String deviceModel, String androidVersion) throws SQLException;
     void unregisterUser(String uid, String token) throws SQLException;
     void reRegisterUser(String uid, String token) throws SQLException;
+    void reRegisterUser(String uid, String token, String deviceModel, String androidVersion) throws SQLException;
     int insertMediaTransferRecord(Map data) throws SQLException;
     void insertMediaCallRecord(CallRecord callRecord) throws SQLException;
     void insertMediaFileRecord(String md5, String extension, int size, String countColToInc) throws SQLException;

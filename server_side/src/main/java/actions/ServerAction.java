@@ -1,14 +1,15 @@
 package actions;
 
+import com.database.IDAL;
+import com.database.UsersDataAccess;
+
 import java.io.IOException;
 import java.util.Map;
 
-import com.database.IDAL;
 import Exceptions.UserUnregisteredException;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
 import ServerObjects.ConnectionToClient;
-import com.database.UsersDataAccess;
 import log.Logged;
 
 /**
