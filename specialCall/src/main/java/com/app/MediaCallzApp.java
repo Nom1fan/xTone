@@ -45,6 +45,9 @@ public class MediaCallzApp extends Application {
                 //Initialize Default Settings Values
                 InitUtils.initializeSettingsDefaultValues(context);
 
+                //Populate SharedprefMEdia in case it's not the first time the app is installed, and you have saved media in the MediaCallz Outgoing/Incoming
+                InitUtils.initializeLoadingSavedMCFromDiskToSharedPrefs(context);
+
             }
         } catch (Exception e) {
             String errMsg = "Failed to initialize. Please try to install again. Error:" + (e.getMessage()!=null ? e.getMessage() : e);
