@@ -16,7 +16,7 @@ import pushservice.BatchPushSender;
 
 
 /**
- * This class is a singleton that manages all client connections
+ * This class is a singleton that manages all user-related DAL access
  *
  * @author Mor
  */
@@ -33,6 +33,7 @@ public class UsersDataAccess extends DALAccesible {
 
     public boolean registerUser(String userId, String token) {
 
+        boolean isOK;
         try {
             UserRecord record = getUserRecord(userId);
 
@@ -47,12 +48,40 @@ public class UsersDataAccess extends DALAccesible {
             }
 
             _logger.info("Registered [User]:" + userId + " successfully");
-            return true;
+           isOK = true;
         } catch (Exception e) {
             _logger.severe("RegisterUser failure. " + " [User]:" + userId +
                     " [Exception]:" + (e.getMessage() != null ? e.getMessage() : e));
-            return false;
+            isOK = false;
         }
+
+        return isOK;
+    }
+
+    public boolean registerUser(String userId, String token, String deviceModel, String androidVersion) {
+
+        boolean isOK;
+        try {
+            UserRecord record = getUserRecord(userId);
+
+            // User registering for the first time
+            if(record == null) {
+
+                _dal.registerUser(userId, token, deviceModel, androidVersion);
+            }
+            else {
+                // User re-registering
+                _dal.reRegisterUser(userId, token, deviceModel, androidVersion);
+            }
+            _logger.info("Registered [User]:" + userId + " successfully");
+            isOK = true;
+
+        } catch (Exception e) {
+            _logger.severe("RegisterUser failure. " + " [User]:" + userId +
+                    " [Exception]:" + (e.getMessage() != null ? e.getMessage() : e));
+            isOK = false;
+        }
+        return isOK;
     }
 
     public boolean unregisterUser(String userId, String token) {

@@ -25,7 +25,7 @@ public abstract class SpecialDevicesUtils {
     private static final String LG_G2_StrictRingingDisable = "lg-d802";
 
     /** Returns the consumer friendly device name */
-    private static String getDeviceName() {
+    public static String getDeviceName() {
         String manufacturer = Build.MANUFACTURER;
         String model = Build.MODEL;
         if (model.startsWith(manufacturer)) {

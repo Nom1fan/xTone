@@ -1,6 +1,7 @@
 package com.services;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -9,6 +10,7 @@ import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
+import com.utils.SpecialDevicesUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -65,15 +67,15 @@ public class LogicServerProxyService extends AbstractServerProxy {
         if (shouldStop)
             return START_REDELIVER_INTENT;
 
-        final Intent intentForThread = intent;
-
         new Thread() {
 
             @Override
             public void run() {
-                if (intentForThread != null) {
-                    String action = intentForThread.getAction();
+                if (intent != null) {
+                    String action = intent.getAction();
                     Log.i(TAG, "Action:" + action);
+
+                    HashMap<DataKeys, Object> data = getDefaultMessageData();
 
                     try {
 
@@ -82,31 +84,31 @@ public class LogicServerProxyService extends AbstractServerProxy {
                             case ACTION_REGISTER:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.REGISTERING, getResources().getString(R.string.registering), null));
-                                int smsCode = intentForThread.getIntExtra(SMS_CODE, 0);
-                                actionRegister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), smsCode);
+                                int smsCode = intent.getIntExtra(SMS_CODE, 0);
+                                actionRegister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), smsCode, data);
                                 break;
 
                             case ACTION_UNREGISTER:
                                 setMidAction(true);
-                                actionUnregister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
+                                actionUnregister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), data);
                                 break;
 
                             case ACTION_GET_SMS_CODE:
                                 setMidAction(true);
-                                String interPhoneNumber = intentForThread.getStringExtra(INTER_PHONE);
+                                String interPhoneNumber = intent.getStringExtra(INTER_PHONE);
                                 actionGetSmsCode(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT),
-                                        Constants.MY_ID(getApplicationContext()) ,interPhoneNumber);
+                                        Constants.MY_ID(getApplicationContext()) ,interPhoneNumber , data);
                                 break;
 
                             case ACTION_GET_APP_RECORD:
                                 setMidAction(true);
-                                actionGetAppRecord(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT));
+                                actionGetAppRecord(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), data);
                                 break;
 
                             case ACTION_ISREGISTERED: {
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                String destId = intentForThread.getStringExtra(DESTINATION_ID);
-                                actionIsRegistered(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), destId);
+                                String destId = intent.getStringExtra(DESTINATION_ID);
+                                actionIsRegistered(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), destId, data);
                             }
                                 break;
 
@@ -122,8 +124,8 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
                             case ACTION_INSERT_CALL_RECORD:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                CallRecord callRecord = (CallRecord) intentForThread.getSerializableExtra(CALL_RECORD);
-                                actionInsertMediaCallRecord(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), callRecord);
+                                CallRecord callRecord = (CallRecord) intent.getSerializableExtra(CALL_RECORD);
+                                actionInsertMediaCallRecord(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), callRecord, data);
                                 break;
 
                             default:
@@ -167,35 +169,34 @@ public class LogicServerProxyService extends AbstractServerProxy {
      *
      * @param destinationId - The number of whom to check is logged-in
      */
-    private void actionIsRegistered(ConnectionToServer connectionToServer, String destinationId) throws IOException {
+    private void actionIsRegistered(ConnectionToServer connectionToServer, String destinationId, HashMap<DataKeys,Object> data) throws IOException {
 
-        HashMap data = new HashMap();
         data.put(DataKeys.DESTINATION_ID, destinationId);
 
         MessageToServer msgIsLogin = new MessageToServer(ServerActionType.IS_REGISTERED, Constants.MY_ID(getApplicationContext()), data);
         connectionToServer.sendToServer(msgIsLogin);
     }
 
-    private void actionGetSmsCode(ConnectionToServer connectionToServer, String localNumber, String interPhoneNumber) throws IOException {
+    private void actionGetSmsCode(ConnectionToServer connectionToServer, String localNumber, String interPhoneNumber, HashMap<DataKeys,Object> data) throws IOException {
 
-        HashMap data = new HashMap();
         data.put(DataKeys.INTERNATIONAL_PHONE_NUMBER, interPhoneNumber);
         data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
 
         connectionToServer.sendToServer(new MessageToServer(ServerActionType.GET_SMS_CODE, localNumber, data));
     }
 
-    private void actionGetAppRecord(ConnectionToServer connectionToServer) throws IOException {
+    private void actionGetAppRecord(ConnectionToServer connectionToServer, HashMap<DataKeys,Object> data) throws IOException {
 
         Log.i(TAG, "Initiating actionGetAppRecord sequence...");
-        connectionToServer.sendToServer(new MessageToServer(ServerActionType.GET_APP_RECORD, Constants.MY_ID(getApplicationContext())));
+        connectionToServer.sendToServer(new MessageToServer(ServerActionType.GET_APP_RECORD, Constants.MY_ID(getApplicationContext()), data));
     }
 
-    private void actionRegister(ConnectionToServer connectionToServer, int smsCode) throws IOException {
+    private void actionRegister(ConnectionToServer connectionToServer, int smsCode, HashMap<DataKeys,Object> data) throws IOException {
 
         Log.i(TAG, "Initiating actionRegister sequence...");
 
-        HashMap data = new HashMap();
+        data.put(DataKeys.DEVICE_MODEL, SpecialDevicesUtils.getDeviceName());
+        data.put(DataKeys.ANDROID_VERSION, Build.VERSION.RELEASE);
         data.put(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(getApplicationContext()));
         data.put(DataKeys.SMS_CODE, smsCode);
 
@@ -209,11 +210,10 @@ public class LogicServerProxyService extends AbstractServerProxy {
         connectionToServer.sendToServer(msgRegister);
     }
 
-    private void actionUnregister(ConnectionToServer connectionToServer) throws IOException {
+    private void actionUnregister(ConnectionToServer connectionToServer, HashMap<DataKeys,Object> data) throws IOException {
 
         Log.i(TAG, "Initating actionUnregister sequence...");
 
-        HashMap data = new HashMap();
         data.put(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(getApplicationContext()));
 
         MessageToServer msgUnregister = new MessageToServer(
@@ -226,10 +226,9 @@ public class LogicServerProxyService extends AbstractServerProxy {
         connectionToServer.sendToServer(msgUnregister);
     }
 
-    private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, CallRecord callRecord) throws IOException {
+    private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, CallRecord callRecord, HashMap<DataKeys,Object> data) throws IOException {
 
         Log.i(TAG, "Initiating actionInsertMediaCallRecord sequence...");
-        HashMap data = new HashMap();
         data.put(DataKeys.CALL_RECORD, callRecord);
 
         MessageToServer msgInsertMCrecord = new MessageToServer(ServerActionType.INSERT_MEDIA_CALL_RECORD, callRecord.get_sourceId(), data);

@@ -1,5 +1,8 @@
 package actions;
 
+import com.database.SmsVerificationAccess;
+import com.database.UsersDataAccess;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,8 +10,7 @@ import DataObjects.DataKeys;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import com.database.SmsVerificationAccess;
-import com.database.UsersDataAccess;
+import lang.ServerConstants;
 
 /**
  * Created by Mor on 23/04/2016.
@@ -31,8 +33,20 @@ public class ServerActionRegister extends ServerAction {
 
         HashMap<DataKeys, Object> replyData = new HashMap();
         if(smsCode!=SmsVerificationAccess.NO_SMS_CODE && smsCode == expectedSmsCode) {
-            boolean isOK = UsersDataAccess.instance(_dal).registerUser(_messageInitiaterId, pushToken);
-            replyData.put(DataKeys.IS_REGISTER_SUCCESS, isOK);
+
+            boolean isRegisteredOK = false;
+            // User device record support was inserted in v1.13
+            double userAppVersion = (double) data.get(DataKeys.APP_VERSION);
+            if(userAppVersion >= ServerConstants.APP_VERSION_1_13) {
+
+                String deviceModel = (String) data.get(DataKeys.DEVICE_MODEL);
+                String androidVersion = (String) data.get(DataKeys.ANDROID_VERSION);
+                isRegisteredOK = UsersDataAccess.instance(_dal).registerUser(_messageInitiaterId, pushToken, deviceModel, androidVersion);
+            }
+            else {
+                isRegisteredOK = UsersDataAccess.instance(_dal).registerUser(_messageInitiaterId, pushToken);
+            }
+            replyData.put(DataKeys.IS_REGISTER_SUCCESS, isRegisteredOK);
         } else {
             _logger.warning("Rejecting registration for [User]:" + _messageInitiaterId +
                     ". [Expected smsCode]:" + expectedSmsCode + " [Received smsCode]:" + smsCode);
@@ -40,5 +54,6 @@ public class ServerActionRegister extends ServerAction {
         }
 
         replyToClient(new MessageToClient(ClientActionType.REGISTER_RES, replyData));
+
     }
 }

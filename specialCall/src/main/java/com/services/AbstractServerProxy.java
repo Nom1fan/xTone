@@ -10,17 +10,19 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
-import com.actions.ClientAction;
 import com.actions.ActionFactory;
+import com.actions.ClientAction;
 import com.data_objects.Constants;
 import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
+import DataObjects.DataKeys;
 import DataObjects.SharedConstants;
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -210,6 +212,13 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
         NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
         return activeNetwork!=null && activeNetwork.isConnected();
+    }
+
+    protected HashMap<DataKeys,Object> getDefaultMessageData() {
+
+        HashMap<DataKeys, Object> data = new HashMap();
+        data.put(DataKeys.APP_VERSION, Constants.APP_VERSION(getApplicationContext()));
+        return data;
     }
     //endregion
 }

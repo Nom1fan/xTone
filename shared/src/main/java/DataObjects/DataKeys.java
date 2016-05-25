@@ -31,4 +31,6 @@ public enum DataKeys {
     APP_VERSION,
     MIN_SUPPORTED_VERSION,
     HTML_STRING,
+    DEVICE_MODEL,
+    ANDROID_VERSION,
 }
