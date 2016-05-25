@@ -82,6 +82,13 @@
     <string name="mediacallz_gallery">MC Gallery</string>
     <string name="select_caller_media_title">Outgoing call media</string>
     <string name="select_profile_media_title">Incoming call media</string>
+    <string name="record_audio_title">Record audio is ready</string>
+    <string name="record_audio_desc">   Start Recording ?</string>
+    <string name="start">Start</string>
+    <string name="are_u_sure_title">Ready For Upload</string>
+    <string name="are_u_sure_desc">   Are you sure you want to upload ?</string>
+    <string name="upload">Upload</string>
+
 
     <!--  SettingsActivity   -->
     <string-array name="save_media">

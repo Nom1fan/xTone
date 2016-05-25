@@ -114,7 +114,12 @@
     <!--  SelectMediaActivity  -->
     <string name="recording">מקליט...</string>
     <string name="stop_recording">עצור הקלטה</string>
-
+    <string name="record_audio_title">הקלטת אודיו מוכנה</string>
+    <string name="record_audio_desc">התחל הקלטה ?</string>
+    <string name="start">התחל</string>
+    <string name="are_u_sure_title">מוכן לשליחה</string>
+    <string name="are_u_sure_desc">   האם אתה בטוח שאתה מוכן לשליחה ?</string>
+    <string name="upload">שלח</string>
 
     <!-- ### Layouts XML ###  -->
 

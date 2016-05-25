@@ -305,7 +305,7 @@ public class IncomingService extends AbstractStandOutService {
 
     //region Internal helper methods
     private void isForegroundAndAlarmNeeded() {
-      boolean shouldStartForeground = true;//TODO remove it when we know how to keep it working against SPCM or other memory services//SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.STRICT_MEMORY_MANAGER_DEVICES);
+      boolean shouldStartForeground = false;//true;//TODO remove it when we know how to keep it working against SPCM or other memory services//SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.STRICT_MEMORY_MANAGER_DEVICES);
         Log.i(TAG, "shouldStartForeground : " + String.valueOf(shouldStartForeground));
         if (shouldStartForeground)
         {

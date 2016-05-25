@@ -1,6 +1,7 @@
 package com.ui.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
@@ -12,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -19,9 +21,11 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.view.MotionEventCompat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -37,6 +41,9 @@ import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
+import com.services.AbstractStandOutService;
+import com.services.PreviewService;
+import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
@@ -84,6 +91,13 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         _destName = intent.getStringExtra(DESTINATION_NAME);
         SMTypeCode = intent.getIntExtra(SPECIAL_MEDIA_TYPE, 1);
 
+        try {
+            checkDestinationNumber();
+        } catch (InvalidDestinationNumberException e) {
+            e.printStackTrace();
+            UI_Utils.callToast(getResources().getString(R.string.destnumber_invalid), Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+            finish();
+        }
         initializeSelectMediaUI();
 
     }
@@ -172,15 +186,10 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         Log.i(TAG, "onActivityResult");
         if (resultCode == RESULT_OK) {
             Log.i(TAG, "requestCode: " + requestCode);
-            if (requestCode == ActivityRequestCodes.SELECT_CALLER_MEDIA) {
 
-                SpecialMediaType specialMediaType = SpecialMediaType.CALLER_MEDIA;
-                extractAndReturnFile(data, specialMediaType);
-            } else if (requestCode == ActivityRequestCodes.SELECT_PROFILE_MEDIA) {
+            final String filepath = getFilePathFromIntent(data);
+            previewAndUploadDialog(filepath);
 
-                SpecialMediaType specialMediaType = SpecialMediaType.PROFILE_MEDIA;
-                extractAndReturnFile(data, specialMediaType);
-            }
         }
     }
 
@@ -255,7 +264,29 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         }
         else if (id == R.id.recordAudio || id == R.id.record_audio_textview) {
 
-            recordAudio();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            final TextView content = new TextView(this);
+            content.setText(R.string.record_audio_desc);
+
+            builder.setTitle(R.string.record_audio_title)
+                    .setView(content)
+                    .setPositiveButton(R.string.start, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                            recordAudio();
+
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+
+                        }
+                    });
+
+            builder.create().show();
+
         }
         else {
             if (id == R.id.mediacallzBtn || id == R.id.mc_gallery_textview) {
@@ -337,39 +368,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         }
     }
 
-
-    private String statusMessage(Cursor c) {
-        String msg = "???";
-
-        switch (c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
-            case DownloadManager.STATUS_FAILED:
-                msg = "Download failed!";
-                break;
-
-            case DownloadManager.STATUS_PAUSED:
-                msg = "Download paused!";
-                break;
-
-            case DownloadManager.STATUS_PENDING:
-                msg = "Download pending!";
-                break;
-
-            case DownloadManager.STATUS_RUNNING:
-                msg = "Download in progress!";
-                break;
-
-            case DownloadManager.STATUS_SUCCESSFUL:
-                msg = "Download complete!";
-                break;
-
-            default:
-                msg = "Download is nowhere in sight";
-                break;
-        }
-
-        return (msg);
-    }
-
     private void openVideoAndImageMediapath(int code) {
 
         // Create the ACTION_GET_CONTENT Intent
@@ -436,90 +434,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         startActivityForResult(cameraIntent, code);  // // TODO rony: 31/01/2016 see native camera opens and not other weird different cameras
 
-    }
-
-     private void extractAndReturnFile(Intent intent, SpecialMediaType specialMediaType) {
-
-        FileManager fm;
-        Intent resultIntent = new Intent();
-        Log.i(TAG, "extractAndReturnFile");
-        final boolean isCamera;
-        try {
-            checkDestinationNumber();
-            Uri uri;
-
-            if (intent == null) {
-                isCamera = true;
-            } else {
-                final String action = intent.getAction();
-                isCamera = action != null && action.equals(MediaStore.ACTION_IMAGE_CAPTURE);
-            }
-            if (isCamera) {
-                uri = _outputFileUri;
-            } else {
-                uri = intent.getData();
-            }
-
-            // Get the File path from the Uri
-            String path = FileUtils.getPath(this, uri);
-            // Alternatively, use FileUtils.getFile(Context, Uri)
-            if(path == null) {
-                path = uri.getLastPathSegment();
-                if(path == null)
-                  throw new FileDoesNotExistException("Path returned from URI was null");
-            }
-
-            getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(path))));
-
-            if (FileUtils.isLocal(path)) {
-
-                if (isCamera) {
-                    File file = new File(path);
-
-                  try {
-                      String extension = FileManager.extractExtension(path);
-                      Log.i(TAG, "isCamera True, Extension saved in camera: " + extension);
-                  } catch (FileMissingExtensionException e){
-
-                      Log.w(TAG, "Missing Extension! Adding .jpeg as it is likely to be image file from camera" );
-                      file.renameTo(new File(path += ".jpeg"));
-                  }
-                }
-
-                fm = new FileManager(path);
-                Log.i(TAG, "[File selected]: " + path + ". [File Size]: " + FileManager.getFileSizeFormat(fm.getFileSize()));
-
-                resultIntent.putExtra(RESULT_SPECIAL_MEDIA_TYPE, specialMediaType);
-                resultIntent.putExtra(RESULT_FILE, fm);
-            }
-
-            Log.i(TAG,"End extractAndReturnFile");
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            Log.e(TAG, getResources().getString(R.string.file_invalid));
-            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
-
-        } catch (FileExceedsMaxSizeException e) {
-
-            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
-                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
-            Log.e(TAG, errMsg);
-            resultIntent.putExtra(RESULT_ERR_MSG, errMsg);
-
-        } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
-            e.printStackTrace();
-            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
-
-        } catch (InvalidDestinationNumberException e) {
-            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.destnumber_invalid));
-        }
-
-         if (getParent() == null) {
-            setResult(Activity.RESULT_OK, resultIntent);
-        } else {
-            getParent().setResult(Activity.RESULT_OK, resultIntent);
-        }
-        SelectMediaActivity.this.finish();
     }
 
     private void returnFile(String filePath) {
@@ -613,7 +527,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                 recorder.stop();
                 recorder.release();
 
-                returnFile(_recordedAudioFilePath);
+                previewAndUploadDialog(_recordedAudioFilePath);
 
             }
         });
@@ -632,6 +546,175 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
       }
 
     }
+
+    private void previewAndUploadDialog(final String filepath)
+    {
+        startPreviewStandoutWindow(filepath);
+        startAreUSureDialog(filepath);
+    }
+
+    private void startAreUSureDialog(final String filepath) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        final TextView content = new TextView(this);
+        content.setText(R.string.are_u_sure_desc);
+
+        builder.setTitle(R.string.are_u_sure_title)
+                .setView(content)
+                .setPositiveButton(R.string.upload, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        //close preview
+                        Intent closePrevious = new Intent(getApplicationContext(), PreviewService.class);
+                        closePrevious.setAction(AbstractStandOutService.ACTION_CLOSE_ALL);
+                        startService(closePrevious);
+
+                        returnFile(filepath);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        //close preview
+                        Intent closePrevious = new Intent(getApplicationContext(), PreviewService.class);
+                        closePrevious.setAction(AbstractStandOutService.ACTION_CLOSE_ALL);
+                        startService(closePrevious);
+
+
+                    }
+                });
+
+        AlertDialog dialog = builder.create();
+
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            public void onCancel(DialogInterface dialog) {
+                //close preview
+                Intent closePrevious = new Intent(getApplicationContext(), PreviewService.class);
+                closePrevious.setAction(AbstractStandOutService.ACTION_CLOSE_ALL);
+                startService(closePrevious);
+
+            }
+        });
+
+        WindowManager.LayoutParams wmlp = dialog.getWindow().getAttributes();
+        wmlp.gravity = Gravity.BOTTOM | Gravity.CENTER;
+
+        dialog.show();
+    }
+
+    private String getFilePathFromIntent(Intent intent) {
+
+        final boolean isCamera;
+        try {
+            Uri uri;
+
+            if (intent == null) {
+                isCamera = true;
+            } else {
+                final String action = intent.getAction();
+                isCamera = action != null && action.equals(MediaStore.ACTION_IMAGE_CAPTURE);
+            }
+            if (isCamera) {
+                uri = _outputFileUri;
+            } else {
+                uri = intent.getData();
+            }
+
+            // Get the File path from the Uri
+            String path = FileUtils.getPath(this, uri);
+            // Alternatively, use FileUtils.getFile(Context, Uri)
+            if (path == null) {
+                path = uri.getLastPathSegment();
+                if (path == null)
+                    throw new FileDoesNotExistException("Path returned from URI was null");
+            }
+
+            getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(path))));
+
+            if (FileUtils.isLocal(path)) {
+
+                if (isCamera) {
+                    File file = new File(path);
+
+                    try {
+                        String extension = FileManager.extractExtension(path);
+                        Log.i(TAG, "isCamera True, Extension saved in camera: " + extension);
+                    } catch (FileMissingExtensionException e) {
+
+                        Log.w(TAG, "Missing Extension! Adding .jpeg as it is likely to be image file from camera");
+                        file.renameTo(new File(path += ".jpeg"));
+                    }
+                }
+                return path;
+
+            }
+        }catch (NullPointerException e) {
+            e.printStackTrace();
+            Log.e(TAG, getResources().getString(R.string.file_invalid));
+
+        }  catch (FileDoesNotExistException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    private void startPreviewStandoutWindow(String filepath ) {
+
+        FileManager.FileType fType = null;
+
+        try {
+            String extension = FileManager.extractExtension(filepath);
+            fType = FileManager.getFileTypeByExtension(extension);
+        }
+        catch(FileMissingExtensionException e)
+        {
+            Log.i(TAG , "FileMissingExtensionException in startPreviewStandoutWindow with " + filepath);
+            e.printStackTrace();
+
+            UI_Utils.callToast(" error with file , missing extension ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+            return;
+        } catch(FileInvalidFormatException e)
+        {
+            Log.i(TAG , "FileInvalidFormatException in startPreviewStandoutWindow with " + filepath);
+            e.printStackTrace();
+
+            UI_Utils.callToast(" Invalid format file please choose other file ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+            return;
+        }
+
+        AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, am.getStreamVolume(AudioManager.STREAM_MUSIC));
+        Log.i(TAG, "PreviewStart MUSIC_VOLUME Original" + String.valueOf(am.getStreamVolume(AudioManager.STREAM_MUSIC)));
+
+        // Close previous
+        Intent closePrevious = new Intent(getApplicationContext(), PreviewService.class);
+        closePrevious.setAction(AbstractStandOutService.ACTION_CLOSE_ALL);
+        startService(closePrevious);
+
+
+        Intent showPreview = new Intent(getApplicationContext(), PreviewService.class);
+        showPreview.setAction(AbstractStandOutService.ACTION_PREVIEW);
+
+
+        switch (fType) {
+            case AUDIO:
+                showPreview.putExtra(AbstractStandOutService.PREVIEW_AUDIO, filepath);
+                showPreview.putExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA, "");
+                break;
+
+            case VIDEO:
+            case IMAGE:
+                showPreview.putExtra(AbstractStandOutService.PREVIEW_AUDIO, "");
+                showPreview.putExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA, filepath);
+                break;
+        }
+
+        startService(showPreview);
+
+
+    }
+
     //endregion
 
     private class downloadFileFromWebView extends AsyncTask<Void, Integer, Void> {
@@ -777,7 +860,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                                     _progDialog.dismiss();
                                 }
 
-                                returnFile(_filePath);
+                                previewAndUploadDialog(_filePath);
                                 _downloading = false;
                             }
 
