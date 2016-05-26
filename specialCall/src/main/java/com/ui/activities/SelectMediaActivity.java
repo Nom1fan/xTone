@@ -549,6 +549,26 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     private void previewAndUploadDialog(final String filepath)
     {
+
+        FileManager fm;
+        try {
+            fm = new FileManager(filepath);
+        }catch (FileExceedsMaxSizeException e) {
+            e.printStackTrace();
+
+            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
+                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+
+            UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+            initializeSelectMediaUI();
+            return;
+        } catch (FileMissingExtensionException | FileDoesNotExistException | FileInvalidFormatException e) {
+            e.printStackTrace();
+            UI_Utils.callToast(getResources().getString(R.string.file_invalid), Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+            initializeSelectMediaUI();
+            return;
+        }
+
         startPreviewStandoutWindow(filepath);
         startAreUSureDialog(filepath);
     }
