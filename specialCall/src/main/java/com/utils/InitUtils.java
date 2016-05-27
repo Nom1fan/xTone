@@ -1,6 +1,7 @@
 package com.utils;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import com.data_objects.Constants;
@@ -70,6 +71,12 @@ public abstract class InitUtils {
         }
     }
 
+
+    public static void saveAndroidVersion(Context context) {
+
+        Constants.MY_ANDROID_VERSION(context, Build.VERSION.RELEASE);
+    }
+
     private static void populateSharedPrefMedia(Context context,List<File> Directories, SpecialMediaType specialMediaType) {
 
         for (int i=0; i<Directories.size(); i++) {
@@ -137,6 +144,4 @@ public abstract class InitUtils {
         }
         return inFiles;
     }
-
-
 }

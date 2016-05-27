@@ -190,7 +190,7 @@ public class DownloadReceiver extends BroadcastReceiver {
                 _sharedPrefKeyForVisualMedia, source, _newFileFullPath);
 
         // Backing up visual file md5
-        SharedPrefUtils.setString(context, _sharedPrefKeyForAudioMedia, _newFileFullPath, md5);
+        SharedPrefUtils.setString(context, _sharedPrefKeyForVisualMedia, _newFileFullPath, md5);
     }
 
     private void preparePathsAndDirs(HashMap td) {

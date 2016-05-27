@@ -45,7 +45,6 @@ public abstract class SharedPrefUtils {
             ));
 
     //region Shared pref keys under GENERAL
-    public static final String APP_VERSION                          =   "AppVersion";
     public static final String DESTINATION_NUMBER                   =   "DestinationNumber";
     public static final String LOGIN_NUMBER                         =   "LoginNumber";
     public static final String SMS_CODE                             =   "SmsCode";
@@ -61,6 +60,7 @@ public abstract class SharedPrefUtils {
     public static final String STRICT_RINGING_CAPABILITIES_DEVICES  =   "StrictRingingCapabilitiesDevices";
     public static final String ENABLE_UI_ELEMENTS_ANIMATION         =   "EnableUIElementsAnimation";
     public static final String DISABLE_UI_ELEMENTS_ANIMATION        =   "DisableUIElementsAnimation";
+    public static final String ANDROID_VERSION                      =   "AndroidVersion";
     //endregion
 
     //region Shared pref keys under SHOWCASE

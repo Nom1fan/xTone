@@ -58,6 +58,10 @@ public class ActionFactory extends Logged {
                 resultServerAction = new ServerActionUploadFile();
                 break;
 
+            case UPDATE_USER_RECORD:
+                resultServerAction = new ServerActionUpdateUserRecord();
+                break;
+
             default:
                 _logger.severe(String.format("Failure to perform action. No such _serverActionType: %s", serverServerActionType));
 

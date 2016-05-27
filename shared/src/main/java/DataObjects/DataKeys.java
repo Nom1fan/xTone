@@ -33,4 +33,5 @@ public enum DataKeys {
     HTML_STRING,
     DEVICE_MODEL,
     ANDROID_VERSION,
+    IS_UPDATE_SUCCESS,
 }

@@ -92,6 +92,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         SMTypeCode = intent.getIntExtra(SPECIAL_MEDIA_TYPE, 1);
 
         try {
+            //TODO Move this check to MainActivity
             checkDestinationNumber();
         } catch (InvalidDestinationNumberException e) {
             e.printStackTrace();
@@ -554,8 +555,9 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         try {
             fm = new FileManager(filepath);
         }catch (FileExceedsMaxSizeException e) {
-            e.printStackTrace();
 
+            e.printStackTrace();
+            //TODO change errMsg to be returned to MainAcivity to appear in snackBar instead ot toast
             String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
                     FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
 

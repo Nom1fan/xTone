@@ -14,5 +14,6 @@ public enum ServerActionType {
     REGISTER,
     REQUEST_DOWNLOAD,
     UNREGISTER,
-    UPLOAD_FILE
+    UPLOAD_FILE,
+    UPDATE_USER_RECORD
 }
