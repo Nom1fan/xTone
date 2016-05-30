@@ -1713,6 +1713,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             int sBarDuration = Snackbar.LENGTH_LONG;
 
             UI_Utils.showSnackBar(msg, color, sBarDuration, false, MainActivity.this);
+
+            waitingForTransferSuccess();
         }
 
         @Override
@@ -1745,6 +1747,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         public void handleDisconnection(String errMsg) {
 
             Log.e(TAG, errMsg);
+        }
+    }
+
+    private void waitingForTransferSuccess() {
+        if(!SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.DONT_SHOW_AGAIN_UPLOAD_DIALOG)) {
+            UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this);
         }
     }
 

@@ -14,9 +14,11 @@
     </style>
 
     <!-- Application theme. -->
-    <style name="AppTheme" parent="AppBaseTheme">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+        <item name="colorPrimaryDark">@android:color/black</item>
+        <item name="colorPrimary">@android:color/black</item>
+
     </style>
 
     <style name="DrawerArrowStyle" parent="Base.Widget.AppCompat.DrawerArrowToggle">
@@ -71,10 +73,11 @@
     </style>
 
 
-
-
-
-
+        <style name="AlertDialogCustom" parent="Theme.AppCompat.Dialog">
+            <item name="android:textColor">#00FF00</item>
+            <item name="android:typeface">monospace</item>
+            <item name="android:textSize">10sp</item>
+        </style>
 
 
 </resources>

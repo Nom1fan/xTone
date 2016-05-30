@@ -61,6 +61,7 @@ public abstract class SharedPrefUtils {
     public static final String STRICT_RINGING_CAPABILITIES_DEVICES  =   "StrictRingingCapabilitiesDevices";
     public static final String ENABLE_UI_ELEMENTS_ANIMATION         =   "EnableUIElementsAnimation";
     public static final String DISABLE_UI_ELEMENTS_ANIMATION        =   "DisableUIElementsAnimation";
+    public static final String DONT_SHOW_AGAIN_UPLOAD_DIALOG        =   "DontShowAgainUploadDialog";
     //endregion
 
     //region Shared pref keys under SHOWCASE

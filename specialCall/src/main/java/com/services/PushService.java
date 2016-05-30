@@ -196,7 +196,7 @@ public class PushService extends IntentService {
                 e.printStackTrace();
             }
         }
-        else
+        else if(!appState.equals(AppStateManager.STATE_LOGGED_OUT))
             Batch.Push.displayNotification(this, intent);
     }
     //endregion

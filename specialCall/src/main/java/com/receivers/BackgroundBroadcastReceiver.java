@@ -173,6 +173,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                         FileManager.FileType.valueOf(data.get(DataKeys.FILE_TYPE).toString()),
                         data.get(DataKeys.FILE_PATH_ON_SRC_SD).toString());
 
+                UI_Utils.dissmissTransferSuccessDialog();
                 // Setting parameters for snackbar message
                 msg = String.format(context.getResources().getString(R.string.destination_download_complete),
                         ContactsUtils.getContactNameHtml(context, destId));

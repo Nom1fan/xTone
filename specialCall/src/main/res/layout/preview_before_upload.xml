@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#004559">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/upload"
+        android:id="@+id/upload_file_type"
+        android:layout_gravity="center_horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="#ff8400"
+        android:layout_marginTop="50dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Upload File Name"
+        android:id="@+id/upload_file_name"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/upload_file_type"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/white"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/upload"
+        android:id="@+id/upload_btn"
+        android:layout_gravity="bottom|right"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:visibility="visible" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel"
+        android:id="@+id/cancel_btn"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:visibility="visible" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/play_preview"
+        android:id="@+id/playPreview"
+        android:layout_gravity="bottom|right"
+        android:visibility="visible"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/ready_for_upload"
+        android:id="@+id/ready_for_upload"
+        android:textColor="#ff8400"
+        android:textSize="30dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/upload_file_name"
+        android:layout_marginTop="40dp" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:scaleType="fitCenter"
+        android:background="#67000000"
+        android:id="@+id/preview_thumbnail"
+        android:layout_below="@+id/ready_for_upload"
+        android:layout_above="@+id/playPreview"
+        android:layout_toLeftOf="@+id/upload_btn"
+        android:layout_toRightOf="@+id/cancel_btn"
+        android:layout_marginBottom="80dp"
+        android:layout_marginTop="20dp" />
+
+</RelativeLayout>

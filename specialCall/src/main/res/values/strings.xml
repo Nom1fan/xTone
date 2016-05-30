@@ -66,6 +66,12 @@
     <string name="clear_dialog_title">Return to normal ringing (without media)</string>
     <string name="clear_dialog_summary"> this will remove MC media from that user, so you will call without media</string>
     <string name="clear_btn">Remove</string>
+    <string name="sending_to_contact"> Sending Contact</string>
+    <string name="waiting_for_transfer_sucess_dialog_msg"> receive it in about %1$d seconds\n if his device available.\n if not we will notify you</string>
+    <string name="finished_waiting_msg"> His Device not Availble for now\n we will notify you</string>
+    <string name="dont_show_again"> Do not show again</string>
+    <string name="just_notify"> Just Notify</string>
+
 
     <!--  SelectMediaActivity  -->
     <string name="recording">Recording...</string>
@@ -88,6 +94,15 @@
     <string name="are_u_sure_title">Ready For Upload</string>
     <string name="are_u_sure_desc">   Are you sure you want to upload ?</string>
     <string name="upload">Upload</string>
+
+    <!--  PreviewBeforeUploadLayout  -->
+    <string name="fileType_video">Video</string>
+    <string name="fileType_image">Image</string>
+    <string name="fileType_audio">Audio</string>
+    <string name="ready_for_upload">Ready For Upload ?</string>
+    <string name="play_preview">PLAY PREVIEW</string>
+    <string name="stop_preview">STOP PREVIEW</string>
+
 
 
     <!--  SettingsActivity   -->

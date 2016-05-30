@@ -2,13 +2,19 @@ package com.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +38,7 @@ import EventObjects.EventType;
 public abstract class UI_Utils {
 
     private static final String TAG = UI_Utils.class.getSimpleName();
+    private static AlertDialog _waitingForTransferSuccessDialog;
     private static final Techniques[] inTechniques = { Techniques.Landing ,Techniques.StandUp,Techniques.RollIn,Techniques.BounceIn,Techniques.FadeIn
             ,Techniques.FlipInX,Techniques.RotateIn,Techniques.RotateInUpRight,Techniques.ZoomInDown  };
 
@@ -202,10 +209,7 @@ public abstract class UI_Utils {
                   e.printStackTrace();
               }
 
-
-
         }
-
 
     }
 
@@ -255,6 +259,66 @@ public abstract class UI_Utils {
             SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW, true);
         }
     }
+
+    public static void showWaitingForTranferSuccussDialog(final Context applicationContext) {
+
+        View checkBoxView = View.inflate(applicationContext, R.layout.checkbox_dont_show_again, null);
+        CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkbox_dont_show_again);
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                SharedPrefUtils.setBoolean(applicationContext, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_UPLOAD_DIALOG, isChecked);
+            }
+        });
+        checkBox.setText(applicationContext.getResources().getString(R.string.dont_show_again));
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(applicationContext, R.style.AlertDialogCustom));
+        builder.setTitle(applicationContext.getResources().getString(R.string.sending_to_contact));
+        builder.setMessage(String.format(applicationContext.getResources().getString(R.string.waiting_for_transfer_sucess_dialog_msg), 10))
+
+                .setView(checkBoxView)
+                .setCancelable(false)
+                .setPositiveButton(applicationContext.getResources().getString(R.string.just_notify), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        dialog.cancel();
+                        Log.i(TAG , "dialog.cancel();");
+                    }
+                });
+
+        _waitingForTransferSuccessDialog = builder.create();
+        _waitingForTransferSuccessDialog.show();
+
+
+
+        new CountDownTimer(10000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                _waitingForTransferSuccessDialog.setMessage(String.format(applicationContext.getResources().getString(R.string.waiting_for_transfer_sucess_dialog_msg), millisUntilFinished/1000));
+            }
+
+            @Override
+            public void onFinish() {
+                _waitingForTransferSuccessDialog.setMessage(applicationContext.getResources().getString(R.string.finished_waiting_msg));
+            }
+        }.start();
+
+
+
+        Log.i(TAG , "waitingForTransferSuccessDialog.show();");
+
+    }
+
+    public static void dissmissTransferSuccessDialog() {
+
+        if (_waitingForTransferSuccessDialog!=null) {
+            _waitingForTransferSuccessDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+            Log.i(TAG, "waitingForTransferSuccessDialog.performClick();");
+        }
+    }
+
     //endregion
 
 }
