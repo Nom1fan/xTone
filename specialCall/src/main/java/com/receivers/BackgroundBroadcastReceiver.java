@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 
@@ -46,6 +47,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
         if (report.status().equals(EventType.REFRESH_UI) || AppStateManager.getAppState(context).equals(AppStateManager.STATE_LOGGED_OUT))
             return;
 
+        boolean shouldShowSnackBar = true;
         String msg = "";
         int sBarDuration = 0;
         int color = 0;
@@ -55,6 +57,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
             //region Events in loading states
             case RECONNECT_ATTEMPT: {
+                shouldShowSnackBar = false;
                 //TODO commented out by Mor - need to check if this is necessary or just bothers the user
 //                // Setting loading state
 //                String timeOutMsg = "Oops! Please check your internet connection.";
@@ -137,6 +140,11 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 msg = context.getResources().getString(R.string.action_cancelled);
                 color = Color.YELLOW;
                 sBarDuration = Snackbar.LENGTH_LONG;
+                break;
+
+            case UPDATE_USER_RECORD_SUCCESS:
+                shouldShowSnackBar = false;
+                Constants.MY_ANDROID_VERSION(context, Build.VERSION.RELEASE);
                 break;
 
             //region Events in Idle, ready and disabled states
@@ -263,6 +271,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
             case UNREGISTER_SUCCESS:
                 try {
 
+                    shouldShowSnackBar = false;
                     //TODO Decide if we should delete MEDIA_CALLZ_HISTORY folder contents too or not
                     FileManager.deleteDirectoryContents(new File(Constants.INCOMING_FOLDER));
                     FileManager.deleteDirectoryContents(new File(Constants.OUTGOING_FOLDER));
@@ -290,7 +299,8 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
         }
 
-        UI_Utils.showSnackBar(msg, color, sBarDuration, isLoading, context);
+        if(shouldShowSnackBar)
+            UI_Utils.showSnackBar(msg, color, sBarDuration, isLoading, context);
     }
 
 }

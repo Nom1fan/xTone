@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -287,6 +288,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             getAppRecord();
 
+            syncAndroidVersionWithServer();
+
             UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
         }
 
@@ -537,6 +540,30 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 break;
 
             default: // Event not meant for MainActivity receiver
+        }
+    }
+
+    //TODO change this to campaign API push for all users in case of last supported version change
+    private void getAppRecord() {
+
+        Intent i = new Intent(this, LogicServerProxyService.class);
+        i.setAction(LogicServerProxyService.ACTION_GET_APP_RECORD);
+        startService(i);
+    }
+
+    private void syncAndroidVersionWithServer() {
+
+        if(!Constants.MY_ANDROID_VERSION(this).equals(Build.VERSION.RELEASE)) {
+
+            Intent i = new Intent(this, LogicServerProxyService.class);
+            i.setAction(LogicServerProxyService.ACTION_UPDATE_USER_RECORD);
+
+            HashMap<DataKeys,Object> data = new HashMap<>();
+            //data.put(DataKeys.ANDROID_VERSION, Build.VERSION.RELEASE);
+            data.put(DataKeys.ANDROID_VERSION, Build.VERSION.RELEASE);
+
+            i.putExtra(LogicServerProxyService.USER_RECORD, data);
+            startService(i);
         }
     }
 
@@ -1482,14 +1509,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     //endregion
     //endregion
-
-    //TODO change this to campaign API push for all users in case of last supported version change
-    private void getAppRecord() {
-
-        Intent i = new Intent(this, LogicServerProxyService.class);
-        i.setAction(LogicServerProxyService.ACTION_GET_APP_RECORD);
-        startService(i);
-    }
 
     //region ICallbackListener methods
     @Override

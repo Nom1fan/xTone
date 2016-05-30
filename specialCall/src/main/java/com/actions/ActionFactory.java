@@ -1,7 +1,6 @@
 package com.actions;
 
-import android.util.Log;
-
+import Exceptions.NoSuchClientActionException;
 import MessagesToClient.ClientActionType;
 
 /**
@@ -23,7 +22,7 @@ public class ActionFactory {
         return _instance;
     }
 
-    public ClientAction getAction(ClientActionType clientActionType) {
+    public ClientAction getAction(ClientActionType clientActionType) throws NoSuchClientActionException {
 
         ClientAction resultClientAction = null;
 
@@ -48,8 +47,13 @@ public class ActionFactory {
             case TRIGGER_EVENT:
                 resultClientAction = new ClientActionTriggerEvent();
                 break;
+            case UPDATE_RES:
+                resultClientAction = new ClientActionUpdateUserRecordRes();
+                break;
+
+
             default:
-                Log.e(TAG, String.format("Failure to perform action. No such client action: %s", clientActionType));
+                throw new NoSuchClientActionException(String.format("Failure to perform action. No such client action: %s", clientActionType));
 
         }
         return resultClientAction;

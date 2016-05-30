@@ -44,6 +44,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
     public static final String ACTION_INSERT_CALL_RECORD =      "com.services.LogicServerProxyService.INSERT_CALL_RECORD";
     public static final String ACTION_GET_APP_RECORD     =      "com.services.LogicServerProxyService.GET_APP_RECORD";
     public static final String ACTION_GET_SMS_CODE       =      "com.services.LogicServerProxyService.GET_SMS_CODE";
+    public static final String ACTION_UPDATE_USER_RECORD =      "com.services.LogicServerProxyService.UPDATE_USER_RECORD";
     //endregion
 
     //region Service intent keys
@@ -51,6 +52,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
     public static final String CALL_RECORD               =      "com.services.LogicServerProxyService.CALL_RECORD";
     public static final String SMS_CODE                  =      "com.services.LogicServerProxyService.SMS_CODE";
     public static final String INTER_PHONE               =      "com.services.LogicServerProxyService.INTER_PHONE"; // International phone number for SMS code reception
+    public static final String USER_RECORD               =      "com.services.LogicServerProxyService.USER_RECORD";
     //endregion
 
     public LogicServerProxyService() {
@@ -128,6 +130,13 @@ public class LogicServerProxyService extends AbstractServerProxy {
                                 actionInsertMediaCallRecord(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), callRecord, data);
                                 break;
 
+                            case ACTION_UPDATE_USER_RECORD:
+                                setMidAction(true);
+                                HashMap userRecord = (HashMap)intent.getSerializableExtra(USER_RECORD);
+                                data.putAll(userRecord);
+                                actionUpdateUserRecord(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), data);
+                                break;
+
                             default:
                                 setMidAction(false);
                                 Log.w(TAG, "Service started with invalid action:" + action);
@@ -187,7 +196,6 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
     private void actionGetAppRecord(ConnectionToServer connectionToServer, HashMap<DataKeys,Object> data) throws IOException {
 
-        Log.i(TAG, "Initiating actionGetAppRecord sequence...");
         connectionToServer.sendToServer(new MessageToServer(ServerActionType.GET_APP_RECORD, Constants.MY_ID(getApplicationContext()), data));
     }
 
@@ -205,8 +213,6 @@ public class LogicServerProxyService extends AbstractServerProxy {
                 data
         );
 
-        Log.i(TAG, "Sending actionRegister message to server...");
-
         connectionToServer.sendToServer(msgRegister);
     }
 
@@ -221,8 +227,6 @@ public class LogicServerProxyService extends AbstractServerProxy {
                 data
         );
 
-        Log.i(TAG, "Sending actionUnregister message to server...");
-
         connectionToServer.sendToServer(msgUnregister);
     }
 
@@ -232,8 +236,16 @@ public class LogicServerProxyService extends AbstractServerProxy {
         data.put(DataKeys.CALL_RECORD, callRecord);
 
         MessageToServer msgInsertMCrecord = new MessageToServer(ServerActionType.INSERT_MEDIA_CALL_RECORD, callRecord.get_sourceId(), data);
-        Log.i(TAG, "Sending actionInsertMediaCallRecord message to server...");
         connectionToServer.sendToServer(msgInsertMCrecord);
+    }
+
+    private void actionUpdateUserRecord(ConnectionToServer connectionToServer, HashMap<DataKeys,Object> data) throws IOException {
+
+        Log.i(TAG, "Initiating actionUpdateUserRecord sequence...");
+
+        MessageToServer msgUUR = new MessageToServer(ServerActionType.UPDATE_USER_RECORD, Constants.MY_ID(this), data);
+        connectionToServer.sendToServer(msgUUR);
+
     }
 
     private void handleActionFailure() {

@@ -10,5 +10,6 @@ public enum ClientActionType {
     IS_REGISTERED_RES,
     REGISTER_RES,
     UNREGISTER_RES,
+    UPDATE_RES,
     TRIGGER_EVENT
 }

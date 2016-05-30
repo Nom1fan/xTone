@@ -34,10 +34,10 @@ public class ServerActionRegister extends ServerAction {
         HashMap<DataKeys, Object> replyData = new HashMap();
         if(smsCode!=SmsVerificationAccess.NO_SMS_CODE && smsCode == expectedSmsCode) {
 
-            boolean isRegisteredOK = false;
+            boolean isRegisteredOK;
             // User device record support was inserted in v1.13
-            double userAppVersion = (double) data.get(DataKeys.APP_VERSION);
-            if(userAppVersion >= ServerConstants.APP_VERSION_1_13) {
+            Double userAppVersion = (Double) data.get(DataKeys.APP_VERSION);
+            if(userAppVersion!=null && userAppVersion >= ServerConstants.APP_VERSION_1_13) {
 
                 String deviceModel = (String) data.get(DataKeys.DEVICE_MODEL);
                 String androidVersion = (String) data.get(DataKeys.ANDROID_VERSION);

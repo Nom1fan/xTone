@@ -85,6 +85,7 @@ public interface IDAL {
     void unregisterUser(String uid, String token) throws SQLException;
     void reRegisterUser(String uid, String token) throws SQLException;
     void reRegisterUser(String uid, String token, String deviceModel, String androidVersion) throws SQLException;
+    void updateUserRecord(String uid, UserRecord userRecord) throws SQLException;
     int insertMediaTransferRecord(Map data) throws SQLException;
     void insertMediaCallRecord(CallRecord callRecord) throws SQLException;
     void insertMediaFileRecord(String md5, String extension, int size, String countColToInc) throws SQLException;

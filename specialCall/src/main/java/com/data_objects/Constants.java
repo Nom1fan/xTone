@@ -54,6 +54,9 @@ public class Constants {
     public static String MY_BATCH_TOKEN(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN); }
     public static void MY_BATCH_TOKEN(Context context, String token) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN, token); }
 
+    // Android version upon register, and then used to sync with server after every upgrade
+    public static String MY_ANDROID_VERSION(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ANDROID_VERSION); }
+    public static void MY_ANDROID_VERSION(Context context, String androidVersion) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ANDROID_VERSION, androidVersion); }
 
     private static String getIncomingFolder() {
 

@@ -149,13 +149,14 @@ public class MySqlDAL implements IDAL {
             resultSet = st.executeQuery(query);
             while (resultSet.next()) {
                 record = new UserRecord(
-                        resultSet.getString(1), // uid
-                        resultSet.getString(2), // token
-                        resultSet.getDate(3),   // registered_date
-                        Enum.valueOf(UserStatus.class, // user_status
-                        resultSet.getString(4)),
-                        resultSet.getDate(5),   // unregistered_date
-                        resultSet.getInt(6)     // unregistered_count
+                        resultSet.getString(1),                                 // uid
+                        resultSet.getString(2),                                 // token
+                        resultSet.getDate(3),                                   // registered_date
+                        Enum.valueOf(UserStatus.class, resultSet.getString(4)), // user_status
+                        resultSet.getDate(5),                                   // unregistered_date
+                        resultSet.getInt(6),                                    // unregistered_count
+                        resultSet.getString(7),                                 // device_model
+                        resultSet.getString(8)                                  // android_version
                 );
             }
         } catch (SQLException e) {
@@ -304,6 +305,26 @@ public class MySqlDAL implements IDAL {
                 append("=").
                 append(deviceModel).
                 append(", ").
+                append(COL_ANDROID_VERSION).
+                append("=").
+                append(androidVersion).
+                append(" WHERE ").
+                append(COL_UID).
+                append("=").
+                append(uid);
+
+        executeQuery(query.toString());
+    }
+
+    @Override
+    public void updateUserRecord(String uid, UserRecord userRecord) throws SQLException {
+
+
+        StringBuilder query = new StringBuilder("UPDATE " + TABLE_USERS);
+        uid = quote(uid);
+        String androidVersion = quote(userRecord.get_androidVersion());
+        query.
+                append(" SET ").
                 append(COL_ANDROID_VERSION).
                 append("=").
                 append(androidVersion).

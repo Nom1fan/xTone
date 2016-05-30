@@ -13,14 +13,30 @@ public class UserRecord {
     private UserStatus _userStatus;
     private Date _unregistered_date;
     private int _unregistered_count;
+    private String _deviceModel;
+    private String _androidVersion;
 
-    public UserRecord(String _uid, String _token, Date _registered_date, UserStatus userStatus, Date _unregistered_date, int _unregistered_count) {
-        this._uid = _uid;
-        this._token = _token;
-        this._registered_date = _registered_date;
+    public UserRecord() {
+    }
+
+    public UserRecord(
+            String uid,
+            String token,
+            Date registered_date,
+            UserStatus userStatus,
+            Date unregistered_date,
+            int unregistered_count,
+            String deviceModel,
+            String androidVersion) {
+
+        this._uid = uid;
+        this._token = token;
+        this._registered_date = registered_date;
         this._userStatus = userStatus;
-        this._unregistered_date = _unregistered_date;
-        this._unregistered_count = _unregistered_count;
+        this._unregistered_date = unregistered_date;
+        this._unregistered_count = unregistered_count;
+        this._deviceModel = deviceModel;
+        this._androidVersion = androidVersion;
     }
 
     public String get_uid() {
@@ -45,5 +61,23 @@ public class UserRecord {
 
     public int get_unregistered_count() {
         return _unregistered_count;
+    }
+
+    public String get_deviceModel() {
+        return _deviceModel;
+    }
+
+    public String get_androidVersion() {
+        return _androidVersion;
+    }
+
+    public void setAndroidVersion(String androidVersion) {
+
+        this._androidVersion = androidVersion;
+    }
+
+    public void setUid(String uid) {
+
+        this._uid = uid;
     }
 }
