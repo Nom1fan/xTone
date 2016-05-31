@@ -11,5 +11,6 @@ public abstract class ActivityRequestCodes {
     public static final int SELECT_PROFILE_MEDIA = 3;
     public static final int SELECT_MEDIA = 4;
     public static final int SELECT_CONTACT_PREFS = 5;
+    public static final int PREVIEW_MEDIA = 6;
     public static final int SELECT_BLACK_LIST_CONTACTS = 10;
 }

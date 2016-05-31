@@ -13,7 +13,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -29,7 +28,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -40,19 +38,12 @@ import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
-import com.services.AbstractStandOutService;
-import com.services.PreviewService;
-import com.utils.BitmapUtils;
-import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
 import java.util.List;
 
-import DataObjects.SpecialMediaType;
 import Exceptions.FileDoesNotExistException;
-import Exceptions.FileExceedsMaxSizeException;
-import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import Exceptions.InvalidDestinationNumberException;
 import FilesManager.FileManager;
@@ -80,9 +71,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private WebView mwebView;
     private ProgressDialog _progDialog;
     private boolean _isInWebView = false;
-    private boolean _isPreview = false;
-    private Button previewFile;
-    private ImageButton imageButton;
 
     //region Activity methods (onCreate(), onPause()...)
     @Override
@@ -95,7 +83,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         SMTypeCode = intent.getIntExtra(SPECIAL_MEDIA_TYPE, 1);
 
         try {
-            //TODO Move this check to MainActivity
+            //TODO Move this check to MainActivit
             checkDestinationNumber();
         } catch (InvalidDestinationNumberException e) {
             e.printStackTrace();
@@ -107,8 +95,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     }
 
     private void initializeSelectMediaUI() {
-
-        closePreview();
 
         setContentView(R.layout.select_media);
         _isInWebView = false;
@@ -192,18 +178,34 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         Log.i(TAG, "onActivityResult");
         if (resultCode == RESULT_OK) {
-            Log.i(TAG, "requestCode: " + requestCode);
 
-            final String filepath = getFilePathFromIntent(data);
-            previewAndUploadDialog(filepath);
+            if (requestCode == ActivityRequestCodes.PREVIEW_MEDIA && (data != null))
+            {
+                if (getParent() == null) {
+                    setResult(Activity.RESULT_OK, data);
+                } else {
+                    getParent().setResult(Activity.RESULT_OK, data);
+                }
+
+                SelectMediaActivity.this.finish();
+            }else {
+                final String filepath = getFilePathFromIntent(data);
+                startPreviewActivity(filepath);
+            }
 
         }
+    }
+
+    private void startPreviewActivity(String filepath) {
+        Intent previewIntentActivitiy = new Intent(this, PreviewMediaActivity.class);
+        previewIntentActivitiy.putExtra(PreviewMediaActivity.MEDIA_FILE_PATH , filepath);
+        previewIntentActivitiy.putExtra(SPECIAL_MEDIA_TYPE , SMTypeCode);
+        startActivityForResult(previewIntentActivitiy, ActivityRequestCodes.PREVIEW_MEDIA);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        closePreview();
         overridePendingTransition(R.anim.no_animation_no_delay, R.anim.slide_out_up);// close drawer animation
         Log.i(TAG, "onPause()");
     }
@@ -444,56 +446,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     }
 
-    private void returnFile(String filePath) {
-
-        SpecialMediaType specialMediaType = null;
-
-        if (SMTypeCode == ActivityRequestCodes.SELECT_CALLER_MEDIA) {
-             specialMediaType = SpecialMediaType.CALLER_MEDIA;
-        } else if (SMTypeCode == ActivityRequestCodes.SELECT_PROFILE_MEDIA) {
-             specialMediaType = SpecialMediaType.PROFILE_MEDIA;
-        }
-
-        FileManager fm;
-        Intent resultIntent = new Intent();
-        Log.i(TAG,"ReturnFile");
-        try {
-
-            getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(filePath))));
-
-                fm = new FileManager(filePath);
-                Log.i(TAG, "[File selected]: " + filePath + ". [File Size]: " + FileManager.getFileSizeFormat(fm.getFileSize()));
-
-                resultIntent.putExtra(RESULT_SPECIAL_MEDIA_TYPE, specialMediaType);
-                resultIntent.putExtra(RESULT_FILE, fm);
-
-            Log.i(TAG,"End ReturnFile");
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            Log.e(TAG, getResources().getString(R.string.file_invalid));
-            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
-
-        } catch (FileExceedsMaxSizeException e) {
-
-            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
-                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
-            Log.e(TAG, errMsg);
-            resultIntent.putExtra(RESULT_ERR_MSG, errMsg);
-
-        } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
-            e.printStackTrace();
-            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
-
-        }
-
-        if (getParent() == null) {
-            setResult(Activity.RESULT_OK, resultIntent);
-        } else {
-            getParent().setResult(Activity.RESULT_OK, resultIntent);
-        }
-        SelectMediaActivity.this.finish();
-    }
-
     private void checkDestinationNumber() throws InvalidDestinationNumberException {
 
         if(_destPhoneNumber == null)
@@ -535,7 +487,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                 recorder.stop();
                 recorder.release();
 
-                previewAndUploadDialog(_recordedAudioFilePath);
+                startPreviewActivity(_recordedAudioFilePath);
 
             }
         });
@@ -552,125 +504,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
       catch (Exception e){
           e.printStackTrace();
       }
-
-    }
-
-    private void previewAndUploadDialog(final String filepath)
-    {
-        try {
-            new FileManager(filepath);
-        }catch (FileExceedsMaxSizeException e) {
-
-            e.printStackTrace();
-            //TODO change errMsg to be returned to MainAcivity to appear in snackBar instead ot toast
-            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
-                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
-
-            UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
-            initializeSelectMediaUI();
-            return;
-        } catch (FileMissingExtensionException | FileDoesNotExistException | FileInvalidFormatException e) {
-            e.printStackTrace();
-            UI_Utils.callToast(getResources().getString(R.string.file_invalid), Color.RED, Toast.LENGTH_LONG, getApplicationContext());
-            initializeSelectMediaUI();
-            return;
-        }
-
-        startAreUSureLayout(filepath);
-    }
-
-    private void startAreUSureLayout(final String filepath) {
-
-        final FileManager.FileType fType;
-
-        try {
-             fType = FileManager.getFileType(filepath);
-        }
-        catch(FileMissingExtensionException e)
-        {
-            Log.i(TAG , "FileMissingExtensionException in startPreviewStandoutWindow with " + filepath);
-            e.printStackTrace();
-
-            UI_Utils.callToast(" error with file , missing extension ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
-            return;
-        } catch(FileInvalidFormatException e)
-        {
-            Log.i(TAG , "FileInvalidFormatException in startPreviewStandoutWindow with " + filepath);
-            e.printStackTrace();
-
-            UI_Utils.callToast(" Invalid format file please choose other file ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
-            return;
-        } catch (FileDoesNotExistException e) {
-            Log.i(TAG , "FileDoesNotExistException in startPreviewStandoutWindow with " + filepath);
-            e.printStackTrace();
-
-            UI_Utils.callToast(" Invalid format file please choose other file ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
-            return;
-        }
-
-
-        setContentView(R.layout.preview_before_upload);
-
-        TextView fileType = (TextView) findViewById(R.id.upload_file_type);
-        TextView fileName = (TextView) findViewById(R.id.upload_file_name);
-        fileName.setText(FileManager.getFileNameWithExtension(filepath));
-
-        Button upload = (Button) findViewById(R.id.upload_btn);
-        upload.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                closePreview();
-                returnFile(filepath);
-            }
-        });
-
-        Button cancel = (Button) findViewById(R.id.cancel_btn);
-        cancel.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                closePreview();
-                initializeSelectMediaUI();
-            }
-        });
-
-        previewFile = (Button) findViewById(R.id.playPreview);
-        previewFile.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-                if (_isPreview) {
-                    closePreview();
-                    _isPreview = false;
-                    previewFile.setText(getResources().getString(R.string.play_preview));
-                } else {
-                    startPreviewStandoutWindow(filepath , fType);
-                    _isPreview = true;
-                    previewFile.setText(getResources().getString(R.string.stop_preview));
-                }
-            }
-        });
-
-        imageButton = (ImageButton) findViewById(R.id.preview_thumbnail);
-
-        Log.i(TAG, "type and path " + fType + "  " + filepath);
-        BitmapUtils.execBitMapWorkerTask(imageButton, fType, filepath, false);
-
-        // stretch the uploaded image as it won't stretch because we use a drawable instead that we don't want to stretch
-        imageButton.setPadding(0, 0, 0, 0);
-        imageButton.setScaleType(ImageView.ScaleType.FIT_XY);
-
-        imageButton.setVisibility(View.VISIBLE);
-
-        switch (fType) {
-            case AUDIO:
-                fileType.setText(getResources().getString(R.string.fileType_audio));
-                break;
-
-            case VIDEO:
-                fileType.setText(getResources().getString(R.string.fileType_video));
-                break;
-
-            case IMAGE:
-                fileType.setText(getResources().getString(R.string.fileType_image));
-                break;
-        }
 
     }
 
@@ -730,46 +563,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         return "";
     }
 
-    private void startPreviewStandoutWindow(String filepath , FileManager.FileType fType) {
-
-        AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, am.getStreamVolume(AudioManager.STREAM_MUSIC));
-        Log.i(TAG, "PreviewStart MUSIC_VOLUME Original" + String.valueOf(am.getStreamVolume(AudioManager.STREAM_MUSIC)));
-
-        // Close previous
-        Intent closePrevious = new Intent(getApplicationContext(), PreviewService.class);
-        closePrevious.setAction(AbstractStandOutService.ACTION_CLOSE_ALL);
-        startService(closePrevious);
-
-
-        Intent showPreview = new Intent(getApplicationContext(), PreviewService.class);
-        showPreview.setAction(AbstractStandOutService.ACTION_PREVIEW);
-
-
-        switch (fType) {
-            case AUDIO:
-                showPreview.putExtra(AbstractStandOutService.PREVIEW_AUDIO, filepath);
-                showPreview.putExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA, "");
-                break;
-
-            case VIDEO:
-            case IMAGE:
-                showPreview.putExtra(AbstractStandOutService.PREVIEW_AUDIO, "");
-                showPreview.putExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA, filepath);
-                break;
-        }
-
-        startService(showPreview);
-
-    }
-
-    private void closePreview(){
-        //close preview
-        Intent closePrevious = new Intent(getApplicationContext(), PreviewService.class);
-        closePrevious.setAction(AbstractStandOutService.ACTION_CLOSE_ALL);
-        startService(closePrevious);
-
-    }
     //endregion
 
     private class downloadFileFromWebView extends AsyncTask<Void, Integer, Void> {
@@ -915,7 +708,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                                     _progDialog.dismiss();
                                 }
 
-                                previewAndUploadDialog(_filePath);
+                                startPreviewActivity(_filePath);
                                 _downloading = false;
                             }
 

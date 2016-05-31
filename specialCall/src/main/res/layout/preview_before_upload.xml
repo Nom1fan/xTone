@@ -74,13 +74,16 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:scaleType="fitCenter"
-        android:background="#67000000"
         android:id="@+id/preview_thumbnail"
         android:layout_below="@+id/ready_for_upload"
         android:layout_above="@+id/playPreview"
-        android:layout_toLeftOf="@+id/upload_btn"
-        android:layout_toRightOf="@+id/cancel_btn"
         android:layout_marginBottom="80dp"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="20dp"
+        android:background="#67000000"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="false"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"
+        android:layout_alignParentRight="true" />
 
 </RelativeLayout>
