@@ -78,6 +78,12 @@
     <string name="terms_and_conditions_title"> התנאים של השירות ומדיניות הפרטיות</string>
     <string name="terms_and_conditions"> לחץ הסכם והתחבר כדי להסכים לתנאים של  MediaCallz: <![CDATA[<b><font color=#0000FF><u>התנאים של השירות ומדיניות הפרטיות</u></b>]]></string>
     <string name="terms_and_conditions_button">הסכם והתחבר</string>
+    <string name="login_terms_title">התנאים של השירות</string>
+    <string name="login_terms">לחץ "המשך" כדי להסכים לתנאים של השירות או לחץ על ביטול</string>
+    <string name="login_terms_button">המשך</string>
+    <string name="login_terms_press">לחץ </string>
+    <string name="login_terms_press_continue"> לראות את התנאים.</string>
+    <string name="login_read_more"><b><u>קרא עוד</u></b></string>
     <!--  NotificationUtils   -->
     <string name="notification_title">MC</string>
     <string name="notification_text">פעיל</string>
@@ -148,8 +154,9 @@
     <string name="callbtn_textview">לחץ להתקשר או חזור לבחירת איש קשר</string>
 
     <!--  loginuser Layout   -->
-    <string name="get_sms_code">קבל קוד סמס</string>
-    <string name="login">התחבר</string>
+    <string name="get_sms_code">לחץ לקבלת קוד סמס</string>
+    <string name="login">לחץ להתחבר</string>
+    <string name="sign_in">רישום</string>
     <string name="sms_code_hint"> קוד הסמס שקיבלת</string>
     <string name="your_phone"> מספר הנייד שלך</string>
 

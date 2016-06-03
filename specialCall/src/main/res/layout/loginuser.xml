@@ -5,57 +5,76 @@
     android:background="#004559"
     android:layout_height="match_parent" >
 
-    <Button
+    <ImageButton
         android:id="@+id/getSmsCode_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/get_sms_code"
-        android:layout_centerVertical="true"
+        android:layout_below="@+id/LoginNumber"
         android:layout_centerHorizontal="true"
-        android:layout_above="@+id/SMSCodeEditText"
-        android:layout_marginBottom="35dp" />
+        android:src="@drawable/send_sms_icon"
+        android:layout_marginTop="40dp"
+        android:background="#00ffffff"
+        android:clickable="true" />
         
 
-    <Button
+    <ImageButton
         android:id="@+id/login_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:text="@string/login"
+        android:layout_below="@+id/SMSCodeEditText"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="35dp"
-        android:text="@string/login" />
+        android:layout_marginTop="40dp"
+        android:src="@drawable/login_icon"
+        android:layout_marginBottom="20dp"
+        android:background="#00ffffff"
+        android:clickable="true" />
 
     <EditText
         android:id="@+id/SMSCodeEditText"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_above="@+id/login_btn"
+        android:layout_height="40dp"
         android:ems="10"
         android:hint="@string/sms_code_hint"
         android:maxLength="4"
         android:inputType="number"
         android:singleLine="true"
-        android:background="#c4ffffff"
+        android:background="#01789b"
+        android:textColor="#ffffff"
+        android:textColorHint="#ffffff"
+        android:textSize="25dp"
+        android:fontFamily="sans-serif-light"
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/getSmsCode_btn"
         android:layout_alignLeft="@+id/LoginNumber"
-        android:layout_alignRight="@+id/LoginNumber"
-        android:layout_marginBottom="35dp" />
+        android:layout_alignStart="@+id/LoginNumber"
+        android:layout_toLeftOf="@+id/login_phone_clear"
+        android:layout_toStartOf="@+id/login_phone_clear" />
 
     <EditText
         android:id="@+id/LoginNumber"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_above="@+id/getSmsCode_btn"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="40dp"
+        android:layout_height="40dp"
         android:ems="10"
         android:maxLength="10"
         android:hint="@string/your_phone"
         android:inputType="number"
         android:phoneNumber="true"
         android:singleLine="true"
-        android:background="#c4ffffff"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp">
+        android:background="#01789b"
+        android:textColorHint="#ffffff"
+        android:textColor="#ffffff"
+        android:textSize="25dp"
+        android:fontFamily="sans-serif-light"
+        android:layout_below="@+id/sign_in"
+        android:layout_marginTop="20dp"
+        android:layout_toRightOf="@+id/login_phone_clear"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentLeft="false"
+        android:layout_alignStart="@+id/sign_in"
+        android:layout_toLeftOf="@+id/login_phone_clear"
+        android:layout_toStartOf="@+id/login_phone_clear">
 
         <requestFocus />
     </EditText>
@@ -65,16 +84,94 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/initTextView"
-        android:layout_marginBottom="83dp"
-        android:layout_above="@+id/LoginNumber"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/loginlogo"
+        android:layout_marginBottom="20dp" />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/initProgressBar"
-        android:layout_above="@+id/initTextView"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentEnd="false"
+        android:layout_above="@+id/initTextView" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/loginlogo"
+        android:src="@drawable/main_logo"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/sign_in"
+        android:id="@+id/sign_in"
+        android:layout_below="@+id/initTextView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:textSize="35dp"
+        android:fontFamily="sans-serif"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
+        android:textColor="#ffffff" />
+
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/login_phone_clear"
+        android:clickable="true"
+        android:src="@drawable/clear"
+        android:scaleType="fitXY"
+        android:background="#01789b"
+        android:padding="5dp"
+        android:layout_alignTop="@+id/LoginNumber"
+        android:layout_alignLeft="@+id/sign_in"
+        android:layout_alignEnd="@+id/sign_in"
+        android:layout_alignBottom="@+id/LoginNumber" />
+
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/sms_phone_clear"
+        android:clickable="true"
+        android:src="@drawable/clear"
+        android:scaleType="fitXY"
+        android:background="#01789b"
+        android:padding="5dp"
+        android:layout_alignTop="@+id/SMSCodeEditText"
+        android:layout_alignLeft="@+id/login_phone_clear"
+        android:layout_alignStart="@+id/login_phone_clear"
+        android:layout_above="@+id/login_btn" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/get_sms_code"
+        android:id="@+id/receive_sms_textview"
+        android:layout_below="@+id/LoginNumber"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:textColor="#ffffff" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/login"
+        android:id="@+id/login_textview"
+        android:layout_below="@+id/SMSCodeEditText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:textColor="#ffffff" />
 
 </RelativeLayout>

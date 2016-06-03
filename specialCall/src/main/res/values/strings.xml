@@ -22,13 +22,18 @@
     <string name="get_sms_not_arrived">Code did not arrive? Try again!</string>
     <string name="get_sms_time_till_retry">You may retry in %1$d seconds...</string>
     <string name="get_sms_you_may_retry">You may now retry</string>
-    <string name="get_sms_code">Get SMS Code</string>
-    <string name="login">Login</string>
+    <string name="get_sms_code">Click to receive SMS code</string>
+    <string name="login">Click to login</string>
+    <string name="sign_in">Sign-in</string>
     <string name="sms_code_hint"> SMS code you received</string>
     <string name="your_phone"> Your phone number</string>
     <string name="terms_and_conditions_title">Terms of Service and Privacy Policy</string>
-    <string name="terms_and_conditions">  Tap "Agree and Login" to accept the MediaCallz: <![CDATA[<b><font color=#0000FF><u>Terms of Service and Privacy Policy</u></b>]]></string>
-    <string name="terms_and_conditions_button">Agree and Login</string>
+    <string name="login_terms_title">Terms of Service</string>
+    <string name="login_terms">Press continue to agree to MediaCallz terms of service or press cancel to terminate</string>
+    <string name="login_terms_button">Continue</string>
+    <string name="login_terms_press">Press </string>
+    <string name="login_terms_press_continue"> to view the full terms.</string>
+    <string name="login_read_more"><b><u>read more</u></b></string>
 
     <!--  NotificationUtils   -->
     <string name="notification_title">MC</string>

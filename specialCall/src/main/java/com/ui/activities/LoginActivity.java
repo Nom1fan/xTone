@@ -4,15 +4,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -22,7 +24,6 @@ import com.batch.android.Batch;
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.services.GetTokenIntentService;
-import com.ui.dialogs.TermsAndConditionsDialog;
 import com.utils.SharedPrefUtils;
 
 import EventObjects.Event;
@@ -42,11 +43,14 @@ public class LoginActivity extends AppCompatActivity {
     //region UI elements
     private EditText _loginNumberEditText;
     private EditText _smsCodeVerEditText;
-    private Button _loginBtn;
-    private Button _getSmsCodeBtn;
+    private ImageButton _loginBtn;
+    private ImageButton _getSmsCodeBtn;
     private ProgressBar _initProgressBar;
     private TextView _initTextView;
     private GetSmsCodeTask _getSmsCodeTask;
+
+    private ImageButton _clearLoginPhoneText;
+    private ImageButton _clearLoginSmsText;
     //endregion
 
     //region Activity methods (onCreate(), onPause(), ...)
@@ -57,6 +61,8 @@ public class LoginActivity extends AppCompatActivity {
 
         initializeLoginUI();
 
+        Drawable drawArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.right_arrow, null);//getResources().getDrawable( R.drawable.right_arrow );
+        drawArrow.setAutoMirrored(true);
     }
 
     @Override
@@ -140,6 +146,15 @@ public class LoginActivity extends AppCompatActivity {
     private void prepareLoginNumberEditText() {
 
         _loginNumberEditText = (EditText) findViewById(R.id.LoginNumber);
+        _clearLoginPhoneText = (ImageButton) findViewById(R.id.login_phone_clear);
+        _clearLoginPhoneText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                _loginNumberEditText.setText("");
+            }
+        });
+
+
         _loginNumberEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -174,9 +189,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private void prepareLoginButton() {
 
-        _loginBtn = (Button) findViewById(R.id.login_btn);
+        _loginBtn = (ImageButton) findViewById(R.id.login_btn);
         _loginBtn.setEnabled(false);
-        _loginBtn.setText(getResources().getString(R.string.login));
+        _loginBtn.setImageResource(R.drawable.login_icon);
         _loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -184,8 +199,10 @@ public class LoginActivity extends AppCompatActivity {
                 String smsVerificationCode = _smsCodeVerEditText.getText().toString();
                 String loginNumber = _loginNumberEditText.getText().toString();
 
-                TermsAndConditionsDialog termsDialog = new TermsAndConditionsDialog(loginNumber, smsVerificationCode);
-                termsDialog.show(getFragmentManager(), TAG);
+                Intent intent = new Intent(LoginActivity.this,LoginWithTermsAndServiceActivity.class);
+                intent.putExtra(LoginWithTermsAndServiceActivity.SmsCode,smsVerificationCode);
+                intent.putExtra(LoginWithTermsAndServiceActivity.LoginNumber,loginNumber);
+                startActivity(intent);
 
                 if(_getSmsCodeTask!=null)
                     _getSmsCodeTask.cancel(true);
@@ -196,8 +213,9 @@ public class LoginActivity extends AppCompatActivity {
     private void prepareGetSmsCodeButton() {
 
 
-        _getSmsCodeBtn = (Button) findViewById(R.id.getSmsCode_btn);
+        _getSmsCodeBtn = (ImageButton) findViewById(R.id.getSmsCode_btn);
         _getSmsCodeBtn.setEnabled(false);
+        _getSmsCodeBtn.setImageResource(R.drawable.send_sms_icon_disabled);
         _getSmsCodeBtn.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -213,6 +231,14 @@ public class LoginActivity extends AppCompatActivity {
     private void prepareSmsCodeVerificationEditText() {
 
         _smsCodeVerEditText = (EditText) findViewById(R.id.SMSCodeEditText);
+        _clearLoginSmsText = (ImageButton) findViewById(R.id.sms_phone_clear);
+        _clearLoginSmsText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                _smsCodeVerEditText.setText("");
+            }
+        });
+
         enableSmsCodeEditText();
         _smsCodeVerEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -260,31 +286,39 @@ public class LoginActivity extends AppCompatActivity {
     private void enableLoginButton() {
 
         _loginBtn.setEnabled(true);
+        _loginBtn.setImageResource(R.drawable.login_icon);
+
     }
 
     private void disableLoginButton() {
 
         _loginBtn.setEnabled(false);
+        _loginBtn.setImageResource(R.drawable.login_icon_disabled);
     }
 
     private void enableLoginEditText() {
 
         _loginNumberEditText.setEnabled(true);
+        _clearLoginPhoneText.setEnabled(true);
     }
 
     private void disableLoginEditText() {
 
         _loginNumberEditText.setEnabled(false);
+        _clearLoginPhoneText.setEnabled(false);
     }
 
     private void enableSmsCodeEditText() {
 
         _smsCodeVerEditText.setEnabled(true);
+        _clearLoginSmsText.setEnabled(true);
+
     }
 
     private void disableSmsCodeEditText() {
 
         _smsCodeVerEditText.setEnabled(false);
+        _clearLoginSmsText.setEnabled(false);
     }
 
     private void enableGetSmsCodeButton() {
@@ -295,13 +329,17 @@ public class LoginActivity extends AppCompatActivity {
             shouldEnable = false;
 
         if(shouldEnable)
+        {
             _getSmsCodeBtn.setEnabled(true);
+            _getSmsCodeBtn.setImageResource(R.drawable.send_sms_icon);
+        }
     }
 
     private void disableGetSmsCodeButton() {
 
         Log.i(TAG, "Disabling getSmsButton");
         _getSmsCodeBtn.setEnabled(false);
+        _getSmsCodeBtn.setImageResource(R.drawable.send_sms_icon_disabled);
 
     }
 
