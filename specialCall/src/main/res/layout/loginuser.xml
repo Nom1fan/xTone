@@ -85,19 +85,17 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/initTextView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:layout_below="@+id/loginlogo"
-        android:layout_marginBottom="20dp" />
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_below="@+id/loginlogo" />
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/initProgressBar"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentEnd="false"
-        android:layout_above="@+id/initTextView" />
+        android:layout_alignBottom="@+id/sign_in"
+        android:layout_alignLeft="@+id/getSmsCode_btn"
+        android:layout_alignStart="@+id/getSmsCode_btn" />
 
     <ImageView
         android:layout_width="50dp"
@@ -121,7 +119,7 @@
         android:fontFamily="sans-serif"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:textColor="#ffffff" />
 
     <ImageButton
