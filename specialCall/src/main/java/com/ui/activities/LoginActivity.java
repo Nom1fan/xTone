@@ -349,7 +349,6 @@ public class LoginActivity extends AppCompatActivity {
         Log.v(TAG, "Disabling LoginEditText");
 
         _loginNumberEditText.setEnabled(false);
-        _loginNumberEditText.setTextColor(ContextCompat.getColor(this, R.color.gray));
         _clearLoginPhoneText.setEnabled(false);
     }
 
@@ -367,7 +366,6 @@ public class LoginActivity extends AppCompatActivity {
         Log.v(TAG, "Disabling SmsCodeEditText");
 
         _smsCodeVerEditText.setEnabled(false);
-        _smsCodeVerEditText.setTextColor(ContextCompat.getColor(this, R.color.gray));
         _clearLoginSmsText.setEnabled(false);
     }
 
