@@ -30,7 +30,7 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (!AppStateManager.getAppState(context).equals(AppStateManager.STATE_LOGGED_OUT)) {  // make sure the services won't start on Login
+        if (AppStateManager.isLoggedIn(context)) {  // make sure the services won't start on Login
         String action = intent.getAction();
         Log.i(TAG, "onReceive ACTION INTENT : " + action);
 

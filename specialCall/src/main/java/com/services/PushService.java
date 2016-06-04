@@ -158,7 +158,7 @@ public class PushService extends IntentService {
 
         Log.i(TAG, String.format("[isAppInForeground]: %1$b, [App state]: %2$s", isAppInForeground, appState));
 
-        if (isAppInForeground && !appState.equals(AppStateManager.STATE_LOGGED_OUT)) {
+        if (isAppInForeground && AppStateManager.isLoggedIn(context)) {
             try {
                 Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
@@ -187,7 +187,7 @@ public class PushService extends IntentService {
 
         Log.i(TAG, String.format("[isAppInForeground]: %1$b, [App state]: %2$s", isAppInForeground, appState));
 
-        if (isAppInForeground && !appState.equals(AppStateManager.STATE_LOGGED_OUT)) {
+        if (isAppInForeground && AppStateManager.isLoggedIn(context)) {
             try {
                 Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
@@ -196,7 +196,7 @@ public class PushService extends IntentService {
                 e.printStackTrace();
             }
         }
-        else if(!appState.equals(AppStateManager.STATE_LOGGED_OUT))
+        else if(AppStateManager.isLoggedIn(context))
             Batch.Push.displayNotification(this, intent);
     }
     //endregion

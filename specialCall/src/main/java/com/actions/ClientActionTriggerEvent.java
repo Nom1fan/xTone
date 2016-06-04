@@ -19,8 +19,6 @@ public class ClientActionTriggerEvent extends ClientAction {
     @Override
     public EventReport doClientAction(Map data) throws IOException {
 
-        EventReport eventReport = (EventReport) data.get(DataKeys.EVENT_REPORT);
-
-        return eventReport;
+        return (EventReport) data.get(DataKeys.EVENT_REPORT);
     }
 }

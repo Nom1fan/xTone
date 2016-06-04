@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -21,13 +22,17 @@ import android.widget.TextView;
 import com.app.AppStateManager;
 import com.async_tasks.GetSmsCodeTask;
 import com.batch.android.Batch;
+import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.services.GetTokenIntentService;
+import com.services.LogicServerProxyService;
 import com.utils.SharedPrefUtils;
 
 import EventObjects.Event;
 import EventObjects.EventReport;
+import EventObjects.EventType;
+import utils.PhoneNumberUtils;
 
 
 /**
@@ -38,7 +43,11 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
 
     private BroadcastReceiver _eventReceiver;
-    private IntentFilter _eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
+    private static final IntentFilter _eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
+
+    //region Constants
+    private static final int SERVER_RESPONSE_TIMEOUT = 30*1000; // milliseconds
+    //endregion
 
     //region UI elements
     private EditText _loginNumberEditText;
@@ -60,9 +69,7 @@ public class LoginActivity extends AppCompatActivity {
         Log.i(TAG, "onCreate()");
 
         initializeLoginUI();
-
-        Drawable drawArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.right_arrow, null);//getResources().getDrawable( R.drawable.right_arrow );
-        drawArrow.setAutoMirrored(true);
+        prepareDrawArrowForTermsAndService();
     }
 
     @Override
@@ -92,7 +99,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
-       protected void onResume() {
+    protected void onResume() {
         super.onResume();
 
         Log.i(TAG, "OnResume()");
@@ -107,14 +114,25 @@ public class LoginActivity extends AppCompatActivity {
             i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
             startService(i);
 
-            setInitTextView(getResources().getString(R.string.initializing));
-            enableProgressBar();
+//            switchToLoadingState(getResources().getString(R.string.initializing),
+//                    getResources().getString(R.string.oops_try_again));
         }
-        else
-        {
-            disableInitTextView();
-            disableProgressBar();
+
+        syncUIwithAppState();
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(resultCode == RESULT_OK) {
+            String errMsg = getResources().getString(R.string.register_failure);
+            String registering = getResources().getString(R.string.registering);
+            switchToLoadingState(registering, errMsg);
         }
+
+        syncUIwithAppState();
     }
     //endregion
 
@@ -175,8 +193,9 @@ public class LoginActivity extends AppCompatActivity {
                             enableLoginButton();
                     }
                 } else {
-                    enableSmsCodeEditText();
+                    disableSmsCodeEditText();
                     disableGetSmsCodeButton();
+                    disableLoginButton();
                 }
             }
 
@@ -185,6 +204,7 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+        enableLoginEditText();
     }
 
     private void prepareLoginButton() {
@@ -202,16 +222,16 @@ public class LoginActivity extends AppCompatActivity {
                 Intent intent = new Intent(LoginActivity.this,LoginWithTermsAndServiceActivity.class);
                 intent.putExtra(LoginWithTermsAndServiceActivity.SmsCode,smsVerificationCode);
                 intent.putExtra(LoginWithTermsAndServiceActivity.LoginNumber,loginNumber);
-                startActivity(intent);
+                startActivityForResult(intent, ActivityRequestCodes.TERMS_OF_SERVICE);
 
                 if(_getSmsCodeTask!=null)
                     _getSmsCodeTask.cancel(true);
             }
         });
+        disableLoginButton();
     }
 
     private void prepareGetSmsCodeButton() {
-
 
         _getSmsCodeBtn = (ImageButton) findViewById(R.id.getSmsCode_btn);
         _getSmsCodeBtn.setEnabled(false);
@@ -221,11 +241,16 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                _getSmsCodeTask = new GetSmsCodeTask(getApplicationContext(), _initTextView, _getSmsCodeBtn);
+                String errMsg = getResources().getString(R.string.sms_code_failed);
+                String loadingMsg = getResources().getString(R.string.please_wait);
+                switchToLoadingState(loadingMsg, errMsg);
+                syncUIwithAppState();
+
                 String phoneNumber = _loginNumberEditText.getText().toString();
-                _getSmsCodeTask.execute(phoneNumber);
+                getSms(phoneNumber);
             }
         });
+        disableGetSmsCodeButton();
     }
 
     private void prepareSmsCodeVerificationEditText() {
@@ -239,7 +264,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        enableSmsCodeEditText();
         _smsCodeVerEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -249,7 +273,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
-                if (4 == s.length() && 10 == _loginNumberEditText.getText().toString().length()) {
+                if (4 == s.length()) {
                     enableLoginButton();
                 } else
                    disableLoginButton();
@@ -260,6 +284,16 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+
+        disableSmsCodeEditText();
+    }
+
+    private void prepareDrawArrowForTermsAndService() {
+
+        Drawable drawArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.right_arrow, null);//getResources().getDrawable( R.drawable.right_arrow );
+        if (drawArrow != null) {
+            drawArrow.setAutoMirrored(true);
+        }
     }
 
     private void enableProgressBar() {
@@ -274,6 +308,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void setInitTextView(String str) {
 
+        Log.i(TAG, "SetInitTextView:" + str);
         _initTextView.setVisibility(View.VISIBLE);
         _initTextView.setText(str);
     }
@@ -285,6 +320,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private void enableLoginButton() {
 
+        Log.v(TAG, "Enabling LoginButton");
+
         _loginBtn.setEnabled(true);
         _loginBtn.setImageResource(R.drawable.login_icon);
 
@@ -292,36 +329,51 @@ public class LoginActivity extends AppCompatActivity {
 
     private void disableLoginButton() {
 
+        Log.v(TAG, "Disabling LoginButton");
+
         _loginBtn.setEnabled(false);
         _loginBtn.setImageResource(R.drawable.login_icon_disabled);
     }
 
     private void enableLoginEditText() {
 
+        Log.v(TAG, "Enabling LoginEditText");
+
         _loginNumberEditText.setEnabled(true);
+        _loginNumberEditText.setTextColor(ContextCompat.getColor(this, R.color.white));
         _clearLoginPhoneText.setEnabled(true);
     }
 
     private void disableLoginEditText() {
 
+        Log.v(TAG, "Disabling LoginEditText");
+
         _loginNumberEditText.setEnabled(false);
+        _loginNumberEditText.setTextColor(ContextCompat.getColor(this, R.color.gray));
         _clearLoginPhoneText.setEnabled(false);
     }
 
     private void enableSmsCodeEditText() {
 
-        _smsCodeVerEditText.setEnabled(true);
-        _clearLoginSmsText.setEnabled(true);
+        Log.v(TAG, "Enabling SmsCodeEditText");
 
+        _smsCodeVerEditText.setEnabled(true);
+        _smsCodeVerEditText.setTextColor(ContextCompat.getColor(this, R.color.white));
+        _clearLoginSmsText.setEnabled(true);
     }
 
     private void disableSmsCodeEditText() {
 
+        Log.v(TAG, "Disabling SmsCodeEditText");
+
         _smsCodeVerEditText.setEnabled(false);
+        _smsCodeVerEditText.setTextColor(ContextCompat.getColor(this, R.color.gray));
         _clearLoginSmsText.setEnabled(false);
     }
 
     private void enableGetSmsCodeButton() {
+
+        Log.v(TAG, "Enabling getSmsButton");
 
         boolean shouldEnable = true;
 
@@ -337,7 +389,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private void disableGetSmsCodeButton() {
 
-        Log.i(TAG, "Disabling getSmsButton");
+        Log.v(TAG, "Disabling getSmsButton");
+
         _getSmsCodeBtn.setEnabled(false);
         _getSmsCodeBtn.setImageResource(R.drawable.send_sms_icon_disabled);
 
@@ -354,7 +407,8 @@ public class LoginActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         Log.i(TAG, "Continuing to MainActivity");
-        final Intent i = new Intent(LoginActivity.this, MainActivity.class);
+        AppStateManager.setIsLoggedIn(this, true);
+        final Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
         finish();
 
@@ -376,41 +430,18 @@ public class LoginActivity extends AppCompatActivity {
                 continueToMainActivity();
                 break;
 
-            case REGISTER_FAILURE:
-                disableProgressBar();
-                setInitTextView(getResources().getString(R.string.register_failure));
-                enableSmsCodeEditText();
-                enableGetSmsCodeButton();
-                enableLoginEditText();
-                enableLoginButton();
+            case GET_SMS_CODE_SUCCESS:
+                AppStateManager.setAppState(this, TAG, AppStateManager.STATE_IDLE);
+                syncUIwithAppState();
+                _getSmsCodeTask = new GetSmsCodeTask(this, _initTextView, _getSmsCodeBtn);
+                _getSmsCodeTask.execute();
                 break;
 
-            case REGISTERING:
+            // Triggered by local loading timeouts
+            case LOADING_TIMEOUT:
+            case REFRESH_UI:
                 setInitTextView(report.desc());
-                enableProgressBar();
-                disableLoginEditText();
-                disableSmsCodeEditText();
-                disableLoginButton();
-                disableGetSmsCodeButton();
-                break;
-
-            case TOKEN_RETRIEVED:
-                disableProgressBar();
-                disableInitTextView();
-                break;
-
-            case TOKEN_RETRIEVAL_FAILED:
-                disableProgressBar();
-                setInitTextView(report.desc());
-                disableLoginEditText();
-                disableSmsCodeEditText();
-                disableLoginButton();
-                disableGetSmsCodeButton();
-                break;
-
-            case GET_SMS_CODE_FAILED:
-                disableProgressBar();
-                setInitTextView(getResources().getString(R.string.sms_code_failed));
+                syncUIwithAppState();
                 break;
 
             default: // Event not meant for LoginActivity receiver
@@ -462,7 +493,103 @@ public class LoginActivity extends AppCompatActivity {
         registerReceiver(_eventReceiver, _eventIntentFilter);
     }
 
+    private void getSms(String phoneNumber) {
 
+        String interPhoneNumber = PhoneNumberUtils.toValidInternationalPhoneNumber(
+                phoneNumber,
+                PhoneNumberUtils.Country.IL);
+
+        Constants.MY_ID(this, phoneNumber);
+
+        Intent i = new Intent(this, LogicServerProxyService.class);
+        i.setAction(LogicServerProxyService.ACTION_GET_SMS_CODE);
+        i.putExtra(LogicServerProxyService.INTERNATIONAL_PHONE, interPhoneNumber);
+        startService(i);
+    }
+
+    private void disableUnfinishedServerActions() {
+
+        //TODO Mor: Test this code
+//        Intent i = new Intent(this, LogicServerProxyService.class);
+//        i.setAction(LogicServerProxyService.ACTION_CLOSE_SOCKETS);
+//        startService(i);
+    }
+
+    private void switchToLoadingState(String loadingMsg, String errMsg) {
+
+        AppStateManager.setAppState(LoginActivity.this, TAG, AppStateManager.createLoadingState(
+                new EventReport(EventType.LOADING_TIMEOUT, errMsg), SERVER_RESPONSE_TIMEOUT), loadingMsg
+        );
+    }
+
+    private void syncUIwithAppState() {
+
+        String appState = getState();
+
+        Log.i(TAG, "Syncing UI with appState:" + appState);
+
+        switch (appState) {
+
+            case AppStateManager.STATE_IDLE:
+                stateIdle();
+                break;
+
+            case AppStateManager.STATE_LOADING:
+                stateLoading();
+                break;
+
+            case AppStateManager.STATE_DISABLED:
+                stateDisabled();
+                break;
+        }
+    }
+
+    //region UI States
+    public void stateIdle() {
+
+        disableProgressBar();
+        enableLoginEditText();
+
+        if(10 == _loginNumberEditText.getText().length()) {
+            enableSmsCodeEditText();
+            enableGetSmsCodeButton();
+
+            if(4 == _smsCodeVerEditText.getText().length()) {
+                enableLoginButton();
+            }
+        }
+    }
+
+    public void stateDisabled() {
+
+
+        String noInternet = getResources().getString(R.string.disconnected);
+        setInitTextView(noInternet);
+        disableUnfinishedServerActions(); //TODO Mor: Decide how to deal with unanswered requests
+        disableProgressBar();
+        disableGetSmsCodeButton();
+        disableLoginButton();
+        disableLoginEditText();
+        disableSmsCodeEditText();
+    }
+
+    public void stateLoading() {
+
+        String loadingMsg = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE);
+
+        setInitTextView(loadingMsg);
+        disableLoginEditText();
+        disableSmsCodeEditText();
+        disableLoginButton();
+        disableGetSmsCodeButton();
+        enableProgressBar();
+    }
+
+    private String getState() {
+
+        return AppStateManager.getAppState(getApplicationContext());
+    }
+    //endregion
     //endregion
 }
 

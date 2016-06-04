@@ -3,6 +3,8 @@ package com.app;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import com.batch.android.Batch;
 import com.batch.android.Config;
@@ -35,7 +37,13 @@ public class MediaCallzApp extends Application {
             // Initializing app state
             if (AppStateManager.getAppState(context).equals("")) {
 
-                AppStateManager.setAppState(context, TAG, AppStateManager.STATE_LOGGED_OUT);
+                AppStateManager.setIsLoggedIn(this, false);
+
+                if(isNetworkAvailable())
+                    AppStateManager.setAppState(this, TAG, AppStateManager.STATE_IDLE);
+                else
+                    AppStateManager.setAppState(this, TAG, AppStateManager.STATE_DISABLED);
+
                 //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
                 UI_Utils.makeActionOverflowMenuShown(context);
 
@@ -60,4 +68,10 @@ public class MediaCallzApp extends Application {
 
     }
 
+    protected boolean isNetworkAvailable() {
+
+        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
+        return activeNetwork!=null && activeNetwork.isConnected();
+    }
 }

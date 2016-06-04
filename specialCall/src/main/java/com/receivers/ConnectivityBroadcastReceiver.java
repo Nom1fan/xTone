@@ -44,7 +44,7 @@ public class ConnectivityBroadcastReceiver extends WakefulBroadcastReceiver {
 
             String appState = AppStateManager.getAppState(context);
             Log.i(TAG, "App State:" +    appState);
-            if (!appState.equals(AppStateManager.STATE_LOGGED_OUT) && appState.equals(AppStateManager.STATE_DISABLED)) {
+            if (AppStateManager.isBlockingState(appState)) {
                 Log.i(TAG, "Starting LogicServerProxyService...");
                 Intent i = new Intent(context, LogicServerProxyService.class);
                 i.setAction(LogicServerProxyService.ACTION_RESET_RECONNECT_INTERVAL);

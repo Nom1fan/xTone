@@ -11,8 +11,6 @@ import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import ServerObjects.ILangStrings;
-import lang.StringsFactory;
 import sms_service.SmsSender;
 import utils.RandUtils;
 
@@ -37,8 +35,10 @@ public class ServerActionGetSmsCode extends ServerAction {
 
         int code = RandUtils.getRand(MIN,MAX);
 
-        ILangStrings strings = StringsFactory.instance().getStrings(data.get(DataKeys.SOURCE_LOCALE).toString());
-        //String msg = String.format(strings.your_verification_code(), code); //TODO use this after fixing SmsSender to send hebrew
+        //TODO use this after fixing SmsSender to send hebrew
+        //ILangStrings strings = StringsFactory.instance().getStrings(data.get(DataKeys.SOURCE_LOCALE).toString());
+        //String msg = String.format(strings.your_verification_code(), code);
+
         String msg = "Your verification code:" + code;
 
         boolean isOK = SmsVerificationAccess.instance(_dal).insertSmsVerificationCode(_messageInitiaterId, code);
@@ -46,11 +46,11 @@ public class ServerActionGetSmsCode extends ServerAction {
         HashMap replyData = new HashMap();
         if(isOK) {
             SmsSender.sendSms(_internationePhoneNumber, msg);
-            replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.NO_ACTION_REQUIRED, null, null));
+            replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.GET_SMS_CODE_SUCCESS));
             replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
         }
         else {
-            replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.GET_SMS_CODE_FAILED, null ,null));
+            replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.GET_SMS_CODE_FAILURE));
             replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
         }
     }

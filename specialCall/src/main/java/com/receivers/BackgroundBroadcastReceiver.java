@@ -11,7 +11,7 @@ import android.util.Log;
 import com.app.AppStateManager;
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
-import com.ui.activities.LoginActivity;
+import com.utils.BroadcastUtils;
 import com.utils.CacheUtils;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
@@ -44,16 +44,19 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
         Log.i(TAG, "Receiving event:" + report.status());
 
         //Ignore refresh UI event sent from here on the same events channel
-        if (report.status().equals(EventType.REFRESH_UI) || AppStateManager.getAppState(context).equals(AppStateManager.STATE_LOGGED_OUT))
+        if (report.status().equals(EventType.REFRESH_UI))
             return;
 
         boolean shouldShowSnackBar = true;
         String msg = "";
         int sBarDuration = 0;
         int color = 0;
+        EventReport eventReport = null;
         boolean isLoading = false;
 
         switch (report.status()) {
+
+            //region Events for MainActivity
 
             //region Events in loading states
             case RECONNECT_ATTEMPT: {
@@ -76,7 +79,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 String timeoutMsg = context.getResources().getString(R.string.oops_try_again);
                 String loadingMsg = context.getResources().getString(R.string.fetching_user_data);
                 AppStateManager.setAppState(context, TAG + " FETCHING_USER_DATA",
-                        AppStateManager.createLoadingState(new EventReport(EventType.ISREGISTERED_ERROR, timeoutMsg, null), 10 * 1000),
+                        AppStateManager.createLoadingState(new EventReport(EventType.ISREGISTERED_ERROR, timeoutMsg), 10 * 1000),
                         loadingMsg);
 
                 // Setting parameters for snackbar message
@@ -105,7 +108,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 String timeoutMsg = context.getResources().getString(R.string.compression_took_too_long);
                 String loadingMsg = context.getResources().getString(R.string.compressing_file);
                 AppStateManager.setAppState(context, TAG,
-                        AppStateManager.createLoadingState(new EventReport(EventType.REFRESH_UI, timeoutMsg, null),
+                        AppStateManager.createLoadingState(new EventReport(EventType.REFRESH_UI, timeoutMsg),
                                 AppStateManager.MAXIMUM_TIMEOUT_IN_MILLISECONDS), loadingMsg);
 
                 // Setting parameters for snackbar message
@@ -121,7 +124,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 String timeoutMsg = context.getResources().getString(R.string.upload_took_too_long);
                 String loadingMsg = context.getResources().getString(R.string.uploading);
                 AppStateManager.setAppState(context, TAG,
-                        AppStateManager.createLoadingState(new EventReport(EventType.REFRESH_UI, timeoutMsg, null),
+                        AppStateManager.createLoadingState(new EventReport(EventType.REFRESH_UI, timeoutMsg),
                                 AppStateManager.MAXIMUM_TIMEOUT_IN_MILLISECONDS), loadingMsg);
 
                 // Setting parameters for snackbar message
@@ -131,7 +134,6 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 isLoading = true;
             }
             break;
-            //endregion
 
             case LOADING_CANCEL:
                 AppStateManager.setAppPrevState(context, TAG + " " + EventType.LOADING_CANCEL);
@@ -141,13 +143,9 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 color = Color.YELLOW;
                 sBarDuration = Snackbar.LENGTH_LONG;
                 break;
+            //endregion
 
-            case UPDATE_USER_RECORD_SUCCESS:
-                shouldShowSnackBar = false;
-                Constants.MY_ANDROID_VERSION(context, Build.VERSION.RELEASE);
-                break;
-
-            //region Events in Idle, ready and disabled states
+            //region Events in idle, ready and disabled states
             case DISPLAY_MESSAGE:
                 msg = report.desc();
                 color = Color.GREEN;
@@ -156,15 +154,6 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
             case DISPLAY_ERROR:
                 msg = report.desc();
-                color = Color.RED;
-                sBarDuration = Snackbar.LENGTH_INDEFINITE;
-                break;
-
-            case DISCONNECTED:
-                AppStateManager.setAppState(context, TAG + " DISCONNECTED", AppStateManager.STATE_DISABLED);
-
-                // Setting parameters for snackbar message
-                msg = context.getResources().getString(R.string.disconnected);
                 color = Color.RED;
                 sBarDuration = Snackbar.LENGTH_INDEFINITE;
                 break;
@@ -221,34 +210,6 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 AppStateManager.setAppState(context, TAG, AppStateManager.STATE_READY);
             }
                 break;
-//            case UPLOAD_SUCCESS:
-//                msg = context.getResources().getString(R.string.upload_success);
-//            //case COMPRESSION_COMPLETE: //TODO commented out by Mor - need to check if this is necessary or just bothers the user
-//                // Setting state
-//                AppStateManager.setAppState(context, TAG, AppStateManager.STATE_READY);
-//
-//                // Setting parameters for snackbar message
-//                color = Color.GREEN;
-//                sBarDuration = Snackbar.LENGTH_LONG;
-//                break;
-
-            case CONNECTED:
-                // Setting state based on previous state
-                String prevState = AppStateManager.getAppPrevState(context);
-                if (prevState.equals(AppStateManager.STATE_LOGGED_IN))
-                    AppStateManager.setAppState(context, TAG, AppStateManager.STATE_IDLE);
-                else
-                    AppStateManager.setAppState(context, TAG, AppStateManager.getAppPrevState(context));
-
-                // Setting parameters for snackbar message
-                msg = context.getResources().getString(R.string.connected);
-                color = Color.GREEN;
-                sBarDuration = Snackbar.LENGTH_LONG;
-                break;
-
-            case REGISTER_SUCCESS:
-                // Handled by LoginActivity
-                break;
 
             case USER_REGISTERED_FALSE: {
                 String destNumber = (String) report.data();
@@ -280,16 +241,95 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                     //TODO Make sure this doesn't create issues since it delete all app states and such
                     SharedPrefUtils.removeAll(context);
 
-                    AppStateManager.setAppState(context, TAG, AppStateManager.STATE_LOGGED_OUT);
-                    Intent i = new Intent(context, LoginActivity.class);
-                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    context.startActivity(i);
+                    AppStateManager.setIsLoggedIn(context, false);
+
+                    eventReport = new EventReport(EventType.REFRESH_UI);
 
                 } catch (IOException e) {
                     e.printStackTrace();
                     Log.e(TAG, "Failed during unregister procedure. [Exception]:"
                             + (e.getMessage() != null ? e.getMessage() : e));
+                }
+                break;
+            //endregion
+
+            //region Events in any state
+            case UPDATE_USER_RECORD_SUCCESS:
+                shouldShowSnackBar = false;
+                Constants.MY_ANDROID_VERSION(context, Build.VERSION.RELEASE);
+                break;
+            //endregion
+
+            //endregion
+
+            //region Events for LoginActivity
+
+            //region Events in loading states
+//            case REGISTERING:
+//                shouldShowSnackBar = false;
+//
+//                // Creating loading state & timeout
+//                String errMsg = context.getResources().getString(R.string.register_failure);
+//                AppStateManager.setAppState(context, TAG, AppStateManager.createLoadingState(
+//                        new EventReport(EventType.LOADING_TIMEOUT, errMsg), 30*1000), report.desc()
+//                );
+//
+//                // Setting refresh UI event & message
+//                msg = report.desc();
+//                eventReport = new EventReport(EventType.REFRESH_UI, msg);
+//                break;
+            //endregion
+
+            //region Events in idle
+            case REGISTER_FAILURE:
+                shouldShowSnackBar = false;
+                AppStateManager.setAppState(context, TAG, AppStateManager.STATE_IDLE);
+
+                msg = context.getResources().getString(R.string.register_failure);
+                eventReport = new EventReport(EventType.REFRESH_UI, msg);
+                break;
+
+            case GET_SMS_CODE_FAILURE:
+                shouldShowSnackBar = false;
+                AppStateManager.setAppState(context, TAG, AppStateManager.STATE_IDLE);
+
+                msg = context.getResources().getString(R.string.sms_code_failed);
+                eventReport = new EventReport(EventType.REFRESH_UI, msg);
+
+                break;
+            //endregion
+
+            //endregion
+
+            //region Events for all activities
+            case DISCONNECTED:
+                AppStateManager.setAppState(context, TAG + " DISCONNECTED", AppStateManager.STATE_DISABLED);
+
+                msg = context.getResources().getString(R.string.disconnected);
+                if(AppStateManager.isLoggedIn(context)) {
+                    // Setting parameters for snackbar message
+                    color = Color.RED;
+                    sBarDuration = Snackbar.LENGTH_INDEFINITE;
+                }
+                else {
+                    shouldShowSnackBar = false;
+                    eventReport = new EventReport(EventType.REFRESH_UI, msg);
+                }
+                break;
+
+            case CONNECTED:
+                // Setting state based on previous state
+                AppStateManager.setAppState(context, TAG, AppStateManager.getAppPrevState(context));
+
+                if(AppStateManager.isLoggedIn(context)) {
+                    // Setting parameters for snackbar message
+                    msg = context.getResources().getString(R.string.connected);
+                    color = Color.GREEN;
+                    sBarDuration = Snackbar.LENGTH_LONG;
+                }
+                else {
+                    shouldShowSnackBar = false;
+                    eventReport = new EventReport(EventType.REFRESH_UI, msg);
                 }
                 break;
             //endregion
@@ -301,6 +341,9 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
         if(shouldShowSnackBar)
             UI_Utils.showSnackBar(msg, color, sBarDuration, isLoading, context);
+        if(eventReport!=null)
+            BroadcastUtils.sendEventReportBroadcast(context, TAG, eventReport);
+
     }
 
 }

@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         AppStateManager.setAppInForeground(getApplicationContext(), true);
 
-        if (!getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
+        if (AppStateManager.isLoggedIn(this)) {
 
             //TODO MediaCallz: Do we need these start services here?
             // Starting service responsible for incoming media callz
@@ -420,11 +420,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //region Assisting methods (onClick(), eventReceived(), ...)
     private void startLoginActivityIfLoggedOut() {
 
-        if (getState().equals(AppStateManager.STATE_LOGGED_OUT)) {
+        if (!AppStateManager.isLoggedIn(this)) {
 
-            Intent i = new Intent(this, LoginActivity.class);
-            startActivity(i);
-            finish();
+            stateLoggedOut();
         }
     }
 
@@ -865,6 +863,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     }
 
+    private void stateLoggedOut() {
+
+        Intent i = new Intent(this, LoginActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(i);
+        finish();
+    }
+
     private String getState() {
 
         return AppStateManager.getAppState(getApplicationContext());
@@ -872,6 +879,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //endregion
 
     private void syncUIwithAppState() {
+
+        if(!AppStateManager.isLoggedIn(this))
+            stateLoggedOut();
 
         String appState = getState();
 

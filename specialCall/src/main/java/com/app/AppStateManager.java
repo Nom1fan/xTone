@@ -13,15 +13,21 @@ import EventObjects.EventReport;
  */
 public class AppStateManager {
 
-    /* Shared pref values under APP_STATE */
-    public static final String STATE_LOGGED_OUT = "LoggedOut";
-    public static final String STATE_LOGGED_IN = "LoggedIn";
-    public static final String STATE_DISABLED = "Disabled";
-    public static final String STATE_READY = "Ready";
-    public static final String STATE_IDLE = "Idle";
-    public static final String STATE_LOADING = "Loading";
-    public static final int MAXIMUM_TIMEOUT_IN_MILLISECONDS = 20 * 1000;
     private static final String TAG = AppStateManager.class.getSimpleName();
+
+    //region Shared prefs values under APP_STATE
+    public static final String IS_LOGGED_IN     = "IsLoggedIn";
+    public static final String STATE_DISABLED   = "Disabled";
+    public static final String STATE_READY      = "Ready";
+    public static final String STATE_IDLE       = "Idle";
+    public static final String APP_IN_FG        = "AppInForeground";
+    //endregion
+
+    //region Constants
+    public static final String STATE_LOADING = "Loading";
+    public static final int MAXIMUM_TIMEOUT_IN_MILLISECONDS = 60 * 1000;
+    //endregion
+
     private static Thread mLoadingTimeoutThread = null;
 
     /**
@@ -46,7 +52,7 @@ public class AppStateManager {
      *
      * @param context
      * @param tag          The tag of the component setting the loading state
-     * @param loadingState The loading state containing a loading timeout message and a timeout in milliseconds
+     * @param loadingState The loading state. {@link LoadingState}
      */
     public synchronized static void setAppState(Context context, String tag, LoadingState loadingState, String loadingMsg) {
 
@@ -54,16 +60,17 @@ public class AppStateManager {
 
         String curState = getAppState(context);
         Log.i(TAG, tag + " changes state from [" + curState + "] to: [" + STATE_LOADING + "]");
-        setAppState(context, tag, STATE_LOADING);
+
+        SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE, STATE_LOADING);
         if (loadingState.get_loadingTimeout() > 0)
             setLoadingTimeout(context, loadingState);
     }
 
-    public synchronized static String getAppState(Context context) {
+    public static String getAppState(Context context) {
         return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE);
     }
 
-    public synchronized static String getAppPrevState(Context context) {
+    public static String getAppPrevState(Context context) {
         return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_PREV_STATE);
     }
 
@@ -72,35 +79,45 @@ public class AppStateManager {
         setAppState(context, tag, getAppPrevState(context));
     }
 
-    public synchronized static boolean isNonBlockingState(Context context) {
+    public static boolean isNonBlockingState(Context context) {
 
         return !getAppState(context).equals(AppStateManager.STATE_DISABLED) &&
                 !getAppState(context).equals(AppStateManager.STATE_LOADING);
     }
 
-    public synchronized static String getLoadingMsg(Context context) {
+    public static boolean isNonBlockingState(String state) {
+
+        return !state.equals(STATE_DISABLED) && !state.equals(STATE_LOADING);
+    }
+
+    public static boolean isBlockingState(String state) {
+
+        return state.equals(STATE_DISABLED) || state.equals(STATE_LOADING);
+    }
+
+    public static String getLoadingMsg(Context context) {
 
         return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE);
     }
 
-    public synchronized static boolean isLoadingStateActive() {
+    public static boolean isLoadingStateActive() {
 
         return mLoadingTimeoutThread!=null && mLoadingTimeoutThread.isAlive();
     }
 
     /**
-     * Creates a loading state for the app. To use without a timeout, set timeoutInMilliseconds to be <= 0
+     * Creates a loading state for the app.
      *
      * @param eventReport           The event to be thrown in case the loading state's timeout has been reached.
      * @param timeoutInMilliseconds The timeout in milliseconds until the eventReport is sent.
-     * @return
+     * @return The created loading state {@link LoadingState}
      */
-    public synchronized static LoadingState createLoadingState(EventReport eventReport, int timeoutInMilliseconds) {
+    public static LoadingState createLoadingState(EventReport eventReport, int timeoutInMilliseconds) {
 
         return new LoadingState(eventReport, timeoutInMilliseconds);
     }
 
-    private synchronized static void setLoadingTimeout(final Context context, final LoadingState loadingState) {
+    private static void setLoadingTimeout(final Context context, final LoadingState loadingState) {
 
         Log.d(TAG, "Setting loading timeout. [Timeout in milliseconds]:" + loadingState.get_loadingTimeout() +
                 " [Event to fire after timeout]:" + loadingState.get_eventReport().status());
@@ -111,8 +128,8 @@ public class AppStateManager {
                 try {
                     Thread.sleep(loadingState.get_loadingTimeout());
                     if (getAppState(context).equals(STATE_LOADING)) {
-                        Log.w(TAG, "Loading reached its timeout! Setting app state back to idle...");
-                        setAppState(context, TAG, AppStateManager.STATE_IDLE);
+                        Log.w(TAG, "Loading reached its timeout! Setting app state back to previous state...");
+                        setAppState(context, TAG, getAppPrevState(context));
                         BroadcastUtils.sendEventReportBroadcast(context, "LOADING_TIMEOUT", loadingState.get_eventReport());
                         mLoadingTimeoutThread = null;
                     }
@@ -125,7 +142,7 @@ public class AppStateManager {
         mLoadingTimeoutThread.start();
     }
 
-    private synchronized static void stopLoadingTimeout() {
+    private static void stopLoadingTimeout() {
 
         Log.d(TAG, "stopLoadingTimeout()");
 
@@ -137,18 +154,37 @@ public class AppStateManager {
 
     private static void saveCurrAppState(Context context, String curState) {
 
-        if (isNonBlockingState(context))
-            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_PREV_STATE, curState);
+        if (isNonBlockingState(curState)) {
+
+            if(curState.isEmpty()) {
+                Log.v(TAG, "saveCurrAppState:" + STATE_IDLE);
+                SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_PREV_STATE, STATE_IDLE);
+            }
+            else {
+                Log.v(TAG, "saveCurrAppState:" + curState);
+                SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_PREV_STATE, curState);
+            }
+        }
     }
 
     public static void setAppInForeground(Context context, boolean b) {
 
-        SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_IN_FG, b);
+        SharedPrefUtils.setBoolean(context, SharedPrefUtils.APP_STATE, APP_IN_FG, b);
     }
 
     public static boolean isAppInForeground(Context context) {
 
-        return SharedPrefUtils.getBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_IN_FG);
+        return SharedPrefUtils.getBoolean(context, SharedPrefUtils.APP_STATE, APP_IN_FG);
+    }
+
+    public static void setIsLoggedIn(Context context, boolean b) {
+
+        SharedPrefUtils.setBoolean(context, SharedPrefUtils.APP_STATE, IS_LOGGED_IN, b);
+    }
+
+    public static boolean isLoggedIn(Context context) {
+
+        return SharedPrefUtils.getBoolean(context, SharedPrefUtils.APP_STATE, IS_LOGGED_IN);
     }
 
     private static class LoadingState {

@@ -1,24 +1,19 @@
 package com.async_tasks;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.data_objects.Constants;
 import com.mediacallz.app.R;
-import com.services.LogicServerProxyService;
 
 import java.lang.ref.WeakReference;
-
-import utils.PhoneNumberUtils;
 
 /**
  * Created by Mor on 03/04/2016.
  */
-public class GetSmsCodeTask extends AsyncTask<String, String, String> {
+public class GetSmsCodeTask extends AsyncTask<Void, String, String> {
 
     private static final String TAG = GetSmsCodeTask.class.getSimpleName();
     private Context _context;
@@ -37,16 +32,13 @@ public class GetSmsCodeTask extends AsyncTask<String, String, String> {
     }
 
     @Override
-    protected String doInBackground(String... params) {
+    protected String doInBackground(Void... voids) {
 
         _tryCount++;
 
         if(_tryCount >= MAX_RETRIES) {
             return delayUntilNextRetry();
         }
-
-        String phoneNumber = params[0];
-        getSms(phoneNumber);
 
         return countUntilSmsArrives();
     }
@@ -120,20 +112,6 @@ public class GetSmsCodeTask extends AsyncTask<String, String, String> {
         }
 
         return _context.getResources().getString(R.string.get_sms_not_arrived);
-    }
-
-    private void getSms(String phoneNumber) {
-
-        String interPhoneNumber = PhoneNumberUtils.toValidInternationalPhoneNumber(
-                phoneNumber,
-                PhoneNumberUtils.Country.IL);
-
-        Constants.MY_ID(_context, phoneNumber);
-
-        Intent i = new Intent(_context, LogicServerProxyService.class);
-        i.setAction(LogicServerProxyService.ACTION_GET_SMS_CODE);
-        i.putExtra(LogicServerProxyService.INTER_PHONE, interPhoneNumber);
-        _context.startService(i);
     }
 
     private String delayUntilNextRetry() {

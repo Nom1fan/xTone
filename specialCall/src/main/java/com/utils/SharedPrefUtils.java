@@ -56,7 +56,6 @@ public abstract class SharedPrefUtils {
     public static final String MY_DEVICE_BATCH_TOKEN                =   "MyDeviceBatchToken";
     public static final String LAST_CHECKED_NUMBER_CACHE            =   "LastCheckedNumberCache";
     public static final String STRICT_MEMORY_MANAGER_DEVICES        =   "StrictMemoryManagerDevices";
-    public static final String APP_IN_FG                            =   "AppInForeground";
     public static final String STRICT_RINGING_CAPABILITIES_DEVICES  =   "StrictRingingCapabilitiesDevices";
     public static final String ENABLE_UI_ELEMENTS_ANIMATION         =   "EnableUIElementsAnimation";
     public static final String DISABLE_UI_ELEMENTS_ANIMATION        =   "DisableUIElementsAnimation";

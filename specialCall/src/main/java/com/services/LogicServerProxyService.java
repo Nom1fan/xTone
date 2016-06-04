@@ -51,7 +51,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
     public static final String DESTINATION_ID            =      "com.services.LogicServerProxyService.DESTINATION_ID";
     public static final String CALL_RECORD               =      "com.services.LogicServerProxyService.CALL_RECORD";
     public static final String SMS_CODE                  =      "com.services.LogicServerProxyService.SMS_CODE";
-    public static final String INTER_PHONE               =      "com.services.LogicServerProxyService.INTER_PHONE"; // International phone number for SMS code reception
+    public static final String INTERNATIONAL_PHONE       =      "com.services.LogicServerProxyService.INTERNATIONAL_PHONE";
     public static final String USER_RECORD               =      "com.services.LogicServerProxyService.USER_RECORD";
     //endregion
 
@@ -85,7 +85,6 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
                             case ACTION_REGISTER:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.REGISTERING, getResources().getString(R.string.registering), null));
                                 int smsCode = intent.getIntExtra(SMS_CODE, 0);
                                 actionRegister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), smsCode, data);
                                 break;
@@ -97,7 +96,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
                             case ACTION_GET_SMS_CODE:
                                 setMidAction(true);
-                                String interPhoneNumber = intent.getStringExtra(INTER_PHONE);
+                                String interPhoneNumber = intent.getStringExtra(INTERNATIONAL_PHONE);
                                 actionGetSmsCode(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT),
                                         Constants.MY_ID(getApplicationContext()) ,interPhoneNumber , data);
                                 break;
