@@ -449,6 +449,7 @@ public class LoginActivity extends AppCompatActivity {
             case REFRESH_UI:
                 setInitTextView(report.desc());
                 syncUIwithAppState();
+                saveInstanceState();
                 restoreInstanceState();
                 break;
 
