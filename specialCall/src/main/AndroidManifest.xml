@@ -33,6 +33,9 @@
     <uses-permission android:name="com.mediacallz.app.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+
 
 
     <application
@@ -61,6 +64,12 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
+
+        <receiver android:name="com.ui.activities.LoginActivity$IncomingSms">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name="com.ui.activities.LoginWithTermsAndServiceActivity"

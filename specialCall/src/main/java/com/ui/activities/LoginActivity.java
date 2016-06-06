@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.SmsManager;
+import android.telephony.SmsMessage;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -27,6 +29,7 @@ import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.services.GetTokenIntentService;
 import com.services.LogicServerProxyService;
+import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 
 import EventObjects.Event;
@@ -440,11 +443,52 @@ public class LoginActivity extends AppCompatActivity {
             case REFRESH_UI:
                 setInitTextView(report.desc());
                 syncUIwithAppState();
+                restoreInstanceState();
                 break;
 
             default: // Event not meant for LoginActivity receiver
         }
     }
+
+    public static class IncomingSms extends BroadcastReceiver {
+
+        // Get the object of SmsManager
+        final SmsManager sms = SmsManager.getDefault();
+
+        public void onReceive(Context context, Intent intent) {
+
+            // Retrieves a map of extended data from the intent.
+            final Bundle bundle = intent.getExtras();
+
+            try {
+
+                if (bundle != null) {
+
+                    final Object[] pdusObj = (Object[]) bundle.get("pdus");
+
+                    for (int i = 0; i < pdusObj.length; i++) {
+
+                        SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
+                        String phoneNumber = currentMessage.getDisplayOriginatingAddress();
+
+                        String senderNum = phoneNumber;
+                        String message = currentMessage.getDisplayMessageBody();
+
+
+                       if (senderNum.toLowerCase().contains("mediacallz")) {
+                           SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SMS_CODE, PhoneNumberUtils.toNumeric(message));
+                           BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, null, null));
+                       }
+                    } // end for loop
+                } // bundle is null
+
+            } catch (Exception e) {
+                Log.e("SmsReceiver", "Exception smsReceiver" +e);
+
+            }
+        }
+    }
+
 
     /**
      * Saving the instance state - to be used from onPause()
@@ -456,7 +500,13 @@ public class LoginActivity extends AppCompatActivity {
         SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER, loginNumber);
 
         // Saving sms code
-        String smsCode = _smsCodeVerEditText.getText().toString();
+        String savedSmsAutomatically = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SMS_CODE);
+        String smsCode = "";
+        if (savedSmsAutomatically.isEmpty())
+            smsCode = _smsCodeVerEditText.getText().toString();
+        else
+            smsCode = savedSmsAutomatically;
+
         SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SMS_CODE, smsCode);
     }
 
