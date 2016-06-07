@@ -15,6 +15,8 @@ import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.services.LogicServerProxyService;
 
+import java.util.Locale;
+
 
 /**
  * Created by Mor on 14/03/2016.
@@ -121,6 +123,10 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
     private void prepareArrowView() {
 
         ImageView arrow = (ImageView) findViewById(R.id.arrow);
+
+        if (!Locale.getDefault().getLanguage().contains("en"))
+             arrow.setScaleX(-1f);
+
         arrow.bringToFront();
         arrow.setVisibility(View.VISIBLE);
     }

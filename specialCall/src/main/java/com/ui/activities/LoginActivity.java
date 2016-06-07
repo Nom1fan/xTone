@@ -4,9 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -72,7 +70,6 @@ public class LoginActivity extends AppCompatActivity {
         Log.i(TAG, "onCreate()");
 
         initializeLoginUI();
-        prepareDrawArrowForTermsAndService();
     }
 
     @Override
@@ -289,20 +286,6 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         disableSmsCodeEditText();
-    }
-
-    private void prepareDrawArrowForTermsAndService() {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-
-                Drawable drawArrow = ContextCompat.getDrawable(getApplicationContext(), R.drawable.right_arrow);//getResources().getDrawable( R.drawable.right_arrow );
-                if (drawArrow != null) {
-                    drawArrow.setAutoMirrored(true);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private void enableProgressBar() {
