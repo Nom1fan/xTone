@@ -180,12 +180,15 @@ public abstract class BatchPushSender {
         private final String group_id = "general";
         private Recipients recipients;
         private Message message;
+        private final String priority = "high";
+        private Gcm_collapse_key gcm_collapse_key;
         private String custom_payload;
 
         public PushObject(String token, String title, String body, String custom_payload) {
 
             recipients = new Recipients(new String[] { token });
             message = new Message(title, body);
+            gcm_collapse_key = new Gcm_collapse_key(false,"default"); //  If disabled, it will show all the notifications received when the device was offline. You should disable the collapse key if all your notifications matter
             this.custom_payload = custom_payload;
         }
 
@@ -193,6 +196,7 @@ public abstract class BatchPushSender {
 
             recipients = new Recipients(new String[] { token });
             message = new Message("", "");
+            gcm_collapse_key = new Gcm_collapse_key(false,"default"); //  If disabled, it will show all the notifications received when the device was offline. You should disable the collapse key if all your notifications matter
             this.custom_payload = custom_payload;
 
         }
@@ -216,6 +220,18 @@ public abstract class BatchPushSender {
 
                 this.title = title;
                 this.body = body;
+            }
+        }
+
+        private class Gcm_collapse_key {
+
+            private boolean enabled;
+            private String key;
+
+            public Gcm_collapse_key(boolean enabled, String key) {
+
+                this.enabled = enabled;
+                this.key = key;
             }
         }
 

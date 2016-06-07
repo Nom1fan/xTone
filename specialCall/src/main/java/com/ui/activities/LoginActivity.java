@@ -6,9 +6,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
@@ -292,10 +292,16 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void prepareDrawArrowForTermsAndService() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
-        Drawable drawArrow = ResourcesCompat.getDrawable(getResources(), R.drawable.right_arrow, null);//getResources().getDrawable( R.drawable.right_arrow );
-        if (drawArrow != null) {
-            drawArrow.setAutoMirrored(true);
+                Drawable drawArrow = ContextCompat.getDrawable(getApplicationContext(), R.drawable.right_arrow);//getResources().getDrawable( R.drawable.right_arrow );
+                if (drawArrow != null) {
+                    drawArrow.setAutoMirrored(true);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -443,6 +449,7 @@ public class LoginActivity extends AppCompatActivity {
             case REFRESH_UI:
                 setInitTextView(report.desc());
                 syncUIwithAppState();
+                saveInstanceState();
                 restoreInstanceState();
                 break;
 
