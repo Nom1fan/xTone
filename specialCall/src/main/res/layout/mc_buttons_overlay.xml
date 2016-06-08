@@ -1,53 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@android:color/transparent">
-
-
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/border" >
 
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:id="@+id/name_title_background"
+        android:layout_alignTop="@+id/block_mc"
+        android:background="#72007ea4"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignBottom="@+id/block_mc" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/volume_background"
+        android:background="#72007ea4"
+        android:layout_alignParentBottom="false"
+        android:layout_toStartOf="@+id/volume_up"
+        android:layout_alignTop="@+id/mc_mute_unmute"
+        android:layout_alignBottom="@+id/mc_mute_unmute"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true" />
+
+    <ImageView
         android:id="@+id/block_mc"
-        android:layout_alignParentRight="true"
-        android:layout_above="@+id/volume_up"
-        android:src="@drawable/blocked_mc"
-        android:layout_marginBottom="30dp"
-        android:clickable="true" />
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:contentDescription="@string/hide"
+        android:background="@drawable/blocked_mc"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentLeft="true"
+        android:visibility="visible" />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:id="@+id/volume_up"
-        android:layout_alignParentRight="true"
-        android:layout_above="@+id/volume_down"
-        android:src="@drawable/plus"
-        android:layout_marginBottom="30dp"
-        android:clickable="true" />
-
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:id="@+id/volume_down"
-        android:layout_alignParentRight="true"
-        android:layout_above="@+id/mc_mute_unmute"
-        android:src="@drawable/minusvol"
-        android:layout_marginBottom="30dp"
-        android:clickable="true" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
         android:id="@+id/mc_mute_unmute"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="@drawable/unmute"
+        android:contentDescription="@string/hide"
+        android:layout_toEndOf="@+id/volume_up"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:src="@drawable/unmute"
-        android:clickable="true" />
+        android:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/volume_down"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:contentDescription="@string/window_icon"
+        android:background="@drawable/minusvol"
+        android:layout_toLeftOf="@+id/volume_up"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentBottom="true"
+        android:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/volume_up"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="@drawable/plus"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="10dp"
+        android:layout_alignParentBottom="true"
+        android:visibility="visible" />
+
+
 
 </RelativeLayout>
