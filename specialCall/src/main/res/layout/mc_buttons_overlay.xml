@@ -46,7 +46,6 @@
         android:layout_height="32dp"
         android:background="@drawable/unmute"
         android:contentDescription="@string/hide"
-        android:layout_toEndOf="@+id/volume_up"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
         android:visibility="visible" />
