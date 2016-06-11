@@ -35,71 +35,49 @@ import FilesManager.FileManager;
 public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = BackgroundBroadcastReceiver.class.getSimpleName();
+    private boolean shouldShowSnackBar = true;
+    private int sBarDuration = 0;
+    private int color = 0;
+    private EventReport eventReport = null;
+    private String msg = "";
 
+
+    //TODO Mor: Need to fix the way this class sends events to MainActivity and LoginActivity. Currently very bad code.
     @Override
     public void onReceive(Context context, Intent intent) {
 
         EventReport report = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
 
+        shouldShowSnackBar = true;
+
+        sBarDuration = 0;
+        color = 0;
+        eventReport = null;
+        boolean isLoading = false;
         Log.i(TAG, "Receiving event:" + report.status());
 
         //Ignore refresh UI event sent from here on the same events channel
         if (report.status().equals(EventType.REFRESH_UI))
             return;
 
-        boolean shouldShowSnackBar = true;
-        String msg = "";
-        int sBarDuration = 0;
-        int color = 0;
-        EventReport eventReport = null;
-        boolean isLoading = false;
+
 
         switch (report.status()) {
 
             //region Events for MainActivity
 
             //region Events in loading states
-            case RECONNECT_ATTEMPT: {
-                shouldShowSnackBar = false;
-                //TODO commented out by Mor - need to check if this is necessary or just bothers the user
-//                // Setting loading state
-//                String timeOutMsg = "Oops! Please check your internet connection.";
-//                AppStateManager.setAppState(context, TAG + " RECONNECT ATTEMPT",
-//                        AppStateManager.createLoadingState(new EventReport(EventType.DISCONNECTED, timeOutMsg, null), 0),
-//                        report.desc());
-//
-//                // Setting parameters for snackbar message
-//                color = Color.RED;
-//                sBarDuration = Snackbar.SnackbarDuration.LENGTH_INDEFINITE;
-            }
-            break;
-
             case FETCHING_USER_DATA: {
                 // Setting loading state
                 String timeoutMsg = context.getResources().getString(R.string.oops_try_again);
                 String loadingMsg = context.getResources().getString(R.string.fetching_user_data);
-                AppStateManager.setAppState(context, TAG + " FETCHING_USER_DATA",
-                        AppStateManager.createLoadingState(new EventReport(EventType.ISREGISTERED_ERROR, timeoutMsg), 10 * 1000),
-                        loadingMsg);
+                AppStateManager.setLoadingState(context, TAG + " FETCHING_USER_DATA", loadingMsg, timeoutMsg);
 
                 // Setting parameters for snackbar message
                 msg = loadingMsg;
                 color = Color.GREEN;
-                sBarDuration = Snackbar.LENGTH_LONG;
+                sBarDuration = Snackbar.LENGTH_INDEFINITE;
                 isLoading = true;
-            }
-            break;
-
-            case CONNECTING: {
-                //TODO commented out by Mor - need to check if this is necessary or just bothers the user
-//                // Setting loading state
-//                String timeoutMsg = "Huh? No internet?";
-//                AppStateManager.setAppState(context, TAG + " CONNECTING",
-//                        AppStateManager.createLoadingState(new EventReport(EventType.DISCONNECTED, timeoutMsg, null), 0),
-//                        report.desc());
-//                // Setting parameters for snackbar message
-//                color = Color.GREEN;
-//                sBarDuration = Snackbar.SnackbarDuration.LENGTH_INDEFINITE;
             }
             break;
 
@@ -107,9 +85,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 // Setting loading state
                 String timeoutMsg = context.getResources().getString(R.string.compression_took_too_long);
                 String loadingMsg = context.getResources().getString(R.string.compressing_file);
-                AppStateManager.setAppState(context, TAG,
-                        AppStateManager.createLoadingState(new EventReport(EventType.REFRESH_UI, timeoutMsg),
-                                AppStateManager.MAXIMUM_TIMEOUT_IN_MILLISECONDS), loadingMsg);
+                AppStateManager.setLoadingState(context, TAG, loadingMsg, timeoutMsg);
 
                 // Setting parameters for snackbar message
                 msg = loadingMsg;
@@ -123,9 +99,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 // Setting loading state
                 String timeoutMsg = context.getResources().getString(R.string.upload_took_too_long);
                 String loadingMsg = context.getResources().getString(R.string.uploading);
-                AppStateManager.setAppState(context, TAG,
-                        AppStateManager.createLoadingState(new EventReport(EventType.REFRESH_UI, timeoutMsg),
-                                AppStateManager.MAXIMUM_TIMEOUT_IN_MILLISECONDS), loadingMsg);
+                AppStateManager.setLoadingState(context, TAG, loadingMsg, timeoutMsg);
 
                 // Setting parameters for snackbar message
                 msg = loadingMsg;
@@ -263,23 +237,6 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
             //endregion
 
             //region Events for LoginActivity
-
-            //region Events in loading states
-//            case REGISTERING:
-//                shouldShowSnackBar = false;
-//
-//                // Creating loading state & timeout
-//                String errMsg = context.getResources().getString(R.string.register_failure);
-//                AppStateManager.setAppState(context, TAG, AppStateManager.createLoadingState(
-//                        new EventReport(EventType.LOADING_TIMEOUT, errMsg), 30*1000), report.desc()
-//                );
-//
-//                // Setting refresh UI event & message
-//                msg = report.desc();
-//                eventReport = new EventReport(EventType.REFRESH_UI, msg);
-//                break;
-            //endregion
-
             //region Events in idle
             case REGISTER_FAILURE:
                 shouldShowSnackBar = false;
@@ -304,33 +261,20 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
             //region Events for all activities
             case DISCONNECTED:
                 AppStateManager.setAppState(context, TAG + " DISCONNECTED", AppStateManager.STATE_DISABLED);
-
-                msg = context.getResources().getString(R.string.disconnected);
-                if(AppStateManager.isLoggedIn(context)) {
-                    // Setting parameters for snackbar message
-                    color = Color.RED;
-                    sBarDuration = Snackbar.LENGTH_INDEFINITE;
-                }
-                else {
-                    shouldShowSnackBar = false;
-                    eventReport = new EventReport(EventType.REFRESH_UI, msg);
-                }
+                setRefreshMsgForAllActivities(context,Color.RED, context.getResources().getString(R.string.disconnected));
+                sBarDuration = Snackbar.LENGTH_INDEFINITE;
+                msg = ""; //TODO Mor: Disconnected event (state disabled) is handled by MainActivity separately
                 break;
 
             case CONNECTED:
-                // Setting state based on previous state
                 AppStateManager.setAppState(context, TAG, AppStateManager.getAppPrevState(context));
+                setRefreshMsgForAllActivities(context, Color.GREEN, context.getResources().getString(R.string.connected));
+                break;
 
-                if(AppStateManager.isLoggedIn(context)) {
-                    // Setting parameters for snackbar message
-                    msg = context.getResources().getString(R.string.connected);
-                    color = Color.GREEN;
-                    sBarDuration = Snackbar.LENGTH_LONG;
-                }
-                else {
-                    shouldShowSnackBar = false;
-                    eventReport = new EventReport(EventType.REFRESH_UI, msg);
-                }
+            case LOADING_TIMEOUT:
+                AppStateManager.setAppState(context, TAG, AppStateManager.getAppPrevState(context));
+                String timeoutMsg = AppStateManager.getTimeoutMsg(context);
+                setRefreshMsgForAllActivities(context, Color.RED, timeoutMsg);
                 break;
             //endregion
 
@@ -344,6 +288,20 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
         if(eventReport!=null)
             BroadcastUtils.sendEventReportBroadcast(context, TAG, eventReport);
 
+    }
+
+    private void setRefreshMsgForAllActivities(Context context, int color, String msg) {
+
+        this.msg = msg;
+        if(AppStateManager.isLoggedIn(context)) {
+
+            this.color = color;
+            sBarDuration = Snackbar.LENGTH_LONG;
+        }
+        else {
+            shouldShowSnackBar = false;
+            eventReport = new EventReport(EventType.REFRESH_UI, msg);
+        }
     }
 
 }

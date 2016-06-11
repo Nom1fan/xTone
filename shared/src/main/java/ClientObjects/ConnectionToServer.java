@@ -30,6 +30,6 @@ public class ConnectionToServer extends AbstractClient {
 	protected void connectionException(Exception e) {
 
 		String errMsg = "Connection error";
-		_serverProxy.handleDisconnection(e !=null ? errMsg+":"+e.toString() : errMsg);
+		_serverProxy.handleDisconnection(this, e !=null ? errMsg+":"+e.toString() : errMsg);
 	}
 }

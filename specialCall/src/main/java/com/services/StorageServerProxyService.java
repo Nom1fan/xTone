@@ -11,7 +11,6 @@ import com.utils.ContactsUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Locale;
 
 import ClientObjects.ConnectionToServer;
 import DataObjects.DataKeys;
@@ -37,15 +36,12 @@ public class StorageServerProxyService extends AbstractServerProxy {
 
     //region Service actions
     public static final String ACTION_DOWNLOAD              =   "com.services.StorageServerProxyService.DOWNLOAD";
-    //public static final String ACTION_UPLOAD                =   "com.services.StorageServerProxyService.UPLOAD";
     public static final String ACTION_NOTIFY_MEDIA_CLEARED  =   "com.services.StorageServerProxyService.NOTIFY_MEDIA_CLEARED";
     public static final String ACTION_CLEAR_MEDIA           =   "com.services.StorageServerProxyService.CLEAR_MEDIA";
     //endregion
 
     //region Service intent keys
-    //public static final String FILE_TO_UPLOAD               =   "FILE_TO_UPLOAD";
     public static final String DESTINATION_ID               =   "DESTINATION_ID";
-    //public static final String DESTINATION_CONTACT          =   "DESTINATION_CONTACT";
     public static final String SPECIAL_MEDIA_TYPE           =   "SPECIAL_MEDIA_TYPE";
     public static final String TRANSFER_DETAILS             =   "TRANSFER_DETAILS";
     //endregion
@@ -55,6 +51,14 @@ public class StorageServerProxyService extends AbstractServerProxy {
     }
 
     //region Service methods
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        host = SharedConstants.STROAGE_SERVER_HOST;
+        port = SharedConstants.STORAGE_SERVER_PORT;
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
@@ -84,10 +88,6 @@ public class StorageServerProxyService extends AbstractServerProxy {
                                 actionDownload(intentForThread, powerManager, data);
                                 break;
 
-//                            case ACTION_UPLOAD:
-//                                actionUpload(intentForThread, powerManager);
-//                                break;
-
                             case ACTION_CLEAR_MEDIA:
                                 actionClear(intentForThread, data);
                                 break;
@@ -105,7 +105,6 @@ public class StorageServerProxyService extends AbstractServerProxy {
                         String errMsg = "ClientActionType failed:" + action + " Exception:" + e.getMessage();
                         handleActionFailed();
                         Log.e(TAG, errMsg);
-                        //handleDisconnection(errMsg); //TODO Maybe no need for this?
                     } catch (Exception e) {
                         e.printStackTrace();
                         String errMsg = "ClientActionType failed:" + action + " Exception:" + e.getMessage();
@@ -136,7 +135,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
         wakeLock.acquire();
         HashMap pushData = (HashMap) intent.getSerializableExtra(PushEventKeys.PUSH_DATA);
         pushData.putAll(data);
-        requestDownloadFromServer(openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT), pushData);
+        requestDownloadFromServer(openSocket(), pushData);
     }
 
 //    private void actionUpload(Intent intent, PowerManager powerManager) throws IOException {
@@ -156,7 +155,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
     private void actionClear(Intent intent, HashMap<DataKeys,Object> data) throws IOException {
 
         setMidAction(true);
-        ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
+        ConnectionToServer connectionToServer = openSocket();
         String destId = intent.getStringExtra(DESTINATION_ID);
         SpecialMediaType specialMediaType = (SpecialMediaType) intent.getSerializableExtra(SPECIAL_MEDIA_TYPE);
         sendClearCommandToServer(connectionToServer, destId, specialMediaType, data);
@@ -165,7 +164,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
     private void actionNotifyMediaCleared(Intent intent, HashMap<DataKeys,Object> data) throws IOException {
 
         setMidAction(true);
-        ConnectionToServer connectionToServer = openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
+        ConnectionToServer connectionToServer = openSocket();
         HashMap tdData = (HashMap) intent.getSerializableExtra(TRANSFER_DETAILS);
         tdData.putAll(data);
         MessageToServer msgNMC = new MessageToServer(ServerActionType.NOTIFY_MEDIA_CLEARED, Constants.MY_ID(getApplicationContext()), tdData);
@@ -194,42 +193,13 @@ public class StorageServerProxyService extends AbstractServerProxy {
             SpecialMediaType specialMediaType,
             HashMap<DataKeys,Object> data) throws IOException {
 
-        String srcId = Constants.MY_ID(getApplicationContext());
-        data.put(DataKeys.SOURCE_ID, srcId);
         data.put(DataKeys.DESTINATION_ID, destId);
         data.put(DataKeys.SPECIAL_MEDIA_TYPE, specialMediaType);
-        data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
-        data.put(DataKeys.DESTINATION_CONTACT_NAME, ContactsUtils.getContactName(getApplicationContext(), destId));
+        data.put(DataKeys.DESTINATION_CONTACT_NAME, ContactsUtils.getContactName(this, destId));
 
-        MessageToServer msgCM = new MessageToServer(ServerActionType.CLEAR_MEDIA, srcId, data);
+        MessageToServer msgCM = new MessageToServer(ServerActionType.CLEAR_MEDIA, Constants.MY_ID(this), data);
         connectionToServer.sendToServer(msgCM);
     }
-
-//    /**
-//     * Uploads a file to the server, sending it to a destination number
-//     *
-//     * @param destNumber         The destination number to whom the file is for
-//     * @param managedFile        The file to upload inside a manager wrapper
-//     * @param specialMediaType   The special media type of the file to upload
-//     * @throws IOException
-//     */
-//    private void uploadFileToServer(
-//            String destNumber,
-//            String destContact,
-//            FileManager managedFile,
-//            SpecialMediaType specialMediaType) throws IOException {
-//
-//        TransferDetails td = new TransferDetails_APIv2(
-//                Constants.MY_ID(getApplicationContext()),
-//                Locale.getDefault().getLanguage(),
-//                destNumber,
-//                destContact,
-//                managedFile,
-//                specialMediaType);
-//
-//        openSocket(SharedConstants.STROAGE_SERVER_HOST, SharedConstants.STORAGE_SERVER_PORT);
-//        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.UPLOADING, null, td));
-//    }
 
     /**
      * Requests a download from the server

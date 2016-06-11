@@ -12,13 +12,16 @@ import android.util.Log;
 
 import com.actions.ActionFactory;
 import com.actions.ClientAction;
+import com.app.AppStateManager;
 import com.data_objects.Constants;
 import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
 
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
@@ -33,14 +36,24 @@ import MessagesToClient.MessageToClient;
  */
 public abstract class AbstractServerProxy extends Service implements IServerProxy {
 
+    //region Service actions
+    public static final String ACTION_CANCEL = "com.services.AbstractServerProxy.ACTION_CANCEL";
     public static final String ACTION_RECONNECT = "com.services.LogicServerProxyService.RECONNECT";
     public static final String ACTION_RESET_RECONNECT_INTERVAL = "com.services.LogicServerProxyService.RESET_RECONNECT_INTERVAL";
+    //endregion
+
+    //region Service intent keys
+    public static final String ACTION_TO_CANCEL = "ACTION_TO_CANCEL";
+    //endregion
+
+    protected String host;
+    protected int port;
     protected static final long INITIAL_RETRY_INTERVAL = 1000 * 1;
     protected static final long MAXIMUM_RETRY_INTERVAL = 1000 * 10;
     protected String TAG;
     protected PowerManager.WakeLock wakeLock;
     protected ConnectivityManager connManager;
-    protected ArrayList<ConnectionToServer> connections = new ArrayList<>();
+    protected List<ConnectionToServer> connections = new LinkedList<>();
 
     public AbstractServerProxy(String tag) {
         TAG = tag;
@@ -79,10 +92,19 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
     //region IServerProxy methods
     @Override
-    public void handleDisconnection(String errMsg) {
+    public void handleDisconnection(ConnectionToServer cts, String errMsg) {
 
         Log.e(TAG, errMsg);
-        //BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DISPLAY_ERROR, errMsg, null));
+        try {
+            cts.closeConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        connections.remove(cts);
+        if(isNetworkAvailable())
+            BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.LOADING_TIMEOUT));
+
     }
 
     @Override
@@ -105,7 +127,8 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
             try {
                 // Finished handling request-response transaction
                 connectionToServer.closeConnection();
-            } catch(Exception ignored) { }
+            } catch (Exception ignored) {
+            }
             connections.remove(connectionToServer);
             releaseLockIfNecessary();
         }
@@ -113,7 +136,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     //endregion
 
     //region Internal operations methods
-    protected ConnectionToServer openSocket(String host, int port) throws IOException {
+    protected ConnectionToServer openSocket() throws IOException {
         Log.i(TAG, "Opening socket...");
         ConnectionToServer connectionToServer = new ConnectionToServer(host, port, this);
         connectionToServer.openConnection();
@@ -152,9 +175,15 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     }
 
     protected void scheduleReconnect(long startTime) {
+
         Log.i(TAG, "Scheduling reconnect");
+        if(!isNetworkAvailable()) {
+            if (!AppStateManager.getAppState(this).equals(AppStateManager.STATE_DISABLED))
+                BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.DISCONNECTED));
+        }
+
         long interval =
-                SharedPrefUtils.getLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
+                SharedPrefUtils.getLong(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
 
         long now = System.currentTimeMillis();
         long elapsed = now - startTime;
@@ -166,7 +195,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
         Log.i(TAG, "Rescheduling connection in " + interval + "ms.");
 
-        SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, interval);
+        SharedPrefUtils.setLong(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, interval);
 
 
         Intent i = new Intent();
@@ -180,6 +209,10 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     protected boolean wasMidAction() {
 
         return SharedPrefUtils.getBoolean(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_MID_ACTION);
+    }
+
+    protected boolean isReconnecting() {
+        return SharedPrefUtils.getBoolean(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.IS_RECONNECTING);
     }
 
     protected boolean handleCrashedService(int flags, int startId) {
@@ -202,6 +235,11 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         }
     }
 
+    protected void setReconnecting(boolean b) {
+
+        SharedPrefUtils.setBoolean(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.IS_RECONNECTING, b);
+    }
+
     protected void setMidAction(boolean bool) {
 
         Log.i(TAG, "Setting midAction=" + bool);
@@ -211,14 +249,17 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     protected boolean isNetworkAvailable() {
 
         NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
-        return activeNetwork!=null && activeNetwork.isConnected();
+        return activeNetwork != null && activeNetwork.isConnected();
     }
 
-    protected HashMap<DataKeys,Object> getDefaultMessageData() {
+    protected HashMap<DataKeys, Object> getDefaultMessageData() {
 
         HashMap<DataKeys, Object> data = new HashMap();
-        data.put(DataKeys.APP_VERSION, Constants.APP_VERSION(getApplicationContext()));
+        data.put(DataKeys.APP_VERSION, Constants.APP_VERSION(this));
+        data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
+        data.put(DataKeys.SOURCE_ID, Constants.MY_ID(this));
         return data;
     }
+    //endregion
     //endregion
 }

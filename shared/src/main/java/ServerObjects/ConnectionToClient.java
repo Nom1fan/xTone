@@ -140,7 +140,7 @@ public class ConnectionToClient extends Thread
       {
         closeAll();
       }
-      catch (Exception exc) { }
+      catch (Exception ignored) { }
 
       throw ex;  // Rethrow the exception.
     }
@@ -285,7 +285,7 @@ public class ConnectionToClient extends Thread
         {
           close();
         }
-        catch (Exception ex) { }
+        catch (Exception ignored) { }
 
         server.clientTimedOut(this);
       }
@@ -297,7 +297,7 @@ public class ConnectionToClient extends Thread
         {
           close();
         }
-        catch (Exception ex) { }
+        catch (Exception ignored) { }
 
       }
     }
@@ -309,7 +309,7 @@ public class ConnectionToClient extends Thread
         {
           close();
         }
-        catch (Exception ex) { }
+        catch (Exception ignored) { }
 
         server.clientException(this, exception);
       }
@@ -343,7 +343,7 @@ public class ConnectionToClient extends Thread
    * @exception IOException if an I/O error occur when closing the
    *     connection.
    */
-  final private void closeAll() throws IOException
+  private void closeAll() throws IOException
   {
     // This method is final since version 2.2
 
@@ -382,6 +382,6 @@ public class ConnectionToClient extends Thread
     {
       closeAll();
     }
-    catch(IOException e) {}
+    catch(IOException ignored) {}
   }
 }

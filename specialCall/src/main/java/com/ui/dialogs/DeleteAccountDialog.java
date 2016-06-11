@@ -46,13 +46,7 @@ public class DeleteAccountDialog extends android.app.DialogFragment {
                                 EventType.UNREGISTER_FAILURE,
                                 unregisterFailedMsg,
                                 null);
-                        AppStateManager.setAppState(
-                                getActivity(),
-                                TAG,
-                                AppStateManager.createLoadingState(
-                                        unregisterFailed,
-                                        AppStateManager.MAXIMUM_TIMEOUT_IN_MILLISECONDS),
-                                unregisteringMsg);
+                        AppStateManager.setLoadingState(getActivity(), TAG, unregisteringMsg, unregisterFailedMsg);
 
                         // Returning from settings to MainActivity
                         Intent ii = new Intent(getActivity(), MainActivity.class);

@@ -53,7 +53,8 @@ public class ConnectivityBroadcastReceiver extends WakefulBroadcastReceiver {
                 context.startService(i);
             }
         } else {
-            BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.DISCONNECTED, null, null));
+            AppStateManager.setAppState(context, TAG, AppStateManager.STATE_DISABLED);
+            BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.DISCONNECTED));
         }
     }
 

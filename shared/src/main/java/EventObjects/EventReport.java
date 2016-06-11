@@ -19,6 +19,11 @@ public class EventReport implements Serializable {
 		
 	}
 
+	public EventReport(EventType status, Object data) {
+		_status = status;
+		_data = data;
+	}
+
 	public EventReport(EventType status, String desc) {
 		this._desc = desc;
 		this._status = status;

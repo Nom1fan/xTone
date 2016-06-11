@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 /**
  * The <code> AbstractClient </code> contains all the
@@ -77,17 +79,17 @@ public abstract class AbstractClient implements Runnable
     private Socket clientSocket;
 
     /**
-     * The stream to handle _data going to the server.
+     * The stream to handle data going to the server.
      */
     private ObjectOutputStream output;
 
     /**
-     * The stream to handle _data from the server.
+     * The stream to handle data from the server.
      */
     private ObjectInputStream input;
 
     /**
-     * The thread created to read _data from the server.
+     * The thread created to read data from the server.
      */
     private Thread clientReader;
 
@@ -107,6 +109,11 @@ public abstract class AbstractClient implements Runnable
      * The port number.
      */
     private int port;
+
+    /**
+     * The read timeout in milliseconds
+     */
+    public static final int READ_TIMEOUT = 10*1000;
 
 // CONSTRUCTORS *****************************************************
 
@@ -137,14 +144,16 @@ public abstract class AbstractClient implements Runnable
         if(isConnected())
             return;
 
-        //Create the sockets and the _data streams
+        //Create the sockets and the data streams
         try
         {
-            clientSocket= new Socket(host, port);
+            clientSocket = new Socket();
+            clientSocket.connect(new InetSocketAddress(host, port), READ_TIMEOUT);
+            clientSocket.setSoTimeout(READ_TIMEOUT);
             output = new ObjectOutputStream(clientSocket.getOutputStream());
             input = new ObjectInputStream(clientSocket.getInputStream());
 
-            clientReader = new Thread(this);  //Create the _data reader thread
+            clientReader = new Thread(this);  //Create the data reader thread
             readyToStop = false;
             clientReader.start();  //Start the thread
         }
@@ -155,8 +164,9 @@ public abstract class AbstractClient implements Runnable
             try
             {
                 closeAll();
+                connectionException(ex);
             }
-            catch (Exception exc) { }
+            catch (Exception ignored) { }
 
             throw ex; // Rethrow the exception.
         }
@@ -268,13 +278,13 @@ public abstract class AbstractClient implements Runnable
         // The message from the server
         Object msg;
 
-        // Loop waiting for _data
+        // Loop waiting for data
 
         try
         {
             while(!readyToStop)
             {
-                // Get _data from Server and send it to the handler
+                // Get data from Server and send it to the handler
                 // The thread waits indefinitely at the following
                 // statement until something is received from the server
 
@@ -295,6 +305,10 @@ public abstract class AbstractClient implements Runnable
                 } catch (RuntimeException ex) { // thrown by handleMessageFromServer
 
                     connectionException(ex);
+
+                } catch(SocketTimeoutException ex) { // thrown if no object received after READ_TIMEOUT milliseconds
+
+                    connectionException(ex);
                 }
             }
         }
@@ -306,7 +320,7 @@ public abstract class AbstractClient implements Runnable
                 {
                     closeAll();
                 }
-                catch (Exception ex) { }
+                catch (Exception ignored) { }
 
                 clientReader = null;
                 connectionException(exception);
@@ -366,7 +380,7 @@ public abstract class AbstractClient implements Runnable
      *
      * @exception IOException if an I/O error occurs when closing.
      */
-    final private void closeAll() throws IOException
+    private void closeAll() throws IOException
     {
         // This method is final since version 2.2
 

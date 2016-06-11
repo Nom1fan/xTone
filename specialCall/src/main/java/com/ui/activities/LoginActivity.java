@@ -46,10 +46,6 @@ public class LoginActivity extends AppCompatActivity {
     private BroadcastReceiver _eventReceiver;
     private static final IntentFilter _eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
 
-    //region Constants
-    private static final int SERVER_RESPONSE_TIMEOUT = 30*1000; // milliseconds
-    //endregion
-
     //region UI elements
     private EditText _loginNumberEditText;
     private EditText _smsCodeVerEditText;
@@ -113,9 +109,6 @@ public class LoginActivity extends AppCompatActivity {
             Intent i = new Intent(this, GetTokenIntentService.class);
             i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
             startService(i);
-
-//            switchToLoadingState(getResources().getString(R.string.initializing),
-//                    getResources().getString(R.string.oops_try_again));
         }
 
         syncUIwithAppState();
@@ -127,9 +120,9 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(resultCode == RESULT_OK) {
-            String errMsg = getResources().getString(R.string.register_failure);
+            String timeoutMsg = getResources().getString(R.string.register_failure);
             String registering = getResources().getString(R.string.registering);
-            switchToLoadingState(registering, errMsg);
+            AppStateManager.setLoadingState(this, TAG, registering, timeoutMsg);
         }
 
         syncUIwithAppState();
@@ -241,9 +234,9 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                String errMsg = getResources().getString(R.string.sms_code_failed);
+                String timeoutMsg = getResources().getString(R.string.sms_code_failed);
                 String loadingMsg = getResources().getString(R.string.please_wait);
-                switchToLoadingState(loadingMsg, errMsg);
+                AppStateManager.setLoadingState(LoginActivity.this, TAG, loadingMsg, timeoutMsg);
                 syncUIwithAppState();
 
                 String phoneNumber = _loginNumberEditText.getText().toString();
@@ -427,8 +420,6 @@ public class LoginActivity extends AppCompatActivity {
                 _getSmsCodeTask.execute();
                 break;
 
-            // Triggered by local loading timeouts
-            case LOADING_TIMEOUT:
             case REFRESH_UI:
                 setInitTextView(report.desc());
                 syncUIwithAppState();
@@ -545,21 +536,6 @@ public class LoginActivity extends AppCompatActivity {
         startService(i);
     }
 
-    private void disableUnfinishedServerActions() {
-
-        //TODO Mor: Test this code
-//        Intent i = new Intent(this, LogicServerProxyService.class);
-//        i.setAction(LogicServerProxyService.ACTION_CLOSE_SOCKETS);
-//        startService(i);
-    }
-
-    private void switchToLoadingState(String loadingMsg, String errMsg) {
-
-        AppStateManager.setAppState(LoginActivity.this, TAG, AppStateManager.createLoadingState(
-                new EventReport(EventType.LOADING_TIMEOUT, errMsg), SERVER_RESPONSE_TIMEOUT), loadingMsg
-        );
-    }
-
     private void syncUIwithAppState() {
 
         String appState = getState();
@@ -600,10 +576,8 @@ public class LoginActivity extends AppCompatActivity {
 
     public void stateDisabled() {
 
-
         String noInternet = getResources().getString(R.string.disconnected);
         setInitTextView(noInternet);
-        disableUnfinishedServerActions(); //TODO Mor: Decide how to deal with unanswered requests
         disableProgressBar();
         disableGetSmsCodeButton();
         disableLoginButton();

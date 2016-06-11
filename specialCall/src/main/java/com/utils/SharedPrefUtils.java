@@ -61,6 +61,7 @@ public abstract class SharedPrefUtils {
     public static final String DISABLE_UI_ELEMENTS_ANIMATION        =   "DisableUIElementsAnimation";
     public static final String DONT_SHOW_AGAIN_UPLOAD_DIALOG        =   "DontShowAgainUploadDialog";
     public static final String ANDROID_VERSION                      =   "AndroidVersion";
+    public static final String TIMEOUT_MSG                          =   "TIMEOUT_MSG";
     //endregion
 
     //region Shared pref keys under SHOWCASE
@@ -70,8 +71,9 @@ public abstract class SharedPrefUtils {
     //endregion
 
     //region Shared pref keys under SERVER_PROXY
-    public static final String RECONNECT_INTERVAL               =   "LogicServerProxyService.RECONNECT_INTERVAL";
-    public static final String WAS_MID_ACTION                   =   "WasMidAction";
+    public static final String RECONNECT_INTERVAL               =   "RECONNECT_INTERVAL";
+    public static final String WAS_MID_ACTION                   =   "WAS_MID_ACTION";
+    public static final String IS_RECONNECTING                  =   "IS_RECONNECTING";
     //endregion
 
     //region Shared pref keys under SERVICES

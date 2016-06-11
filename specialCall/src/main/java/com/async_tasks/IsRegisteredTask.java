@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 
 import com.app.AppStateManager;
 import com.interfaces.ICallbackListener;
+import com.mediacallz.app.R;
 import com.services.LogicServerProxyService;
 import com.utils.BroadcastUtils;
 import com.utils.CacheUtils;
@@ -24,6 +25,7 @@ public class IsRegisteredTask extends AsyncTask<Context, Void, Void> {
     private boolean _showProgressBar;
     private String _destPhone;
     private ICallbackListener _callbackListener;
+    private Context _context;
 
     public IsRegisteredTask(String destPhone, ICallbackListener callbackListener) {
 
@@ -34,14 +36,13 @@ public class IsRegisteredTask extends AsyncTask<Context, Void, Void> {
     @Override
     protected Void doInBackground(Context... params) {
 
-        Context context = params[0];
-        boolean isNonBlockingState = AppStateManager.isNonBlockingState(context);
-        boolean isPhoneInCache = CacheUtils.isPhoneInCache(context, _destPhone); // Number was entered to cache after IS_REGISTERED_TRUE received in BackgroundBroadcastReceiver
+        _context = params[0];
+        boolean isNonBlockingState = AppStateManager.isNonBlockingState(_context);
+        boolean isPhoneInCache = CacheUtils.isPhoneInCache(_context, _destPhone); // Number was entered to cache after IS_REGISTERED_TRUE received in BackgroundBroadcastReceiver
 
         // Phone number is in registered cache - No need to check again
         if (isNonBlockingState && isPhoneInCache) {
-            BroadcastUtils.sendEventReportBroadcast(context, TAG,
-                    new EventReport(EventType.USER_REGISTERED_TRUE, null, null));
+            BroadcastUtils.sendEventReportBroadcast(_context, TAG, new EventReport(EventType.USER_REGISTERED_TRUE));
             return null;
         }
 
@@ -49,14 +50,14 @@ public class IsRegisteredTask extends AsyncTask<Context, Void, Void> {
 
         if (isNonBlockingState) {
 
-            BroadcastUtils.sendEventReportBroadcast(context, TAG + " onTextchanged()",
-                    new EventReport(EventType.FETCHING_USER_DATA, null, null));
+            BroadcastUtils.sendEventReportBroadcast(_context, TAG + " onTextchanged()",
+                    new EventReport(EventType.FETCHING_USER_DATA));
 
             // Sending action to find out if user is registered
-            Intent i = new Intent(context, LogicServerProxyService.class);
+            Intent i = new Intent(_context, LogicServerProxyService.class);
             i.setAction(LogicServerProxyService.ACTION_ISREGISTERED);
             i.putExtra(LogicServerProxyService.DESTINATION_ID, _destPhone);
-            context.startService(i);
+            _context.startService(i);
 
             _showProgressBar = true;
         }
@@ -67,7 +68,12 @@ public class IsRegisteredTask extends AsyncTask<Context, Void, Void> {
     @Override
     protected void onPostExecute(Void v) {
 
-        if(_showProgressBar)
+        if (_showProgressBar) {
+
+            String timeoutMsg = _context.getResources().getString(R.string.register_failure);
+            String loadingMsg = _context.getResources().getString(R.string.registering);
+            AppStateManager.setLoadingState(_context, TAG, loadingMsg, timeoutMsg);
             _callbackListener.doCallBackAction(ENABLE_FETCH_PROGRESS_BAR);
+        }
     }
 }

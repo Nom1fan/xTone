@@ -83,7 +83,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         SMTypeCode = intent.getIntExtra(SPECIAL_MEDIA_TYPE, 1);
 
         try {
-            //TODO Move this check to MainActivit
+            //TODO Move this check to MainActivity
             checkDestinationNumber();
         } catch (InvalidDestinationNumberException e) {
             e.printStackTrace();

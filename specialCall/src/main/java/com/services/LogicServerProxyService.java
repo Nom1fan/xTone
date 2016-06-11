@@ -5,7 +5,6 @@ import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.app.AppStateManager;
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.utils.BroadcastUtils;
@@ -14,7 +13,6 @@ import com.utils.SpecialDevicesUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Locale;
 
 import ClientObjects.ConnectionToServer;
 import DataObjects.CallRecord;
@@ -61,6 +59,14 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
     //region Service methods
     @Override
+    public void onCreate() {
+        super.onCreate();
+
+        host = SharedConstants.LOGIC_SERVER_HOST;
+        port = SharedConstants.LOGIC_SERVER_PORT;
+    }
+
+    @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         Log.i(TAG, "LogicServerProxyService started");
@@ -86,30 +92,30 @@ public class LogicServerProxyService extends AbstractServerProxy {
                             case ACTION_REGISTER:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 int smsCode = intent.getIntExtra(SMS_CODE, 0);
-                                actionRegister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), smsCode, data);
+                                actionRegister(openSocket(), smsCode, data);
                                 break;
 
                             case ACTION_UNREGISTER:
                                 setMidAction(true);
-                                actionUnregister(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), data);
+                                actionUnregister(openSocket(), data);
                                 break;
 
                             case ACTION_GET_SMS_CODE:
                                 setMidAction(true);
                                 String interPhoneNumber = intent.getStringExtra(INTERNATIONAL_PHONE);
-                                actionGetSmsCode(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT),
+                                actionGetSmsCode(openSocket(),
                                         Constants.MY_ID(getApplicationContext()) ,interPhoneNumber , data);
                                 break;
 
                             case ACTION_GET_APP_RECORD:
                                 setMidAction(true);
-                                actionGetAppRecord(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), data);
+                                actionGetAppRecord(openSocket(), data);
                                 break;
 
                             case ACTION_ISREGISTERED: {
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 String destId = intent.getStringExtra(DESTINATION_ID);
-                                actionIsRegistered(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), destId, data);
+                                actionIsRegistered(openSocket(), destId, data);
                             }
                                 break;
 
@@ -126,14 +132,14 @@ public class LogicServerProxyService extends AbstractServerProxy {
                             case ACTION_INSERT_CALL_RECORD:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 CallRecord callRecord = (CallRecord) intent.getSerializableExtra(CALL_RECORD);
-                                actionInsertMediaCallRecord(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), callRecord, data);
+                                actionInsertMediaCallRecord(openSocket(), callRecord, data);
                                 break;
 
                             case ACTION_UPDATE_USER_RECORD:
                                 setMidAction(true);
                                 HashMap userRecord = (HashMap)intent.getSerializableExtra(USER_RECORD);
                                 data.putAll(userRecord);
-                                actionUpdateUserRecord(openSocket(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT), data);
+                                actionUpdateUserRecord(openSocket(), data);
                                 break;
 
                             default:
@@ -145,7 +151,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
                         e.printStackTrace();
                         String errMsg = "Action:" + action + " failed. Exception:" + e.getMessage();
                         Log.e(TAG, errMsg);
-                        handleDisconnection(errMsg);
+                        //scheduleReconnect(System.currentTimeMillis());
                     } catch (Exception e) {
                         e.printStackTrace();
                         String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
@@ -181,21 +187,20 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
         data.put(DataKeys.DESTINATION_ID, destinationId);
 
-        MessageToServer msgIsLogin = new MessageToServer(ServerActionType.IS_REGISTERED, Constants.MY_ID(getApplicationContext()), data);
+        MessageToServer msgIsLogin = new MessageToServer(ServerActionType.IS_REGISTERED, Constants.MY_ID(this), data);
         connectionToServer.sendToServer(msgIsLogin);
     }
 
     private void actionGetSmsCode(ConnectionToServer connectionToServer, String localNumber, String interPhoneNumber, HashMap<DataKeys,Object> data) throws IOException {
 
         data.put(DataKeys.INTERNATIONAL_PHONE_NUMBER, interPhoneNumber);
-        data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
 
         connectionToServer.sendToServer(new MessageToServer(ServerActionType.GET_SMS_CODE, localNumber, data));
     }
 
     private void actionGetAppRecord(ConnectionToServer connectionToServer, HashMap<DataKeys,Object> data) throws IOException {
 
-        connectionToServer.sendToServer(new MessageToServer(ServerActionType.GET_APP_RECORD, Constants.MY_ID(getApplicationContext()), data));
+        connectionToServer.sendToServer(new MessageToServer(ServerActionType.GET_APP_RECORD, Constants.MY_ID(this), data));
     }
 
     private void actionRegister(ConnectionToServer connectionToServer, int smsCode, HashMap<DataKeys,Object> data) throws IOException {
@@ -204,11 +209,11 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
         data.put(DataKeys.DEVICE_MODEL, SpecialDevicesUtils.getDeviceName());
         data.put(DataKeys.ANDROID_VERSION, Build.VERSION.RELEASE);
-        data.put(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(getApplicationContext()));
+        data.put(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(this));
         data.put(DataKeys.SMS_CODE, smsCode);
 
         MessageToServer msgRegister = new MessageToServer(
-                ServerActionType.REGISTER, Constants.MY_ID(getApplicationContext()),
+                ServerActionType.REGISTER, Constants.MY_ID(this),
                 data
         );
 
@@ -219,10 +224,10 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
         Log.i(TAG, "Initating actionUnregister sequence...");
 
-        data.put(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(getApplicationContext()));
+        data.put(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(this));
 
         MessageToServer msgUnregister = new MessageToServer(
-                ServerActionType.UNREGISTER, Constants.MY_ID(getApplicationContext()),
+                ServerActionType.UNREGISTER, Constants.MY_ID(this),
                 data
         );
 
@@ -249,7 +254,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
     private void handleActionFailure() {
 
-        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.LOGIC_ACTION_FAILURE, null, null));
+        BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.LOGIC_ACTION_FAILURE));
     }
     //endregion
 
@@ -257,36 +262,32 @@ public class LogicServerProxyService extends AbstractServerProxy {
     private synchronized void reconnectIfNecessary() throws IOException {
 
         if (isNetworkAvailable()) {
-            BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.RECONNECT_ATTEMPT, getResources().getString(R.string.reconnecting), null));
+            //BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.RECONNECT_ATTEMPT, getResources().getString(R.string.reconnecting)));
             try {
-                reconnect(SharedConstants.LOGIC_SERVER_HOST, SharedConstants.LOGIC_SERVER_PORT);
-                BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CONNECTED, getResources().getString(R.string.connected), null));
+                reconnect(host, port);
+                BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.CONNECTED, getResources().getString(R.string.connected)));
                 cancelReconnect();
-                SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
+                SharedPrefUtils.setLong(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
             } catch(IOException e) {
-                handleDisconnection("Failed to reconnect to server. [Exception]:" + (e.getMessage()!=null ? e.getMessage() : e));
+                scheduleReconnect(System.currentTimeMillis());
             }
         } else {
-            handleDisconnection("Failed to reconnect. No network connection");
+            scheduleReconnect(System.currentTimeMillis());
         }
     }
 
-    /**
-     * Deals with disconnection and schedules a reconnect
-     * This method is called by ConnectionToServer connectionException() method
-     *
-     * @param errMsg
-     */
-    @Override
-    public void handleDisconnection(String errMsg) {
-
-        Log.e(TAG, "handleDisconnection:" + errMsg);
-
-        if (!AppStateManager.getAppState(getApplicationContext()).equals(AppStateManager.STATE_DISABLED))
-            BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.DISCONNECTED, null, null));
-
-        scheduleReconnect(System.currentTimeMillis());
-    }
+//    /**
+//     * Deals with disconnection and schedules a reconnect
+//     * This method is called by ConnectionToServer connectionException() method
+//     *
+//     * @param cts The connection to server that triggered this method
+//     * @param errMsg The error message to display in the log
+//     */
+//    @Override
+//    public void handleDisconnection(ConnectionToServer cts, String errMsg) {
+//        super.handleDisconnection(cts, errMsg);
+//
+//        scheduleReconnect(System.currentTimeMillis());
+//    }
     //endregion
-
 }
