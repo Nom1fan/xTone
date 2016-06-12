@@ -138,20 +138,6 @@ public class StorageServerProxyService extends AbstractServerProxy {
         requestDownloadFromServer(openSocket(), pushData);
     }
 
-//    private void actionUpload(Intent intent, PowerManager powerManager) throws IOException {
-//
-//        setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-//        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
-//        wakeLock.acquire();
-//
-//        String destId = intent.getStringExtra(DESTINATION_ID);
-//        String destContact = intent.getStringExtra(DESTINATION_CONTACT);
-//        SpecialMediaType specialMediaType = (SpecialMediaType) intent.getSerializableExtra(SPECIAL_MEDIA_TYPE);
-//        FileManager managedFile = (FileManager) intent.getSerializableExtra(FILE_TO_UPLOAD);
-//        uploadFileToServer(destId, destContact, managedFile,specialMediaType);
-//        releaseLockIfNecessary();
-//    }
-
     private void actionClear(Intent intent, HashMap<DataKeys,Object> data) throws IOException {
 
         setMidAction(true);
@@ -196,6 +182,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
         data.put(DataKeys.DESTINATION_ID, destId);
         data.put(DataKeys.SPECIAL_MEDIA_TYPE, specialMediaType);
         data.put(DataKeys.DESTINATION_CONTACT_NAME, ContactsUtils.getContactName(this, destId));
+        data.put(DataKeys.SOURCE_ID, Constants.MY_ID(this));
 
         MessageToServer msgCM = new MessageToServer(ServerActionType.CLEAR_MEDIA, Constants.MY_ID(this), data);
         connectionToServer.sendToServer(msgCM);

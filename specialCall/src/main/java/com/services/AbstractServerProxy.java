@@ -257,7 +257,6 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         HashMap<DataKeys, Object> data = new HashMap();
         data.put(DataKeys.APP_VERSION, Constants.APP_VERSION(this));
         data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
-        data.put(DataKeys.SOURCE_ID, Constants.MY_ID(this));
         return data;
     }
     //endregion
