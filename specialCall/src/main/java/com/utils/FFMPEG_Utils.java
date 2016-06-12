@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -81,10 +80,10 @@ public class FFMPEG_Utils {
 
             _vk.run(complexCommand, workFolder, context);
 
-            // If not enough we reduce resolution iteratively
-            for (int cnt = 1 ;width > FileCompressorUtils.MIN_RESOLUTION && compressedFile.length() > FileCompressorUtils.VIDEO_SIZE_COMPRESS_NEEDED; cnt++) {
+            // If not enough we reduce resolution
+            if (width > FileCompressorUtils.MIN_RESOLUTION && compressedFile.length() > FileCompressorUtils.VIDEO_SIZE_COMPRESS_NEEDED) {
 
-                sendIterationToHandler(cnt);
+                sendCompressionPhase2();
 
                 double percent = REDUCE_VIDEO_RES_MULTIPLIER;
                 width = width * percent;
@@ -248,12 +247,9 @@ public class FFMPEG_Utils {
         return new int[] {  width, height };
     }
 
-    private void sendIterationToHandler(int iterationNum) {
+    private void sendCompressionPhase2() {
 
-        Bundle bundle = new Bundle(1);
-        bundle.putInt(FileCompressorUtils.COMPRESSION_ITER, iterationNum);
         Message msg = new Message();
-        msg.setData(bundle);
         msg.what = FileCompressorUtils.COMPRESSION_PHASE_2;
         _compressHandler.sendMessage(msg);
     }

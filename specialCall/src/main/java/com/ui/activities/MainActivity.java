@@ -180,13 +180,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             }
             else if(msg.what == FileCompressorUtils.COMPRESSION_PHASE_2) {
 
-                Bundle bundle = msg.getData();
-                int iterationNum = bundle.getInt(FileCompressorUtils.COMPRESSION_ITER);
-                Log.i(TAG, String.format("Got compression phase 2 message, iteration #%d. Changing progDialog", iterationNum));
+                Log.i(TAG, "Got compression phase 2 message");
 
                 if(_progDialog!=null) {
 
-                    String str = String.format(getResources().getString(R.string.compressing_file2), iterationNum);
+                    String str = getResources().getString(R.string.compressing_file2);
                     _progDialog.setProgress(0);
                     _progDialog.setTitle(str);
                 }
