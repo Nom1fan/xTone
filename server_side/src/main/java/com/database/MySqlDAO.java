@@ -26,11 +26,11 @@ import FilesManager.FileManager;
 /**
  * Created by Mor on 19/12/2015.
  */
-public class MySqlDAL implements IDAL {
+public class MySqlDAO implements IDAO {
 
     private Connection _dbConn;
 
-    //region IDAL methods implementations
+    //region IDAO methods implementations
     @Override
     public void initConn() throws SQLException {
 
@@ -51,26 +51,36 @@ public class MySqlDAL implements IDAL {
     @Override
     public void registerUser(String uid, String token) throws SQLException {
 
-        StringBuilder query = new StringBuilder();
-        uid = quote(uid);
-        token = quote(token);
-        String userStatus = quote(UserStatus.REGISTERED.toString());
+        UserRecord record = getUserRecord(uid);
 
-        query.
-                append("INSERT INTO ").
-                append(TABLE_USERS).
-                append(" (").
-                append(COL_UID).append(",").
-                append(COL_TOKEN).append(",").
-                append(COL_USER_STATUS).
-                append(")").
-                append(" VALUES (").
-                append(uid).append(",").
-                append(token).append(",").
-                append(userStatus).
-                append(")");
+        // User registering for the first time
+        if(record == null) {
 
-        executeQuery(query.toString());
+            StringBuilder query = new StringBuilder();
+            uid = quote(uid);
+            token = quote(token);
+            String userStatus = quote(UserStatus.REGISTERED.toString());
+
+            query.
+                    append("INSERT INTO ").
+                    append(TABLE_USERS).
+                    append(" (").
+                    append(COL_UID).append(",").
+                    append(COL_TOKEN).append(",").
+                    append(COL_USER_STATUS).
+                    append(")").
+                    append(" VALUES (").
+                    append(uid).append(",").
+                    append(token).append(",").
+                    append(userStatus).
+                    append(")");
+
+            executeQuery(query.toString());
+        }
+        else {
+            // User re-registering
+            reRegisterUser(uid, token);
+        }
     }
 
     @Override

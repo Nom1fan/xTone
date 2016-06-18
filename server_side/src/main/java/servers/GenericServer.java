@@ -1,7 +1,7 @@
 package servers;
 
-import com.database.DalFactory;
-import com.database.MySqlDAL;
+import com.database.DaoFactory;
+import com.database.MySqlDAO;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -43,7 +43,7 @@ public class GenericServer extends AbstractServer {
         super(serverName, port);
         this.serverName = serverName;
         try {
-            new MySqlDAL().updateAppRecord(ServerConstants.MIN_SUPPORTED_APP_VERSION);
+            new MySqlDAO().updateAppRecord(ServerConstants.MIN_SUPPORTED_APP_VERSION);
 
             System.out.println("Starting " + serverName + "...");
             listen();
@@ -70,7 +70,7 @@ public class GenericServer extends AbstractServer {
             ServerAction serverAction = ActionFactory.instance().getAction(msg.getActionType());
             serverAction.set_messageInitiaterId(clientId);
             serverAction.set_clientConnection(ctc);
-            serverAction.set_dal(DalFactory.getCurrentDal());
+            serverAction.set_dal(DaoFactory.getCurrentDao());
             serverAction.verifyUserRegistration();
             serverAction.doAction(msg.getData());
             closeConnectionToClient(ctc);

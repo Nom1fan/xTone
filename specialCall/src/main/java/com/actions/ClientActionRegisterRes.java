@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import DataObjects.DataKeys;
+import DataObjects.ResponseCodes;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
@@ -22,6 +23,7 @@ public class ClientActionRegisterRes extends ClientAction {
     public EventReport doClientAction(Map data) throws IOException {
 
         boolean _isRegisterSuccess = (boolean) data.get(DataKeys.IS_REGISTER_SUCCESS);
+        ResponseCodes resCode = (ResponseCodes) data.get(DataKeys.RESPONSE_CODE);
 
         EventType eventType;
         if(_isRegisterSuccess) {
@@ -31,6 +33,6 @@ public class ClientActionRegisterRes extends ClientAction {
             eventType = EventType.REGISTER_FAILURE;
         }
 
-        return new EventReport(eventType, null, null);
+        return new EventReport(eventType, null, resCode);
     }
 }

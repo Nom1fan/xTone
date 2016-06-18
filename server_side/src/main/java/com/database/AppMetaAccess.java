@@ -9,13 +9,13 @@ import com.database.records.AppMetaRecord;
  */
 public class AppMetaAccess extends DALAccesible {
 
-    private AppMetaAccess(IDAL dal) {
+    private AppMetaAccess(IDAO dal) {
         super(dal);
     }
 
-    public static AppMetaAccess instance(IDAL idal) {
+    public static AppMetaAccess instance(IDAO IDAO) {
 
-        return new AppMetaAccess(idal);
+        return new AppMetaAccess(IDAO);
     }
 
     public AppMetaRecord getAppMeta() {

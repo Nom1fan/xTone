@@ -1,6 +1,6 @@
 package ui;
 
-import com.database.MySqlDAL;
+import com.database.MySqlDAO;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -85,7 +85,7 @@ public class SendPushPanel extends JPanel {
                 String dest = _txtFieldSendTo.getText();
                 String msg = _txtFieldContent.getText();
 
-                String token = UsersDataAccess.instance(new MySqlDAL()).getUserPushToken(dest);
+                String token = UsersDataAccess.instance(new MySqlDAO()).getUserPushToken(dest);
 
                 BatchPushSender.sendPush(token, PushEventKeys.SHOW_MESSAGE, "Notification", msg);
             }

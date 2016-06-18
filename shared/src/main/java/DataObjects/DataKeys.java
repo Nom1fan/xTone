@@ -34,4 +34,5 @@ public enum DataKeys {
     DEVICE_MODEL,
     ANDROID_VERSION,
     IS_UPDATE_SUCCESS,
+    RESPONSE_CODE,
 }

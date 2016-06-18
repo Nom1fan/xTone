@@ -13,7 +13,7 @@ import DataObjects.UserRecord;
 /**
  * Created by Mor on 16/11/2015.
  */
-public interface IDAL {
+public interface IDAO {
 
     //region Table users
     String TABLE_USERS              =   "users";

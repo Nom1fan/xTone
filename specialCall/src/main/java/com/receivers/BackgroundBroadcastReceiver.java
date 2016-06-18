@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import DataObjects.DataKeys;
+import DataObjects.ResponseCodes;
 import DataObjects.SpecialMediaType;
 import EventObjects.Event;
 import EventObjects.EventReport;
@@ -242,7 +243,18 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 shouldShowSnackBar = false;
                 AppStateManager.setAppState(context, TAG, AppStateManager.STATE_IDLE);
 
-                msg = context.getResources().getString(R.string.register_failure);
+                ResponseCodes resCode = (ResponseCodes) report.data();
+
+                switch(resCode)
+                {
+                    case CREDENTIALS_ERR:
+                        msg = context.getResources().getString(R.string.wrong_credentials);
+                        break;
+                    case INTERNAL_SERVER_ERR:
+                        msg = context.getResources().getString(R.string.register_failure);
+                        break;
+                }
+
                 eventReport = new EventReport(EventType.REFRESH_UI, msg);
                 break;
 

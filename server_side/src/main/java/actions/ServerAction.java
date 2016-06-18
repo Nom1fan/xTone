@@ -1,11 +1,13 @@
 package actions;
 
-import com.database.IDAL;
+import com.database.IDAO;
 import com.database.UsersDataAccess;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
+import DataObjects.DataKeys;
 import Exceptions.UserUnregisteredException;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
@@ -18,15 +20,17 @@ import log.Logged;
 public abstract class ServerAction extends Logged {
 
     protected ConnectionToClient _clientConnection;
-    protected IDAL _dal;
+    protected IDAO _dal;
     protected String _messageInitiaterId;
     protected ServerActionType _serverActionType;
+    protected HashMap<DataKeys, Object> _replyData;
 
     public abstract void doAction(Map data) throws IOException;
 
     public ServerAction(ServerActionType serverActionType) {
         super();
         _serverActionType = serverActionType;
+        _replyData = new HashMap<>();
     }
 
     /**
@@ -61,7 +65,7 @@ public abstract class ServerAction extends Logged {
         _clientConnection = clientConnection;
     }
 
-    public void set_dal(IDAL _dal) {
+    public void set_dal(IDAO _dal) {
         this._dal = _dal;
     }
 

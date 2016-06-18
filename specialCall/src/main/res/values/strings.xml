@@ -13,6 +13,7 @@
     <!--  LoginActivity  -->
     <string name="register_success">Registration successful</string>
     <string name="register_failure">Oops! Registration failed. Please Try again.</string>
+    <string name="wrong_credentials">Oops! Incorrect SMS code.\n Insert correct code and try again.</string>
     <string name="initializing">Initializing...</string>
     <string name="please_wait">Please wait...</string>
     <string name="registering">Registering...</string>

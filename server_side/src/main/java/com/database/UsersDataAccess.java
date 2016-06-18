@@ -22,66 +22,13 @@ import pushservice.BatchPushSender;
  */
 public class UsersDataAccess extends DALAccesible {
 
-    private UsersDataAccess(IDAL dal) {
+    private UsersDataAccess(IDAO dal) {
         super(dal);
     }
 
-    public static UsersDataAccess instance(IDAL idal) {
+    public static UsersDataAccess instance(IDAO IDAO) {
 
-        return new UsersDataAccess(idal);
-    }
-
-    public boolean registerUser(String userId, String token) {
-
-        boolean isOK;
-        try {
-            UserRecord record = getUserRecord(userId);
-
-            // User registering for the first time
-            if(record == null) {
-
-                _dal.registerUser(userId, token);
-            }
-            else {
-                // User re-registering
-                _dal.reRegisterUser(userId, token);
-            }
-
-            _logger.info("Registered [User]:" + userId + " successfully");
-           isOK = true;
-        } catch (Exception e) {
-            _logger.severe("RegisterUser failure. " + " [User]:" + userId +
-                    " [Exception]:" + (e.getMessage() != null ? e.getMessage() : e));
-            isOK = false;
-        }
-
-        return isOK;
-    }
-
-    public boolean registerUser(String userId, String token, String deviceModel, String androidVersion) {
-
-        boolean isOK;
-        try {
-            UserRecord record = getUserRecord(userId);
-
-            // User registering for the first time
-            if(record == null) {
-
-                _dal.registerUser(userId, token, deviceModel, androidVersion);
-            }
-            else {
-                // User re-registering
-                _dal.reRegisterUser(userId, token, deviceModel, androidVersion);
-            }
-            _logger.info("Registered [User]:" + userId + " successfully");
-            isOK = true;
-
-        } catch (Exception e) {
-            _logger.severe("RegisterUser failure. " + " [User]:" + userId +
-                    " [Exception]:" + (e.getMessage() != null ? e.getMessage() : e));
-            isOK = false;
-        }
-        return isOK;
+        return new UsersDataAccess(IDAO);
     }
 
     public boolean unregisterUser(String userId, String token) {

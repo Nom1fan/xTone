@@ -7,9 +7,9 @@ import log.Logged;
  */
 public abstract class DALAccesible extends Logged {
 
-    protected IDAL _dal;
+    protected IDAO _dal;
 
-    public DALAccesible(IDAL dal) {
+    public DALAccesible(IDAO dal) {
         super();
 
         this._dal = dal;

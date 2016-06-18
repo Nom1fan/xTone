@@ -9,11 +9,11 @@ public class SmsVerificationAccess  extends DALAccesible {
 
     public static final int NO_SMS_CODE = -1;
 
-    private SmsVerificationAccess(IDAL dal) {
+    private SmsVerificationAccess(IDAO dal) {
         super(dal);
     }
 
-    public static SmsVerificationAccess instance(IDAL idal) {
+    public static SmsVerificationAccess instance(IDAO idal) {
 
         return new SmsVerificationAccess(idal);
     }

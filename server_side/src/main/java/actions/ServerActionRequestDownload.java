@@ -1,7 +1,7 @@
 package actions;
 
 import com.database.CommHistoryAccess;
-import com.database.IDAL;
+import com.database.IDAO;
 import com.database.UsersDataAccess;
 
 import java.io.BufferedInputStream;
@@ -95,7 +95,7 @@ public class ServerActionRequestDownload extends ServerAction {
 
             // Marking in communication history record that the transfer was successful
             char TRUE = '1';
-            CommHistoryAccess.instance(_dal).updateCommunicationRecord(_commId, IDAL.COL_TRANSFER_SUCCESS, TRUE);
+            CommHistoryAccess.instance(_dal).updateCommunicationRecord(_commId, IDAO.COL_TRANSFER_SUCCESS, TRUE);
 
 
         } catch (FileInvalidFormatException |
@@ -147,6 +147,6 @@ public class ServerActionRequestDownload extends ServerAction {
 
         // Marking in communication history record that the transfer has failed
         char FALSE = '0';
-        CommHistoryAccess.instance(_dal).updateCommunicationRecord(_commId, IDAL.COL_TRANSFER_SUCCESS, FALSE);
+        CommHistoryAccess.instance(_dal).updateCommunicationRecord(_commId, IDAO.COL_TRANSFER_SUCCESS, FALSE);
     }
 }

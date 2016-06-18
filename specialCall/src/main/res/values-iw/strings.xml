@@ -71,6 +71,7 @@
     <!--  LoginActivity  -->
     <string name="register_success">ההרשמה התבצעה</string>
     <string name="register_failure">אופס! ההרשמה נכשלה. אנא נסה שוב.</string>
+    <string name="wrong_credentials">אופס! קוד סמס שגוי.\n הכנס קוד סמס תקין ונסה שוב.</string>
     <string name="initializing">מאתחל...</string>
     <string name="please_wait">אנא המתן...</string>
     <string name="registering">נרשם...</string>

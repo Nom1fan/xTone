@@ -1,12 +1,12 @@
 package actions;
 
 import com.database.SmsVerificationAccess;
-import com.database.UsersDataAccess;
 
-import java.util.HashMap;
+import java.sql.SQLException;
 import java.util.Map;
 
 import DataObjects.DataKeys;
+import DataObjects.ResponseCodes;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
@@ -28,32 +28,35 @@ public class ServerActionRegister extends ServerAction {
 
         int smsCode = (int) data.get(DataKeys.SMS_CODE);
         String pushToken = (String) data.get(DataKeys.PUSH_TOKEN);
-
         int expectedSmsCode = SmsVerificationAccess.instance(_dal).getSmsVerificationCode(_messageInitiaterId);
 
-        HashMap<DataKeys, Object> replyData = new HashMap();
         if(smsCode!=SmsVerificationAccess.NO_SMS_CODE && smsCode == expectedSmsCode) {
+            try {
+                // User device record support was inserted in v1.13
+                Double userAppVersion = (Double) data.get(DataKeys.APP_VERSION);
+                if (userAppVersion != null && userAppVersion >= ServerConstants.APP_VERSION_1_13) {
 
-            boolean isRegisteredOK;
-            // User device record support was inserted in v1.13
-            Double userAppVersion = (Double) data.get(DataKeys.APP_VERSION);
-            if(userAppVersion!=null && userAppVersion >= ServerConstants.APP_VERSION_1_13) {
-
-                String deviceModel = (String) data.get(DataKeys.DEVICE_MODEL);
-                String androidVersion = (String) data.get(DataKeys.ANDROID_VERSION);
-                isRegisteredOK = UsersDataAccess.instance(_dal).registerUser(_messageInitiaterId, pushToken, deviceModel, androidVersion);
+                    String deviceModel = (String) data.get(DataKeys.DEVICE_MODEL);
+                    String androidVersion = (String) data.get(DataKeys.ANDROID_VERSION);
+                    _dal.registerUser(_messageInitiaterId, pushToken, deviceModel, androidVersion);
+                } else {
+                    _dal.registerUser(_messageInitiaterId, pushToken);
+                }
+                _replyData.put(DataKeys.IS_REGISTER_SUCCESS, true);
+            } catch(SQLException e) {
+                _logger.severe("Failed registration for [User]:" + _messageInitiaterId +
+                ". [Exception]:" + (e.getMessage()!=null ? e.getMessage() : e));
+                _replyData.put(DataKeys.IS_REGISTER_SUCCESS, false);
+                _replyData.put(DataKeys.RESPONSE_CODE, ResponseCodes.INTERNAL_SERVER_ERR);
             }
-            else {
-                isRegisteredOK = UsersDataAccess.instance(_dal).registerUser(_messageInitiaterId, pushToken);
-            }
-            replyData.put(DataKeys.IS_REGISTER_SUCCESS, isRegisteredOK);
         } else {
             _logger.warning("Rejecting registration for [User]:" + _messageInitiaterId +
                     ". [Expected smsCode]:" + expectedSmsCode + " [Received smsCode]:" + smsCode);
-            replyData.put(DataKeys.IS_REGISTER_SUCCESS, false);
+            _replyData.put(DataKeys.IS_REGISTER_SUCCESS, false);
+            _replyData.put(DataKeys.RESPONSE_CODE, ResponseCodes.CREDENTIALS_ERR);
         }
 
-        replyToClient(new MessageToClient(ClientActionType.REGISTER_RES, replyData));
+        replyToClient(new MessageToClient(ClientActionType.REGISTER_RES, _replyData));
 
     }
 }

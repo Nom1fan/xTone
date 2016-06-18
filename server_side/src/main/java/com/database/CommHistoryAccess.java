@@ -12,13 +12,13 @@ import DataObjects.MediaTransferRecord;
  */
 public class CommHistoryAccess extends DALAccesible {
 
-    private CommHistoryAccess(IDAL dal) {
+    private CommHistoryAccess(IDAO dal) {
         super(dal);
     }
 
-    public static CommHistoryAccess instance(IDAL idal) {
+    public static CommHistoryAccess instance(IDAO IDAO) {
 
-        return new CommHistoryAccess(idal);
+        return new CommHistoryAccess(IDAO);
     }
 
     public int insertMediaTransferRecord(Map data) {

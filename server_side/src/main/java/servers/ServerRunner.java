@@ -1,9 +1,5 @@
 package servers;
 
-import com.database.MySqlDAL;
-
-import java.sql.SQLException;
-
 import DataObjects.SharedConstants;
 
 /**
