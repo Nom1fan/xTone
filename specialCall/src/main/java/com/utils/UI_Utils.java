@@ -25,6 +25,8 @@ import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.mediacallz.app.R;
+import com.ui.activities.MainActivity;
+import com.ui.dialogs.ClearMediaDialog;
 
 import java.lang.reflect.Field;
 import java.util.Random;
@@ -260,7 +262,8 @@ public abstract class UI_Utils {
         }
     }
 
-    public static void showWaitingForTranferSuccussDialog(final Context applicationContext) {
+    //endregion
+    public static void showWaitingForTranferSuccussDialog(final Context applicationContext,final String whoRequest) {
 
         View checkBoxView = View.inflate(applicationContext, R.layout.checkbox_dont_show_again, null);
         CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkbox_dont_show_again);
@@ -269,7 +272,11 @@ public abstract class UI_Utils {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                SharedPrefUtils.setBoolean(applicationContext, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_UPLOAD_DIALOG, isChecked);
+                if (whoRequest == "ClearMediaDialog")
+                    SharedPrefUtils.setBoolean(applicationContext, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG, isChecked);
+
+                if (whoRequest == "MainActivity")
+                    SharedPrefUtils.setBoolean(applicationContext, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_UPLOAD_DIALOG, isChecked);
             }
         });
         checkBox.setText(applicationContext.getResources().getString(R.string.dont_show_again));
@@ -318,7 +325,5 @@ public abstract class UI_Utils {
             Log.i(TAG, "waitingForTransferSuccessDialog.performClick();");
         }
     }
-
-    //endregion
 
 }

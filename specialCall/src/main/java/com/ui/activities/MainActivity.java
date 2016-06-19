@@ -1776,7 +1776,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void waitingForTransferSuccess() {
         if(!SharedPrefUtils.getBoolean(this,SharedPrefUtils.GENERAL,SharedPrefUtils.DONT_SHOW_AGAIN_UPLOAD_DIALOG)) {
-            UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this);
+            UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this,"MainActivity");
         }
     }
 

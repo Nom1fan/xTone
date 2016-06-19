@@ -167,9 +167,15 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                         ContactsUtils.getContactNameHtml(context, destId));
                 color = Color.GREEN;
                 sBarDuration = Snackbar.LENGTH_LONG;
+
+                UI_Utils.dissmissTransferSuccessDialog();
+
             }
                 break;
-
+            case CLEAR_SENT: {
+                AppStateManager.setAppState(context, TAG, AppStateManager.getAppPrevState(context));
+            }
+            break;
             case USER_REGISTERED_TRUE: {
                 String destNumber = (String) report.data();
                 if(destNumber!=null) {

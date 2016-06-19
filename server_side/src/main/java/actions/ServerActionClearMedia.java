@@ -35,7 +35,7 @@ public class ServerActionClearMedia extends ServerAction {
 
         HashMap replyData = new HashMap();
         if(sent) {
-            replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.NO_ACTION_REQUIRED, null, null));
+            replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.CLEAR_SENT));
             replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
         }
         else {

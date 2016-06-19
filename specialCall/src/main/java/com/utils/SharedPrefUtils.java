@@ -60,6 +60,7 @@ public abstract class SharedPrefUtils {
     public static final String ENABLE_UI_ELEMENTS_ANIMATION         =   "EnableUIElementsAnimation";
     public static final String DISABLE_UI_ELEMENTS_ANIMATION        =   "DisableUIElementsAnimation";
     public static final String DONT_SHOW_AGAIN_UPLOAD_DIALOG        =   "DontShowAgainUploadDialog";
+    public static final String DONT_SHOW_AGAIN_CLEAR_DIALOG         =   "DontShowAgainClearDialog";
     public static final String ANDROID_VERSION                      =   "AndroidVersion";
     public static final String TIMEOUT_MSG                          =   "TIMEOUT_MSG";
     //endregion
