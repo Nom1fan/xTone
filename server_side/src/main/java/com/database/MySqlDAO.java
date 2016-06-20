@@ -593,6 +593,13 @@ public class MySqlDAO implements IDAO {
 
         executeQuery(query.toString());
     }
+
+    @Override
+    public void delete(String table, String col, String condition, String val) throws SQLException {
+        val = quote(val);
+        String query = "DELETE FROM " + table + " WHERE " + col + condition + val;
+        executeQuery(query);
+    }
     //endregion
 
     //region Internal operations methods and helpers

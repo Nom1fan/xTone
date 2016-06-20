@@ -25,8 +25,6 @@ import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.mediacallz.app.R;
-import com.ui.activities.MainActivity;
-import com.ui.dialogs.ClearMediaDialog;
 
 import java.lang.reflect.Field;
 import java.util.Random;
@@ -318,7 +316,7 @@ public abstract class UI_Utils {
 
     }
 
-    public static void dissmissTransferSuccessDialog() {
+    public static void dismissTransferSuccessDialog() {
 
         if (_waitingForTransferSuccessDialog!=null) {
             _waitingForTransferSuccessDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();

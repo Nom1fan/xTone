@@ -4,6 +4,7 @@ import com.database.IDAO;
 import com.database.UsersDataAccess;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,12 +21,12 @@ import log.Logged;
 public abstract class ServerAction extends Logged {
 
     protected ConnectionToClient _clientConnection;
-    protected IDAO _dal;
+    protected IDAO _dao;
     protected String _messageInitiaterId;
     protected ServerActionType _serverActionType;
     protected HashMap<DataKeys, Object> _replyData;
 
-    public abstract void doAction(Map data) throws IOException;
+    public abstract void doAction(Map data) throws IOException, SQLException;
 
     public ServerAction(ServerActionType serverActionType) {
         super();
@@ -65,8 +66,8 @@ public abstract class ServerAction extends Logged {
         _clientConnection = clientConnection;
     }
 
-    public void set_dal(IDAO _dal) {
-        this._dal = _dal;
+    public void set_dao(IDAO _dao) {
+        this._dao = _dao;
     }
 
     public void set_messageInitiaterId(String messageInitiaterId) {
@@ -75,10 +76,17 @@ public abstract class ServerAction extends Logged {
 
     public final void verifyUserRegistration() throws UserUnregisteredException {
 
-        if(!(_serverActionType.equals(ServerActionType.REGISTER)) && !(_serverActionType.equals(ServerActionType.GET_SMS_CODE))) {
-            boolean isRegistered = UsersDataAccess.instance(_dal).isRegistered(_messageInitiaterId);
+        if(!isPreRegistrationAction()) {
+            boolean isRegistered = UsersDataAccess.instance(_dao).isRegistered(_messageInitiaterId);
             if(!isRegistered)
                 throw new UserUnregisteredException("User " + _messageInitiaterId + " has attempted to perform an action:" + _serverActionType + " but is unregistered");
         }
+    }
+
+    private boolean isPreRegistrationAction() {
+        return
+                _serverActionType.equals(ServerActionType.REGISTER) ||
+                _serverActionType.equals(ServerActionType.GET_SMS_CODE) ||
+                _serverActionType.equals(ServerActionType.GET_SMS_CODE_FOR_LOAD_TEST);
     }
 }

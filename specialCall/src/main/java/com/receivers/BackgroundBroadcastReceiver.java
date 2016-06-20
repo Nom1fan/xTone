@@ -145,7 +145,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                         FileManager.FileType.valueOf(data.get(DataKeys.FILE_TYPE).toString()),
                         data.get(DataKeys.FILE_PATH_ON_SRC_SD).toString());
 
-                UI_Utils.dissmissTransferSuccessDialog();
+                UI_Utils.dismissTransferSuccessDialog();
                 // Setting parameters for snackbar message
                 msg = String.format(context.getResources().getString(R.string.destination_download_complete),
                         ContactsUtils.getContactNameHtml(context, destId));
@@ -168,14 +168,21 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 color = Color.GREEN;
                 sBarDuration = Snackbar.LENGTH_LONG;
 
-                UI_Utils.dissmissTransferSuccessDialog();
+                UI_Utils.dismissTransferSuccessDialog();
 
             }
                 break;
-            case CLEAR_SENT: {
+
+            case CLEAR_FAILURE:
                 AppStateManager.setAppState(context, TAG, AppStateManager.getAppPrevState(context));
-            }
-            break;
+                msg = context.getResources().getString(R.string.oops_try_again);
+                color = Color.RED;
+                sBarDuration = Snackbar.LENGTH_LONG;
+                break;
+
+            case CLEAR_SENT:
+                AppStateManager.setAppState(context, TAG, AppStateManager.getAppPrevState(context));
+                break;
             case USER_REGISTERED_TRUE: {
                 String destNumber = (String) report.data();
                 if(destNumber!=null) {

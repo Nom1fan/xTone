@@ -35,7 +35,7 @@ public class ServerActionNotifyMediaCleared extends ServerAction {
                 " that [User]:" + clearerId +
                 " cleared his media of [SpecialMediaType]: " + data.get(DataKeys.SPECIAL_MEDIA_TYPE));
 
-        String clearRequesterToken = UsersDataAccess.instance(_dal).getUserPushToken(clearRequesterId);
+        String clearRequesterToken = UsersDataAccess.instance(_dao).getUserPushToken(clearRequesterId);
 
         // Informing clear requester that media was cleared
         String sourceLocale = (String) data.get(DataKeys.SOURCE_LOCALE);

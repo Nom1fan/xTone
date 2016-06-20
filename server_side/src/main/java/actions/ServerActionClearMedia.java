@@ -29,7 +29,7 @@ public class ServerActionClearMedia extends ServerAction {
         _logger.info("Initiating clear media. " + data);
 
         String destId = (String) data.get(DataKeys.DESTINATION_ID);
-        String destToken = UsersDataAccess.instance(_dal).getUserPushToken(destId);
+        String destToken = UsersDataAccess.instance(_dao).getUserPushToken(destId);
         String pushEventAction = PushEventKeys.CLEAR_MEDIA;
         boolean sent = BatchPushSender.sendPush(destToken, pushEventAction, data);
 
@@ -39,8 +39,8 @@ public class ServerActionClearMedia extends ServerAction {
             replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
         }
         else {
-            replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.CLEAR_FAILURE, null, null));
-            replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData)); // TODO add support for this in BackgroundBroadcastReceiver
+            replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.CLEAR_FAILURE));
+            replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
         }
     }
 }

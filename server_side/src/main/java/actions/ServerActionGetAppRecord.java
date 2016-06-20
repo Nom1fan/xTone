@@ -23,7 +23,7 @@ public class ServerActionGetAppRecord extends ServerAction {
     @Override
     public void doAction(Map data) {
 
-        AppMetaRecord appMetaRecord = AppMetaAccess.instance(_dal).getAppMeta();
+        AppMetaRecord appMetaRecord = AppMetaAccess.instance(_dao).getAppMeta();
         HashMap replyData = new HashMap();
         replyData.put(DataKeys.MIN_SUPPORTED_VERSION, appMetaRecord.get_minSupportedVersion());
         replyToClient(new MessageToClient(ClientActionType.GET_APP_RECORD_RES, replyData));

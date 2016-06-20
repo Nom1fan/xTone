@@ -28,7 +28,7 @@ public class ServerActionRegister extends ServerAction {
 
         int smsCode = (int) data.get(DataKeys.SMS_CODE);
         String pushToken = (String) data.get(DataKeys.PUSH_TOKEN);
-        int expectedSmsCode = SmsVerificationAccess.instance(_dal).getSmsVerificationCode(_messageInitiaterId);
+        int expectedSmsCode = SmsVerificationAccess.instance(_dao).getSmsVerificationCode(_messageInitiaterId);
 
         if(smsCode!=SmsVerificationAccess.NO_SMS_CODE && smsCode == expectedSmsCode) {
             try {
@@ -38,9 +38,9 @@ public class ServerActionRegister extends ServerAction {
 
                     String deviceModel = (String) data.get(DataKeys.DEVICE_MODEL);
                     String androidVersion = (String) data.get(DataKeys.ANDROID_VERSION);
-                    _dal.registerUser(_messageInitiaterId, pushToken, deviceModel, androidVersion);
+                    _dao.registerUser(_messageInitiaterId, pushToken, deviceModel, androidVersion);
                 } else {
-                    _dal.registerUser(_messageInitiaterId, pushToken);
+                    _dao.registerUser(_messageInitiaterId, pushToken);
                 }
                 _replyData.put(DataKeys.IS_REGISTER_SUCCESS, true);
             } catch(SQLException e) {

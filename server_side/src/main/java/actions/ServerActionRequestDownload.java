@@ -88,14 +88,14 @@ public class ServerActionRequestDownload extends ServerAction {
             // Informing source (uploader) that file received by user (downloader)
             String title = strings.media_ready_title();
             String msg = String.format(strings.media_ready_body(), !_destContact.equals("") ? _destContact : _destId);
-            String token = UsersDataAccess.instance(_dal).getUserPushToken(_sourceId);
+            String token = UsersDataAccess.instance(_dao).getUserPushToken(_sourceId);
             sent = BatchPushSender.sendPush(token, PushEventKeys.TRANSFER_SUCCESS, title , msg, data);
             if(!sent)
                 _logger.warning("Failed to inform user " + _sourceId + " of transfer success to user: " + _destId);
 
             // Marking in communication history record that the transfer was successful
             char TRUE = '1';
-            CommHistoryAccess.instance(_dal).updateCommunicationRecord(_commId, IDAO.COL_TRANSFER_SUCCESS, TRUE);
+            CommHistoryAccess.instance(_dao).updateCommunicationRecord(_commId, IDAO.COL_TRANSFER_SUCCESS, TRUE);
 
 
         } catch (FileInvalidFormatException |
@@ -133,7 +133,7 @@ public class ServerActionRequestDownload extends ServerAction {
 
         // Informing sender that file did not reach destination
         _logger.severe("Informing sender:" + _sourceId + " that file did not reach destination:" + _destId);
-        String senderToken = UsersDataAccess.instance(_dal).getUserPushToken(_sourceId);
+        String senderToken = UsersDataAccess.instance(_dao).getUserPushToken(_sourceId);
         if(!senderToken.equals(""))
             BatchPushSender.sendPush(senderToken, PushEventKeys.SHOW_ERROR, title, msgTransferFailed, data);
         else
@@ -147,6 +147,6 @@ public class ServerActionRequestDownload extends ServerAction {
 
         // Marking in communication history record that the transfer has failed
         char FALSE = '0';
-        CommHistoryAccess.instance(_dal).updateCommunicationRecord(_commId, IDAO.COL_TRANSFER_SUCCESS, FALSE);
+        CommHistoryAccess.instance(_dao).updateCommunicationRecord(_commId, IDAO.COL_TRANSFER_SUCCESS, FALSE);
     }
 }

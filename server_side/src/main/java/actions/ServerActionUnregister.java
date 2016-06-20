@@ -26,6 +26,6 @@ public class ServerActionUnregister extends ServerAction {
         replyData.put(DataKeys.IS_UNREGISTER_SUCCESS, true);
         replyToClient(new MessageToClient(ClientActionType.UNREGISTER_RES, replyData)); //TODO remove boolean, unregister always succeeds for user as long as connection exists. Backend operations are for the server only
         String token = (String) data.get(DataKeys.PUSH_TOKEN);
-        UsersDataAccess.instance(_dal).unregisterUser(_messageInitiaterId, token);
+        UsersDataAccess.instance(_dao).unregisterUser(_messageInitiaterId, token);
     }
 }

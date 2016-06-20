@@ -11,8 +11,6 @@ import android.widget.TextView;
 import com.app.AppStateManager;
 import com.mediacallz.app.R;
 import com.services.StorageServerProxyService;
-import com.utils.SharedPrefUtils;
-import com.utils.UI_Utils;
 
 import DataObjects.SpecialMediaType;
 
@@ -52,10 +50,6 @@ public class ClearMediaDialog extends android.app.DialogFragment {
                         String timeoutMsg = getActivity().getResources().getString(R.string.oops_try_again);
                         String loadingMsg = getActivity().getResources().getString(R.string.please_wait);
                         AppStateManager.setLoadingState(getActivity(), TAG, loadingMsg, timeoutMsg);
-
-                        if(!SharedPrefUtils.getBoolean(getActivity().getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {
-                            UI_Utils.showWaitingForTranferSuccussDialog(getActivity(),"ClearMediaDialog");
-                        }
 
                     }
                 })

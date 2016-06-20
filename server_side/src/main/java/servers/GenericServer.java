@@ -70,7 +70,7 @@ public class GenericServer extends AbstractServer {
             ServerAction serverAction = ActionFactory.instance().getAction(msg.getActionType());
             serverAction.set_messageInitiaterId(clientId);
             serverAction.set_clientConnection(ctc);
-            serverAction.set_dal(DaoFactory.getCurrentDao());
+            serverAction.set_dao(DaoFactory.getCurrentDao());
             serverAction.verifyUserRegistration();
             serverAction.doAction(msg.getData());
             closeConnectionToClient(ctc);

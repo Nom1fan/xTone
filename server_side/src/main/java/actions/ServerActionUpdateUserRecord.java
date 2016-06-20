@@ -30,7 +30,7 @@ public class ServerActionUpdateUserRecord extends ServerAction {
 
         HashMap<DataKeys,Object> replyData = new HashMap<>();
         try {
-            _dal.updateUserRecord(_messageInitiaterId, userRecord);
+            _dao.updateUserRecord(_messageInitiaterId, userRecord);
             replyData.put(DataKeys.IS_UPDATE_SUCCESS, true);
         } catch (SQLException e) {
             e.printStackTrace();

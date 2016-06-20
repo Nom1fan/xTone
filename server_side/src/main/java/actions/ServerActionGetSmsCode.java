@@ -41,7 +41,7 @@ public class ServerActionGetSmsCode extends ServerAction {
 
         String msg = "Your verification code:" + code;
 
-        boolean isOK = SmsVerificationAccess.instance(_dal).insertSmsVerificationCode(_messageInitiaterId, code);
+        boolean isOK = SmsVerificationAccess.instance(_dao).insertSmsVerificationCode(_messageInitiaterId, code);
 
         HashMap replyData = new HashMap();
         if(isOK) {

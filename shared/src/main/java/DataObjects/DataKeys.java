@@ -35,4 +35,8 @@ public enum DataKeys {
     ANDROID_VERSION,
     IS_UPDATE_SUCCESS,
     RESPONSE_CODE,
+    TABLE,
+    COLUMN,
+    CONDITION,
+    VALUE,
 }

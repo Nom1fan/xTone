@@ -99,5 +99,6 @@ public interface IDAO {
     void updateUserSmsVerificationCode(String uid, int code) throws SQLException;
     int getUserSmsVerificationCode(String uid) throws SQLException;
     List<MediaTransferRecord> getAllUserMediaTransferRecords(String uid) throws SQLException;
+    void delete(String table, String col, String condition, String val) throws SQLException;
 }
 

@@ -526,6 +526,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 inviteDialog.show(getFragmentManager(), TAG);
                 break;
 
+            case CLEAR_SENT:
+                if(!SharedPrefUtils.getBoolean(MainActivity.this ,SharedPrefUtils.GENERAL,SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {
+                    UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this ,"ClearMediaDialog");
+                }
+                break;
+
             case REFRESH_UI:
                 SnackbarData data = (SnackbarData) report.data();
                 syncUIwithAppState();

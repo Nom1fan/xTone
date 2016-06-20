@@ -110,13 +110,13 @@ public class ServerActionUploadFile extends ServerAction {
                 throw new IOException("Read too many bytes. Upload seems corrupted.");
 
             // Inserting the record of the file upload, retrieving back the commId
-            int commId = CommHistoryAccess.instance(_dal).insertMediaTransferRecord(_data);
+            int commId = CommHistoryAccess.instance(_dao).insertMediaTransferRecord(_data);
             _logger.info("commId returned:" + commId);
 
             // Sending file to destination
             _data.put(DataKeys.COMM_ID, commId);
             _data.put(DataKeys.FILE_PATH_ON_SERVER, fileFullPath.toString());
-            String destToken = UsersDataAccess.instance(_dal).getUserPushToken(_destId);
+            String destToken = UsersDataAccess.instance(_dao).getUserPushToken(_destId);
             String pushEventAction = PushEventKeys.PENDING_DOWNLOAD;
             boolean sent = BatchPushSender.sendPush(destToken, pushEventAction, _data);
 
@@ -155,7 +155,7 @@ public class ServerActionUploadFile extends ServerAction {
         HashMap<DataKeys,Object> data = new HashMap();
         data.put(DataKeys.HTML_STRING, errMsgHtml);
 
-        String initiaterToken = UsersDataAccess.instance(_dal).getUserPushToken(_messageInitiaterId);
+        String initiaterToken = UsersDataAccess.instance(_dao).getUserPushToken(_messageInitiaterId);
 
         // Informing source (uploader) that the file was not sent to destination
         BatchPushSender.sendPush(initiaterToken, PushEventKeys.SHOW_ERROR, title, errMsg, data);

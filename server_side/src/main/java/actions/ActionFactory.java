@@ -57,13 +57,18 @@ public class ActionFactory extends Logged {
             case UPLOAD_FILE:
                 resultServerAction = new ServerActionUploadFile();
                 break;
-
             case UPDATE_USER_RECORD:
                 resultServerAction = new ServerActionUpdateUserRecord();
                 break;
+            case GET_SMS_CODE_FOR_LOAD_TEST:
+                resultServerAction = new ServerActionGetSmsCodeForLoadTest();
+                break;
+            case DELETE_FROM_DB:
+                resultServerAction = new ServerActionDeleteFromDB();
+                break;
 
             default:
-                _logger.severe(String.format("Failure to perform action. No such _serverActionType: %s", serverServerActionType));
+                _logger.severe(String.format("Failure to perform action. No such serverActionType: %s", serverServerActionType));
 
         }
         return resultServerAction;

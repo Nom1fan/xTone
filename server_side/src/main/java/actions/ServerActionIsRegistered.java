@@ -25,7 +25,7 @@ public class ServerActionIsRegistered extends ServerAction {
 
         _id = (String) data.get(DataKeys.DESTINATION_ID);
         _logger.info(_messageInitiaterId + " is checking if " + _id + " is logged in...");
-        data.put(DataKeys.IS_REGISTERED, UsersDataAccess.instance(_dal).isRegistered(_id));
+        data.put(DataKeys.IS_REGISTERED, UsersDataAccess.instance(_dao).isRegistered(_id));
         replyToClient(new MessageToClient(ClientActionType.IS_REGISTERED_RES, (HashMap)data));
     }
 }
