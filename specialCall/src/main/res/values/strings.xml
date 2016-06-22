@@ -75,6 +75,8 @@
     <string name="clear_btn">Remove</string>
     <string name="sending_to_contact"> Sending Contact</string>
     <string name="waiting_for_transfer_sucess_dialog_msg"> receive it in about %1$d seconds\n if his device available.\n if not we will notify you</string>
+    <string name="sending_clear_contact"> clear Contact MC ring</string>
+    <string name="waiting_for_clear_transfer_sucess_dialog_msg"> Clearing it in about %1$d seconds\n if his device available.\n if not we will notify you</string>
     <string name="finished_waiting_msg"> His Device not Availble for now\n we will notify you</string>
     <string name="dont_show_again"> Do not show again</string>
     <string name="just_notify"> Just Notify</string>

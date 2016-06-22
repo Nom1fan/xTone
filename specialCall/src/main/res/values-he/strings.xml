@@ -34,6 +34,8 @@
     <string name="clear_btn">מחק</string>
     <string name="sending_to_contact"> שולח לאיש קשר</string>
     <string name="waiting_for_transfer_sucess_dialog_msg"> יקבל בערך בעוד  %1$d שניות\n אם המכשיר זמין.\n אם לא , נעדכן אותך</string>
+    <string name="sending_clear_contact"> מחזיר לאיש הקשר צלצול רגיל</string>
+    <string name="waiting_for_clear_transfer_sucess_dialog_msg"> מחזיר לצלצול רגיל בעוד %1$d שניות\n אם המכשיר זמין\n אם לא, נעדכן אותך</string>
     <string name="finished_waiting_msg"> המכשיר שלו כרגע לא זמין\n אנחנו נעדכן אותך</string>
     <string name="dont_show_again"> אל תראה את זה יותר</string>
     <string name="just_notify"> פשוט תעדכן</string>

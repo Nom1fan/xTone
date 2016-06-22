@@ -261,7 +261,7 @@ public abstract class UI_Utils {
     }
 
     //endregion
-    public static void showWaitingForTranferSuccussDialog(final Context applicationContext,final String whoRequest) {
+    public static void showWaitingForTranferSuccussDialog(final Context applicationContext,final String whoRequest,final String title,final String msg) {
 
         View checkBoxView = View.inflate(applicationContext, R.layout.checkbox_dont_show_again, null);
         CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkbox_dont_show_again);
@@ -280,8 +280,8 @@ public abstract class UI_Utils {
         checkBox.setText(applicationContext.getResources().getString(R.string.dont_show_again));
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(applicationContext, R.style.AlertDialogCustom));
-        builder.setTitle(applicationContext.getResources().getString(R.string.sending_to_contact));
-        builder.setMessage(String.format(applicationContext.getResources().getString(R.string.waiting_for_transfer_sucess_dialog_msg), 10))
+        builder.setTitle(title);
+        builder.setMessage(String.format(msg, 10))
 
                 .setView(checkBoxView)
                 .setCancelable(false)
@@ -301,7 +301,7 @@ public abstract class UI_Utils {
         new CountDownTimer(10000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                _waitingForTransferSuccessDialog.setMessage(String.format(applicationContext.getResources().getString(R.string.waiting_for_transfer_sucess_dialog_msg), millisUntilFinished/1000));
+                _waitingForTransferSuccessDialog.setMessage(String.format(msg, millisUntilFinished/1000));
             }
 
             @Override

@@ -528,7 +528,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             case CLEAR_SENT:
                 if(!SharedPrefUtils.getBoolean(MainActivity.this ,SharedPrefUtils.GENERAL,SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {
-                    UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this ,"ClearMediaDialog");
+                    UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this ,"ClearMediaDialog",getResources().getString(R.string.sending_clear_contact)
+                            ,getResources().getString(R.string.waiting_for_clear_transfer_sucess_dialog_msg));
                 }
                 break;
 
@@ -1782,7 +1783,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void waitingForTransferSuccess() {
         if(!SharedPrefUtils.getBoolean(this,SharedPrefUtils.GENERAL,SharedPrefUtils.DONT_SHOW_AGAIN_UPLOAD_DIALOG)) {
-            UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this,"MainActivity");
+            UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this,"MainActivity",getResources().getString(R.string.sending_to_contact)
+            ,getResources().getString(R.string.waiting_for_transfer_sucess_dialog_msg));
         }
     }
 
