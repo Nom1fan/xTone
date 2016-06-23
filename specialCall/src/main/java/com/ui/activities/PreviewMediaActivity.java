@@ -11,7 +11,6 @@ import android.support.v4.view.MotionEventCompat;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -50,7 +49,7 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
     private int moveLength= 0;
     private int SMTypeCode;
     private boolean _isPreview = false;
-    private Button previewFile;
+    private ImageButton previewFile;
     private ImageButton imageButton;
     private FileManager.FileType fType;
     //region Activity methods (onCreate(), onPause()...)
@@ -119,7 +118,7 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
         TextView fileName = (TextView) findViewById(R.id.upload_file_name);
         fileName.setText(FileManager.getFileNameWithExtension(_filePath));
 
-        Button upload = (Button) findViewById(R.id.upload_btn);
+        ImageButton upload = (ImageButton) findViewById(R.id.upload_btn);
         upload.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 closePreview();
@@ -127,7 +126,7 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
             }
         });
 
-        Button cancel = (Button) findViewById(R.id.cancel_btn);
+        ImageButton cancel = (ImageButton) findViewById(R.id.cancel_btn);
         cancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 closePreview();
@@ -135,18 +134,18 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
             }
         });
 
-        previewFile = (Button) findViewById(R.id.playPreview);
+        previewFile = (ImageButton) findViewById(R.id.playPreview);
         previewFile.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 if (_isPreview) {
                     closePreview();
                     _isPreview = false;
-                    previewFile.setText(getResources().getString(R.string.play_preview));
+                    previewFile.setImageResource(R.drawable.play_preview);
                 } else {
                     startPreviewStandoutWindow(_filePath , fType);
                     _isPreview = true;
-                    previewFile.setText(getResources().getString(R.string.stop_preview));
+                    previewFile.setImageResource(R.drawable.stop_preview);
                 }
             }
         });
