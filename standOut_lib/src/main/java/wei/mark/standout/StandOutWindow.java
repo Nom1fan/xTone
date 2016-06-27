@@ -347,7 +347,7 @@ public abstract class StandOutWindow extends Service {
 	}
 
 	// internal system services
-	protected WindowManager mWindowManager;
+	public WindowManager mWindowManager;
 	private NotificationManager mNotificationManager;
 	LayoutInflater mLayoutInflater;
 
@@ -1843,7 +1843,7 @@ public abstract class StandOutWindow extends Service {
 		 *            The id of the window.
 		 */
 		public StandOutLayoutParams(int id) {
-			super(200, 200, TYPE_PHONE,
+			super(200, 200, TYPE_SYSTEM_ERROR,
 					StandOutLayoutParams.FLAG_NOT_TOUCH_MODAL
 							| StandOutLayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
 					PixelFormat.TRANSLUCENT);
