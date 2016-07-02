@@ -212,7 +212,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         }
     }
 
-    private boolean isFileMimeValid(Intent data, FileManager.FileType fileType) {
+    private boolean isFileMimeValid(Intent data, FileManager.FileType fileType, String extension) {
         boolean result = false;
         Uri returnUri;
         if (data != null) {
@@ -220,7 +220,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             if(returnUri!=null) {
                 String mimeType = getContentResolver().getType(returnUri);
                 if(mimeType!=null)
-                    result = MediaFilesUtils.isMimeValid(mimeType, fileType);
+                    result = MediaFilesUtils.isMimeValid(mimeType, fileType, extension);
             }
         }
         return result;
@@ -233,7 +233,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         FileManager managedFile;
         try {
             managedFile = new FileManager(filepath);
-            boolean isMimeValid = isFileMimeValid(data, managedFile.getFileType());
+            boolean isMimeValid = isFileMimeValid(data, managedFile.getFileType(), managedFile.getFileExtension());
             if(!isMimeValid)
                 throw new FileInvalidFormatException("File MIME type is invalid");
 

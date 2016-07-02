@@ -21,13 +21,13 @@ public abstract class MediaFilesUtils {
     private static final String videoMIME = "video";
 
 
-    public static boolean isMimeValid(String mimeType, FileManager.FileType fileType) {
+    public static boolean isMimeValid(String mimeType, FileManager.FileType fileType, String extension) {
 
         boolean result = false;
         switch(fileType) {
 
             case IMAGE:
-                if(mimeType.contains(imageMIME))
+                if (mimeType.contains(imageMIME))
                     result = true;
                 break;
 
