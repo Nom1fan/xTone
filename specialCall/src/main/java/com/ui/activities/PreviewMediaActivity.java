@@ -3,9 +3,7 @@ package com.ui.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MotionEventCompat;
 import android.util.Log;
@@ -14,23 +12,13 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.data_objects.ActivityRequestCodes;
 import com.mediacallz.app.R;
 import com.services.AbstractStandOutService;
 import com.services.PreviewService;
 import com.utils.BitmapUtils;
 import com.utils.SharedPrefUtils;
-import com.utils.UI_Utils;
 
-import java.io.File;
-
-import DataObjects.SpecialMediaType;
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileExceedsMaxSizeException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
 
 /**
@@ -38,19 +26,17 @@ import FilesManager.FileManager;
  */
 public class PreviewMediaActivity extends Activity implements View.OnClickListener {
 
-    public static final String MEDIA_FILE_PATH = "FilePathForMediaFile";
-    public static final String RESULT_ERR_MSG = "ResultErrMsg";
-    public static final String RESULT_SPECIAL_MEDIA_TYPE = "ResultSpecialMediaType";
-    public static final String RESULT_FILE = "ResultFile";
+    public static final String MANAGED_MEDIA_FILE = "MANAGED_MEDIA_FILE";
+    public static final String RESULT_FILE = "RESULT_FILE";
 
     private static final String TAG = PreviewMediaActivity.class.getSimpleName();
-    private String _filePath = "";
-    private float oldPosition =0;
-    private int moveLength= 0;
-    private int SMTypeCode;
+    private FileManager _managedFile;
+    private float _oldPosition =0;
+    private int _moveLength = 0;
+    private int _SMTypeCode;
     private boolean _isPreview = false;
-    private ImageButton previewFile;
-    private ImageButton imageButton;
+    private ImageButton _previewFile;
+    private ImageButton _imageButton;
     private FileManager.FileType fType;
     //region Activity methods (onCreate(), onPause()...)
     @Override
@@ -58,8 +44,8 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
         Intent intent = getIntent();
-        _filePath = intent.getStringExtra(MEDIA_FILE_PATH);
-        SMTypeCode = intent.getIntExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, 1);
+        _managedFile = (FileManager) intent.getSerializableExtra(MANAGED_MEDIA_FILE);
+        _SMTypeCode = intent.getIntExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, 1);
         initializePreviewMediaUI();
 
     }
@@ -68,61 +54,18 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
 
         closePreview();
 
-        try {
-            new FileManager(_filePath);
-        }catch (FileExceedsMaxSizeException e) {
-
-            e.printStackTrace();
-            //TODO change errMsg to be returned to MainAcivity to appear in snackBar instead ot toast
-            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
-                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
-
-            UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
-            finish();
-            return;
-        } catch (FileMissingExtensionException | FileDoesNotExistException | FileInvalidFormatException e) {
-            e.printStackTrace();
-            UI_Utils.callToast(getResources().getString(R.string.file_invalid), Color.RED, Toast.LENGTH_LONG, getApplicationContext());
-            finish();
-            return;
-        }
-
-        try {
-            fType = FileManager.getFileType(_filePath);
-        }
-        catch(FileMissingExtensionException e)
-        {
-            Log.i(TAG , "FileMissingExtensionException in startPreviewStandoutWindow with " + _filePath);
-            e.printStackTrace();
-
-            UI_Utils.callToast(" error with file , missing extension ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
-            return;
-        } catch(FileInvalidFormatException e)
-        {
-            Log.i(TAG , "FileInvalidFormatException in startPreviewStandoutWindow with " + _filePath);
-            e.printStackTrace();
-
-            UI_Utils.callToast(" Invalid format file please choose other file ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
-            return;
-        } catch (FileDoesNotExistException e) {
-            Log.i(TAG , "FileDoesNotExistException in startPreviewStandoutWindow with " + _filePath);
-            e.printStackTrace();
-
-            UI_Utils.callToast(" Invalid format file please choose other file ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
-            return;
-        }
-
         setContentView(R.layout.preview_before_upload);
 
         TextView fileType = (TextView) findViewById(R.id.upload_file_type);
         TextView fileName = (TextView) findViewById(R.id.upload_file_name);
-        fileName.setText(FileManager.getFileNameWithExtension(_filePath));
+        fileName.setText(FileManager.getFileNameWithExtension(_managedFile.getFileFullPath()));
+        fType = _managedFile.getFileType();
 
         ImageButton upload = (ImageButton) findViewById(R.id.upload_btn);
         upload.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 closePreview();
-                returnFile(_filePath);
+                returnFile(_managedFile);
             }
         });
 
@@ -134,23 +77,21 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
             }
         });
 
-        previewFile = (ImageButton) findViewById(R.id.playPreview);
-        previewFile.setOnClickListener(new View.OnClickListener() {
+        _previewFile = (ImageButton) findViewById(R.id.playPreview);
+        _previewFile.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 if (_isPreview) {
                     closePreview();
                     _isPreview = false;
-                    previewFile.setImageResource(R.drawable.play_preview);
+                    _previewFile.setImageResource(R.drawable.play_preview);
                 } else {
-                    startPreviewStandoutWindow(_filePath , fType);
+                    startPreviewStandoutWindow(_managedFile.getFileFullPath() , fType);
                     _isPreview = true;
-                    previewFile.setImageResource(R.drawable.stop_preview);
+                    _previewFile.setImageResource(R.drawable.stop_preview);
                 }
             }
         });
-
-
 
         switch (fType) {
             case AUDIO:
@@ -174,29 +115,29 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
         // TODO Auto-generated method stub
         super.onWindowFocusChanged(hasFocus);
 
-        imageButton = (ImageButton) findViewById(R.id.preview_thumbnail);
-        Log.i(TAG, "type and path " + fType + "  " + _filePath);
+        _imageButton = (ImageButton) findViewById(R.id.preview_thumbnail);
+        Log.i(TAG, "type and path " + fType + "  " + _managedFile.getFileFullPath());
 
 
         switch (fType) {
             case AUDIO:
-                imageButton.setImageResource(R.drawable.ringtone_icon);
+                _imageButton.setImageResource(R.drawable.ringtone_icon);
                 break;
 
             case VIDEO:
             case IMAGE:
 
-                BitmapUtils.execBitMapWorkerTask(imageButton, fType, _filePath, false);
+                BitmapUtils.execBitMapWorkerTask(_imageButton, fType, _managedFile.getFileFullPath(), false);
                 // stretch the uploaded image as it won't stretch because we use a drawable instead that we don't want to stretch
-                imageButton.setPadding(0, 0, 0, 0);
-                imageButton.setScaleType(ImageView.ScaleType.FIT_XY);
+                _imageButton.setPadding(0, 0, 0, 0);
+                _imageButton.setScaleType(ImageView.ScaleType.FIT_XY);
 
                 break;
         }
 
 
 
-        imageButton.setVisibility(View.VISIBLE);
+        _imageButton.setVisibility(View.VISIBLE);
 
     }
 
@@ -223,18 +164,18 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
         switch(action) {
             case (MotionEvent.ACTION_DOWN) :
 
-                oldPosition = event.getY();
-                moveLength = 0;
+                _oldPosition = event.getY();
+                _moveLength = 0;
                // Log.d(TAG,"Action was DOWN Y is: " + String.valueOf(oldPosition));
                 return true;
             case (MotionEvent.ACTION_MOVE) :
 
-                if (event.getY() > (oldPosition+5)) {
-                    moveLength++;
-                    oldPosition = event.getY();
+                if (event.getY() > (_oldPosition +5)) {
+                    _moveLength++;
+                    _oldPosition = event.getY();
                 }
-               //     Log.d(TAG,"Action was MOVE Y is: " + String.valueOf(oldPosition) + " moveLength: " +String.valueOf(moveLength));
-                    if (moveLength > 4) {
+               //     Log.d(TAG,"Action was MOVE Y is: " + String.valueOf(oldPosition) + " moveLength: " +String.valueOf(_moveLength));
+                    if (_moveLength > 4) {
                         PreviewMediaActivity.this.finish();
                     }
 
@@ -248,47 +189,17 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
 
     //region Assisting methods (onClick(), takePicture(), ...)
 
-    private void returnFile(String filePath) {
+    private void returnFile(FileManager managedFile) {
 
-        SpecialMediaType specialMediaType = null;
-
-        if (SMTypeCode == ActivityRequestCodes.SELECT_CALLER_MEDIA) {
-             specialMediaType = SpecialMediaType.CALLER_MEDIA;
-        } else if (SMTypeCode == ActivityRequestCodes.SELECT_PROFILE_MEDIA) {
-             specialMediaType = SpecialMediaType.PROFILE_MEDIA;
-        }
-
-        FileManager fm;
         Intent resultIntent = new Intent();
-        Log.i(TAG,"ReturnFile");
-        try {
+        Log.i(TAG,"returnFile");
 
-            getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(filePath))));
+        Log.i(TAG, "[File selected]: " + managedFile.getFileFullPath() + ". [File Size]: " + FileManager.getFileSizeFormat(managedFile.getFileSize()));
 
-                fm = new FileManager(filePath);
-                Log.i(TAG, "[File selected]: " + filePath + ". [File Size]: " + FileManager.getFileSizeFormat(fm.getFileSize()));
+        resultIntent.putExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, _SMTypeCode);
+        resultIntent.putExtra(RESULT_FILE, managedFile);
 
-                resultIntent.putExtra(RESULT_SPECIAL_MEDIA_TYPE, specialMediaType);
-                resultIntent.putExtra(RESULT_FILE, fm);
-
-            Log.i(TAG,"End ReturnFile");
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            Log.e(TAG, getResources().getString(R.string.file_invalid));
-            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
-
-        } catch (FileExceedsMaxSizeException e) {
-
-            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
-                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
-            Log.e(TAG, errMsg);
-            resultIntent.putExtra(RESULT_ERR_MSG, errMsg);
-
-        } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {
-            e.printStackTrace();
-            resultIntent.putExtra(RESULT_ERR_MSG, getResources().getString(R.string.file_invalid));
-
-        }
+        Log.i(TAG,"End returnFile");
 
         if (getParent() == null) {
             setResult(Activity.RESULT_OK, resultIntent);
@@ -296,13 +207,7 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
             getParent().setResult(Activity.RESULT_OK, resultIntent);
         }
 
-        Log.i(TAG, "starting MainActivity with Clear Top");
-
-        PreviewMediaActivity.this.finish();
-
-       // resultIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-      //  startActivityForResult(resultIntent,ActivityRequestCodes.SELECT_MEDIA);
-
+        finish();
     }
 
     @Override
@@ -348,7 +253,6 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
         Intent closePrevious = new Intent(getApplicationContext(), PreviewService.class);
         closePrevious.setAction(AbstractStandOutService.ACTION_CLOSE_ALL);
         startService(closePrevious);
-
     }
 
     //endregion

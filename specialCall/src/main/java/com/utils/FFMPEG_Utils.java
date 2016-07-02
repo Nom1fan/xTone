@@ -184,10 +184,11 @@ public class FFMPEG_Utils {
 
         try {
 
-
             String[] complexCommand =
-                    {"ffmpeg", "-i", baseFile.getFileFullPath(), "-vcodec", "copy", "-acodec",
-                            "copy", "-ss", "0", "-t", endTime.toString(), trimmedFile.getAbsolutePath()};
+                    {"ffmpeg", "-y", "-i", baseFile.getFileFullPath(), "-strict",
+                            "experimental", "-ab", "48000", "-ac", "2", "-b", "2097152", "-ar",
+                            "22050", "-ss", "00:00:00", "-t", "00:00:" + endTime.toString(),
+                            trimmedFile.getAbsolutePath()};
 
             _vk.run(complexCommand, workFolder, context);
             return new FileManager(trimmedFile);

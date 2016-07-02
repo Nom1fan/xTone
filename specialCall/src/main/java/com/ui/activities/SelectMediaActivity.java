@@ -38,12 +38,16 @@ import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
+import com.utils.MediaFilesUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
 import java.util.List;
 
+import DataObjects.SpecialMediaType;
 import Exceptions.FileDoesNotExistException;
+import Exceptions.FileExceedsMaxSizeException;
+import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import Exceptions.InvalidDestinationNumberException;
 import FilesManager.FileManager;
@@ -181,26 +185,102 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
             if (requestCode == ActivityRequestCodes.PREVIEW_MEDIA && (data != null))
             {
-                if (getParent() == null) {
-                    setResult(Activity.RESULT_OK, data);
-                } else {
-                    getParent().setResult(Activity.RESULT_OK, data);
+                SpecialMediaType specialMediaType = null;
+                int sMTypeCode = data.getIntExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, 1);
+                if (sMTypeCode == ActivityRequestCodes.SELECT_CALLER_MEDIA) {
+                    specialMediaType = SpecialMediaType.CALLER_MEDIA;
+                } else if (sMTypeCode == ActivityRequestCodes.SELECT_PROFILE_MEDIA) {
+                    specialMediaType = SpecialMediaType.PROFILE_MEDIA;
                 }
 
-                SelectMediaActivity.this.finish();
-            }else {
-                final String filepath = getFilePathFromIntent(data);
-                startPreviewActivity(filepath);
-            }
+                FileManager resultFile = (FileManager) data.getSerializableExtra(PreviewMediaActivity.RESULT_FILE);
+                Intent resultIntent = new Intent();
 
+                resultIntent.putExtra(SelectMediaActivity.RESULT_SPECIAL_MEDIA_TYPE, specialMediaType);
+                resultIntent.putExtra(SelectMediaActivity.RESULT_FILE, resultFile);
+
+                if (getParent() == null) {
+                    setResult(Activity.RESULT_OK, resultIntent);
+                } else {
+                    getParent().setResult(Activity.RESULT_OK, resultIntent);
+                }
+
+                finish();
+            } else { // Result is from file chooser
+                startPreviewActivity(data);
+            }
+        }
+    }
+
+    private boolean isFileMimeValid(Intent data, FileManager.FileType fileType) {
+        boolean result = false;
+        Uri returnUri;
+        if (data != null) {
+            returnUri = data.getData();
+            if(returnUri!=null) {
+                String mimeType = getContentResolver().getType(returnUri);
+                if(mimeType!=null)
+                    result = MediaFilesUtils.isMimeValid(mimeType, fileType);
+            }
+        }
+        return result;
+    }
+
+    private void startPreviewActivity(Intent data) {
+
+        String filepath = getFilePathFromIntent(data);
+
+        FileManager managedFile;
+        try {
+            managedFile = new FileManager(filepath);
+            boolean isMimeValid = isFileMimeValid(data, managedFile.getFileType());
+            if(!isMimeValid)
+                throw new FileInvalidFormatException("File MIME type is invalid");
+
+            Intent previewIntentActivitiy = new Intent(this, PreviewMediaActivity.class);
+            previewIntentActivitiy.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
+            previewIntentActivitiy.putExtra(SPECIAL_MEDIA_TYPE, SMTypeCode);
+            startActivityForResult(previewIntentActivitiy, ActivityRequestCodes.PREVIEW_MEDIA);
+
+        } catch(FileExceedsMaxSizeException e) {
+            e.printStackTrace();
+            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
+                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+
+            UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+
+        } catch (FileMissingExtensionException | FileDoesNotExistException | FileInvalidFormatException e) {
+            e.printStackTrace();
+            UI_Utils.callToast(getResources().getString(R.string.file_invalid),
+                    Color.RED, Toast.LENGTH_LONG, getApplicationContext());
         }
     }
 
     private void startPreviewActivity(String filepath) {
-        Intent previewIntentActivitiy = new Intent(this, PreviewMediaActivity.class);
-        previewIntentActivitiy.putExtra(PreviewMediaActivity.MEDIA_FILE_PATH , filepath);
-        previewIntentActivitiy.putExtra(SPECIAL_MEDIA_TYPE , SMTypeCode);
-        startActivityForResult(previewIntentActivitiy, ActivityRequestCodes.PREVIEW_MEDIA);
+
+        FileManager managedFile;
+        try {
+            managedFile = new FileManager(filepath);
+
+            Intent previewIntentActivitiy = new Intent(this, PreviewMediaActivity.class);
+            previewIntentActivitiy.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
+            previewIntentActivitiy.putExtra(SPECIAL_MEDIA_TYPE, SMTypeCode);
+            startActivityForResult(previewIntentActivitiy, ActivityRequestCodes.PREVIEW_MEDIA);
+
+        } catch(FileExceedsMaxSizeException e) {
+            e.printStackTrace();
+            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
+                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+
+            UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+            finish();
+
+        } catch (FileMissingExtensionException | FileDoesNotExistException | FileInvalidFormatException e) {
+            e.printStackTrace();
+            UI_Utils.callToast(getResources().getString(R.string.file_invalid),
+                    Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+            finish();
+        }
     }
 
     @Override
@@ -307,7 +387,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         }
     }
 
-
     private void mediacallzGalleryWebView(){
 
         mwebView = new WebView(this);
@@ -389,12 +468,10 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     }
 
     private void openAudioMediapath(int code) {
-
         // Create the ACTION_GET_CONTENT Intent
         final Intent intent = FileUtils.createGetContentIntent("audio/*");
         Intent chooserIntent = Intent.createChooser(intent, "Select Audio File");
         startActivityForResult(chooserIntent, code);
-
     }
 
     private void RecordVideo(int code) {
@@ -563,8 +640,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         return "";
     }
 
-    //endregion
-
     private class downloadFileFromWebView extends AsyncTask<Void, Integer, Void> {
 
         private final String TAG = SelectMediaActivity.class.getSimpleName();
@@ -575,11 +650,11 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         private Boolean _downloading = false;
         private Cursor cursor;
 
-        public downloadFileFromWebView(long downloadId , String filePath) {
+        public downloadFileFromWebView(long downloadId , String filepath) {
 
             _downloadManager =  (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
             _iD = downloadId;
-            _filePath = filePath;
+            _filePath = filepath;
             _downloading=true;
             _instance = this;
 
@@ -616,14 +691,13 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
                     _downloading=false;
 
-                   if (cursor!=null)
-                        cursor.close();
+                    cursor.close();
 
                     if(mwebView!=null)
-                    if (mwebView.canGoBack()) {
-                        mwebView.goBack();
+                        if (mwebView.canGoBack()) {
+                            mwebView.goBack();
 
-                    }
+                        }
 
                     Log.i(TAG , " cancel end");
 
@@ -660,7 +734,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                                 _downloading = false;
                             }
 
-                          //  _progDialog.setMax(bytes_total);
+                            //  _progDialog.setMax(bytes_total);
 
                             if (bytes_total > FileManager.MAX_FILE_SIZE) {
 
@@ -691,10 +765,10 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                             int dl_progress = (int) ((bytes_downloaded * 100l) / bytes_total);
 
 
-                          //   publishProgress(dl_progress);
+                            //   publishProgress(dl_progress);
 
 
-                           _progDialog.setProgress(dl_progress);
+                            _progDialog.setProgress(dl_progress);
 
                             if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
 
@@ -712,7 +786,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                                 _downloading = false;
                             }
 
-                           // Log.d(TAG, statusMessage(cursor)); // for debug purposes only
+                            // Log.d(TAG, statusMessage(cursor)); // for debug purposes only
                             if (cursor != null)
                                 cursor.close();
 
@@ -725,7 +799,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
                         }
                     }
-                    }
+                }
             }).start();
 
             return null;
@@ -745,5 +819,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         }*/
 
     }
+    //endregion
+
+
 
 }
