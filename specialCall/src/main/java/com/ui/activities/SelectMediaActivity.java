@@ -218,11 +218,13 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         if (data != null) {
             returnUri = data.getData();
             if(returnUri!=null) {
-                String mimeType = getContentResolver().getType(returnUri);
+                String mimeType = getContentResolver().getType(returnUri);  // TODO : Remove or give an alternative , if we Video Record the type return NULL here !!
                 if(mimeType!=null)
                     result = MediaFilesUtils.isMimeValid(mimeType, fileType);
             }
-        }
+        }else
+            result = true; // if the data is null it's from the Camera\
+
         return result;
     }
 
@@ -233,10 +235,10 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         FileManager managedFile;
         try {
             managedFile = new FileManager(filepath);
-            boolean isMimeValid = isFileMimeValid(data, managedFile.getFileType());
+         /*   boolean isMimeValid = isFileMimeValid(data, managedFile.getFileType());// TODO : Remove or give an alternative , if we Video Record the type return NULL here !!
             if(!isMimeValid)
                 throw new FileInvalidFormatException("File MIME type is invalid");
-
+*/
             Intent previewIntentActivitiy = new Intent(this, PreviewMediaActivity.class);
             previewIntentActivitiy.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
             previewIntentActivitiy.putExtra(SPECIAL_MEDIA_TYPE, SMTypeCode);

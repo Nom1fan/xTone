@@ -16,7 +16,9 @@ import com.utils.SharedPrefUtils;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -228,7 +230,25 @@ public class DownloadReceiver extends BroadcastReceiver {
             String md5 = td.get(DataKeys.MD5).toString();
             FileManager.FileType fileType = FileManager.FileType.valueOf(td.get(DataKeys.FILE_TYPE).toString());
 
-            String historyFileName = Constants.HISTORY_FOLDER + fileType + "_" + md5 + "." + extension; //give a unique name to the file and make sure there won't be any duplicates
+            File yourDir = new File(Constants.HISTORY_FOLDER);
+            for (File f : yourDir.listFiles()) {
+
+                if (f.isFile()) {
+                    String fileName = f.getName();
+                    Log.i(TAG, "File name: " + fileName);
+                   if (fileName.contains(md5))
+                       return;
+                }
+            }
+
+          String contactName = ContactsUtils.getContactName(context, td.get(DataKeys.SOURCE_ID).toString());
+
+            if(contactName.isEmpty())
+                  contactName =  td.get(DataKeys.SOURCE_ID).toString();
+
+            String currentDateTimeString = new SimpleDateFormat("dd_MM_yy_HHmmss").format(new Date());
+
+            String historyFileName = Constants.HISTORY_FOLDER + currentDateTimeString + "_" + contactName + "_" + md5 + "." + extension; //give a unique name to the file and make sure there won't be any duplicates
             File copyToHistoryFile = new File(historyFileName);
 
             if (!copyToHistoryFile.exists()) // if the file exist don't do any duplicate
