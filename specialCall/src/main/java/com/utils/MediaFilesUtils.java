@@ -21,7 +21,7 @@ public abstract class MediaFilesUtils {
     private static final String videoMIME = "video";
 
 
-    public static boolean isMimeValid(String mimeType, FileManager.FileType fileType, String extension) {
+    public static boolean isMimeValid(String mimeType, FileManager.FileType fileType) {
 
         boolean result = false;
         switch(fileType) {
