@@ -324,7 +324,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     protected void onDestroy() {
         Log.i(TAG, "onDestroy()");
-        AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
+
+      if (AppStateManager.getAppState(this).equals(AppStateManager.STATE_LOADING))
+          AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
+
         Batch.onDestroy(this);
         super.onDestroy();
     }
