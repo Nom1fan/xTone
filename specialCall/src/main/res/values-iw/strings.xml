@@ -104,7 +104,7 @@
     <string name="snack_close">סגור</string>
 
     <!--  DrawerItems   -->
-    <string name="side_menu">תפריט MC:</string>
+    <string name="side_menu">תפריט:</string>
     <string name="media_management">ניהול מדיה</string>
     <string name="who_can_mc_me">מי רשאי לשלוח לי MC</string>
     <string name="how_to">איך להשתמש?</string>

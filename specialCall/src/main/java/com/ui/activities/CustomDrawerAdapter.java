@@ -6,6 +6,7 @@ package com.ui.activities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,13 +74,13 @@ public class CustomDrawerAdapter extends ArrayAdapter<DrawerItem> {
         }else
         {
             drawerHolder.ItemName.setText(getContext().getResources().getString(R.string.side_menu));
+            drawerHolder.ItemName.setTypeface(null, Typeface.BOLD);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
             layoutParams.gravity = Gravity.CENTER;
-            //layoutParams.setMargins(50, 0, 50, 0);
+            layoutParams.setMargins(0, 50, 0, 20);
             drawerHolder.ItemName.setLayoutParams(layoutParams);
 
             view.setClickable(false);
-            view.setBackgroundColor(0xb000a0d1);
         }
 
         return view;

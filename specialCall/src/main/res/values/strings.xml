@@ -137,7 +137,7 @@
     <string name="snack_close">Close</string>
 
     <!--  DrawerItems   -->
-    <string name="side_menu">MC Menu: </string>
+    <string name="side_menu">Menu: </string>
     <string name="media_management">Media Management</string>
     <string name="who_can_mc_me">Who Can MC me</string>
     <string name="how_to">How To ?</string>

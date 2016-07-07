@@ -1056,7 +1056,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 //        dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
 //        dataList.add(new DrawerItem("Rate Us", R.drawable.rateus2));
         dataList.add(new DrawerItem(getResources().getString(R.string.app_settings), R.drawable.settingsicon));
-        dataList.add(new DrawerItem(getResources().getString(R.string.about_FAQ), R.drawable.color_mc));
+        dataList.add(new DrawerItem(getResources().getString(R.string.about_FAQ), R.drawable.about_help));
 
         CustomDrawerAdapter mAdapter = new CustomDrawerAdapter(this, R.layout.custome_drawer_item,
                 dataList);
