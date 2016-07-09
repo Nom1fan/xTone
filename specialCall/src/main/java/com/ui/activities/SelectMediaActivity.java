@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -38,10 +39,10 @@ import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
-import com.utils.MediaFilesUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import DataObjects.SpecialMediaType;
@@ -75,6 +76,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private WebView mwebView;
     private ProgressDialog _progDialog;
     private boolean _isInWebView = false;
+    private MediaPlayer mMediaPlayer;
+    private FileManager _managedFile;
 
     //region Activity methods (onCreate(), onPause()...)
     @Override
@@ -212,22 +215,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         }
     }
 
-    private boolean isFileMimeValid(Intent data, FileManager.FileType fileType) {
-        boolean result = false;
-        Uri returnUri;
-        if (data != null) {
-            returnUri = data.getData();
-            if(returnUri!=null) {
-                String mimeType = getContentResolver().getType(returnUri);  // TODO : Remove or give an alternative , if we Video Record the type return NULL here !!
-                if(mimeType!=null)
-                    result = MediaFilesUtils.isMimeValid(mimeType, fileType);
-            }
-        }else
-            result = true; // if the data is null it's from the Camera\
-
-        return result;
-    }
-
     private void startPreviewActivity(Intent data) {
 
         String filepath = getFilePathFromIntent(data);
@@ -235,14 +222,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         FileManager managedFile;
         try {
             managedFile = new FileManager(filepath);
-         /*   boolean isMimeValid = isFileMimeValid(data, managedFile.getFileType());// TODO : Remove or give an alternative , if we Video Record the type return NULL here !!
-            if(!isMimeValid)
-                throw new FileInvalidFormatException("File MIME type is invalid");
-*/
-            Intent previewIntentActivitiy = new Intent(this, PreviewMediaActivity.class);
-            previewIntentActivitiy.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
-            previewIntentActivitiy.putExtra(SPECIAL_MEDIA_TYPE, SMTypeCode);
-            startActivityForResult(previewIntentActivitiy, ActivityRequestCodes.PREVIEW_MEDIA);
+            checkIfMediaCanBePrepared(managedFile);
 
         } catch(FileExceedsMaxSizeException e) {
             e.printStackTrace();
@@ -256,6 +236,71 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             UI_Utils.callToast(getResources().getString(R.string.file_invalid),
                     Color.RED, Toast.LENGTH_LONG, getApplicationContext());
         }
+    }
+
+    private void checkIfMediaCanBePrepared(FileManager managedFile) {
+
+        try {
+            _managedFile = managedFile;
+            FileManager.FileType fType = managedFile.getFileType();
+            String filepath = managedFile.getFileFullPath();
+            final File root = new File(filepath);
+            Uri uri = Uri.fromFile(root);
+
+            switch (fType) {
+                case AUDIO:
+                    checkIfWeCanPrepareSound(uri);
+                    break;
+
+                case VIDEO:
+                    checkIfWeCanPrepareVideo(uri);
+                    break;
+
+                case IMAGE:
+                    startPreviewMediaActivity();
+                    break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            UI_Utils.callToast(getResources().getString(R.string.file_invalid),
+                    Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+        }
+
+    }
+
+    private void checkIfWeCanPrepareSound( Uri audioUri) throws IOException {
+
+        Log.i(TAG, "Checking if Sound Can Be Prepared and work");
+        mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setDataSource(getApplicationContext(), audioUri);
+        mMediaPlayer.prepare();
+        mMediaPlayer.setLooping(true);
+        startPreviewMediaActivity();
+    }
+
+    private void checkIfWeCanPrepareVideo(Uri videoUri) throws IOException {
+
+        Log.i(TAG, "Checking if Video Can Be Prepared and work");
+        mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setDataSource(getApplicationContext(), videoUri);
+        mMediaPlayer.prepare();
+        mMediaPlayer.setLooping(true);
+        int width = mMediaPlayer.getVideoWidth();
+        int heighet = mMediaPlayer.getVideoHeight();
+        if (width > 0 && heighet > 0) {
+            startPreviewMediaActivity();
+        } else {
+            UI_Utils.callToast(getResources().getString(R.string.file_invalid),
+                    Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+        }
+    }
+
+    private void startPreviewMediaActivity(){
+        Intent previewIntentActivitiy = new Intent(getApplicationContext(), PreviewMediaActivity.class);
+        previewIntentActivitiy.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, _managedFile);
+        previewIntentActivitiy.putExtra(SPECIAL_MEDIA_TYPE, SMTypeCode);
+        startActivityForResult(previewIntentActivitiy, ActivityRequestCodes.PREVIEW_MEDIA);
+
     }
 
     private void startPreviewActivity(String filepath) {

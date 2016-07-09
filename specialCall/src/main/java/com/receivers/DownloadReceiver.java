@@ -230,16 +230,10 @@ public class DownloadReceiver extends BroadcastReceiver {
             String md5 = td.get(DataKeys.MD5).toString();
             FileManager.FileType fileType = FileManager.FileType.valueOf(td.get(DataKeys.FILE_TYPE).toString());
 
-            File yourDir = new File(Constants.HISTORY_FOLDER);
-            for (File f : yourDir.listFiles()) {
 
-                if (f.isFile()) {
-                    String fileName = f.getName();
-                    Log.i(TAG, "File name: " + fileName);
-                   if (fileName.contains(md5))
-                       return;
-                }
-            }
+            if(doesFileExistInHistoryFolderByMD5(md5))
+                return;
+
 
           String contactName = ContactsUtils.getContactName(context, td.get(DataKeys.SOURCE_ID).toString());
 
@@ -278,5 +272,22 @@ public class DownloadReceiver extends BroadcastReceiver {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean doesFileExistInHistoryFolderByMD5(String md5) {
+        boolean result = false;
+        File yourDir = new File(Constants.HISTORY_FOLDER);
+        for (File f : yourDir.listFiles()) {
+
+            if (f.isFile()) {
+                String fileName = f.getName();
+                if (fileName.contains(md5)) {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        return result;
+
     }
 }
