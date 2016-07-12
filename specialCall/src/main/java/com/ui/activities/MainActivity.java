@@ -961,9 +961,24 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void prepareCallNowButton() {
 
         _callBtn = (ImageButton) findViewById(R.id.CallNow);
-        if (_callBtn != null)
+        if (_callBtn != null) {
             _callBtn.setOnClickListener(this);
 
+            // to let people choose other dialers
+            _callBtn.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+
+                    final Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_DIAL);
+                    intent.setData(Uri.fromParts("tel", _destPhoneNumber, null));
+                    startActivity(Intent.createChooser(intent, ""));
+
+
+                    return true;
+                }
+            });
+        }
         _callBtn_textview = (TextView) findViewById(R.id.dial_textview);
     }
 
