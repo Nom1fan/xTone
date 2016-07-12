@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ImageButton _defaultpic_enabled;
     private TextView _ringToneNameTextView;
     private TextView _ringToneNameForProfileTextView;
+    private TextView _profile_textview;
     private RelativeLayout _mainActivityLayout;
     private ImageView _ringtoneStatus;
     private AutoCompleteTextView _destinationEditText;
@@ -993,6 +994,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         _defaultpic_enabled = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
         if (_defaultpic_enabled != null)
             _defaultpic_enabled.setOnClickListener(this);
+
+        _profile_textview = (TextView) findViewById(R.id.profile_textview);
     }
 
     private void setCustomActionBar() {
@@ -1236,6 +1239,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         _defaultpic_enabled.setClickable(false);
         drawSelectProfileMediaButton(false);
         _ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
+        _profile_textview.setVisibility(View.INVISIBLE);
     }
 
     private void enableSelectMediaButton() {
@@ -1262,6 +1266,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void enableSelectProfileMediaButton() {
 
         _defaultpic_enabled.setClickable(true);
+        _profile_textview.setVisibility(View.VISIBLE);
         drawSelectProfileMediaButton(true);
     }
 
