@@ -24,6 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -70,6 +71,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected ImageView mSpecialCallMutUnMuteBtn;
     protected ImageView mSpecialCallVolumeUpBtn;
     protected ImageView mSpecialCallVolumeDownBtn;
+    protected TextView mSpecialCallVolumeValueTextView;
     protected ImageView mSpecialCallBlockBtn;
     protected RelativeLayout mRelativeLayout;
     protected View mcButtonsOverlay;
@@ -237,6 +239,12 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         if (showFirstTime) {
             window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_X_LOCATION_BY_USER),
                     SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_Y_LOCATION_BY_USER)).commit();
+
+            verifyAudioManager();
+            mSpecialCallVolumeValueTextView = (TextView) mcButtonsOverlay.findViewById(R.id.volume_value);
+            mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+
+
             Log.i(TAG, "showFirstTime");
             showFirstTime = false;
         }
@@ -554,6 +562,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mSpecialCallVolumeUpBtn.setVisibility(View.INVISIBLE);
 
     }
+
     private void prepareMuteBtn() {
         Log.i(TAG, "Preparing Mute Button");
 
@@ -581,7 +590,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
                    if (mVolumeBeforeMute!=0)
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
-
+                    mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                     Log.i(TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
                     isMuted = false;
 
@@ -598,6 +607,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     Log.i(TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
                     mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                    mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                     isMuted = true;
 
                     mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
@@ -615,6 +625,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
         mSpecialCallVolumeUpBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_up);
+        mSpecialCallVolumeValueTextView = (TextView) mcButtonsOverlay.findViewById(R.id.volume_value);
 
         //ImageView for volume down Special Incoming Call
         mSpecialCallVolumeDownBtn.setOnClickListener(new View.OnClickListener() {
@@ -623,6 +634,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 volumeChangeByMCButtons = true;
                 verifyAudioManager();
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) - 1, 0); // decrease volume
+                mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                 stopVibrator();
 
             }
@@ -635,6 +647,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
                 verifyAudioManager();
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // decrease volume
+                mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                 stopVibrator();
                 return true;
             }
@@ -648,6 +661,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
                 verifyAudioManager();
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) + 1, 0); // increase volume
+                mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                 stopVibrator();
             }
         });
@@ -660,6 +674,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
                 verifyAudioManager();
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0); // increase volume
+                mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                 stopVibrator();
                 return true;
             }
@@ -694,7 +709,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     verifyPreviewAudioManager();
                     mPreviewAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
                     mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
-
+                    mSpecialCallVolumeValueTextView.setText(Integer.toString(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                     Log.i(TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
                     isMuted = false;
 
@@ -710,6 +725,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     Log.i(TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
                     mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
                     mPreviewAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                    mSpecialCallVolumeValueTextView.setText(Integer.toString(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                     isMuted = true;
 
                     mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
@@ -727,7 +743,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
         mSpecialCallVolumeUpBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_up);
-
+        mSpecialCallVolumeValueTextView = (TextView) mcButtonsOverlay.findViewById(R.id.volume_value);
         //ImageView for volume down Special Incoming Call
         mSpecialCallVolumeDownBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -735,6 +751,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 volumeChangeByMCButtons = true;
                 verifyPreviewAudioManager();
                 mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) - 1, 0); // decrease volume
+                mSpecialCallVolumeValueTextView.setText(Integer.toString(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
 
             }
         });
@@ -746,7 +763,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
                 verifyPreviewAudioManager();
                 mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // decrease volume
-
+                mSpecialCallVolumeValueTextView.setText(Integer.toString(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                 return true;
             }
         });
@@ -759,6 +776,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
                 verifyPreviewAudioManager();
                 mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) + 1, 0); // increase volume
+                mSpecialCallVolumeValueTextView.setText(Integer.toString(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
 
             }
         });
@@ -771,6 +789,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
                 verifyPreviewAudioManager();
                 mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mPreviewAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0); // increase volume
+                mSpecialCallVolumeValueTextView.setText(Integer.toString(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
 
                 return true;
             }
