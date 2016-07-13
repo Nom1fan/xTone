@@ -23,7 +23,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
-        android:text="@string/tip1_windowresize"
+        android:text="Tips"
         android:textSize="20dp" />/>
 
     <CheckBox

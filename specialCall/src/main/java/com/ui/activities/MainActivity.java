@@ -92,6 +92,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
@@ -158,7 +159,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private volatile boolean _updateThreadNextIterStarted = false;
     private ProgressDialog _progDialog;
     private Snackbar _snackBar;
-    private Dialog _tipDialog;
+    private Dialog _tipDialog = null;
+    private String[] _tipsCircularArray;
+    private int _tipsNum;
     //endregion
 
     //region Handlers
@@ -295,9 +298,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             UI_Utils.showCaseViewCallNumber(this, MainActivity.this);
 
-
             if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))
-                startingTipDialog();// UI_Utils.showRelevantTIPDialog(MainActivity.this);
+                startingTipDialog();
 
         }
 
@@ -434,16 +436,31 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         if (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_TIP)) {
 
-            if (_tipDialog!=null)
-                if(_tipDialog.isShowing()) {
+
+            _tipsCircularArray = new String[] {
+                    getApplicationContext().getResources().getString(R.string.tip1_windowresize),
+                    getApplicationContext().getResources().getString(R.string.tip2_profile),
+                    getApplicationContext().getResources().getString(R.string.tip3_block),
+                    getApplicationContext().getResources().getString(R.string.tip4_image_audio_gif),
+                    getApplicationContext().getResources().getString(R.string.tip5_you_can_preview)
+            };
+
+            Random r = new Random();
+            _tipsNum = r.nextInt(5);
+
+            final int arrayLength = _tipsCircularArray.length;
+
+         if (_tipDialog==null)
+             {  _tipDialog = new Dialog(MainActivity.this);
+
                     // custom dialog
-                    _tipDialog = new Dialog(MainActivity.this);
+
                     _tipDialog.setContentView(R.layout.tip_dialog);
                     _tipDialog.setTitle(MainActivity.this.getResources().getString(R.string.did_you_know));
 
                     // set the custom dialog components - text, image and button
                     final TextView text = (TextView) _tipDialog.findViewById(R.id.tip_msg);
-                    //  text.setText(MainActivity.this.getResources().getString(R.string.tip1_windowresize));
+                    text.setText(_tipsCircularArray[_tipsNum % arrayLength]);
 
 
                     Button nextTipBtn = (Button) _tipDialog.findViewById(R.id.next_tip);
@@ -451,10 +468,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     nextTipBtn.setOnClickListener(new OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            text.setText(MainActivity.this.getResources().getString(R.string.tip2_profile));
+                            text.setText(_tipsCircularArray[_tipsNum++ % arrayLength]);
                         }
                     });
 
+                     _tipDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                         @Override
+                         public void onDismiss(final DialogInterface arg0) {
+                             _tipDialog = null;
+                         }
+                     });
 
                     Button skipBtn = (Button) _tipDialog.findViewById(R.id.skip);
                     // if button is clicked, close the custom dialog

@@ -556,11 +556,12 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mSpecialCallMutUnMuteBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.mc_mute_unmute);
         mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
         mSpecialCallVolumeUpBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_up);
+        mSpecialCallVolumeValueTextView = (TextView) mcButtonsOverlay.findViewById(R.id.volume_value);
 
         mSpecialCallMutUnMuteBtn.setVisibility(View.INVISIBLE);
         mSpecialCallVolumeDownBtn.setVisibility(View.INVISIBLE);
         mSpecialCallVolumeUpBtn.setVisibility(View.INVISIBLE);
-
+        mSpecialCallVolumeValueTextView.setVisibility(View.INVISIBLE);
     }
 
     private void prepareMuteBtn() {
