@@ -40,6 +40,15 @@
     <string name="dont_show_again"> אל תראה את זה יותר</string>
     <string name="just_notify"> פשוט תעדכן</string>
 
+    <!--  Tips  -->
+    <string name="skip"> דלג</string>
+    <string name="next_tip"> טיפ הבא</string>
+    <string name="did_you_know"> הידעת ?! </string>
+    <string name="tip1_windowresize"> ניתן להזיז ולשנות את גודל החלון עם האצבעות. המיקום והגודל יישמרו לפעמים הבאות </string>
+    <string name="tip2_profile"> אחרי בחירת איש קשר , בחר מדייה בלחיצה על הגולגולת . מדיה זו תופיע במכשיר איש הקשר כאשר הוא מתקשר אלייך </string>
+    <string name="tip3_block"> ניתן לחסום אנשים מתפריט צדדי->מי רשאי לשלוח לי. או כאשר המדייה מופיעה, יש כפתור אדום לחסימה  </string>
+    <string name="tip4_image_audio_gif"> ניתן להעלות תמונה + רינגטון ביחד ולחוד. תמונה יכולה להיות גם גיף </string>
+    <string name="tip5_you_can_preview"> ניתן לראות מדייה שנשלחה. בחר איש קשר ולחץ על המדיה שנשלחה -> קדימון </string>
     <string name="cant_send_to_self">אופס! אינך יכול לבחור מדיה לעצמך!</string>
 
     <string name="file_invalid">אופס! קובץ או תיקייה לא חוקיים</string>

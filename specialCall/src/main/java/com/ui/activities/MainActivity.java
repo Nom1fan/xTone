@@ -1,6 +1,7 @@
 package com.ui.activities;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -36,6 +37,9 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -154,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private volatile boolean _updateThreadNextIterStarted = false;
     private ProgressDialog _progDialog;
     private Snackbar _snackBar;
+    private Dialog _tipDialog;
     //endregion
 
     //region Handlers
@@ -289,6 +294,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             syncAndroidVersionWithServer();
 
             UI_Utils.showCaseViewCallNumber(this, MainActivity.this);
+
+
+            if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))
+                startingTipDialog();// UI_Utils.showRelevantTIPDialog(MainActivity.this);
+
         }
 
     }
@@ -420,6 +430,63 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     //region Assisting methods (onClick(), eventReceived(), ...)
+    private void startingTipDialog(){
+
+        if (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_TIP)) {
+
+            if (_tipDialog!=null)
+                if(_tipDialog.isShowing()) {
+                    // custom dialog
+                    _tipDialog = new Dialog(MainActivity.this);
+                    _tipDialog.setContentView(R.layout.tip_dialog);
+                    _tipDialog.setTitle(MainActivity.this.getResources().getString(R.string.did_you_know));
+
+                    // set the custom dialog components - text, image and button
+                    final TextView text = (TextView) _tipDialog.findViewById(R.id.tip_msg);
+                    //  text.setText(MainActivity.this.getResources().getString(R.string.tip1_windowresize));
+
+
+                    Button nextTipBtn = (Button) _tipDialog.findViewById(R.id.next_tip);
+                    // if button is clicked, close the custom dialog
+                    nextTipBtn.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            text.setText(MainActivity.this.getResources().getString(R.string.tip2_profile));
+                        }
+                    });
+
+
+                    Button skipBtn = (Button) _tipDialog.findViewById(R.id.skip);
+                    // if button is clicked, close the custom dialog
+                    skipBtn.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            _tipDialog.dismiss();
+                        }
+                    });
+
+                    CheckBox checkBox = (CheckBox) _tipDialog.findViewById(R.id.dont_show_tips);
+                    checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                            SharedPrefUtils.setBoolean(MainActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_TIP, isChecked);
+
+                        }
+                    });
+                    checkBox.setText(MainActivity.this.getResources().getString(R.string.dont_show_again));
+
+
+                    _tipDialog.show();
+
+
+                }
+
+
+        }
+    }
+
     private void startLoginActivityIfLoggedOut() {
 
         if (!AppStateManager.isLoggedIn(this)) {

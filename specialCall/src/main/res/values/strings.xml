@@ -82,6 +82,16 @@
     <string name="just_notify"> Just Notify</string>
 
 
+    <!--  Tips  -->
+    <string name="skip"> Skip</string>
+    <string name="next_tip"> Next Tip</string>
+    <string name="did_you_know"> Did you know ?!</string>
+    <string name="tip1_windowresize"> you can move and resize the window with your fingers. it will always save the window size and location for next time </string>
+    <string name="tip2_profile"> after choosing contact, choose skull media that will be played on contact device when he calls </string>
+    <string name="tip3_block"> you can block contact media through menu->who can mc me.\n or when it shows, there is a red block button that blocks also </string>
+    <string name="tip4_image_audio_gif"> you can add audio +image together and seperatly, image can be also GIF. </string>
+    <string name="tip5_you_can_preview"> you can preview media you already sent. just choose contact  press on the media -> preview </string>
+
     <!--  SelectMediaActivity  -->
     <string name="recording">Recording...</string>
     <string name="stop_recording">Stop recording</string>

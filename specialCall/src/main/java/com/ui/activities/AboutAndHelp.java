@@ -35,6 +35,9 @@ public class AboutAndHelp extends PreferenceFragment {
                 SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW, false);
                 SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, false);
                 SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW, false);
+                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.DONT_SHOW_AGAIN_TIP, false);
+                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG, false);
+                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.DONT_SHOW_AGAIN_UPLOAD_DIALOG, false);
 
                 final Intent i = new Intent(getActivity() , MainActivity.class);
                 startActivity(i);
