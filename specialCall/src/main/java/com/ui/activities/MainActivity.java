@@ -230,6 +230,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         startLoginActivityIfLoggedOut();
 
         initializeUI();
+
+        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))
+            startingTipDialog();
     }
 
     @Override
@@ -298,8 +301,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             UI_Utils.showCaseViewCallNumber(this, MainActivity.this);
 
-            if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))
-                startingTipDialog();
+
 
         }
 
