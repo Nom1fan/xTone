@@ -121,8 +121,11 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         else
             nameOrPhone.setText(_destName);
 
-        ImageButton videoBtn = (ImageButton) findViewById(R.id.video_or_image);
+        ImageButton videoBtn = (ImageButton) findViewById(R.id.selectVideo);
         videoBtn.setOnClickListener(this);
+
+        ImageButton imageBtn = (ImageButton) findViewById(R.id.selectImage);
+        imageBtn.setOnClickListener(this);
 
         ImageButton recordVideoBtn = (ImageButton) findViewById(R.id.recordVideo);
         recordVideoBtn.setOnClickListener(this);
@@ -383,7 +386,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         if (id == R.id.mc_icon) {
             SelectMediaActivity.this.finish();
         }
-        else if (id == R.id.video_or_image || id == R.id.image_video_textview) {
+        else if (id == R.id.selectVideo || id == R.id.image_video_textview || id == R.id.selectImage) {
 
             openVideoAndImageMediapath(SMTypeCode);
 
