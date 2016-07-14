@@ -204,7 +204,7 @@ public class LoginActivity extends AppCompatActivity {
 
         _loginBtn = (ImageButton) findViewById(R.id.login_btn);
         _loginBtn.setEnabled(false);
-        _loginBtn.setImageResource(R.drawable.login_icon);
+        _loginBtn.setImageResource(R.drawable.login_btn_anim);
         _loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -308,7 +308,7 @@ public class LoginActivity extends AppCompatActivity {
         Log.v(TAG, "Enabling LoginButton");
 
         _loginBtn.setEnabled(true);
-        _loginBtn.setImageResource(R.drawable.login_icon);
+        _loginBtn.setImageResource(R.drawable.login_btn_anim);
 
     }
 
