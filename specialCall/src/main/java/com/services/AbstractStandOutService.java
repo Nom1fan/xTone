@@ -571,10 +571,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mSpecialCallMutUnMuteBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.mc_mute_unmute);
         verifyAudioManager();
         if (mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
-            mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
+            mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
             mSpecialCallMutUnMuteBtn.bringToFront();
         } else {
-            mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
+            mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
             mSpecialCallMutUnMuteBtn.bringToFront();
         }
 
@@ -595,7 +595,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     Log.i(TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
                     isMuted = false;
 
-                    mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
+                    mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
                     mSpecialCallMutUnMuteBtn.bringToFront();
                     stopVibrator();
 
@@ -611,7 +611,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                     isMuted = true;
 
-                    mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
+                    mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
                     mSpecialCallMutUnMuteBtn.bringToFront();
                     stopVibrator();
                 }
@@ -692,10 +692,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mSpecialCallMutUnMuteBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.mc_mute_unmute);
         verifyPreviewAudioManager();
         if (mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) {
-            mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
+            mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
             mSpecialCallMutUnMuteBtn.bringToFront();
         } else {
-            mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
+            mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
             mSpecialCallMutUnMuteBtn.bringToFront();
         }
 
@@ -714,7 +714,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     Log.i(TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
                     isMuted = false;
 
-                    mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
+                    mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
                     mSpecialCallMutUnMuteBtn.bringToFront();
                     stopVibrator();
                 } else {
@@ -729,7 +729,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     mSpecialCallVolumeValueTextView.setText(Integer.toString(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                     isMuted = true;
 
-                    mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
+                    mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
                     mSpecialCallMutUnMuteBtn.bringToFront();
                     stopVibrator();
                 }

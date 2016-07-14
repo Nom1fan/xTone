@@ -149,7 +149,7 @@ public class OutgoingService extends AbstractStandOutService {
         Log.i(TAG, "Set Silent , now volume: " + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
         isMuted = true;
 
-        mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute);//TODO : setImageResource need to be replaced ? memory issue ?
+        mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
         mSpecialCallMutUnMuteBtn.bringToFront();
         //  }
     }

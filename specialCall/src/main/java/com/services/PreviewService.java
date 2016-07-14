@@ -131,7 +131,7 @@ public class PreviewService extends AbstractStandOutService {
 
         volumeChangeByMCButtons = true;
         isMuted = false;
-        mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute);//TODO : setImageResource need to be replaced ? memory issue ?
+        mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
         mSpecialCallMutUnMuteBtn.bringToFront();
 
     }
