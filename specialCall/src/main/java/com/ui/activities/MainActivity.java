@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ImageButton _selectMediaBtn;
     private ImageButton _selectMediaBtn_small;
     private TextView _selectMediaBtn_textview;
+    private TextView _selectMediaBtn_textview2;
     private TextView _callBtn_textview;
     private ImageButton _callBtn;
     private ImageButton _clearText;
@@ -147,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private TextView _ringToneNameTextView;
     private TextView _ringToneNameForProfileTextView;
     private TextView _profile_textview;
+    private TextView _profile_textview2;
     private RelativeLayout _mainActivityLayout;
     private ImageView _ringtoneStatus;
     private AutoCompleteTextView _destinationEditText;
@@ -1085,6 +1087,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             _selectMediaBtn_small.setOnClickListener(this);
 
         _selectMediaBtn_textview = (TextView) findViewById(R.id.media_textview);
+        _selectMediaBtn_textview2 = (TextView) findViewById(R.id.caller_textview2);
 
     }
 
@@ -1103,6 +1106,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             _defaultpic_enabled.setOnClickListener(this);
 
         _profile_textview = (TextView) findViewById(R.id.profile_textview);
+        _profile_textview2 = (TextView) findViewById(R.id.profile_textview2);
     }
 
     private void setCustomActionBar() {
@@ -1338,6 +1342,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
         _selectMediaBtn_small.setVisibility(View.INVISIBLE);
         _selectMediaBtn_textview.setVisibility(View.INVISIBLE);
+        _selectMediaBtn_textview2.setVisibility(View.INVISIBLE);
         disableMediaStatusArrived();
     }
 
@@ -1347,6 +1352,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         drawSelectProfileMediaButton(false);
         _ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
         _profile_textview.setVisibility(View.INVISIBLE);
+        _profile_textview2.setVisibility(View.INVISIBLE);
     }
 
     private void enableSelectMediaButton() {
@@ -1358,6 +1364,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         _selectMediaBtn.setVisibility(View.VISIBLE);
         _selectMediaBtn_small.setVisibility(View.VISIBLE);
         _selectMediaBtn_textview.setVisibility(View.VISIBLE);
+        _selectMediaBtn_textview2.setVisibility(View.VISIBLE);
 
             Techniques tech = UI_Utils.getRandomInTechniques();
             YoYo.with(tech)
@@ -1374,6 +1381,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         _defaultpic_enabled.setClickable(true);
         _profile_textview.setVisibility(View.VISIBLE);
+        _profile_textview2.setVisibility(View.VISIBLE);
         drawSelectProfileMediaButton(true);
     }
 
