@@ -42,13 +42,13 @@
         android:clickable="true"
         android:scaleType="fitCenter"
         android:background="#67000000"
-        android:layout_alignLeft="@+id/media_textview"
-        android:layout_alignStart="@+id/media_textview"
+        android:layout_alignLeft="@+id/CallNumber"
+        android:layout_alignStart="@id/CallNumber"
         android:layout_below="@+id/caller_textview2"
         android:layout_marginTop="5dp"
         android:layout_above="@+id/CallNow"
-        android:layout_alignRight="@+id/profile_textview"
-        android:layout_alignEnd="@+id/media_textview"
+        android:layout_alignRight="@+id/CallNumber"
+        android:layout_alignEnd="@id/CallNumber"
         android:layout_alignParentStart="false" />
 
     <ImageButton
@@ -86,8 +86,10 @@
         android:textColor="#ffffff"
         android:textColorHint="#ffffff"
         android:layout_marginTop="40dp"
-        android:layout_toEndOf="@id/selectContactBtn"
-        android:layout_toLeftOf="@+id/selectContactBtn">
+        android:layout_toRightOf="@+id/clear"
+        android:layout_alignStart="@+id/destName"
+        android:layout_toLeftOf="@+id/clear"
+        android:layout_toStartOf="@+id/clear">
         <requestFocus />
     </AutoCompleteTextView>
 
@@ -240,7 +242,7 @@
         android:layout_below="@+id/destName"
         android:textSize="16dp"
         android:textColor="#ffffff"
-        android:layout_alignStart="@id/CallNumber"
+        android:layout_alignStart="@id/destName"
         android:layout_alignParentLeft="false"
         android:layout_marginTop="20dp" />
 
