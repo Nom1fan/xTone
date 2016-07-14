@@ -26,11 +26,14 @@
         android:textSize="18sp"
         android:background="#00ffffff"
         android:scaleType="fitCenter"
-        android:layout_below="@+id/profile_me_textview"
+        android:layout_below="@+id/profile_textview2"
         android:layout_alignParentLeft="false"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="false"
-        android:layout_alignParentRight="false" />
+        android:layout_alignParentRight="false"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp" />
 
     <ImageButton
         android:id="@+id/selectMediaBtn"
@@ -43,7 +46,7 @@
         android:layout_alignStart="@+id/media_textview"
         android:layout_below="@+id/caller_textview2"
         android:layout_marginTop="5dp"
-        android:layout_above="@+id/dial_textview"
+        android:layout_above="@+id/CallNow"
         android:layout_alignRight="@+id/profile_textview"
         android:layout_alignEnd="@+id/media_textview"
         android:layout_alignParentStart="false" />
@@ -60,7 +63,7 @@
         android:layout_alignParentLeft="false"
         android:layout_alignParentStart="true"
         android:layout_alignParentRight="false"
-        android:layout_marginTop="5dp" />
+        android:layout_marginTop="10dp" />
 
     <AutoCompleteTextView
         android:id="@+id/CallNumber"
@@ -73,19 +76,18 @@
         android:focusableInTouchMode="true"
         android:phoneNumber="true"
         android:maxLength="10"
-        android:singleLine="true"
+        android:singleLine="false"
         android:completionThreshold="1"
         android:inputType="textAutoComplete|text"
         android:fontFamily="sans-serif-light"
         android:background="#01789b"
         android:textSize="25dp"
-        android:layout_below="@+id/selectContactBtn"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_below="@+id/selectProfileMediaBtn"
         android:textColor="#ffffff"
         android:textColorHint="#ffffff"
-        android:layout_marginTop="5dp"
-        android:layout_toStartOf="@+id/clear">
+        android:layout_marginTop="40dp"
+        android:layout_toEndOf="@id/selectContactBtn"
+        android:layout_toLeftOf="@+id/selectContactBtn">
         <requestFocus />
     </AutoCompleteTextView>
 
@@ -161,14 +163,6 @@
         android:layout_alignLeft="@+id/mediaStatusArrived"
         android:layout_alignStart="@+id/mediaStatusArrived" />
 
-    <ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:id="@+id/logo"
-        android:layout_alignTop="@+id/selectProfileMediaBtn"
-        android:layout_alignParentStart="true"
-        android:src="@drawable/main_logo" />
-
     <TextView
         android:id="@+id/destName"
         android:layout_width="wrap_content"
@@ -178,13 +172,12 @@
         android:textColor="@color/white"
         android:text="Rony Eidlin"
         android:layout_below="@+id/CallNumber"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/CallNumber"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
+        android:layout_marginTop="5dp"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@+id/selectContactBtn"
+        android:layout_toEndOf="@+id/selectContactBtn"
+        android:layout_alignParentStart="false" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -227,17 +220,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/me"
-        android:id="@+id/profile_me_textview"
-        android:layout_below="@+id/ringtoneNameForProfile"
-        android:fontFamily="sans-serif-light"
-        android:layout_centerHorizontal="true"
-        android:textSize="26dp"
-        android:textColor="#ffffff" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="@string/media_the_contact_will_see"
         android:id="@+id/profile_textview"
         android:fontFamily="sans-serif-light"
@@ -252,44 +234,14 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/contact_textview"
-        android:fontFamily="sans-serif-light"
-        android:id="@+id/contact_textview"
-        android:textSize="14dp"
-        android:textColor="#ffffff"
-        android:layout_alignTop="@+id/selectContactBtn"
-        android:layout_toRightOf="@+id/selectContactBtn"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="20dp"
-        android:layout_alignRight="@+id/profile_textview"
-        android:layout_alignEnd="@+id/profile_textview"
-        android:layout_toLeftOf="@+id/selectContactBtn"
-        android:layout_marginRight="10dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="@string/media_the_contact_will_see"
         android:fontFamily="sans-serif-light"
         android:id="@+id/media_textview"
         android:layout_below="@+id/destName"
         android:textSize="16dp"
         android:textColor="#ffffff"
-        android:layout_alignStart="@+id/contact_textview"
+        android:layout_alignStart="@id/CallNumber"
         android:layout_alignParentLeft="false"
-        android:layout_marginTop="10dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/callbtn_textview"
-        android:fontFamily="sans-serif-light"
-        android:id="@+id/dial_textview"
-        android:textSize="16dp"
-        android:textColor="#ffffff"
-        android:layout_alignTop="@+id/CallNow"
-        android:layout_alignLeft="@+id/selectMediaBtn"
-        android:layout_alignStart="@+id/selectMediaBtn"
         android:layout_marginTop="20dp" />
 
     <TextView

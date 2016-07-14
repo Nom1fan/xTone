@@ -179,7 +179,7 @@
 
 
     <!--  activity_main Layout   -->
-    <string name="call_number_hint">Type name or number</string>
+    <string name="call_number_hint">Type name\\phone</string>
     <string name="me">Me</string>
     <string name="contact_textview">Tap to choose from your contacts Or type below</string>
     <string name="callbtn_textview">Tap to dial or change contact</string>

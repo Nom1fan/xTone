@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ImageButton _selectMediaBtn_small;
     private TextView _selectMediaBtn_textview;
     private TextView _selectMediaBtn_textview2;
-    private TextView _callBtn_textview;
+  //  private TextView _callBtn_textview;
     private ImageButton _callBtn;
     private ImageButton _clearText;
     private ProgressBar _fetchUserPbar;
@@ -1073,7 +1073,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 }
             });
         }
-        _callBtn_textview = (TextView) findViewById(R.id.dial_textview);
+    //    _callBtn_textview = (TextView) findViewById(R.id.dial_textview);
     }
 
     private void prepareSelectMediaButton() {
@@ -1295,7 +1295,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void disableCallButton() {
 
-        _callBtn_textview.setVisibility(View.INVISIBLE);
+      //  _callBtn_textview.setVisibility(View.INVISIBLE);
         if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION))
         {  YoYo.with(Techniques.SlideOutRight)
                 .duration(300)
@@ -1309,7 +1309,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void enableCallButton() {
 
-        _callBtn_textview.setVisibility(View.VISIBLE);
+      //  _callBtn_textview.setVisibility(View.VISIBLE);
         _callBtn.setVisibility(View.VISIBLE);
         _callBtn.setEnabled(true);
 
