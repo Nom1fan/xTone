@@ -460,7 +460,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     // custom dialog
 
                     _tipDialog.setContentView(R.layout.tip_dialog);
-                    _tipDialog.setTitle(MainActivity.this.getResources().getString(R.string.did_you_know));
 
                     // set the custom dialog components - text, image and button
                     final TextView text = (TextView) _tipDialog.findViewById(R.id.tip_msg);
@@ -1587,7 +1586,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void drawSelectContactButton(boolean enabled) {
 
         if (enabled)
-            _selectContactBtn.setImageResource(R.drawable.select_contact_enabled);
+            _selectContactBtn.setImageResource(R.drawable.select_contact_anim);
         else
             _selectContactBtn.setImageResource(R.drawable.select_contact_disabled);
     }
