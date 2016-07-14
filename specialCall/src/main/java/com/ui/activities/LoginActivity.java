@@ -366,7 +366,7 @@ public class LoginActivity extends AppCompatActivity {
         if(shouldEnable)
         {
             _getSmsCodeBtn.setEnabled(true);
-            _getSmsCodeBtn.setImageResource(R.drawable.send_sms_icon);
+            _getSmsCodeBtn.setImageResource(R.drawable.send_sms_anim);
         }
     }
 

@@ -12,7 +12,7 @@
         android:text="@string/get_sms_code"
         android:layout_below="@+id/LoginNumber"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/send_sms_icon"
+        android:src="@drawable/send_sms_anim"
         android:layout_marginTop="40dp"
         android:background="#00ffffff"
         android:clickable="true" />

@@ -54,7 +54,7 @@ public class GetSmsCodeTask extends AsyncTask<Void, String, String> {
         if(getSmsCodeButton!=null)
         {
             getSmsCodeButton.setEnabled(true);
-            getSmsCodeButton.setImageResource(R.drawable.send_sms_icon);
+            getSmsCodeButton.setImageResource(R.drawable.send_sms_anim);
         }
     }
 
@@ -87,7 +87,7 @@ public class GetSmsCodeTask extends AsyncTask<Void, String, String> {
         final ImageButton getSmsButton = _getSmsButtonWeakReference.get();
         if(getSmsButton!=null) {
             getSmsButton.setEnabled(true);
-            getSmsButton.setImageResource(R.drawable.send_sms_icon);
+            getSmsButton.setImageResource(R.drawable.send_sms_anim);
         }
         _context = null;
     }
