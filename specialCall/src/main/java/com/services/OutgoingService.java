@@ -271,6 +271,13 @@ public class OutgoingService extends AbstractStandOutService {
                     if (!isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && !isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(outgoingCallNumber)) {
 
                         try {
+
+                            try { // suppose to solve a bug in samsung that the window shows too fast and make the call screen white. need to let the call screen start before showing our window
+                                Thread.sleep(700);
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
+
                             mOutgoingCall=true;
 
                             String visualMediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, outgoingCallNumber);
