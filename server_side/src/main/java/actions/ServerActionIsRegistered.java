@@ -1,5 +1,7 @@
 package actions;
 
+import com.database.UsersDataAccess;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,11 +9,12 @@ import DataObjects.DataKeys;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import com.database.UsersDataAccess;
+import annotations.ServerActionAnno;
 
 /**
  * Created by Mor on 23/04/2016.
  */
+@ServerActionAnno(actionType = ServerActionType.IS_REGISTERED)
 public class ServerActionIsRegistered extends ServerAction {
 
     private String _id;

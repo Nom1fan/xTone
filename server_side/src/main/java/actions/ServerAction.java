@@ -6,6 +6,8 @@ import com.database.UsersDataAccess;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import DataObjects.DataKeys;
@@ -19,6 +21,13 @@ import log.Logged;
  * Created by Mor on 23/04/2016.
  */
 public abstract class ServerAction extends Logged {
+
+    private List<ServerActionType> preRegistrationActions = new LinkedList() {{
+        add(ServerActionType.REGISTER);
+        add(ServerActionType.GET_SMS_CODE);
+        add(ServerActionType.GET_SMS_CODE_FOR_LOAD_TEST);
+        add(ServerActionType.PING);
+    }};
 
     protected ConnectionToClient _clientConnection;
     protected IDAO _dao;
@@ -85,8 +94,6 @@ public abstract class ServerAction extends Logged {
 
     private boolean isPreRegistrationAction() {
         return
-                _serverActionType.equals(ServerActionType.REGISTER) ||
-                _serverActionType.equals(ServerActionType.GET_SMS_CODE) ||
-                _serverActionType.equals(ServerActionType.GET_SMS_CODE_FOR_LOAD_TEST);
+                preRegistrationActions.contains(_serverActionType);
     }
 }

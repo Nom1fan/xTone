@@ -12,10 +12,12 @@ import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
+import annotations.ServerActionAnno;
 
 /**
  * Created by Mor on 23/04/2016.
  */
+@ServerActionAnno(actionType = ServerActionType.INSERT_MEDIA_CALL_RECORD)
 public class ServerActionInsertMediaCallRecord extends ServerAction {
 
     private CallRecord _callRecord;

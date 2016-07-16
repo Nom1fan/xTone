@@ -11,6 +11,7 @@ import DataObjects.DataKeys;
  */
 public class MessageToServer implements Serializable {
 
+
     protected String _messageInitiaterId;
     protected HashMap<DataKeys, Object> _data;
     protected ServerActionType _serverActionType;

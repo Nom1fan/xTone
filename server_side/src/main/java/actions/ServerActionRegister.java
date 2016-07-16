@@ -10,11 +10,13 @@ import DataObjects.ResponseCodes;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
+import annotations.ServerActionAnno;
 import lang.ServerConstants;
 
 /**
  * Created by Mor on 23/04/2016.
  */
+@ServerActionAnno(actionType = ServerActionType.REGISTER)
 public class ServerActionRegister extends ServerAction {
 
     public ServerActionRegister() {
@@ -24,7 +26,7 @@ public class ServerActionRegister extends ServerAction {
     @Override
     public void doAction(Map data) {
 
-        _logger.info(_messageInitiaterId + " is attempting to register...");
+        _logger.info(_messageInitiaterId + " is attempting to register:" + data);
 
         int smsCode = (int) data.get(DataKeys.SMS_CODE);
         String pushToken = (String) data.get(DataKeys.PUSH_TOKEN);

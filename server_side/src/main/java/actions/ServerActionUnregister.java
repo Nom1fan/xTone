@@ -1,5 +1,7 @@
 package actions;
 
+import com.database.UsersDataAccess;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,11 +10,12 @@ import DataObjects.DataKeys;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import com.database.UsersDataAccess;
+import annotations.ServerActionAnno;
 
 /**
  * Created by Mor on 23/04/2016.
  */
+@ServerActionAnno(actionType = ServerActionType.UNREGISTER)
 public class ServerActionUnregister extends ServerAction {
 
     public ServerActionUnregister() {

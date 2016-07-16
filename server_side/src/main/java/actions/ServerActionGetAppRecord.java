@@ -10,11 +10,13 @@ import DataObjects.DataKeys;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
+import annotations.ServerActionAnno;
 
 /**
  * Created by Mor on 23/04/2016.
  */
-public class ServerActionGetAppRecord extends ServerAction {
+@ServerActionAnno(actionType = ServerActionType.GET_APP_RECORD)
+        public class ServerActionGetAppRecord extends ServerAction {
 
     public ServerActionGetAppRecord() {
         super(ServerActionType.GET_APP_RECORD);

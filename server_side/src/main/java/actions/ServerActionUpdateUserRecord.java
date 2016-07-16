@@ -9,10 +9,12 @@ import DataObjects.UserRecord;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
+import annotations.ServerActionAnno;
 
 /**
  * Created by Mor on 23/04/2016.
  */
+@ServerActionAnno(actionType = ServerActionType.UPDATE_USER_RECORD)
 public class ServerActionUpdateUserRecord extends ServerAction {
 
     public ServerActionUpdateUserRecord() {

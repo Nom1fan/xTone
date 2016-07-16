@@ -10,10 +10,12 @@ import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
+import annotations.ServerActionAnno;
 
 /**
  * Created by Mor on 18/06/2016.
  */
+@ServerActionAnno(actionType = ServerActionType.DELETE_FROM_DB)
 public class ServerActionDeleteFromDB extends ServerAction {
 
     public ServerActionDeleteFromDB() {

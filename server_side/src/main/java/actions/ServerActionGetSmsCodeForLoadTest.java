@@ -10,11 +10,13 @@ import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
+import annotations.ServerActionAnno;
 
 /**
  * Created by Mor on 23/04/2016.
  */
-public class ServerActionGetSmsCodeForLoadTest extends ServerAction {
+@ServerActionAnno(actionType = ServerActionType.GET_SMS_CODE_FOR_LOAD_TEST)
+        public class ServerActionGetSmsCodeForLoadTest extends ServerAction {
 
     public ServerActionGetSmsCodeForLoadTest() {
         super(ServerActionType.GET_SMS_CODE_FOR_LOAD_TEST);

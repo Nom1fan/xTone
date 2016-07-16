@@ -1,5 +1,7 @@
 package actions;
 
+import com.database.UsersDataAccess;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,14 +12,15 @@ import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import pushservice.BatchPushSender;
 import ServerObjects.ILangStrings;
-import com.database.UsersDataAccess;
+import annotations.ServerActionAnno;
 import lang.StringsFactory;
+import pushservice.BatchPushSender;
 
 /**
  * Created by Mor on 23/04/2016.
  */
+@ServerActionAnno(actionType = ServerActionType.NOTIFY_MEDIA_CLEARED)
 public class ServerActionNotifyMediaCleared extends ServerAction {
 
     public ServerActionNotifyMediaCleared() {

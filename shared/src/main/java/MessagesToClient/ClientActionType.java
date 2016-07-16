@@ -11,5 +11,5 @@ public enum ClientActionType {
     REGISTER_RES,
     UNREGISTER_RES,
     UPDATE_RES,
-    TRIGGER_EVENT
+    PING, TRIGGER_EVENT
 }

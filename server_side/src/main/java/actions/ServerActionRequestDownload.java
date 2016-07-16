@@ -8,6 +8,7 @@ import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,12 +27,14 @@ import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
 import ServerObjects.ILangStrings;
+import annotations.ServerActionAnno;
 import lang.StringsFactory;
 import pushservice.BatchPushSender;
 
 /**
  * Created by Mor on 23/04/2016.
  */
+@ServerActionAnno(actionType = ServerActionType.REQUEST_DOWNLOAD)
 public class ServerActionRequestDownload extends ServerAction {
 
     private ILangStrings strings = StringsFactory.instance().getStrings(ILangStrings.ENGLISH);
@@ -71,7 +74,7 @@ public class ServerActionRequestDownload extends ServerAction {
             if(!sent)
                 throw new DownloadRequestFailedException("Failed to initiate download sequence.");
 
-            _logger.info("Initiating _data send...");
+            _logger.info("Initiating data send...");
 
             DataOutputStream dos = new DataOutputStream(_clientConnection.getClientSocket().getOutputStream());
             FileInputStream fis = new FileInputStream(fileForDownload.getFile());
@@ -88,7 +91,7 @@ public class ServerActionRequestDownload extends ServerAction {
             // Informing source (uploader) that file received by user (downloader)
             String title = strings.media_ready_title();
             String msg = String.format(strings.media_ready_body(), !_destContact.equals("") ? _destContact : _destId);
-            String token = UsersDataAccess.instance(_dao).getUserPushToken(_sourceId);
+            String token = _dao.getUserRecord(_sourceId).get_token();
             sent = BatchPushSender.sendPush(token, PushEventKeys.TRANSFER_SUCCESS, title , msg, data);
             if(!sent)
                 _logger.warning("Failed to inform user " + _sourceId + " of transfer success to user: " + _destId);
@@ -102,7 +105,8 @@ public class ServerActionRequestDownload extends ServerAction {
                 FileExceedsMaxSizeException |
                 FileDoesNotExistException |
                 DownloadRequestFailedException |
-                FileMissingExtensionException e) {
+                FileMissingExtensionException |
+                SQLException e)  {
 
             handleDownloadFailure(e);
 

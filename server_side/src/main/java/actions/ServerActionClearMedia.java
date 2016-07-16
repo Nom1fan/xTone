@@ -12,11 +12,13 @@ import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
+import annotations.ServerActionAnno;
 import pushservice.BatchPushSender;
 
 /**
  * Created by Mor on 23/04/2016.
  */
+@ServerActionAnno(actionType = ServerActionType.CLEAR_MEDIA)
 public class ServerActionClearMedia extends ServerAction {
 
     public ServerActionClearMedia() {

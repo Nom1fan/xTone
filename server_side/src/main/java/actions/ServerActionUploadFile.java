@@ -17,15 +17,21 @@ import DataObjects.DataKeys;
 import DataObjects.PushEventKeys;
 import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
+import EventObjects.EventReport;
+import EventObjects.EventType;
 import FilesManager.FileManager;
+import MessagesToClient.ClientActionType;
+import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
 import ServerObjects.ILangStrings;
+import annotations.ServerActionAnno;
 import lang.StringsFactory;
 import pushservice.BatchPushSender;
 
 /**
  * Created by Mor on 23/04/2016.
  */
+@ServerActionAnno(actionType = ServerActionType.UPLOAD_FILE)
 public class ServerActionUploadFile extends ServerAction {
 
     private String _destId;
@@ -108,6 +114,12 @@ public class ServerActionUploadFile extends ServerAction {
                 throw new IOException("Upload was stopped abruptly");
             else if (fileSize < 0)
                 throw new IOException("Read too many bytes. Upload seems corrupted.");
+
+
+            // Informing source (uploader) that the file is on the way
+            HashMap<DataKeys, Object> replyData = new HashMap();
+            replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.UPLOAD_SUCCESS, null, _data));
+            replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
 
             // Inserting the record of the file upload, retrieving back the commId
             int commId = CommHistoryAccess.instance(_dao).insertMediaTransferRecord(_data);
