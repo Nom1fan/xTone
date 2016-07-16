@@ -584,7 +584,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     public void recordAudio() {
 
-        String fname = "MyAudioRecording_"+System.currentTimeMillis()+".aac";
+        String fname = "MyAudioRecording_"+System.currentTimeMillis()+".mp3";
         File sdAudioFile = new File(Constants.HISTORY_FOLDER, fname);
 
         sdAudioFile.delete();
@@ -595,8 +595,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         ContentValues values = new ContentValues(3);
         values.put(MediaStore.MediaColumns.TITLE, fname);
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
         recorder.setOutputFile(_recordedAudioFilePath);
 
 
