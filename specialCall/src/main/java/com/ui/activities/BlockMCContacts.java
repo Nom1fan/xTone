@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by rony on 10/02/2016.
  */
@@ -50,7 +52,7 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.blocked_user_list);
-        Log.i(TAG, "onCreate");
+        log(Log.INFO,TAG, "onCreate");
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -77,7 +79,7 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume()");
+        log(Log.INFO,TAG, "onResume()");
 
         prepareListViewData();
 
@@ -190,7 +192,7 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
         String unkownName = getResources().getString(R.string.uknown);
         for (String phone : blockedContactsSet) {
             if (!_phonesInListView.contains(phone)) {
-                Log.i(TAG, " adding phone to black list: " + phone);
+                log(Log.INFO,TAG, " adding phone to black list: " + phone);
 
                 int i = 0;
                 while (_namesInListView.contains(unkownName)) // for _namesInListView that have more than one number
@@ -273,12 +275,12 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
                     int position = _lv.getPositionForView(v);
 
                     // Removing contact from view
-                    Log.i(TAG, "position: " + String.valueOf(position));
+                    log(Log.INFO,TAG, "position: " + String.valueOf(position));
                     _lv.removeViewInLayout(v);
                     _namesInListView.remove(position);
 
                     // Removing contact from blocked list
-                    Log.i(TAG, "Remove from Set: " + _phonesInListView.get(position));
+                    log(Log.INFO,TAG, "Remove from Set: " + _phonesInListView.get(position));
                     if (_blockedContactsSet != null)
                         _blockedContactsSet.remove(_phonesInListView.get(position));
                     _phonesInListView.remove(position);

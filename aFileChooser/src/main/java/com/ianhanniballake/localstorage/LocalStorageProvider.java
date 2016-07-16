@@ -23,6 +23,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 public class LocalStorageProvider extends DocumentsProvider {
 
     public static final String AUTHORITY = "com.ianhanniballake.localstorage.documents";
@@ -78,7 +80,7 @@ public class LocalStorageProvider extends DocumentsProvider {
             newFile.createNewFile();
             return newFile.getAbsolutePath();
         } catch (IOException e) {
-            Log.e(LocalStorageProvider.class.getSimpleName(), "Error creating new file " + newFile);
+            log(Log.ERROR,LocalStorageProvider.class.getSimpleName(), "Error creating new file " + newFile);
         }
         return null;
     }
@@ -117,14 +119,14 @@ public class LocalStorageProvider extends DocumentsProvider {
             out = new FileOutputStream(tempFile);
             bitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
         } catch (IOException e) {
-            Log.e(LocalStorageProvider.class.getSimpleName(), "Error writing thumbnail", e);
+            log(Log.ERROR,LocalStorageProvider.class.getSimpleName(), "Error writing thumbnail:" + e.getMessage());
             return null;
         } finally {
             if (out != null)
                 try {
                     out.close();
                 } catch (IOException e) {
-                    Log.e(LocalStorageProvider.class.getSimpleName(), "Error closing thumbnail", e);
+                    log(Log.ERROR,LocalStorageProvider.class.getSimpleName(), "Error closing thumbnail: " + e.getMessage());
                 }
         }
         // It appears the Storage Framework UI caches these results quite

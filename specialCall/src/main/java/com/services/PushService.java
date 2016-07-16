@@ -28,6 +28,8 @@ import DataObjects.PushEventKeys;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by Mor on 05/02/2016.
  */
@@ -48,7 +50,7 @@ public class PushService extends IntentService {
             if (!Batch.Push.shouldDisplayPush(this, intent)) // Check that the push is valid
             {
                 String errMsg = "Invalid push data! Push data was null. Terminating push receive";
-                Log.e(TAG, errMsg);
+                log(Log.ERROR,TAG, errMsg);
                 throw new Exception(errMsg);
             }
 
@@ -56,7 +58,7 @@ public class PushService extends IntentService {
             //BatchPushData pushData = new BatchPushData(this, intent);
 
             String eventActionCode = intent.getStringExtra(PushEventKeys.PUSH_EVENT_ACTION);
-            Log.i(TAG, "PushEventActionCode:" + eventActionCode);
+            log(Log.INFO,TAG, "PushEventActionCode:" + eventActionCode);
 
             switch (eventActionCode) {
                 case PushEventKeys.PENDING_DOWNLOAD:
@@ -94,14 +96,14 @@ public class PushService extends IntentService {
     //region Event action methods
     private void pendingDownload(Intent intent) {
 
-        Log.i(TAG, "In:" + PushEventKeys.PENDING_DOWNLOAD);
+        log(Log.INFO,TAG, "In:" + PushEventKeys.PENDING_DOWNLOAD);
         String jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
         HashMap transferDetails = new Gson().fromJson(jsonData, HASHMAP_TYPE);
         String sourceId = (String)transferDetails.get(DataKeys.SOURCE_ID);
 
         if (MCBlockListUtils.IsMCBlocked(sourceId, getApplicationContext())) // Don't download if the number is blocked , just break and don't continue with the download flow
         {
-            Log.w(TAG, "Number blocked for download:" + sourceId);
+            log(Log.WARN,TAG, "Number blocked for download:" + sourceId);
             return;
         }
 
@@ -123,7 +125,7 @@ public class PushService extends IntentService {
 
     private void transferSuccess(Intent intent, String alert) {
 
-        Log.i(TAG, "In:" + PushEventKeys.TRANSFER_SUCCESS);
+        log(Log.INFO,TAG, "In:" + PushEventKeys.TRANSFER_SUCCESS);
         String jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
         HashMap transferDetails = new Gson().fromJson(jsonData, HASHMAP_TYPE);
 
@@ -133,7 +135,7 @@ public class PushService extends IntentService {
 
     private void clearMedia(Intent intent) {
 
-        Log.i(TAG, "In:" + PushEventKeys.CLEAR_MEDIA);
+        log(Log.INFO,TAG, "In:" + PushEventKeys.CLEAR_MEDIA);
         String jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
         HashMap transferDetails = new Gson().fromJson(jsonData, HASHMAP_TYPE);
         Intent i = new Intent(getApplicationContext(), ClearMediaIntentService.class);
@@ -143,7 +145,7 @@ public class PushService extends IntentService {
 
     private void clearSuccess(Intent intent, String alert) {
 
-        Log.i(TAG, "In:" + PushEventKeys.CLEAR_SUCCESS);
+        log(Log.INFO,TAG, "In:" + PushEventKeys.CLEAR_SUCCESS);
         String jsonData = intent.getStringExtra(PushEventKeys.PUSH_EVENT_DATA);
         HashMap transferDetails = new Gson().fromJson(jsonData, HASHMAP_TYPE);
         BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.CLEAR_SUCCESS, null, transferDetails));
@@ -152,11 +154,11 @@ public class PushService extends IntentService {
 
     private void displayNotification(Context context, Intent intent, EventType eventType) {
 
-        Log.i(TAG, "In: displayNotification");
+        log(Log.INFO,TAG, "In: displayNotification");
         boolean isAppInForeground = AppStateManager.isAppInForeground(context);
         String appState = AppStateManager.getAppState(context);
 
-        Log.i(TAG, String.format("[isAppInForeground]: %1$b, [App state]: %2$s", isAppInForeground, appState));
+        log(Log.INFO,TAG, String.format("[isAppInForeground]: %1$b, [App state]: %2$s", isAppInForeground, appState));
 
         if (isAppInForeground && AppStateManager.isLoggedIn(context)) {
             try {
@@ -181,11 +183,11 @@ public class PushService extends IntentService {
 
     private void displayNotificationInBgOnly(Context context, Intent intent) {
 
-        Log.i(TAG, "In: displayNotificationInBgOnly");
+        log(Log.INFO,TAG, "In: displayNotificationInBgOnly");
         boolean isAppInForeground = AppStateManager.isAppInForeground(context);
         String appState = AppStateManager.getAppState(context);
 
-        Log.i(TAG, String.format("[isAppInForeground]: %1$b, [App state]: %2$s", isAppInForeground, appState));
+        log(Log.INFO,TAG, String.format("[isAppInForeground]: %1$b, [App state]: %2$s", isAppInForeground, appState));
 
         if (isAppInForeground && AppStateManager.isLoggedIn(context)) {
             try {

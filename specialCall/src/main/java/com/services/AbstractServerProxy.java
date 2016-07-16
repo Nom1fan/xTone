@@ -31,6 +31,8 @@ import EventObjects.EventReport;
 import EventObjects.EventType;
 import MessagesToClient.MessageToClient;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by mor on 18/10/2015.
  */
@@ -73,14 +75,14 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
         connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 
-        Log.i(TAG, "Created");
+        log(Log.INFO,TAG, "Created");
         //callInfoToast(TAG + " created");
     }
 
     @Override
     public void onDestroy() {
 
-        Log.e(TAG, "Being destroyed");
+        log(Log.ERROR,TAG, "Being destroyed");
         //callErrToast(TAG + "is being destroyed");
     }
 
@@ -94,7 +96,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     @Override
     public void handleDisconnection(ConnectionToServer cts, String errMsg) {
 
-        Log.e(TAG, errMsg);
+        log(Log.ERROR,TAG, errMsg);
         try {
             cts.closeConnection();
         } catch (IOException e) {
@@ -122,7 +124,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
         } catch (Exception e) {
             String errMsg = "Handling message from server failed. Reason:" + e.getMessage();
-            Log.e(TAG, errMsg, e);
+            log(Log.ERROR,TAG, errMsg);
         } finally {
             try {
                 // Finished handling request-response transaction
@@ -137,11 +139,11 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
     //region Internal operations methods
     protected ConnectionToServer openSocket() throws IOException {
-        Log.i(TAG, "Opening socket...");
+        log(Log.INFO,TAG, "Opening socket...");
         ConnectionToServer connectionToServer = new ConnectionToServer(host, port, this);
         connectionToServer.openConnection();
         connections.add(connectionToServer);
-        Log.i(TAG, "Socket is open");
+        log(Log.INFO,TAG, "Socket is open");
 
         return connectionToServer;
     }
@@ -156,16 +158,16 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
     protected final void reconnect(String host, int port) throws IOException {
 
-        Log.i(TAG, "Reconnecting...");
+        log(Log.INFO,TAG, "Reconnecting...");
         ConnectionToServer connectionToServer = new ConnectionToServer(host, port, this);
         connectionToServer.openConnection();
         connectionToServer.closeConnection();
-        Log.i(TAG, "Reconnected successfully");
+        log(Log.INFO,TAG, "Reconnected successfully");
 
     }
 
     protected void cancelReconnect() {
-        Log.i(TAG, "Cancelling reconnect");
+        log(Log.INFO,TAG, "Cancelling reconnect");
         Intent i = new Intent();
         i.setClass(this, LogicServerProxyService.class);
         i.setAction(ACTION_RECONNECT);
@@ -176,7 +178,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
     protected void scheduleReconnect(long startTime) {
 
-        Log.i(TAG, "Scheduling reconnect");
+        log(Log.INFO,TAG, "Scheduling reconnect");
         if(!isNetworkAvailable()) {
             if (!AppStateManager.getAppState(this).equals(AppStateManager.STATE_DISABLED))
                 BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.DISCONNECTED));
@@ -193,7 +195,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         else
             interval = INITIAL_RETRY_INTERVAL;
 
-        Log.i(TAG, "Rescheduling connection in " + interval + "ms.");
+        log(Log.INFO,TAG, "Rescheduling connection in " + interval + "ms.");
 
         SharedPrefUtils.setLong(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, interval);
 
@@ -220,7 +222,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         boolean shouldStop = false;
         // If crash restart occurred but was not mid-action we should do nothing
         if ((flags & START_FLAG_REDELIVERY) != 0 && !wasMidAction()) {
-            Log.i(TAG, "Crash restart occurred but was not mid-action (wasMidAction()=" + wasMidAction() + ". Exiting service.");
+            log(Log.INFO,TAG, "Crash restart occurred but was not mid-action (wasMidAction()=" + wasMidAction() + ". Exiting service.");
             stopSelf(startId);
             shouldStop = true;
         }
@@ -242,7 +244,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
     protected void setMidAction(boolean bool) {
 
-        Log.i(TAG, "Setting midAction=" + bool);
+        log(Log.INFO,TAG, "Setting midAction=" + bool);
         SharedPrefUtils.setBoolean(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_MID_ACTION, bool);
     }
 

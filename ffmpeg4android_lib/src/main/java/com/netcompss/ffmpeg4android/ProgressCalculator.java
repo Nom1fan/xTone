@@ -1,11 +1,14 @@
 package com.netcompss.ffmpeg4android;
 
+import android.util.Log;
+
+import com.crashlytics.android.Crashlytics;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
-import android.util.Log;
+import static com.crashlytics.android.Crashlytics.log;
 
 public class ProgressCalculator {
 	
@@ -27,12 +30,12 @@ public class ProgressCalculator {
 			ref.setYear(112);
 			_timeRef = ref.getTime();
 		} catch (ParseException e) {
-			Log.w(Prefs.TAG, "failed to set _timeRef");
+			log(Log.WARN,Prefs.TAG, "failed to set _timeRef");
 		}
 	}
 	
 	public void initCalcParamsForNextInter() {
-		Log.i(Prefs.TAG, "initCalcParamsForNextInter");
+		log(Log.INFO,Prefs.TAG, "initCalcParamsForNextInter");
 		_lastVklogSize = -1;
 		_vkLogNoChangeCounter = 0;
 		_durationOfCurrent = null;
@@ -45,31 +48,31 @@ public class ProgressCalculator {
 
 			
 	public int calcProgress(int durationMultiplyer) {
-		//Log.i(Prefs.TAG, "========calc progress======= " + durationMultiplyer);
+		//Crashlytics.log(Log.INFO,Prefs.TAG, "========calc progress======= " + durationMultiplyer);
 		int progress  = 0;
 		if (_durationOfCurrent == null) {
 			String dur = GeneralUtils.getDutationFromVCLogRandomAccess(vkLogPath);
 			Log.d(Prefs.TAG, "dur: " + dur);
 			if (dur == null || dur.equals("") || dur.equals("null") ) {
-				Log.i(Prefs.TAG, "dur is not good, not setting ");
+				log(Log.INFO,Prefs.TAG, "dur is not good, not setting ");
 				if (_durationOfCurrentWaitIndex < DURATION_OF_CURRENT_WAIT_INDEX_LIMIT) {
-					Log.i(Prefs.TAG, "waiting for real duration, going out of calcProgress with 0");
+					log(Log.INFO,Prefs.TAG, "waiting for real duration, going out of calcProgress with 0");
 					_durationOfCurrentWaitIndex ++;
 					return 0;
 				}
 				else {
-					Log.i(Prefs.TAG, "_durationOfCurrentWaitIndex is equal to: " + DURATION_OF_CURRENT_WAIT_INDEX_LIMIT + " reseting.");
+					log(Log.INFO,Prefs.TAG, "_durationOfCurrentWaitIndex is equal to: " + DURATION_OF_CURRENT_WAIT_INDEX_LIMIT + " reseting.");
 					_durationOfCurrentWaitIndex = 0;
-					Log.i(Prefs.TAG, "setting fake Prefs.durationOfCurrent");
+					log(Log.INFO,Prefs.TAG, "setting fake Prefs.durationOfCurrent");
 
 					_durationOfCurrent = "00:03:00.00";
-					Log.w(Prefs.TAG, "setting fake Prefs.durationOfCurrent (Cant get from file): " + _durationOfCurrent);
+					log(Log.WARN,Prefs.TAG, "setting fake Prefs.durationOfCurrent (Cant get from file): " + _durationOfCurrent);
 
 				}
 			}
 			else {
 				_durationOfCurrent = GeneralUtils.getDutationFromVCLogRandomAccess(vkLogPath);
-				Log.i(Prefs.TAG, "duration: " + _durationOfCurrent + " \nTranscoding...");
+				log(Log.INFO,Prefs.TAG, "duration: " + _durationOfCurrent + " \nTranscoding...");
 			}
 		}
 
@@ -85,7 +88,7 @@ public class ProgressCalculator {
 				_vkLogNoChangeCounter = 0;
 			}
 			else {
-				//Log.w(Prefs.TAG, "Looks like Vk log is not increasing in size");
+				//Crashlytics.log(Log.WARN,Prefs.TAG, "Looks like Vk log is not increasing in size");
 				_vkLogNoChangeCounter++;
 			}
 
@@ -101,7 +104,7 @@ public class ProgressCalculator {
 				return 100;
 			}
 			else if (_vkLogNoChangeCounter > 16) {
-				Log.e(Prefs.TAG, "VK log is not changing in size, and no exit token found");
+				Crashlytics.log(Log.ERROR,Prefs.TAG, "VK log is not changing in size, and no exit token found");
 				return 100;
 			}
 			try {
@@ -113,23 +116,23 @@ public class ProgressCalculator {
 				
 				long durationLong = durationDate.getTime() - _timeRef;
 				if (durationMultiplyer != 1) {
-					//Log.i(Prefs.TAG, "====durationMultiplyer is not 1, handling===");
-					//Log.i(Prefs.TAG, "durationLong before: " + durationLong);
+					//Crashlytics.log(Log.INFO,Prefs.TAG, "====durationMultiplyer is not 1, handling===");
+					//Crashlytics.log(Log.INFO,Prefs.TAG, "durationLong before: " + durationLong);
 					durationLong = durationLong * durationMultiplyer;
-					//Log.i(Prefs.TAG, "durationLong after: " + durationLong);
+					//Crashlytics.log(Log.INFO,Prefs.TAG, "durationLong after: " + durationLong);
 				}
 				long currentTimeLong = currentTimeDate.getTime() - _timeRef;
 				//Log.d(Prefs.TAG, " durationLong: " + durationLong + " currentTimeLong: " + currentTimeLong + " diff: " + (durationLong - currentTimeLong));
 				progress  = Math.round(((float)currentTimeLong / durationLong) * 100);
 				if (progress >= 100) {
-					Log.w(Prefs.TAG, "progress is 100, but can't find exit in the log, probably fake progress, still running...");
+					log(Log.WARN,Prefs.TAG, "progress is 100, but can't find exit in the log, probably fake progress, still running...");
 					progress = 99;
 				}
 				_prevProgress = progress;
 
 				
 			} catch (ParseException e) {
-				Log.w(Prefs.TAG, e.getMessage());
+				log(Log.WARN,Prefs.TAG, e.getMessage());
 			}
 		}
 		

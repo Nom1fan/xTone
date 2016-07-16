@@ -23,6 +23,8 @@ import EventObjects.EventType;
 import MessagesToServer.MessageToServer;
 import MessagesToServer.ServerActionType;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 
 /**
  * <pre>
@@ -69,7 +71,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        Log.i(TAG, "LogicServerProxyService started");
+        log(Log.INFO,TAG, "LogicServerProxyService started");
 
         boolean shouldStop = handleCrashedService(flags, startId);
         if (shouldStop)
@@ -81,7 +83,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
             public void run() {
                 if (intent != null) {
                     String action = intent.getAction();
-                    Log.i(TAG, "Action:" + action);
+                    log(Log.INFO,TAG, "Action:" + action);
 
                     HashMap<DataKeys, Object> data = getDefaultMessageData();
 
@@ -144,22 +146,22 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
                             default:
                                 setMidAction(false);
-                                Log.w(TAG, "Service started with invalid action:" + action);
+                                log(Log.WARN,TAG, "Service started with invalid action:" + action);
 
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                         String errMsg = "Action:" + action + " failed. Exception:" + e.getMessage();
-                        Log.e(TAG, errMsg);
+                        log(Log.ERROR,TAG, errMsg);
                         //scheduleReconnect(System.currentTimeMillis());
                     } catch (Exception e) {
                         e.printStackTrace();
                         String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
                         handleActionFailure();
-                        Log.e(TAG, errMsg);
+                        log(Log.ERROR,TAG, errMsg);
                     }
                 } else
-                    Log.w(TAG, "Service started with missing action");
+                    log(Log.WARN,TAG, "Service started with missing action");
 
             }
         }.start();
@@ -205,7 +207,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
     private void actionRegister(ConnectionToServer connectionToServer, int smsCode, HashMap<DataKeys,Object> data) throws IOException {
 
-        Log.i(TAG, "Initiating actionRegister sequence...");
+        log(Log.INFO,TAG, "Initiating actionRegister sequence...");
 
         data.put(DataKeys.DEVICE_MODEL, SpecialDevicesUtils.getDeviceName());
         data.put(DataKeys.ANDROID_VERSION, Build.VERSION.RELEASE);
@@ -222,7 +224,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
     private void actionUnregister(ConnectionToServer connectionToServer, HashMap<DataKeys,Object> data) throws IOException {
 
-        Log.i(TAG, "Initating actionUnregister sequence...");
+        log(Log.INFO,TAG, "Initating actionUnregister sequence...");
 
         data.put(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(this));
 
@@ -236,7 +238,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
     private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, CallRecord callRecord, HashMap<DataKeys,Object> data) throws IOException {
 
-        Log.i(TAG, "Initiating actionInsertMediaCallRecord sequence...");
+        log(Log.INFO,TAG, "Initiating actionInsertMediaCallRecord sequence...");
         data.put(DataKeys.CALL_RECORD, callRecord);
 
         MessageToServer msgInsertMCrecord = new MessageToServer(ServerActionType.INSERT_MEDIA_CALL_RECORD, callRecord.get_sourceId(), data);
@@ -245,7 +247,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
     private void actionUpdateUserRecord(ConnectionToServer connectionToServer, HashMap<DataKeys,Object> data) throws IOException {
 
-        Log.i(TAG, "Initiating actionUpdateUserRecord sequence...");
+        log(Log.INFO,TAG, "Initiating actionUpdateUserRecord sequence...");
 
         MessageToServer msgUUR = new MessageToServer(ServerActionType.UPDATE_USER_RECORD, Constants.MY_ID(this), data);
         connectionToServer.sendToServer(msgUUR);

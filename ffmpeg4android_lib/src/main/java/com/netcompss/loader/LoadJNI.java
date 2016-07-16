@@ -1,11 +1,14 @@
 package com.netcompss.loader;
 
+import android.content.Context;
+import android.util.Log;
+
+import com.crashlytics.android.Crashlytics;
 import com.netcompss.ffmpeg4android.CommandValidationException;
 import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.netcompss.ffmpeg4android.Prefs;
 
-import android.content.Context;
-import android.util.Log;
+import static com.crashlytics.android.Crashlytics.*;
 
 public final class LoadJNI {
 
@@ -22,7 +25,7 @@ public final class LoadJNI {
 	 * @throws CommandValidationException
 	 */
 	public void run(String[] args, String workFolder, Context ctx, boolean isValidate) throws CommandValidationException {
-		Log.i(Prefs.TAG, "running ffmpeg4android_lib: " + Prefs.version);
+		log(Log.INFO,Prefs.TAG, "running ffmpeg4android_lib: " + Prefs.version);
 		// delete previous log: this is essential for correct progress calculation
 		String vkLogPath = workFolder + "vk.log";
 		GeneralUtils.deleteFileUtil(vkLogPath);
@@ -58,7 +61,7 @@ public final class LoadJNI {
 		//String videokitLibPath = "/data/app/com.examples.ffmpeg4android_demo-1/lib/arm64/libvideokit.so";
 		
 		
-		Log.i(Prefs.TAG, "videokitLibPath: " + videokitLibPath);
+		log(Log.INFO,Prefs.TAG, "videokitLibPath: " + videokitLibPath);
 		return videokitLibPath;
 		
 	}

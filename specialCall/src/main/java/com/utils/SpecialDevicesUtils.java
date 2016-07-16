@@ -6,6 +6,8 @@ import android.util.Log;
 
 import java.util.Arrays;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by Mor on 27/02/2016.
  */
@@ -31,7 +33,7 @@ public abstract class SpecialDevicesUtils {
         if (model.startsWith(manufacturer)) {
             return model.toLowerCase();
         }
-        Log.i(TAG, "Manufacturer device name: " + manufacturer + " " + model);
+        log(Log.INFO,TAG, "Manufacturer device name: " + manufacturer + " " + model);
         return (manufacturer + " " + model).toLowerCase();
     }
 
@@ -40,12 +42,12 @@ public abstract class SpecialDevicesUtils {
         String deviceName = getDeviceName();
         if (Arrays.asList(StrictMemoryManagerDevices).contains(deviceName))
         {
-            Log.i(TAG,"Device has strict memory manager: " + deviceName);
+            log(Log.INFO,TAG,"Device has strict memory manager: " + deviceName);
             SharedPrefUtils.setBoolean(context , SharedPrefUtils.GENERAL , SharedPrefUtils.STRICT_MEMORY_MANAGER_DEVICES , true);
         }
         else
         {
-            Log.i(TAG,"Device doesn't have strict memory manager: " + deviceName);
+            log(Log.INFO,TAG,"Device doesn't have strict memory manager: " + deviceName);
             SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.STRICT_MEMORY_MANAGER_DEVICES , false);
         }
     }
@@ -55,12 +57,12 @@ public abstract class SpecialDevicesUtils {
         String deviceName = getDeviceName();
         if (deviceName.contains(StrictRingingCapabilitiesLGDevice) && !deviceName.contains(LG_G2_StrictRingingDisable) )  // all LG devices except LG G2
         {
-            Log.i(TAG,"Device has strict Ringing Capabilities : " + deviceName);
+            log(Log.INFO,TAG,"Device has strict Ringing Capabilities : " + deviceName);
             SharedPrefUtils.setBoolean(context , SharedPrefUtils.GENERAL , SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES , true);
         }
         else
         {
-            Log.i(TAG,"Device doesn't have strict Ringing Capabilities : " + deviceName);
+            log(Log.INFO,TAG,"Device doesn't have strict Ringing Capabilities : " + deviceName);
             SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES , false);
         }
     }

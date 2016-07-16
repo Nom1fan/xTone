@@ -16,13 +16,6 @@ package com.ui.components;
  * limitations under the License.
  */
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -33,6 +26,17 @@ import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
+
+import com.crashlytics.android.Crashlytics;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import static com.crashlytics.android.Crashlytics.*;
 
 /**
  * An adapter class which has the exact same behavior as the
@@ -414,7 +418,7 @@ public class FilterWithSpaceAdapter<T> extends BaseAdapter implements
                 text = (TextView) view.findViewById(mFieldId);
             }
         } catch (ClassCastException e) {
-            Log.e("ArrayAdapter",
+            log(Log.ERROR,"ArrayAdapter",
                     "You must supply a resource ID for a TextView");
             throw new IllegalStateException(
                     "ArrayAdapter requires the resource ID to be a TextView", e);

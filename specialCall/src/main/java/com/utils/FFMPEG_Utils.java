@@ -18,6 +18,8 @@ import java.util.HashMap;
 
 import FilesManager.FileManager;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by mor on 09/11/2015.
  */
@@ -100,7 +102,7 @@ public class FFMPEG_Utils {
             return new FileManager(compressedFile);
 
         } catch (Throwable e) {
-            Log.e(TAG, "Compressing video file failed", e);
+            log(Log.ERROR,TAG, "Compressing video file failed: " + e.getMessage());
         }
 
         // Could not compress, returning uncompressed (untouched) file
@@ -136,7 +138,7 @@ public class FFMPEG_Utils {
             return new FileManager(compressedFile);
 
         } catch (Throwable e) {
-            Log.e(TAG, "Compressing image file failed", e);
+            log(Log.ERROR,TAG, "Compressing image file failed: "+ e.getMessage());
         }
 
         // Could not compress, returning uncompressed (untouched) file
@@ -157,7 +159,7 @@ public class FFMPEG_Utils {
             return new FileManager(compressedFile);
 
         } catch (Throwable e) {
-            Log.e(TAG, "Compressing image file failed", e);
+            log(Log.ERROR,TAG, "Compressing image file failed: " + e.getMessage());
         }
 
         return baseFile;
@@ -194,7 +196,7 @@ public class FFMPEG_Utils {
             return new FileManager(trimmedFile);
 
         } catch (Throwable e) {
-            Log.e(TAG, "Trimming file failed", e);
+            log(Log.ERROR,TAG, "Trimming file failed: "+ e.getMessage());
         }
         // Could not trim, returning untrimmed (untouched) file
         return baseFile;

@@ -33,6 +33,8 @@ import FilesManager.FileManager;
 import utils.PhoneNumberUtils;
 import wei.mark.standout.StandOutWindow;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 
 public class IncomingService extends AbstractStandOutService {
 
@@ -71,11 +73,11 @@ public class IncomingService extends AbstractStandOutService {
         if (intent != null) {
             if (intent.getAction().equals(
                     ACTION_STOP_FOREGROUND)) {
-                Log.i(TAG, "Received Stop Foreground Intent");
+                log(Log.INFO,TAG, "Received Stop Foreground Intent");
                 stopForeground(true);
             } else if (intent.getAction().equals(
                     ACTION_START_FOREGROUND)) {
-                Log.i(TAG, "Received Start Foreground Intent ");
+                log(Log.INFO,TAG, "Received Start Foreground Intent ");
                 isForegroundAndAlarmNeeded(); // check if the Device has Strict Memory Manager like SPCM that always kills us on lowestscore package!
             }
         }
@@ -116,8 +118,8 @@ public class IncomingService extends AbstractStandOutService {
 
             try {
                 disableRingStream();
-                Log.i(TAG, "MUTE STREAM_RING ");
-                Log.i(TAG, "VIDEO file detected MUTE Ring");
+                log(Log.INFO,TAG, "MUTE STREAM_RING ");
+                log(Log.INFO,TAG, "VIDEO file detected MUTE Ring");
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -128,7 +130,7 @@ public class IncomingService extends AbstractStandOutService {
     @Override
     protected void playSound(Context context, Uri alert) {
 
-        Log.i(TAG, "Playing ringtone sound");
+        log(Log.INFO,TAG, "Playing ringtone sound");
         mMediaPlayer = new MediaPlayer();
         try {
             try {
@@ -144,13 +146,13 @@ public class IncomingService extends AbstractStandOutService {
                 mMediaPlayer.setLooping(true);
                 mMediaPlayer.start();
 
-                //Log.i(TAG, " Ringtone registerVolumeReceiver");
+                //Crashlytics.log(Log.INFO,TAG, " Ringtone registerVolumeReceiver");
                 registerVolumeReceiver();
 
             }
         } catch (IOException e) {
             e.printStackTrace();
-            Log.e(TAG, "Failed to play sound. Exception:" + e.getMessage());
+            log(Log.ERROR,TAG, "Failed to play sound. Exception:" + e.getMessage());
         }
     }
 
@@ -158,10 +160,10 @@ public class IncomingService extends AbstractStandOutService {
     protected synchronized void syncOnCallStateChange(int state, String incomingNumber) {
 
         incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
-        Log.i(TAG,"before incoming phone number : " + incomingNumber);
+        log(Log.INFO,TAG,"before incoming phone number : " + incomingNumber);
         mIncomingOutgoingNumber = incomingNumber;
         // Checking if number is in black list
-        Log.i(TAG, " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION));
+        log(Log.INFO,TAG, " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION));
         boolean isBlocked = MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext());
         if (isBlocked) {
             _contactName = ContactsUtils.getContactName(getApplicationContext(), incomingNumber);
@@ -177,7 +179,7 @@ public class IncomingService extends AbstractStandOutService {
             switch (state) {
                 case TelephonyManager.CALL_STATE_RINGING:
 
-                    Log.i(TAG,"CALL_STATE_RINGING " + incomingNumber);
+                    log(Log.INFO,TAG,"CALL_STATE_RINGING " + incomingNumber);
                     if (!isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && !isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(incomingNumber) && (mAnswered == false)) {
                         try {
 
@@ -197,7 +199,7 @@ public class IncomingService extends AbstractStandOutService {
 
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                Log.e(TAG, "Failed to set stream volume:" + e.getMessage());
+                                log(Log.ERROR,TAG, "Failed to set stream volume:" + e.getMessage());
                             }
 
                             //Check if Mute Was Needed if not return to UnMute.
@@ -236,7 +238,7 @@ public class IncomingService extends AbstractStandOutService {
 
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Log.e(TAG, "CALL_STATE_RINGING failed:" + e.getMessage());
+                            log(Log.ERROR,TAG, "CALL_STATE_RINGING failed:" + e.getMessage());
                         }
                     }
 
@@ -244,14 +246,14 @@ public class IncomingService extends AbstractStandOutService {
                 // TODO RONY Iteratively  inside enableRingStream() and   i.setAction(StandOutWindow.ACTION_CLOSE_ALL); will be before this method enableRingStream iteratively logic
                 case TelephonyManager.CALL_STATE_OFFHOOK:
                     if (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)) {
-                        Log.i(TAG, "mAnswered = true");
+                        log(Log.INFO,TAG, "mAnswered = true");
                         mAnswered = true;
                         stopVibrator();
                         closeSpecialCallWindowAndRingtone();
                     }
                     break;
                 case TelephonyManager.CALL_STATE_IDLE:
-                    Log.i(TAG, "TelephonyManager.CALL_STATE_IDLE");
+                    log(Log.INFO,TAG, "TelephonyManager.CALL_STATE_IDLE");
                     if (mWasSpecialRingTone) {
                         mWasSpecialRingTone = false;
                     }
@@ -262,7 +264,7 @@ public class IncomingService extends AbstractStandOutService {
 
                         Runnable r = new Runnable() {
                             public void run() {
-                                Log.i(TAG, "mAnswered = false");
+                                log(Log.INFO,TAG, "mAnswered = false");
                                 try {
                                     Thread.sleep(2000, 0);
                                 } catch (InterruptedException e) {
@@ -306,7 +308,7 @@ public class IncomingService extends AbstractStandOutService {
     //region Internal helper methods
     private void isForegroundAndAlarmNeeded() {
       boolean shouldStartForeground = false;//true;//TODO remove it when we know how to keep it working against SPCM or other memory services//SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.STRICT_MEMORY_MANAGER_DEVICES);
-        Log.i(TAG, "shouldStartForeground : " + String.valueOf(shouldStartForeground));
+        log(Log.INFO,TAG, "shouldStartForeground : " + String.valueOf(shouldStartForeground));
         if (shouldStartForeground)
         {
             //TODO ForeGroundService needed & Alarm Needed or this is solved after memory leakage solved????
@@ -319,7 +321,7 @@ public class IncomingService extends AbstractStandOutService {
 
     public void startForegoundService() {
         startForeground(NotificationUtils.FOREGROUND_NOTIFICATION_ID, NotificationUtils.getCompatNotification(getApplicationContext()));
-        Log.i(TAG,"STARTED FOREGROUND");
+        log(Log.INFO,TAG,"STARTED FOREGROUND");
     }
 
     private void checkIfItsFallBackReceiverIntent(Intent intent) {
@@ -330,11 +332,11 @@ public class IncomingService extends AbstractStandOutService {
                     StartStandOutServicesFallBackReceiver.completeWakefulIntent(intent);
 
             String incomingPhoneNumber = intent.getStringExtra(StartStandOutServicesFallBackReceiver.INCOMING_PHONE_NUMBER_KEY);
-            Log.i(TAG, "FallBackReceiver Gives incoming number:" + incomingPhoneNumber);
+            log(Log.INFO,TAG, "FallBackReceiver Gives incoming number:" + incomingPhoneNumber);
 
             // do you start from FallBackReceiver ??
             if (incomingPhoneNumber != null && !incomingPhoneNumber.isEmpty()) {
-                Log.i(TAG, "sending fallbackReceiver incoming number to SyncOnCallState: " + incomingPhoneNumber);
+                log(Log.INFO,TAG, "sending fallbackReceiver incoming number to SyncOnCallState: " + incomingPhoneNumber);
                 //Initiating syncOnCallStateChange
                 syncOnCallStateChange(TelephonyManager.CALL_STATE_RINGING, incomingPhoneNumber);
             }
@@ -347,7 +349,7 @@ public class IncomingService extends AbstractStandOutService {
         if (intent != null)
             action = intent.getAction();
         if (action != null)
-            Log.i(TAG, "Action:" + action);
+            log(Log.INFO,TAG, "Action:" + action);
     }
 
     private void actionThread(Intent intent) {
@@ -387,7 +389,7 @@ public class IncomingService extends AbstractStandOutService {
                         mMediaPlayer.setLooping(true);
                         mMediaPlayer.setVolume(1.0f, 1.0f);
                         mMediaPlayer.start();
-                        Log.i(TAG, " Video registerVolumeReceiver");
+                        log(Log.INFO,TAG, " Video registerVolumeReceiver");
                         registerVolumeReceiver();
                     }
                 };
@@ -397,7 +399,7 @@ public class IncomingService extends AbstractStandOutService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, e.getMessage());
+            log(Log.ERROR,TAG, e.getMessage());
         }
     }
 
@@ -406,12 +408,12 @@ public class IncomingService extends AbstractStandOutService {
         try {
             verifyAudioManager();
           if (mAudioManager.getRingerMode() != SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE)){
-              Log.i(TAG, "Set Ringer Mode back To Normal:" + SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE) + " current RingerMode: " + mAudioManager.getRingerMode());
+              log(Log.INFO,TAG, "Set Ringer Mode back To Normal:" + SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE) + " current RingerMode: " + mAudioManager.getRingerMode());
               mAudioManager.setRingerMode(SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE));
           }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "Set Ringer Mode back To Normal error:" + e.getMessage());
+            log(Log.ERROR,TAG, "Set Ringer Mode back To Normal error:" + e.getMessage());
         }
 
 
@@ -423,21 +425,21 @@ public class IncomingService extends AbstractStandOutService {
             verifyAudioManager();
            if (SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE) == AudioManager.RINGER_MODE_NORMAL)
             mAudioManager.setStreamMute(AudioManager.STREAM_RING, false);
-            Log.i(TAG, "mAudioManager.setStreamMute(AudioManager.STREAM_RING, false);");
+            log(Log.INFO,TAG, "mAudioManager.setStreamMute(AudioManager.STREAM_RING, false);");
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "Failed mAudioManager.setStreamMute(AudioManager.STREAM_RING, false); error:" + e.getMessage());
+            log(Log.ERROR,TAG, "Failed mAudioManager.setStreamMute(AudioManager.STREAM_RING, false); error:" + e.getMessage());
         }
         try {
             if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME) != mAudioManager.getStreamVolume(AudioManager.STREAM_RING)
                     && SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE) == AudioManager.RINGER_MODE_NORMAL) {  // resuming previous Ring Volume
-                Log.i(TAG, "AudioManager.STREAM_RING when ringermode is : " + String.valueOf(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RINGER_MODE)));
+                log(Log.INFO,TAG, "AudioManager.STREAM_RING when ringermode is : " + String.valueOf(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RINGER_MODE)));
                 mAudioManager.setStreamVolume(AudioManager.STREAM_RING, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME), 0);
-                Log.i(TAG, "mAudioManager.setStreamVolume(AudioManager.STREAM_RING, : " + String.valueOf(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME)));
+                log(Log.INFO,TAG, "mAudioManager.setStreamVolume(AudioManager.STREAM_RING, : " + String.valueOf(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME)));
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "Failed  mAudioManager.setStreamVolume(AudioManager.STREAM_RING); error:" + e.getMessage());
+            log(Log.ERROR,TAG, "Failed  mAudioManager.setStreamVolume(AudioManager.STREAM_RING); error:" + e.getMessage());
         }
     }
 
@@ -451,18 +453,18 @@ public class IncomingService extends AbstractStandOutService {
             verifyAudioManager();
             if (SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE) == AudioManager.RINGER_MODE_NORMAL)
             mAudioManager.setStreamMute(AudioManager.STREAM_RING, true);
-            Log.i(TAG, "mAudioManager.setStreamMute(AudioManager.STREAM_RING, true);");
+            log(Log.INFO,TAG, "mAudioManager.setStreamMute(AudioManager.STREAM_RING, true);");
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "Failed mAudioManager.setStreamMute(AudioManager.STREAM_RING, true); error:" + e.getMessage());
+            log(Log.ERROR,TAG, "Failed mAudioManager.setStreamMute(AudioManager.STREAM_RING, true); error:" + e.getMessage());
         }
         try {
             if (SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE) == AudioManager.RINGER_MODE_NORMAL)
             mAudioManager.setStreamVolume(AudioManager.STREAM_RING, 0, 0);
-            Log.i(TAG, "mAudioManager.setStreamVolume(AudioManager.STREAM_RING, : 0");
+            log(Log.INFO,TAG, "mAudioManager.setStreamVolume(AudioManager.STREAM_RING, : 0");
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "Failed  mAudioManager.setStreamVolume(AudioManager.STREAM_RING); error:" + e.getMessage());
+            log(Log.ERROR,TAG, "Failed  mAudioManager.setStreamVolume(AudioManager.STREAM_RING); error:" + e.getMessage());
         }
     }
 
@@ -473,31 +475,31 @@ public class IncomingService extends AbstractStandOutService {
     private void unlockMusicStreamDuringRinging() {
 
             verifyAudioManager();
-            Log.i(TAG, "unlockMusicStreamDuringRinging , getRingerMode: " +mAudioManager.getRingerMode());
+            log(Log.INFO,TAG, "unlockMusicStreamDuringRinging , getRingerMode: " +mAudioManager.getRingerMode());
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            Log.i(TAG, "unlockMusicStreamDuringRinging , Setting To Silent");
+            log(Log.INFO,TAG, "unlockMusicStreamDuringRinging , Setting To Silent");
             mAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);  // SOLUTION For LG G4 that needs another motivation to be silent (if removed the audio isn't heared in LG G4 you need to press the volume hard keys to silent manually , this fixes it)
-            Log.i(TAG, "unlockMusicStreamDuringRinging , getRingerMode: " +mAudioManager.getRingerMode());
+            log(Log.INFO,TAG, "unlockMusicStreamDuringRinging , getRingerMode: " +mAudioManager.getRingerMode());
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            Log.i(TAG, "unlockMusicStreamDuringRinging , Setting Back To Normal");
+            log(Log.INFO,TAG, "unlockMusicStreamDuringRinging , Setting Back To Normal");
             mAudioManager.setRingerMode(SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE));  // SOLUTION For LG G4 that needs another motivation to be silent (if removed the audio isn't heared in LG G4 you need to press the volume hard keys to silent manually , this fixes it)
-            Log.i(TAG, "unlockMusicStreamDuringRinging , getRingerMode: " +mAudioManager.getRingerMode());
+            log(Log.INFO,TAG, "unlockMusicStreamDuringRinging , getRingerMode: " +mAudioManager.getRingerMode());
     }
 
     private void correlateVibrateSettings() {
 
         //get vibrate settings and vibrate if needed.
         boolean isVibrateOn = Settings.System.getInt(this.getApplicationContext().getContentResolver(),"vibrate_when_ringing", 0) != 0;
-        Log.i(TAG,"isVibrateOn: " + isVibrateOn);
+        log(Log.INFO,TAG,"isVibrateOn: " + isVibrateOn);
         if ((mAudioManager.getRingerMode() == AudioManager.RINGER_MODE_NORMAL && isVibrateOn) || mAudioManager.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE)
             vibrateIfNeeded();
 
@@ -534,17 +536,17 @@ public class IncomingService extends AbstractStandOutService {
         if (isKeyguardLocked && dismissOrNot) {
             mLock.disableKeyguard();
             mKeyguardDismissed = true;
-            Log.i(TAG, "Dismiss Keyguard");
+            log(Log.INFO,TAG, "Dismiss Keyguard");
 
         }
 
         if (mKeyguardDismissed && !dismissOrNot) {
             mLock.reenableKeyguard();
             mKeyguardDismissed = false;
-            Log.i(TAG, "REenable Keyguard");
+            log(Log.INFO,TAG, "REenable Keyguard");
 
         }
-        Log.i(TAG, "!!! EnteredDismissedMethod !!! : isKeyGuardLocked: " + isKeyguardLocked + " mKeyguardDismissed: " + mKeyguardDismissed + " dismissOrNot: " + dismissOrNot);
+        log(Log.INFO,TAG, "!!! EnteredDismissedMethod !!! : isKeyGuardLocked: " + isKeyguardLocked + " mKeyguardDismissed: " + mKeyguardDismissed + " dismissOrNot: " + dismissOrNot);
 
     }
 
@@ -558,7 +560,7 @@ public class IncomingService extends AbstractStandOutService {
                 filter.addAction("android.media.VOLUME_CHANGED_ACTION");
 
                 registerReceiver(mVolumeButtonReceiver, filter);
-                Log.i(TAG, "registerReceiver VolumeButtonReceiver Finished register");
+                Crashlytics.log(Log.INFO,TAG, "registerReceiver VolumeButtonReceiver Finished register");
 
                 try {
                     Thread.sleep(1000,0);
@@ -584,7 +586,7 @@ public class IncomingService extends AbstractStandOutService {
                 enableRingStream();
 
                 try {
-                    Log.i(TAG, "mMediaPlayer.stop(); closeSpecialCallWindowAndRingtone");
+                    log(Log.INFO,TAG, "mMediaPlayer.stop(); closeSpecialCallWindowAndRingtone");
                     if (mMediaPlayer != null && mMediaPlayer.isPlaying())
                     {
                         mMediaPlayer.setVolume(0, 0);
@@ -609,7 +611,7 @@ public class IncomingService extends AbstractStandOutService {
                         if(mVolumeButtonReceiver!=null)
                             unregisterReceiver(mVolumeButtonReceiver);
                     } catch(Exception e) {
-                        Log.e(TAG,"UnregisterReceiver failed. Exception:"+ (e.getMessage()!=null? e.getMessage() : e));
+                        Crashlytics.log(Log.ERROR,TAG,"UnregisterReceiver failed. Exception:"+ (e.getMessage()!=null? e.getMessage() : e));
                     }*/
 
                         mVolumeChangeByService = false;
@@ -631,12 +633,12 @@ public class IncomingService extends AbstractStandOutService {
                             verifyAudioManager();
 
                             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
-                            Log.i(TAG, "UNMUTE STREAM_MUSIC ");
+                            log(Log.INFO,TAG, "UNMUTE STREAM_MUSIC ");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
 
-                        Log.i(TAG, "UNMUTED." + " mOldMediaVolume: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME) + " OldringVolume: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME));
+                        log(Log.INFO,TAG, "UNMUTED." + " mOldMediaVolume: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME) + " OldringVolume: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME));
                         try {
                             enableRingStream();
                         } catch (Exception e) {
@@ -682,12 +684,12 @@ public class IncomingService extends AbstractStandOutService {
                 int volumeDuringRun = (Integer) intent.getExtras().get("android.media.EXTRA_VOLUME_STREAM_VALUE");
 
                 boolean mBugFixPatchForReceiverRegister = true;
-                Log.i(TAG, "BroadCastFlags: mAlreadyMuted: " + mAlreadyMuted + " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) + " mBugFixPatchForReceiverRegister: " + mBugFixPatchForReceiverRegister);
+                log(Log.INFO,TAG, "BroadCastFlags: mAlreadyMuted: " + mAlreadyMuted + " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) + " mBugFixPatchForReceiverRegister: " + mBugFixPatchForReceiverRegister);
 
                 if (mVolumeChangeByService)
                     mVolumeChangeByService = false;
 
-                Log.i(TAG, "Exited BroadCast mOldMediaVolume: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME) + " volumeDuringRun: " + volumeDuringRun);
+                log(Log.INFO,TAG, "Exited BroadCast mOldMediaVolume: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME) + " volumeDuringRun: " + volumeDuringRun);
             } else
                 volumeChangeByMCButtons = false;
         }

@@ -16,6 +16,8 @@ import java.io.IOException;
 
 import wei.mark.standout.ui.Window;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 //import android.telephony.PreciseCallState;
 
 
@@ -50,7 +52,7 @@ public class PreviewService extends AbstractStandOutService {
             switch (action)
             {
                 case ACTION_PREVIEW: {
-                    Log.i(TAG, "ActionPreview Received");
+                    log(Log.INFO,TAG, "ActionPreview Received");
                     mPreviewStart = true;
                     startPreviewWindow(intent);
                 }
@@ -65,7 +67,7 @@ public class PreviewService extends AbstractStandOutService {
     public boolean onShow(int id, Window window) {
         super.onShow(id, window);  // at last so the volume will return to the previous(since when it was showed) , to make the volume always mute after Unhide move it to the Start of the method.
 
-        Log.i(TAG, "mPreviewStart should mute : " + String.valueOf(mPreviewStart));
+        log(Log.INFO,TAG, "mPreviewStart should mute : " + String.valueOf(mPreviewStart));
         setVolumeOnForPreview();
         return false;
     }
@@ -81,7 +83,7 @@ public class PreviewService extends AbstractStandOutService {
     @Override
     protected void playSound(Context context, Uri alert) {
 
-        Log.i(TAG, "Playing funtone sound");
+        log(Log.INFO,TAG, "Playing funtone sound");
         mMediaPlayer = new MediaPlayer();
         try {
             mMediaPlayer.setDataSource(context, alert);
@@ -93,7 +95,7 @@ public class PreviewService extends AbstractStandOutService {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Log.e(TAG, "Failed to play sound. Exception:" + e.getMessage());
+            log(Log.ERROR,TAG, "Failed to play sound. Exception:" + e.getMessage());
         }
     }
     //endregion
@@ -101,13 +103,13 @@ public class PreviewService extends AbstractStandOutService {
     //region Internal helper methods
     protected void startPreviewWindow(Intent intent) {
 
-        Log.i(TAG, "startPreviewWindow");
+        log(Log.INFO,TAG, "startPreviewWindow");
         if (mPreviewAudioManager == null) {
-            Log.i(TAG, "Audio manager was null , re-instantiated");
+            log(Log.INFO,TAG, "Audio manager was null , re-instantiated");
             mPreviewAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         }
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
-        Log.i(TAG, "Preview MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        log(Log.INFO,TAG, "Preview MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
 
         String visualMediaFilePath = intent.getStringExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA);
         String audioMediafilePath = intent.getStringExtra(AbstractStandOutService.PREVIEW_AUDIO);
@@ -120,13 +122,13 @@ public class PreviewService extends AbstractStandOutService {
 
     private void setVolumeOnForPreview() {
 
-        Log.i(TAG, "setVolumeOnForPreview");
+        log(Log.INFO,TAG, "setVolumeOnForPreview");
 
         try {
             mPreviewAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
             mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
         } catch (Exception e) {
-            Log.e(TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+            log(Log.ERROR,TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
         }
 
         volumeChangeByMCButtons = true;
@@ -142,7 +144,7 @@ public class PreviewService extends AbstractStandOutService {
         if (intent != null)
             action = intent.getAction();
         if (action != null)
-            Log.i(TAG, "Action:" + action);
+            log(Log.INFO,TAG, "Action:" + action);
     }
 
 
@@ -155,7 +157,7 @@ public class PreviewService extends AbstractStandOutService {
                     mp.setLooping(true);
                     mp.setVolume(1.0f, 1.0f);
                     mp.start();
-                    Log.i(TAG, "prepareVideoListener MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+                    log(Log.INFO,TAG, "prepareVideoListener MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                 }
             };
     }

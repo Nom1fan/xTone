@@ -7,6 +7,8 @@ import android.util.Log;
 import EventObjects.Event;
 import EventObjects.EventReport;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by Mor on 15/10/2015.
  */
@@ -14,7 +16,7 @@ public abstract class BroadcastUtils {
 
     public static void sendEventReportBroadcast(Context context, String tag, EventReport report) {
 
-        Log.i(tag, "Broadcasting event:" + report.status().toString());
+        log(Log.INFO,tag, "Broadcasting event:" + report.status().toString());
         Intent broadcastEvent = new Intent(Event.EVENT_ACTION);
         broadcastEvent.putExtra(Event.EVENT_REPORT, report);
         context.sendBroadcast(broadcastEvent);
@@ -22,7 +24,7 @@ public abstract class BroadcastUtils {
 
     public static void sendCustomBroadcast(Context context, String tag, Intent i) {
 
-        Log.i(tag, "Sending custom broadcast:" + i.getAction());
+        log(Log.INFO,tag, "Sending custom broadcast:" + i.getAction());
         context.sendBroadcast(i);
     }
 }

@@ -15,6 +15,8 @@ import com.utils.DownloadsUtils;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by mor on 01/10/2015.
  */
@@ -38,14 +40,14 @@ public class ConnectivityBroadcastReceiver extends WakefulBroadcastReceiver {
             }
         }
 
-        Log.i(TAG, "Connectivity changed. Wifi=" + wifiConnected + ". Mobile=" + mobileConnected);
+        log(Log.INFO,TAG, "Connectivity changed. Wifi=" + wifiConnected + ". Mobile=" + mobileConnected);
 
         if (wifiConnected || mobileConnected) {
 
             String appState = AppStateManager.getAppState(context);
-            Log.i(TAG, "App State:" +    appState);
+            log(Log.INFO,TAG, "App State:" +    appState);
             if (AppStateManager.isBlockingState(appState)) {
-                Log.i(TAG, "Starting LogicServerProxyService...");
+                log(Log.INFO,TAG, "Starting LogicServerProxyService...");
                 Intent i = new Intent(context, LogicServerProxyService.class);
                 i.setAction(LogicServerProxyService.ACTION_RESET_RECONNECT_INTERVAL);
                 context.startService(i);

@@ -28,7 +28,6 @@ import com.data_objects.Contact;
 import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
-import utils.PhoneNumberUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +35,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import utils.PhoneNumberUtils;
+
+import static com.crashlytics.android.Crashlytics.log;
 
 public class SelectSpecificContacts extends AppCompatActivity implements OnItemClickListener {
 
@@ -51,14 +54,14 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_spec_contacts);
-        Log.i(TAG, "onCreate");
+        log(Log.INFO,TAG, "onCreate");
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume()");
+        log(Log.INFO,TAG, "onResume()");
 
 
         prepareListViewData();
@@ -75,7 +78,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "Back Button Pressed");
+                log(Log.INFO,TAG, "Back Button Pressed");
                 returnWithResultIntent();
                 finish();
             }
@@ -178,7 +181,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
 
     @Override
     protected void onPause() {
-        Log.i(TAG, "onPause");
+        log(Log.INFO,TAG, "onPause");
         returnWithResultIntent();
         super.onPause();
     }
@@ -195,7 +198,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
 
     @Override
     public void onBackPressed() {
-        Log.i(TAG, "onBackPressed");
+        log(Log.INFO,TAG, "onBackPressed");
         returnWithResultIntent();
         super.onBackPressed();
     }
@@ -259,7 +262,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
                 _namesInListView.add(unkownName);
                 _phonesInListView.add(phone);
                 _allContacts.put(unkownName, phone);
-                Log.i(TAG, " adding phone to black list: " + phone);
+                log(Log.INFO,TAG, " adding phone to black list: " + phone);
             }
         }
     }
@@ -321,7 +324,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
                         if (_phonesInListView.get(position) != null)
                             cb.setChecked(mCheckStates.get(Integer.valueOf((_phonesInListView.get(position))), false)); //mcheckstates key is the unique phone number and it defines wether it's checked or not. on the view
                     } catch (Exception e) {
-                        Log.e(TAG, "listview can't block OR show phone on listview: " + (_phonesInListView.get(position)) + " " + _namesInListView.get(position));
+                        log(Log.ERROR,TAG, "listview can't block OR show phone on listview: " + (_phonesInListView.get(position)) + " " + _namesInListView.get(position));
 
                     }
 
@@ -355,7 +358,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
             try {
                 mCheckStates.put(Integer.valueOf(phoneInIndex), isChecked);  //mcheckstates key is the unique phone number and it defines wether it's checked or not. on the view
             } catch (Exception e) {
-                Log.e(TAG, "listview can't select checkbox phone on listview: " + Integer.valueOf(phoneInIndex) + " " + nameInIndex);
+                log(Log.ERROR,TAG, "listview can't select checkbox phone on listview: " + Integer.valueOf(phoneInIndex) + " " + nameInIndex);
 
             }
             if (isChecked)  // so there won't be any phone duplicate

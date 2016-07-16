@@ -16,6 +16,8 @@ import DataObjects.DataKeys;
 import DataObjects.SpecialMediaType;
 import FilesManager.FileManager;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by Mor on 18/02/2016.
  */
@@ -38,7 +40,7 @@ public class ClearMediaIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        Log.i(TAG, "Handling intent");
+        log(Log.INFO,TAG, "Handling intent");
         if(intent!=null) {
 
             Map data = (Map) intent.getSerializableExtra(TRANSFER_DETAILS);
@@ -50,14 +52,14 @@ public class ClearMediaIntentService extends IntentService {
                 switch (specialMediaType) {
 
                     case CALLER_MEDIA:
-                        Log.i(TAG, "Clearing CALLER_MEDIA");
+                        log(Log.INFO,TAG, "Clearing CALLER_MEDIA");
                         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, phoneNumber);
                         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, phoneNumber);
                         folderPath = Constants.INCOMING_FOLDER + phoneNumber;
                         FileManager.deleteDirectory(new File(folderPath));
                         break;
                     case PROFILE_MEDIA:
-                        Log.i(TAG, "Clearing PROFILE_MEDIA");
+                        log(Log.INFO,TAG, "Clearing PROFILE_MEDIA");
                         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, phoneNumber);
                         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, phoneNumber);
                         folderPath = Constants.OUTGOING_FOLDER + phoneNumber;
@@ -85,7 +87,7 @@ public class ClearMediaIntentService extends IntentService {
             } catch (Exception e) {
 
                 //TODO Mor: Inform clear requester that clear may have failed
-                Log.e(TAG, "Unable to clear media from user:"+phoneNumber+". [Exception]:" + (e.getMessage()!=null ? e.getMessage() : e));
+                log(Log.ERROR,TAG, "Unable to clear media from user:"+phoneNumber+". [Exception]:" + (e.getMessage()!=null ? e.getMessage() : e));
             }
         }
 

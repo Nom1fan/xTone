@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.crashlytics.android.Crashlytics;
 import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.BitmapUtils;
@@ -54,6 +55,8 @@ import utils.PhoneNumberUtils;
 import wei.mark.standout.StandOutWindow;
 import wei.mark.standout.constants.StandOutFlags;
 import wei.mark.standout.ui.Window;
+
+import static com.crashlytics.android.Crashlytics.*;
 
 public abstract class AbstractStandOutService extends StandOutWindow {
 
@@ -118,24 +121,24 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         statusBarHeighet = getStatusBarHeight();
 
-        Log.i(TAG, "Service onCreate");
+        log(Log.INFO,TAG, "Service onCreate");
     }
 
     @Override
     public void onDestroy() {
-        Log.e(TAG, "Service onDestroy");
+        Crashlytics.log(Log.ERROR,TAG, "Service onDestroy");
         super.onDestroy();
 
     }
 
     @Override
     public void onLowMemory() {
-        Log.e(TAG, "Service onLowMemory");
+        Crashlytics.log(Log.ERROR,TAG, "Service onLowMemory");
     }
 
     @Override
     public void onTrimMemory(int level) {
-        Log.e(TAG, "Service onTrimMemory Level: " + String.valueOf(level));
+        Crashlytics.log(Log.ERROR,TAG, "Service onTrimMemory Level: " + String.valueOf(level));
     }
 
     @Override
@@ -147,7 +150,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     //region Standout Window methods
     @Override
     public String getAppName() {
-        Log.i(TAG, "getAppName");
+        log(Log.INFO,TAG, "getAppName");
         return mContactTitleOnWindow;
     }
 
@@ -159,7 +162,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     @Override
     public void createAndAttachView(int id, FrameLayout frame) {
 
-        Log.i(TAG, "In createAndAttachView()");
+        log(Log.INFO,TAG, "In createAndAttachView()");
 
         if (mRelativeLayout != null)
             frame.addView(mRelativeLayout);
@@ -180,12 +183,12 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         if (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS)) {
 
             if (!mPreviewStart)
-            {   Log.i(TAG, "set Volume Buttons ");
+            {   log(Log.INFO,TAG, "set Volume Buttons ");
                 prepareMuteBtn();
                 prepareVolumeBtn();}
             else
             {
-                Log.i(TAG, "set Preview Volume Buttons ");
+                log(Log.INFO,TAG, "set Preview Volume Buttons ");
                 previewPrepareMuteBtn();
                 previewPrepareVolumeBtn();
             }
@@ -200,22 +203,22 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     @Override
     public StandOutLayoutParams getParams(int id, Window window) {
-        Log.i(TAG, "In StandOutLayoutParams()");
+        log(Log.INFO,TAG, "In StandOutLayoutParams()");
         return new StandOutLayoutParams(id, mWidth, mHeight, 0, 0);
     }
 
     @Override
     public boolean onShow(int id, Window window) {
-        Log.i(TAG, "abstract : onShow");
+        log(Log.INFO,TAG, "abstract : onShow");
         try {
 
             if (!mPreviewStart)
-                Log.i(TAG, "abstract MUSIC_VOLUME Original" + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+                log(Log.INFO,TAG, "abstract MUSIC_VOLUME Original" + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
             else
-                Log.i(TAG, "abstract Preview MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+                log(Log.INFO,TAG, "abstract Preview MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
 
         } catch (Exception e) {
-            Log.i(TAG, "audiomanager confusion " + e.getMessage());
+            log(Log.INFO,TAG, "audiomanager confusion " + e.getMessage());
         }
 
         if (isHidden) {
@@ -229,10 +232,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
             }
             } catch (Exception e) {
-                Log.i(TAG, "audiomanager confusion " + e.getMessage());
+                log(Log.INFO,TAG, "audiomanager confusion " + e.getMessage());
             }
 
-            Log.i(TAG, "OnHide Mute Volume Now : " + String.valueOf(mVolumeBeforeMute));
+            log(Log.INFO,TAG, "OnHide Mute Volume Now : " + String.valueOf(mVolumeBeforeMute));
             isHidden = false;
         }
 
@@ -245,7 +248,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
 
 
-            Log.i(TAG, "showFirstTime");
+            log(Log.INFO,TAG, "showFirstTime");
             showFirstTime = false;
         }
 
@@ -254,7 +257,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     @Override
     public boolean onHide(int id, Window window) {
-        Log.i(TAG, "onHide");
+        log(Log.INFO,TAG, "onHide");
         stopVibrator();
         verifyAudioManager();
         mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
@@ -265,7 +268,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     @Override
     public int getFlags(int id) {
-        Log.i(TAG, "getFlags");
+        log(Log.INFO,TAG, "getFlags");
 
         // These flags enable:
         // The system window decorations, to drag the window,
@@ -280,7 +283,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     @Override
     public Intent getHiddenNotificationIntent(int id) {
-        Log.i(TAG, "getHiddenNotificationIntent");
+        log(Log.INFO,TAG, "getHiddenNotificationIntent");
         // Return an Intent that restores the MultiWindow
         return StandOutWindow.getShowIntent(this, getClass(), id);
     }
@@ -288,7 +291,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
  /*   @Override
     public boolean onTouchBody(int id, Window window, View view,
                                MotionEvent event) {
-        Log.i(TAG,"onTouchBody");
+        Crashlytics.log(Log.INFO,TAG,"onTouchBody");
         stopVibrator();
         return false;
     }*/
@@ -297,23 +300,23 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     @Override
     public boolean onUpdate(int id, Window window, StandOutLayoutParams params) {
 
-        //Log.i(TAG, "onUpdate");
+        //Crashlytics.log(Log.INFO,TAG, "onUpdate");
         try {
 
             ((VideoViewCustom) mSpecialCallView).setDimensions(window.getHeight(), window.getWidth());
             ((VideoViewCustom) mSpecialCallView).getHolder().setFixedSize(window.getHeight(), window.getWidth());
             ((VideoViewCustom) mSpecialCallView).postInvalidate(); // TODO Rony maybe not needed invalidate
         } catch (Exception e) {
-        //    Log.i(TAG, "can't onUpdate mSpecialCallView video, i guess it's not a video");
+        //    Crashlytics.log(Log.INFO,TAG, "can't onUpdate mSpecialCallView video, i guess it's not a video");
         }
         return false;
     }
 
     @Override
     public boolean onCloseAll() {
-        Log.i(TAG, "onCloseAll");
+        log(Log.INFO,TAG, "onCloseAll");
        /* if (mPreviewStart) {
-            Log.i(TAG,"Incase outgoing call is made return volume music to 0");
+            Crashlytics.log(Log.INFO,TAG,"Incase outgoing call is made return volume music to 0");
             verifyAudioManager();
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // setting max volume for music -5 as it's to high volume
         }*/
@@ -325,7 +328,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     @Override
     public boolean onClose(int id, Window window) {
-        Log.i(TAG, "onClose");
+        log(Log.INFO,TAG, "onClose");
         showFirstTime = false;
         int coordinates[] = new int[2];
         window.getLocationOnScreen(coordinates);
@@ -339,13 +342,13 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_Y_LOCATION_BY_USER, coordinates[1] - statusBarHeighet); // remove the Heighet of the status bar
 
        /* if (mPreviewStart) {
-            Log.i(TAG,"Incase outgoing call is made return volume music to 0");
+            Crashlytics.log(Log.INFO,TAG,"Incase outgoing call is made return volume music to 0");
             verifyAudioManager();
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // setting max volume for music -5 as it's to high volume
         }*/
 
 
-        Log.i(TAG, "Heighet: " + String.valueOf(window.getHeight()) + "Width: " + String.valueOf(window.getWidth()) + "X: " + String.valueOf(coordinates[0]) + "Y: " + String.valueOf(coordinates[1] - statusBarHeighet));
+        log(Log.INFO,TAG, "Heighet: " + String.valueOf(window.getHeight()) + "Width: " + String.valueOf(window.getWidth()) + "X: " + String.valueOf(coordinates[0]) + "Y: " + String.valueOf(coordinates[1] - statusBarHeighet));
 
         stopSound();
         stopVibrator();
@@ -381,7 +384,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     private void prepareRelativeLayout() {
-        Log.i(TAG, "Preparing RelativeLayout");
+        log(Log.INFO,TAG, "Preparing RelativeLayout");
 
         // Creating a new RelativeLayout
         mRelativeLayout = new RelativeLayout(this);
@@ -397,7 +400,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     private void prepareImageView(String mediaFilePath) {
-        Log.i(TAG, "Preparing ImageView");
+        log(Log.INFO,TAG, "Preparing ImageView");
 
         boolean gifEnabled=false;
         String ext="";
@@ -416,7 +419,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         if (gifEnabled)
         {
-            Log.i(TAG, "GIF Found");
+            log(Log.INFO,TAG, "GIF Found");
             mSpecialCallView = new GifImageView(this);
 
             mSpecialCallView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -473,12 +476,12 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     private void prepareVideoView(String mediaFilePath) {
-        Log.i(TAG, "Preparing VideoView");
+        log(Log.INFO,TAG, "Preparing VideoView");
         // VideoView on Relative Layout
         final File root = new File(mediaFilePath);
         SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
         Uri uri = Uri.fromFile(root);
-        Log.i(TAG, "Video uri=" + uri);
+        log(Log.INFO,TAG, "Video uri=" + uri);
 
         mSpecialCallView = new VideoViewCustom(this);
         mSpecialCallView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -508,7 +511,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     // Default view for outgoing call when there is no image or video
     protected void prepareDefaultViewForSpecialCall(String callNumber) {
-        Log.i(TAG, "Preparing SpecialCall view");
+        log(Log.INFO,TAG, "Preparing SpecialCall view");
 
         // Attempting to induce garbage collection
         System.gc();
@@ -528,7 +531,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     protected void prepareViewForSpecialCall(FileManager.FileType fileType, String mediaFilePath) {
-        Log.i(TAG, "Preparing SpecialCall view");
+        log(Log.INFO,TAG, "Preparing SpecialCall view");
 
         // Attempting to induce garbage collection
         System.gc();
@@ -541,7 +544,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             try {
                 prepareImageView(mediaFilePath);
             } catch (NullPointerException | OutOfMemoryError e) {
-                Log.e(TAG, "Failed decoding image", e);
+                Crashlytics.log(Log.ERROR,TAG, "Failed decoding image:" + e.getMessage());
             }
         }
         // Displaying video during call
@@ -551,7 +554,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mRelativeLayout.addView(mSpecialCallView);
     }
     private void disableVolumeButtons() {
-        Log.i(TAG, "Preparing disableVolumeButtons");
+        log(Log.INFO,TAG, "Preparing disableVolumeButtons");
 
         mSpecialCallMutUnMuteBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.mc_mute_unmute);
         mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
@@ -565,7 +568,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     private void prepareMuteBtn() {
-        Log.i(TAG, "Preparing Mute Button");
+        log(Log.INFO,TAG, "Preparing Mute Button");
 
         //TODO check if Togglebutton for imageView good also?
         mSpecialCallMutUnMuteBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.mc_mute_unmute);
@@ -583,7 +586,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             public void onClick(View v) {
 
                 if (isMuted) {  // in versions of KITKAT and lower , we start in muted mode on the music stream , because we don't know when answering happens and we should stop it.
-                    Log.i(TAG, "UNMUTE by button");
+                    log(Log.INFO,TAG, "UNMUTE by button");
                     volumeChangeByMCButtons = true;
 
                     verifyAudioManager();
@@ -592,7 +595,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                    if (mVolumeBeforeMute!=0)
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
                     mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
-                    Log.i(TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
+                    log(Log.INFO,TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
                     isMuted = false;
 
                     mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
@@ -600,12 +603,12 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     stopVibrator();
 
                 } else {
-                    Log.i(TAG, "MUTE by button");
+                    log(Log.INFO,TAG, "MUTE by button");
                     volumeChangeByMCButtons = true;
                     verifyAudioManager();
 
                     mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                    Log.i(TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
+                    log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
                     mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
                     mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
@@ -622,7 +625,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     private void prepareVolumeBtn() {
-        Log.i(TAG, "Preparing Volume Button");
+        log(Log.INFO,TAG, "Preparing Volume Button");
 
         mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
         mSpecialCallVolumeUpBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_up);
@@ -686,7 +689,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
 
     private void previewPrepareMuteBtn() {
-        Log.i(TAG, "Preparing Mute Button");
+        log(Log.INFO,TAG, "Preparing Mute Button");
 
         //TODO check if Togglebutton for imageView good also?
         mSpecialCallMutUnMuteBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.mc_mute_unmute);
@@ -704,26 +707,26 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             public void onClick(View v) {
 
                 if (isMuted) {  // in versions of KITKAT and lower , we start in muted mode on the music stream , because we don't know when answering happens and we should stop it.
-                    Log.i(TAG, "UNMUTE by button");
+                    log(Log.INFO,TAG, "UNMUTE by button");
                     volumeChangeByMCButtons = true;
 
                     verifyPreviewAudioManager();
                     mPreviewAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
                     mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
                     mSpecialCallVolumeValueTextView.setText(Integer.toString(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
-                    Log.i(TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
+                    log(Log.INFO,TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
                     isMuted = false;
 
                     mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
                     mSpecialCallMutUnMuteBtn.bringToFront();
                     stopVibrator();
                 } else {
-                    Log.i(TAG, "MUTE by button");
+                    log(Log.INFO,TAG, "MUTE by button");
                     volumeChangeByMCButtons = true;
                     verifyPreviewAudioManager();
 
                     mVolumeBeforeMute = mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                    Log.i(TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
+                    log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
                     mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
                     mPreviewAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
                     mSpecialCallVolumeValueTextView.setText(Integer.toString(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
@@ -740,7 +743,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     private void previewPrepareVolumeBtn() {
-        Log.i(TAG, "Preparing Volume Button");
+        log(Log.INFO,TAG, "Preparing Volume Button");
 
         mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
         mSpecialCallVolumeUpBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_up);
@@ -803,7 +806,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
 
     private void prepareBlockButton() {
-        Log.i(TAG, "Preparing Block Button");
+        log(Log.INFO,TAG, "Preparing Block Button");
         mSpecialCallBlockBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.block_mc);
         //ImageView for Closing Special Incoming Call
         mSpecialCallBlockBtn.setOnClickListener(new View.OnClickListener() {
@@ -869,7 +872,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         verifyAudioManager();
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
-        Log.i(TAG, "MUSIC_VOLUME Original: " + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        log(Log.INFO,TAG, "MUSIC_VOLUME Original: " + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
     }
 
     protected void backupRingSettings() {
@@ -877,19 +880,19 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         verifyAudioManager();
         int ringerMode = mAudioManager.getRingerMode();
 
-        Log.i(TAG, "RINGER_MODE Original: " + ringerMode);
+        log(Log.INFO,TAG, "RINGER_MODE Original: " + ringerMode);
         SharedPrefUtils.setInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE , ringerMode);
 
         int ringVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_RING);
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME, ringVolume);
-        Log.i(TAG, "mRingVolume Original: " + ringVolume);
+        log(Log.INFO,TAG, "mRingVolume Original: " + ringVolume);
     }
 
     protected void verifyAudioManager() {
 
         if (mAudioManager == null)
         {
-            Log.i(TAG , "Audio manager was null , re-instantiated");
+            log(Log.INFO,TAG , "Audio manager was null , re-instantiated");
             mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         }
     }
@@ -898,7 +901,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         if (mPreviewAudioManager == null)
         {
-            Log.i(TAG , "Audio manager was null , re-instantiated");
+            log(Log.INFO,TAG , "Audio manager was null , re-instantiated");
             mPreviewAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         }
     }
@@ -914,7 +917,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
      */
     protected void startVisualMediaMC(String visualMediaFilePath, String callNumber, boolean attachDefaultView) {
 
-        Log.i(TAG, "startVisualMediaMC SharedPrefUtils visualMediaFilePath:" + visualMediaFilePath);
+        log(Log.INFO,TAG, "startVisualMediaMC SharedPrefUtils visualMediaFilePath:" + visualMediaFilePath);
         if (attachDefaultView)
             SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, false);
         else
@@ -951,19 +954,19 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             startService(i);
 
         } else {
-            Log.e(TAG, "Empty media file path! Cannot start special call media");
+            Crashlytics.log(Log.ERROR,TAG, "Empty media file path! Cannot start special call media");
         }
     }
 
     protected void closeSpecialCallWindowWithoutRingtone() {
 
-        Log.i(TAG, "closeSpecialCallWindowWithoutRingtone():");
+        log(Log.INFO,TAG, "closeSpecialCallWindowWithoutRingtone():");
         if (isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) || isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)) {
             stopSound();
             stopVibrator();
             Intent i = new Intent(this, this.getClass());
             i.setAction(StandOutWindow.ACTION_CLOSE_ALL);
-            Log.i(TAG, "StandOutWindow.ACTION_CLOSE_ALL");
+            log(Log.INFO,TAG, "StandOutWindow.ACTION_CLOSE_ALL");
             startService(i);
         }
     }
@@ -973,7 +976,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         if(new File(audioFilePath).exists()) {
 
             SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
-            Log.i(TAG, "Ringtone before playing sound. audioFilePath: " + audioFilePath + " URI: " + Uri.parse(audioFilePath).toString());
+            log(Log.INFO,TAG, "Ringtone before playing sound. audioFilePath: " + audioFilePath + " URI: " + Uri.parse(audioFilePath).toString());
             playSound(getApplicationContext(), Uri.parse(audioFilePath));
         } else
         {
@@ -983,20 +986,20 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     protected void stopSound() {
 
-        Log.i(TAG, "Stop ringtone sound");
+        log(Log.INFO,TAG, "Stop ringtone sound");
 
         try {
             if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-                Log.i(TAG, "mMediaPlayer=" + mMediaPlayer);
+                log(Log.INFO,TAG, "mMediaPlayer=" + mMediaPlayer);
                 mMediaPlayer.setVolume(0, 0);
                 mMediaPlayer.stop();
                 //   mMediaPlayer.reset();
                 //   mMediaPlayer.release();
             } else
-                Log.i(TAG, "mMediaPlayer is null or isn't playing");
+                log(Log.INFO,TAG, "mMediaPlayer is null or isn't playing");
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "Failed to Stop sound. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+            Crashlytics.log(Log.ERROR,TAG, "Failed to Stop sound. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
         }
     }
     //endregion
@@ -1080,7 +1083,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
          if(!mOutgoingCall)
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
         } catch (Exception e) {
-            Log.e(TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+            Crashlytics.log(Log.ERROR,TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
         }
 
         try {
@@ -1088,16 +1091,16 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 mMediaPlayer.setVolume(0, 0);
                 //mMediaPlayer.release();
             } else
-                Log.i(TAG, "mMediaPlayer is null or isn't playing");
+                log(Log.INFO,TAG, "mMediaPlayer is null or isn't playing");
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "Failed to Stop sound. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+            Crashlytics.log(Log.ERROR,TAG, "Failed to Stop sound. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
         }
 
         try {
         mGifDrawable.recycle();
         } catch (Exception e) {
-            Log.e(TAG, "trying to recycle Gif Image. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+            Crashlytics.log(Log.ERROR,TAG, "trying to recycle Gif Image. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
         }
         mGifDrawable = null;
         vibrator=null;
@@ -1131,7 +1134,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             try {
                 syncOnCallStateChange(state, incomingNumber);
             } catch (Exception e) {
-                Log.e(TAG, "Closing" + TAG + " MC StandooutWindow failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+                Crashlytics.log(Log.ERROR,TAG, "Closing" + TAG + " MC StandooutWindow failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
             }
         }
     }
@@ -1173,7 +1176,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-          //  Log.i(TAG, "onMeasure");
+          //  Crashlytics.log(Log.INFO,TAG, "onMeasure");
 
             setMeasuredDimension(mForceWidth, mForceHeight);
         }

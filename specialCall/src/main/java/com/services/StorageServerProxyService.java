@@ -22,6 +22,8 @@ import EventObjects.EventType;
 import MessagesToServer.MessageToServer;
 import MessagesToServer.ServerActionType;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 
 /**
  * <pre>
@@ -62,7 +64,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        Log.i(TAG, "Started");
+        log(Log.INFO,TAG, "Started");
 
         boolean shouldStop = handleCrashedService(flags, startId);
         if (shouldStop)
@@ -76,7 +78,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
 
                 if (intentForThread != null) {
                     String action = intentForThread.getAction();
-                    Log.i(TAG, "ClientActionType:" + action);
+                    log(Log.INFO,TAG, "ClientActionType:" + action);
 
                     PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
 
@@ -98,21 +100,21 @@ public class StorageServerProxyService extends AbstractServerProxy {
 
                             default:
                                 setMidAction(false);
-                                Log.w(TAG, "Service started with invalid action:" + action);
+                                log(Log.WARN,TAG, "Service started with invalid action:" + action);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
                         String errMsg = "ClientActionType failed:" + action + " Exception:" + e.getMessage();
                         handleActionFailed();
-                        Log.e(TAG, errMsg);
+                        log(Log.ERROR,TAG, errMsg);
                     } catch (Exception e) {
                         e.printStackTrace();
                         String errMsg = "ClientActionType failed:" + action + " Exception:" + e.getMessage();
                         handleActionFailed();
-                        Log.e(TAG, errMsg);
+                        log(Log.ERROR,TAG, errMsg);
                     }
                 } else
-                    Log.w(TAG, "Service started with missing action");
+                    log(Log.WARN,TAG, "Service started with missing action");
             }
         }.start();
 

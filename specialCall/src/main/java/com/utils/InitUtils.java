@@ -16,6 +16,8 @@ import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by Mor on 27/02/2016.
  */
@@ -32,14 +34,14 @@ public abstract class InitUtils {
 
     private static void hideMediaFromGalleryScanner(String path) {
 
-        Log.i(TAG, "create file : " + path + "/" + ".nomedia");
+        log(Log.INFO,TAG, "create file : " + path + "/" + ".nomedia");
 
         File new_file = new File(path + "/" + ".nomedia");  // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
         try {
             if (new_file.createNewFile())
-                Log.i(TAG, ".nomedia Created !");
+                log(Log.INFO,TAG, ".nomedia Created !");
             else
-                Log.i(TAG, ".nomedia Already Exists !");
+                log(Log.INFO,TAG, ".nomedia Already Exists !");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -92,11 +94,11 @@ public abstract class InitUtils {
                 }
                 catch(FileMissingExtensionException e)
                 {
-                    Log.i(TAG , "FileMissingExtensionException in initializeLoadingSavedMCFromDiskToSharedPrefs in" + Constants.OUTGOING_FOLDER);
+                    log(Log.INFO,TAG , "FileMissingExtensionException in initializeLoadingSavedMCFromDiskToSharedPrefs in" + Constants.OUTGOING_FOLDER);
                     e.printStackTrace();
                 } catch(FileInvalidFormatException e)
                 {
-                    Log.i(TAG , "FileInvalidFormatException in initializeLoadingSavedMCFromDiskToSharedPrefs in" + Constants.OUTGOING_FOLDER);
+                    log(Log.INFO,TAG , "FileInvalidFormatException in initializeLoadingSavedMCFromDiskToSharedPrefs in" + Constants.OUTGOING_FOLDER);
                     e.printStackTrace();
                 }
 

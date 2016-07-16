@@ -7,8 +7,10 @@
      <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="19" />
       
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK" /> 
-    
-    
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <meta-data
+        android:name="io.fabric.ApiKey"
+        android:value="5cb30ed7fed8c27f43357829ce0865ab76c4aa2b" />
    
 </manifest> 

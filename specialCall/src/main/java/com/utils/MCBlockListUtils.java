@@ -12,6 +12,8 @@ import java.util.Set;
 
 import utils.PhoneNumberUtils;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by rony on 27/02/2016.
  */
@@ -20,7 +22,7 @@ public abstract class MCBlockListUtils {
     private static final String TAG = MCBlockListUtils.class.getSimpleName();
 
     public static boolean IsMCBlocked(String incomingNumber, Context context) {
-        Log.i(TAG, "check if number blocked: " + incomingNumber);
+        log(Log.INFO,TAG, "check if number blocked: " + incomingNumber);
         //MC Permissions: ALL , Only contacts , Specific Black List Contacts
         String permissionLevel = SharedPrefUtils.getString(context, SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
 
@@ -58,12 +60,12 @@ public abstract class MCBlockListUtils {
                         incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
 
                         if (blockedSet.contains(incomingNumber)) {
-                            Log.i(TAG, "NUMBER MC BLOCKED: " + incomingNumber);
+                            log(Log.INFO,TAG, "NUMBER MC BLOCKED: " + incomingNumber);
                             return true;
                         }
                     }
                     else {
-                        Log.w(TAG, "BlackList empty allowing phone number: " + incomingNumber);
+                        log(Log.WARN,TAG, "BlackList empty allowing phone number: " + incomingNumber);
                         return false;
                     }
             }

@@ -16,6 +16,8 @@ import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by Mor on 08/03/2016.
  */
@@ -52,7 +54,7 @@ public abstract class MCHistoryUtils {
                         SharedPrefUtils.getString(context, SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_AUDIOMD5),
                         specialMediaType);
 
-                Log.i(TAG, "Reporting MC:" + callRecord);
+                log(Log.INFO,TAG, "Reporting MC:" + callRecord);
 
                 Intent i = new Intent(context, LogicServerProxyService.class);
                 i.setAction(LogicServerProxyService.ACTION_INSERT_CALL_RECORD);

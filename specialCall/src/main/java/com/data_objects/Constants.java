@@ -12,6 +12,8 @@ import java.io.File;
 
 import DataObjects.SharedConstants;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 public class Constants {
 
     private static final String TAG = Constants.class.getSimpleName();
@@ -23,7 +25,7 @@ public class Constants {
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             appVersion = Double.valueOf(packageInfo.versionName);
         } catch(PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "Failed to retrieve app version. Setting default app version for emergency!");
+            log(Log.ERROR,TAG, "Failed to retrieve app version. Setting default app version for emergency!");
             appVersion = 1.10;
         }
         return appVersion;

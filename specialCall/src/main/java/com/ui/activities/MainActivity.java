@@ -111,6 +111,9 @@ import MessagesToServer.MessageToServer;
 import MessagesToServer.ServerActionType;
 import utils.PhoneNumberUtils;
 
+import static com.crashlytics.android.Crashlytics.log;
+import static com.crashlytics.android.Crashlytics.setUserIdentifier;
+
 public class MainActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
 
     private final String TAG = MainActivity.class.getSimpleName();
@@ -170,11 +173,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private Handler _compressHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Log.i(TAG, "Handler got message:" + msg.what);
+            log(Log.INFO,TAG, "Handler got message:" + msg.what);
 
             // Stopping the transcoding native
             if (msg.what == FileCompressorUtils.STOP_TRANSCODING_MSG) {
-                Log.i(TAG, "Got cancel message, calling fexit");
+                log(Log.INFO,TAG, "Got cancel message, calling fexit");
                 if (_progDialog != null)
                     _progDialog.dismiss();
 
@@ -191,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             }
             else if(msg.what == FileCompressorUtils.COMPRESSION_PHASE_2) {
 
-                Log.i(TAG, "Got compression phase 2 message");
+                log(Log.INFO,TAG, "Got compression phase 2 message");
 
                 if(_progDialog!=null) {
 
@@ -247,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     protected void onStart() {
         super.onStart();
-        Log.i(TAG, "onStart()");
+        log(Log.INFO,TAG, "onStart()");
 
         Batch.onStart(this);
 
@@ -262,10 +265,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume()");
+        log(Log.INFO,TAG, "onResume()");
+        setUserIdentifier(SharedPrefUtils.getString(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.LOGIN_NUMBER));
 
         String appState = getState();
-        Log.i(TAG, "App State:" + appState);
+        log(Log.INFO,TAG, "App State:" + appState);
 
         AppStateManager.setAppInForeground(getApplicationContext(), true);
 
@@ -312,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     protected void onPause() {
         super.onPause();
-        Log.i(TAG, "onPause()");
+        log(Log.INFO,TAG, "onPause()");
 
         SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, false);
         AppStateManager.setAppInForeground(this, false);
@@ -321,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             try {
                 unregisterReceiver(_eventReceiver);
             } catch (Exception ex) {
-                Log.e(TAG, ex.getMessage());
+                log(Log.ERROR,TAG, ex.getMessage());
             }
         }
         saveInstanceState();
@@ -332,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     @Override
     protected void onStop() {
-        Log.i(TAG, "onStop()");
+        log(Log.INFO,TAG, "onStop()");
         Batch.onStop(this);
 
         super.onStop();
@@ -340,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     @Override
     protected void onDestroy() {
-        Log.i(TAG, "onDestroy()");
+        log(Log.INFO,TAG, "onDestroy()");
 
       if (AppStateManager.getAppState(this).equals(AppStateManager.STATE_LOADING))
           AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
@@ -525,7 +529,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         SharedPrefUtils.setInt(this, SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, am.getStreamVolume(AudioManager.STREAM_MUSIC));
-        Log.i(TAG, "PreviewStart MUSIC_VOLUME Original" + String.valueOf(am.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        log(Log.INFO,TAG, "PreviewStart MUSIC_VOLUME Original" + String.valueOf(am.getStreamVolume(AudioManager.STREAM_MUSIC)));
 
         // Close previous
         Intent closePrevious = new Intent(this, PreviewService.class);
@@ -705,7 +709,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void restoreInstanceState() {
 
-        Log.i(TAG, "Restoring instance state");
+        log(Log.INFO,TAG, "Restoring instance state");
 
         // Restoring destination number
         String destNumber = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
@@ -985,7 +989,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         String appState = getState();
 
-        Log.i(TAG, "Syncing UI with appState:" + appState);
+        log(Log.INFO,TAG, "Syncing UI with appState:" + appState);
 
         switch (appState) {
 
@@ -1230,7 +1234,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
-                Log.i(TAG, String.valueOf(item.getItemId()));
+                log(Log.INFO,TAG, String.valueOf(item.getItemId()));
                 switch (item.getItemId()) {
                     case R.id.selectcallermedia:
                         selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
@@ -1264,7 +1268,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
 
-                Log.i(TAG, String.valueOf(item.getItemId()));
+                log(Log.INFO,TAG, String.valueOf(item.getItemId()));
 
                 switch (item.getItemId()) {
                     case R.id.specificprofile:
@@ -1546,7 +1550,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 disableRingToneStatusArrived();
             }
         } catch (Exception e) {
-            Log.e(TAG, "Failed to draw drawRingToneName:" + (e.getMessage() != null ? e.getMessage() : e));
+            log(Log.ERROR,TAG, "Failed to draw drawRingToneName:" + (e.getMessage() != null ? e.getMessage() : e));
         }
     }
 
@@ -1567,7 +1571,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 _profileHasRingtone = false;
             }
         } catch (Exception e) {
-            Log.e(TAG, "Failed to draw drawRingToneNameForProfile:" + (e.getMessage() != null ? e.getMessage() : e));
+            log(Log.ERROR,TAG, "Failed to draw drawRingToneNameForProfile:" + (e.getMessage() != null ? e.getMessage() : e));
         }
     }
 
@@ -1593,7 +1597,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void writeInfoSnackBar(final SnackbarData snackBarData) {
 
-        Log.i(TAG, "Snackbar showing:" + snackBarData.getText());
+        log(Log.INFO,TAG, "Snackbar showing:" + snackBarData.getText());
 
         int duration = snackBarData.getDuration();
         if (duration == Snackbar.LENGTH_LONG)
@@ -1772,7 +1776,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 _connectionToServer.openConnection();
                 _connectionToServer.sendToServer(msgUF);
 
-                Log.i(TAG, "Initiating file data upload. [Filepath]: " + managedFile.getFileFullPath());
+                log(Log.INFO,TAG, "Initiating file data upload. [Filepath]: " + managedFile.getFileFullPath());
 
                 dos = new DataOutputStream(_connectionToServer.getClientSocket().getOutputStream());
 
@@ -1799,7 +1803,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.e(TAG, "Failed:" + e.getMessage());
+                log(Log.ERROR,TAG, "Failed:" + e.getMessage());
                 BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG,
                         new EventReport(EventType.STORAGE_ACTION_FAILURE));
             } finally {
@@ -1815,7 +1819,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                 File tempCompressedDir = new File(Constants.TEMP_COMPRESSED_FOLDER + _destPhoneNumber);
                 if(tempCompressedDir.exists()) {
-                    Log.i(TAG, "Deleting " + _destPhoneNumber + "'s temp compressed folder after upload");
+                    log(Log.INFO,TAG, "Deleting " + _destPhoneNumber + "'s temp compressed folder after upload");
                     String[] entries = tempCompressedDir.list();
                     for (String s : entries) {
                         File currentFile = new File(tempCompressedDir.getPath(), s);
@@ -1885,7 +1889,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             } catch (Exception e) {
                 String errMsg = "Handling message from server failed. Reason:" + e.getMessage();
-                Log.i(TAG, errMsg);
+                log(Log.INFO,TAG, errMsg);
             } finally {
 
                 // Finished handling request-response transaction
@@ -1985,10 +1989,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                             Thread.sleep(300);
                             progress = pc.calcProgress();
                             if (progress != 0 && progress < 100) {
-                                Log.i(TAG, "Progress update thread. Progress is:" + progress + "%");
+                                log(Log.INFO,TAG, "Progress update thread. Progress is:" + progress + "%");
                                 _progDialog.setProgress(progress);
                             } else if (progress == 100) {
-                                Log.i(TAG, "Progress is 100, exiting progress update thread");
+                                log(Log.INFO,TAG, "Progress is 100, exiting progress update thread");
                                 _progDialog.setProgress(100);
                                 pc.initCalcParamsForNextInter();
 
@@ -2001,7 +2005,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                             }
                         }
                     } catch (Exception e) {
-                        Log.e(TAG, e.getMessage(), e);
+                        log(Log.ERROR,TAG, e.getMessage());
                     }
                 }
             });
@@ -2124,7 +2128,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                             if (progress != 0 && progress < 100) {
                                 _progDialog.setProgress(progress);
                             } else if (progress == 100) {
-                                Log.i(TAG, "Progress is 100, exiting progress update thread");
+                                log(Log.INFO,TAG, "Progress is 100, exiting progress update thread");
                                 _progDialog.setProgress(100);
                                 pc.initCalcParamsForNextInter();
                                 calcProgress = false;
@@ -2132,7 +2136,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         }
 
                     } catch (Exception e) {
-                        Log.e(TAG, e.getMessage(), e);
+                        log(Log.ERROR,TAG, e.getMessage());
                     }
                 }
 

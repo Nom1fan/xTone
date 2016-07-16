@@ -21,6 +21,8 @@ import com.utils.SharedPrefUtils;
 
 import FilesManager.FileManager;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by rony on 29/01/2016.
  */
@@ -42,7 +44,7 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "onCreate()");
+        log(Log.INFO,TAG, "onCreate()");
         Intent intent = getIntent();
         _managedFile = (FileManager) intent.getSerializableExtra(MANAGED_MEDIA_FILE);
         _SMTypeCode = intent.getIntExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, 1);
@@ -116,7 +118,7 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
         super.onWindowFocusChanged(hasFocus);
 
         _imageButton = (ImageButton) findViewById(R.id.preview_thumbnail);
-        Log.i(TAG, "type and path " + fType + "  " + _managedFile.getFileFullPath());
+        log(Log.INFO,TAG, "type and path " + fType + "  " + _managedFile.getFileFullPath());
 
 
         switch (fType) {
@@ -147,13 +149,13 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
         super.onPause();
         closePreview();
         overridePendingTransition(R.anim.no_animation_no_delay, R.anim.slide_out_up);// close drawer animation
-        Log.i(TAG, "onPause()");
+        log(Log.INFO,TAG, "onPause()");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "onDestroy()");
+        log(Log.INFO,TAG, "onDestroy()");
     }
 
     @Override
@@ -192,14 +194,14 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
     private void returnFile(FileManager managedFile) {
 
         Intent resultIntent = new Intent();
-        Log.i(TAG,"returnFile");
+        log(Log.INFO,TAG,"returnFile");
 
-        Log.i(TAG, "[File selected]: " + managedFile.getFileFullPath() + ". [File Size]: " + FileManager.getFileSizeFormat(managedFile.getFileSize()));
+        log(Log.INFO,TAG, "[File selected]: " + managedFile.getFileFullPath() + ". [File Size]: " + FileManager.getFileSizeFormat(managedFile.getFileSize()));
 
         resultIntent.putExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, _SMTypeCode);
         resultIntent.putExtra(RESULT_FILE, managedFile);
 
-        Log.i(TAG,"End returnFile");
+        log(Log.INFO,TAG,"End returnFile");
 
         if (getParent() == null) {
             setResult(Activity.RESULT_OK, resultIntent);
@@ -219,7 +221,7 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
 
         AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, am.getStreamVolume(AudioManager.STREAM_MUSIC));
-        Log.i(TAG, "PreviewStart MUSIC_VOLUME Original" + String.valueOf(am.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        log(Log.INFO,TAG, "PreviewStart MUSIC_VOLUME Original" + String.valueOf(am.getStreamVolume(AudioManager.STREAM_MUSIC)));
 
         // Close previous
         Intent closePrevious = new Intent(getApplicationContext(), PreviewService.class);

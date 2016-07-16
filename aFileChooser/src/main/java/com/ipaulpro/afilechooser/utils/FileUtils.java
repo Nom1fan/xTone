@@ -26,18 +26,20 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Parcelable;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.crashlytics.android.Crashlytics;
 import com.ianhanniballake.localstorage.LocalStorageProvider;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.text.DecimalFormat;
 import java.util.Comparator;
+
+import static com.crashlytics.android.Crashlytics.*;
 
 /**
  * @version 2009-07-03
@@ -428,7 +430,7 @@ public class FileUtils {
             Log.d(TAG, "Attempting to get thumbnail");
 
         if (!isMediaUri(uri)) {
-            Log.e(TAG, "You can only retrieve thumbnails for images and videos.");
+            log(Log.ERROR,TAG, "You can only retrieve thumbnails for images and videos.");
             return null;
         }
 
@@ -460,7 +462,7 @@ public class FileUtils {
                 }
             } catch (Exception e) {
                 if (DEBUG)
-                    Log.e(TAG, "getThumbnail", e);
+                    log(Log.ERROR,TAG, "getThumbnail:" + e.getMessage());
             } finally {
                 if (cursor != null)
                     cursor.close();

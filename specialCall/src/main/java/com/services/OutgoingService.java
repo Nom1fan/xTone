@@ -29,6 +29,8 @@ import DataObjects.SpecialMediaType;
 import utils.PhoneNumberUtils;
 import wei.mark.standout.ui.Window;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 //import android.telephony.PreciseCallState;
 
 
@@ -77,7 +79,7 @@ public class OutgoingService extends AbstractStandOutService {
         super.onShow(id, window);  // at last so the volume will return to the previous(since when it was showed) , to make the volume always mute after Unhide move it to the Start of the method.
 
             setVolumeSilentForOutgoingCalls(); // outgoing calls should start in MUTE first
-            Log.i(TAG, "setVolumeSilentForOutgoingCalls");
+            log(Log.INFO,TAG, "setVolumeSilentForOutgoingCalls");
 
         return false;
     }
@@ -98,9 +100,9 @@ public class OutgoingService extends AbstractStandOutService {
                 case TelephonyManager.CALL_STATE_IDLE:
                 case TelephonyManager.CALL_STATE_OFFHOOK:
 
-                    Log.i(TAG, "TelephonyManager IDLE=0, OFFHOOK=2. STATE WAS:" + state);
+                    log(Log.INFO,TAG, "TelephonyManager IDLE=0, OFFHOOK=2. STATE WAS:" + state);
                     if (isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION)) {
-                        Log.i(TAG, "TelephonyManager inside mInRingingSession IDLE=0, OFFHOOK=2. STATE WAS:" + state);
+                        log(Log.INFO,TAG, "TelephonyManager inside mInRingingSession IDLE=0, OFFHOOK=2. STATE WAS:" + state);
 
                         try {
                             closeSpecialCallWindowWithoutRingtone();
@@ -117,7 +119,7 @@ public class OutgoingService extends AbstractStandOutService {
     @Override
     protected void playSound(Context context, Uri alert) {
 
-        Log.i(TAG, "Playing funtone sound");
+        log(Log.INFO,TAG, "Playing funtone sound");
         mMediaPlayer = new MediaPlayer();
         try {
             mMediaPlayer.setDataSource(context, alert);
@@ -130,7 +132,7 @@ public class OutgoingService extends AbstractStandOutService {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Log.e(TAG, "Failed to play sound. Exception:" + e.getMessage());
+            log(Log.ERROR,TAG, "Failed to play sound. Exception:" + e.getMessage());
         }
     }
     //endregion
@@ -138,15 +140,15 @@ public class OutgoingService extends AbstractStandOutService {
     //region Internal helper methods
     private void setVolumeSilentForOutgoingCalls() {
         // if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {//TODO PRECISE RING STATE can't be used so we can't know when the phone is answered. start outgoing in Mute.
-        Log.i(TAG, "android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
-        //    Log.i(TAG, "MUTE by button");
+        log(Log.INFO,TAG, "android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
+        //    Crashlytics.log(Log.INFO,TAG, "MUTE by button");
         volumeChangeByMCButtons = true;
         verifyAudioManager();
         mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        Log.i(TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
+        log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
       //  mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
         mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
-        Log.i(TAG, "Set Silent , now volume: " + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        log(Log.INFO,TAG, "Set Silent , now volume: " + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
         isMuted = true;
 
         mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
@@ -159,7 +161,7 @@ public class OutgoingService extends AbstractStandOutService {
         if (intent != null)
             action = intent.getAction();
         if (action != null)
-            Log.i(TAG, "Action:" + action);
+            log(Log.INFO,TAG, "Action:" + action);
     }
 
     private void registerOutgoingReceiver() {
@@ -184,7 +186,7 @@ public class OutgoingService extends AbstractStandOutService {
                     mMediaPlayer.setLooping(true);
                     mMediaPlayer.setVolume(1.0f, 1.0f);
                     mMediaPlayer.start();
-                    Log.i(TAG, "prepareVideoListener MUSIC_VOLUME Original" + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+                    log(Log.INFO,TAG, "prepareVideoListener MUSIC_VOLUME Original" + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                 }
             };
     }
@@ -206,7 +208,7 @@ public class OutgoingService extends AbstractStandOutService {
                 try {
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
                 } catch (Exception e) {
-                    Log.e(TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+                    log(Log.ERROR,TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
                 }
             }
         }.start();
@@ -223,7 +225,7 @@ public class OutgoingService extends AbstractStandOutService {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                Log.i(TAG, "syncWithBuggyIdleState");
+                log(Log.INFO,TAG, "syncWithBuggyIdleState");
                 setRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION, true);
             }
         }.start();
@@ -241,7 +243,7 @@ public class OutgoingService extends AbstractStandOutService {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             boolean arrivedFromFallBack = action.equals(StartStandOutServicesFallBackReceiver.ACTION_START_OUTGOING_SERVICE);
-              Log.i(TAG, "outgoingReceiver Action: " + action);
+              log(Log.INFO,TAG, "outgoingReceiver Action: " + action);
             if (action.equals(Intent.ACTION_NEW_OUTGOING_CALL) || arrivedFromFallBack) {
                 String outgoingCallNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
                 outgoingCallNumber = PhoneNumberUtils.toValidLocalPhoneNumber(outgoingCallNumber);
@@ -250,7 +252,7 @@ public class OutgoingService extends AbstractStandOutService {
                     StartStandOutServicesFallBackReceiver.completeWakefulIntent(intent);
 
                 mIncomingOutgoingNumber = outgoingCallNumber;
-                Log.i(TAG, "mInRingingSession=" + isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) + " outgoingCallNumber=" + outgoingCallNumber);
+                log(Log.INFO,TAG, "mInRingingSession=" + isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) + " outgoingCallNumber=" + outgoingCallNumber);
 
                 boolean isBlocked = MCBlockListUtils.IsMCBlocked(outgoingCallNumber, getApplicationContext());
                 if (isBlocked) {
@@ -304,7 +306,7 @@ public class OutgoingService extends AbstractStandOutService {
 
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Log.e(TAG, "CALL_STATE_RINGING failed:" + e.getMessage());
+                            log(Log.ERROR,TAG, "CALL_STATE_RINGING failed:" + e.getMessage());
                         }
 
                         funtoneFileExists = false;

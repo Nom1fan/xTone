@@ -14,6 +14,8 @@ import android.widget.TextView;
 import com.mediacallz.app.R;
 import com.utils.SharedPrefUtils;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 
 public class InviteDialog extends android.app.DialogFragment {
 
@@ -48,7 +50,7 @@ public class InviteDialog extends android.app.DialogFragment {
                             getDialog().dismiss();
 
                         } catch (Exception ex) {
-                            Log.e(TAG, "Failed to open send SMS activity. [Exception]:" + (ex.getMessage() != null ? ex.getMessage() : ex));
+                            log(Log.ERROR,TAG, "Failed to open send SMS activity. [Exception]:" + (ex.getMessage() != null ? ex.getMessage() : ex));
                         }
 
 

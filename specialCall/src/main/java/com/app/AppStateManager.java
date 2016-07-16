@@ -3,6 +3,7 @@ package com.app;
 import android.content.Context;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.utils.SharedPrefUtils;
 
 /**
@@ -31,7 +32,7 @@ public class AppStateManager {
     public synchronized static void setAppState(Context context, String tag, String state) {
 
         String curState = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE);
-        Log.i(TAG, tag + " changes state from [" + curState + "] to: [" + state + "]");
+        Crashlytics.log(Log.INFO,TAG, tag + " changes state from [" + curState + "] to: [" + state + "]");
         saveCurrAppState(context, curState);
         SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE, state);
     }
@@ -48,7 +49,7 @@ public class AppStateManager {
         setTimeoutMsg(context , timeoutMsg);
 
         String curState = getAppState(context);
-        Log.i(TAG, tag + " changes state from [" + curState + "] to: [" + STATE_LOADING + "]");
+        Crashlytics.log(Log.INFO,TAG, tag + " changes state from [" + curState + "] to: [" + STATE_LOADING + "]");
 
         SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE, STATE_LOADING);
     }

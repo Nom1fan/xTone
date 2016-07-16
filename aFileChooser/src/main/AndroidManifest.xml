@@ -19,4 +19,8 @@
 
     <uses-sdk android:minSdkVersion="7" />
 
+    <meta-data
+        android:name="io.fabric.ApiKey"
+        android:value="5cb30ed7fed8c27f43357829ce0865ab76c4aa2b" />
+
 </manifest>

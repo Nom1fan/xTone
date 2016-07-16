@@ -7,6 +7,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.app.AppStateManager;
+import com.crashlytics.android.Crashlytics;
 import com.services.IncomingService;
 import com.services.OutgoingService;
 import com.utils.BroadcastUtils;
@@ -32,7 +33,7 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
     public void onReceive(Context context, Intent intent) {
         if (AppStateManager.isLoggedIn(context)) {  // make sure the services won't start on Login
         String action = intent.getAction();
-        Log.i(TAG, "onReceive ACTION INTENT : " + action);
+        Crashlytics.log(Log.INFO,TAG, "onReceive ACTION INTENT : " + action);
 
             if (action != null) {
                 String state1 = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
@@ -58,17 +59,17 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
                         incomingServiceIntent.setAction(IncomingService.ACTION_START);
 
                         if (incomingNumber != null) // unidentified caller
-                            Log.i(TAG, "IncomingServiceFallBack  EXTRA_INCOMING_NUMBER : " + incomingNumber);
+                            Crashlytics.log(Log.INFO,TAG, "IncomingServiceFallBack  EXTRA_INCOMING_NUMBER : " + incomingNumber);
 
                         //if it's incoming call
                         if (incomingNumber != null)
                             if (!incomingNumber.isEmpty()) {
-                                Log.i(TAG, "IncomingServiceFallBack putExtra Incoming with number: " + incomingNumber);
+                                Crashlytics.log(Log.INFO,TAG, "IncomingServiceFallBack putExtra Incoming with number: " + incomingNumber);
                                 incomingServiceIntent.putExtra(INCOMING_PHONE_NUMBER_KEY, incomingNumber);
                             } else
                                 incomingServiceIntent.putExtra(INCOMING_PHONE_NUMBER_KEY, "");
 
-                        Log.i(TAG, " Starting Incoming Service");
+                        Crashlytics.log(Log.INFO,TAG, " Starting Incoming Service");
                         incomingServiceIntent.putExtra(WAKEFUL_INTENT, true);
                         startWakefulService(context, incomingServiceIntent);
 
@@ -77,12 +78,12 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
                 }
 
         // Starting service responsible for incoming media callz
-        Log.i(TAG, "IncomingService  is Live : " + String.valueOf(IncomingService.isLive));
+        Crashlytics.log(Log.INFO,TAG, "IncomingService  is Live : " + String.valueOf(IncomingService.isLive));
         if (!IncomingService.isLive) {
 
             Intent incomingServiceIntent = new Intent(context, IncomingService.class);
             incomingServiceIntent.setAction(IncomingService.ACTION_START);
-            Log.i(TAG, " Starting Incoming Service");
+            Crashlytics.log(Log.INFO,TAG, " Starting Incoming Service");
             incomingServiceIntent.putExtra(WAKEFUL_INTENT, true);
             startWakefulService(context, incomingServiceIntent);
 
@@ -90,12 +91,12 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
 
         //region outgoing service
         // Starting service responsible for outgoing media callz
-        Log.i(TAG, "OutgoingService  is Live : " + String.valueOf(OutgoingService.isLive));
+        Crashlytics.log(Log.INFO,TAG, "OutgoingService  is Live : " + String.valueOf(OutgoingService.isLive));
         if (!OutgoingService.isLive) {
 
             Intent outgoingServiceIntent = new Intent(context, OutgoingService.class);
             outgoingServiceIntent.setAction(OutgoingService.ACTION_START);
-            Log.i(TAG, " Starting Outgoing Service");
+            Crashlytics.log(Log.INFO,TAG, " Starting Outgoing Service");
             startWakefulService(context, outgoingServiceIntent);
 
             //if it's outgoing call
@@ -108,14 +109,14 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
                     new Thread(new Runnable() {
                         public void run() {
 
-                            Log.i(TAG, "sleep:" + String.valueOf(WAIT_FOR_SERVICES_TO_START_IN_MILLI));
+                            Crashlytics.log(Log.INFO,TAG, "sleep:" + String.valueOf(WAIT_FOR_SERVICES_TO_START_IN_MILLI));
                             try {
                                 Thread.sleep(WAIT_FOR_SERVICES_TO_START_IN_MILLI);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
 
-                            Log.i(TAG, "is service live to send broadcast: " + String.valueOf(OutgoingService.isLive));
+                            Crashlytics.log(Log.INFO,TAG, "is service live to send broadcast: " + String.valueOf(OutgoingService.isLive));
                             //sending service the outgoing call intent again
                             if (OutgoingService.isLive && PhoneNumberUtils.isValidPhoneNumber(outgoingPhoneNumber)) {
                                 Intent newIntent = new Intent();

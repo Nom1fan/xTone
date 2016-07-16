@@ -35,6 +35,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.ipaulpro.afilechooser.utils.FileUtils;
@@ -83,7 +84,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "onCreate()");
+        Crashlytics.log(Log.INFO,TAG, "onCreate()");
         Intent intent = getIntent();
         _destPhoneNumber = intent.getStringExtra(DESTINATION_NUMBER);
         _destName = intent.getStringExtra(DESTINATION_NAME);
@@ -186,7 +187,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.i(TAG, "onActivityResult");
+        Crashlytics.log(Log.INFO,TAG, "onActivityResult");
         if (resultCode == RESULT_OK) {
 
             if (requestCode == ActivityRequestCodes.PREVIEW_MEDIA && (data != null))
@@ -220,10 +221,10 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     private void startPreviewActivity(Intent data) {
 
-        String filepath = getFilePathFromIntent(data);
-
-        FileManager managedFile;
         try {
+            String filepath = getFilePathFromIntent(data);
+
+            FileManager managedFile;
             managedFile = new FileManager(filepath);
             checkIfMediaCanBePrepared(managedFile);
 
@@ -234,7 +235,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
 
-        } catch (FileMissingExtensionException | FileDoesNotExistException | FileInvalidFormatException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             UI_Utils.callToast(getResources().getString(R.string.file_invalid),
                     Color.RED, Toast.LENGTH_LONG, getApplicationContext());
@@ -273,7 +274,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     private void checkIfWeCanPrepareSound( Uri audioUri) throws IOException {
 
-        Log.i(TAG, "Checking if Sound Can Be Prepared and work");
+        Crashlytics.log(Log.INFO,TAG, "Checking if Sound Can Be Prepared and work");
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setDataSource(getApplicationContext(), audioUri);
         mMediaPlayer.prepare();
@@ -283,7 +284,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     private void checkIfWeCanPrepareVideo(Uri videoUri) throws IOException {
 
-        Log.i(TAG, "Checking if Video Can Be Prepared and work");
+        Crashlytics.log(Log.INFO,TAG, "Checking if Video Can Be Prepared and work");
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setDataSource(getApplicationContext(), videoUri);
         mMediaPlayer.prepare();
@@ -337,13 +338,13 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     protected void onPause() {
         super.onPause();
         overridePendingTransition(R.anim.no_animation_no_delay, R.anim.slide_out_up);// close drawer animation
-        Log.i(TAG, "onPause()");
+        Crashlytics.log(Log.INFO,TAG, "onPause()");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "onDestroy()");
+        Crashlytics.log(Log.INFO,TAG, "onDestroy()");
     }
 
     @Override
@@ -493,12 +494,12 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                                 downloadFileFromWebView downloadTask = new downloadFileFromWebView(downloadId, destinationFile.getAbsolutePath());
                                 downloadTask.execute();
 
-                            Log.i(TAG, "destinationfiles: " + Constants.HISTORY_FOLDER + String.valueOf(System.currentTimeMillis() + "." + extension));
+                            Crashlytics.log(Log.INFO,TAG, "destinationfiles: " + Constants.HISTORY_FOLDER + String.valueOf(System.currentTimeMillis() + "." + extension));
 
                     }catch (Exception e)
                         {
                             UI_Utils.callToast(getResources().getString(R.string.oops_try_again), Color.RED, Toast.LENGTH_LONG, getApplicationContext());
-                            Log.i(TAG, "shouldOverrideUrlLoading exception: " + (e.getMessage()!=null ? e.getMessage() : e));
+                            Crashlytics.log(Log.INFO,TAG, "shouldOverrideUrlLoading exception: " + (e.getMessage()!=null ? e.getMessage() : e));
                         }
 
                         }
@@ -670,10 +671,10 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
                     try {
                         String extension = FileManager.extractExtension(path);
-                        Log.i(TAG, "isCamera True, Extension saved in camera: " + extension);
+                        Crashlytics.log(Log.INFO,TAG, "isCamera True, Extension saved in camera: " + extension);
                     } catch (FileMissingExtensionException e) {
 
-                        Log.w(TAG, "Missing Extension! Adding .jpeg as it is likely to be image file from camera");
+                        Crashlytics.log(Log.WARN,TAG, "Missing Extension! Adding .jpeg as it is likely to be image file from camera");
                         file.renameTo(new File(path += ".jpeg"));
                     }
                 }
@@ -682,7 +683,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             }
         }catch (NullPointerException e) {
             e.printStackTrace();
-            Log.e(TAG, getResources().getString(R.string.file_invalid));
+            Crashlytics.log(Log.ERROR,TAG, getResources().getString(R.string.file_invalid));
 
         }  catch (FileDoesNotExistException e) {
             e.printStackTrace();
@@ -728,7 +729,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
                     _instance.cancel(true);
 
-                    Log.i(TAG , " cancel start");
+                    Crashlytics.log(Log.INFO,TAG , " cancel start");
                     _downloadManager =  (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
                     DownloadManager.Query q = new DownloadManager.Query();
                     q.setFilterById(_iD);
@@ -749,7 +750,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
                         }
 
-                    Log.i(TAG , " cancel end");
+                    Crashlytics.log(Log.INFO,TAG , " cancel end");
 
                 }
             });
@@ -845,7 +846,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
                             _downloading=false;
                             e.printStackTrace();
-                            Log.e(TAG, "Failed:" + e.getMessage());
+                            Crashlytics.log(Log.ERROR,TAG, "Failed:" + e.getMessage());
 
                         }
                     }

@@ -15,11 +15,14 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
 
+import com.crashlytics.android.Crashlytics;
 import com.utils.BitmapUtils;
 
 import java.lang.ref.WeakReference;
 
 import FilesManager.FileManager;
+
+import static com.crashlytics.android.Crashlytics.log;
 
 /**
  * Created by mor on 20/09/2015.
@@ -49,9 +52,9 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
 
         try {
 
-            Log.i(TAG, "Decoding image in background");
+            log(Log.INFO,TAG, "Decoding image in background");
             if (validateMembersForFile()) {
-                Log.i(TAG, "[File Type]:"+_fileType + ", [File Path]:"+_filePath);
+                log(Log.INFO,TAG, "[File Type]:"+_fileType + ", [File Path]:"+_filePath);
                 switch (_fileType) {
                     case IMAGE:
                         return getImageBitmap(_filePath);
@@ -60,11 +63,11 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
                 }
             }
             else if(validateMembersForResource()) {
-                Log.i(TAG, "Decoding image from resource");
+                log(Log.INFO,TAG, "Decoding image from resource");
                 return convertResourceToBitmap();
             }
             else {
-                Log.e(TAG, "Invalid parameter configuration. Current configuration does not fit either file nor resource.");
+                Crashlytics.log(Log.ERROR,TAG, "Invalid parameter configuration. Current configuration does not fit either file nor resource.");
             }
         }
         catch (NullPointerException | OutOfMemoryError e) {
@@ -184,7 +187,7 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
 
         Bitmap bitmap = decodeSampledBitmapFromImageFile(filePath);
         if(bitmap==null) {
-            Log.w(TAG, "Failed to get optimal bitmap, attempting to decode inefficiently");
+            Crashlytics.log(Log.WARN,TAG, "Failed to get optimal bitmap, attempting to decode inefficiently");
             bitmap = BitmapFactory.decodeFile(filePath);
         }
 
@@ -201,7 +204,7 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
     private Bitmap createScaledBitMap(Bitmap bitmap) {
 
         if (_makeRound) {
-            Log.i(TAG, "Creating round bitmap");
+            log(Log.INFO,TAG, "Creating round bitmap");
             int thumbnailSize = _height * 9/10;
             int radius = (int) (thumbnailSize * 0.8);
             Bitmap bitmapForRounding = Bitmap.createScaledBitmap(bitmap, thumbnailSize, thumbnailSize, false);

@@ -30,6 +30,8 @@ import EventObjects.EventReport;
 import EventObjects.EventType;
 import FilesManager.FileManager;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by Mor on 01/10/2015.
  */
@@ -55,7 +57,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
         color = 0;
         eventReport = null;
         boolean isLoading = false;
-        Log.i(TAG, "Receiving event:" + report.status());
+        log(Log.INFO,TAG, "Receiving event:" + report.status());
 
         //Ignore refresh UI event sent from here on the same events channel
         if (report.status().equals(EventType.REFRESH_UI))
@@ -134,7 +136,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
                 break;
 
             case DESTINATION_DOWNLOAD_COMPLETE: {
-                Log.i(TAG, "In: DESTINATION_DOWNLOAD_COMPLETE");
+                log(Log.INFO,TAG, "In: DESTINATION_DOWNLOAD_COMPLETE");
                 // Preparing _data for uploaded media thumbnail display
                 Map data = (Map) report.data();
                 String destId = data.get(DataKeys.DESTINATION_ID).toString();
@@ -235,7 +237,7 @@ public class BackgroundBroadcastReceiver extends BroadcastReceiver {
 
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.e(TAG, "Failed during unregister procedure. [Exception]:"
+                    log(Log.ERROR,TAG, "Failed during unregister procedure. [Exception]:"
                             + (e.getMessage() != null ? e.getMessage() : e));
                 }
                 break;

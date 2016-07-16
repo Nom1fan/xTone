@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.mediacallz.app.R;
 
 import java.lang.ref.WeakReference;
@@ -46,7 +47,7 @@ public class GetSmsCodeTask extends AsyncTask<Void, String, String> {
     @Override
     protected void onCancelled() {
 
-        Log.i(TAG, "Got cancelled.");
+        Crashlytics.log(Log.INFO,TAG, "Got cancelled.");
         final TextView textView = _textViewWeakReference.get();
         final ImageButton getSmsCodeButton = _getSmsButtonWeakReference.get();
         if(textView!=null)

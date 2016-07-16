@@ -241,6 +241,10 @@
             android:name="com.services.ClearMediaIntentService"
             android:exported="false" >
         </service>
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="5cb30ed7fed8c27f43357829ce0865ab76c4aa2b" />
     </application>
 
 </manifest>

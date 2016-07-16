@@ -11,6 +11,8 @@ import com.mediacallz.app.R;
 import com.ui.dialogs.DeleteAccountDialog;
 import com.utils.SharedPrefUtils;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 public class Settings extends PreferenceFragment {
 
     private static final String TAG = Settings.class.getSimpleName();
@@ -49,7 +51,7 @@ public class Settings extends PreferenceFragment {
                 int checked = Integer.parseInt(newValue.toString());
 
                 SharedPrefUtils.setInt(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION, checked);
-                Log.i(TAG,"save Media Option: " + String.valueOf(checked) );
+                log(Log.INFO,TAG,"save Media Option: " + String.valueOf(checked) );
 
 
                 return true;

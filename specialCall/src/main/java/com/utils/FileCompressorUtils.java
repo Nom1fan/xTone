@@ -15,6 +15,8 @@ import EventObjects.EventReport;
 import EventObjects.EventType;
 import FilesManager.FileManager;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by mor on 12/11/2015.
  */
@@ -74,10 +76,10 @@ public class FileCompressorUtils {
 
         if (_wakeLock.isHeld()) {
             _wakeLock.release();
-            Log.i(TAG, "Wake lock released");
+            log(Log.INFO,TAG, "Wake lock released");
         }
         else {
-            Log.i(TAG, "Wake lock is already released, doing nothing");
+            log(Log.INFO,TAG, "Wake lock is already released, doing nothing");
         }
 
         return modifiedFile;
@@ -133,10 +135,10 @@ public class FileCompressorUtils {
 
             if (_wakeLock.isHeld()) {
                 _wakeLock.release();
-                Log.i(TAG, "Wake lock released");
+                log(Log.INFO,TAG, "Wake lock released");
             }
             else {
-                Log.i(TAG, "Wake lock is already released, doing nothing");
+                log(Log.INFO,TAG, "Wake lock is already released, doing nothing");
             }
 
         return baseFile;

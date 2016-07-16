@@ -8,11 +8,13 @@ import android.net.NetworkInfo;
 
 import com.batch.android.Batch;
 import com.batch.android.Config;
+import com.crashlytics.android.Crashlytics;
 import com.data_objects.Constants;
 import com.utils.InitUtils;
 import com.utils.UI_Utils;
 
 import DataObjects.SharedConstants;
+import io.fabric.sdk.android.Fabric;
 
 /**
  * Created by mor on 10/09/2015.
@@ -24,6 +26,8 @@ public class MediaCallzApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
+
         android.os.Process.setThreadPriority(-20);
         Context context = getApplicationContext();
 

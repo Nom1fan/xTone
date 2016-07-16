@@ -8,9 +8,12 @@ import android.graphics.BitmapFactory;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.mediacallz.app.R;
 import com.ui.activities.MainActivity;
 import com.ui.components.NotificationHelper;
+
+import static com.crashlytics.android.Crashlytics.*;
 
 /**
  * Created by mor on 18/10/2015.
@@ -26,7 +29,7 @@ public abstract class NotificationUtils {
     public static void createHelper(Context context, String initialMsg) {
 
         NUM_OF_NOTIF = (NUM_OF_NOTIF + 1) % MAX_NOTIF_NUM;
-        Log.i(TAG, "NUM_OF_NOTIF=" + NUM_OF_NOTIF);
+        log(Log.INFO,TAG, "NUM_OF_NOTIF=" + NUM_OF_NOTIF);
         mNotificationHelpersArr[NUM_OF_NOTIF] = new NotificationHelper(NUM_OF_NOTIF);
 
         mNotificationHelpersArr[NUM_OF_NOTIF].createUploadNotification(context, initialMsg);

@@ -1,15 +1,5 @@
 package wei.mark.standout;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import wei.mark.standout.constants.StandOutFlags;
-import wei.mark.standout.ui.Window;
-
-import android.app.Activity;
-import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -39,6 +29,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+
+import com.crashlytics.android.Crashlytics;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import wei.mark.standout.constants.StandOutFlags;
+import wei.mark.standout.ui.Window;
 
 /**
  * Extend this class to easily create and manage floating StandOut windows.
@@ -119,7 +119,7 @@ public abstract class StandOutWindow extends Service {
 	 */
 	public static void show(Context context,
 							Class<? extends StandOutWindow> cls, int id) {
-		Log.i(TAG,"show");
+		Crashlytics.log(Log.INFO,TAG,"show");
 		context.startService(getShowIntent(context, cls, id));
 	}
 
@@ -140,7 +140,7 @@ public abstract class StandOutWindow extends Service {
 	 */
 	public static void hide(Context context,
 							Class<? extends StandOutWindow> cls, int id) {
-		Log.i(TAG,"hide");
+		Crashlytics.log(Log.INFO,TAG,"hide");
 		context.startService(getHideIntent(context, cls, id));
 	}
 
@@ -159,7 +159,7 @@ public abstract class StandOutWindow extends Service {
 	 */
 	public static void close(Context context,
 							 Class<? extends StandOutWindow> cls, int id) {
-		Log.i(TAG,"close");
+		Crashlytics.log(Log.INFO,TAG,"close");
 		context.startService(getCloseIntent(context, cls, id));
 	}
 
@@ -211,7 +211,7 @@ public abstract class StandOutWindow extends Service {
 	public static void sendData(Context context,
 								Class<? extends StandOutWindow> toCls, int toId, int requestCode,
 								Bundle data, Class<? extends StandOutWindow> fromCls, int fromId) {
-		Log.i(TAG,"sendData");
+		Crashlytics.log(Log.INFO,TAG,"sendData");
 		context.startService(getSendDataIntent(context, toCls, toId,
 				requestCode, data, fromCls, fromId));
 	}
@@ -233,7 +233,7 @@ public abstract class StandOutWindow extends Service {
 	 */
 	public static Intent getShowIntent(Context context,
 									   Class<? extends StandOutWindow> cls, int id) {
-		Log.i(TAG,"getShowIntent");
+		Crashlytics.log(Log.INFO,TAG,"getShowIntent");
 		boolean cached = sWindowCache.isCached(id, cls);
 		String action = cached ? ACTION_RESTORE : ACTION_SHOW;
 		Uri uri = cached ? Uri.parse("standout://" + cls + '/' + id) : null;
@@ -258,7 +258,7 @@ public abstract class StandOutWindow extends Service {
 	 */
 	public static Intent getHideIntent(Context context,
 									   Class<? extends StandOutWindow> cls, int id) {
-		Log.i(TAG,"getHideIntent");
+		Crashlytics.log(Log.INFO,TAG,"getHideIntent");
 		return new Intent(context, cls).putExtra("id", id).setAction(
 				ACTION_HIDE);
 	}
@@ -362,7 +362,6 @@ public abstract class StandOutWindow extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
 		mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
 		mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mLayoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -373,7 +372,8 @@ public abstract class StandOutWindow extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.i(TAG, "onStartCommand");
+
+		Crashlytics.log(Log.INFO,TAG, "onStartCommand");
 		// intent should be created with
 		// getShowIntent(), getHideIntent(), getCloseIntent()
 		if (intent != null) {
@@ -396,7 +396,7 @@ public abstract class StandOutWindow extends Service {
 				closeAll();
 			} else if (ACTION_SEND_DATA.equals(action)) {
 				if (!isExistingId(id) && id != DISREGARD_ID) {
-					Log.w(TAG,
+					Crashlytics.log(Log.WARN,TAG,
 							"Sending data to non-existant window. If this is not intended, make sure toId is either an existing window's id or DISREGARD_ID.");
 				}
 				Bundle data = intent.getBundleExtra("wei.mark.standout.data");
@@ -408,7 +408,7 @@ public abstract class StandOutWindow extends Service {
 				onReceiveData(id, requestCode, data, fromCls, fromId);
 			}
 		} else {
-			Log.w(TAG, "Tried to onStartCommand() with a null intent.");
+			Crashlytics.log(Log.WARN,TAG, "Tried to onStartCommand() with a null intent.");
 		}
 
 		// the service is started in foreground in show()
@@ -419,7 +419,7 @@ public abstract class StandOutWindow extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		Log.i(TAG, "onDestroy");
+		Crashlytics.log(Log.INFO,TAG, "onDestroy");
 		// closes all windows
 		closeAll();
 	}
@@ -723,7 +723,7 @@ public abstract class StandOutWindow extends Service {
 	 * @return The animation to play or null.
 	 */
 	public Animation getShowAnimation(int id) {
-		Log.i(TAG, "getShowAnimation");
+		Crashlytics.log(Log.INFO,TAG, "getShowAnimation");
 		return AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
 	}
 
@@ -736,7 +736,7 @@ public abstract class StandOutWindow extends Service {
 	 * @return The animation to play or null.
 	 */
 	public Animation getHideAnimation(int id) {
-		Log.i(TAG, "getHideAnimation");
+		Crashlytics.log(Log.INFO,TAG, "getHideAnimation");
 		return AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
 	}
 
@@ -749,7 +749,7 @@ public abstract class StandOutWindow extends Service {
 	 * @return The animation to play or null.
 	 */
 	public Animation getCloseAnimation(int id) {
-		Log.i(TAG, "getCloseAnimation");
+		Crashlytics.log(Log.INFO,TAG, "getCloseAnimation");
 		return AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
 	}
 
@@ -760,7 +760,7 @@ public abstract class StandOutWindow extends Service {
 	 * @return The theme to set on the window, or 0 for device default.
 	 */
 	public int getThemeStyle() {
-		Log.i(TAG, "getThemeStyle");
+		Crashlytics.log(Log.INFO,TAG, "getThemeStyle");
 		return 0;
 	}
 
@@ -888,7 +888,7 @@ public abstract class StandOutWindow extends Service {
 	 * @see {@link #onTouchHandleMove(int, Window, View, MotionEvent)}
 	 */
 	public void onMove(int id, Window window, View view, MotionEvent event) {
-		Log.i(TAG, "onMove");
+		Crashlytics.log(Log.INFO,TAG, "onMove");
 	}
 
 	/**
@@ -906,7 +906,7 @@ public abstract class StandOutWindow extends Service {
 	 * @see {@link #onTouchHandleResize(int, Window, View, MotionEvent)}
 	 */
 	public void onResize(int id, Window window, View view, MotionEvent event) {
-		Log.i(TAG, "onResize");
+		Crashlytics.log(Log.INFO,TAG, "onResize");
 	}
 
 	/**
@@ -923,7 +923,7 @@ public abstract class StandOutWindow extends Service {
 	 * @see #show(int)
 	 */
 	public boolean onShow(int id, Window window) {
-		Log.i(TAG, "onShow");
+		Crashlytics.log(Log.INFO,TAG, "onShow");
 		return false;
 	}
 
@@ -942,7 +942,7 @@ public abstract class StandOutWindow extends Service {
 	 * @see #hide(int)
 	 */
 	public boolean onHide(int id, Window window) {
-		Log.i(TAG, "onHide");
+		Crashlytics.log(Log.INFO,TAG, "onHide");
 		return false;
 	}
 
@@ -960,7 +960,7 @@ public abstract class StandOutWindow extends Service {
 	 * @see #close(int)
 	 */
 	public boolean onClose(int id, Window window) {
-		Log.i(TAG, "onClose");
+		Crashlytics.log(Log.INFO,TAG, "onClose");
 		return false;
 	}
 
@@ -974,7 +974,7 @@ public abstract class StandOutWindow extends Service {
 	 * @see #closeAll()
 	 */
 	public boolean onCloseAll() {
-		Log.i(TAG, "onCloseAll");
+		Crashlytics.log(Log.INFO,TAG, "onCloseAll");
 		return false;
 	}
 
@@ -1001,7 +1001,7 @@ public abstract class StandOutWindow extends Service {
 	 */
 	public void onReceiveData(int id, int requestCode, Bundle data,
 							  Class<? extends StandOutWindow> fromCls, int fromId) {
-		Log.i(TAG, "onReceiveData");
+		Crashlytics.log(Log.INFO,TAG, "onReceiveData");
 	}
 
 	/**
@@ -1020,7 +1020,7 @@ public abstract class StandOutWindow extends Service {
 	 * @see #updateViewLayout(int, Window, StandOutLayoutParams)
 	 */
 	public boolean onUpdate(int id, Window window, StandOutLayoutParams params) {
-		Log.i(TAG, "onUpdate");
+		Crashlytics.log(Log.INFO,TAG, "onUpdate");
 		return false;
 	}
 
@@ -1038,7 +1038,7 @@ public abstract class StandOutWindow extends Service {
 	 * @see #bringToFront(int)
 	 */
 	public boolean onBringToFront(int id, Window window) {
-		Log.i(TAG, "onBringToFront");
+		Crashlytics.log(Log.INFO,TAG, "onBringToFront");
 		return false;
 	}
 
@@ -1058,7 +1058,7 @@ public abstract class StandOutWindow extends Service {
 	 * @see #focus(int)
 	 */
 	public boolean onFocusChange(int id, Window window, boolean focus) {
-		Log.i(TAG, "onFocusChange");
+		Crashlytics.log(Log.INFO,TAG, "onFocusChange");
 		return false;
 	}
 
@@ -1078,7 +1078,7 @@ public abstract class StandOutWindow extends Service {
 	 * @see {@link Window#dispatchKeyEvent(KeyEvent)}
 	 */
 	public boolean onKeyEvent(int id, Window window, KeyEvent event) {
-		Log.i(TAG, "onKeyEvent");
+		Crashlytics.log(Log.INFO,TAG, "onKeyEvent");
 		return false;
 	}
 
@@ -1281,7 +1281,7 @@ public abstract class StandOutWindow extends Service {
 
 		// alert callbacks and cancel if instructed
 		if (onClose(id, window)) {
-			Log.w(TAG, "Window " + id + " close cancelled by implementation.");
+			Crashlytics.log(Log.WARN,TAG, "Window " + id + " close cancelled by implementation.");
 			return;
 		}
 
@@ -1357,7 +1357,7 @@ public abstract class StandOutWindow extends Service {
 	public final synchronized void closeAll() {
 		// alert callbacks and cancel if instructed
 		if (onCloseAll()) {
-			Log.w(TAG, "Windows close all cancelled by implementation.");
+			Crashlytics.log(Log.WARN,TAG, "Windows close all cancelled by implementation.");
 			return;
 		}
 
@@ -1424,7 +1424,7 @@ public abstract class StandOutWindow extends Service {
 
 		// alert callbacks and cancel if instructed
 		if (onBringToFront(id, window)) {
-			Log.w(TAG, "Window " + id
+			Crashlytics.log(Log.WARN,TAG, "Window " + id
 					+ " bring to front cancelled by implementation.");
 			return;
 		}
@@ -1610,7 +1610,7 @@ public abstract class StandOutWindow extends Service {
 									 MotionEvent event) {
 		StandOutLayoutParams params = window.getLayoutParams();
 
-		Log.i(TAG,"onTouchHandleMove");
+		Crashlytics.log(Log.INFO,TAG,"onTouchHandleMove");
 		// how much you have to move in either direction in order for the
 		// gesture to be a move and not tap
 
@@ -1696,7 +1696,7 @@ public abstract class StandOutWindow extends Service {
 									   MotionEvent event) {
 		StandOutLayoutParams params = (StandOutLayoutParams) window
 				.getLayoutParams();
-		Log.i(TAG,"onTouchHandleResize");
+		Crashlytics.log(Log.INFO,TAG,"onTouchHandleResize");
 
 		switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
@@ -1765,7 +1765,7 @@ public abstract class StandOutWindow extends Service {
 	 */
 	public void updateViewLayout(int id, StandOutLayoutParams params) {
 		Window window = getWindow(id);
-		Log.i(TAG,"updateViewLayout");
+		Crashlytics.log(Log.INFO,TAG,"updateViewLayout");
 		if (window == null) {
 			throw new IllegalArgumentException("Tried to updateViewLayout("
 					+ id + ") a null window.");
@@ -1781,7 +1781,7 @@ public abstract class StandOutWindow extends Service {
 
 		// alert callbacks and cancel if instructed
 		if (onUpdate(id, window, params)) {
-			Log.w(TAG, "Window " + id + " update cancelled by implementation.");
+			Crashlytics.log(Log.WARN,TAG, "Window " + id + " update cancelled by implementation.");
 			return;
 		}
 

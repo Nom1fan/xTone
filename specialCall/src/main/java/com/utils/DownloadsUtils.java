@@ -19,6 +19,8 @@ import DataObjects.PushEventKeys;
 import Exceptions.FileInvalidFormatException;
 import FilesManager.FileManager;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by Mor on 02/05/2016.
  */
@@ -74,7 +76,7 @@ public abstract class DownloadsUtils {
         new Thread() {
             @Override
             public void run() {
-                Log.i(TAG, "Handling pending downloads");
+                log(Log.INFO,TAG, "Handling pending downloads");
                 Cursor cursor = null;
                 try {
                     cursor = DAL_Access.getInstance(context).getAllValues(IDAL.TABLE_DOWNLOADS);
@@ -96,7 +98,7 @@ public abstract class DownloadsUtils {
                         pendingDownload.put(DataKeys.SOURCE_LOCALE, cursor.getString(cursor.getColumnIndex(IDAL.COL_SOURCE_LOCALE)));
                         pendingDownload.put(DataKeys.SPECIAL_MEDIA_TYPE, cursor.getString(cursor.getColumnIndex(IDAL.COL_SPECIAL_MEDIA_TYPE)));
 
-                        Log.i(TAG, "Sending pending download:" + pendingDownload);
+                        log(Log.INFO,TAG, "Sending pending download:" + pendingDownload);
 
                         sendActionDownload(context, pendingDownload);
 

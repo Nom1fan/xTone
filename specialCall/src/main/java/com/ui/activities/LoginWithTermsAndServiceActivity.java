@@ -17,6 +17,8 @@ import com.services.LogicServerProxyService;
 
 import java.util.Locale;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 
 /**
  * Created by Mor on 14/03/2016.
@@ -34,7 +36,7 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "onCreate()");
+        log(Log.INFO,TAG, "onCreate()");
 
         initializeTermsOfserviceUI();
         Intent intent = getIntent();
@@ -46,14 +48,14 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Log.i(TAG, "onPause()");
+        log(Log.INFO,TAG, "onPause()");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        Log.i(TAG, "OnResume()");
+        log(Log.INFO,TAG, "OnResume()");
     }
     //endregion
 

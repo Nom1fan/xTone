@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.data_objects.Constants;
 import com.data_objects.Contact;
 import com.utils.ContactsUtils;
@@ -54,7 +55,7 @@ public class DownloadReceiver extends BroadcastReceiver {
         EventReport eventReport = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
 
         if (eventReport.status() == EventType.DOWNLOAD_SUCCESS) {
-            Log.i(TAG, "In: DOWNLOAD_SUCCESS");
+            Crashlytics.log(Log.INFO,TAG, "In: DOWNLOAD_SUCCESS");
 
             HashMap td = (HashMap) eventReport.data();
             preparePathsAndDirs(td);
@@ -166,17 +167,17 @@ public class DownloadReceiver extends BroadcastReceiver {
 
         } catch (FileInvalidFormatException e) {
             e.printStackTrace();
-            Log.e(TAG, "Invalid file type:" + e.getMessage() + " in SpecialCall directory of source:" + source);
+            Crashlytics.log(Log.ERROR,TAG, "Invalid file type:" + e.getMessage() + " in SpecialCall directory of source:" + source);
         } catch (FileDoesNotExistException | FileMissingExtensionException e) {
             e.printStackTrace();
-            Log.e(TAG, e.getMessage());
+            Crashlytics.log(Log.ERROR,TAG, e.getMessage());
         }
 
     }
 
     private void setNewRingTone(Context context, String source, String md5) {
 
-        Log.i(TAG, "setNewRingTone with sharedPrefs: " + _newFileFullPath);
+        Crashlytics.log(Log.INFO,TAG, "setNewRingTone with sharedPrefs: " + _newFileFullPath);
         SharedPrefUtils.setString(context,
                 _sharedPrefKeyForAudioMedia, source, _newFileFullPath);
 
@@ -187,7 +188,7 @@ public class DownloadReceiver extends BroadcastReceiver {
 
     private void setNewVisualMedia(Context context, String source, String md5) {
 
-        Log.i(TAG, "setNewVisualMedia with sharedPrefs: " + _newFileFullPath);
+        Crashlytics.log(Log.INFO,TAG, "setNewVisualMedia with sharedPrefs: " + _newFileFullPath);
         SharedPrefUtils.setString(context,
                 _sharedPrefKeyForVisualMedia, source, _newFileFullPath);
 
@@ -248,7 +249,7 @@ public class DownloadReceiver extends BroadcastReceiver {
             if (!copyToHistoryFile.exists()) // if the file exist don't do any duplicate
             {
                 FileUtils.copyFile(downloadedFile, copyToHistoryFile);
-                Log.i(TAG, "Creating a unique md5 file in the History Folder fileName:  " + copyToHistoryFile.getName());
+                Crashlytics.log(Log.INFO,TAG, "Creating a unique md5 file in the History Folder fileName:  " + copyToHistoryFile.getName());
                 if (fileType == FileManager.FileType.AUDIO) {
                     ContentValues values = new ContentValues();
                     values.put(MediaStore.MediaColumns.DATA, copyToHistoryFile.getName());
@@ -266,7 +267,7 @@ public class DownloadReceiver extends BroadcastReceiver {
                 }
                 context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(copyToHistoryFile)));
             } else {
-                Log.e(TAG, "File already exist: " + historyFileName);
+                Crashlytics.log(Log.ERROR,TAG, "File already exist: " + historyFileName);
             }
 
         } catch (Exception e) {

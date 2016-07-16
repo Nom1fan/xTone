@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+apply plugin: 'io.fabric'
 android {
     compileSdkVersion 21
     buildToolsVersion "19.1.0"
@@ -15,4 +15,24 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+    repositories {
+        mavenCentral()
+        maven { url 'https://maven.fabric.io/public' }
+    }
+    dependencies {
+
+        compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+            transitive = true;
+        }
+        compile('com.crashlytics.sdk.android:crashlytics-ndk:1.1.3@aar') {
+            transitive = true;
+        }
+    }
+
+    crashlytics {
+        enableNdk true
+        androidNdkOut 'src/specialCall/libs'
+        androidNdkLibsOut 'src/specialCall/libs'
+    }
+
 }

@@ -32,6 +32,8 @@ import java.util.Random;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by Mor on 12/02/2016.
  */
@@ -124,7 +126,7 @@ public abstract class UI_Utils {
     //region ShowCaseView methods
     public static void showCaseView(Activity activity, ViewTarget target, String title, String details) {
 
-        Log.i(TAG, "Title: " + title + " details: " + details);
+        log(Log.INFO,TAG, "Title: " + title + " details: " + details);
      try{
 
 
@@ -289,7 +291,7 @@ public abstract class UI_Utils {
                     public void onClick(DialogInterface dialog, int id) {
 
                         dialog.cancel();
-                        Log.i(TAG , "dialog.cancel();");
+                        log(Log.INFO,TAG , "dialog.cancel();");
                     }
                 });
 
@@ -312,7 +314,7 @@ public abstract class UI_Utils {
 
 
 
-        Log.i(TAG , "waitingForTransferSuccessDialog.show();");
+        log(Log.INFO,TAG , "waitingForTransferSuccessDialog.show();");
 
     }
 
@@ -320,7 +322,7 @@ public abstract class UI_Utils {
 
         if (_waitingForTransferSuccessDialog!=null) {
             _waitingForTransferSuccessDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
-            Log.i(TAG, "waitingForTransferSuccessDialog.performClick();");
+            log(Log.INFO,TAG, "waitingForTransferSuccessDialog.performClick();");
         }
     }
 
