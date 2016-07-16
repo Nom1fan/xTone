@@ -234,6 +234,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         startLoginActivityIfLoggedOut();
 
+        if(AppStateManager.didAppCrash(this)) {
+            Log.w(TAG, "Detected app previously crashed. Handling...");
+            AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
+            AppStateManager.setDidAppCrash(this, false);
+        }
+
         initializeUI();
 
         if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))
@@ -306,9 +312,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             syncAndroidVersionWithServer();
 
             UI_Utils.showCaseViewCallNumber(this, MainActivity.this);
-
-
-
         }
 
     }

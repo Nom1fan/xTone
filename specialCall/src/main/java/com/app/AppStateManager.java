@@ -137,4 +137,12 @@ public class AppStateManager {
 
         return SharedPrefUtils.getBoolean(context, SharedPrefUtils.APP_STATE, IS_LOGGED_IN);
     }
+
+    public static void setDidAppCrash(Context context, boolean b) {
+        SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DID_APP_CRASH, b);
+    }
+
+    public static boolean didAppCrash(Context context) {
+        return SharedPrefUtils.getBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DID_APP_CRASH);
+    }
 }

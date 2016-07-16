@@ -31,6 +31,9 @@ public class MediaCallzApp extends Application {
         android.os.Process.setThreadPriority(-20);
         Context context = getApplicationContext();
 
+        setupHandlerForUncaughtExceptions(context);
+
+
         // Initializing Batch for push notifications
         Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
         Batch.Push.setManualDisplay(true);
@@ -70,6 +73,22 @@ public class MediaCallzApp extends Application {
             context = null;
         }
 
+    }
+
+    private void setupHandlerForUncaughtExceptions(final Context context) {
+        // Setup handler for uncaught exceptions.
+        Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler()
+        {
+            @Override
+            public void uncaughtException (Thread thread, Throwable e)
+            {
+                handleUncaughtException(context, e);
+            }
+        });
+    }
+
+    private void handleUncaughtException(Context context, Throwable e) {
+        AppStateManager.setDidAppCrash(context, true);
     }
 
     protected boolean isNetworkAvailable() {

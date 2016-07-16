@@ -66,6 +66,7 @@ public abstract class SharedPrefUtils {
     public static final String DONT_SHOW_AGAIN_TIP                  =   "DontShowAgainTIP";
     public static final String ANDROID_VERSION                      =   "AndroidVersion";
     public static final String TIMEOUT_MSG                          =   "TIMEOUT_MSG";
+    public static final String DID_APP_CRASH                        =   "DID_APP_CRASH";
     //endregion
 
     //region Shared pref keys under SHOWCASE

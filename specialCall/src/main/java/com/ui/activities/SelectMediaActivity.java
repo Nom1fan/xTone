@@ -78,7 +78,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private ProgressDialog _progDialog;
     private boolean _isInWebView = false;
     private MediaPlayer mMediaPlayer;
-    private FileManager _managedFile;
 
     //region Activity methods (onCreate(), onPause()...)
     @Override
@@ -213,20 +212,32 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                 }
 
                 finish();
-            } else { // Result is from file chooser
-                startPreviewActivity(data);
+            }
+            else if(requestCode == ActivityRequestCodes.REQUEST_CAMERA) {
+                startPreviewActivity(data, true);
+            }
+            else if(requestCode == ActivityRequestCodes.FIlE_CHOOSER) {
+                startPreviewActivity(data, false);
+            }
+            else {
+                Crashlytics.log(Log.ERROR, TAG, "Invalid request code:" + requestCode);
             }
         }
     }
 
-    private void startPreviewActivity(Intent data) {
+    private void startPreviewActivity(Intent data, boolean isCamera) {
 
         try {
-            String filepath = getFilePathFromIntent(data);
+            String filepath = getFilePathFromIntent(data, isCamera);
 
             FileManager managedFile;
+
             managedFile = new FileManager(filepath);
-            checkIfMediaCanBePrepared(managedFile);
+            if(canMediaBePrepared(managedFile)) {
+                startPreviewActivity(managedFile.getFileFullPath());
+            }
+            else
+                showInvalidFileOrPathToast();
 
         } catch(FileExceedsMaxSizeException e) {
             e.printStackTrace();
@@ -237,15 +248,19 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         } catch (Exception e) {
             e.printStackTrace();
-            UI_Utils.callToast(getResources().getString(R.string.file_invalid),
-                    Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+            showInvalidFileOrPathToast();
         }
     }
 
-    private void checkIfMediaCanBePrepared(FileManager managedFile) {
+    private void showInvalidFileOrPathToast() {
+        UI_Utils.callToast(getResources().getString(R.string.file_invalid),
+                Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+    }
 
+    private boolean canMediaBePrepared(FileManager managedFile) {
+
+        boolean result = true;
         try {
-            _managedFile = managedFile;
             FileManager.FileType fType = managedFile.getFileType();
             String filepath = managedFile.getFileFullPath();
             final File root = new File(filepath);
@@ -261,28 +276,25 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                     break;
 
                 case IMAGE:
-                    startPreviewMediaActivity();
                     break;
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            UI_Utils.callToast(getResources().getString(R.string.file_invalid),
-                    Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+            result = false;
         }
+        return result;
 
     }
 
-    private void checkIfWeCanPrepareSound( Uri audioUri) throws IOException {
+    private void checkIfWeCanPrepareSound(Uri audioUri) throws IOException {
 
         Crashlytics.log(Log.INFO,TAG, "Checking if Sound Can Be Prepared and work");
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setDataSource(getApplicationContext(), audioUri);
         mMediaPlayer.prepare();
         mMediaPlayer.setLooping(true);
-        startPreviewMediaActivity();
     }
 
-    private void checkIfWeCanPrepareVideo(Uri videoUri) throws IOException {
+    private void checkIfWeCanPrepareVideo(Uri videoUri) throws Exception {
 
         Crashlytics.log(Log.INFO,TAG, "Checking if Video Can Be Prepared and work");
         mMediaPlayer = new MediaPlayer();
@@ -290,21 +302,10 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         mMediaPlayer.prepare();
         mMediaPlayer.setLooping(true);
         int width = mMediaPlayer.getVideoWidth();
-        int heighet = mMediaPlayer.getVideoHeight();
-        if (width > 0 && heighet > 0) {
-            startPreviewMediaActivity();
-        } else {
-            UI_Utils.callToast(getResources().getString(R.string.file_invalid),
-                    Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+        int height = mMediaPlayer.getVideoHeight();
+        if (width <= 0 || height <= 0) {
+            throw new Exception();
         }
-    }
-
-    private void startPreviewMediaActivity(){
-        Intent previewIntentActivitiy = new Intent(getApplicationContext(), PreviewMediaActivity.class);
-        previewIntentActivitiy.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, _managedFile);
-        previewIntentActivitiy.putExtra(SPECIAL_MEDIA_TYPE, SMTypeCode);
-        startActivityForResult(previewIntentActivitiy, ActivityRequestCodes.PREVIEW_MEDIA);
-
     }
 
     private void startPreviewActivity(String filepath) {
@@ -313,10 +314,10 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         try {
             managedFile = new FileManager(filepath);
 
-            Intent previewIntentActivitiy = new Intent(this, PreviewMediaActivity.class);
-            previewIntentActivitiy.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
-            previewIntentActivitiy.putExtra(SPECIAL_MEDIA_TYPE, SMTypeCode);
-            startActivityForResult(previewIntentActivitiy, ActivityRequestCodes.PREVIEW_MEDIA);
+            Intent previewIntentActivity = new Intent(this, PreviewMediaActivity.class);
+            previewIntentActivity.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
+            previewIntentActivity.putExtra(SPECIAL_MEDIA_TYPE, SMTypeCode);
+            startActivityForResult(previewIntentActivity, ActivityRequestCodes.PREVIEW_MEDIA);
 
         } catch(FileExceedsMaxSizeException e) {
             e.printStackTrace();
@@ -328,8 +329,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         } catch (FileMissingExtensionException | FileDoesNotExistException | FileInvalidFormatException e) {
             e.printStackTrace();
-            UI_Utils.callToast(getResources().getString(R.string.file_invalid),
-                    Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+            showInvalidFileOrPathToast();
             finish();
         }
     }
@@ -389,19 +389,19 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         }
         else if (id == R.id.selectVideo || id == R.id.image_video_textview || id == R.id.selectImage) {
 
-            openVideoAndImageMediapath(SMTypeCode);
+            openVideoAndImageMediaPath();
 
         }else if (id == R.id.audio || id == R.id.audio_textview) {
 
-            openAudioMediapath(SMTypeCode);
+            openAudioMediaPath();
         }
         else if (id == R.id.recordVideo || id == R.id.record_video_textview) {
 
-            RecordVideo(SMTypeCode);
+            recordVideo();
         }
         else if (id == R.id.takePicture || id == R.id.take_picture_textview) {
 
-            takePicture(SMTypeCode);
+            takePicture();
         }
         else if (id == R.id.recordAudio || id == R.id.record_audio_textview) {
 
@@ -508,24 +508,24 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         }
     }
 
-    private void openVideoAndImageMediapath(int code) {
+    private void openVideoAndImageMediaPath() {
 
         // Create the ACTION_GET_CONTENT Intent
         // Intent intent = FileUtils.createGetContentIntent("image/*, video/*"); // // TODO rony: 31/01/2016 we may need to change it to "*/*" as it will give us filechooser support and more ways to open files. also i think in android 5 or 6 it's not supported the ("image/* , video/*") but not sure
         Intent intent = FileUtils.createGetContentIntent("*/*");
         Intent chooserIntent = Intent.createChooser(intent, "Select Media File");
-        startActivityForResult(chooserIntent, code);
+        startActivityForResult(chooserIntent, ActivityRequestCodes.FIlE_CHOOSER);
 
     }
 
-    private void openAudioMediapath(int code) {
+    private void openAudioMediaPath() {
         // Create the ACTION_GET_CONTENT Intent
         final Intent intent = FileUtils.createGetContentIntent("audio/*");
         Intent chooserIntent = Intent.createChooser(intent, "Select Audio File");
-        startActivityForResult(chooserIntent, code);
+        startActivityForResult(chooserIntent, ActivityRequestCodes.FIlE_CHOOSER);
     }
 
-    private void RecordVideo(int code) {
+    private void recordVideo() {
         // Determine Uri of camera image to save.
         String fname =  "MyVideo_"+System.currentTimeMillis()+".mp4";
         File sdVideoMainDirectory = new File(Constants.HISTORY_FOLDER, fname);
@@ -542,10 +542,10 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         videoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0); // set the video image quality to low
         videoIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, 15000);
 
-        startActivityForResult(videoIntent, code); // // TODO rony: 31/01/2016 see native camera opens and not other weird different cameras
+        startActivityForResult(videoIntent, ActivityRequestCodes.FIlE_CHOOSER); // // TODO rony: 31/01/2016 see native camera opens and not other weird different cameras
     }
 
-    private void takePicture(int code) {
+    private void takePicture() {
 
         // Determine Uri of camera image to save.
         String fname = "MyImage_"+System.currentTimeMillis()+".jpeg";
@@ -570,7 +570,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             cameraIntent = intent;
         }
 
-        startActivityForResult(cameraIntent, code);  // // TODO rony: 31/01/2016 see native camera opens and not other weird different cameras
+        startActivityForResult(cameraIntent, ActivityRequestCodes.REQUEST_CAMERA);  // // TODO rony: 31/01/2016 see native camera opens and not other weird different cameras
 
     }
 
@@ -635,60 +635,46 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     }
 
-    private String getFilePathFromIntent(Intent intent) {
+    private String getFilePathFromIntent(Intent intent, boolean isCamera) throws Exception {
 
-        final boolean isCamera;
-        try {
-            Uri uri;
+        String resultPath;
+        Uri uri;
 
-            if (intent == null) {
-                isCamera = true;
-            } else {
-                final String action = intent.getAction();
-                isCamera = action != null && action.equals(MediaStore.ACTION_IMAGE_CAPTURE);
-            }
-            if (isCamera) {
-                uri = _outputFileUri;
-            } else {
-                uri = intent.getData();
-            }
 
-            // Get the File path from the Uri
-            String path = FileUtils.getPath(this, uri);
-            // Alternatively, use FileUtils.getFile(Context, Uri)
-            if (path == null) {
-                path = uri.getLastPathSegment();
-                if (path == null)
-                    throw new FileDoesNotExistException("Path returned from URI was null");
-            }
-
-            getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(path))));
-
-            if (FileUtils.isLocal(path)) {
-
-                if (isCamera) {
-                    File file = new File(path);
-
-                    try {
-                        String extension = FileManager.extractExtension(path);
-                        Crashlytics.log(Log.INFO,TAG, "isCamera True, Extension saved in camera: " + extension);
-                    } catch (FileMissingExtensionException e) {
-
-                        Crashlytics.log(Log.WARN,TAG, "Missing Extension! Adding .jpeg as it is likely to be image file from camera");
-                        file.renameTo(new File(path += ".jpeg"));
-                    }
-                }
-                return path;
-
-            }
-        }catch (NullPointerException e) {
-            e.printStackTrace();
-            Crashlytics.log(Log.ERROR,TAG, getResources().getString(R.string.file_invalid));
-
-        }  catch (FileDoesNotExistException e) {
-            e.printStackTrace();
+        if (isCamera) {
+            uri = _outputFileUri;
+        } else {
+            uri = intent.getData();
         }
-        return "";
+
+        // Get the File path from the Uri
+        resultPath = FileUtils.getPath(this, uri);
+        // Alternatively, use FileUtils.getFile(Context, Uri)
+        if (resultPath == null) {
+            resultPath = uri.getLastPathSegment();
+            if (resultPath == null)
+                throw new FileDoesNotExistException("Path returned from URI was null");
+        }
+
+        getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(resultPath))));
+
+        if (FileUtils.isLocal(resultPath)) {
+
+            if (isCamera) {
+                File file = new File(resultPath);
+
+                try {
+                    String extension = FileManager.extractExtension(resultPath);
+                    Crashlytics.log(Log.INFO, TAG, "isCamera True, Extension saved in camera: " + extension);
+                } catch (FileMissingExtensionException e) {
+
+                    Crashlytics.log(Log.WARN, TAG, "Missing Extension! Adding .jpeg as it is likely to be image file from camera");
+                    file.renameTo(new File(resultPath += ".jpeg"));
+                }
+            }
+        }
+
+        return resultPath;
     }
 
     private class downloadFileFromWebView extends AsyncTask<Void, Integer, Void> {
