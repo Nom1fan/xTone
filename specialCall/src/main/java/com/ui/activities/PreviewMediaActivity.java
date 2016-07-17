@@ -105,7 +105,25 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
                 break;
 
             case IMAGE:
+
                 fileType.setText(getResources().getString(R.string.fileType_image));
+
+                if (!_managedFile.getFileExtension().toLowerCase().contains("gif")) {
+                    ImageButton rotate = (ImageButton) findViewById(R.id.rotate_button);
+                    SharedPrefUtils.setInt(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.IMAGE_ROTATION_DEGREE,0);
+                    rotate.setClickable(true);
+                    rotate.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+                            _imageButton.setRotation(_imageButton.getRotation() + 90);
+                            SharedPrefUtils.setInt(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.IMAGE_ROTATION_DEGREE,Math.round(_imageButton.getRotation()));
+                        }
+                    });
+                    rotate.setVisibility(View.VISIBLE);
+                    _previewFile.setVisibility(View.INVISIBLE);
+                    _previewFile.setClickable(false);
+                    TextView rotateTextview = (TextView) findViewById(R.id.rotate_textview);
+                    rotateTextview.setVisibility(View.VISIBLE);
+                }
                 break;
         }
 

@@ -67,6 +67,8 @@ public abstract class SharedPrefUtils {
     public static final String ANDROID_VERSION                      =   "AndroidVersion";
     public static final String TIMEOUT_MSG                          =   "TIMEOUT_MSG";
     public static final String DID_APP_CRASH                        =   "DID_APP_CRASH";
+    public static final String SELF_VIDEO_IMAGE_URI                 =   "OutputFileUriForVideoImageTaken";
+    public static final String IMAGE_ROTATION_DEGREE                =   "ImageRotationDegree";
     //endregion
 
     //region Shared pref keys under SHOWCASE

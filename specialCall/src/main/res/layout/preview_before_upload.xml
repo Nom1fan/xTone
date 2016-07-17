@@ -39,13 +39,15 @@
         android:visibility="visible"
         android:src="@drawable/upload_preview"
         android:background="#004559"
-        android:layout_alignRight="@+id/preview_thumbnail"
-        android:layout_alignEnd="@+id/preview_thumbnail"
         android:layout_alignParentBottom="true"
-        android:layout_toEndOf="@+id/playPreview"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="70dp"
         android:layout_marginTop="30dp"
-        android:layout_toRightOf="@+id/playPreview" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@+id/rotate_button"
+        android:layout_toEndOf="@+id/rotate_button"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -60,7 +62,10 @@
         android:layout_toRightOf="@+id/playPreview"
         android:layout_alignStart="@+id/preview_thumbnail"
         android:layout_toLeftOf="@+id/playPreview"
-        android:layout_toStartOf="@+id/playPreview" />
+        android:layout_toStartOf="@+id/playPreview"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -115,5 +120,27 @@
         android:layout_alignRight="@+id/cancel_btn"
         android:layout_alignBottom="@+id/upload_btn_text"
         android:layout_alignLeft="@+id/cancel_btn" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/rotate_button"
+        android:src="@android:drawable/ic_menu_revert"
+        android:layout_alignTop="@+id/playPreview"
+        android:visibility="invisible"
+        android:layout_alignBottom="@+id/playPreview"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/rotate_image"
+        android:id="@+id/rotate_textview"
+        android:textColor="#ff8400"
+        android:visibility="invisible"
+        android:layout_alignBottom="@+id/upload_btn_text"
+        android:layout_centerHorizontal="true"
+        android:singleLine="true"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
 
 </RelativeLayout>

@@ -40,6 +40,7 @@ import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
+import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
@@ -67,7 +68,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     public static final String RESULT_FILE = "ResultFile";
 
     private static final String TAG = SelectMediaActivity.class.getSimpleName();
-    private Uri _outputFileUri;
     private String _recordedAudioFilePath;
     private int SMTypeCode;
     private String _destName = "";
@@ -532,17 +532,16 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         sdVideoMainDirectory.delete();
 
-        _outputFileUri = Uri.fromFile(sdVideoMainDirectory);
-
+        SharedPrefUtils.setString(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.SELF_VIDEO_IMAGE_URI,Uri.fromFile(sdVideoMainDirectory).toString());
 
         final Intent videoIntent = new Intent(
                 MediaStore.ACTION_VIDEO_CAPTURE);
-        videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, _outputFileUri);
+        videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(sdVideoMainDirectory));
         videoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 30); // set video recording interval
         videoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0); // set the video image quality to low
         videoIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, 15000);
 
-        startActivityForResult(videoIntent, ActivityRequestCodes.FIlE_CHOOSER); // // TODO rony: 31/01/2016 see native camera opens and not other weird different cameras
+        startActivityForResult(videoIntent, ActivityRequestCodes.REQUEST_CAMERA); // // TODO rony: 31/01/2016 see native camera opens and not other weird different cameras
     }
 
     private void takePicture() {
@@ -551,8 +550,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         String fname = "MyImage_"+System.currentTimeMillis()+".jpeg";
         File sdImageMainDirectory = new File(Constants.HISTORY_FOLDER, fname);
         sdImageMainDirectory.delete();
-        _outputFileUri = Uri.fromFile(sdImageMainDirectory);
-
+        SharedPrefUtils.setString(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.SELF_VIDEO_IMAGE_URI,Uri.fromFile(sdImageMainDirectory).toString());
         // Camera.
         final Intent captureIntent = new Intent(
                 android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
@@ -566,7 +564,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             intent.setComponent(new ComponentName(res.activityInfo.packageName,
                     res.activityInfo.name));
             intent.setPackage(packageName);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, _outputFileUri);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(sdImageMainDirectory));
             cameraIntent = intent;
         }
 
@@ -642,7 +640,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
 
         if (isCamera) {
-            uri = _outputFileUri;
+            uri = Uri.parse(SharedPrefUtils.getString(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.SELF_VIDEO_IMAGE_URI));
         } else {
             uri = intent.getData();
         }

@@ -154,7 +154,7 @@
     <string name="ready_for_upload">מוכן לשליחה ?</string>
     <string name="play_preview">נגן קדימון</string>
     <string name="stop_preview">עצור קדימון</string>
-
+    <string name="rotate_image">סובב תמונה</string>
 
 
     <!--  activity_main Layout   -->
