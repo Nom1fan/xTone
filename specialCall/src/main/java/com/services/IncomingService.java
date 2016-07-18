@@ -166,13 +166,15 @@ public class IncomingService extends AbstractStandOutService {
         log(Log.INFO,TAG, " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION));
         boolean isBlocked = MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext());
         if (isBlocked) {
-            _contactName = ContactsUtils.getContactName(getApplicationContext(), incomingNumber);
 
-            if(_contactName.isEmpty())
-                UI_Utils.callToast("MediaCallz: " + incomingNumber + " is MC BLOCKED !!!  ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
-            else
-                UI_Utils.callToast("MediaCallz: " + _contactName + " is MC BLOCKED !!! ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+          if (state == TelephonyManager.CALL_STATE_RINGING) {
+              _contactName = ContactsUtils.getContactName(getApplicationContext(), incomingNumber);
 
+              if (_contactName.isEmpty())
+                  UI_Utils.callToast("MediaCallz: " + incomingNumber + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+              else
+                  UI_Utils.callToast("MediaCallz: " + _contactName + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+          }
 
         }
         if (!isBlocked || (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)))

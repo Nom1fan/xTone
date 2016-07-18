@@ -259,9 +259,9 @@ public class OutgoingService extends AbstractStandOutService {
                     _contactName = ContactsUtils.getContactName(getApplicationContext(), outgoingCallNumber);
 
                     if(_contactName.isEmpty())
-                        UI_Utils.callToast("MediaCallz: " + outgoingCallNumber + " is MC BLOCKED !!!  ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+                        UI_Utils.callToast("MediaCallz: " + outgoingCallNumber + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
                     else
-                        UI_Utils.callToast("MediaCallz: " + _contactName + " is MC BLOCKED !!! ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+                        UI_Utils.callToast("MediaCallz: " + _contactName + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
 
 
                 }
