@@ -277,7 +277,7 @@ public class OutgoingService extends AbstractStandOutService {
                             }catch (Exception e){
                                 e.printStackTrace();
                             }
-
+                            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.OUTGOING_WINDOW_SESSION,true);
                             mOutgoingCall=true;
 
                             String visualMediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, outgoingCallNumber);

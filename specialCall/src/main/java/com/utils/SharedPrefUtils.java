@@ -84,18 +84,29 @@ public abstract class SharedPrefUtils {
     //endregion
 
     //region Shared pref keys under SERVICES
-    public static final String OUTGOING_RINGING_SESSION         =   "OutgoingisInRingingSession";
-    public static final String INCOMING_RINGING_SESSION         =   "IncomingisInRingingSession";
-    public static final String RING_VOLUME                      =   "RingVolume";
-    public static final String MUSIC_VOLUME                     =   "MusicVolume";
-    public static final String RINGER_MODE                      =   "RingerMode";
-    public static final String TEMP_VISUALMD5                   =   "TempVisualMd5";
-    public static final String TEMP_AUDIOMD5                    =   "TempAudioMd5";
-    public static final String DISABLE_VOLUME_BUTTONS           =   "DisableVolumeButtons";
-    public static final String MC_WINDOW_WIDTH_BY_USER          =   "mcWindowWidthByUser";
-    public static final String MC_WINDOW_HEIGHET_BY_USER        =   "mcWindowHeighetByUser";
-    public static final String MC_WINDOW_X_LOCATION_BY_USER     =   "mcWindowXLocationByUser";
-    public static final String MC_WINDOW_Y_LOCATION_BY_USER     =   "mcWindowYLocationByUser";
+    public static final String OUTGOING_RINGING_SESSION                 =   "OutgoingisInRingingSession";
+    public static final String INCOMING_RINGING_SESSION                 =   "IncomingisInRingingSession";
+    public static final String RING_VOLUME                              =   "RingVolume";
+    public static final String MUSIC_VOLUME                             =   "MusicVolume";
+    public static final String RINGER_MODE                              =   "RingerMode";
+    public static final String TEMP_VISUALMD5                           =   "TempVisualMd5";
+    public static final String TEMP_AUDIOMD5                            =   "TempAudioMd5";
+    public static final String DISABLE_VOLUME_BUTTONS                   =   "DisableVolumeButtons";
+
+    public static final String OUTGOING_WINDOW_SESSION                  =   "OutgoingWindowSession";
+    public static final String INCOMING_WINDOW_SESSION                  =   "IncomingWindowSession";
+    public static final String INCOMING_MC_WINDOW_WIDTH_BY_USER         =   "IncomingMCWindowWidthByUser";
+    public static final String INCOMING_MC_WINDOW_HEIGHET_BY_USER       =   "IncomingMCWindowHeighetByUser";
+    public static final String OUTGOING_MC_WINDOW_WIDTH_BY_USER         =   "OutgoingMCWindowWidthByUser";
+    public static final String OUTGOING_MC_WINDOW_HEIGHET_BY_USER       =   "OutgoingMCWindowHeighetByUser";
+    public static final String PREVIEW_MC_WINDOW_WIDTH_BY_USER          =   "PreviewMCWindowWidthByUser";
+    public static final String PREVIEW_MC_WINDOW_HEIGHET_BY_USER        =   "PreviewMCWindowHeighetByUser";
+    public static final String INCOMING_MC_WINDOW_X_LOCATION_BY_USER    =   "IncomingMCWindowXLocationByUser";
+    public static final String INCOMING_MC_WINDOW_Y_LOCATION_BY_USER    =   "IncomingMCWindowYLocationByUser";
+    public static final String OUTGOING_MC_WINDOW_X_LOCATION_BY_USER    =   "OutgoingMCWindowXLocationByUser";
+    public static final String OUTGOING_MC_WINDOW_Y_LOCATION_BY_USER    =   "OutgoingMCWindowYLocationByUser";
+    public static final String PREVIEW_MC_WINDOW_X_LOCATION_BY_USER     =   "PreviewMCWindowXLocationByUser";
+    public static final String PREVIEW_MC_WINDOW_Y_LOCATION_BY_USER     =   "PreviewMCWindowYLocationByUser";
 
     //endregion
 

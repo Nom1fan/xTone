@@ -204,6 +204,22 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     @Override
     public StandOutLayoutParams getParams(int id, Window window) {
         log(Log.INFO,TAG, "In StandOutLayoutParams()");
+
+        if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_WIDTH_BY_USER) > 0 && mPreviewStart)
+            mWidth = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_WIDTH_BY_USER);
+        if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_HEIGHET_BY_USER) > 0 && mPreviewStart)
+            mHeight = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_HEIGHET_BY_USER);
+
+        if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_WIDTH_BY_USER) > 0 && (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION)))
+            mWidth = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_WIDTH_BY_USER );
+        if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_HEIGHET_BY_USER) > 0 && (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION)))
+            mHeight = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_HEIGHET_BY_USER);
+
+        if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_WIDTH_BY_USER) > 0 && (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION)))
+            mWidth = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_WIDTH_BY_USER);
+        if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_HEIGHET_BY_USER) > 0 && (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION)))
+            mHeight = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_HEIGHET_BY_USER);
+
         return new StandOutLayoutParams(id, mWidth, mHeight, 0, 0);
     }
 
@@ -240,8 +256,21 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         }
 
         if (showFirstTime) {
-            window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_X_LOCATION_BY_USER),
-                    SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_Y_LOCATION_BY_USER)).commit();
+
+          if (mPreviewStart) {
+              window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_X_LOCATION_BY_USER),
+                      SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_Y_LOCATION_BY_USER)).commit();
+          }
+
+          if ((SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION))) {
+              window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_X_LOCATION_BY_USER),
+                      SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_Y_LOCATION_BY_USER)).commit();
+          }
+
+          if ((SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION))) {
+              window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_X_LOCATION_BY_USER),
+                      SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_Y_LOCATION_BY_USER)).commit();
+          }
 
             verifyAudioManager();
             mSpecialCallVolumeValueTextView = (TextView) mcButtonsOverlay.findViewById(R.id.volume_value);
@@ -288,15 +317,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         return StandOutWindow.getShowIntent(this, getClass(), id);
     }
 
- /*   @Override
-    public boolean onTouchBody(int id, Window window, View view,
-                               MotionEvent event) {
-        Crashlytics.log(Log.INFO,TAG,"onTouchBody");
-        stopVibrator();
-        return false;
-    }*/
-
-
     @Override
     public boolean onUpdate(int id, Window window, StandOutLayoutParams params) {
 
@@ -333,14 +353,39 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         int coordinates[] = new int[2];
         window.getLocationOnScreen(coordinates);
 
-        // get size of window set last by user
-        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_HEIGHET_BY_USER, window.getHeight());
-        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_WIDTH_BY_USER, window.getWidth());
+        if (mPreviewStart) {
+            // get size of window set last by user
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_HEIGHET_BY_USER, window.getHeight());
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_WIDTH_BY_USER, window.getWidth());
 
-        // get location of window on screen set last by user
-        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_X_LOCATION_BY_USER, coordinates[0]);
-        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_Y_LOCATION_BY_USER, coordinates[1] - statusBarHeighet); // remove the Heighet of the status bar
+            // get location of window on screen set last by user
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_X_LOCATION_BY_USER, coordinates[0]);
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_Y_LOCATION_BY_USER, coordinates[1] - statusBarHeighet); // remove the Heighet of the status bar
+        }
 
+        if ((SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION))) {
+            // get size of window set last by user
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_HEIGHET_BY_USER, window.getHeight());
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_WIDTH_BY_USER, window.getWidth());
+
+            // get location of window on screen set last by user
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_X_LOCATION_BY_USER, coordinates[0]);
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_Y_LOCATION_BY_USER, coordinates[1] - statusBarHeighet); // remove the Heighet of the status bar
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION,false);
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION,false);
+        }
+
+        if ((SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION))) {
+            // get size of window set last by user
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_HEIGHET_BY_USER, window.getHeight());
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_WIDTH_BY_USER, window.getWidth());
+
+            // get location of window on screen set last by user
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_X_LOCATION_BY_USER, coordinates[0]);
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_Y_LOCATION_BY_USER, coordinates[1] - statusBarHeighet); // remove the Heighet of the status bar
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION,false);
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION,false);
+        }
        /* if (mPreviewStart) {
             Crashlytics.log(Log.INFO,TAG,"Incase outgoing call is made return volume music to 0");
             verifyAudioManager();
@@ -353,12 +398,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         stopSound();
         stopVibrator();
       //  releaseResources();
-
-
-
-
-
-
 
         return false;
     }
@@ -373,13 +412,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mHeight = size.y * 63 / 100;
 
         showFirstTime = true;
-
-        if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_WIDTH_BY_USER) > 0)
-            mWidth = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_WIDTH_BY_USER);
-
-        if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_HEIGHET_BY_USER) > 0)
-            mHeight = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.MC_WINDOW_HEIGHET_BY_USER);
-
 
     }
 
