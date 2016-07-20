@@ -34,7 +34,7 @@
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:contentDescription="@string/hide"
-        android:background="@drawable/blocked_mc"
+        android:background="@drawable/block_anim"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_alignParentLeft="true"

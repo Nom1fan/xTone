@@ -37,7 +37,7 @@
         android:id="@+id/upload_btn"
         android:layout_gravity="bottom|right"
         android:visibility="visible"
-        android:src="@drawable/upload_preview"
+        android:src="@drawable/upload_preview_anim"
         android:background="#004559"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="70dp"
@@ -46,8 +46,8 @@
         android:layout_alignParentEnd="true"
         android:layout_toRightOf="@+id/rotate_button"
         android:layout_toEndOf="@+id/rotate_button"
-        android:layout_marginRight="40dp"
-        android:layout_marginLeft="40dp" />
+        android:layout_marginRight="30dp"
+        android:layout_marginLeft="30dp" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -64,8 +64,8 @@
         android:layout_toLeftOf="@+id/playPreview"
         android:layout_toStartOf="@+id/playPreview"
         android:layout_alignParentStart="true"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp" />
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -73,7 +73,7 @@
         android:id="@+id/playPreview"
         android:layout_gravity="bottom|right"
         android:visibility="visible"
-        android:src="@drawable/play_preview"
+        android:src="@drawable/play_preview_anim"
         android:layout_alignTop="@+id/upload_btn"
         android:layout_alignBottom="@+id/upload_btn"
         android:background="#004559"
@@ -125,7 +125,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/rotate_button"
-        android:src="@android:drawable/ic_menu_revert"
+        android:src="@drawable/rotate_btn_anim"
         android:layout_alignTop="@+id/playPreview"
         android:visibility="invisible"
         android:layout_alignBottom="@+id/playPreview"

@@ -35,6 +35,20 @@ public abstract class MCBlockListUtils {
             switch (permissionLevel) {
 
                 case PermissionBlockListLevel.ALL_VALID:
+                    Set<String> blockedSet1 = SharedPrefUtils.getStringSet(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+                    if (!blockedSet1.isEmpty()) {
+                        incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
+
+                        if (blockedSet1.contains(incomingNumber)) {
+                            log(Log.INFO,TAG, "ALL_VALID NUMBER MC BLOCKED: " + incomingNumber);
+                            return true;
+                        }
+                    }
+                    else {
+                        log(Log.WARN,TAG, "ALL_VALID BlackList empty allowing phone number: " + incomingNumber);
+                        return false;
+                    }
+
                     return false;
 
                 case PermissionBlockListLevel.CONTACTS_ONLY:
@@ -46,7 +60,10 @@ public abstract class MCBlockListUtils {
                         contactPhonenumbers.add(contactsList.get(i).get_phoneNumber());
                     }
 
-                    if(contactPhonenumbers.contains(PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber)))
+                    Set<String> blockedSet2 = SharedPrefUtils.getStringSet(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
+                    incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
+
+                    if(contactPhonenumbers.contains(incomingNumber) && !blockedSet2.contains(incomingNumber))
                         return false;
                     else
                         return true;
@@ -60,12 +77,12 @@ public abstract class MCBlockListUtils {
                         incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
 
                         if (blockedSet.contains(incomingNumber)) {
-                            log(Log.INFO,TAG, "NUMBER MC BLOCKED: " + incomingNumber);
+                            log(Log.INFO,TAG, "BLACK_LIST_SPECIFIC NUMBER MC BLOCKED: " + incomingNumber);
                             return true;
                         }
                     }
                     else {
-                        log(Log.WARN,TAG, "BlackList empty allowing phone number: " + incomingNumber);
+                        log(Log.WARN,TAG, "BLACK_LIST_SPECIFIC BlackList empty allowing phone number: " + incomingNumber);
                         return false;
                     }
             }

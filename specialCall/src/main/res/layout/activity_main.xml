@@ -123,7 +123,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/clear"
         android:clickable="true"
-        android:src="@drawable/clear"
+        android:src="@drawable/clear_btn_anim"
         android:scaleType="fitXY"
         android:background="#01789b"
         android:padding="5dp"

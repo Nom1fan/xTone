@@ -86,11 +86,11 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
                 if (_isPreview) {
                     closePreview();
                     _isPreview = false;
-                    _previewFile.setImageResource(R.drawable.play_preview);
+                    _previewFile.setImageResource(R.drawable.play_preview_anim);
                 } else {
                     startPreviewStandoutWindow(_managedFile.getFileFullPath() , fType);
                     _isPreview = true;
-                    _previewFile.setImageResource(R.drawable.stop_preview);
+                    _previewFile.setImageResource(R.drawable.stop_preview_anim);
                 }
             }
         });

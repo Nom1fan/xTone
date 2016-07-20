@@ -17,6 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.data_objects.Constants;
+import com.data_objects.PermissionBlockListLevel;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
@@ -167,14 +168,17 @@ public class IncomingService extends AbstractStandOutService {
         boolean isBlocked = MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext());
         if (isBlocked) {
 
-          if (state == TelephonyManager.CALL_STATE_RINGING) {
-              _contactName = ContactsUtils.getContactName(getApplicationContext(), incomingNumber);
+            if (state == TelephonyManager.CALL_STATE_RINGING) {
+                _contactName = ContactsUtils.getContactName(getApplicationContext(), incomingNumber);
 
-              if (_contactName.isEmpty())
-                  UI_Utils.callToast("MediaCallz: " + incomingNumber + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
-              else
-                  UI_Utils.callToast("MediaCallz: " + _contactName + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
-          }
+                String permissionLevel = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
+                if (permissionLevel != PermissionBlockListLevel.CONTACTS_ONLY && permissionLevel != PermissionBlockListLevel.NO_ONE) {
+                    if (_contactName.isEmpty())
+                        UI_Utils.callToast("MediaCallz: " + incomingNumber + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+                    else
+                        UI_Utils.callToast("MediaCallz: " + _contactName + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+                }
+            }
 
         }
         if (!isBlocked || (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)))

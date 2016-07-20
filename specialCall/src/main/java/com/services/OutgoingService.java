@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.data_objects.Constants;
+import com.data_objects.PermissionBlockListLevel;
 import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.ContactsUtils;
@@ -258,12 +259,16 @@ public class OutgoingService extends AbstractStandOutService {
                 if (isBlocked) {
                     _contactName = ContactsUtils.getContactName(getApplicationContext(), outgoingCallNumber);
 
-                    if(_contactName.isEmpty())
-                        UI_Utils.callToast("MediaCallz: " + outgoingCallNumber + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
-                    else
-                        UI_Utils.callToast("MediaCallz: " + _contactName + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+                    String permissionLevel = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
+                    if (permissionLevel != PermissionBlockListLevel.CONTACTS_ONLY && permissionLevel != PermissionBlockListLevel.NO_ONE) {
+                        {
+                            if (_contactName.isEmpty())
+                                UI_Utils.callToast("MediaCallz: " + outgoingCallNumber + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+                            else
+                                UI_Utils.callToast("MediaCallz: " + _contactName + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
 
-
+                        }
+                    }
                 }
 
                 // Checking if number is in black list
