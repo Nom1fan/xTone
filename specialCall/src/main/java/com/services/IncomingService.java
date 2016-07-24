@@ -452,8 +452,10 @@ public class IncomingService extends AbstractStandOutService {
     private void disableRingStream() {
 
         // check if the Device has Strict Ringing Capabilities that hard to be silent like in LG G4
-        unlockMusicStreamDuringRinging();
-        correlateVibrateSettings();
+        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES)) {
+            unlockMusicStreamDuringRinging();
+            correlateVibrateSettings();
+        }
 
         try {
             verifyAudioManager();
