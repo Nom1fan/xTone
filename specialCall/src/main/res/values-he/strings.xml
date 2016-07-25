@@ -41,6 +41,7 @@
     <string name="just_notify"> פשוט תעדכן</string>
 
     <!--  Tips  -->
+    <string name="set_window"> שחק עם חלון המדיה שלך</string>
     <string name="skip"> דלג</string>
     <string name="next_tip"> טיפ הבא</string>
     <string name="did_you_know"> הידעת ?! </string>

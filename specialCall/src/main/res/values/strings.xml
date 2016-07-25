@@ -83,6 +83,7 @@
 
 
     <!--  Tips  -->
+    <string name="set_window"> Set your MC window</string>
     <string name="skip"> Skip</string>
     <string name="next_tip"> Next Tip</string>
     <string name="did_you_know"> Did you know ?!</string>

@@ -35,6 +35,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -122,7 +126,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private String _destName = "";
     private LoadJNI _vk;
     private final Object _lock = new Object();
-
+    private boolean wentThroughOnCreate = false;
+    private WebView displayYoutubeVideo;
     //region Keys for bundle
     private static final String DEST_ID             =   "DEST_ID";
     private static final String DEST_NAME           =   "DEST_NAME";
@@ -165,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ProgressDialog _progDialog;
     private Snackbar _snackBar;
     private Dialog _tipDialog = null;
+    private Dialog _windowVideoDialog = null;
     private String[] _tipsCircularArray;
     private int _tipsNum;
     //endregion
@@ -241,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
 
         initializeUI();
+        wentThroughOnCreate = true;
 
         if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))
             startingTipDialog();
@@ -311,7 +318,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             syncAndroidVersionWithServer();
 
-            UI_Utils.showCaseViewCallNumber(this, MainActivity.this);
+            startingSetWindowVideoDialog();
         }
 
     }
@@ -517,6 +524,67 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 }
 
 
+        }
+    }
+
+    private void startingSetWindowVideoDialog(){
+
+        Log.i(TAG, "before video dialog");
+        if (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_WINDOW_VIDEO) && wentThroughOnCreate) {
+            Log.i(TAG, "inside video dialog");
+            wentThroughOnCreate = false;
+            if (_windowVideoDialog==null)
+            {  _windowVideoDialog = new Dialog(MainActivity.this);
+
+                // custom dialog
+                _windowVideoDialog.setContentView(R.layout.video_dialog);
+
+                _windowVideoDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(final DialogInterface arg0) {
+                        _windowVideoDialog = null;
+                        displayYoutubeVideo.stopLoading();
+                        displayYoutubeVideo.destroy();
+                        Log.i(TAG, "before showcase");
+                        UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
+                    }
+                });
+
+                Button skipBtn = (Button) _windowVideoDialog.findViewById(R.id.video_ok);
+                // if button is clicked, close the custom dialog
+                skipBtn.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        _windowVideoDialog.dismiss();
+                    }
+                });
+
+                CheckBox checkBox = (CheckBox) _windowVideoDialog.findViewById(R.id.video_dont_show_tips);
+                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        SharedPrefUtils.setBoolean(MainActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_WINDOW_VIDEO, isChecked);
+                    }
+                });
+
+                _windowVideoDialog.show();
+
+                displayYoutubeVideo = (WebView) _windowVideoDialog.findViewById(R.id.set_window_video);
+                displayYoutubeVideo.setVisibility(View.VISIBLE);
+                String frameVideo = "<html><body>Video From YouTube<br><iframe width=\"280\" height=\"315\" src=\"https://www.youtube.com/embed/gsMnKiuzans\" frameborder=\"0\" allowfullscreen></iframe></body></html>";
+                Log.i(TAG, frameVideo);
+                displayYoutubeVideo.setWebViewClient(new WebViewClient() {
+                    @Override
+                    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                        return false;
+                    }
+                });
+                WebSettings webSettings = displayYoutubeVideo.getSettings();
+                webSettings.setJavaScriptEnabled(true);
+                displayYoutubeVideo.loadData(frameVideo, "text/html", "utf-8");
+
+            }
         }
     }
 
