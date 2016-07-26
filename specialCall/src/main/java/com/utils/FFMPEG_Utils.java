@@ -10,7 +10,6 @@ import android.os.Message;
 import android.util.Log;
 
 import com.data_objects.Constants;
-import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.netcompss.loader.LoadJNI;
 
 import java.io.File;
@@ -38,10 +37,6 @@ public class FFMPEG_Utils {
     private LoadJNI _vk;
     private Handler _compressHandler;
 
-    public FFMPEG_Utils() {
-
-    }
-
     public FFMPEG_Utils(LoadJNI vk) {
 
         _vk = vk;
@@ -64,6 +59,7 @@ public class FFMPEG_Utils {
      */
     public FileManager compressVideoFile(FileManager baseFile, String outPath, double width, double height, Context context) {
 
+        new File(outPath).mkdirs();
         String extension = baseFile.getFileExtension();
         String vCodec = extension2vCodec.get(extension);
         File compressedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_comp." + extension);
@@ -102,7 +98,7 @@ public class FFMPEG_Utils {
             return new FileManager(compressedFile);
 
         } catch (Throwable e) {
-            log(Log.ERROR,TAG, "Compressing video file failed: " + e.getMessage());
+            log(Log.ERROR, TAG, "Compressing video file failed: " + e.getMessage());
         }
 
         // Could not compress, returning uncompressed (untouched) file
@@ -120,6 +116,7 @@ public class FFMPEG_Utils {
      */
     public FileManager compressImageFile(FileManager baseFile, String outPath, double width, Context context) {
 
+        new File(outPath).mkdirs();
         String extension = baseFile.getFileExtension();
         File compressedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_comp." + extension);
         if (compressedFile.exists())
@@ -138,7 +135,8 @@ public class FFMPEG_Utils {
             return new FileManager(compressedFile);
 
         } catch (Throwable e) {
-            log(Log.ERROR,TAG, "Compressing image file failed: "+ e.getMessage());
+            e.printStackTrace();
+            log(Log.ERROR, TAG, "Compressing image file failed: " + e.getMessage());
         }
 
         // Could not compress, returning uncompressed (untouched) file
@@ -147,6 +145,7 @@ public class FFMPEG_Utils {
 
     public FileManager compressGifImageFile(FileManager baseFile, String outPath, Integer hz, Context context) {
 
+        new File(outPath).mkdirs();
         String extension = baseFile.getFileExtension();
         File compressedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_comp." + extension);
         if (compressedFile.exists())
@@ -159,7 +158,8 @@ public class FFMPEG_Utils {
             return new FileManager(compressedFile);
 
         } catch (Throwable e) {
-            log(Log.ERROR,TAG, "Compressing image file failed: " + e.getMessage());
+            e.printStackTrace();
+            log(Log.ERROR, TAG, "Compressing image file failed: " + e.getMessage());
         }
 
         return baseFile;
@@ -176,9 +176,7 @@ public class FFMPEG_Utils {
      */
     public FileManager trim(FileManager baseFile, String outPath, Long endTime, Context context) {
 
-        if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
-            return baseFile;
-
+        new File(outPath).mkdirs();
         String extension = baseFile.getFileExtension();
         File trimmedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_trimmed." + extension);
         if (trimmedFile.exists())
@@ -196,7 +194,8 @@ public class FFMPEG_Utils {
             return new FileManager(trimmedFile);
 
         } catch (Throwable e) {
-            log(Log.ERROR,TAG, "Trimming file failed: "+ e.getMessage());
+            e.printStackTrace();
+            log(Log.ERROR, TAG, "Trimming file failed: " + e.getMessage());
         }
         // Could not trim, returning untrimmed (untouched) file
         return baseFile;
@@ -205,9 +204,10 @@ public class FFMPEG_Utils {
 
     /**
      * Retrieves video resolution using MediaMetadataRetriever
-     * @see MediaMetadataRetriever
+     *
      * @param managedFile The video file to retrieve its resolution
      * @return The image resolution
+     * @see MediaMetadataRetriever
      */
     public int[] getVideoResolution(FileManager managedFile) {
 
@@ -216,29 +216,31 @@ public class FFMPEG_Utils {
         String height = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
         String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
 
-        return new int[] { Integer.parseInt(width), Integer.parseInt(height) };
+        return new int[]{Integer.parseInt(width), Integer.parseInt(height)};
     }
 
     /**
      * Retrieves the file duration using MediaMetadataRetriever
-     * @see MediaMetadataRetriever
+     *
      * @param managedFile The file to retrieve its duration
      * @return The file duration in seconds
+     * @see MediaMetadataRetriever
      */
     public long getFileDuration(Context context, FileManager managedFile) {
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(context, Uri.fromFile(managedFile.getFile()));
         String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        long timeInMilli = Long.parseLong(time );
-        return timeInMilli/1000;
+        long timeInMilli = Long.parseLong(time);
+        return timeInMilli / 1000;
     }
 
     /**
      * Retrieves image resolution by decoding to bitmap
-     * @see BitmapFactory
+     *
      * @param managedFile The image file to retrieve its resolution
      * @return The image resolution
+     * @see BitmapFactory
      */
     public int[] getImageResolution(FileManager managedFile) {
 
@@ -247,7 +249,7 @@ public class FFMPEG_Utils {
         int width = bitmap.getWidth();
         bitmap.recycle();
 
-        return new int[] {  width, height };
+        return new int[]{width, height};
     }
 
     private void sendCompressionPhase2() {

@@ -1,6 +1,6 @@
 package com.actions;
 
-import Exceptions.NoSuchClientActionException;
+import Exceptions.NoSuchActionException;
 import MessagesToClient.ClientActionType;
 
 /**
@@ -22,7 +22,7 @@ public class ActionFactory {
         return _instance;
     }
 
-    public ClientAction getAction(ClientActionType clientActionType) throws NoSuchClientActionException {
+    public ClientAction getAction(ClientActionType clientActionType) throws NoSuchActionException {
 
         ClientAction resultClientAction = null;
 
@@ -53,7 +53,7 @@ public class ActionFactory {
 
 
             default:
-                throw new NoSuchClientActionException(String.format("Failure to perform action. No such client action: %s", clientActionType));
+                throw new NoSuchActionException(String.format("Failure to perform action. No such client action: %s", clientActionType));
 
         }
         return resultClientAction;

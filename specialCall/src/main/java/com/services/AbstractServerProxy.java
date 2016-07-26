@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
@@ -255,10 +254,8 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     }
 
     protected HashMap<DataKeys, Object> getDefaultMessageData() {
-
         HashMap<DataKeys, Object> data = new HashMap();
         data.put(DataKeys.APP_VERSION, Constants.APP_VERSION(this));
-        data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
         return data;
     }
     //endregion

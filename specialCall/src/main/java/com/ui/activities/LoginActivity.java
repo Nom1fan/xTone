@@ -293,10 +293,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setInitTextView(String str) {
-
-        Crashlytics.log(Log.INFO,TAG, "SetInitTextView:" + str);
-        _initTextView.setVisibility(View.VISIBLE);
-        _initTextView.setText(str);
+        if(str!=null) {
+            Crashlytics.log(Log.INFO, TAG, "SetInitTextView:" + str);
+            _initTextView.setVisibility(View.VISIBLE);
+            _initTextView.setText(str);
+        }
     }
 
     private void disableInitTextView() {
@@ -422,6 +423,7 @@ public class LoginActivity extends AppCompatActivity {
                 break;
 
             case REFRESH_UI:
+
                 setInitTextView(report.desc());
                 syncUIwithAppState();
                 saveInstanceState();

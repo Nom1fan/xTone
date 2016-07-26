@@ -13,6 +13,7 @@ import com.utils.SpecialDevicesUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
 
 import ClientObjects.ConnectionToServer;
 import DataObjects.CallRecord;
@@ -58,6 +59,15 @@ public class LogicServerProxyService extends AbstractServerProxy {
     public LogicServerProxyService() {
         super(LogicServerProxyService.class.getSimpleName());
     }
+
+    //region Overriding AbstractServerProxy
+    @Override
+    protected HashMap<DataKeys, Object> getDefaultMessageData() {
+        HashMap<DataKeys, Object> data =  super.getDefaultMessageData();
+        data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
+        return data;
+    }
+    //endregion
 
     //region Service methods
     @Override
@@ -236,12 +246,12 @@ public class LogicServerProxyService extends AbstractServerProxy {
         connectionToServer.sendToServer(msgUnregister);
     }
 
-    private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, CallRecord callRecord, HashMap<DataKeys,Object> data) throws IOException {
+    private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, CallRecord callRecordDBO, HashMap<DataKeys,Object> data) throws IOException {
 
         log(Log.INFO,TAG, "Initiating actionInsertMediaCallRecord sequence...");
-        data.put(DataKeys.CALL_RECORD, callRecord);
+        data.put(DataKeys.CALL_RECORD, callRecordDBO);
 
-        MessageToServer msgInsertMCrecord = new MessageToServer(ServerActionType.INSERT_MEDIA_CALL_RECORD, callRecord.get_sourceId(), data);
+        MessageToServer msgInsertMCrecord = new MessageToServer(ServerActionType.INSERT_MEDIA_CALL_RECORD, callRecordDBO.get_sourceId(), data);
         connectionToServer.sendToServer(msgInsertMCrecord);
     }
 

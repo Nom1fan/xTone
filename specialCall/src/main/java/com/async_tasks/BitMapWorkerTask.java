@@ -3,15 +3,7 @@ package com.async_tasks;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.RectF;
-import android.graphics.Shader;
-import android.media.ThumbnailUtils;
 import android.os.AsyncTask;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -48,8 +40,6 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
     // Decode image in background.
     @Override
     protected Bitmap doInBackground(Void ... voids) {
-
-
         try {
 
             log(Log.INFO,TAG, "Decoding image in background");
@@ -57,14 +47,14 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
                 log(Log.INFO,TAG, "[File Type]:"+_fileType + ", [File Path]:"+_filePath);
                 switch (_fileType) {
                     case IMAGE:
-                        return getImageBitmap(_filePath);
+                        return BitmapUtils.getImageBitmap(_filePath, _width, _height, _makeRound);
                     case VIDEO:
-                        return getVideoBitmap(_filePath);
+                        return BitmapUtils.getVideoBitmap(_filePath, _width, _height, _makeRound);
                 }
             }
             else if(validateMembersForResource()) {
                 log(Log.INFO,TAG, "Decoding image from resource");
-                return convertResourceToBitmap();
+                return BitmapUtils.convertResourceToBitmap(_resources, _resourceId, _width, _height, _makeRound);
             }
             else {
                 Crashlytics.log(Log.ERROR,TAG, "Invalid parameter configuration. Current configuration does not fit either file nor resource.");
@@ -92,8 +82,7 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
     }
 
 
-    /* Getters & Setters */
-
+    //region Getters & Setters
     public void set_filePath(String _filePath) {
         this._filePath = _filePath;
     }
@@ -125,36 +114,9 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
     public void set_Resources(Resources resources) {
         this._resources = resources;
     }
+    //endregion
 
-
-    /* Inner helper methods */
-
-    private Bitmap decodeSampledBitmapFromImageFile(String filePath) {
-
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(filePath, options);
-        options.inSampleSize = BitmapUtils.calculateInSampleSize(options, _width, _height);
-
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(filePath, options);
-    }
-
-    private Bitmap decodeSampledBitmapFromResource(Resources res, int resId, int reqWidth, int reqHeight) {
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(res, resId, options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = BitmapUtils.calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeResource(res, resId, options);
-    }
-
+    //region Inner helper methods
     private boolean validateMembersForFile() {
         return _filePath!=null && _fileType!=null && _height!=0 && _width!=0;
     }
@@ -163,62 +125,5 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
 
         return _height!=0 && _width!=0 && _context!=null;
     }
-
-    private Bitmap transform(Bitmap bitmap, int radius, int margin) {
-
-        final Paint paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setShader(new BitmapShader(bitmap, Shader.TileMode.MIRROR,
-                Shader.TileMode.MIRROR));
-
-        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
-                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
-        canvas.drawRoundRect(new RectF(margin, margin, bitmap.getWidth()
-                - margin, bitmap.getHeight() - margin), radius, radius, paint);
-
-        if (bitmap != output) {
-            bitmap.recycle();
-        }
-        return output;
-    }
-
-    private Bitmap getImageBitmap(String filePath) {
-
-        Bitmap bitmap = decodeSampledBitmapFromImageFile(filePath);
-        if(bitmap==null) {
-            Crashlytics.log(Log.WARN,TAG, "Failed to get optimal bitmap, attempting to decode inefficiently");
-            bitmap = BitmapFactory.decodeFile(filePath);
-        }
-
-       return createScaledBitMap(bitmap);
-    }
-
-    private Bitmap getVideoBitmap(String filePath) {
-
-        Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Images.Thumbnails.MINI_KIND);
-
-        return createScaledBitMap(bitmap);
-    }
-
-    private Bitmap createScaledBitMap(Bitmap bitmap) {
-
-        if (_makeRound) {
-            log(Log.INFO,TAG, "Creating round bitmap");
-            int thumbnailSize = _height * 9/10;
-            int radius = (int) (thumbnailSize * 0.8);
-            Bitmap bitmapForRounding = Bitmap.createScaledBitmap(bitmap, thumbnailSize, thumbnailSize, false);
-            return transform(bitmapForRounding, radius ,0);
-        }
-
-        return Bitmap.createScaledBitmap(bitmap, _width, _height, false);
-    }
-
-    private Bitmap convertResourceToBitmap() {
-
-        Bitmap bitmap = decodeSampledBitmapFromResource(_resources, _resourceId, _width, _height);
-
-        return createScaledBitMap(bitmap);
-    }
-
+    //endregion
 }

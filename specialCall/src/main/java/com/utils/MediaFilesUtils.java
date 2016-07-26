@@ -3,8 +3,6 @@ package com.utils;
 import java.util.Arrays;
 import java.util.List;
 
-import FilesManager.FileManager;
-
 /**
  * Created by Mor on 01/07/2016.
  */
@@ -16,31 +14,6 @@ public abstract class MediaFilesUtils {
     private static final List<String> audioFormatsList = Arrays.asList(audioFormats);
     private static final String[] videoFormats = { "avi", "mpeg", "mp4", "3gp", "wmv" , "webm" , "mkv"  };
     private static final List<String> videoFormatsList = Arrays.asList(videoFormats);
-    private static final String imageMIME = "image";
-    private static final String audioMIME = "audio";
-    private static final String videoMIME = "video";
 
 
-    public static boolean isMimeValid(String mimeType, FileManager.FileType fileType) {
-
-        boolean result = false;
-        switch(fileType) {
-
-            case IMAGE:
-                if (mimeType.contains(imageMIME))
-                    result = true;
-                break;
-
-            case AUDIO:
-                if(mimeType.contains(audioMIME))
-                    result = true;
-                break;
-            case VIDEO:
-                if(mimeType.contains(videoMIME))
-                    result = true;
-                break;
-        }
-
-        return result;
-    }
 }

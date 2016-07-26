@@ -35,7 +35,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -57,6 +56,7 @@ import com.actions.ClientAction;
 import com.app.AppStateManager;
 import com.async_tasks.AutoCompletePopulateListAsyncTask;
 import com.async_tasks.IsRegisteredTask;
+import com.async_tasks.MediaProcessingAsyncTask;
 import com.batch.android.Batch;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
@@ -65,6 +65,7 @@ import com.data_objects.Constants;
 import com.data_objects.Contact;
 import com.data_objects.SnackbarData;
 import com.interfaces.ICallbackListener;
+import com.interfaces.UploadFileFlowListener;
 import com.mediacallz.app.R;
 import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.netcompss.ffmpeg4android.ProgressCalculator;
@@ -80,7 +81,6 @@ import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
-import com.utils.FFMPEG_Utils;
 import com.utils.FileCompressorUtils;
 import com.utils.LUT_Utils;
 import com.utils.SharedPrefUtils;
@@ -94,6 +94,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -118,22 +119,22 @@ import utils.PhoneNumberUtils;
 import static com.crashlytics.android.Crashlytics.log;
 import static com.crashlytics.android.Crashlytics.setUserIdentifier;
 
-public class MainActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
+public class MainActivity extends AppCompatActivity implements OnClickListener, UploadFileFlowListener, ICallbackListener {
+
+    //region Keys for bundle
+    private static final String DEST_ID = "DEST_ID";
+    private static final String DEST_NAME = "DEST_NAME";
+    private static final String FILE_FOR_UPLOAD = "FILE_FOR_UPLOAD";
+    private static final String SPEC_MEDIA_TYPE = "SPEC_MEDIA_TYPE";
+    //endregion
 
     private final String TAG = MainActivity.class.getSimpleName();
-
+    private final Object _lock = new Object();
     private String _destPhoneNumber = "";
     private String _destName = "";
-    private LoadJNI _vk;
-    private final Object _lock = new Object();
+    private LoadJNI _vk = new LoadJNI();
     private boolean wentThroughOnCreate = false;
     private WebView displayYoutubeVideo;
-    //region Keys for bundle
-    private static final String DEST_ID             =   "DEST_ID";
-    private static final String DEST_NAME           =   "DEST_NAME";
-    private static final String FILE_FOR_UPLOAD     =   "FILE_FOR_UPLOAD";
-    private static final String SPEC_MEDIA_TYPE     =   "SPEC_MEDIA_TYPE";
-    //endregion
 
     //region UI elements
     private ImageButton _selectContactBtn;
@@ -141,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ImageButton _selectMediaBtn_small;
     private TextView _selectMediaBtn_textview;
     private TextView _selectMediaBtn_textview2;
-  //  private TextView _callBtn_textview;
+    //  private TextView _callBtn_textview;
     private ImageButton _callBtn;
     private ImageButton _clearText;
     private ProgressBar _fetchUserPbar;
@@ -175,34 +176,36 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private int _tipsNum;
     //endregion
 
+    //region Logic fields
+    private LinkedList<MediaProcessingAsyncTask> mediaProcTasks;
+    //endregion
+
     //region Handlers
     private Handler _compressHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            log(Log.INFO,TAG, "Handler got message:" + msg.what);
+            log(Log.INFO, TAG, "Handler got message:" + msg.what);
 
             // Stopping the transcoding native
             if (msg.what == FileCompressorUtils.STOP_TRANSCODING_MSG) {
-                log(Log.INFO,TAG, "Got cancel message, calling fexit");
+                log(Log.INFO, TAG, "Got cancel message, calling fexit");
                 if (_progDialog != null)
                     _progDialog.dismiss();
 
                 _vk.fExit(getApplicationContext());
 
                 wakeUpdateThreadToFinish();
-            }
-            else if (msg.what == FileCompressorUtils.FINISHED_TRANSCODING_MSG) {
+            } else if (msg.what == FileCompressorUtils.FINISHED_TRANSCODING_MSG) {
 
                 wakeUpdateThreadToFinish();
 
-                if(_progDialog != null)
+                if (_progDialog != null)
                     _progDialog.dismiss();
-            }
-            else if(msg.what == FileCompressorUtils.COMPRESSION_PHASE_2) {
+            } else if (msg.what == FileCompressorUtils.COMPRESSION_PHASE_2) {
 
-                log(Log.INFO,TAG, "Got compression phase 2 message");
+                log(Log.INFO, TAG, "Got compression phase 2 message");
 
-                if(_progDialog!=null) {
+                if (_progDialog != null) {
 
                     String str = getResources().getString(R.string.compressing_file2);
                     _progDialog.setProgress(0);
@@ -232,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     };
     //endregion
 
-    //region Activity methods (onCreate(), onPause(), ...)
+    //region Activity methods (onCreate(), onPause(), onActivityResult()...)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -240,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         startLoginActivityIfLoggedOut();
 
-        if(AppStateManager.didAppCrash(this)) {
+        if (AppStateManager.didAppCrash(this)) {
             Log.w(TAG, "Detected app previously crashed. Handling...");
             AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
             AppStateManager.setDidAppCrash(this, false);
@@ -263,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     protected void onStart() {
         super.onStart();
-        log(Log.INFO,TAG, "onStart()");
+        log(Log.INFO, TAG, "onStart()");
 
         Batch.onStart(this);
 
@@ -278,11 +281,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     protected void onResume() {
         super.onResume();
-        log(Log.INFO,TAG, "onResume()");
-        setUserIdentifier(SharedPrefUtils.getString(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.LOGIN_NUMBER));
+        log(Log.INFO, TAG, "onResume()");
+        setUserIdentifier(SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER));
 
         String appState = getState();
-        log(Log.INFO,TAG, "App State:" + appState);
+        log(Log.INFO, TAG, "App State:" + appState);
 
         AppStateManager.setAppInForeground(getApplicationContext(), true);
 
@@ -310,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             new AutoCompletePopulateListAsyncTask(_autoCompleteTextViewDestPhone).execute(getApplicationContext());
 
             if (!appState.equals(AppStateManager.STATE_LOADING) && !appState.equals(AppStateManager.STATE_DISABLED))
-                handleSnackBar(new SnackbarData(SnackbarData.SnackbarStatus.CLOSE, 0 ,0 ,null));
+                handleSnackBar(new SnackbarData(SnackbarData.SnackbarStatus.CLOSE, 0, 0, null));
 
             restoreInstanceState();
 
@@ -326,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     protected void onPause() {
         super.onPause();
-        log(Log.INFO,TAG, "onPause()");
+        log(Log.INFO, TAG, "onPause()");
 
         SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, false);
         AppStateManager.setAppInForeground(this, false);
@@ -335,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             try {
                 unregisterReceiver(_eventReceiver);
             } catch (Exception ex) {
-                log(Log.ERROR,TAG, ex.getMessage());
+                log(Log.ERROR, TAG, ex.getMessage());
             }
         }
         saveInstanceState();
@@ -346,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     @Override
     protected void onStop() {
-        log(Log.INFO,TAG, "onStop()");
+        log(Log.INFO, TAG, "onStop()");
         Batch.onStop(this);
 
         super.onStop();
@@ -354,10 +357,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     @Override
     protected void onDestroy() {
-        log(Log.INFO,TAG, "onDestroy()");
+        log(Log.INFO, TAG, "onDestroy()");
 
-      if (AppStateManager.getAppState(this).equals(AppStateManager.STATE_LOADING))
-          AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
+        if (AppStateManager.getAppState(this).equals(AppStateManager.STATE_LOADING))
+            AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
 
         Batch.onDestroy(this);
         super.onDestroy();
@@ -394,15 +397,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         bundle.putString(DEST_NAME, _destName);
                         bundle.putSerializable(SPEC_MEDIA_TYPE, _specialMediaType);
 
-                        if (FileCompressorUtils.isCompressionNeeded(fm)) {
-                            File tempCompressedDir = new File(Constants.TEMP_COMPRESSED_FOLDER + _destPhoneNumber);
-                            tempCompressedDir.mkdir();
-                            TrimTask trimTask = new TrimTask(bundle);
-                            trimTask.execute();
-                        } else {
-
-                            executeUploadTask(bundle);
-                        }
+                        execUploadFileFlow(bundle);
                     }
                 }
 
@@ -436,7 +431,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
         return super.onKeyDown(keyCode, e);
     }
-    //endregion (on
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -448,14 +442,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         return true;
     }
+    //endregion (on
 
     //region Assisting methods (onClick(), eventReceived(), ...)
-    private void startingTipDialog(){
+    private void startingTipDialog() {
 
         if (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_TIP)) {
 
 
-            _tipsCircularArray = new String[] {
+            _tipsCircularArray = new String[]{
                     getApplicationContext().getResources().getString(R.string.tip1_windowresize),
                     getApplicationContext().getResources().getString(R.string.tip2_profile),
                     getApplicationContext().getResources().getString(R.string.tip3_block),
@@ -468,60 +463,60 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             final int arrayLength = _tipsCircularArray.length;
 
-         if (_tipDialog==null)
-             {  _tipDialog = new Dialog(MainActivity.this);
+            if (_tipDialog == null) {
+                _tipDialog = new Dialog(MainActivity.this);
 
-                    // custom dialog
+                // custom dialog
 
-                    _tipDialog.setContentView(R.layout.tip_dialog);
+                _tipDialog.setContentView(R.layout.tip_dialog);
 
-                    // set the custom dialog components - text, image and button
-                    final TextView text = (TextView) _tipDialog.findViewById(R.id.tip_msg);
-                    text.setText(_tipsCircularArray[_tipsNum % arrayLength]);
-
-
-                    Button nextTipBtn = (Button) _tipDialog.findViewById(R.id.next_tip);
-                    // if button is clicked, close the custom dialog
-                    nextTipBtn.setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            text.setText(_tipsCircularArray[_tipsNum++ % arrayLength]);
-                        }
-                    });
-
-                     _tipDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                         @Override
-                         public void onDismiss(final DialogInterface arg0) {
-                             _tipDialog = null;
-                         }
-                     });
-
-                    Button skipBtn = (Button) _tipDialog.findViewById(R.id.skip);
-                    // if button is clicked, close the custom dialog
-                    skipBtn.setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            _tipDialog.dismiss();
-                        }
-                    });
-
-                    CheckBox checkBox = (CheckBox) _tipDialog.findViewById(R.id.dont_show_tips);
-                    checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-                        @Override
-                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                            SharedPrefUtils.setBoolean(MainActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_TIP, isChecked);
-
-                        }
-                    });
-                    checkBox.setText(MainActivity.this.getResources().getString(R.string.dont_show_again));
+                // set the custom dialog components - text, image and button
+                final TextView text = (TextView) _tipDialog.findViewById(R.id.tip_msg);
+                text.setText(_tipsCircularArray[_tipsNum % arrayLength]);
 
 
-                    _tipDialog.show();
+                Button nextTipBtn = (Button) _tipDialog.findViewById(R.id.next_tip);
+                // if button is clicked, close the custom dialog
+                nextTipBtn.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        text.setText(_tipsCircularArray[_tipsNum++ % arrayLength]);
+                    }
+                });
+
+                _tipDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(final DialogInterface arg0) {
+                        _tipDialog = null;
+                    }
+                });
+
+                Button skipBtn = (Button) _tipDialog.findViewById(R.id.skip);
+                // if button is clicked, close the custom dialog
+                skipBtn.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        _tipDialog.dismiss();
+                    }
+                });
+
+                CheckBox checkBox = (CheckBox) _tipDialog.findViewById(R.id.dont_show_tips);
+                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                        SharedPrefUtils.setBoolean(MainActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_TIP, isChecked);
+
+                    }
+                });
+                checkBox.setText(MainActivity.this.getResources().getString(R.string.dont_show_again));
 
 
-                }
+                _tipDialog.show();
+
+
+            }
 
 
         }
@@ -600,7 +595,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         SharedPrefUtils.setInt(this, SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, am.getStreamVolume(AudioManager.STREAM_MUSIC));
-        log(Log.INFO,TAG, "PreviewStart MUSIC_VOLUME Original" + String.valueOf(am.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        log(Log.INFO, TAG, "PreviewStart MUSIC_VOLUME Original" + String.valueOf(am.getStreamVolume(AudioManager.STREAM_MUSIC)));
 
         // Close previous
         Intent closePrevious = new Intent(this, PreviewService.class);
@@ -614,12 +609,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         showPreview.putExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA, lut_utils.getUploadedMediaPerNumber(this, _destPhoneNumber));
 
         startService(showPreview);
-    }
-
-    private void executeUploadTask(Bundle bundle) {
-
-        UploadTask uploadTask = new UploadTask(bundle);
-        uploadTask.execute();
     }
 
     private void selectMedia(int specialMediaType) {
@@ -652,13 +641,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             else
                 selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
 
-        }  else if (id == R.id.selectmedia_btn_small) {
+        } else if (id == R.id.selectmedia_btn_small) {
             if (_callerHasMedia || _callerHasRingtone)
                 openCallerMediaMenu();
             else
                 selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
 
-        }else if (id == R.id.selectProfileMediaBtn) {
+        } else if (id == R.id.selectProfileMediaBtn) {
 
             if (_profileHasMedia || _profileHasRingtone)
                 openProfileMediaMenu();
@@ -673,7 +662,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         } else if (id == R.id.clear) {
 
-            SharedPrefUtils.setBoolean(this,SharedPrefUtils.GENERAL,SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, true);
+            SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, true);
             AutoCompleteTextView textViewToClear = (AutoCompleteTextView) findViewById(R.id.CallNumber);
             textViewToClear.setText("");
 
@@ -690,9 +679,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 HashMap<DataKeys, Object> data = (HashMap) report.data();
 
                 if (Constants.APP_VERSION(this) < (double) data.get(DataKeys.MIN_SUPPORTED_VERSION))
-                   showMandatoryUpdateDialog();
+                    showMandatoryUpdateDialog();
             }
-                break;
+            break;
 
             case USER_REGISTERED_FALSE:
                 InviteDialog inviteDialog = new InviteDialog();
@@ -700,9 +689,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 break;
 
             case CLEAR_SENT:
-                if(!SharedPrefUtils.getBoolean(MainActivity.this ,SharedPrefUtils.GENERAL,SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {
-                    UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this ,"ClearMediaDialog",getResources().getString(R.string.sending_clear_contact)
-                            ,getResources().getString(R.string.waiting_for_clear_transfer_sucess_dialog_msg));
+                if (!SharedPrefUtils.getBoolean(MainActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {
+                    UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this, "ClearMediaDialog", getResources().getString(R.string.sending_clear_contact)
+                            , getResources().getString(R.string.waiting_for_clear_transfer_sucess_dialog_msg));
                 }
                 break;
 
@@ -718,6 +707,38 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
+    private void waitingForTransferSuccess() {
+        if (!SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_UPLOAD_DIALOG)) {
+            UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this, "MainActivity", getResources().getString(R.string.sending_to_contact)
+                    , getResources().getString(R.string.waiting_for_transfer_sucess_dialog_msg));
+        }
+    }
+
+    private void execUploadFileFlow(Bundle bundle) {
+        try {
+
+            Log.i(TAG, "Starting upload file flow...");
+            mediaProcTasks = new LinkedList<>();
+            mediaProcTasks.add(new TrimTask(0, this));
+            mediaProcTasks.add(new CompressTask(1, this));
+            mediaProcTasks.add(new RotateTask(2, this));
+
+            continueUploadFileFlow(0, bundle);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            handleSnackBar(new SnackbarData(SnackbarData.SnackbarStatus.SHOW, Color.RED, Snackbar.LENGTH_INDEFINITE,
+                    getResources().getString(R.string.oops_try_again)));
+        }
+    }
+
+    private void uploadFile(Bundle bundle) {
+        if(bundle!=null) {
+            UploadTask uploadTask = new UploadTask(bundle);
+            uploadTask.execute();
+        }
+    }
+
     //TODO change this to campaign API push for all users in case of last supported version change
     private void getAppRecord() {
 
@@ -728,12 +749,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void syncAndroidVersionWithServer() {
 
-        if(!Constants.MY_ANDROID_VERSION(this).equals(Build.VERSION.RELEASE)) {
+        if (!Constants.MY_ANDROID_VERSION(this).equals(Build.VERSION.RELEASE)) {
 
             Intent i = new Intent(this, LogicServerProxyService.class);
             i.setAction(LogicServerProxyService.ACTION_UPDATE_USER_RECORD);
 
-            HashMap<DataKeys,Object> data = new HashMap<>();
+            HashMap<DataKeys, Object> data = new HashMap<>();
             //data.put(DataKeys.ANDROID_VERSION, Build.VERSION.RELEASE);
             data.put(DataKeys.ANDROID_VERSION, Build.VERSION.RELEASE);
 
@@ -780,7 +801,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void restoreInstanceState() {
 
-        log(Log.INFO,TAG, "Restoring instance state");
+        log(Log.INFO, TAG, "Restoring instance state");
 
         // Restoring destination number
         String destNumber = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
@@ -794,7 +815,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void setDestNameTextView() {
 
-        if( SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION)) {
+        if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION)) {
             YoYo.with(Techniques.StandUp)
                     .duration(1000)
                     .playOn(findViewById(R.id.destName));
@@ -802,7 +823,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
 
         if (_destPhoneNumber != null && !_destPhoneNumber.equals(""))
-            _destName = ContactsUtils.getContactName(this,_destPhoneNumber);
+            _destName = ContactsUtils.getContactName(this, _destPhoneNumber);
         else
             _destName = "";
 
@@ -991,8 +1012,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         disableCallButton();
         disableDestinationTextView();
 
-        if (SharedPrefUtils.getBoolean(this,SharedPrefUtils.GENERAL,SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION))
-                   SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, false);
+        if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION))
+            SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, false);
 
     }
 
@@ -1007,8 +1028,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         enableSelectContactButton();
         enableCallButton();
         enableSelectMediaButton();
-        if (SharedPrefUtils.getBoolean(this,SharedPrefUtils.GENERAL,SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION))
-                    SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, false);
+        if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION))
+            SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, false);
 
 
     }
@@ -1055,12 +1076,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void syncUIwithAppState() {
 
-        if(!AppStateManager.isLoggedIn(this))
+        if (!AppStateManager.isLoggedIn(this))
             stateLoggedOut();
 
         String appState = getState();
 
-        log(Log.INFO,TAG, "Syncing UI with appState:" + appState);
+        log(Log.INFO, TAG, "Syncing UI with appState:" + appState);
 
         switch (appState) {
 
@@ -1126,6 +1147,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             _clearText.setOnClickListener(this);
     }
 
+    //endregion
+
     private void prepareCallNowButton() {
 
         _callBtn = (ImageButton) findViewById(R.id.CallNow);
@@ -1147,7 +1170,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 }
             });
         }
-    //    _callBtn_textview = (TextView) findViewById(R.id.dial_textview);
+        //    _callBtn_textview = (TextView) findViewById(R.id.dial_textview);
     }
 
     private void prepareSelectMediaButton() {
@@ -1305,7 +1328,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
-                log(Log.INFO,TAG, String.valueOf(item.getItemId()));
+                log(Log.INFO, TAG, String.valueOf(item.getItemId()));
                 switch (item.getItemId()) {
                     case R.id.selectcallermedia:
                         selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
@@ -1339,7 +1362,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
 
-                log(Log.INFO,TAG, String.valueOf(item.getItemId()));
+                log(Log.INFO, TAG, String.valueOf(item.getItemId()));
 
                 switch (item.getItemId()) {
                     case R.id.specificprofile:
@@ -1369,48 +1392,44 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void disableCallButton() {
 
-      //  _callBtn_textview.setVisibility(View.INVISIBLE);
-        if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION))
-        {  YoYo.with(Techniques.SlideOutRight)
-                .duration(300)
-                .playOn(findViewById(R.id.CallNow));
+        //  _callBtn_textview.setVisibility(View.INVISIBLE);
+        if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION)) {
+            YoYo.with(Techniques.SlideOutRight)
+                    .duration(300)
+                    .playOn(findViewById(R.id.CallNow));
 
-        }
-        else
+        } else
             _callBtn.setVisibility(View.INVISIBLE);
 
     }
 
+
     private void enableCallButton() {
 
-      //  _callBtn_textview.setVisibility(View.VISIBLE);
+        //  _callBtn_textview.setVisibility(View.VISIBLE);
         _callBtn.setVisibility(View.VISIBLE);
         _callBtn.setEnabled(true);
 
-        if (SharedPrefUtils.getBoolean(this,SharedPrefUtils.GENERAL,SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION))
-        {
+        if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION)) {
             YoYo.with(Techniques.SlideInLeft)
                     .duration(1000)
                     .playOn(findViewById(R.id.CallNow));
         }
     }
 
-
     private void disableSelectCallerMediaButton() {
 
-        if (SharedPrefUtils.getBoolean(this,SharedPrefUtils.GENERAL,SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION))
-        {
+        if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION)) {
             Techniques tech = UI_Utils.getRandomOutTechniques();
             YoYo.with(tech)
-                .duration(1000)
-                .playOn(findViewById(R.id.selectMediaBtn));
+                    .duration(1000)
+                    .playOn(findViewById(R.id.selectMediaBtn));
 
             YoYo.with(tech)
                     .duration(1000)
                     .playOn(findViewById(R.id.ringtoneName));
             _selectMediaBtn.setClickable(false);
-        }
-        else {
+        } else {
             _selectMediaBtn.setVisibility(View.INVISIBLE);
             _ringToneNameTextView.setVisibility(View.INVISIBLE);
         }
@@ -1440,14 +1459,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         _selectMediaBtn_textview.setVisibility(View.VISIBLE);
         _selectMediaBtn_textview2.setVisibility(View.VISIBLE);
 
-            Techniques tech = UI_Utils.getRandomInTechniques();
-            YoYo.with(tech)
-                    .duration(1000)
-                    .playOn(findViewById(R.id.selectMediaBtn));
+        Techniques tech = UI_Utils.getRandomInTechniques();
+        YoYo.with(tech)
+                .duration(1000)
+                .playOn(findViewById(R.id.selectMediaBtn));
 
-            YoYo.with(tech)
-                    .duration(1000)
-                    .playOn(findViewById(R.id.ringtoneName));
+        YoYo.with(tech)
+                .duration(1000)
+                .playOn(findViewById(R.id.ringtoneName));
 
     }
 
@@ -1621,7 +1640,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 disableRingToneStatusArrived();
             }
         } catch (Exception e) {
-            log(Log.ERROR,TAG, "Failed to draw drawRingToneName:" + (e.getMessage() != null ? e.getMessage() : e));
+            log(Log.ERROR, TAG, "Failed to draw drawRingToneName:" + (e.getMessage() != null ? e.getMessage() : e));
         }
     }
 
@@ -1642,7 +1661,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 _profileHasRingtone = false;
             }
         } catch (Exception e) {
-            log(Log.ERROR,TAG, "Failed to draw drawRingToneNameForProfile:" + (e.getMessage() != null ? e.getMessage() : e));
+            log(Log.ERROR, TAG, "Failed to draw drawRingToneNameForProfile:" + (e.getMessage() != null ? e.getMessage() : e));
         }
     }
 
@@ -1668,7 +1687,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void writeInfoSnackBar(final SnackbarData snackBarData) {
 
-        log(Log.INFO,TAG, "Snackbar showing:" + snackBarData.getText());
+        log(Log.INFO, TAG, "Snackbar showing:" + snackBarData.getText());
 
         int duration = snackBarData.getDuration();
         if (duration == Snackbar.LENGTH_LONG)
@@ -1677,10 +1696,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         View mainActivity = findViewById(R.id.mainActivity);
 
         if (mainActivity != null && snackBarData.getText() != null) {
-            if(_snackBar!=null)
+            if (_snackBar != null)
                 _snackBar.dismiss();
 
-           _snackBar = Snackbar
+            _snackBar = Snackbar
                     .make(mainActivity, Html.fromHtml(snackBarData.getText()), duration)
                     .setActionTextColor(snackBarData.getColor());
             _snackBar.setAction(R.string.snack_close, new OnClickListener() {
@@ -1702,7 +1721,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         switch (snackbarData.getStatus()) {
             case CLOSE:
-                if(_snackBar!=null)
+                if (_snackBar != null)
                     _snackBar.dismiss();
                 break;
 
@@ -1720,15 +1739,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     //endregion
-    //endregion
 
     //region ICallbackListener methods
     @Override
     public void doCallBackAction() {
 
     }
-    //endregion
-
     @Override
     public void doCallBackAction(final Object... params) {
 
@@ -1754,6 +1770,30 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         });
 
     }
+
+    //endregion
+
+    //region UploadFileFlowListener methods
+    @Override
+    public void continueUploadFileFlow(int order, Bundle bundle) {
+        if(order == mediaProcTasks.size()) {
+            uploadFile(bundle);
+            mediaProcTasks = null;
+            return;
+        }
+
+        MediaProcessingAsyncTask task = mediaProcTasks.get(order);
+        Log.i(TAG, "Handling media processing task " + (order+1) + "/" + mediaProcTasks.size() + ":" + task.getClass().getSimpleName());
+        order++;
+
+        FileManager fileForUpload = (FileManager) bundle.get(FILE_FOR_UPLOAD);
+        if (task.isProcessingNeeded(MainActivity.this, fileForUpload)) {
+            task.execute(bundle);
+        }
+        else {
+            continueUploadFileFlow(order, bundle);
+        }
+    }
     //endregion
 
     //region Private classes and AsyncTasks
@@ -1765,6 +1805,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             if (position != 0)
                 selectNavigationItem(position);
         }
+
     }
 
     private class UploadTask extends AsyncTask<Void, Integer, Void> implements IServerProxy {
@@ -1790,8 +1831,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
             data.put(DataKeys.DESTINATION_ID, bundle.get(DEST_ID));
             data.put(DataKeys.DESTINATION_CONTACT_NAME, bundle.get(DEST_NAME));
-            data.put(DataKeys.MANAGED_FILE, bundle.get(FILE_FOR_UPLOAD));
             data.put(DataKeys.MD5, _fileForUpload.getMd5());
+            data.put(DataKeys.MANAGED_FILE, _fileForUpload);
             data.put(DataKeys.EXTENSION, _fileForUpload.getFileExtension());
             data.put(DataKeys.FILE_PATH_ON_SRC_SD, _fileForUpload.getFileFullPath());
             data.put(DataKeys.FILE_SIZE, _fileForUpload.getFileSize());
@@ -1819,7 +1860,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             _progDialog.setTitle(getResources().getString(R.string.uploading));
             _progDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             _progDialog.setProgress(0);
-            _progDialog.setMax((int)_fileForUpload.getFileSize());
+            _progDialog.setMax((int) _fileForUpload.getFileSize());
             _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -1835,7 +1876,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         protected Void doInBackground(Void... voids) {
 
             FileManager managedFile = (FileManager) _data.get(DataKeys.MANAGED_FILE);
-            MessageToServer msgUF = new MessageToServer(ServerActionType.UPLOAD_FILE, Constants.MY_ID(MainActivity.this), _data);
+            MessageToServer msgUF = new MessageToServer(ServerActionType.UPLOAD_FILE_V2, Constants.MY_ID(MainActivity.this), _data);
 
             DataOutputStream dos;
             try {
@@ -1847,7 +1888,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 _connectionToServer.openConnection();
                 _connectionToServer.sendToServer(msgUF);
 
-                log(Log.INFO,TAG, "Initiating file data upload. [Filepath]: " + managedFile.getFileFullPath());
+                log(Log.INFO, TAG, "Initiating file data upload. [Filepath]: " + managedFile.getFileFullPath());
 
                 dos = new DataOutputStream(_connectionToServer.getClientSocket().getOutputStream());
 
@@ -1874,7 +1915,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                log(Log.ERROR,TAG, "Failed:" + e.getMessage());
+                log(Log.ERROR, TAG, "Failed:" + e.getMessage());
                 BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG,
                         new EventReport(EventType.STORAGE_ACTION_FAILURE));
             } finally {
@@ -1885,12 +1926,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     e.printStackTrace();
                 }
 
-                if(_wakeLock.isHeld())
+                if (_wakeLock.isHeld())
                     _wakeLock.release();
 
                 File tempCompressedDir = new File(Constants.TEMP_COMPRESSED_FOLDER + _destPhoneNumber);
-                if(tempCompressedDir.exists()) {
-                    log(Log.INFO,TAG, "Deleting " + _destPhoneNumber + "'s temp compressed folder after upload");
+                if (tempCompressedDir.exists()) {
+                    log(Log.INFO, TAG, "Deleting " + _destPhoneNumber + "'s temp compressed folder after upload");
                     String[] entries = tempCompressedDir.list();
                     for (String s : entries) {
                         File currentFile = new File(tempCompressedDir.getPath(), s);
@@ -1919,7 +1960,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 e.printStackTrace();
             }
 
-            BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
+            BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL));
         }
 
         @Override
@@ -1960,7 +2001,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             } catch (Exception e) {
                 String errMsg = "Handling message from server failed. Reason:" + e.getMessage();
-                log(Log.INFO,TAG, errMsg);
+                log(Log.INFO, TAG, errMsg);
             } finally {
 
                 // Finished handling request-response transaction
@@ -1979,15 +2020,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     }
 
-    private void waitingForTransferSuccess() {
-        if(!SharedPrefUtils.getBoolean(this,SharedPrefUtils.GENERAL,SharedPrefUtils.DONT_SHOW_AGAIN_UPLOAD_DIALOG)) {
-            UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this,"MainActivity",getResources().getString(R.string.sending_to_contact)
-            ,getResources().getString(R.string.waiting_for_transfer_sucess_dialog_msg));
-        }
-    }
-
-    private class CompressTask extends AsyncTask<Void, Integer, Bundle> {
-
+    private class CompressTask extends MediaProcessingAsyncTask {
         private final String TAG = CompressTask.class.getSimpleName();
         private FileCompressorUtils _fileCompressor;
         private FileManager _baseFile;
@@ -1996,11 +2029,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         private String _destPhoneNumber;
         private Bundle _bundle;
 
-        public CompressTask(Bundle bundle) {
+        private UploadFileFlowListener _uploadFileFlow;
 
-            _bundle = bundle;
-            _baseFile = (FileManager) bundle.get(FILE_FOR_UPLOAD);
-            _destPhoneNumber = (String) bundle.get(DEST_ID);
+        public CompressTask(int order, UploadFileFlowListener uploadFileFlow) {
+            super(order);
+            _uploadFileFlow = uploadFileFlow;
+            PowerManager powerManager = (PowerManager) MainActivity.this.getSystemService(Activity.POWER_SERVICE);
+            PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VK_LOCK");
+            _fileCompressor = new FileCompressorUtils(_vk, wakeLock, _compressHandler);
         }
 
         @Override
@@ -2028,7 +2064,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
 
         @Override
-        protected Bundle doInBackground(Void... params) {
+        protected Bundle doInBackground(Bundle... params) {
+
+            _bundle = params[0];
+            _baseFile = (FileManager) _bundle.get(FILE_FOR_UPLOAD);
+            _destPhoneNumber = (String) _bundle.get(DEST_ID);
 
             Thread workerThread = new Thread(new Runnable() {
 
@@ -2037,10 +2077,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                     Log.d(TAG, "Worker started");
                     _vk = new LoadJNI();
-                    PowerManager powerManager = (PowerManager) MainActivity.this.getSystemService(Activity.POWER_SERVICE);
-                    PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VK_LOCK");
 
-                    _fileCompressor = new FileCompressorUtils(_vk, wakeLock, _compressHandler);
+
                     _compressedFile = _fileCompressor.compressFileIfNecessary(_baseFile, _destPhoneNumber, getApplicationContext());
                     _compressHandler.sendEmptyMessage(FileCompressorUtils.FINISHED_TRANSCODING_MSG);
                 }
@@ -2060,23 +2098,23 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                             Thread.sleep(300);
                             progress = pc.calcProgress();
                             if (progress != 0 && progress < 100) {
-                                log(Log.INFO,TAG, "Progress update thread. Progress is:" + progress + "%");
+                                log(Log.INFO, TAG, "Progress update thread. Progress is:" + progress + "%");
                                 _progDialog.setProgress(progress);
                             } else if (progress == 100) {
-                                log(Log.INFO,TAG, "Progress is 100, exiting progress update thread");
+                                log(Log.INFO, TAG, "Progress is 100, exiting progress update thread");
                                 _progDialog.setProgress(100);
                                 pc.initCalcParamsForNextInter();
 
                                 // Waiting for next iteration
                                 synchronized (_lock) {
                                     _lock.wait();
-                                    while(!_updateThreadNextIterStarted)
+                                    while (!_updateThreadNextIterStarted)
                                         _lock.wait();
                                 }
                             }
                         }
                     } catch (Exception e) {
-                        log(Log.ERROR,TAG, e.getMessage());
+                        log(Log.ERROR, TAG, e.getMessage());
                     }
                 }
             });
@@ -2090,24 +2128,30 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 e.printStackTrace();
             }
 
-            if (isCancelled()) {
-                BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
-                return null;
-            }
-
             _bundle.putSerializable(FILE_FOR_UPLOAD, _compressedFile);
             return _bundle;
         }
 
         @Override
-        protected void onPostExecute(Bundle bundle) {
-
-            executeUploadTask(bundle);
+        protected void onCancelled() {
+            _progDialog.dismiss();
+            sendLoadingCancelled(MainActivity.this, TAG);
         }
+
+        @Override
+        public boolean isProcessingNeeded(Context ctx, FileManager baseFile) {
+            return _fileCompressor.isCompressionNeeded(baseFile);
+        }
+
+        @Override
+        public void onPostExecute(Bundle bundle) {
+            if(!isCancelled())
+                _uploadFileFlow.continueUploadFileFlow(order+1, bundle);
+        }
+
     }
 
-    private class TrimTask extends AsyncTask<Void, Integer, Bundle> {
-
+    private class TrimTask extends MediaProcessingAsyncTask {
         private final String TAG = TrimTask.class.getSimpleName();
         TrimTask _instance = this;
         private FileCompressorUtils _fileCompressor;
@@ -2116,51 +2160,50 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         private FileManager _trimmedFile;
         private String _destPhoneNumber;
         private Bundle _bundle;
+        private UploadFileFlowListener _uploadFileFlow;
 
+        public TrimTask(int order, UploadFileFlowListener uploadFileFlow) {
+            super(order);
+            _uploadFileFlow = uploadFileFlow;
+            PowerManager powerManager = (PowerManager) MainActivity.this.getSystemService(Activity.POWER_SERVICE);
+            PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VK_LOCK");
 
-        public TrimTask(Bundle bundle) {
-
-            _bundle = bundle;
-            _baseFile = (FileManager) _bundle.get(FILE_FOR_UPLOAD);
-            _destPhoneNumber = (String) _bundle.get(DEST_ID);
+            _fileCompressor = new FileCompressorUtils(_vk, wakeLock);
         }
 
         @Override
         protected void onPreExecute() {
 
-            FFMPEG_Utils ffmpeg_utils = new FFMPEG_Utils();
-            if(!_baseFile.getFileType().equals(FileManager.FileType.IMAGE) &&
-                    ffmpeg_utils.getFileDuration(getApplicationContext(), _baseFile) > FileCompressorUtils.MAX_DURATION) {
+            calcProgress = true;
 
-                calcProgress = true;
+            String cancel = getResources().getString(R.string.cancel);
 
-                String cancel = getResources().getString(R.string.cancel);
+            _progDialog = new ProgressDialog(MainActivity.this);
+            _progDialog.setIndeterminate(false);
+            _progDialog.setCancelable(false);
+            _progDialog.setTitle(getResources().getString(R.string.trimming));
+            _progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            _progDialog.setProgress(0);
+            _progDialog.setMax(100);
+            _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
 
-                _progDialog = new ProgressDialog(MainActivity.this);
-                _progDialog.setIndeterminate(false);
-                _progDialog.setCancelable(false);
-                _progDialog.setTitle(getResources().getString(R.string.trimming));
-                _progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                _progDialog.setProgress(0);
-                _progDialog.setMax(100);
-                _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    _compressHandler.sendEmptyMessage(FileCompressorUtils.STOP_TRANSCODING_MSG);
+                    _instance.cancel(true);
+                }
+            });
 
-                        _compressHandler.sendEmptyMessage(FileCompressorUtils.STOP_TRANSCODING_MSG);
-                        _instance.cancel(true);
-                    }
-                });
-
-                _progDialog.show();
-            }
+            _progDialog.show();
         }
 
         @Override
-        protected Bundle doInBackground(Void... params) {
+        protected Bundle doInBackground(Bundle... params) {
 
             Log.d(TAG, "Worker started");
-
+            _bundle = params[0];
+            _baseFile = (FileManager) _bundle.get(FILE_FOR_UPLOAD);
+            _destPhoneNumber = (String) _bundle.get(DEST_ID);
             _vk = new LoadJNI();
 
             Thread workerThread = new Thread(new Runnable() {
@@ -2168,10 +2211,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 @Override
                 public void run() {
 
-                    PowerManager powerManager = (PowerManager) MainActivity.this.getSystemService(Activity.POWER_SERVICE);
-                    PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "VK_LOCK");
-
-                    _fileCompressor = new FileCompressorUtils(_vk, wakeLock);
                     _trimmedFile = _fileCompressor.trimFileIfNecessary(_baseFile, _destPhoneNumber, getApplicationContext());
 
                     try {
@@ -2199,7 +2238,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                             if (progress != 0 && progress < 100) {
                                 _progDialog.setProgress(progress);
                             } else if (progress == 100) {
-                                log(Log.INFO,TAG, "Progress is 100, exiting progress update thread");
+                                log(Log.INFO, TAG, "Progress is 100, exiting progress update thread");
                                 _progDialog.setProgress(100);
                                 pc.initCalcParamsForNextInter();
                                 calcProgress = false;
@@ -2207,7 +2246,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         }
 
                     } catch (Exception e) {
-                        log(Log.ERROR,TAG, e.getMessage());
+                        log(Log.ERROR, TAG, e.getMessage());
                     }
                 }
 
@@ -2222,30 +2261,97 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 e.printStackTrace();
             }
 
-            if (isCancelled()) {
-                BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL, null, null));
-                return null;
-            }
-
             _bundle.putSerializable(FILE_FOR_UPLOAD, _trimmedFile);
             return _bundle;
         }
 
         @Override
-        protected void onPostExecute(Bundle bundle) {
-
-            FileManager fileForUpload = (FileManager) bundle.get(FILE_FOR_UPLOAD);
-
-            if(fileForUpload != null) {
-                if (FileCompressorUtils.isCompressionNeeded(fileForUpload)) {
-                    CompressTask compressTask = new CompressTask(bundle);
-                    compressTask.execute();
-                } else
-                    executeUploadTask(bundle);
-            }
+        protected void onCancelled() {
+            _progDialog.dismiss();
+            sendLoadingCancelled(MainActivity.this, TAG);
         }
+
+        @Override
+        public boolean isProcessingNeeded(Context ctx, FileManager baseFile) {
+            return _fileCompressor.isTrimNeeded(ctx, baseFile);
+        }
+        @Override
+        public void onPostExecute(Bundle bundle) {
+            if(!isCancelled())
+                _uploadFileFlow.continueUploadFileFlow(order+1, bundle);
+        }
+
+    }
+
+    private class RotateTask extends MediaProcessingAsyncTask {
+        private final String TAG = RotateTask.class.getSimpleName();
+        private FileManager _baseFile;
+        private FileManager _rotatedFile;
+        private RotateTask _instance;
+        private Bundle _bundle;
+        private UploadFileFlowListener _uploadFileFlow;
+
+        public RotateTask(int order, UploadFileFlowListener uploadFileFlow) {
+            super(order);
+            _uploadFileFlow = uploadFileFlow;
+            _instance = this;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            String cancel = getResources().getString(R.string.cancel);
+
+            _progDialog = new ProgressDialog(MainActivity.this);
+            _progDialog.setIndeterminate(false);
+            _progDialog.setCancelable(false);
+            _progDialog.setTitle(getResources().getString(R.string.processing_image));
+            _progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    _instance.cancel(true);
+                }
+            });
+
+            _progDialog.show();
+        }
+
+        @Override
+        protected Bundle doInBackground(Bundle... params) {
+
+            Log.d(TAG, "Worker started");
+            _bundle = params[0];
+            _baseFile = (FileManager) _bundle.get(FILE_FOR_UPLOAD);
+
+            _rotatedFile = BitmapUtils.rotateImage(MainActivity.this, _baseFile);
+            _bundle.putSerializable(FILE_FOR_UPLOAD, _rotatedFile);
+
+            return _bundle;
+        }
+
+        @Override
+        protected void onCancelled() {
+            _progDialog.dismiss();
+            sendLoadingCancelled(MainActivity.this, TAG);
+        }
+
+        @Override
+        public boolean isProcessingNeeded(Context ctx, FileManager baseFile) {
+            return BitmapUtils.isRotationNeeded(ctx, baseFile.getFileType());
+        }
+
+        @Override
+        public void onPostExecute(Bundle bundle) {
+            _progDialog.dismiss();
+            if(!isCancelled())
+                _uploadFileFlow.continueUploadFileFlow(order+1, bundle);
+        }
+
     }
     //endregion
+}
+
 
       /*  @Override     //  the menu with the 3 dots on the right, on the top action bar, to enable it uncomment this.
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -2253,4 +2359,3 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }*/
-}

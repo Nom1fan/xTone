@@ -54,11 +54,14 @@
     <string name="user_is_registered">User %1$s is registered</string>
     <string name="user_is_unregistered">User %1$s is unregistered</string>
     <string name="fetching_user_data">Fetching user data...</string>
+
     <string name="compression_took_too_long">Oops! compression took too long</string>
     <string name="upload_took_too_long">Oops! Upload took too long</string>
     <string name="compressing_file">Compressing file...</string>
     <string name="compressing_file2">Optimizing resolution...</string>
     <string name="trimming">Trimming to 30 seconds. Please wait...</string>
+    <string name="processing_image">Processing image...</string>
+
     <string name="upload_success">Media on the way!</string>
     <string name="uploading">Uploading...</string>
     <string name="sent_invitation">Invitation Sent To: </string>
@@ -71,15 +74,15 @@
     <string name="invite_dialog_summary"> Invite him now to get MediaCallz!</string>
     <string name="invite_btn">Invite</string>
     <string name="clear_dialog_title">Return to normal ringing (without media)</string>
-    <string name="clear_dialog_summary"> this will remove MC media from that user, so you will call without media</string>
+    <string name="clear_dialog_summary"> This will remove MC media from that user, so you will call without media</string>
     <string name="clear_btn">Remove</string>
-    <string name="sending_to_contact"> Sending Contact</string>
-    <string name="waiting_for_transfer_sucess_dialog_msg"> receive it in about %1$d seconds\n if his device available.\n if not we will notify you</string>
-    <string name="sending_clear_contact"> clear Contact MC ring</string>
-    <string name="waiting_for_clear_transfer_sucess_dialog_msg"> Clearing it in about %1$d seconds\n if his device available.\n if not we will notify you</string>
-    <string name="finished_waiting_msg"> His Device not Availble for now\n we will notify you</string>
+    <string name="sending_to_contact">Sending Destination</string>
+    <string name="waiting_for_transfer_sucess_dialog_msg"> Will be ready in about %1$d seconds\n if destination device is available.\n If not, you will be notified once it is ready</string>
+    <string name="sending_clear_contact"> Clearing Destination Media</string>
+    <string name="waiting_for_clear_transfer_sucess_dialog_msg"> Clearing it in about %1$d seconds\n if destination device is available.\n If not, you will be notified once it is cleared</string>
+    <string name="finished_waiting_msg"> Destination device is not available right now\n You will be notified when action is finished</string>
     <string name="dont_show_again"> Do not show again</string>
-    <string name="just_notify"> Just Notify</string>
+    <string name="just_notify"> Just notify me</string>
 
 
     <!--  Tips  -->
@@ -242,5 +245,4 @@
     <string name="ringing_override_settings_title">Enable ringing buggy override</string>
     <string name="ringing_override_settings_summary">In case you receive Silent MC calls, this may fix your bug</string>
     <string name="delete_account_summary">Delete account and all data</string>
-
 </resources>

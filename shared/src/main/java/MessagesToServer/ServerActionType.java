@@ -5,6 +5,7 @@ package MessagesToServer;
  */
 public enum ServerActionType {
 
+    ABSTRACT,
     CLEAR_MEDIA,
     GET_APP_RECORD,
     GET_SMS_CODE,
@@ -15,6 +16,7 @@ public enum ServerActionType {
     REQUEST_DOWNLOAD,
     UNREGISTER,
     UPLOAD_FILE,
+    UPLOAD_FILE_V2,
     UPDATE_USER_RECORD,
 
     /* ACTIONS EXCLUSIVE FOR TESTING */

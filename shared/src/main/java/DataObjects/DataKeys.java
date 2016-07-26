@@ -21,6 +21,7 @@ public enum DataKeys {
     INTERNATIONAL_PHONE_NUMBER,
     CALL_RECORD,
     SOURCE_LOCALE,
+    DESTINATION_LOCALE,
     SMS_CODE,
     PUSH_TOKEN,
     SOURCE_WITH_EXTENSION,
@@ -39,4 +40,6 @@ public enum DataKeys {
     COLUMN,
     CONDITION,
     VALUE,
+    FILE_FULL_PATH,
+    ERR_MSG,
 }

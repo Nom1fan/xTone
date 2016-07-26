@@ -45,10 +45,9 @@ android {
 
 repositories {
     mavenCentral()
-    maven {
-        url "http://maven.batch.com/release"
-    }
+    maven { url "http://maven.batch.com/release" }
     maven { url 'https://maven.fabric.io/public' }
+
 }
 
 

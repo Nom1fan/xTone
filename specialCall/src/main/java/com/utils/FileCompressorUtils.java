@@ -85,7 +85,7 @@ public class FileCompressorUtils {
         return modifiedFile;
     }
 
-    public static boolean isCompressionNeeded(FileManager managedfile) {
+    public boolean isCompressionNeeded(FileManager managedfile) {
 
         switch (managedfile.getFileType()) {
 
@@ -105,6 +105,13 @@ public class FileCompressorUtils {
         return true;
     }
 
+    public boolean isTrimNeeded(Context ctx, FileManager baseFile) {
+
+        return (!baseFile.getFileType().equals(FileManager.FileType.IMAGE) &&
+                _ffmpeg_utils.getFileDuration(ctx, baseFile) > FileCompressorUtils.MAX_DURATION) &&
+                isCompressionNeeded(baseFile);
+    }
+
     /**
      * Compresses all file formats
      *
@@ -115,8 +122,10 @@ public class FileCompressorUtils {
      */
     public FileManager compressFileIfNecessary(FileManager baseFile, String folderName, Context context) {
 
-        if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
+        if (GeneralUtils.isLicenseValid(context, workFolder) < 0) {
+            Log.w(TAG, "FFMPEG license expired !!!");
             return baseFile;
+        }
 
         String outPath = Constants.TEMP_COMPRESSED_FOLDER + folderName;
 

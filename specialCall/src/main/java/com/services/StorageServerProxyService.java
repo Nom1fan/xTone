@@ -11,6 +11,7 @@ import com.utils.ContactsUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
 
 import ClientObjects.ConnectionToServer;
 import DataObjects.DataKeys;
@@ -30,7 +31,6 @@ import static com.crashlytics.android.Crashlytics.log;
  * A Proxy that manages storage server operations.
  * Provided operations:
  * - Download file
- * - Upload file
  *
  * @author Mor
  */
@@ -137,6 +137,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
         wakeLock.acquire();
         HashMap pushData = (HashMap) intent.getSerializableExtra(PushEventKeys.PUSH_DATA);
         pushData.putAll(data);
+        pushData.put(DataKeys.DESTINATION_LOCALE, Locale.getDefault().getLanguage());
         requestDownloadFromServer(openSocket(), pushData);
     }
 
@@ -146,6 +147,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
         ConnectionToServer connectionToServer = openSocket();
         String destId = intent.getStringExtra(DESTINATION_ID);
         SpecialMediaType specialMediaType = (SpecialMediaType) intent.getSerializableExtra(SPECIAL_MEDIA_TYPE);
+        data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
         sendClearCommandToServer(connectionToServer, destId, specialMediaType, data);
     }
 
@@ -155,6 +157,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
         ConnectionToServer connectionToServer = openSocket();
         HashMap tdData = (HashMap) intent.getSerializableExtra(TRANSFER_DETAILS);
         tdData.putAll(data);
+        tdData.put(DataKeys.DESTINATION_LOCALE, Locale.getDefault().getLanguage());
         MessageToServer msgNMC = new MessageToServer(ServerActionType.NOTIFY_MEDIA_CLEARED, Constants.MY_ID(getApplicationContext()), tdData);
         connectionToServer.sendToServer(msgNMC);
     }

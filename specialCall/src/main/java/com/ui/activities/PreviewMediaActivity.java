@@ -114,7 +114,7 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
                     rotate.setClickable(true);
                     rotate.setOnClickListener(new View.OnClickListener() {
                         public void onClick(View v) {
-                            _imageButton.setRotation(_imageButton.getRotation() + 90);
+                            _imageButton.setRotation((_imageButton.getRotation() + 90)%360);
                             SharedPrefUtils.setInt(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.IMAGE_ROTATION_DEGREE,Math.round(_imageButton.getRotation()));
                         }
                     });
