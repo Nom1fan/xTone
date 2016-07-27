@@ -70,6 +70,8 @@ public abstract class SharedPrefUtils {
     public static final String DID_APP_CRASH                        =   "DID_APP_CRASH";
     public static final String SELF_VIDEO_IMAGE_URI                 =   "OutputFileUriForVideoImageTaken";
     public static final String IMAGE_ROTATION_DEGREE                =   "ImageRotationDegree";
+    public static final String AUDIO_START_TRIM_IN_MILISEC          =   "AudioStartTrimInMiliSec";
+    public static final String AUDIO_END_TRIM_IN_MILISEC            =   "AudioEndTrimInMiliSec";
     //endregion
 
     //region Shared pref keys under SHOWCASE

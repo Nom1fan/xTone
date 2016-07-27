@@ -143,4 +143,37 @@
         android:singleLine="true"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium" />
 
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editAudio"
+        android:src="@android:drawable/ic_menu_edit"
+        android:visibility="invisible"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/playPreview"
+        android:layout_alignLeft="@+id/playPreview"
+        android:layout_below="@+id/playPreview"
+        android:background="#f75454" />
+
+    <FrameLayout
+        android:id="@+id/container"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".PreviewMediaActivity"
+        tools:ignore="MergeRootFrame"
+        android:background="#004559"
+        android:visibility="invisible"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/upload_file_name"
+        android:layout_above="@+id/cancel_btn"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"></FrameLayout>
+
+
+
+
+
 </RelativeLayout>

@@ -4,16 +4,21 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mediacallz.app.R;
+import com.semantive.waveformandroid.waveform.WaveformFragment;
 import com.services.AbstractStandOutService;
 import com.services.PreviewService;
 import com.utils.BitmapUtils;
@@ -26,7 +31,7 @@ import static com.crashlytics.android.Crashlytics.log;
 /**
  * Created by rony on 29/01/2016.
  */
-public class PreviewMediaActivity extends Activity implements View.OnClickListener {
+public class PreviewMediaActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final String MANAGED_MEDIA_FILE = "MANAGED_MEDIA_FILE";
     public static final String RESULT_FILE = "RESULT_FILE";
@@ -40,6 +45,10 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
     private ImageButton _previewFile;
     private ImageButton _imageButton;
     private FileManager.FileType fType;
+    private final int MIN_MILISECS_FOR_AUDIO_EDIT = 3000;
+    protected static int startInMili;
+    protected static int endInMili;
+
     //region Activity methods (onCreate(), onPause()...)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +76,10 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
         upload.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 closePreview();
+
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC, startInMili);
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC, endInMili);
+
                 returnFile(_managedFile);
             }
         });
@@ -98,6 +111,41 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
         switch (fType) {
             case AUDIO:
                 fileType.setText(getResources().getString(R.string.fileType_audio));
+
+                MediaPlayer mp = MediaPlayer.create(PreviewMediaActivity.this, Uri.parse(_managedFile.getFileFullPath()));
+                if  (mp.getDuration() <= MIN_MILISECS_FOR_AUDIO_EDIT) {
+                    break;
+                }
+
+                final ImageButton edit_audio = (ImageButton) findViewById(R.id.editAudio);
+                edit_audio.setClickable(true);
+                edit_audio.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+
+
+                        _previewFile.setVisibility(View.INVISIBLE);
+                        _previewFile.setClickable(false);
+                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC , 0);
+                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC , 0);
+
+                        FrameLayout waveFrame = (FrameLayout) findViewById(R.id.container);
+                        waveFrame.setVisibility(View.VISIBLE);
+
+
+                        getSupportFragmentManager().beginTransaction()
+                                .add(R.id.container, new CustomWaveformFragment(_managedFile.getFileFullPath(),getApplicationContext()))
+                                .commit();
+
+                        edit_audio.setVisibility(View.INVISIBLE);
+                        edit_audio.setClickable(false);
+
+
+                    }
+                });
+                edit_audio.setVisibility(View.VISIBLE);
+
+
+
                 break;
 
             case VIDEO:
@@ -161,7 +209,6 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
 
     }
 
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -175,7 +222,6 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
         super.onDestroy();
         log(Log.INFO,TAG, "onDestroy()");
     }
-
     @Override
     public boolean onTouchEvent(MotionEvent event){
 
@@ -205,6 +251,7 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
                 return super.onTouchEvent(event);
         }
     }
+
     //endregion
 
     //region Assisting methods (onClick(), takePicture(), ...)
@@ -275,7 +322,58 @@ public class PreviewMediaActivity extends Activity implements View.OnClickListen
         startService(closePrevious);
     }
 
+    public static class CustomWaveformFragment extends WaveformFragment {
+        String _filePath;
+        Context _Context;
+
+        CustomWaveformFragment(String filePath,Context context){
+            _filePath = filePath;
+            _Context = context;
+        }
+
+
+        /**
+         * Provide path to your audio file.
+         *
+         * @return
+         */
+        @Override
+        protected String getFileName() {
+            return _filePath;
+        }
+
+        @Override
+        public void updateDisplay() {
+        super.updateDisplay();
+
+                try {
+                    if ( mEndPos == 0) {
+                        return;
+                    }
+                    startInMili = mWaveformView.pixelsToMillisecs(mStartPos);
+                    endInMili = mWaveformView.pixelsToMillisecs(mEndPos);
+
+                }catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+        }
+        /**
+         * Optional - provide list of segments (start and stop values in seconds) and their corresponding colors
+         *
+         * @return
+         */
+       /* @Override
+        protected List<Segment> getSegments() {
+            return Arrays.asList(
+                    new Segment(55.2, 55.8, Color.rgb(238, 23, 104)),
+                    new Segment(56.2, 56.6, Color.rgb(238, 23, 104)),
+                    new Segment(58.4, 59.9, Color.rgb(184, 92, 184)));
+        }*/
+    }
+}
+
     //endregion
 
 
-}
+
