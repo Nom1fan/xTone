@@ -188,7 +188,7 @@
     <string name="me">Me</string>
     <string name="contact_textview">Tap to choose from your contacts Or type below</string>
     <string name="callbtn_textview">Tap to dial or change contact</string>
-    <string name="media_the_contact_will_see">Media that the contact will see when </string>
+    <string name="media_the_contact_will_see">Media he sees when </string>
     <string name="profile_textview">HE CALLS YOU</string>
     <string name="caller_textview">YOU CALL HIM</string>
 

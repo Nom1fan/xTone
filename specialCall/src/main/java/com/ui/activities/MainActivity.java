@@ -2140,7 +2140,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         @Override
         public boolean isProcessingNeeded(Context ctx, FileManager baseFile) {
-            return _fileCompressor.isCompressionNeeded(baseFile);
+            return _fileCompressor.isCompressionNeeded(baseFile,getApplicationContext());
         }
 
         @Override

@@ -37,7 +37,7 @@ public class FileCompressorUtils {
     public static final int VIDEO_SIZE_COMPRESS_NEEDED      =   3145728; // 3MB
     public static final int AUDIO_SIZE_COMPRESS_NEEDED      =   3145728; // 3MB
     public static final int IMAGE_SIZE_COMPRESS_NEEDED      =   1048576; // 1MB
-    public static final long MAX_DURATION                   =   30;      // seconds
+    public static final long MAX_DURATION                   =   31;      // seconds
     public static final int MIN_RESOLUTION                  =   320;     // MIN width resolution
     private static final int MIN_HZ_FOR_GIF                 =   3;       // Num of frames in GIF
     //endregion
@@ -85,7 +85,7 @@ public class FileCompressorUtils {
         return modifiedFile;
     }
 
-    public boolean isCompressionNeeded(FileManager managedfile) {
+    public boolean isCompressionNeeded(FileManager managedfile,Context context) {
 
         switch (managedfile.getFileType()) {
 
@@ -106,10 +106,13 @@ public class FileCompressorUtils {
     }
 
     public boolean isTrimNeeded(Context ctx, FileManager baseFile) {
+        boolean isManualTrimNeeded = SharedPrefUtils.getInt(ctx, SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC) > 0;
+        boolean isAutoTrimNeeded = !baseFile.getFileType().equals(FileManager.FileType.IMAGE) &&
+               (_ffmpeg_utils.getFileDuration(ctx, baseFile) > FileCompressorUtils.MAX_DURATION)
+               && (isCompressionNeeded(baseFile,ctx));
 
-        return (!baseFile.getFileType().equals(FileManager.FileType.IMAGE) &&
-                _ffmpeg_utils.getFileDuration(ctx, baseFile) > FileCompressorUtils.MAX_DURATION) &&
-                isCompressionNeeded(baseFile);
+        return (isAutoTrimNeeded ||  isManualTrimNeeded);
+
     }
 
     /**
@@ -212,29 +215,26 @@ public class FileCompressorUtils {
     }
 
     private FileManager compressAudio(FileManager baseFile, String outPath, Context context) {
-
-        FileManager modifiedFile;
-        if (baseFile.getFileSize() <= AUDIO_SIZE_COMPRESS_NEEDED)
-            return baseFile;
-
-        BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.COMPRESSING, null, null));
-
-        //if (modifiedFile.getFileSize() >= AUDIO_SIZE_COMPRESS_NEEDED)
-        // TODO See if there is a way to compress non-wav audio files
-
-        modifiedFile = baseFile;
-
-        modifiedFile.set_uncompdFileFullPath(baseFile.getFileFullPath());
-        modifiedFile.setIsCompressed(true);
-        return modifiedFile;
-
+//        if (baseFile.getFileSize() <= AUDIO_SIZE_COMPRESS_NEEDED)
+            return baseFile; //TODO check if there is a way to compress non-wav audio files further
     }
 
     private FileManager trimMediaFile(FileManager baseFile, String outPath, int sizeToCompress, Context context) {
 
         FileManager modifiedFile = baseFile;
         long duration = _ffmpeg_utils.getFileDuration(context, modifiedFile);
+        long startTime = SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC);
+        long endTime =   SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC) - SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC);
 
+        Log.i(TAG, "starttime: " + startTime + " Endtime to Cut: " + endTime);
+
+        // Manual Trim from audio editor
+        if (endTime > 0) {
+            modifiedFile = _ffmpeg_utils.trim(modifiedFile, outPath, startTime ,endTime, context);
+
+        }
+
+        //Auto Trim
         if (duration > MAX_DURATION && modifiedFile.getFileSize() > sizeToCompress) {
             modifiedFile = _ffmpeg_utils.trim(modifiedFile, outPath, MAX_DURATION, context);
         }

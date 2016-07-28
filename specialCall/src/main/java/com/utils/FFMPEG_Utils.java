@@ -10,9 +10,13 @@ import android.os.Message;
 import android.util.Log;
 
 import com.data_objects.Constants;
+import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.netcompss.loader.LoadJNI;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import FilesManager.FileManager;
@@ -194,6 +198,51 @@ public class FFMPEG_Utils {
             return new FileManager(trimmedFile);
 
         } catch (Throwable e) {
+            log(Log.ERROR,TAG, "Trimming file failed: "+ e.getMessage());
+        }
+        // Could not trim, returning untrimmed (untouched) file
+        return baseFile;
+
+    }
+
+    /**
+     * Trims a video/audio file from 0 seconds to endTime seconds, without re-encoding.
+     *
+     * @param baseFile Video/audio file to trim
+     * @param outPath  The path of the trimmed video/audio
+     * @param startTime The time where to start the cut
+     * @param endTime  The time to end the cut in
+     * @param context
+     * @return The trimmed video/audio file, if possible. Otherwise, the base file.
+     */
+    public FileManager trim(FileManager baseFile, String outPath, Long startTime ,Long endTime, Context context) {
+
+        SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC , 0);
+        SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC , 0);
+
+        if (GeneralUtils.isLicenseValid(context, workFolder) < 0)
+            return baseFile;
+
+        String extension = baseFile.getFileExtension();
+        File trimmedFile = new File(outPath + "/" + baseFile.getNameWithoutExtension() + "_" + System.currentTimeMillis() + "_trimmed." + extension);
+
+        String start = convertMillisToTimeFormat(startTime);
+        String end = convertMillisToTimeFormat(endTime);
+
+        Log.i(TAG , "Trim Through Audio Editor, Start: " +start +" End: "+end );
+
+        try {
+
+            String[] complexCommand =
+                    {"ffmpeg", "-y", "-i", baseFile.getFileFullPath(), "-strict",
+                            "experimental", "-ab", "48000", "-ac", "2", "-b", "2097152", "-ar",
+                            "22050", "-ss", "00:"+start, "-t","00:"+end,
+                            trimmedFile.getAbsolutePath()};
+
+            _vk.run(complexCommand, workFolder, context);
+            return new FileManager(trimmedFile);
+
+        } catch (Throwable e) {
             e.printStackTrace();
             log(Log.ERROR, TAG, "Trimming file failed: " + e.getMessage());
         }
@@ -201,6 +250,13 @@ public class FFMPEG_Utils {
         return baseFile;
 
     }
+
+    private String convertMillisToTimeFormat(Long time) {
+        DateFormat formatter = new SimpleDateFormat("mm:ss");
+        Date timeInMilli = new Date(time);
+        return formatter.format(timeInMilli);
+    }
+
 
     /**
      * Retrieves video resolution using MediaMetadataRetriever
