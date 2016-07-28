@@ -22,7 +22,7 @@ import Exceptions.UserUnregisteredException;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
 import ServerObjects.ConnectionToClient;
-import ServerObjects.StringsFactory;
+import com.server.lang.StringsFactory;
 
 /**
  * Created by Mor on 23/04/2016.

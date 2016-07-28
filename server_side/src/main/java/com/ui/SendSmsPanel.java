@@ -1,5 +1,6 @@
 package com.ui;
 
+import com.server.lang.StringsFactory;
 import com.server.sms_service.SmsSender;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +89,6 @@ public class SendSmsPanel extends JPanel {
         _btnSend.addActionListener(e -> {
             String dest = txtFieldSendTo.getText();
             String msg = txtFieldContent.getText();
-
             smsSender.sendSms(dest, msg);
         });
 

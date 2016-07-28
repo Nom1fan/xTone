@@ -1,4 +1,4 @@
-package ServerObjects;
+package com.server.lang;
 
 /**
  * Created by Mor on 21/04/2016.

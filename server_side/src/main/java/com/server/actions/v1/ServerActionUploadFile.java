@@ -28,7 +28,7 @@ import FilesManager.FileManager;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import ServerObjects.LangStrings;
+import com.server.lang.LangStrings;
 
 /**
  * Created by Mor on 23/04/2016.
@@ -110,7 +110,7 @@ public class ServerActionUploadFile extends ServerAction {
 
 
             // Informing source (uploader) that the file is on the way
-            HashMap<DataKeys, Object> replyData = new HashMap();
+            HashMap<DataKeys,Object> replyData = new HashMap<>();
             replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.UPLOAD_SUCCESS, data));
             replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
 

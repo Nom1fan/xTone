@@ -1,13 +1,13 @@
 apply plugin: 'java'
 
-version = '2.0'
+version = '2.02'
 
 //create a single Jar with all dependencies
 task fatJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'Server Side Gradle Jar File',
                 'Implementation-Version': version,
-                'Main-Class': 'ui.MainFrame'
+                'Main-Class': 'com.ui.MainFrame'
     }
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }

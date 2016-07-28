@@ -14,7 +14,7 @@ import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import ServerObjects.LangStrings;
+import com.server.lang.LangStrings;
 
 /**
  * Created by Mor on 23/04/2016.

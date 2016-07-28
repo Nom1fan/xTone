@@ -23,7 +23,7 @@ import Exceptions.DownloadRequestFailedException;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import ServerObjects.LangStrings;
+import com.server.lang.LangStrings;
 
 /**
  * Created by Mor on 23/04/2016.
@@ -32,9 +32,9 @@ import ServerObjects.LangStrings;
 public class ServerActionRequestDownload extends ServerAction {
 
     private LangStrings strings;
-    private String _sourceId;
-    private String _destId;
-    private String _destContact;
+    private String sourceId;
+    private String destId;
+    private String destContact;
     private int commId;
 
     public ServerActionRequestDownload() {
@@ -51,16 +51,16 @@ public class ServerActionRequestDownload extends ServerAction {
 
         Object oCommId = data.get(DataKeys.COMM_ID);
         commId = oCommId instanceof Double ? ((Double) oCommId).intValue() : (int) oCommId;
-        _sourceId = (String) data.get(DataKeys.SOURCE_ID);
-        _destId = (String) data.get(DataKeys.DESTINATION_ID);
-        _destContact = (String) data.get(DataKeys.DESTINATION_CONTACT_NAME);
-        String _sourceLocale = (String) data.get(DataKeys.SOURCE_LOCALE);
+        sourceId = (String) data.get(DataKeys.SOURCE_ID);
+        destId = (String) data.get(DataKeys.DESTINATION_ID);
+        destContact = (String) data.get(DataKeys.DESTINATION_CONTACT_NAME);
+        String sourceLocale = (String) data.get(DataKeys.SOURCE_LOCALE);
         String filePathOnServer = (String) data.get(DataKeys.FILE_PATH_ON_SERVER);
 
-        if (_sourceLocale != null)
-            strings = stringsFactory.getStrings(_sourceLocale);
+        if (sourceLocale != null)
+            strings = stringsFactory.getStrings(sourceLocale);
 
-        logger.info(messageInitiaterId + " is requesting download from:" + _sourceId + ". File path on server:" + filePathOnServer + "...");
+        logger.info(messageInitiaterId + " is requesting download from:" + sourceId + ". File path on server:" + filePathOnServer + "...");
 
         initiateDownloadFlow(data, filePathOnServer);
     }
@@ -113,14 +113,15 @@ public class ServerActionRequestDownload extends ServerAction {
         return bis;
     }
 
+    // Informing source (uploader) that file received by user (downloader)
     private void informSrcOfSuccess(Map data) throws SQLException {
-        boolean sent;// Informing source (uploader) that file received by user (downloader)
+        boolean sent;
         String title = strings.media_ready_title();
-        String msg = String.format(strings.media_ready_body(), !_destContact.equals("") ? _destContact : _destId);
-        String token = dao.getUserRecord(_sourceId).getToken();
+        String msg = String.format(strings.media_ready_body(), !destContact.equals("") ? destContact : destId);
+        String token = dao.getUserRecord(sourceId).getToken();
         sent = pushSender.sendPush(token, PushEventKeys.TRANSFER_SUCCESS, title, msg, data);
         if (!sent)
-            logger.warning("Failed to inform user " + _sourceId + " of transfer success to user: " + _destId);
+            logger.warning("Failed to inform user " + sourceId + " of transfer success to user: " + destId);
     }
 
     private void handleDownloadFailure(Exception e) {
@@ -129,25 +130,25 @@ public class ServerActionRequestDownload extends ServerAction {
 
         String title = strings.media_undelivered_title();
 
-        String dest = (!_destContact.equals("") ? _destContact : _destId);
+        String dest = (!destContact.equals("") ? destContact : destId);
         String msgTransferFailed = String.format(strings.media_undelivered_body(), dest);
 
-        String destHtml = "<b><font color=\"#00FFFF\">" + (!_destContact.equals("") ? _destContact : _destId) + "</font></b>";
+        String destHtml = "<b><font color=\"#00FFFF\">" + (!destContact.equals("") ? destContact : destId) + "</font></b>";
         String msgTransferFailedHtml = String.format(strings.media_undelivered_body(), destHtml);
 
         HashMap<DataKeys, Object> data = new HashMap<>();
         data.put(DataKeys.HTML_STRING, msgTransferFailedHtml);
 
         // Informing sender that file did not reach destination
-        logger.severe("Informing sender:" + _sourceId + " that file did not reach destination:" + _destId);
-        String senderToken = usersDataAccess.getUserRecord(_destId).getToken();
+        logger.severe("Informing sender:" + sourceId + " that file did not reach destination:" + destId);
+        String senderToken = usersDataAccess.getUserRecord(destId).getToken();
         if (!senderToken.equals(""))
             pushSender.sendPush(senderToken, PushEventKeys.SHOW_ERROR, title, msgTransferFailed, data);
         else
-            logger.severe("Failed trying to Inform sender:" + _sourceId + " that file did not reach destination:" + _destId + ". Empty token");
+            logger.severe("Failed trying to Inform sender:" + sourceId + " that file did not reach destination:" + destId + ". Empty token");
 
         // informing destination of request failure
-        logger.severe("Informing destination:" + _destId + " that download request failed");
+        logger.severe("Informing destination:" + destId + " that download request failed");
         HashMap<DataKeys, Object> replyData = new HashMap();
         replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.DOWNLOAD_FAILURE, null, null));
         replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));

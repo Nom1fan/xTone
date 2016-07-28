@@ -12,6 +12,8 @@ import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
+import com.server.lang.LangStrings;
+
 import utils.RandUtils;
 
 /**
@@ -30,23 +32,20 @@ public class ServerActionGetSmsCode extends ServerAction {
     @Override
     public void doAction(Map data) {
 
-        String _internationePhoneNumber = (String) data.get(DataKeys.INTERNATIONAL_PHONE_NUMBER);
+        String internationePhoneNumber = (String) data.get(DataKeys.INTERNATIONAL_PHONE_NUMBER);
 
-        logger.info("Generating SMS code for [User]:" + _internationePhoneNumber);
+        logger.info("Generating SMS code for [User]:" + internationePhoneNumber);
 
         int code = RandUtils.getRand(MIN,MAX);
 
-        //TODO use this after fixing TeleMessageSmsSender to send hebrew
-        //ILangStrings strings = StringsFactory.instance().getStrings(data.get(DataKeys.SOURCE_LOCALE).toString());
-        //String msg = String.format(strings.your_verification_code(), code);
-
-        String msg = "Your verification code:" + code;
+        LangStrings strings = stringsFactory.getStrings(data.get(DataKeys.SOURCE_LOCALE).toString());
+        String msg = String.format(strings.your_verification_code(), code);
 
         boolean isOK = smsVerificationAccess.insertSmsVerificationCode(messageInitiaterId, code);
 
-        HashMap replyData = new HashMap();
+        HashMap<DataKeys, Object> replyData = new HashMap<>();
         if(isOK) {
-            smsSender.sendSms(_internationePhoneNumber, msg);
+            smsSender.sendSms(internationePhoneNumber, msg);
             replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.GET_SMS_CODE_SUCCESS));
             replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
         }
