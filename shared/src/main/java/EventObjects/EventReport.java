@@ -56,4 +56,7 @@ public class EventReport implements Serializable {
 		return str;
 	}
 
+	public void set_data(String _data) {
+		this._data = _data;
+	}
 }
