@@ -166,13 +166,7 @@ public class ServerActionUploadFile extends ServerAction {
         HashMap<DataKeys, Object> replyData = new HashMap();
         replyData.put(DataKeys.HTML_STRING, errMsgHtml);
 
-        String initiaterToken = null;
-        try {
-            initiaterToken = dao.getUserRecord(messageInitiaterId).getToken();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            logger.log(Level.WARNING, "Could not notify uploader that media was undelivered", e);
-        }
+        String initiaterToken = usersDataAccess.getUserRecord(messageInitiaterId).getToken();
 
         // Informing source (uploader) that the file was not sent to destination
         pushSender.sendPush(initiaterToken, PushEventKeys.SHOW_ERROR, title, errMsg, replyData);

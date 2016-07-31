@@ -114,12 +114,11 @@ public class ServerActionRequestDownload extends ServerAction {
     }
 
     // Informing source (uploader) that file received by user (downloader)
-    private void informSrcOfSuccess(Map data) throws SQLException {
-        boolean sent;
+    private void informSrcOfSuccess(Map data) {
         String title = strings.media_ready_title();
         String msg = String.format(strings.media_ready_body(), !destContact.equals("") ? destContact : destId);
-        String token = dao.getUserRecord(sourceId).getToken();
-        sent = pushSender.sendPush(token, PushEventKeys.TRANSFER_SUCCESS, title, msg, data);
+        String token = usersDataAccess.getUserRecord(sourceId).getToken();
+        boolean sent = pushSender.sendPush(token, PushEventKeys.TRANSFER_SUCCESS, title, msg, data);
         if (!sent)
             logger.warning("Failed to inform user " + sourceId + " of transfer success to user: " + destId);
     }
@@ -141,16 +140,16 @@ public class ServerActionRequestDownload extends ServerAction {
 
         // Informing sender that file did not reach destination
         logger.severe("Informing sender:" + sourceId + " that file did not reach destination:" + destId);
-        String senderToken = usersDataAccess.getUserRecord(destId).getToken();
-        if (!senderToken.equals(""))
-            pushSender.sendPush(senderToken, PushEventKeys.SHOW_ERROR, title, msgTransferFailed, data);
-        else
+        String senderToken = usersDataAccess.getUserRecord(sourceId).getToken();
+        boolean sent = pushSender.sendPush(senderToken, PushEventKeys.SHOW_ERROR, title, msgTransferFailed, data);
+
+        if(!sent)
             logger.severe("Failed trying to Inform sender:" + sourceId + " that file did not reach destination:" + destId + ". Empty token");
 
         // informing destination of request failure
         logger.severe("Informing destination:" + destId + " that download request failed");
         HashMap<DataKeys, Object> replyData = new HashMap();
-        replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.DOWNLOAD_FAILURE, null, null));
+        replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.DOWNLOAD_FAILURE));
         replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
 
         // Marking in communication history record that the transfer has failed
