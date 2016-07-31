@@ -42,7 +42,10 @@ public class IsRegisteredTask extends AsyncTask<Context, Void, Void> {
 
         // Phone number is in registered cache - No need to check again
         if (isNonBlockingState && isPhoneInCache) {
-            BroadcastUtils.sendEventReportBroadcast(_context, TAG, new EventReport(EventType.USER_REGISTERED_TRUE));
+            EventReport eventReport = new EventReport(EventType.USER_REGISTERED_TRUE);
+            eventReport.set_data(_destPhone);
+            BroadcastUtils.sendEventReportBroadcast(_context, TAG, eventReport);
+
             return null;
         }
 
