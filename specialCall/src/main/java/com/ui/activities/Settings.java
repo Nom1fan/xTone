@@ -1,5 +1,7 @@
 package com.ui.activities;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -7,9 +9,16 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.util.Log;
 
+import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.ui.dialogs.DeleteAccountDialog;
 import com.utils.SharedPrefUtils;
+import com.utils.SpecialDevicesUtils;
+
+import java.io.File;
+import java.io.IOException;
+
+import DataObjects.SharedConstants;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -74,6 +83,51 @@ public class Settings extends PreferenceFragment {
             }
         });
 
+
+
+        Preference sendLogs = findPreference("Send Logs");
+        sendLogs.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+
+
+                Log.i(TAG,"SEND LOGS BUTTON PRESSED");
+                // save logcat in file
+                File outputFile = new File(SharedConstants.ROOT_FOLDER,
+                        "logcat.txt");
+                try {
+                    Runtime.getRuntime().exec(
+                            "logcat -f " + outputFile.getAbsolutePath());
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                //send file using email
+                Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                // Set type to "email"
+                emailIntent.setType("vnd.android.cursor.dir/email");
+                String to[] = {"ronyahae@gmail.com" , "mormerhav@gmail.com"};
+                emailIntent .putExtra(Intent.EXTRA_EMAIL, to);
+                // the attachment
+                Uri uri = Uri.fromFile(outputFile);
+                emailIntent .putExtra(Intent.EXTRA_STREAM, uri);
+
+                emailIntent.putExtra(Intent.EXTRA_TEXT,
+                        "\n MY_ID: " + Constants.MY_ID(getContext())
+                    +   "\n MY_BATCH_TOKEN: " + Constants.MY_BATCH_TOKEN(getContext())
+                    +   "\n Device Model: " + SpecialDevicesUtils.getDeviceName()
+                    +   "\n MY_ANDROID_VERSION: " + Constants.MY_ANDROID_VERSION(getContext())
+                    +   "\n MediaCallz App Version: " + Constants.APP_VERSION(getContext())
+                );
+
+                // the mail subject
+                emailIntent .putExtra(Intent.EXTRA_SUBJECT, "MediaCallz_Logs Received from: " + Constants.MY_ID(getContext()));
+                startActivity(Intent.createChooser(emailIntent , "Send email..."));
+
+                return true;
+            }
+        });
 
         Preference button = findPreference("Delete Account");
         button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

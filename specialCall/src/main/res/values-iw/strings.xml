@@ -258,5 +258,7 @@
     <string name="ringing_override_settings_title">אפשר צלצול עוקף מחמיר יותר</string>
     <string name="ringing_override_settings_summary">במקרה ואתה מקבל שיחות עם צלצול שקט , זה יכול לתקן את הבעיה</string>
     <string name="delete_account_summary">מחיקת חשבון וכל המדיה שנשמרה</string>
+    <string name="send_logs">שלח לוגים</string>
+    <string name="send_logs_summary">שלח דוח פעילויות אחרונה של האפליקציה לניתוח</string>
 
 </resources>

@@ -39,6 +39,13 @@
 
     </PreferenceCategory>
 
+
+    <Preference android:title="@string/send_logs"
+        android:key="Send Logs"
+        android:summary="@string/send_logs_summary"/>
+
+
+
     <Preference android:title="@string/delete_account_title"
         android:key="Delete Account"
         android:summary="@string/delete_account_summary"/>

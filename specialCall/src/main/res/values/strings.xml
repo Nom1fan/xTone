@@ -210,6 +210,7 @@
     <!--  popup_menu_profile Layout   -->
     <string name="select_profile_media">Add/Replace profile media</string>
     <string name="delete_account_title">Delete Account</string>
+    <string name="send_logs">Send Logs</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
 
@@ -245,4 +246,5 @@
     <string name="ringing_override_settings_title">Enable ringing buggy override</string>
     <string name="ringing_override_settings_summary">In case you receive Silent MC calls, this may fix your bug</string>
     <string name="delete_account_summary">Delete account and all data</string>
+    <string name="send_logs_summary">send app activity logs for debugging</string>
 </resources>
