@@ -31,4 +31,9 @@ public abstract class MediaProcessingAsyncTask extends AsyncTask<Bundle, Integer
     protected void sendLoadingCancelled(Context ctx, String tag) {
         BroadcastUtils.sendEventReportBroadcast(ctx, tag, new EventReport(EventType.LOADING_CANCEL));
     }
+
+    protected String getProcessedFileName(FileManager baseFile, String action) {
+        String procFilePath = baseFile.getMd5() + "_" + baseFile.getNameWithoutExtension() + "_" + action + "." + baseFile.getFileExtension();
+        return procFilePath;
+    }
 }

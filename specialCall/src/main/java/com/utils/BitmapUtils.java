@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
@@ -17,11 +16,6 @@ import android.widget.ImageView;
 
 import com.async_tasks.BitMapWorkerTask;
 import com.crashlytics.android.Crashlytics;
-import com.data_objects.Constants;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 import FilesManager.FileManager;
 
@@ -173,47 +167,5 @@ public abstract class BitmapUtils {
         Bitmap bitmap = decodeSampledBitmapFromResource(resources, resourceId, width, height);
 
         return createScaledBitMap(bitmap, width, height, makeRound);
-    }
-
-    public static boolean isRotationNeeded(Context ctx, FileManager.FileType fileType) {
-        return fileType.equals(FileManager.FileType.IMAGE) &&
-                SharedPrefUtils.getInt(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.IMAGE_ROTATION_DEGREE) != 0;
-    }
-
-    public static FileManager rotateImage(Context ctx, FileManager fm) {
-        if (!fm.getFileType().equals(FileManager.FileType.IMAGE))
-            return fm;
-        int degrees = SharedPrefUtils.getInt(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.IMAGE_ROTATION_DEGREE);
-        if (degrees == 0)
-            return fm;
-
-        String imagePath = fm.getFileFullPath();
-        Bitmap bmp = decodeSampledBitmapFromImageFile(imagePath);
-
-        Matrix matrix = new Matrix();
-        matrix.postRotate(degrees);
-        bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
-
-        FileOutputStream fos = null;
-
-        try {
-
-            File rotatedFile = new File(Constants.HISTORY_FOLDER + fm.getMd5() + "." + fm.getFileExtension());
-            fos = new FileOutputStream(rotatedFile);
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, fos); // PNG is a lossless format, the compression factor (100) is ignored
-            return new FileManager(rotatedFile);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return fm;
     }
 }

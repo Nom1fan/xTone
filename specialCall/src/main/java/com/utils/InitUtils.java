@@ -29,14 +29,17 @@ public abstract class InitUtils {
 
         hideMediaFromGalleryScanner(Constants.INCOMING_FOLDER);
         hideMediaFromGalleryScanner(Constants.OUTGOING_FOLDER);
-        hideMediaFromGalleryScanner(Constants.TEMP_COMPRESSED_FOLDER);
     }
 
+    /**
+     * Prevents Android's media scanner from reading media files and including them in apps like Gallery or Music.
+     * @param path The path to set the media scanner to ignore
+     */
     private static void hideMediaFromGalleryScanner(String path) {
 
         log(Log.INFO,TAG, "create file : " + path + "/" + ".nomedia");
 
-        File new_file = new File(path + "/" + ".nomedia");  // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
+        File new_file = new File(path + "/" + ".nomedia");
         try {
             if (new_file.createNewFile())
                 log(Log.INFO,TAG, ".nomedia Created !");

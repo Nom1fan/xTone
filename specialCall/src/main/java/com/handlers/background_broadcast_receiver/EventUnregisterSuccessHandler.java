@@ -32,7 +32,6 @@ public class EventUnregisterSuccessHandler implements Handler {
             //TODO Decide if we should delete MEDIA_CALLZ_HISTORY folder contents too or not
             FileManager.deleteDirectoryContents(new File(Constants.INCOMING_FOLDER));
             FileManager.deleteDirectoryContents(new File(Constants.OUTGOING_FOLDER));
-            FileManager.deleteDirectoryContents(new File(Constants.TEMP_RECORDING_FOLDER));
 
             //TODO Make sure this doesn't create issues since it delete all app states and such
             SharedPrefUtils.removeAll(ctx);

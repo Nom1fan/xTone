@@ -12,6 +12,7 @@ import com.crashlytics.android.Crashlytics;
 import com.data_objects.Constants;
 import com.data_objects.Contact;
 import com.utils.ContactsUtils;
+import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
 
 import org.apache.commons.io.FileUtils;
@@ -232,7 +233,7 @@ public class DownloadReceiver extends BroadcastReceiver {
             FileManager.FileType fileType = FileManager.FileType.valueOf(td.get(DataKeys.FILE_TYPE).toString());
 
 
-            if(doesFileExistInHistoryFolderByMD5(md5))
+            if(MediaFilesUtils.doesFileExistInHistoryFolderByMD5(md5))
                 return;
 
 
@@ -265,7 +266,8 @@ public class DownloadReceiver extends BroadcastReceiver {
                     context.getContentResolver().insert(uri, values);
 
                 }
-                context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(copyToHistoryFile)));
+
+                MediaFilesUtils.triggerMediaScanOnFile(context, copyToHistoryFile);
             } else {
                 Crashlytics.log(Log.ERROR,TAG, "File already exist: " + historyFileName);
             }
@@ -273,22 +275,5 @@ public class DownloadReceiver extends BroadcastReceiver {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private boolean doesFileExistInHistoryFolderByMD5(String md5) {
-        boolean result = false;
-        File yourDir = new File(Constants.HISTORY_FOLDER);
-        for (File f : yourDir.listFiles()) {
-
-            if (f.isFile()) {
-                String fileName = f.getName();
-                if (fileName.contains(md5)) {
-                    result = true;
-                    break;
-                }
-            }
-        }
-        return result;
-
     }
 }

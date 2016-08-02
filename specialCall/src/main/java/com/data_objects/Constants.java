@@ -40,15 +40,13 @@ public class Constants {
 
     private static final String INCOMING_FOLDER_NAME = "Incoming_" + SharedConstants.APP_NAME;
     private static final String OUTGOING_FOLDER_NAME = "Outgoing_" + SharedConstants.APP_NAME;
-    private static final String TEMP_COMP_FOLDER_NAME = "Compressed_" + SharedConstants.APP_NAME;
+    private static final String COMP_FOLDER_NAME = "Compressed_" + SharedConstants.APP_NAME;
     private static final String HISTORY_FOLDER_NAME =  SharedConstants.APP_NAME +"_History";
-    private static final String TEMP_RECORDING_FOLDER_NAME = "TempRecording";
     public static final String ROOT_FOLDER = setRootFolder();
     public static final String INCOMING_FOLDER = getIncomingFolder();
     public static final String OUTGOING_FOLDER = getOutgoingFolder();
-    public static final String TEMP_COMPRESSED_FOLDER = getTempFolderForCompression();
+    public static final String COMPRESSED_FOLDER = getFolderForCompression();
     public static final String HISTORY_FOLDER = getHistoryFolderForCompression();
-    public static final String TEMP_RECORDING_FOLDER = getRecordingTempFolderForCompression();
 
     public static String MY_ID(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER); }
     public static void MY_ID(Context context, String number) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, number); }
@@ -78,16 +76,9 @@ public class Constants {
         return path;
     }
 
-    private static String getTempFolderForCompression() {
+    private static String getFolderForCompression() {
 
-        String path = ROOT_FOLDER + TEMP_COMP_FOLDER_NAME + "/";
-        File outgoingFolder = new File(path);
-        outgoingFolder.mkdirs();
-        return path;
-    }
-
-    private static String getRecordingTempFolderForCompression() {
-        String path = TEMP_COMPRESSED_FOLDER + TEMP_RECORDING_FOLDER_NAME + "/";
+        String path = ROOT_FOLDER + COMP_FOLDER_NAME + "/";
         File outgoingFolder = new File(path);
         outgoingFolder.mkdirs();
         return path;
