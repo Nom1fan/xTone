@@ -129,7 +129,8 @@
         android:layout_alignTop="@+id/playPreview"
         android:visibility="invisible"
         android:layout_alignBottom="@+id/playPreview"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:background="#004559" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -147,13 +148,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/editAudio"
-        android:src="@android:drawable/ic_menu_edit"
+        android:src="@drawable/audio_editor_anim"
         android:visibility="invisible"
         android:layout_alignParentBottom="true"
         android:layout_alignRight="@+id/playPreview"
         android:layout_alignLeft="@+id/playPreview"
         android:layout_below="@+id/playPreview"
-        android:background="#f75454" />
+        android:background="#004559" />
 
     <FrameLayout
         android:id="@+id/container"
