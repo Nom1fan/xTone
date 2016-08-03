@@ -55,7 +55,7 @@
         android:text="@string/cancel"
         android:id="@+id/cancel_btn"
         android:visibility="visible"
-        android:src="@drawable/return_previerw"
+        android:src="@drawable/return_preview_anim"
         android:layout_alignTop="@+id/upload_btn"
         android:layout_alignBottom="@+id/upload_btn"
         android:background="#004559"
