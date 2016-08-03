@@ -241,6 +241,10 @@ public class MediaFileProcessingUtils {
 
         // Manual Trim from audio editor
         if (endTime > 0) {
+
+            if (endTime > (MAX_DURATION*1000))
+                endTime =(MAX_DURATION*1000);
+
             log(Log.INFO, TAG, "Performing manual trim");
             modifiedFile = _ffmpeg_utils.trim(baseFile, trimmedFilePath, startTime, endTime, context);
             duration = _ffmpeg_utils.getFileDuration(context, modifiedFile);
