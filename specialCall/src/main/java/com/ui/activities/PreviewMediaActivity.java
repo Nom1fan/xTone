@@ -46,8 +46,8 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
     private ImageButton _imageButton;
     private FileManager.FileType fType;
     private final int MIN_MILISECS_FOR_AUDIO_EDIT = 3000;
-    protected static int startInMili;
-    protected static int endInMili;
+    protected int startInMili;
+    protected int endInMili;
 
     //region Activity methods (onCreate(), onPause()...)
     @Override
@@ -79,6 +79,8 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
 
                 SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC, startInMili);
                 SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC, endInMili);
+                startInMili=0;
+                endInMili=0;
 
                 returnFile(_managedFile);
             }
@@ -127,6 +129,9 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
                         _previewFile.setClickable(false);
                         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC , 0);
                         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC , 0);
+                        startInMili=0;
+                        endInMili=0;
+
 
                         FrameLayout waveFrame = (FrameLayout) findViewById(R.id.container);
                         waveFrame.setVisibility(View.VISIBLE);
@@ -322,7 +327,7 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
         startService(closePrevious);
     }
 
-    public static class CustomWaveformFragment extends WaveformFragment {
+    public class CustomWaveformFragment extends WaveformFragment {
         String _filePath;
         Context _Context;
 

@@ -243,7 +243,7 @@ public class MediaFileProcessingUtils {
         if (endTime > 0) {
             log(Log.INFO, TAG, "Performing manual trim");
             modifiedFile = _ffmpeg_utils.trim(baseFile, trimmedFilePath, startTime, endTime, context);
-
+            duration = _ffmpeg_utils.getFileDuration(context, modifiedFile);
         }
 
         //Auto Trim
