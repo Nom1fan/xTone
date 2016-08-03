@@ -32,7 +32,7 @@ public class FFMPEG_Utils {
 
 
     private static final String TAG = FFMPEG_Utils.class.getSimpleName();
-    private static final String workFolder = Constants.HISTORY_FOLDER;
+    private static final String workFolder = Constants.COMPRESSED_FOLDER;
     private static final HashMap<String, String> extension2vCodec = new HashMap() {{
         put("mp4", "mpeg4");
 
@@ -172,10 +172,10 @@ public class FFMPEG_Utils {
             File trimmedFile = new File(trimmedfilePath);
 
             String[] complexCommand =
-                    {"ffmpeg", "-y", "-i", baseFile.getFileFullPath(), "-strict",
-                            "experimental", "-ab", "48000", "-ac", "2", "-b", "2097152", "-ar",
-                            "22050", "-ss", "00:00:00", "-t", "00:00:" + endTime.toString(),
-                            trimmedfilePath};
+                    {"ffmpeg", "-ss", "00:00:00", "-y", "-i", baseFile.getFile().getAbsolutePath(), "-strict",
+                            "experimental", "-t", endTime.toString(), "-b", "2097152", "-ab",
+                            "48000", "-ac", "2", "-b", "2097152", "-ar",
+                            "22050", trimmedfilePath};
 
             _vk.run(complexCommand, workFolder, context);
             return new FileManager(trimmedFile);
@@ -193,18 +193,18 @@ public class FFMPEG_Utils {
      * Trims a video/audio file from startTime seconds to endTime seconds, without re-encoding.
      *
      * @param baseFile  Video/audio file to trim
-     * @param trimmedFilePath   The path of the trimmed video/audio
+     * @param trimmedFilepath   The path of the trimmed video/audio
      * @param startTime The time where to start the cut
      * @param endTime   The time to end the cut in
      * @param context
      * @return The trimmed video/audio file, if possible. Otherwise, null.
      */
-    public FileManager trim(FileManager baseFile, String trimmedFilePath, Long startTime, Long endTime, Context context) {
+    public FileManager trim(FileManager baseFile, String trimmedFilepath, Long startTime, Long endTime, Context context) {
 
         SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC, 0);
         SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC, 0);
 
-        File trimmedFile = new File(trimmedFilePath);
+        File trimmedFile = new File(trimmedFilepath);
 
         String start = convertMillisToTimeFormat(startTime);
         String end = convertMillisToTimeFormat(endTime);
@@ -214,10 +214,10 @@ public class FFMPEG_Utils {
         try {
 
             String[] complexCommand =
-                    {"ffmpeg", "-y", "-i", baseFile.getFileFullPath(), "-strict",
-                            "experimental", "-ab", "48000", "-ac", "2", "-b", "2097152", "-ar",
-                            "22050", "-ss", "00:" + start, "-t", "00:" + end,
-                            trimmedFilePath};
+                    {"ffmpeg", "-ss", start, "-y", "-i", baseFile.getFile().getAbsolutePath(), "-strict",
+                            "experimental", "-t", end, "-b", "2097152", "-ab",
+                            "48000", "-ac", "2", "-b", "2097152", "-ar",
+                            "22050", trimmedFilepath};
 
             _vk.run(complexCommand, workFolder, context);
             return new FileManager(trimmedFile);

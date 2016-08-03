@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -1824,6 +1825,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             _fileForUpload = (FileManager) bundle.get(FILE_FOR_UPLOAD);
 
+            HashMap<DataKeys, Object> data = getDataForUpload(bundle);
+
+            _connectionToServer = new ConnectionToServer(
+                    SharedConstants.STROAGE_SERVER_HOST,
+                    SharedConstants.STORAGE_SERVER_PORT,
+                    this);
+            _data = data;
+            _taskInstance = this;
+
+        }
+
+        @NonNull
+        private HashMap<DataKeys, Object> getDataForUpload(Bundle bundle) {
             HashMap<DataKeys, Object> data = new HashMap();
             String myId = Constants.MY_ID(MainActivity.this);
             double appVersion = Constants.APP_VERSION(MainActivity.this);
@@ -1841,14 +1855,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             data.put(DataKeys.FILE_TYPE, _fileForUpload.getFileType());
             data.put(DataKeys.SPECIAL_MEDIA_TYPE, bundle.get(SPEC_MEDIA_TYPE));
             data.put(DataKeys.SOURCE_WITH_EXTENSION, myId + "." + _fileForUpload.getFileExtension());
-
-            _connectionToServer = new ConnectionToServer(
-                    SharedConstants.STROAGE_SERVER_HOST,
-                    SharedConstants.STORAGE_SERVER_PORT,
-                    this);
-            _data = data;
-            _taskInstance = this;
-
+            return data;
         }
 
         @Override

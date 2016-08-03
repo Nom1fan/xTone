@@ -13,6 +13,7 @@ import com.data_objects.Constants;
 import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.netcompss.loader.LoadJNI;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -161,7 +162,7 @@ public class MediaFileProcessingUtils {
 
     @Nullable
     private FileManager rotateImage(FileManager baseFile, String rotatedImageFilepath, int degrees) {
-        FileManager rotatedFile = null;
+        File rotatedFile = null;
         String imagePath = baseFile.getFileFullPath();
         Bitmap bmp = BitmapUtils.decodeSampledBitmapFromImageFile(imagePath);
 
@@ -173,9 +174,10 @@ public class MediaFileProcessingUtils {
 
         try {
 
-            rotatedFile = new FileManager(rotatedImageFilepath);
-            fos = new FileOutputStream(rotatedFile.getFile());
+            rotatedFile = new File(rotatedImageFilepath);
+            fos = new FileOutputStream(rotatedFile);
             bmp.compress(Bitmap.CompressFormat.PNG, 100, fos); // PNG is a lossless format, the compression factor (100) is ignored
+            return new FileManager(rotatedFile);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -188,7 +190,9 @@ public class MediaFileProcessingUtils {
                 }
             }
         }
-        return rotatedFile;
+
+        // Could not rotate
+        return null;
     }
 
     @Nullable
