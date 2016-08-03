@@ -82,6 +82,8 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
                 startInMili=0;
                 endInMili=0;
 
+                getSupportFragmentManager().popBackStack(); // closes the audio editor fragment in case it is still playing audio
+
                 returnFile(_managedFile);
             }
         });
@@ -90,6 +92,7 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
         cancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 closePreview();
+                getSupportFragmentManager().popBackStack(); // closes the audio editor fragment in case it is still playing audio
                 finish();
             }
         });
