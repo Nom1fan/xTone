@@ -22,6 +22,7 @@ import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
+import com.utils.MediaFilesUtils;
 import com.utils.NotificationUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
@@ -208,9 +209,11 @@ public class IncomingService extends AbstractStandOutService {
                                 log(Log.ERROR,TAG, "Failed to set stream volume:" + e.getMessage());
                             }
 
+                            boolean ringtoneExists = ringtoneFile.exists();
                             //Check if Mute Was Needed if not return to UnMute.
-                            if (ringtoneFile.exists()) {
-                                disableRingStream();
+                            if (ringtoneExists && !MediaFilesUtils.isAudioFileCorrupted(ringtonePath,getApplicationContext())) {
+
+                               disableRingStream();
                                 SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, false);
                                 Runnable r = new Runnable() {
                                     public void run() {
@@ -226,11 +229,13 @@ public class IncomingService extends AbstractStandOutService {
                                 new Thread(r).start();
                             } else {
                                 SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
+                                Log.i(TAG,"No Ringtone !!");
+                                ringtoneExists = false; // don't show volume buttons
                             }
 
                             setTempMd5ForCallRecord(mediaFilePath, ringtonePath);
 
-                            startVisualMediaMC(mediaFilePath, incomingNumber, ringtoneFile.exists());
+                            startVisualMediaMC(mediaFilePath, incomingNumber,ringtoneExists,MediaFilesUtils.isVideoFileCorrupted(mediaFilePath,getApplicationContext()));
 
 
                             MCHistoryUtils.reportMC(

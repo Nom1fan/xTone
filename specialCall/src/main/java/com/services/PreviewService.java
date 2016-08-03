@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
+import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
@@ -116,8 +117,14 @@ public class PreviewService extends AbstractStandOutService {
         String standoutWindowUserTitle = Constants.MY_ID(getApplicationContext());
 
         File audioMediaFile = new File(audioMediafilePath);
-        startAudioMediaMC(audioMediafilePath);
-        startVisualMediaMC(visualMediaFilePath, standoutWindowUserTitle, audioMediaFile.exists());
+        boolean audioFileExists = audioMediaFile.exists();
+
+        if (!MediaFilesUtils.isAudioFileCorrupted(audioMediafilePath,getApplicationContext()))
+                startAudioMediaMC(audioMediafilePath);
+        else
+            audioFileExists = false; // don't show volume buttons
+
+        startVisualMediaMC(visualMediaFilePath, standoutWindowUserTitle, audioFileExists,MediaFilesUtils.isVideoFileCorrupted(visualMediaFilePath,getApplicationContext()));
     }
 
     private void setVolumeOnForPreview() {

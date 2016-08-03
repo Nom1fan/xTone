@@ -20,6 +20,7 @@ import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
+import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -301,8 +302,12 @@ public class OutgoingService extends AbstractStandOutService {
 
                             setTempMd5ForCallRecord(visualMediaFilePath,audioMediaFilePath);
 
-                            startAudioMediaMC(audioMediaFilePath);
-                            startVisualMediaMC(visualMediaFilePath, outgoingCallNumber, funtoneFileExists);
+                        if (!MediaFilesUtils.isAudioFileCorrupted(audioMediaFilePath,getApplicationContext()))
+                                startAudioMediaMC(audioMediaFilePath);
+                            else
+                                funtoneFileExists = false; // don't show volume buttons
+
+                         startVisualMediaMC(visualMediaFilePath, outgoingCallNumber, funtoneFileExists,MediaFilesUtils.isVideoFileCorrupted(visualMediaFilePath,getApplicationContext()));
 
 
                             MCHistoryUtils.reportMC(

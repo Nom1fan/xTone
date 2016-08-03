@@ -179,22 +179,31 @@ public class DownloadReceiver extends BroadcastReceiver {
     private void setNewRingTone(Context context, String source, String md5) {
 
         Crashlytics.log(Log.INFO,TAG, "setNewRingTone with sharedPrefs: " + _newFileFullPath);
-        SharedPrefUtils.setString(context,
-                _sharedPrefKeyForAudioMedia, source, _newFileFullPath);
 
-        // Backing up audio file md5
-        SharedPrefUtils.setString(context,
-                _sharedPrefKeyForAudioMedia, _newFileFullPath, md5);
+        if (!MediaFilesUtils.isAudioFileCorrupted(_newFileFullPath,context)) {
+            SharedPrefUtils.setString(context,
+                    _sharedPrefKeyForAudioMedia, source, _newFileFullPath);
+
+            // Backing up audio file md5
+            SharedPrefUtils.setString(context,
+                    _sharedPrefKeyForAudioMedia, _newFileFullPath, md5);
+        }else{
+            Crashlytics.log(Log.ERROR,TAG, "CORRUPTED FILE : setNewRingTone with sharedPrefs: " + _newFileFullPath);
+        }
     }
 
     private void setNewVisualMedia(Context context, String source, String md5) {
 
         Crashlytics.log(Log.INFO,TAG, "setNewVisualMedia with sharedPrefs: " + _newFileFullPath);
+        if (!MediaFilesUtils.isVideoFileCorrupted(_newFileFullPath,context)) {
         SharedPrefUtils.setString(context,
                 _sharedPrefKeyForVisualMedia, source, _newFileFullPath);
 
         // Backing up visual file md5
         SharedPrefUtils.setString(context, _sharedPrefKeyForVisualMedia, _newFileFullPath, md5);
+        }else{
+            Crashlytics.log(Log.ERROR,TAG, "CORRUPTED FILE : setNewVisualMedia with sharedPrefs: " + _newFileFullPath);
+        }
     }
 
     private void preparePathsAndDirs(HashMap td) {

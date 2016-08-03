@@ -947,7 +947,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
      * @param callNumber          The incoming/outgoing number the MC is triggered for
      * @return true if visual MC was started, false otherwise
      */
-    protected void startVisualMediaMC(String visualMediaFilePath, String callNumber, boolean attachDefaultView) {
+    protected void startVisualMediaMC(String visualMediaFilePath, String callNumber, boolean attachDefaultView ,boolean visualMediaCorrupted) {
 
         log(Log.INFO,TAG, "startVisualMediaMC SharedPrefUtils visualMediaFilePath:" + visualMediaFilePath);
         if (attachDefaultView)
@@ -960,7 +960,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         Random r = new Random();
         int randomWindowId = r.nextInt(Integer.MAX_VALUE);  // fixing a bug: when the same ID the window isn't released good enough so we need to make a different window in the mean time
 
-        if (new File(visualMediaFilePath).exists()) {
+        if (new File(visualMediaFilePath).exists() && !visualMediaCorrupted) {
             try {
                 FileManager fm = new FileManager(visualMediaFilePath);
                 prepareViewForSpecialCall(fm.getFileType(), fm.getFileFullPath());
