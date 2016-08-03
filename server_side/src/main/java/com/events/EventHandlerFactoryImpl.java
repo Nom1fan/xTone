@@ -13,7 +13,7 @@ import java.util.Map;
 @Component
 public class EventHandlerFactoryImpl implements EventHandlerFactory {
 
-    private Map<EventType,EventHandler> map = new HashMap<>();
+    private final Map<EventType,EventHandler> map = new HashMap<>();
 
     @Autowired
     public void initMap(List<EventHandler> eventHandlerList) {

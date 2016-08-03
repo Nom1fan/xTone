@@ -24,9 +24,9 @@ public class GenericServer extends AbstractServer {
 
     private ActionFactory actionFactory;
 
-    private String serverName;
+    private final String serverName;
 
-    private int port;
+    private final int port;
 
     /**
      * Constructs a new server.
@@ -153,6 +153,7 @@ public class GenericServer extends AbstractServer {
 
         //logger.warning("Client " + client.getInfo("id") + " timed out. Socket closed.");
     }
+    //endregion
 
     //region Assisting methods
     private void closeConnectionToClient(ConnectionToClient ctc) {
@@ -165,7 +166,7 @@ public class GenericServer extends AbstractServer {
     }
 
     //endregion
-    //endregion
+
     public void setLogger(Logger logger) {
         this.logger = logger;
     }

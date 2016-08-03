@@ -68,7 +68,7 @@ public class ServerActionRequestDownload extends ServerAction {
     private void initiateDownloadFlow(Map data, String filePathOnServer) throws IOException {
         BufferedInputStream bis = null;
         try {
-            bis = initiateDownload((HashMap) data, filePathOnServer, bis);
+            bis = initiateDownload((HashMap) data, filePathOnServer);
 
             informSrcOfSuccess(data);
 
@@ -90,7 +90,7 @@ public class ServerActionRequestDownload extends ServerAction {
         }
     }
 
-    private BufferedInputStream initiateDownload(HashMap data, String _filePathOnServer, BufferedInputStream bis) throws DownloadRequestFailedException, IOException {
+    private BufferedInputStream initiateDownload(HashMap data, String _filePathOnServer) throws DownloadRequestFailedException, IOException {
         File fileForDownload = new File(_filePathOnServer);
         MessageToClient msgDF = new MessageToClient(ClientActionType.DOWNLOAD_FILE, data);
         boolean sent = replyToClient(msgDF);
@@ -101,7 +101,7 @@ public class ServerActionRequestDownload extends ServerAction {
 
         DataOutputStream dos = new DataOutputStream(clientConnection.getClientSocket().getOutputStream());
         FileInputStream fis = new FileInputStream(fileForDownload);
-        bis = new BufferedInputStream(fis);
+        BufferedInputStream bis = new BufferedInputStream(fis);
 
         byte[] buf = new byte[1024 * 8];
         long bytesToRead = fileForDownload.length();

@@ -1,7 +1,6 @@
 package com.server.servers;
 
 import com.events.Event;
-import com.events.EventGenerator;
 import com.events.EventType;
 import com.server.spring.SpringConfig;
 
@@ -11,12 +10,14 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by Mor on 16/10/2015.
  */
 @Component
-public class ServerRunnerImpl implements ServerRunner {
+public class ServerRunnerImpl extends Observable implements ServerRunner {
 
     private static final String TAG = ServerRunnerImpl.class.getCanonicalName();
 
@@ -27,9 +28,6 @@ public class ServerRunnerImpl implements ServerRunner {
     @Autowired
     @Qualifier("StorageServer")
     private GenericServer storageServer;
-
-    @Autowired
-    private EventGenerator eventGenerator;
 
     private void _runServer() {
         logicServer.runServer();
@@ -70,20 +68,17 @@ public class ServerRunnerImpl implements ServerRunner {
     }
 
     private void reportServerStatus() {
+        setChanged();
+
         if(isServerRunning())
-            eventGenerator.fireEvent(new Event(TAG, EventType.CONNECTED));
+            notifyObservers(new Event(TAG, EventType.CONNECTED));
         else
-            eventGenerator.fireEvent(new Event(TAG, EventType.DISCONNECTED));
+            notifyObservers(new Event(TAG, EventType.DISCONNECTED));
     }
 
     @Override
     public boolean isServerRunning() {
         return logicServer.isListening() && storageServer.isListening();
-    }
-
-    @Override
-    public boolean isServerStopped() {
-        return !logicServer.isListening() && !storageServer.isListening();
     }
 
     @Override
@@ -94,6 +89,16 @@ public class ServerRunnerImpl implements ServerRunner {
     @Override
     public GenericServer getLogicServer() {
         return logicServer;
+    }
+
+    @Override
+    public void addObserver(Observer o) {
+        super.addObserver(o);
+    }
+
+    @Override
+    public void deleteObserver(Observer o) {
+        super.deleteObserver(o);
     }
 
     public static void main(String[] args) {

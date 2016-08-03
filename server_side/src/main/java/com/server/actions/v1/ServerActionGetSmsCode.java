@@ -2,6 +2,7 @@ package com.server.actions.v1;
 
 import com.server.actions.ServerAction;
 import com.server.annotations.ServerActionAnno;
+import com.server.lang.LangStrings;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +13,6 @@ import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import com.server.lang.LangStrings;
-
 import utils.RandUtils;
 
 /**
@@ -22,8 +21,8 @@ import utils.RandUtils;
 @ServerActionAnno(actionType = ServerActionType.GET_SMS_CODE)
 public class ServerActionGetSmsCode extends ServerAction {
 
-    public static final int MIN = 1000;
-    public static final int MAX = 9999;
+    private static final int MIN = 1000;
+    private static final int MAX = 9999;
 
     public ServerActionGetSmsCode() {
         super(ServerActionType.GET_SMS_CODE);

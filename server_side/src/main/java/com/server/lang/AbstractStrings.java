@@ -16,17 +16,17 @@ import javax.annotation.PostConstruct;
 public abstract class AbstractStrings implements LangStrings {
 
     @Autowired
-    Logger logger;
+    protected Logger logger;
 
-    String oops;
-    String upload_failed;
-    String media_ready_title;
-    String media_ready_body;
-    String media_undelivered_title;
-    String media_undelivered_body;
-    String media_cleared_title;
-    String media_cleared_body;
-    String your_verification_code;
+    private String oops;
+    private String upload_failed;
+    private String media_ready_title;
+    private String media_ready_body;
+    private String media_undelivered_title;
+    private String media_undelivered_body;
+    private String media_cleared_title;
+    private String media_cleared_body;
+    private String your_verification_code;
 
 
     @PostConstruct

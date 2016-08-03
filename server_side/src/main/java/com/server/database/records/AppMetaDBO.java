@@ -7,7 +7,7 @@ import java.io.Serializable;
  */
 public class AppMetaDBO implements Serializable {
 
-    private double _minSupportedVersion;
+    private final double _minSupportedVersion;
 
     public AppMetaDBO(double _minSupportedVersion) {
         this._minSupportedVersion = _minSupportedVersion;

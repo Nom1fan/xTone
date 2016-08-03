@@ -7,11 +7,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.logging.Logger;
 
 /**
@@ -20,7 +17,7 @@ import java.util.logging.Logger;
 @Component
 public class StringsFactoryImpl implements StringsFactory {
 
-    private HashMap<String, LangStrings> lang2StringsMap = new HashMap<>();
+    private final HashMap<String, LangStrings> lang2StringsMap = new HashMap<>();
 
     @Autowired
     private Logger logger;

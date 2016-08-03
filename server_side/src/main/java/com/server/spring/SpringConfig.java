@@ -50,8 +50,7 @@ public class SpringConfig {
     @Bean
     public Gson gson() {
         GsonBuilder gsonBuilder = new GsonBuilder();
-        Gson gson = gsonBuilder.create();
-        return gson;
+        return gsonBuilder.create();
     }
 
     @Bean(name = "LogicServer")

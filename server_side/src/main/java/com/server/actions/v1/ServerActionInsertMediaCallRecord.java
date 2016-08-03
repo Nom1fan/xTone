@@ -22,8 +22,6 @@ import MessagesToServer.ServerActionType;
 @ServerActionAnno(actionType = ServerActionType.INSERT_MEDIA_CALL_RECORD)
 public class ServerActionInsertMediaCallRecord extends ServerAction {
 
-    private CallRecord callRecord;
-
     public ServerActionInsertMediaCallRecord() {
         super(ServerActionType.INSERT_MEDIA_CALL_RECORD);
     }
@@ -31,7 +29,7 @@ public class ServerActionInsertMediaCallRecord extends ServerAction {
     @Override
     public void doAction(Map data) {
 
-        callRecord = (CallRecord) data.get(DataKeys.CALL_RECORD);
+        CallRecord callRecord = (CallRecord) data.get(DataKeys.CALL_RECORD);
         try {
             dao.insertMediaCallRecord(callRecord);
         } catch (SQLException e) {

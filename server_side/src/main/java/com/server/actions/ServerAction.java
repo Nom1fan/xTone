@@ -4,6 +4,7 @@ import com.server.annotations.ServerActionAnno;
 import com.server.database.DAO;
 import com.server.database.SmsVerificationAccess;
 import com.server.database.UserDataAccess;
+import com.server.lang.StringsFactory;
 import com.server.pushservice.PushSender;
 import com.server.sms_service.SmsSender;
 
@@ -22,7 +23,6 @@ import Exceptions.UserUnregisteredException;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
 import ServerObjects.ConnectionToClient;
-import com.server.lang.StringsFactory;
 
 /**
  * Created by Mor on 23/04/2016.
@@ -53,9 +53,9 @@ public abstract class ServerAction {
 
     protected ConnectionToClient clientConnection;
     protected String messageInitiaterId;
-    protected ServerActionType serverActionType;
-    protected HashMap<DataKeys, Object> replyData;
-    private List<ServerActionType> preRegistrationActions = new LinkedList() {{
+    protected final HashMap<DataKeys, Object> replyData;
+    private final ServerActionType serverActionType;
+    private final List<ServerActionType> preRegistrationActions = new LinkedList() {{
         add(ServerActionType.REGISTER);
         add(ServerActionType.GET_SMS_CODE);
         add(ServerActionType.GET_SMS_CODE_FOR_LOAD_TEST);

@@ -39,7 +39,7 @@ public class ServerActionUploadFile extends ServerAction {
     protected String destId;
     protected String destContact;
 
-    protected Map<SpecialMediaType, SpMediaPathHandler> spMedia2PathHandlerMap = new HashMap<>();
+    private final Map<SpecialMediaType, SpMediaPathHandler> spMedia2PathHandlerMap = new HashMap<>();
 
     public ServerActionUploadFile() {
         super(ServerActionType.UPLOAD_FILE);
@@ -149,7 +149,7 @@ public class ServerActionUploadFile extends ServerAction {
         }
     }
 
-    protected void sendMediaUndeliveredMsgToUploader(Map data) {
+    private void sendMediaUndeliveredMsgToUploader(Map data) {
 
         logger.severe("Upload from [Source]:" + messageInitiaterId + " to [Destination]:" + destId + " Failed.");
 

@@ -1,16 +1,16 @@
 package com.ui;
 
 import com.events.Event;
-import com.events.EventGenerator;
 import com.events.EventHandler;
 import com.events.EventHandlerFactory;
-import com.events.EventsListener;
 import com.server.servers.ServerRunner;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.awt.Dimension;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.annotation.PostConstruct;
 import javax.swing.BoxLayout;
@@ -22,13 +22,10 @@ import javax.swing.JPanel;
  * Created by Mor on 28/03/2016.
  */
 @Component
-public class ServerPanel extends JPanel implements EventsListener {
+public class ServerPanel extends JPanel implements Observer {
 
     @Autowired
     private ServerRunner serverRunner;
-
-    @Autowired
-    private EventGenerator eventGenerator;
 
     @Autowired
     EventHandlerFactory eventHandlerFactory;
@@ -37,7 +34,7 @@ public class ServerPanel extends JPanel implements EventsListener {
 
     @PostConstruct
     public void init() {
-        eventGenerator.register(this);
+        serverRunner.addObserver(this);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         setPreferredSize(new Dimension(200, 200));
@@ -78,7 +75,8 @@ public class ServerPanel extends JPanel implements EventsListener {
     }
 
     @Override
-    public void eventReceived(Event event) {
+    public void update(Observable observable, Object data) {
+        Event event = (Event)data;
         EventHandler eventHandler = eventHandlerFactory.getEventHandler(event.getEventType());
         eventHandler.handleEvent(this);
     }
