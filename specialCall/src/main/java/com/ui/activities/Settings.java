@@ -1,5 +1,6 @@
 package com.ui.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -90,8 +91,7 @@ public class Settings extends PreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
-
-                Log.i(TAG,"SEND LOGS BUTTON PRESSED");
+                Context context = getActivity().getApplicationContext();
                 // save logcat in file
                 File outputFile = new File(SharedConstants.ROOT_FOLDER,
                         "logcat.txt");
@@ -113,16 +113,18 @@ public class Settings extends PreferenceFragment {
                 Uri uri = Uri.fromFile(outputFile);
                 emailIntent .putExtra(Intent.EXTRA_STREAM, uri);
 
+                if (context !=null){
                 emailIntent.putExtra(Intent.EXTRA_TEXT,
-                        "\n MY_ID: " + Constants.MY_ID(getContext())
-                    +   "\n MY_BATCH_TOKEN: " + Constants.MY_BATCH_TOKEN(getContext())
+                        "\n MY_ID: " + Constants.MY_ID(context)
+                    +   "\n MY_BATCH_TOKEN: " + Constants.MY_BATCH_TOKEN(context)
                     +   "\n Device Model: " + SpecialDevicesUtils.getDeviceName()
-                    +   "\n MY_ANDROID_VERSION: " + Constants.MY_ANDROID_VERSION(getContext())
-                    +   "\n MediaCallz App Version: " + Constants.APP_VERSION(getContext())
+                    +   "\n MY_ANDROID_VERSION: " + Constants.MY_ANDROID_VERSION(context)
+                    +   "\n MediaCallz App Version: " + Constants.APP_VERSION(context)
                 );
 
                 // the mail subject
-                emailIntent .putExtra(Intent.EXTRA_SUBJECT, "MediaCallz_Logs Received from: " + Constants.MY_ID(getContext()));
+                emailIntent .putExtra(Intent.EXTRA_SUBJECT, "MediaCallz_Logs Received from: " + Constants.MY_ID(context));
+                }
                 startActivity(Intent.createChooser(emailIntent , "Send email..."));
 
                 return true;
