@@ -13,6 +13,8 @@ import com.data_objects.Constants;
 import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.netcompss.loader.LoadJNI;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -60,6 +62,7 @@ public class MediaFileProcessingUtils {
     }
 
 
+    //region Main media file processing methods
     public FileManager trimMediaFile(FileManager baseFile, String trimmedFilePath ,Context context) {
 
         if (GeneralUtils.isLicenseValid(context, workFolder) < 0) {
@@ -104,6 +107,10 @@ public class MediaFileProcessingUtils {
             return baseFile;
         }
 
+        FileManager alreadyCompFile = getAlreadyCompFile(baseFile);
+        if(alreadyCompFile!=null)
+            return alreadyCompFile;
+
         FileManager compressedFile = null;
 
         Log.d(TAG, "Acquire wake lock");
@@ -126,14 +133,13 @@ public class MediaFileProcessingUtils {
         releaseWakeLock(wakeLock);
 
         if(compressedFile!=null) {
-            // This means we compressed a trimmed file which was still too large - Deleting to avoid duplicates
+            // This means we compressed a trimmed file which was still too large - Deleting trimmed to avoid duplicates
             if (isFileTrimmed(context, baseFile)) {
                 String trimmedFilePath = baseFile.getFile().getAbsolutePath();
                 SharedPrefUtils.remove(context, SharedPrefUtils.TRIMMED_FILES, trimmedFilePath);
                 FileManager.delete(baseFile.getFile());
             }
 
-            markFilePathAsCompressed(context, compressedFilePath);
             MediaFilesUtils.triggerMediaScanOnFile(context, compressedFile.getFile());
             return compressedFile;
         }
@@ -159,7 +165,9 @@ public class MediaFileProcessingUtils {
 
         return baseFile;
     }
+    //endregion
 
+    //region Sub media file proecessing methods
     @Nullable
     private FileManager rotateImage(FileManager baseFile, String rotatedImageFilepath, int degrees) {
         File rotatedFile = null;
@@ -232,7 +240,6 @@ public class MediaFileProcessingUtils {
         return baseFile; //TODO check if there is a way to compress non-wav audio files further
     }
 
-
     @Nullable
     private FileManager trimAudioAndVideo(FileManager baseFile, String trimmedFilePath, int sizeToCompress, Context context) {
 
@@ -261,6 +268,25 @@ public class MediaFileProcessingUtils {
         }
 
         return modifiedFile;
+    }
+    //endregion
+
+
+    @Nullable
+    private FileManager getAlreadyCompFile(FileManager baseFile) {
+        FileManager compressedFile = null;
+
+        try {
+            File potentialCompFile = MediaFilesUtils.getFileByMD5(baseFile.getMd5(), Constants.COMPRESSED_FOLDER);
+
+            // File already has a previously compressed file in compressed folder
+            if (potentialCompFile != null) {
+                compressedFile = MediaFilesUtils.createMediaFile(potentialCompFile);
+            }
+        } catch (Exception e) {
+            log(Log.WARN, TAG, "Failed to retrieve previously compressed file. Exception:" + e.getMessage());
+        }
+        return compressedFile;
     }
 
     public boolean isCompressionNeeded(Context context, FileManager managedfile) {
@@ -311,16 +337,17 @@ public class MediaFileProcessingUtils {
     }
 
     private boolean isFileCompressed(Context context, FileManager baseFile) {
-        return SharedPrefUtils.getBoolean(context, SharedPrefUtils.COMPRESSED_FILES, baseFile.getFile().getAbsolutePath());
+        boolean isComp = false;
+        try {
+            isComp = FileUtils.directoryContains(new File(Constants.COMPRESSED_FOLDER), baseFile.getFile()) && !isFileTrimmed(context, baseFile);
+        } catch (IOException e) {
+            log(Log.WARN, TAG, "Failed to determine if file was previously compressed. Exception:" + e.getMessage());
+        }
+        return isComp;
     }
 
     private void markFilePathAsTrimmed(Context context, String trimmedFilePath) {
         SharedPrefUtils.setBoolean(context, SharedPrefUtils.TRIMMED_FILES, trimmedFilePath, true);
-    }
-
-
-    private void markFilePathAsCompressed(Context context, String compressedFilePath) {
-        SharedPrefUtils.setBoolean(context, SharedPrefUtils.COMPRESSED_FILES, compressedFilePath, true);
     }
 
 

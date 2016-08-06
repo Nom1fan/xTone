@@ -161,21 +161,20 @@ public class FFMPEG_Utils {
      * Trims a video/audio file from 0 seconds to endTime seconds, without re-encoding.
      *
      * @param baseFile Video/audio file to trim
-     * @param trimmedfilePath  The path of the trimmed video/audio
+     * @param trimmedFilepath  The path of the trimmed video/audio
      * @param endTime  The time to end the cut in
      * @param context  Application Context
      * @return The trimmed video/audio file, if possible. Otherwise, null.
      */
-    public FileManager trim(FileManager baseFile, String trimmedfilePath, Long endTime, Context context) {
+    public FileManager trim(FileManager baseFile, String trimmedFilepath, Long endTime, Context context) {
 
         try {
-            File trimmedFile = new File(trimmedfilePath);
+            File trimmedFile = new File(trimmedFilepath);
 
             String[] complexCommand =
-                    {"ffmpeg", "-ss", "00:00:00", "-y", "-i", baseFile.getFile().getAbsolutePath(), "-strict",
-                            "experimental", "-t", endTime.toString(), "-b", "2097152", "-ab",
-                            "48000", "-ac", "2", "-b", "2097152", "-ar",
-                            "22050", trimmedfilePath};
+            {"ffmpeg","-ss","00:00:00","-y","-i", baseFile.getFile().getAbsolutePath(),"-strict",
+                    "experimental","-acodec","aac","-ab","48000","-ac","2","-ar","22050","-t", endTime.toString(),"-vcodec",
+                    "copy", trimmedFilepath};
 
             _vk.run(complexCommand, workFolder, context);
             return new FileManager(trimmedFile);
@@ -214,10 +213,9 @@ public class FFMPEG_Utils {
         try {
 
             String[] complexCommand =
-                    {"ffmpeg", "-ss", start, "-y", "-i", baseFile.getFile().getAbsolutePath(), "-strict",
-                            "experimental", "-t", end, "-b", "2097152", "-ab",
-                            "48000", "-ac", "2", "-b", "2097152", "-ar",
-                            "22050", trimmedFilepath};
+                    {"ffmpeg","-ss", start,"-y","-i", baseFile.getFile().getAbsolutePath(),"-strict",
+                            "experimental","-acodec","aac","-ab","48000","-ac","2","-ar","22050","-t", end,"-vcodec",
+                            "copy", trimmedFilepath};
 
             _vk.run(complexCommand, workFolder, context);
             return new FileManager(trimmedFile);

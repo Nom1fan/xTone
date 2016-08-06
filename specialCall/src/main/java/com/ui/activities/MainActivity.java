@@ -84,7 +84,6 @@ import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
-import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -2021,8 +2020,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private class CompressTask extends MediaProcessingAsyncTask {
         private final String TAG = CompressTask.class.getSimpleName();
-        private MediaFileProcessingUtils mediaFileProcessingUtils;
         private final String OUT_FOLDER = Constants.COMPRESSED_FOLDER;
+        private MediaFileProcessingUtils mediaFileProcessingUtils;
         private String compressedFilePath;
         private FileManager _baseFile;
         private FileManager _compressedFile;
@@ -2065,78 +2064,71 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         @Override
         protected Bundle doInBackground(Bundle... params) {
+            try {
+                _bundle = params[0];
+                _baseFile = (FileManager) _bundle.get(FILE_FOR_UPLOAD);
+                compressedFilePath = OUT_FOLDER + getProcessedFileName(_baseFile, "comp");
 
-            _bundle = params[0];
-            _baseFile = (FileManager) _bundle.get(FILE_FOR_UPLOAD);
-            compressedFilePath = OUT_FOLDER + getProcessedFileName(_baseFile, "comp");
+                _workerThread = new Thread(new Runnable() {
 
-            _workerThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
 
-                @Override
-                public void run() {
+                        Log.d(TAG, "Worker started");
+                        _vk = new LoadJNI();
 
-                    Log.d(TAG, "Worker started");
-                    _vk = new LoadJNI();
-
-                    File potentialCompFile = MediaFilesUtils.getFileByMD5(_baseFile.getMd5(), Constants.COMPRESSED_FOLDER);
-                    if(potentialCompFile!=null) {
-                        _compressedFile = MediaFilesUtils.createMediaFile(potentialCompFile);
-                        _compressHandler.sendEmptyMessage(MediaFileProcessingUtils.FINISHED_TRANSCODING_MSG);
-                    }
-                    else {
                         _compressedFile = mediaFileProcessingUtils.compressMediaFile(_baseFile, compressedFilePath, MainActivity.this);
                         _compressHandler.sendEmptyMessage(MediaFileProcessingUtils.FINISHED_TRANSCODING_MSG);
                     }
+                });
 
-                }
-            });
+                _progressUpdateThread = new Thread(new Runnable() {
 
-            _progressUpdateThread = new Thread(new Runnable() {
+                    ProgressCalculator pc = new ProgressCalculator(MediaFileProcessingUtils.VK_LOG_PATH);
 
-                ProgressCalculator pc = new ProgressCalculator(MediaFileProcessingUtils.VK_LOG_PATH);
+                    @Override
+                    public void run() {
+                        Log.d(TAG, "Progress update started");
+                        int progress;
+                        try {
+                            _contCalcProgress = true;
+                            while (_contCalcProgress) {
+                                Thread.sleep(300);
+                                progress = pc.calcProgress();
+                                if (progress != 0 && progress < 100) {
+                                    log(Log.INFO, TAG, "Progress update thread. Progress is:" + progress + "%");
+                                    _progDialog.setProgress(progress);
+                                } else if (progress == 100) {
+                                    log(Log.INFO, TAG, "Progress is 100, exiting progress update thread");
+                                    _progDialog.setProgress(100);
+                                    pc.initCalcParamsForNextInter();
 
-                @Override
-                public void run() {
-                    Log.d(TAG, "Progress update started");
-                    int progress;
-                    try {
-                        _contCalcProgress = true;
-                        while (_contCalcProgress) {
-                            Thread.sleep(300);
-                            progress = pc.calcProgress();
-                            if (progress != 0 && progress < 100) {
-                                log(Log.INFO, TAG, "Progress update thread. Progress is:" + progress + "%");
-                                _progDialog.setProgress(progress);
-                            } else if (progress == 100) {
-                                log(Log.INFO, TAG, "Progress is 100, exiting progress update thread");
-                                _progDialog.setProgress(100);
-                                pc.initCalcParamsForNextInter();
-
-                                // Waiting for next iteration
-                                synchronized (_lock) {
-                                    _lock.wait();
-                                    while (!_updateThreadNextIterStarted)
+                                    // Waiting for next iteration
+                                    synchronized (_lock) {
                                         _lock.wait();
+                                        while (!_updateThreadNextIterStarted)
+                                            _lock.wait();
+                                    }
                                 }
                             }
+                            _progDialog.setProgress(100);
+                        } catch (Exception e) {
+                            log(Log.ERROR, TAG, e.getMessage());
                         }
-                        _progDialog.setProgress(100);
-                    } catch (Exception e) {
-                        log(Log.ERROR, TAG, e.getMessage());
                     }
-                }
-            });
+                });
 
-            _workerThread.start();
-            _progressUpdateThread.start();
-
-            try {
+                _workerThread.start();
+                _progressUpdateThread.start();
                 _workerThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
-            _bundle.putSerializable(FILE_FOR_UPLOAD, _compressedFile);
+                _bundle.putSerializable(FILE_FOR_UPLOAD, _compressedFile);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                log(Log.ERROR, TAG, "Failed to compress file. Exception:" + e.getMessage());
+                _bundle.putSerializable(FILE_FOR_UPLOAD, _baseFile);
+            }
             return _bundle;
         }
 

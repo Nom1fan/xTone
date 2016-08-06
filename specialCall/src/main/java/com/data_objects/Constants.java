@@ -38,10 +38,10 @@ public class Constants {
     public static final String TERMS_AND_PRIVACY_URL = "http://www.mediacallz.com/terms-of-service---privacy-policy.html";
     public static final String MEDIACALLZ_CONTENT_STORE_URL = "http://" + SharedConstants.STROAGE_SERVER_HOST + "/ContentStore/";
 
-    private static final String INCOMING_FOLDER_NAME = "Incoming_" + SharedConstants.APP_NAME;
-    private static final String OUTGOING_FOLDER_NAME = "Outgoing_" + SharedConstants.APP_NAME;
-    private static final String COMP_FOLDER_NAME = "Compressed_" + SharedConstants.APP_NAME;
-    private static final String HISTORY_FOLDER_NAME =  SharedConstants.APP_NAME +"_History";
+    private static final String INCOMING_FOLDER_NAME = SharedConstants.APP_NAME + "_Incoming";
+    private static final String OUTGOING_FOLDER_NAME = SharedConstants.APP_NAME + "_Outgoing";
+    private static final String COMP_FOLDER_NAME = SharedConstants.APP_NAME + "_Compressed";
+    private static final String HISTORY_FOLDER_NAME =  SharedConstants.APP_NAME + "_History";
     public static final String ROOT_FOLDER = setRootFolder();
     public static final String INCOMING_FOLDER = getIncomingFolder();
     public static final String OUTGOING_FOLDER = getOutgoingFolder();

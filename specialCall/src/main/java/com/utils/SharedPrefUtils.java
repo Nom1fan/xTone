@@ -24,7 +24,6 @@ public abstract class SharedPrefUtils {
     public static final String PROFILE_MEDIA_FILEPATH           =   "ProfileMediaFilePath";
     public static final String FUNTONE_FILEPATH                 =   "FunToneFilePath";
     public static final String SHOWCASE                         =   "Showcase";
-    public static final String COMPRESSED_FILES                 =   "COMPRESSED_FILES";
     public static final String TRIMMED_FILES                    =   "TRIMMED_FILES";
     //endregion
 
@@ -44,7 +43,6 @@ public abstract class SharedPrefUtils {
                 PROFILE_MEDIA_FILEPATH,
                 FUNTONE_FILEPATH,
                 SHOWCASE,
-                COMPRESSED_FILES,
                 TRIMMED_FILES
             ));
 
