@@ -5,7 +5,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Vibrator;
+import android.util.Log;
 
 import com.batch.android.Batch;
 import com.batch.android.Config;
@@ -16,6 +16,8 @@ import com.utils.UI_Utils;
 
 import DataObjects.SharedConstants;
 import io.fabric.sdk.android.Fabric;
+
+import static com.crashlytics.android.Crashlytics.log;
 
 /**
  * Created by mor on 10/09/2015.
@@ -91,12 +93,8 @@ public class MediaCallzApp extends Application {
     private void handleUncaughtException(Context context, Throwable e) {
         AppStateManager.setDidAppCrash(context, true);
 
-        try {
-            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            vibrator.cancel();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        log(Log.INFO, TAG, "Process you failed me! DIE PROCESS DIE !!!!");
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     protected boolean isNetworkAvailable() {
