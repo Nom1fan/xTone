@@ -170,6 +170,7 @@ public class IncomingService extends AbstractStandOutService {
         if (isBlocked) {
 
             if (state == TelephonyManager.CALL_STATE_RINGING) {
+                UI_Utils.dismissAllStandOutWindows(getApplicationContext());
                 _contactName = ContactsUtils.getContactName(getApplicationContext(), incomingNumber);
 
                 String permissionLevel = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
@@ -189,6 +190,7 @@ public class IncomingService extends AbstractStandOutService {
                     log(Log.INFO,TAG,"CALL_STATE_RINGING " + incomingNumber);
                     if (!isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && !isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(incomingNumber) && (mAnswered == false)) {
                         try {
+                            UI_Utils.dismissAllStandOutWindows(getApplicationContext());
                             SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.INCOMING_WINDOW_SESSION,true);
                             setRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION, true); // TODO placed here to fix a bug that sometimes it get entered twice (second time by the fallback receiver when we answer very quick) , is this a good place for it i don't know :/
                             String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, incomingNumber);

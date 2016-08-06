@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Vibrator;
 
 import com.batch.android.Batch;
 import com.batch.android.Config;
@@ -89,6 +90,13 @@ public class MediaCallzApp extends Application {
 
     private void handleUncaughtException(Context context, Throwable e) {
         AppStateManager.setDidAppCrash(context, true);
+
+        try {
+            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            vibrator.cancel();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     protected boolean isNetworkAvailable() {

@@ -345,6 +345,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
         saveInstanceState();
 
+        UI_Utils.dismissAllStandOutWindows(getApplicationContext());
 //        UI_Utils.unbindDrawables(findViewById(R.id.mainActivity));
 //        System.gc();
     }

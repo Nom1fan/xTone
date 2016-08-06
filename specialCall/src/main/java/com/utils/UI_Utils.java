@@ -3,6 +3,7 @@ package com.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,6 +26,8 @@ import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.mediacallz.app.R;
+import com.services.AbstractStandOutService;
+import com.services.PreviewService;
 
 import java.lang.reflect.Field;
 import java.util.Random;
@@ -324,6 +327,13 @@ public abstract class UI_Utils {
             _waitingForTransferSuccessDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
             log(Log.INFO,TAG, "waitingForTransferSuccessDialog.performClick();");
         }
+    }
+
+    public static void dismissAllStandOutWindows(Context context) {
+
+        Intent closePrevious = new Intent(context, PreviewService.class);
+        closePrevious.setAction(AbstractStandOutService.ACTION_CLOSE_ALL);
+        context.startService(closePrevious);
     }
 
 }
