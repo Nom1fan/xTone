@@ -174,7 +174,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         frame.addView(mcButtonsOverlay);
 
-        frame.setBackgroundColor(Color.BLACK);
+        mRelativeLayout.setBackgroundColor(Color.TRANSPARENT);
         windowCloseActionWasMade = false;
     }
 
