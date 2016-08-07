@@ -569,7 +569,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                 displayYoutubeVideo = (WebView) _windowVideoDialog.findViewById(R.id.set_window_video);
                 displayYoutubeVideo.setVisibility(View.VISIBLE);
-                String frameVideo = "<html><body>Video From YouTube<br><iframe width=\"280\" height=\"315\" src=\"https://www.youtube.com/embed/gsMnKiuzans\" frameborder=\"0\" allowfullscreen></iframe></body></html>";
+                String frameVideo = "<html><body>Video From YouTube<br><iframe width=\"280\" height=\"315\" src=\"https://www.youtube.com/embed/vkZE37dHErE\" frameborder=\"0\" allowfullscreen></iframe></body></html>";
                 Log.i(TAG, frameVideo);
                 displayYoutubeVideo.setWebViewClient(new WebViewClient() {
                     @Override
