@@ -12,10 +12,9 @@ import android.util.Log;
 import com.data_objects.Constants;
 import com.netcompss.loader.LoadJNI;
 
+import org.apache.commons.lang.time.DurationFormatUtils;
+
 import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 
 import FilesManager.FileManager;
@@ -174,7 +173,7 @@ public class FFMPEG_Utils {
         String start = convertMillisToTimeFormat(startTime);
         String end = convertMillisToTimeFormat(endTime);
 
-        Log.i(TAG, "Trim Through Audio Editor, Start: " + start + " End: " + end);
+        Log.i(TAG, "Trimming video. Start: " + start + " End: " + end);
 
         try {
 
@@ -212,7 +211,7 @@ public class FFMPEG_Utils {
         String start = convertMillisToTimeFormat(startTime);
         String end = convertMillisToTimeFormat(endTime);
 
-        Log.i(TAG, "Trimming audio file. Start: " + start + " End: " + end);
+        Log.i(TAG, "Trimming audio. Start: " + start + " End: " + end);
 
         try {
 
@@ -234,9 +233,7 @@ public class FFMPEG_Utils {
     }
 
     private String convertMillisToTimeFormat(Long time) {
-        DateFormat formatter = new SimpleDateFormat("mm:ss");
-        Date timeInMilli = new Date(time);
-        return formatter.format(timeInMilli);
+       return DurationFormatUtils.formatDurationHMS(time);
     }
 
     /**

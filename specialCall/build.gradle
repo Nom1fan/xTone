@@ -59,6 +59,7 @@ dependencies {
     compile project(':aFileChooser')
     compile 'com.android.support:support-v4:23.1.1'
     compile 'com.android.support:appcompat-v7:23.1.1'
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
     compile 'com.android.support:design:23.1.1'
     compile 'com.google.android.gms:play-services-gcm:9.2.0'
