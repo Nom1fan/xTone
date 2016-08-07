@@ -67,7 +67,7 @@ public class FFMPEG_Utils {
             String vCodec = extension2vCodec.get(baseFile.getFileExtension());
             File compressedFile = new File(compressedFilePath);
 
-            long duration = getFileDuration(context, baseFile); // In seconds
+            long duration = getFileDurationInSeconds(context, baseFile); // In seconds
             String bitrate = String.valueOf(MediaFileProcessingUtils.VIDEO_SIZE_COMPRESS_NEEDED * 8 / duration); // Units are bits/second
 
             // Command to reduce video bitrate
@@ -158,23 +158,30 @@ public class FFMPEG_Utils {
     }
 
     /**
-     * Trims a video/audio file from 0 seconds to endTime seconds, without re-encoding.
+     * Trims a video file from startTime seconds to endTime seconds, without re-encoding.
      *
-     * @param baseFile Video/audio file to trim
-     * @param trimmedFilepath  The path of the trimmed video/audio
-     * @param endTime  The time to end the cut in
-     * @param context  Application Context
-     * @return The trimmed video/audio file, if possible. Otherwise, null.
+     * @param baseFile  The video file to trim
+     * @param trimmedFilepath   The path of the trimmed video/audio
+     * @param startTime The time where to start the cut
+     * @param endTime   The time to end the cut in
+     * @param context
+     * @return The trimmed video file, if possible. Otherwise, null.
      */
-    public FileManager trim(FileManager baseFile, String trimmedFilepath, Long endTime, Context context) {
+    public FileManager trimVideo(FileManager baseFile, String trimmedFilepath, Long startTime, Long endTime, Context context) {
+
+        File trimmedFile = new File(trimmedFilepath);
+
+        String start = convertMillisToTimeFormat(startTime);
+        String end = convertMillisToTimeFormat(endTime);
+
+        Log.i(TAG, "Trim Through Audio Editor, Start: " + start + " End: " + end);
 
         try {
-            File trimmedFile = new File(trimmedFilepath);
 
             String[] complexCommand =
-            {"ffmpeg","-ss","00:00:00","-y","-i", baseFile.getFile().getAbsolutePath(),"-strict",
-                    "experimental","-acodec","aac","-ab","48000","-ac","2","-ar","22050","-t", endTime.toString(),"-vcodec",
-                    "copy", trimmedFilepath};
+                    {"ffmpeg","-ss",start,"-y","-i",baseFile.getFile().getAbsolutePath(),"-strict",
+                            "experimental","-acodec","aac","-ab","48000","-ac","2","-ar","22050","-t", end,"-vcodec",
+                            "copy", trimmedFilepath};
 
             _vk.run(complexCommand, workFolder, context);
             return new FileManager(trimmedFile);
@@ -189,33 +196,30 @@ public class FFMPEG_Utils {
     }
 
     /**
-     * Trims a video/audio file from startTime seconds to endTime seconds, without re-encoding.
+     * Trims an audio file from startTime seconds to endTime seconds, without re-encoding.
      *
-     * @param baseFile  Video/audio file to trim
-     * @param trimmedFilepath   The path of the trimmed video/audio
+     * @param baseFile  The audio file to trim
+     * @param trimmedFilepath   The path of the trimmed audio
      * @param startTime The time where to start the cut
      * @param endTime   The time to end the cut in
      * @param context
-     * @return The trimmed video/audio file, if possible. Otherwise, null.
+     * @return The trimmed audio file, if possible. Otherwise, null.
      */
-    public FileManager trim(FileManager baseFile, String trimmedFilepath, Long startTime, Long endTime, Context context) {
-
-        SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC, 0);
-        SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC, 0);
+    public FileManager trimAudio(FileManager baseFile, String trimmedFilepath, Long startTime, Long endTime, Context context) {
 
         File trimmedFile = new File(trimmedFilepath);
 
         String start = convertMillisToTimeFormat(startTime);
         String end = convertMillisToTimeFormat(endTime);
 
-        Log.i(TAG, "Trim Through Audio Editor, Start: " + start + " End: " + end);
+        Log.i(TAG, "Trimming audio file. Start: " + start + " End: " + end);
 
         try {
 
             String[] complexCommand =
-                    {"ffmpeg","-ss", start,"-y","-i", baseFile.getFile().getAbsolutePath(),"-strict",
-                            "experimental","-acodec","aac","-ab","48000","-ac","2","-ar","22050","-t", end,"-vcodec",
-                            "copy", trimmedFilepath};
+                    {"ffmpeg","-ss",start,"-y","-i", baseFile.getFile().getAbsolutePath(),"-strict"
+                            ,"experimental","-acodec","copy","-t", end,
+                            trimmedFilepath};
 
             _vk.run(complexCommand, workFolder, context);
             return new FileManager(trimmedFile);
@@ -259,13 +263,24 @@ public class FFMPEG_Utils {
      * @return The file duration in seconds
      * @see MediaMetadataRetriever
      */
-    public long getFileDuration(Context context, FileManager managedFile) {
+    public long getFileDurationInSeconds(Context context, FileManager managedFile) {
+        return getFileDurationInMilliSeconds(context, managedFile) / 1000;
+    }
+
+    /**
+     * Retrieves the file duration using MediaMetadataRetriever
+     *
+     * @param managedFile The file to retrieve its duration
+     * @return The file duration in milliseconds
+     * @see MediaMetadataRetriever
+     */
+    public long getFileDurationInMilliSeconds(Context context, FileManager managedFile) {
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(context, Uri.fromFile(managedFile.getFile()));
         String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
         long timeInMilli = Long.parseLong(time);
-        return timeInMilli / 1000;
+        return timeInMilli;
     }
 
     /**

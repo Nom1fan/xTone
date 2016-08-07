@@ -36,7 +36,7 @@ public class MediaFileProcessingUtils {
     public static final int AUDIO_SIZE_COMPRESS_NEEDED = 3145728; // 3MB
     public static final int IMAGE_SIZE_COMPRESS_NEEDED = 1048576; // 1MB
     public static final int AFTER_TRIM_SIZE_COMPRESS_NEEDED = 4194304; // 4MB
-    public static final long MAX_DURATION = 31;      // seconds
+    public static final long MAX_DURATION = 31 * 1000;      // Milliseconds
     public static final int MIN_RESOLUTION = 320;     // MIN width resolution
     public static final int FINISHED_TRANSCODING_MSG = 0;
     public static final int COMPRESSION_PHASE_2 = 1;
@@ -63,7 +63,7 @@ public class MediaFileProcessingUtils {
 
 
     //region Main media file processing methods
-    public FileManager trimMediaFile(FileManager baseFile, String trimmedFilePath ,Context context) {
+    public FileManager trimMediaFile(FileManager baseFile, String trimmedFilePath, Context context) {
 
         if (GeneralUtils.isLicenseValid(context, workFolder) < 0) {
             return baseFile;
@@ -77,10 +77,10 @@ public class MediaFileProcessingUtils {
         wakeLock.acquire();
 
         if (type.equals(FileManager.FileType.AUDIO))
-            trimmedFile = trimAudioAndVideo(baseFile, trimmedFilePath, AUDIO_SIZE_COMPRESS_NEEDED, context);
+            trimmedFile = trimAudio(baseFile, trimmedFilePath, context);
 
         if (type.equals(FileManager.FileType.VIDEO))
-            trimmedFile = trimAudioAndVideo(baseFile, trimmedFilePath, VIDEO_SIZE_COMPRESS_NEEDED, context);
+            trimmedFile = trimVideo(baseFile, trimmedFilePath, context);
 
         releaseWakeLock(wakeLock);
 
@@ -98,7 +98,7 @@ public class MediaFileProcessingUtils {
      * Compresses all file formats
      *
      * @param baseFile - The file to reduce its size if necessary
-     * @param context Application context
+     * @param context  Application context
      * @return The compressed file, if necessary (and possible). Otherwise, the base file.
      */
     public FileManager compressMediaFile(FileManager baseFile, String compressedFilePath, Context context) {
@@ -108,7 +108,7 @@ public class MediaFileProcessingUtils {
         }
 
         FileManager alreadyCompFile = getAlreadyCompFile(baseFile);
-        if(alreadyCompFile!=null)
+        if (alreadyCompFile != null)
             return alreadyCompFile;
 
         FileManager compressedFile = null;
@@ -132,7 +132,7 @@ public class MediaFileProcessingUtils {
 
         releaseWakeLock(wakeLock);
 
-        if(compressedFile!=null) {
+        if (compressedFile != null) {
             // This means we compressed a trimmed file which was still too large - Deleting trimmed to avoid duplicates
             if (isFileTrimmed(context, baseFile)) {
                 String trimmedFilePath = baseFile.getFile().getAbsolutePath();
@@ -236,66 +236,42 @@ public class MediaFileProcessingUtils {
     }
 
     private FileManager compressAudio(FileManager baseFile, String outputDir, Context context) {
-//        if (baseFile.getFileSize() <= AUDIO_SIZE_COMPRESS_NEEDED)
         return baseFile; //TODO check if there is a way to compress non-wav audio files further
     }
 
     @Nullable
-    private FileManager trimAudioAndVideo(FileManager baseFile, String trimmedFilePath, int sizeToCompress, Context context) {
+    private FileManager trimVideo(FileManager baseFile, String trimmedFilePath, Context context) {
 
         FileManager modifiedFile = null;
-        long duration = _ffmpeg_utils.getFileDuration(context, baseFile);
-        long startTime = SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC);
-        long endTime = SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC) - SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC);
+        TrimData trimData = new TrimData().getTrimData(context, "video");
+        long startTime = trimData.getStartTime();
+        long endTime = trimData.getEndTime();
 
-        Log.i(TAG, "Start time: " + startTime + " Endtime: " + endTime);
+        modifiedFile = _ffmpeg_utils.trimVideo(baseFile, trimmedFilePath, startTime, endTime, context);
+        return modifiedFile;
+    }
 
-        // Manual Trim from audio editor
-        if (endTime > 0) {
+    @Nullable
+    private FileManager trimAudio(FileManager baseFile, String trimmedFilePath, Context context) {
 
-            if (endTime > (MAX_DURATION*1000))
-                endTime =(MAX_DURATION*1000);
+        FileManager modifiedFile = null;
+        TrimData trimData = new TrimData().getTrimData(context, "audio");
+        long startTime = trimData.getStartTime();
+        long endTime = trimData.getEndTime();
 
-            log(Log.INFO, TAG, "Performing manual trim");
-            modifiedFile = _ffmpeg_utils.trim(baseFile, trimmedFilePath, startTime, endTime, context);
-            duration = _ffmpeg_utils.getFileDuration(context, modifiedFile);
-        }
-
-        //Auto Trim
-        if (duration > MAX_DURATION && baseFile.getFileSize() > sizeToCompress) {
-            log(Log.INFO, TAG, "Performing auto trim");
-            modifiedFile = _ffmpeg_utils.trim(baseFile, trimmedFilePath, MAX_DURATION, context);
-        }
-
+        modifiedFile = _ffmpeg_utils.trimAudio(baseFile, trimmedFilePath, startTime, endTime, context);
         return modifiedFile;
     }
     //endregion
 
-
-    @Nullable
-    private FileManager getAlreadyCompFile(FileManager baseFile) {
-        FileManager compressedFile = null;
-
-        try {
-            File potentialCompFile = MediaFilesUtils.getFileByMD5(baseFile.getMd5(), Constants.COMPRESSED_FOLDER);
-
-            // File already has a previously compressed file in compressed folder
-            if (potentialCompFile != null) {
-                compressedFile = MediaFilesUtils.createMediaFile(potentialCompFile);
-            }
-        } catch (Exception e) {
-            log(Log.WARN, TAG, "Failed to retrieve previously compressed file. Exception:" + e.getMessage());
-        }
-        return compressedFile;
-    }
-
+    //region Helper methods
     public boolean isCompressionNeeded(Context context, FileManager managedfile) {
 
         // Trim reduced file size enough - No need for compression
         if (isFileTrimmed(context, managedfile) && managedfile.getFileSize() < AFTER_TRIM_SIZE_COMPRESS_NEEDED)
             return false;
 
-        if(isFileCompressed(context, managedfile))
+        if (isFileCompressed(context, managedfile))
             return false;
 
         switch (managedfile.getFileType()) {
@@ -319,7 +295,7 @@ public class MediaFileProcessingUtils {
     public boolean isTrimNeeded(Context ctx, FileManager baseFile) {
         boolean isManualTrimNeeded = SharedPrefUtils.getInt(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC) > 0;
         boolean isAutoTrimNeeded = !baseFile.getFileType().equals(FileManager.FileType.IMAGE) &&
-                (_ffmpeg_utils.getFileDuration(ctx, baseFile) > MediaFileProcessingUtils.MAX_DURATION)
+                (_ffmpeg_utils.getFileDurationInMilliSeconds(ctx, baseFile) > MediaFileProcessingUtils.MAX_DURATION)
                 && (isCompressionNeeded(ctx, baseFile));
 
         return (isAutoTrimNeeded || isManualTrimNeeded);
@@ -330,7 +306,6 @@ public class MediaFileProcessingUtils {
         return fileType.equals(FileManager.FileType.IMAGE) &&
                 SharedPrefUtils.getInt(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.IMAGE_ROTATION_DEGREE) > 0;
     }
-
 
     private boolean isFileTrimmed(Context context, FileManager baseFile) {
         return SharedPrefUtils.getBoolean(context, SharedPrefUtils.TRIMMED_FILES, baseFile.getFile().getAbsolutePath());
@@ -350,6 +325,23 @@ public class MediaFileProcessingUtils {
         SharedPrefUtils.setBoolean(context, SharedPrefUtils.TRIMMED_FILES, trimmedFilePath, true);
     }
 
+    @Nullable
+    private FileManager getAlreadyCompFile(FileManager baseFile) {
+        FileManager compressedFile = null;
+
+        try {
+            File potentialCompFile = MediaFilesUtils.getFileByMD5(baseFile.getMd5(), Constants.COMPRESSED_FOLDER);
+
+            // File already has a previously compressed file in compressed folder
+            if (potentialCompFile != null) {
+                compressedFile = MediaFilesUtils.createMediaFile(potentialCompFile);
+            }
+        } catch (Exception e) {
+            log(Log.WARN, TAG, "Failed to retrieve previously compressed file. Exception:" + e.getMessage());
+        }
+        return compressedFile;
+    }
+
 
     private PowerManager.WakeLock getWakeLock(Context context) {
         PowerManager powerManager = (PowerManager) context.getSystemService(Activity.POWER_SERVICE);
@@ -364,40 +356,39 @@ public class MediaFileProcessingUtils {
             log(Log.INFO, TAG, "Wake lock is already released, doing nothing");
         }
     }
+    //endregion
 
-//    private void mapTrimmedFilePathToBaseFilePath(Context context, String baseFilePath, String trimmedFilePath) {
-//    }
+    //region Data objects
+    private class TrimData {
+        private long startTime;
+        private long endTime;
 
-//    /**
-//     * This method maps a filepath to its compressed filepath
-//     * @param context Application context
-//     * @param baseFilePath The filepath to map
-//     * @param compressedFilePath The compressed filepath to map to
-//     */
-//    private void markFileAsCompressed(Context context, String baseFilePath, String compressedFilePath) {
-//        SharedPrefUtils.setString(context, SharedPrefUtils.COMPRESSED_FILES, baseFilePath, compressedFilePath);
-//        // Mapping the compressed file to itself so we won't compress it again
-//        SharedPrefUtils.setString(context, SharedPrefUtils.COMPRESSED_FILES, compressedFilePath, compressedFilePath);
-//    }
+        public long getStartTime() {
+            return startTime;
+        }
 
-//    /**
-//     * Returns the compressed file mapped to this file if exists, null otherwise.
-//     * For already compressed files, the mapping should be the file itself.
-//     * @param context Application context
-//     * @param baseFile The file for which to get the compressed mapped to it
-//     * @return
-//     */
-//    private FileManager getCompressedFile(Context context, FileManager baseFile) {
-//        FileManager compressedFile = null;
-//        try {
-//
-//            String compFilePath = SharedPrefUtils.getString(context, SharedPrefUtils.COMPRESSED_FILES, baseFile.get_uncompdFileFullPath());
-//            if (!compFilePath.isEmpty()) {
-//                compressedFile = new FileManager(compFilePath);
-//            }
-//        } catch(Exception ignored) {}
-//
-//        return compressedFile;
-//    }
+        public long getEndTime() {
+            return endTime;
+        }
+
+        public TrimData getTrimData(Context context, String action) {
+            startTime = SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC);
+            endTime = SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC) - SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC);
+            boolean autoTrim = endTime <= 0;
+
+            Log.i(TAG, "Start time:" + startTime + " End time:" + endTime);
+
+            if (autoTrim) {
+                log(Log.INFO, TAG, "Performing auto trim " + action);
+                endTime = MAX_DURATION;
+            } else {
+                log(Log.INFO, TAG, "Performing manual trim " + action);
+                if (endTime > MAX_DURATION)
+                    endTime = MAX_DURATION;
+            }
+            return this;
+        }
+    }
+    //endregion
 
 }
