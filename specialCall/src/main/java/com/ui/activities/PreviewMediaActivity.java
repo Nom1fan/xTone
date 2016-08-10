@@ -3,6 +3,7 @@ package com.ui.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -17,12 +18,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.crashlytics.android.Crashlytics;
-import com.data_objects.ActivityRequestCodes;
-import com.handlers.Handler;
-import com.handlers.HandlerFactory;
 import com.mediacallz.app.R;
 import com.semantive.waveformandroid.waveform.WaveformFragment;
 import com.services.AbstractStandOutService;
@@ -31,6 +29,9 @@ import com.utils.BitmapUtils;
 import com.utils.SharedPrefUtils;
 
 import org.florescu.android.rangeseekbar.RangeSeekBar;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import FilesManager.FileManager;
 
@@ -43,6 +44,7 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
 
     public static final String MANAGED_MEDIA_FILE = "MANAGED_MEDIA_FILE";
     public static final String RESULT_FILE = "RESULT_FILE";
+    private final static int POOLING_INTERVAL_MS = 100;
 
     private static final String TAG = PreviewMediaActivity.class.getSimpleName();
     private FileManager _managedFile;
@@ -56,6 +58,9 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
     private final int MIN_MILISECS_FOR_AUDIO_EDIT = 3000;
     protected int startInMili;
     protected int endInMili;
+    private Timer timer;
+    private boolean isActive;
+    private VideoView trimVideoView;
 
     //region Activity methods (onCreate(), onPause()...)
     @Override
@@ -177,11 +182,18 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
                         startInMili=0;
                         endInMili=0;
 
-                        final VideoView trimVideoView = (VideoView) findViewById(R.id.trimvideo_view);
+                        trimVideoView = (VideoView) findViewById(R.id.trimvideo_view);
 
                         trimVideoView.setVideoURI(Uri.parse(_managedFile.getFileFullPath()));
                         trimVideoView.requestFocus();
                         trimVideoView.setVisibility(View.VISIBLE);
+                      //  trimVideoView.setMediaController(new MediaController(getApplicationContext()));
+                        trimVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                            public void onPrepared(MediaPlayer mp) {
+                                trimVideoView.setBackgroundColor(Color.TRANSPARENT);
+                            }
+                        });
+
                         RangeSeekBar videoSeekBar = (RangeSeekBar) findViewById(R.id.seekbar);
                         videoSeekBar.setVisibility(View.VISIBLE);
 
@@ -195,10 +207,8 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
                             @Override
                             public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, Integer minValue, Integer maxValue) {
 
-
-                                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, maxValue);
-                                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, minValue);
-
+                                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, minValue);
+                                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, maxValue);
 
                                 Log.i(TAG,"setOnRangeSeekBarChangeListener " + minValue + " " +maxValue  );
 
@@ -212,10 +222,16 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
 
                                 if (_isPreview) {
                                     trimVideoView.pause();
+                                    isActive = false;
+                                    cancelProgressPooling();
+
                                     _isPreview = false;
                                     _previewFile.setImageResource(R.drawable.play_preview_anim);
                                 } else {
+                                    trimVideoView.seekTo(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC));
                                     trimVideoView.start();
+                                    initVideoProgressPooling(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC));
+                                    isActive = true;
                                     _isPreview = true;
                                     _previewFile.setImageResource(R.drawable.stop_preview_anim);
                                 }
@@ -255,6 +271,37 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
         }
 
 
+    }
+
+    private void initVideoProgressPooling(final int stopAtMsec) {
+        cancelProgressPooling();
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                trimVideoView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!isActive) {
+                            cancelProgressPooling();
+                            return;
+                        }
+                        if(trimVideoView.getCurrentPosition() >= stopAtMsec) {
+                            trimVideoView.pause();
+                            cancelProgressPooling();
+                            Toast.makeText(getApplicationContext(), "Video has PAUSED at: " + trimVideoView.getCurrentPosition(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        }, 0, POOLING_INTERVAL_MS);
+    }
+
+    private void cancelProgressPooling() {
+        if(timer != null) {
+            timer.cancel();
+        }
+        timer = null;
     }
 
     public long getFileDurationInMilliSeconds(Context context, FileManager managedFile) {

@@ -186,7 +186,8 @@
         android:layout_below="@+id/upload_file_name"
         android:layout_above="@+id/seekbar"
         android:layout_alignParentLeft="true"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        android:background="#004559" />
 
     <org.florescu.android.rangeseekbar.RangeSeekBar
         android:layout_width="match_parent"
