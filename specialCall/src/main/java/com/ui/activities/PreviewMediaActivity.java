@@ -179,8 +179,7 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
 
                         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, 0);
                         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, 0);
-                        startInMili=0;
-                        endInMili=0;
+
 
                         trimVideoView = (VideoView) findViewById(R.id.trimvideo_view);
 
@@ -198,7 +197,8 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
                         videoSeekBar.setVisibility(View.VISIBLE);
 
                         long durationInMili = getFileDurationInMilliSeconds(getApplicationContext(),_managedFile);
-                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, Integer.parseInt(String.valueOf(durationInMili)));
+                        endInMili =  Integer.parseInt(String.valueOf(durationInMili));
+                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC,endInMili);
 
                         videoSeekBar.setRangeValues(0, durationInMili); // we want to display in seconds !!!
                         videoSeekBar.setNotifyWhileDragging(true);
@@ -207,6 +207,8 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
                             @Override
                             public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, Integer minValue, Integer maxValue) {
 
+                                startInMili=minValue;
+                                endInMili=maxValue;
                                 SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, minValue);
                                 SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, maxValue);
 
