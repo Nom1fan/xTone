@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,13 +17,20 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.VideoView;
 
+import com.crashlytics.android.Crashlytics;
+import com.data_objects.ActivityRequestCodes;
+import com.handlers.Handler;
+import com.handlers.HandlerFactory;
 import com.mediacallz.app.R;
 import com.semantive.waveformandroid.waveform.WaveformFragment;
 import com.services.AbstractStandOutService;
 import com.services.PreviewService;
 import com.utils.BitmapUtils;
 import com.utils.SharedPrefUtils;
+
+import org.florescu.android.rangeseekbar.RangeSeekBar;
 
 import FilesManager.FileManager;
 
@@ -77,8 +85,8 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
             public void onClick(View v) {
                 closePreview();
 
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC, startInMili);
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC, endInMili);
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, startInMili);
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, endInMili);
                 startInMili=0;
                 endInMili=0;
 
@@ -130,8 +138,8 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
 
                         _previewFile.setVisibility(View.INVISIBLE);
                         _previewFile.setClickable(false);
-                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC , 0);
-                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC , 0);
+                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, 0);
+                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, 0);
                         startInMili=0;
                         endInMili=0;
 
@@ -158,6 +166,69 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
 
             case VIDEO:
                 fileType.setText(getResources().getString(R.string.fileType_video));
+
+                final ImageButton edit_video = (ImageButton) findViewById(R.id.editAudio);
+                edit_video.setClickable(true);
+                edit_video.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+
+                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, 0);
+                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, 0);
+                        startInMili=0;
+                        endInMili=0;
+
+                        final VideoView trimVideoView = (VideoView) findViewById(R.id.trimvideo_view);
+
+                        trimVideoView.setVideoURI(Uri.parse(_managedFile.getFileFullPath()));
+                        trimVideoView.requestFocus();
+                        trimVideoView.setVisibility(View.VISIBLE);
+                        RangeSeekBar videoSeekBar = (RangeSeekBar) findViewById(R.id.seekbar);
+                        videoSeekBar.setVisibility(View.VISIBLE);
+
+                        long durationInMili = getFileDurationInMilliSeconds(getApplicationContext(),_managedFile);
+                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, Integer.parseInt(String.valueOf(durationInMili)));
+
+                        videoSeekBar.setRangeValues(0, durationInMili); // we want to display in seconds !!!
+                        videoSeekBar.setNotifyWhileDragging(true);
+
+                        videoSeekBar.setOnRangeSeekBarChangeListener(new RangeSeekBar.OnRangeSeekBarChangeListener<Integer>() {
+                            @Override
+                            public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, Integer minValue, Integer maxValue) {
+
+
+                                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, maxValue);
+                                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, minValue);
+
+
+                                Log.i(TAG,"setOnRangeSeekBarChangeListener " + minValue + " " +maxValue  );
+
+                                int current_pos = minValue; // in mili
+                                trimVideoView.seekTo(current_pos);
+                            }
+                        });
+
+                        _previewFile.setOnClickListener(new View.OnClickListener() {
+                            public void onClick(View v) {
+
+                                if (_isPreview) {
+                                    trimVideoView.pause();
+                                    _isPreview = false;
+                                    _previewFile.setImageResource(R.drawable.play_preview_anim);
+                                } else {
+                                    trimVideoView.start();
+                                    _isPreview = true;
+                                    _previewFile.setImageResource(R.drawable.stop_preview_anim);
+                                }
+                            }
+                        });
+
+                        edit_video.setVisibility(View.INVISIBLE);
+                        edit_video.setClickable(false);
+
+                    }
+                });
+                edit_video.setVisibility(View.VISIBLE);
+
                 break;
 
             case IMAGE:
@@ -185,6 +256,16 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
 
 
     }
+
+    public long getFileDurationInMilliSeconds(Context context, FileManager managedFile) {
+
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(context, Uri.fromFile(managedFile.getFile()));
+        String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        long timeInMilli = Long.parseLong(time);
+        return timeInMilli;
+    }
+
 
 
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -240,7 +321,7 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
 
                 _oldPosition = event.getY();
                 _moveLength = 0;
-               // Log.d(TAG,"Action was DOWN Y is: " + String.valueOf(oldPosition));
+                // Log.d(TAG,"Action was DOWN Y is: " + String.valueOf(oldPosition));
                 return true;
             case (MotionEvent.ACTION_MOVE) :
 
@@ -248,10 +329,10 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
                     _moveLength++;
                     _oldPosition = event.getY();
                 }
-               //     Log.d(TAG,"Action was MOVE Y is: " + String.valueOf(oldPosition) + " moveLength: " +String.valueOf(_moveLength));
-                    if (_moveLength > 4) {
-                        PreviewMediaActivity.this.finish();
-                    }
+                //     Log.d(TAG,"Action was MOVE Y is: " + String.valueOf(oldPosition) + " moveLength: " +String.valueOf(_moveLength));
+                if (_moveLength > 4) {
+                    PreviewMediaActivity.this.finish();
+                }
 
                 return true;
 
@@ -352,19 +433,19 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
 
         @Override
         public void updateDisplay() {
-        super.updateDisplay();
+            super.updateDisplay();
 
-                try {
-                    if ( mEndPos == 0) {
-                        return;
-                    }
-                    startInMili = mWaveformView.pixelsToMillisecs(mStartPos);
-                    endInMili = mWaveformView.pixelsToMillisecs(mEndPos);
-
-                }catch(Exception e)
-                {
-                    e.printStackTrace();
+            try {
+                if ( mEndPos == 0) {
+                    return;
                 }
+                startInMili = mWaveformView.pixelsToMillisecs(mStartPos);
+                endInMili = mWaveformView.pixelsToMillisecs(mEndPos);
+
+            }catch(Exception e)
+            {
+                e.printStackTrace();
+            }
         }
         /**
          * Optional - provide list of segments (start and stop values in seconds) and their corresponding colors
@@ -381,7 +462,7 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
     }
 }
 
-    //endregion
+//endregion
 
 
 

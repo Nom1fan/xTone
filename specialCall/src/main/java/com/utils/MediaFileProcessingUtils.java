@@ -293,7 +293,7 @@ public class MediaFileProcessingUtils {
     }
 
     public boolean isTrimNeeded(Context ctx, FileManager baseFile) {
-        boolean isManualTrimNeeded = SharedPrefUtils.getInt(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC) > 0;
+        boolean isManualTrimNeeded = SharedPrefUtils.getInt(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC) > 0;
         boolean isAutoTrimNeeded = !baseFile.getFileType().equals(FileManager.FileType.IMAGE) &&
                 (_ffmpeg_utils.getFileDurationInMilliSeconds(ctx, baseFile) > MediaFileProcessingUtils.MAX_DURATION)
                 && (isCompressionNeeded(ctx, baseFile));
@@ -372,8 +372,8 @@ public class MediaFileProcessingUtils {
         }
 
         public TrimData getTrimData(Context context, String action) {
-            startTime = SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC);
-            endTime = SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_END_TRIM_IN_MILISEC) - SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_START_TRIM_IN_MILISEC);
+            startTime = SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC);
+            endTime = SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC) - SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC);
             boolean autoTrim = endTime <= 0;
 
             Log.i(TAG, "Start time:" + startTime + " End time:" + endTime);

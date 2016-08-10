@@ -29,22 +29,22 @@ public abstract class SharedPrefUtils {
 
     public static final Set<String> allSharedPrefs = new HashSet<> (Arrays.asList(
 
-                GENERAL,
-                SETTINGS,
-                SERVICES,
-                RADIO_BUTTON_SETTINGS,
-                SERVER_PROXY,
-                UPLOADED_CALLER_MEDIA_THUMBNAIL,
-                UPLOADED_RINGTONE_PATH,
-                UPLOADED_PROFILE_MEDIA_THUMBNAIL,
-                UPLOADED_FUNTONE_PATH,
-                CALLER_MEDIA_FILEPATH,
-                RINGTONE_FILEPATH,
-                PROFILE_MEDIA_FILEPATH,
-                FUNTONE_FILEPATH,
-                SHOWCASE,
-                TRIMMED_FILES
-            ));
+            GENERAL,
+            SETTINGS,
+            SERVICES,
+            RADIO_BUTTON_SETTINGS,
+            SERVER_PROXY,
+            UPLOADED_CALLER_MEDIA_THUMBNAIL,
+            UPLOADED_RINGTONE_PATH,
+            UPLOADED_PROFILE_MEDIA_THUMBNAIL,
+            UPLOADED_FUNTONE_PATH,
+            CALLER_MEDIA_FILEPATH,
+            RINGTONE_FILEPATH,
+            PROFILE_MEDIA_FILEPATH,
+            FUNTONE_FILEPATH,
+            SHOWCASE,
+            TRIMMED_FILES
+    ));
 
     //region Shared pref keys under GENERAL
     public static final String DESTINATION_NUMBER                   =   "DestinationNumber";
@@ -72,8 +72,8 @@ public abstract class SharedPrefUtils {
     public static final String DID_APP_CRASH                        =   "DID_APP_CRASH";
     public static final String SELF_VIDEO_IMAGE_URI                 =   "OutputFileUriForVideoImageTaken";
     public static final String IMAGE_ROTATION_DEGREE                =   "ImageRotationDegree";
-    public static final String AUDIO_START_TRIM_IN_MILISEC          =   "AudioStartTrimInMiliSec";
-    public static final String AUDIO_END_TRIM_IN_MILISEC            =   "AudioEndTrimInMiliSec";
+    public static final String AUDIO_VIDEO_START_TRIM_IN_MILISEC    =   "AudioVideoStartTrimInMiliSec";
+    public static final String AUDIO_VIDEO_END_TRIM_IN_MILISEC      =   "AudioVideoEndTrimInMiliSec";
     //endregion
 
     //region Shared pref keys under SHOWCASE

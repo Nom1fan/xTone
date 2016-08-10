@@ -76,6 +76,7 @@ dependencies {
         transitive = true;
     }
     compile project(path: ':audio_waveform')
+    compile 'org.florescu.android.rangeseekbar:rangeseekbar-library:0.3.0'
 }
 
 crashlytics {
