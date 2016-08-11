@@ -1,8 +1,11 @@
 package com.utils;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.os.Build;
 import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
 
 import com.data_objects.Constants;
 
@@ -56,6 +59,14 @@ public abstract class InitUtils {
         SharedPrefUtils.setBoolean(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.DOWNLOAD_ONLY_ON_WIFI, false);
         SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION, 0);
         SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES, true);
+
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        SharedPrefUtils.setInt(context, SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET, size.y);
+        SharedPrefUtils.setInt(context, SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH, size.x);
 
     }
 
