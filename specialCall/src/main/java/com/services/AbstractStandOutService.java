@@ -306,7 +306,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 | StandOutFlags.FLAG_BODY_MOVE_ENABLE
                 | StandOutFlags.FLAG_WINDOW_HIDE_ENABLE
                 // | StandOutFlags.FLAG_WINDOW_BRING_TO_FRONT_ON_TAP
-                | StandOutFlags.FLAG_WINDOW_EDGE_LIMITS_ENABLE
+               //| StandOutFlags.FLAG_WINDOW_EDGE_LIMITS_ENABLE // fixing issue when orientation somehow becomes landscape when incoming call and moving back to portrait limits the window from landscape params and can't be moved because of the edge limits...
                 | StandOutFlags.FLAG_WINDOW_PINCH_RESIZE_ENABLE;
     }
 
