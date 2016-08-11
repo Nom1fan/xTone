@@ -53,6 +53,7 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
     private int _SMTypeCode;
     private boolean _isPreview = false;
     private ImageButton _previewFile;
+    private ImageButton _previewVideoTrimFile;
     private ImageButton _imageButton;
     private FileManager.FileType fType;
     private final int MIN_MILISECS_FOR_AUDIO_EDIT = 3000;
@@ -180,6 +181,10 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
                         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, 0);
                         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, 0);
 
+                        _previewFile.setVisibility(View.INVISIBLE);
+                        _previewFile.setClickable(false);
+                        _previewVideoTrimFile = (ImageButton) findViewById(R.id.playVideoTrimPreview);
+                        _previewVideoTrimFile.setVisibility(View.VISIBLE);
 
                         trimVideoView = (VideoView) findViewById(R.id.trimvideo_view);
 
@@ -219,7 +224,7 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
                             }
                         });
 
-                        _previewFile.setOnClickListener(new View.OnClickListener() {
+                        _previewVideoTrimFile.setOnClickListener(new View.OnClickListener() {
                             public void onClick(View v) {
 
                                 if (_isPreview) {
@@ -228,14 +233,14 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
                                     cancelProgressPooling();
 
                                     _isPreview = false;
-                                    _previewFile.setImageResource(R.drawable.play_preview_anim);
+                                    _previewVideoTrimFile.setImageResource(R.drawable.play_preview_anim);
                                 } else {
                                     trimVideoView.seekTo(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC));
                                     trimVideoView.start();
                                     initVideoProgressPooling(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC));
                                     isActive = true;
                                     _isPreview = true;
-                                    _previewFile.setImageResource(R.drawable.stop_preview_anim);
+                                    _previewVideoTrimFile.setImageResource(R.drawable.stop_preview_anim);
                                 }
                             }
                         });

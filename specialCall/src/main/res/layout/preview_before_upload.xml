@@ -83,6 +83,19 @@
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/playVideoTrimPreview"
+        android:layout_gravity="bottom|right"
+        android:visibility="invisible"
+        android:src="@drawable/play_preview_anim"
+        android:layout_alignTop="@+id/upload_btn"
+        android:layout_alignBottom="@+id/upload_btn"
+        android:background="#004559"
+        android:cropToPadding="true"
+        android:layout_centerHorizontal="true" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:clickable="true"
         android:scaleType="fitCenter"
         android:id="@+id/preview_thumbnail"
