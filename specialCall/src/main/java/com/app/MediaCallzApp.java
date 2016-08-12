@@ -3,8 +3,8 @@ package com.app;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
@@ -14,6 +14,7 @@ import com.batch.android.Config;
 import com.crashlytics.android.Crashlytics;
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
+import com.utils.BitmapUtils;
 import com.utils.InitUtils;
 import com.utils.UI_Utils;
 
@@ -46,7 +47,11 @@ public class MediaCallzApp extends Application {
         Batch.Push.setManualDisplay(true);
         Batch.setConfig(new Config(SharedConstants.LIVE_API_KEY));
 
-        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.color_mc);
+        Drawable d = getResources().getDrawable(R.drawable.color_mc);
+        int h = d.getIntrinsicHeight();
+        int w = d.getIntrinsicWidth();
+
+        Bitmap largeIcon = BitmapUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.color_mc,w,h);
         Batch.Push.setLargeIcon(largeIcon);
 
         try {
