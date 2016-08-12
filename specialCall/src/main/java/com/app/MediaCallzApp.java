@@ -2,6 +2,8 @@ package com.app;
 
 import android.app.Application;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -11,6 +13,7 @@ import com.batch.android.Batch;
 import com.batch.android.Config;
 import com.crashlytics.android.Crashlytics;
 import com.data_objects.Constants;
+import com.mediacallz.app.R;
 import com.utils.InitUtils;
 import com.utils.UI_Utils;
 
@@ -42,6 +45,9 @@ public class MediaCallzApp extends Application {
         Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
         Batch.Push.setManualDisplay(true);
         Batch.setConfig(new Config(SharedConstants.LIVE_API_KEY));
+
+        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.color_mc);
+        Batch.Push.setLargeIcon(largeIcon);
 
         try {
 
