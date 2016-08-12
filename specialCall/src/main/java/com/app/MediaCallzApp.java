@@ -29,13 +29,14 @@ public class MediaCallzApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Fabric.with(this, new Crashlytics());
 
         android.os.Process.setThreadPriority(-20);
         Context context = getApplicationContext();
 
         setupHandlerForUncaughtExceptions(context);
 
+        // this must be after the setupHandlerForUncaughtExceptions so it will send the exceptions before it kill process
+        Fabric.with(this, new Crashlytics());
 
         // Initializing Batch for push notifications
         Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
