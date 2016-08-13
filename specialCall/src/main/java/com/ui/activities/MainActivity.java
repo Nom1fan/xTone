@@ -496,10 +496,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
-    private void startDefaultProfileMediaActivity() {
-        Intent i = new Intent(MainActivity.this, DefaultProfileMediaActivity.class);
-        startActivity(i);
-    }
+//    private void startDefaultProfileMediaActivity() {
+//        Intent i = new Intent(MainActivity.this, DefaultProfileMediaActivity.class);
+//        startActivity(i);
+//    }
 
     private void startPreviewStandoutWindow(SpecialMediaType specialMediaType) {
 
@@ -1159,27 +1159,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             // case 0://Media Management
             //   appSettings();
             //      break;
-            case 1: // Default Profile Media
-                startDefaultProfileMediaActivity();
-                break;
-            case 2: // Who Can MC me
+//            case 1: // Default Profile Media
+//                startDefaultProfileMediaActivity();
+//                break;
+            case 1: // Who Can MC me
                 BlockMCContacts();
                 break;
-            case 3: // App Settings
+            case 2: // App Settings
                 appSettings();
                 break;
-            case 4: // About & Help
+            case 3: // About & Help
                 appAboutAndHelp();
-
-                break;
-
-            default:
                 break;
         }
 
-
         mDrawerLayout.closeDrawer(DrawerList);
-
     }
 
     private void appSettings() {
