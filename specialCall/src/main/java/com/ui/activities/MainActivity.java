@@ -1138,7 +1138,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         //   dataList.add(new DrawerItem(getResources().getString(R.string.media_management), R.drawable.mediaicon));
         dataList.add(new DrawerItem("", R.drawable.color_mc));
-        dataList.add(new DrawerItem(getResources().getString(R.string.default_profile_media), R.drawable.default_profile_media));
+     //   dataList.add(new DrawerItem(getResources().getString(R.string.default_profile_media), R.drawable.default_profile_media));
         dataList.add(new DrawerItem(getResources().getString(R.string.who_can_mc_me), R.drawable.blackwhitelist));
 //        dataList.add(new DrawerItem("How To ?", R.drawable.questionmark));
 //        dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
