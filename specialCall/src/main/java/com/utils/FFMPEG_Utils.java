@@ -178,9 +178,14 @@ public class FFMPEG_Utils {
         try {
 
             String[] complexCommand =
-                    {"ffmpeg","-ss",start,"-y","-i",baseFile.getFile().getAbsolutePath(),"-strict",
-                            "experimental","-acodec","aac","-ab","48000","-ac","2","-ar","22050","-t", end,"-vcodec",
-                            "copy", trimmedFilepath};
+                    {"ffmpeg","-ss", start,"-y","-itsoffset","0.1","-i",baseFile.getFile().getAbsolutePath(),"-strict",
+                            "experimental","-acodec","copy","-t",end,"-vcodec",
+                            "copy",trimmedFilepath};
+
+//            String[] complexCommand =
+//                    {"ffmpeg","-ss",start,"-y","-i",baseFile.getFile().getAbsolutePath(),"-strict",
+//                            "experimental","-acodec","aac","-ab","48000","-ac","2","-ar","22050","-t", end,"-vcodec",
+//                            "copy", trimmedFilepath};
 
             _vk.run(complexCommand, workFolder, context);
             return new FileManager(trimmedFile);
