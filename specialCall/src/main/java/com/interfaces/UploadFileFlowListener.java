@@ -1,5 +1,6 @@
 package com.interfaces;
 
+import android.content.Context;
 import android.os.Bundle;
 
 /**
@@ -7,5 +8,5 @@ import android.os.Bundle;
  */
 public interface UploadFileFlowListener {
 
-    void continueUploadFileFlow(int order, Bundle bundle);
+    void continueUploadFileFlow(Context context, int order, Bundle bundle);
 }

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioManager;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,7 +17,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.mediacallz.app.R;
@@ -26,6 +24,7 @@ import com.semantive.waveformandroid.waveform.WaveformFragment;
 import com.services.AbstractStandOutService;
 import com.services.PreviewService;
 import com.utils.BitmapUtils;
+import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
 
 import org.florescu.android.rangeseekbar.RangeSeekBar;
@@ -40,7 +39,7 @@ import static com.crashlytics.android.Crashlytics.log;
 /**
  * Created by rony on 29/01/2016.
  */
-public class PreviewMediaActivity extends AppCompatActivity implements View.OnClickListener {
+public class PreviewMediaActivity extends AppCompatActivity {
 
     public static final String MANAGED_MEDIA_FILE = "MANAGED_MEDIA_FILE";
     public static final String RESULT_FILE = "RESULT_FILE";
@@ -51,8 +50,8 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
     private float _oldPosition =0;
     private int _moveLength = 0;
     private int _SMTypeCode;
-    private boolean _isPreview = false;
-    private ImageButton _previewFile;
+    private boolean isPreviewDisplaying = false;
+    private ImageButton previewThumbnail;
     private ImageButton _previewVideoTrimFile;
     private ImageButton _imageButton;
     private FileManager.FileType fType;
@@ -86,6 +85,59 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
         fileName.setText(FileManager.getFileNameWithExtension(_managedFile.getFileFullPath()));
         fType = _managedFile.getFileType();
 
+        prepareUploadBtn();
+
+        prepareCancelBtn();
+
+        preparePlayPreviewBtn();
+
+        switch (fType) {
+            case AUDIO:
+                handlePreviewAudio(fileType);
+                break;
+
+            case VIDEO:
+                handlePreviewVideo(fileType);
+                break;
+
+            case IMAGE:
+                handlePreviewImage(fileType);
+                break;
+        }
+
+
+    }
+
+    private void preparePlayPreviewBtn() {
+        previewThumbnail = (ImageButton) findViewById(R.id.playPreview);
+        previewThumbnail.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                if (isPreviewDisplaying) {
+                    closePreview();
+                    isPreviewDisplaying = false;
+                    previewThumbnail.setImageResource(R.drawable.play_preview_anim);
+                } else {
+                    startPreviewStandoutWindow(_managedFile.getFileFullPath() , fType);
+                    isPreviewDisplaying = true;
+                    previewThumbnail.setImageResource(R.drawable.stop_preview_anim);
+                }
+            }
+        });
+    }
+
+    private void prepareCancelBtn() {
+        ImageButton cancel = (ImageButton) findViewById(R.id.cancel_btn);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                closePreview();
+                getSupportFragmentManager().popBackStack(); // closes the audio editor fragment in case it is still playing audio
+                finish();
+            }
+        });
+    }
+
+    private void prepareUploadBtn() {
         ImageButton upload = (ImageButton) findViewById(R.id.upload_btn);
         upload.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -101,183 +153,146 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
                 returnFile(_managedFile);
             }
         });
+    }
 
-        ImageButton cancel = (ImageButton) findViewById(R.id.cancel_btn);
-        cancel.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                closePreview();
-                getSupportFragmentManager().popBackStack(); // closes the audio editor fragment in case it is still playing audio
-                finish();
-            }
-        });
+    private void handlePreviewImage(TextView fileType) {
+        fileType.setText(getResources().getString(R.string.fileType_image));
 
-        _previewFile = (ImageButton) findViewById(R.id.playPreview);
-        _previewFile.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-                if (_isPreview) {
-                    closePreview();
-                    _isPreview = false;
-                    _previewFile.setImageResource(R.drawable.play_preview_anim);
-                } else {
-                    startPreviewStandoutWindow(_managedFile.getFileFullPath() , fType);
-                    _isPreview = true;
-                    _previewFile.setImageResource(R.drawable.stop_preview_anim);
+        if (!_managedFile.getFileExtension().toLowerCase().contains("gif")) {
+            ImageButton rotate = (ImageButton) findViewById(R.id.rotate_button);
+            SharedPrefUtils.setInt(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.IMAGE_ROTATION_DEGREE,0);
+            rotate.setClickable(true);
+            rotate.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    _imageButton.setRotation((_imageButton.getRotation() + 90)%360);
+                    SharedPrefUtils.setInt(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.IMAGE_ROTATION_DEGREE,Math.round(_imageButton.getRotation()));
                 }
-            }
-        });
+            });
+            rotate.setVisibility(View.VISIBLE);
+            previewThumbnail.setVisibility(View.INVISIBLE);
+            previewThumbnail.setClickable(false);
+            TextView rotateTextview = (TextView) findViewById(R.id.rotate_textview);
+            rotateTextview.setVisibility(View.VISIBLE);
+        }
+    }
 
-        switch (fType) {
-            case AUDIO:
-                fileType.setText(getResources().getString(R.string.fileType_audio));
+    private void handlePreviewVideo(TextView fileType) {
+        fileType.setText(getResources().getString(R.string.fileType_video));
 
-                MediaPlayer mp = MediaPlayer.create(PreviewMediaActivity.this, Uri.parse(_managedFile.getFileFullPath()));
-                if  (mp.getDuration() <= MIN_MILISECS_FOR_AUDIO_EDIT) {
-                    break;
-                }
+        final ImageButton edit_video = (ImageButton) findViewById(R.id.editAudio);
+        edit_video.setClickable(true);
+        edit_video.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
 
-                final ImageButton edit_audio = (ImageButton) findViewById(R.id.editAudio);
-                edit_audio.setClickable(true);
-                edit_audio.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, 0);
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, 0);
 
+               // previewThumbnail.setVisibility(View.INVISIBLE);
+                previewThumbnail.setClickable(false);
+                _previewVideoTrimFile = (ImageButton) findViewById(R.id.playVideoTrimPreview);
+                _previewVideoTrimFile.setVisibility(View.VISIBLE);
 
-                        _previewFile.setVisibility(View.INVISIBLE);
-                        _previewFile.setClickable(false);
-                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, 0);
-                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, 0);
-                        startInMili=0;
-                        endInMili=0;
+                trimVideoView = (VideoView) findViewById(R.id.trimvideo_view);
 
-
-                        FrameLayout waveFrame = (FrameLayout) findViewById(R.id.container);
-                        waveFrame.setVisibility(View.VISIBLE);
-
-
-                        getSupportFragmentManager().beginTransaction()
-                                .add(R.id.container, new CustomWaveformFragment(_managedFile.getFileFullPath(),getApplicationContext()))
-                                .commit();
-
-                        edit_audio.setVisibility(View.INVISIBLE);
-                        edit_audio.setClickable(false);
-
-
+                trimVideoView.setVideoURI(Uri.parse(_managedFile.getFileFullPath()));
+                trimVideoView.requestFocus();
+                trimVideoView.setVisibility(View.VISIBLE);
+                trimVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    public void onPrepared(MediaPlayer mp) {
+                        trimVideoView.setBackgroundColor(Color.TRANSPARENT);
                     }
                 });
-                edit_audio.setVisibility(View.VISIBLE);
 
+                RangeSeekBar videoSeekBar = (RangeSeekBar) findViewById(R.id.seekbar);
+                videoSeekBar.setVisibility(View.VISIBLE);
 
+                long durationInMili = MediaFilesUtils.getFileDurationInMilliSeconds(getApplicationContext(), _managedFile);
+                endInMili =  Integer.parseInt(String.valueOf(durationInMili));
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC,endInMili);
 
-                break;
+                videoSeekBar.setRangeValues(0, durationInMili); // TODO We want to display in time format !!!
+                videoSeekBar.setNotifyWhileDragging(true);
 
-            case VIDEO:
-                fileType.setText(getResources().getString(R.string.fileType_video));
+                videoSeekBar.setOnRangeSeekBarChangeListener(new RangeSeekBar.OnRangeSeekBarChangeListener<Integer>() {
+                    @Override
+                    public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, Integer minValue, Integer maxValue) {
 
-                final ImageButton edit_video = (ImageButton) findViewById(R.id.editAudio);
-                edit_video.setClickable(true);
-                edit_video.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
+                        startInMili=minValue;
+                        endInMili=maxValue;
+                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, minValue);
+                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, maxValue);
 
-                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, 0);
-                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, 0);
+                        Log.i(TAG,"setOnRangeSeekBarChangeListener " + minValue + " " +maxValue  );
 
-                        _previewFile.setVisibility(View.INVISIBLE);
-                        _previewFile.setClickable(false);
-                        _previewVideoTrimFile = (ImageButton) findViewById(R.id.playVideoTrimPreview);
-                        _previewVideoTrimFile.setVisibility(View.VISIBLE);
-
-                        trimVideoView = (VideoView) findViewById(R.id.trimvideo_view);
-
-                        trimVideoView.setVideoURI(Uri.parse(_managedFile.getFileFullPath()));
-                        trimVideoView.requestFocus();
-                        trimVideoView.setVisibility(View.VISIBLE);
-                      //  trimVideoView.setMediaController(new MediaController(getApplicationContext()));
-                        trimVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                            public void onPrepared(MediaPlayer mp) {
-                                trimVideoView.setBackgroundColor(Color.TRANSPARENT);
-                            }
-                        });
-
-                        RangeSeekBar videoSeekBar = (RangeSeekBar) findViewById(R.id.seekbar);
-                        videoSeekBar.setVisibility(View.VISIBLE);
-
-                        long durationInMili = getFileDurationInMilliSeconds(getApplicationContext(),_managedFile);
-                        endInMili =  Integer.parseInt(String.valueOf(durationInMili));
-                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC,endInMili);
-
-                        videoSeekBar.setRangeValues(0, durationInMili); // we want to display in seconds !!!
-                        videoSeekBar.setNotifyWhileDragging(true);
-
-                        videoSeekBar.setOnRangeSeekBarChangeListener(new RangeSeekBar.OnRangeSeekBarChangeListener<Integer>() {
-                            @Override
-                            public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, Integer minValue, Integer maxValue) {
-
-                                startInMili=minValue;
-                                endInMili=maxValue;
-                                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, minValue);
-                                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, maxValue);
-
-                                Log.i(TAG,"setOnRangeSeekBarChangeListener " + minValue + " " +maxValue  );
-
-                                int current_pos = minValue; // in mili
-                                trimVideoView.seekTo(current_pos);
-                            }
-                        });
-
-                        _previewVideoTrimFile.setOnClickListener(new View.OnClickListener() {
-                            public void onClick(View v) {
-
-                                if (_isPreview) {
-                                    trimVideoView.pause();
-                                    isActive = false;
-                                    cancelProgressPooling();
-
-                                    _isPreview = false;
-                                    _previewVideoTrimFile.setImageResource(R.drawable.play_preview_anim);
-                                } else {
-                                    trimVideoView.seekTo(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC));
-                                    trimVideoView.start();
-                                    initVideoProgressPooling(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC));
-                                    isActive = true;
-                                    _isPreview = true;
-                                    _previewVideoTrimFile.setImageResource(R.drawable.stop_preview_anim);
-                                }
-                            }
-                        });
-
-                        edit_video.setVisibility(View.INVISIBLE);
-                        edit_video.setClickable(false);
-
+                        int current_pos = minValue; // in mili
+                        trimVideoView.seekTo(current_pos);
                     }
                 });
-                edit_video.setVisibility(View.VISIBLE);
 
-                break;
+                _previewVideoTrimFile.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
 
-            case IMAGE:
+                        if (isPreviewDisplaying) {
+                            trimVideoView.pause();
+                            isActive = false;
+                            cancelProgressPooling();
 
-                fileType.setText(getResources().getString(R.string.fileType_image));
-
-                if (!_managedFile.getFileExtension().toLowerCase().contains("gif")) {
-                    ImageButton rotate = (ImageButton) findViewById(R.id.rotate_button);
-                    SharedPrefUtils.setInt(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.IMAGE_ROTATION_DEGREE,0);
-                    rotate.setClickable(true);
-                    rotate.setOnClickListener(new View.OnClickListener() {
-                        public void onClick(View v) {
-                            _imageButton.setRotation((_imageButton.getRotation() + 90)%360);
-                            SharedPrefUtils.setInt(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.IMAGE_ROTATION_DEGREE,Math.round(_imageButton.getRotation()));
+                            isPreviewDisplaying = false;
+                            _previewVideoTrimFile.setImageResource(R.drawable.play_preview_anim);
+                        } else {
+                            trimVideoView.seekTo(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC));
+                            trimVideoView.start();
+                            initVideoProgressPooling(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC));
+                            isActive = true;
+                            isPreviewDisplaying = true;
+                            _previewVideoTrimFile.setImageResource(R.drawable.stop_preview_anim);
                         }
-                    });
-                    rotate.setVisibility(View.VISIBLE);
-                    _previewFile.setVisibility(View.INVISIBLE);
-                    _previewFile.setClickable(false);
-                    TextView rotateTextview = (TextView) findViewById(R.id.rotate_textview);
-                    rotateTextview.setVisibility(View.VISIBLE);
-                }
-                break;
+                    }
+                });
+
+                edit_video.setVisibility(View.INVISIBLE);
+                edit_video.setClickable(false);
+
+            }
+        });
+        edit_video.setVisibility(View.VISIBLE);
+    }
+
+    private void handlePreviewAudio(TextView fileType) {
+        fileType.setText(getResources().getString(R.string.fileType_audio));
+
+        MediaPlayer mp = MediaPlayer.create(PreviewMediaActivity.this, Uri.parse(_managedFile.getFileFullPath()));
+        if  (mp.getDuration() <= MIN_MILISECS_FOR_AUDIO_EDIT) {
+            return;
         }
 
+        final ImageButton edit_audio = (ImageButton) findViewById(R.id.editAudio);
+        edit_audio.setClickable(true);
+        edit_audio.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
 
+
+                previewThumbnail.setVisibility(View.INVISIBLE);
+                previewThumbnail.setClickable(false);
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, 0);
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, 0);
+                startInMili=0;
+                endInMili=0;
+
+
+                FrameLayout waveFrame = (FrameLayout) findViewById(R.id.container);
+                waveFrame.setVisibility(View.VISIBLE);
+
+
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container, new CustomWaveformFragment(_managedFile.getFileFullPath(),getApplicationContext()))
+                        .commit();
+
+                edit_audio.setVisibility(View.INVISIBLE);
+                edit_audio.setClickable(false);
+            }
+        });
+        edit_audio.setVisibility(View.VISIBLE);
     }
 
     private void initVideoProgressPooling(final int stopAtMsec) {
@@ -296,7 +311,7 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
                         if(trimVideoView.getCurrentPosition() >= stopAtMsec) {
                             trimVideoView.pause();
                             cancelProgressPooling();
-                            Toast.makeText(getApplicationContext(), "Video has PAUSED at: " + trimVideoView.getCurrentPosition(), Toast.LENGTH_SHORT).show();
+                           // Toast.makeText(getApplicationContext(), "Video has PAUSED at: " + trimVideoView.getCurrentPosition(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -310,17 +325,6 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
         }
         timer = null;
     }
-
-    public long getFileDurationInMilliSeconds(Context context, FileManager managedFile) {
-
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(context, Uri.fromFile(managedFile.getFile()));
-        String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        long timeInMilli = Long.parseLong(time);
-        return timeInMilli;
-    }
-
-
 
     public void onWindowFocusChanged(boolean hasFocus) {
         // TODO Auto-generated method stub
@@ -397,8 +401,7 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
 
     //endregion
 
-    //region Assisting methods (onClick(), takePicture(), ...)
-
+    //region Assisting methods (ReturnFile(), startPreviewStandoutWindow(), ...)
     private void returnFile(FileManager managedFile) {
 
         Intent resultIntent = new Intent();
@@ -418,11 +421,6 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
         }
 
         finish();
-    }
-
-    @Override
-    public void onClick(View v) {
-
     }
 
     private void startPreviewStandoutWindow(String filepath , FileManager.FileType fType) {
@@ -514,9 +512,8 @@ public class PreviewMediaActivity extends AppCompatActivity implements View.OnCl
                     new Segment(58.4, 59.9, Color.rgb(184, 92, 184)));
         }*/
     }
+    //endregion
 }
-
-//endregion
 
 
 

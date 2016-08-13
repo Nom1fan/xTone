@@ -26,6 +26,7 @@ import com.utils.UI_Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import DataObjects.SpecialMediaType;
 import utils.PhoneNumberUtils;
@@ -78,9 +79,10 @@ public class OutgoingService extends AbstractStandOutService {
 
     @Override
     public boolean onShow(int id, Window window) {
-        super.onShow(id, window);  // at last so the volume will return to the previous(since when it was showed) , to make the volume always mute after Unhide move it to the Start of the method.
+        super.onShow(id, window);  // at last so the volume will return to the previous (since when it was showed) , to make the volume always mute after Unhide move it to the Start of the method.
 
-            setVolumeSilentForOutgoingCalls(); // outgoing calls should start in MUTE first
+        // TODO Change this if we find a way to detect call pickup in outgoing calls
+            setVolumeSilentForOutgoingCalls(); // outgoing calls should start in MUTE first because we can't detect when the call was answered
             log(Log.INFO,TAG, "setVolumeSilentForOutgoingCalls");
 
         return false;
@@ -261,7 +263,7 @@ public class OutgoingService extends AbstractStandOutService {
                     _contactName = ContactsUtils.getContactName(getApplicationContext(), outgoingCallNumber);
 
                     String permissionLevel = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
-                    if (permissionLevel != PermissionBlockListLevel.CONTACTS_ONLY && permissionLevel != PermissionBlockListLevel.NO_ONE) {
+                    if (!Objects.equals(permissionLevel, PermissionBlockListLevel.CONTACTS_ONLY) && !Objects.equals(permissionLevel, PermissionBlockListLevel.NO_ONE)) {
                         {
                             if (_contactName.isEmpty())
                                 UI_Utils.callToast("MediaCallz: " + outgoingCallNumber + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
@@ -278,7 +280,7 @@ public class OutgoingService extends AbstractStandOutService {
 
                         try {
 
-                            try { // suppose to solve a bug in samsung that the window shows too fast and make the call screen white. need to let the call screen start before showing our window
+                            try { // Supposed to solve a bug in Samsung that the window shows too fast and make the call screen white. need to let the call screen start before showing our window
                                 Thread.sleep(700);
                             }catch (Exception e){
                                 e.printStackTrace();

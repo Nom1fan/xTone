@@ -1,8 +1,6 @@
 package com.ui.activities;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,14 +9,9 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.PowerManager;
 import android.provider.ContactsContract;
-import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -52,25 +45,21 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.actions.ActionFactory;
-import com.actions.ClientAction;
 import com.app.AppStateManager;
 import com.async_tasks.AutoCompletePopulateListAsyncTask;
 import com.async_tasks.IsRegisteredTask;
-import com.async_tasks.MediaProcessingAsyncTask;
 import com.batch.android.Batch;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.data_objects.Contact;
+import com.data_objects.KeysForBundle;
 import com.data_objects.SnackbarData;
+import com.flows.UploadFileFlow;
 import com.interfaces.ICallbackListener;
-import com.interfaces.UploadFileFlowListener;
 import com.mediacallz.app.R;
 import com.netcompss.ffmpeg4android.GeneralUtils;
-import com.netcompss.ffmpeg4android.ProgressCalculator;
-import com.netcompss.loader.LoadJNI;
 import com.services.AbstractStandOutService;
 import com.services.IncomingService;
 import com.services.LogicServerProxyService;
@@ -80,160 +69,74 @@ import com.ui.dialogs.ClearMediaDialog;
 import com.ui.dialogs.InviteDialog;
 import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
-import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
-import java.io.BufferedInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 
-import ClientObjects.ConnectionToServer;
-import ClientObjects.IServerProxy;
 import DataObjects.DataKeys;
-import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
 import EventObjects.Event;
 import EventObjects.EventReport;
-import EventObjects.EventType;
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
 import FilesManager.FileManager;
-import MessagesToClient.MessageToClient;
-import MessagesToServer.MessageToServer;
-import MessagesToServer.ServerActionType;
 import utils.PhoneNumberUtils;
 
 import static com.crashlytics.android.Crashlytics.log;
 import static com.crashlytics.android.Crashlytics.setUserIdentifier;
 
-public class MainActivity extends AppCompatActivity implements OnClickListener, UploadFileFlowListener, ICallbackListener {
-
-    //region Keys for bundle
-    private static final String DEST_ID = "DEST_ID";
-    private static final String DEST_NAME = "DEST_NAME";
-    private static final String FILE_FOR_UPLOAD = "FILE_FOR_UPLOAD";
-    private static final String SPEC_MEDIA_TYPE = "SPEC_MEDIA_TYPE";
-    //endregion
+public class MainActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
 
     private final String TAG = MainActivity.class.getSimpleName();
-    private final Object _lock = new Object();
-    private String _destPhoneNumber = "";
-    private String _destName = "";
-    private LoadJNI _vk = new LoadJNI();
+    private String destPhoneNumber = "";
+    private String destName = "";
     private boolean wentThroughOnCreate = false;
     private WebView displayYoutubeVideo;
 
     //region UI elements
-    private ImageButton _selectContactBtn;
-    private ImageButton _selectMediaBtn;
-    private ImageButton _selectMediaBtn_small;
-    private TextView _selectMediaBtn_textview;
-    private TextView _selectMediaBtn_textview2;
-    //  private TextView _callBtn_textview;
-    private ImageButton _callBtn;
-    private ImageButton _clearText;
-    private ProgressBar _fetchUserPbar;
-    private BroadcastReceiver _eventReceiver;
-    private IntentFilter _eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
-    private AutoCompleteTextView _autoCompleteTextViewDestPhone;
-    private ListView _DrawerList;
-    private ActionBarDrawerToggle _mDrawerToggle;
-    private DrawerLayout _mDrawerLayout;
-    private ImageView _mediaStatus;
-    private ImageButton _defaultpic_enabled;
-    private TextView _ringToneNameTextView;
-    private TextView _ringToneNameForProfileTextView;
-    private TextView _profile_textview;
-    private TextView _profile_textview2;
-    private RelativeLayout _mainActivityLayout;
-    private ImageView _ringtoneStatus;
-    private AutoCompleteTextView _destinationEditText;
-    private TextView _destTextView;
-    private boolean _profileHasMedia = false;
-    private boolean _callerHasMedia = false;
-    private boolean _profileHasRingtone = false;
-    private boolean _callerHasRingtone = false;
-    private volatile boolean _contCalcProgress = false;
-    private volatile boolean _updateThreadNextIterStarted = false;
-    private ProgressDialog _progDialog;
-    private Snackbar _snackBar;
-    private Dialog _tipDialog = null;
-    private Dialog _windowVideoDialog = null;
-    private String[] _tipsCircularArray;
-    private int _tipsNum;
-    //endregion
-
-    //region Logic fields
-    private LinkedList<MediaProcessingAsyncTask> mediaProcTasks;
-    //endregion
-
-    //region Handlers
-    private Handler _compressHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            log(Log.INFO, TAG, "Handler got message:" + msg.what);
-
-            // Stopping the transcoding native
-            if (msg.what == MediaFileProcessingUtils.STOP_TRANSCODING_MSG) {
-                log(Log.INFO, TAG, "Got cancel message, calling fexit");
-                if (_progDialog != null)
-                    _progDialog.dismiss();
-
-                _vk.fExit(getApplicationContext());
-
-                wakeUpdateThreadToFinish();
-            } else if (msg.what == MediaFileProcessingUtils.FINISHED_TRANSCODING_MSG) {
-
-                wakeUpdateThreadToFinish();
-
-                if (_progDialog != null)
-                    _progDialog.dismiss();
-            } else if (msg.what == MediaFileProcessingUtils.COMPRESSION_PHASE_2) {
-
-                log(Log.INFO, TAG, "Got compression phase 2 message");
-
-                if (_progDialog != null) {
-
-                    String str = getResources().getString(R.string.compressing_file2);
-                    _progDialog.setProgress(0);
-                    _progDialog.setTitle(str);
-                }
-
-                wakeUpdateThreadToContinue();
-            }
-        }
-
-        private void wakeUpdateThreadToFinish() {
-
-            _contCalcProgress = false;
-            _updateThreadNextIterStarted = true;
-            synchronized (_lock) {
-                _lock.notify();
-            }
-        }
-
-        private void wakeUpdateThreadToContinue() {
-
-            _updateThreadNextIterStarted = true;
-            synchronized (_lock) {
-                _lock.notify();
-            }
-        }
-    };
+    private ImageButton selectContactBtn;
+    private ImageButton selectMediaBtn;
+    private ImageButton selectMediaBtn_small;
+    private TextView selectMediaBtn_textview;
+    private TextView selectMediaBtn_textview2;
+    private ImageButton callBtn;
+    private ImageButton clearText;
+    private ProgressBar fetchUserPbar;
+    private BroadcastReceiver eventReceiver;
+    private IntentFilter eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
+    private AutoCompleteTextView autoCompleteTextViewDestPhone;
+    private ListView DrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private DrawerLayout mDrawerLayout;
+    private ImageView mediaStatus;
+    private ImageButton defaultpic_enabled;
+    private TextView ringToneNameTextView;
+    private TextView ringToneNameForProfileTextView;
+    private TextView profile_textview;
+    private TextView profile_textview2;
+    private RelativeLayout mainActivityLayout;
+    private ImageView ringtoneStatus;
+    private AutoCompleteTextView destinationEditText;
+    private TextView destTextView;
+    private boolean profileHasMedia = false;
+    private boolean callerHasMedia = false;
+    private boolean profileHasRingtone = false;
+    private boolean callerHasRingtone = false;
+    private Snackbar snackBar;
+    private Dialog tipDialog = null;
+    private Dialog windowVideoDialog = null;
+    private String[] tipsCircularArray;
+    private int tipsNum;
+    private UploadFileFlow uploadFileFlow = new UploadFileFlow();
     //endregion
 
     //region Activity methods (onCreate(), onPause(), onActivityResult()...)
@@ -260,8 +163,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        if (_mDrawerLayout != null)
-            _mDrawerToggle.syncState();
+        if (mDrawerLayout != null)
+            mDrawerToggle.syncState();
     }
 
     @Override
@@ -306,12 +209,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             syncUIwithAppState();
 
             // Taking Focus from AutoCompleteTextView in the end, so it won't pop up :) Also added focus capabilities to the activity_main.xml
-            _mainActivityLayout.requestFocus();
+            mainActivityLayout.requestFocus();
 
             prepareEventReceiver();
 
             // ASYNC TASK To Populate all contacts , it can take long time and it delays the UI
-            new AutoCompletePopulateListAsyncTask(_autoCompleteTextViewDestPhone).execute(getApplicationContext());
+            new AutoCompletePopulateListAsyncTask(autoCompleteTextViewDestPhone).execute(getApplicationContext());
 
             if (!appState.equals(AppStateManager.STATE_LOADING) && !appState.equals(AppStateManager.STATE_DISABLED))
                 handleSnackBar(new SnackbarData(SnackbarData.SnackbarStatus.CLOSE, 0, 0, null));
@@ -335,9 +238,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, false);
         AppStateManager.setAppInForeground(this, false);
 
-        if (_eventReceiver != null) {
+        if (eventReceiver != null) {
             try {
-                unregisterReceiver(_eventReceiver);
+                unregisterReceiver(eventReceiver);
             } catch (Exception ex) {
                 log(Log.ERROR, TAG, ex.getMessage());
             }
@@ -387,19 +290,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         SnackbarData snackbarData = new SnackbarData(SnackbarData.SnackbarStatus.SHOW,
                                 Color.RED,
                                 Snackbar.LENGTH_INDEFINITE,
-                                data.getStringExtra(SelectMediaActivity.RESULT_ERR_MSG));
+                                msg);
                         writeInfoSnackBar(snackbarData);
                     } else {
-                        SpecialMediaType _specialMediaType = (SpecialMediaType) data.getSerializableExtra(SelectMediaActivity.RESULT_SPECIAL_MEDIA_TYPE);
+                        SpecialMediaType specialMediaType = (SpecialMediaType) data.getSerializableExtra(SelectMediaActivity.RESULT_SPECIAL_MEDIA_TYPE);
                         FileManager fm = (FileManager) data.getSerializableExtra(SelectMediaActivity.RESULT_FILE);
 
                         Bundle bundle = new Bundle();
-                        bundle.putSerializable(FILE_FOR_UPLOAD, fm);
-                        bundle.putString(DEST_ID, _destPhoneNumber);
-                        bundle.putString(DEST_NAME, _destName);
-                        bundle.putSerializable(SPEC_MEDIA_TYPE, _specialMediaType);
+                        bundle.putSerializable(KeysForBundle.FILE_FOR_UPLOAD, fm);
+                        bundle.putString(KeysForBundle.DEST_ID, destPhoneNumber);
+                        bundle.putString(KeysForBundle.DEST_NAME, destName);
+                        bundle.putSerializable(KeysForBundle.SPEC_MEDIA_TYPE, specialMediaType);
 
-                        execUploadFileFlow(bundle);
+                        uploadFileFlow.executeUploadFileFlow(MainActivity.this, bundle);
                     }
                 }
 
@@ -423,11 +326,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     public boolean onKeyDown(int keyCode, KeyEvent e) {  // hard menu key will open and close the drawer menu also
         if (keyCode == KeyEvent.KEYCODE_MENU) {
 
-            if (_mDrawerLayout != null) {
-                if (!_mDrawerLayout.isDrawerOpen(GravityCompat.START))
-                    _mDrawerLayout.openDrawer(GravityCompat.START);
+            if (mDrawerLayout != null) {
+                if (!mDrawerLayout.isDrawerOpen(GravityCompat.START))
+                    mDrawerLayout.openDrawer(GravityCompat.START);
                 else
-                    _mDrawerLayout.closeDrawer(GravityCompat.START);
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
             }
             return true;
         }
@@ -437,8 +340,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        if (_mDrawerToggle != null)
-            if (_mDrawerToggle.onOptionsItemSelected(item)) {
+        if (mDrawerToggle != null)
+            if (mDrawerToggle.onOptionsItemSelected(item)) {
                 return true;
             }
 
@@ -452,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_TIP)) {
 
 
-            _tipsCircularArray = new String[]{
+            tipsCircularArray = new String[]{
                     getApplicationContext().getResources().getString(R.string.tip1_windowresize),
                     getApplicationContext().getResources().getString(R.string.tip2_profile),
                     getApplicationContext().getResources().getString(R.string.tip3_block),
@@ -461,48 +364,48 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             };
 
             Random r = new Random();
-            _tipsNum = r.nextInt(5);
+            tipsNum = r.nextInt(5);
 
-            final int arrayLength = _tipsCircularArray.length;
+            final int arrayLength = tipsCircularArray.length;
 
-            if (_tipDialog == null) {
-                _tipDialog = new Dialog(MainActivity.this);
+            if (tipDialog == null) {
+                tipDialog = new Dialog(MainActivity.this);
 
                 // custom dialog
 
-                _tipDialog.setContentView(R.layout.tip_dialog);
+                tipDialog.setContentView(R.layout.tip_dialog);
 
                 // set the custom dialog components - text, image and button
-                final TextView text = (TextView) _tipDialog.findViewById(R.id.tip_msg);
-                text.setText(_tipsCircularArray[_tipsNum % arrayLength]);
+                final TextView text = (TextView) tipDialog.findViewById(R.id.tip_msg);
+                text.setText(tipsCircularArray[tipsNum % arrayLength]);
 
 
-                Button nextTipBtn = (Button) _tipDialog.findViewById(R.id.next_tip);
+                Button nextTipBtn = (Button) tipDialog.findViewById(R.id.next_tip);
                 // if button is clicked, close the custom dialog
                 nextTipBtn.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        text.setText(_tipsCircularArray[_tipsNum++ % arrayLength]);
+                        text.setText(tipsCircularArray[tipsNum++ % arrayLength]);
                     }
                 });
 
-                _tipDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                tipDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(final DialogInterface arg0) {
-                        _tipDialog = null;
+                        tipDialog = null;
                     }
                 });
 
-                Button skipBtn = (Button) _tipDialog.findViewById(R.id.skip);
+                Button skipBtn = (Button) tipDialog.findViewById(R.id.skip);
                 // if button is clicked, close the custom dialog
                 skipBtn.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        _tipDialog.dismiss();
+                        tipDialog.dismiss();
                     }
                 });
 
-                CheckBox checkBox = (CheckBox) _tipDialog.findViewById(R.id.dont_show_tips);
+                CheckBox checkBox = (CheckBox) tipDialog.findViewById(R.id.dont_show_tips);
                 checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
                     @Override
@@ -515,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 checkBox.setText(MainActivity.this.getResources().getString(R.string.dont_show_again));
 
 
-                _tipDialog.show();
+                tipDialog.show();
 
 
             }
@@ -530,16 +433,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_WINDOW_VIDEO) && wentThroughOnCreate) {
             Log.i(TAG, "inside video dialog");
             wentThroughOnCreate = false;
-            if (_windowVideoDialog == null) {
-                _windowVideoDialog = new Dialog(MainActivity.this);
+            if (windowVideoDialog == null) {
+                windowVideoDialog = new Dialog(MainActivity.this);
 
                 // custom dialog
-                _windowVideoDialog.setContentView(R.layout.video_dialog);
+                windowVideoDialog.setContentView(R.layout.video_dialog);
 
-                _windowVideoDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                windowVideoDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
                     public void onDismiss(final DialogInterface arg0) {
-                        _windowVideoDialog = null;
+                        windowVideoDialog = null;
                         displayYoutubeVideo.stopLoading();
                         displayYoutubeVideo.destroy();
                         Log.i(TAG, "before showcase");
@@ -547,16 +450,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     }
                 });
 
-                Button skipBtn = (Button) _windowVideoDialog.findViewById(R.id.video_ok);
+                Button skipBtn = (Button) windowVideoDialog.findViewById(R.id.video_ok);
                 // if button is clicked, close the custom dialog
                 skipBtn.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        _windowVideoDialog.dismiss();
+                        windowVideoDialog.dismiss();
                     }
                 });
 
-                CheckBox checkBox = (CheckBox) _windowVideoDialog.findViewById(R.id.video_dont_show_tips);
+                CheckBox checkBox = (CheckBox) windowVideoDialog.findViewById(R.id.video_dont_show_tips);
                 checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
                     @Override
@@ -565,9 +468,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     }
                 });
 
-                _windowVideoDialog.show();
+                windowVideoDialog.show();
 
-                displayYoutubeVideo = (WebView) _windowVideoDialog.findViewById(R.id.set_window_video);
+                displayYoutubeVideo = (WebView) windowVideoDialog.findViewById(R.id.set_window_video);
                 displayYoutubeVideo.setVisibility(View.VISIBLE);
                 String frameVideo = "<html><body>Video From YouTube<br><iframe width=\"280\" height=\"315\" src=\"https://www.youtube.com/embed/vkZE37dHErE\" frameborder=\"0\" allowfullscreen></iframe></body></html>";
                 Log.i(TAG, frameVideo);
@@ -593,6 +496,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
+    private void startDefaultProfileMediaActivity() {
+        Intent i = new Intent(MainActivity.this, DefaultProfileMediaActivity.class);
+        startActivity(i);
+    }
+
     private void startPreviewStandoutWindow(SpecialMediaType specialMediaType) {
 
         AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -607,19 +515,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         LUT_Utils lut_utils = new LUT_Utils(specialMediaType);
         Intent showPreview = new Intent(this, PreviewService.class);
         showPreview.setAction(AbstractStandOutService.ACTION_PREVIEW);
-        showPreview.putExtra(AbstractStandOutService.PREVIEW_AUDIO, lut_utils.getUploadedTonePerNumber(this, _destPhoneNumber));
-        showPreview.putExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA, lut_utils.getUploadedMediaPerNumber(this, _destPhoneNumber));
+        showPreview.putExtra(AbstractStandOutService.PREVIEW_AUDIO, lut_utils.getUploadedTonePerNumber(this, destPhoneNumber));
+        showPreview.putExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA, lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber));
 
         startService(showPreview);
     }
 
     private void selectMedia(int specialMediaType) {
 
-        /* Create an intent that will start the main activity. */
         Intent mainIntent = new Intent(this, SelectMediaActivity.class);
         mainIntent.putExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, specialMediaType);
-        mainIntent.putExtra(SelectMediaActivity.DESTINATION_NUMBER, _destPhoneNumber);
-        mainIntent.putExtra(SelectMediaActivity.DESTINATION_NAME, _destName);
+        mainIntent.putExtra(SelectMediaActivity.DESTINATION_NUMBER, destPhoneNumber);
+        mainIntent.putExtra(SelectMediaActivity.DESTINATION_NAME, destName);
         startActivityForResult(mainIntent, ActivityRequestCodes.SELECT_MEDIA);
 
          /* Apply our splash exit (fade out) and main
@@ -635,23 +542,23 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         int id = v.getId();
         if (id == R.id.CallNow) {
 
-            launchDialer(_destPhoneNumber);
+            launchDialer(destPhoneNumber);
 
         } else if (id == R.id.selectMediaBtn) {
-            if (_callerHasMedia || _callerHasRingtone)
+            if (callerHasMedia || callerHasRingtone)
                 openCallerMediaMenu();
             else
                 selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
 
         } else if (id == R.id.selectmedia_btn_small) {
-            if (_callerHasMedia || _callerHasRingtone)
+            if (callerHasMedia || callerHasRingtone)
                 openCallerMediaMenu();
             else
                 selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
 
         } else if (id == R.id.selectProfileMediaBtn) {
 
-            if (_profileHasMedia || _profileHasRingtone)
+            if (profileHasMedia || profileHasRingtone)
                 openProfileMediaMenu();
             else
                 selectMedia(ActivityRequestCodes.SELECT_PROFILE_MEDIA);
@@ -709,38 +616,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
-    private void waitingForTransferSuccess() {
-        if (!SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_UPLOAD_DIALOG)) {
-            UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this, "MainActivity", getResources().getString(R.string.sending_to_contact)
-                    , getResources().getString(R.string.waiting_for_transfer_sucess_dialog_msg));
-        }
-    }
-
-    private void execUploadFileFlow(Bundle bundle) {
-        try {
-
-            Log.i(TAG, "Starting upload file flow...");
-            mediaProcTasks = new LinkedList<>();
-            mediaProcTasks.add(new TrimTask(0, this));
-            mediaProcTasks.add(new CompressTask(1, this));
-            mediaProcTasks.add(new RotateTask(2, this));
-
-            continueUploadFileFlow(0, bundle);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            handleSnackBar(new SnackbarData(SnackbarData.SnackbarStatus.SHOW, Color.RED, Snackbar.LENGTH_INDEFINITE,
-                    getResources().getString(R.string.oops_try_again)));
-        }
-    }
-
-    private void uploadFile(Bundle bundle) {
-        if (bundle != null) {
-            UploadTask uploadTask = new UploadTask(bundle);
-            uploadTask.execute();
-        }
-    }
-
     //TODO change this to campaign API push for all users in case of last supported version change
     private void getAppRecord() {
 
@@ -771,15 +646,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void saveInstanceState() {
 
         // Saving destination number
-        if (_autoCompleteTextViewDestPhone != null) {
-            _destPhoneNumber = _autoCompleteTextViewDestPhone.getText().toString();
-            SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, _destPhoneNumber);
+        if (autoCompleteTextViewDestPhone != null) {
+            destPhoneNumber = autoCompleteTextViewDestPhone.getText().toString();
+            SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, destPhoneNumber);
         }
 
         // Saving destination name
-        if (_destTextView != null && (!_destTextView.getText().toString().isEmpty())) {
-            _destName = _destTextView.getText().toString();
-            SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, _destName);
+        if (destTextView != null && (!destTextView.getText().toString().isEmpty())) {
+            destName = destTextView.getText().toString();
+            SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, destName);
         }
     }
 
@@ -792,13 +667,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void saveInstanceState(String destName, String destNumber) {
 
         // Saving destination number
-        _destPhoneNumber = destNumber;
-        SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, _destPhoneNumber);
+        destPhoneNumber = destNumber;
+        SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, destPhoneNumber);
 
 
         // Saving destination name
-        _destName = destName;
-        SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, _destName);
+        this.destName = destName;
+        SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, this.destName);
     }
 
     private void restoreInstanceState() {
@@ -807,11 +682,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         // Restoring destination number
         String destNumber = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
-        if (_autoCompleteTextViewDestPhone != null && destNumber != null)
-            _autoCompleteTextViewDestPhone.setText(destNumber);
+        if (autoCompleteTextViewDestPhone != null && destNumber != null)
+            autoCompleteTextViewDestPhone.setText(destNumber);
 
         // Restoring destination name
-        _destName = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
+        destName = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
         setDestNameTextView();
     }
 
@@ -824,17 +699,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         }
 
-        if (_destPhoneNumber != null && !_destPhoneNumber.equals(""))
-            _destName = ContactsUtils.getContactName(this, _destPhoneNumber);
+        if (destPhoneNumber != null && !destPhoneNumber.equals(""))
+            destName = ContactsUtils.getContactName(this, destPhoneNumber);
         else
-            _destName = "";
+            destName = "";
 
-        if (_destTextView != null) {
+        if (destTextView != null) {
 
-            if (_destName != null && !_destName.equals(""))
-                _destTextView.setText(_destName);
-            else if (_destPhoneNumber != null && !_destPhoneNumber.equals(""))
-                _destTextView.setText(_destPhoneNumber);
+            if (destName != null && !destName.equals(""))
+                destTextView.setText(destName);
+            else if (destPhoneNumber != null && !destPhoneNumber.equals(""))
+                destTextView.setText(destPhoneNumber);
             else {
                 disableDestinationTextView();
                 return;
@@ -846,8 +721,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void prepareEventReceiver() {
 
-        if (_eventReceiver == null) {
-            _eventReceiver = new BroadcastReceiver() {
+        if (eventReceiver == null) {
+            eventReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
 
@@ -857,17 +732,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             };
         }
 
-        registerReceiver(_eventReceiver, _eventIntentFilter);
+        registerReceiver(eventReceiver, eventIntentFilter);
     }
 
     private void prepareAutoCompleteTextViewDestPhoneNumber() {
 
         final MainActivity instance = this;
 
-        _autoCompleteTextViewDestPhone = (AutoCompleteTextView) findViewById(R.id.CallNumber);
-        if (_autoCompleteTextViewDestPhone != null) {
-            _autoCompleteTextViewDestPhone.setRawInputType(InputType.TYPE_CLASS_TEXT);
-            _autoCompleteTextViewDestPhone.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        autoCompleteTextViewDestPhone = (AutoCompleteTextView) findViewById(R.id.CallNumber);
+        if (autoCompleteTextViewDestPhone != null) {
+            autoCompleteTextViewDestPhone.setRawInputType(InputType.TYPE_CLASS_TEXT);
+            autoCompleteTextViewDestPhone.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> av, View arg1, int index, long arg3) {
 
@@ -876,13 +751,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     String number = nameAndPhone[1];
                     String NumericNumber = PhoneNumberUtils.toValidLocalPhoneNumber(number);
 
-                    _autoCompleteTextViewDestPhone.setText(NumericNumber);
-                    _destName = name;
+                    autoCompleteTextViewDestPhone.setText(NumericNumber);
+                    destName = name;
                     setDestNameTextView();
                 }
             });
 
-            _autoCompleteTextViewDestPhone.setOnTouchListener(new View.OnTouchListener() {
+            autoCompleteTextViewDestPhone.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
 
@@ -893,7 +768,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 }
             });
 
-            _autoCompleteTextViewDestPhone.addTextChangedListener(new TextWatcher() {
+            autoCompleteTextViewDestPhone.addTextChangedListener(new TextWatcher() {
 
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -917,18 +792,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                             writeInfoSnackBar(snackbarData);
                         } else {
-                            _destPhoneNumber = destPhone;
+                            destPhoneNumber = destPhone;
                             SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, true);
                             new IsRegisteredTask(destPhone, instance).execute(getApplicationContext());
 
-                            hideSoftKeyboardForView(_autoCompleteTextViewDestPhone); // hide keyboard so it won't bother
+                            hideSoftKeyboardForView(autoCompleteTextViewDestPhone); // hide keyboard so it won't bother
 
                         }
 
                     } else { // Invalid destination number
 
-                        _destPhoneNumber = "";
-                        _destName = "";
+                        destPhoneNumber = "";
+                        destName = "";
 
 
                         if (getState().equals(AppStateManager.STATE_READY)) {
@@ -946,7 +821,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 }
             });
 
-            new AutoCompletePopulateListAsyncTask(_autoCompleteTextViewDestPhone).execute(getApplicationContext());
+            new AutoCompletePopulateListAsyncTask(autoCompleteTextViewDestPhone).execute(getApplicationContext());
         }
     }
 
@@ -987,7 +862,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         setCustomActionBar();
         enableHamburgerIconWithSlideMenu();
         prepareAutoCompleteTextViewDestPhoneNumber();
-
         prepareDestNameTextView();
         prepareDestinationEditText();
         prepareRingtoneStatus();
@@ -1108,63 +982,63 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //region UI elements controls
     private void prepareDestinationEditText() {
 
-        _destinationEditText = (AutoCompleteTextView) findViewById(R.id.CallNumber);
+        destinationEditText = (AutoCompleteTextView) findViewById(R.id.CallNumber);
     }
 
     private void prepareDestNameTextView() {
 
-        _destTextView = (TextView) findViewById(R.id.destName);
+        destTextView = (TextView) findViewById(R.id.destName);
     }
 
     private void prepareRingtoneStatus() {
 
-        _ringtoneStatus = (ImageView) findViewById(R.id.ringtoneStatusArrived);
+        ringtoneStatus = (ImageView) findViewById(R.id.ringtoneStatusArrived);
     }
 
     private void prepareMainActivityLayout() {
 
-        _mainActivityLayout = (RelativeLayout) findViewById(R.id.mainActivity);
+        mainActivityLayout = (RelativeLayout) findViewById(R.id.mainActivity);
     }
 
     private void prepareFetchUserProgressBar() {
 
-        _fetchUserPbar = (ProgressBar) findViewById(R.id.fetchuserprogress);
+        fetchUserPbar = (ProgressBar) findViewById(R.id.fetchuserprogress);
     }
 
     private void prepareMediaStatusImageView() {
 
-        _mediaStatus = (ImageView) findViewById(R.id.mediaStatusArrived);
+        mediaStatus = (ImageView) findViewById(R.id.mediaStatusArrived);
     }
 
     private void prepareRingtoneNameTextView() {
 
-        _ringToneNameTextView = (TextView) findViewById(R.id.ringtoneName);
-        _ringToneNameForProfileTextView = (TextView) findViewById(R.id.ringtoneNameForProfile);
+        ringToneNameTextView = (TextView) findViewById(R.id.ringtoneName);
+        ringToneNameForProfileTextView = (TextView) findViewById(R.id.ringtoneNameForProfile);
     }
 
     private void prepareClearTextButton() {
 
-        _clearText = (ImageButton) findViewById(R.id.clear);
-        if (_clearText != null)
-            _clearText.setOnClickListener(this);
+        clearText = (ImageButton) findViewById(R.id.clear);
+        if (clearText != null)
+            clearText.setOnClickListener(this);
     }
 
     //endregion
 
     private void prepareCallNowButton() {
 
-        _callBtn = (ImageButton) findViewById(R.id.CallNow);
-        if (_callBtn != null) {
-            _callBtn.setOnClickListener(this);
+        callBtn = (ImageButton) findViewById(R.id.CallNow);
+        if (callBtn != null) {
+            callBtn.setOnClickListener(this);
 
             // to let people choose other dialers
-            _callBtn.setOnLongClickListener(new View.OnLongClickListener() {
+            callBtn.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
 
                     final Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_DIAL);
-                    intent.setData(Uri.fromParts("tel", _destPhoneNumber, null));
+                    intent.setData(Uri.fromParts("tel", destPhoneNumber, null));
                     startActivity(Intent.createChooser(intent, ""));
 
 
@@ -1177,35 +1051,35 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void prepareSelectMediaButton() {
 
-        _selectMediaBtn = (ImageButton) findViewById(R.id.selectMediaBtn);
-        if (_selectMediaBtn != null)
-            _selectMediaBtn.setOnClickListener(this);
+        selectMediaBtn = (ImageButton) findViewById(R.id.selectMediaBtn);
+        if (selectMediaBtn != null)
+            selectMediaBtn.setOnClickListener(this);
 
-        _selectMediaBtn_small = (ImageButton) findViewById(R.id.selectmedia_btn_small);
-        if (_selectMediaBtn_small != null)
-            _selectMediaBtn_small.setOnClickListener(this);
+        selectMediaBtn_small = (ImageButton) findViewById(R.id.selectmedia_btn_small);
+        if (selectMediaBtn_small != null)
+            selectMediaBtn_small.setOnClickListener(this);
 
-        _selectMediaBtn_textview = (TextView) findViewById(R.id.media_textview);
-        _selectMediaBtn_textview2 = (TextView) findViewById(R.id.caller_textview2);
+        selectMediaBtn_textview = (TextView) findViewById(R.id.media_textview);
+        selectMediaBtn_textview2 = (TextView) findViewById(R.id.caller_textview2);
 
     }
 
     private void prepareSelectContactButton() {
 
-        _selectContactBtn = (ImageButton) findViewById(R.id.selectContactBtn);
-        if (_selectContactBtn != null) {
-            _selectContactBtn.setOnClickListener(this);
+        selectContactBtn = (ImageButton) findViewById(R.id.selectContactBtn);
+        if (selectContactBtn != null) {
+            selectContactBtn.setOnClickListener(this);
         }
     }
 
     private void prepareSelectProfileMediaButton() {
 
-        _defaultpic_enabled = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
-        if (_defaultpic_enabled != null)
-            _defaultpic_enabled.setOnClickListener(this);
+        defaultpic_enabled = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
+        if (defaultpic_enabled != null)
+            defaultpic_enabled.setOnClickListener(this);
 
-        _profile_textview = (TextView) findViewById(R.id.profile_textview);
-        _profile_textview2 = (TextView) findViewById(R.id.profile_textview2);
+        profile_textview = (TextView) findViewById(R.id.profile_textview);
+        profile_textview2 = (TextView) findViewById(R.id.profile_textview2);
     }
 
     private void setCustomActionBar() {
@@ -1225,12 +1099,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             actionBar.setHomeButtonEnabled(true);  //Enable or disable the "home" button in the corner of the action bar.
         }
 
-        _mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (_mDrawerLayout != null) {
-            _DrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (mDrawerLayout != null) {
+            DrawerList = (ListView) findViewById(R.id.left_drawer);
             addDrawerItems();
-            _DrawerList.setOnItemClickListener(new DrawerItemClickListener());
-            _mDrawerToggle = new ActionBarDrawerToggle(this, _mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
+            DrawerList.setOnItemClickListener(new DrawerItemClickListener());
+            mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
 
                 /**
                  * Called when a drawer has settled in a completely open state.
@@ -1251,9 +1125,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 }
 
             };
-            _mDrawerToggle.setDrawerIndicatorEnabled(true);
-            _mDrawerLayout.setDrawerListener(_mDrawerToggle);
-            _mDrawerToggle.syncState();
+            mDrawerToggle.setDrawerIndicatorEnabled(true);
+            mDrawerLayout.setDrawerListener(mDrawerToggle);
+            mDrawerToggle.syncState();
         }
     }
 
@@ -1264,6 +1138,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         //   dataList.add(new DrawerItem(getResources().getString(R.string.media_management), R.drawable.mediaicon));
         dataList.add(new DrawerItem("", R.drawable.color_mc));
+        dataList.add(new DrawerItem(getResources().getString(R.string.default_profile_media), R.drawable.default_profile_media));
         dataList.add(new DrawerItem(getResources().getString(R.string.who_can_mc_me), R.drawable.blackwhitelist));
 //        dataList.add(new DrawerItem("How To ?", R.drawable.questionmark));
 //        dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
@@ -1275,7 +1150,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 dataList);
 
         //   mAdapter = new ArrayAdapter<String>(this, R.layout.custome_drawer_item, osArray);
-        _DrawerList.setAdapter(mAdapter);
+        DrawerList.setAdapter(mAdapter);
     }
 
     private void selectNavigationItem(int position) {
@@ -1284,13 +1159,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             // case 0://Media Management
             //   appSettings();
             //      break;
-            case 1: // Who Can MC me
+            case 1: // Default Profile Media
+                startDefaultProfileMediaActivity();
+                break;
+            case 2: // Who Can MC me
                 BlockMCContacts();
                 break;
-            case 2: // App Settings
+            case 3: // App Settings
                 appSettings();
                 break;
-            case 3: // About & Help
+            case 4: // About & Help
                 appAboutAndHelp();
 
                 break;
@@ -1300,7 +1178,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
 
 
-        _mDrawerLayout.closeDrawer(_DrawerList);
+        mDrawerLayout.closeDrawer(DrawerList);
 
     }
 
@@ -1341,7 +1219,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                         break;
                     case R.id.clearcallermedia:
-                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.CALLER_MEDIA, _destPhoneNumber);
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.CALLER_MEDIA, destPhoneNumber);
                         clearDialog.show(getFragmentManager(), TAG);
                         break;
 
@@ -1375,7 +1253,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         break;
                     case R.id.clearprofilemedia:
 
-                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.PROFILE_MEDIA, _destPhoneNumber);
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.PROFILE_MEDIA, destPhoneNumber);
                         clearDialog.show(getFragmentManager(), TAG);
 
                         break;
@@ -1401,7 +1279,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     .playOn(findViewById(R.id.CallNow));
 
         } else
-            _callBtn.setVisibility(View.INVISIBLE);
+            callBtn.setVisibility(View.INVISIBLE);
 
     }
 
@@ -1409,8 +1287,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void enableCallButton() {
 
         //  _callBtn_textview.setVisibility(View.VISIBLE);
-        _callBtn.setVisibility(View.VISIBLE);
-        _callBtn.setEnabled(true);
+        callBtn.setVisibility(View.VISIBLE);
+        callBtn.setEnabled(true);
 
         if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION)) {
             YoYo.with(Techniques.SlideInLeft)
@@ -1430,36 +1308,36 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             YoYo.with(tech)
                     .duration(1000)
                     .playOn(findViewById(R.id.ringtoneName));
-            _selectMediaBtn.setClickable(false);
+            selectMediaBtn.setClickable(false);
         } else {
-            _selectMediaBtn.setVisibility(View.INVISIBLE);
-            _ringToneNameTextView.setVisibility(View.INVISIBLE);
+            selectMediaBtn.setVisibility(View.INVISIBLE);
+            ringToneNameTextView.setVisibility(View.INVISIBLE);
         }
-        _selectMediaBtn_small.setVisibility(View.INVISIBLE);
-        _selectMediaBtn_textview.setVisibility(View.INVISIBLE);
-        _selectMediaBtn_textview2.setVisibility(View.INVISIBLE);
+        selectMediaBtn_small.setVisibility(View.INVISIBLE);
+        selectMediaBtn_textview.setVisibility(View.INVISIBLE);
+        selectMediaBtn_textview2.setVisibility(View.INVISIBLE);
         disableMediaStatusArrived();
     }
 
     private void disableSelectProfileMediaButton() {
 
-        _defaultpic_enabled.setClickable(false);
+        defaultpic_enabled.setClickable(false);
         drawSelectProfileMediaButton(false);
-        _ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
-        _profile_textview.setVisibility(View.INVISIBLE);
-        _profile_textview2.setVisibility(View.INVISIBLE);
+        ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
+        profile_textview.setVisibility(View.INVISIBLE);
+        profile_textview2.setVisibility(View.INVISIBLE);
     }
 
     private void enableSelectMediaButton() {
 
-        _selectMediaBtn.setClickable(true);
-        _selectMediaBtn_small.setClickable(true);
+        selectMediaBtn.setClickable(true);
+        selectMediaBtn_small.setClickable(true);
 
         drawSelectMediaButton(true);
-        _selectMediaBtn.setVisibility(View.VISIBLE);
-        _selectMediaBtn_small.setVisibility(View.VISIBLE);
-        _selectMediaBtn_textview.setVisibility(View.VISIBLE);
-        _selectMediaBtn_textview2.setVisibility(View.VISIBLE);
+        selectMediaBtn.setVisibility(View.VISIBLE);
+        selectMediaBtn_small.setVisibility(View.VISIBLE);
+        selectMediaBtn_textview.setVisibility(View.VISIBLE);
+        selectMediaBtn_textview2.setVisibility(View.VISIBLE);
 
         Techniques tech = UI_Utils.getRandomInTechniques();
         YoYo.with(tech)
@@ -1474,78 +1352,78 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void enableSelectProfileMediaButton() {
 
-        _defaultpic_enabled.setClickable(true);
-        _profile_textview.setVisibility(View.VISIBLE);
-        _profile_textview2.setVisibility(View.VISIBLE);
+        defaultpic_enabled.setClickable(true);
+        profile_textview.setVisibility(View.VISIBLE);
+        profile_textview2.setVisibility(View.VISIBLE);
         drawSelectProfileMediaButton(true);
     }
 
     private void disableSelectContactButton() {
 
-        _selectContactBtn.setEnabled(false);
+        selectContactBtn.setEnabled(false);
         drawSelectContactButton(false);
     }
 
     private void enableSelectContactButton() {
 
-        _selectContactBtn.setEnabled(true);
+        selectContactBtn.setEnabled(true);
         drawSelectContactButton(true);
     }
 
     private void enableMediaStatusArrived() {
 
-        _mediaStatus.setVisibility(View.VISIBLE);
-        _mediaStatus.bringToFront();
+        mediaStatus.setVisibility(View.VISIBLE);
+        mediaStatus.bringToFront();
     }
 
     private void disableMediaStatusArrived() {
 
-        _mediaStatus.setVisibility(View.INVISIBLE);
+        mediaStatus.setVisibility(View.INVISIBLE);
     }
 
     private void disableDestinationTextView() {
 
-        _destTextView.setText("");
-        _destTextView.setVisibility(TextView.INVISIBLE);
+        destTextView.setText("");
+        destTextView.setVisibility(TextView.INVISIBLE);
     }
 
     private void enableDestinationTextView() {
 
-        _destTextView.setVisibility(TextView.VISIBLE);
+        destTextView.setVisibility(TextView.VISIBLE);
     }
 
     private void disableDestinationEditText() {
 
-        _destinationEditText.setEnabled(false);
-        _clearText.setEnabled(false);
+        destinationEditText.setEnabled(false);
+        clearText.setEnabled(false);
     }
 
     private void enableDestinationEditText() {
 
-        _destinationEditText.setEnabled(true);
-        _clearText.setEnabled(true);
+        destinationEditText.setEnabled(true);
+        clearText.setEnabled(true);
     }
 
     private void disableUserFetchProgressBar() {
 
-        _fetchUserPbar.setVisibility(ProgressBar.GONE);
+        fetchUserPbar.setVisibility(ProgressBar.GONE);
     }
 
     private void enableUserFetchProgressBar() {
 
-        _fetchUserPbar.setVisibility(ProgressBar.VISIBLE);
+        fetchUserPbar.setVisibility(ProgressBar.VISIBLE);
 
     }
 
     private void disableRingToneStatusArrived() {
 
-        _ringtoneStatus.setVisibility(View.INVISIBLE);
+        ringtoneStatus.setVisibility(View.INVISIBLE);
     }
 
     private void enableRingToneStatusArrived() {
 
-        _ringtoneStatus.setVisibility(View.VISIBLE);
-        _ringtoneStatus.bringToFront();
+        ringtoneStatus.setVisibility(View.VISIBLE);
+        ringtoneStatus.bringToFront();
     }
 
     private void drawSelectMediaButton(boolean enabled) {
@@ -1555,31 +1433,31 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             FileManager.FileType fType;
 
             if (!enabled)
-                _selectMediaBtn.setImageResource(R.drawable.select_profile_media_disabled);
+                selectMediaBtn.setImageResource(R.drawable.select_profile_media_disabled);
             else {
 
-                String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, _destPhoneNumber);
+                String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
                     fType = FileManager.getFileType(lastUploadedMediaPath);
 
-                    BitmapUtils.execBitMapWorkerTask(_selectMediaBtn, fType, lastUploadedMediaPath, false);
+                    BitmapUtils.execBitMapWorkerTask(selectMediaBtn, fType, lastUploadedMediaPath, false);
 
                     enableMediaStatusArrived();
                     // stretch the uploaded image as it won't stretch because we use a drawable instead that we don't want to stretch
-                    _selectMediaBtn.setPadding(0, 0, 0, 0);
-                    _selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_XY);
-                    _callerHasMedia = true;
+                    selectMediaBtn.setPadding(0, 0, 0, 0);
+                    selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_XY);
+                    callerHasMedia = true;
                     UI_Utils.showCaseViewAfterUploadAndCall(this, MainActivity.this);
 
                 } else {// enabled but no uploaded media
-                    String ringToneFilePath = lut_utils.getUploadedTonePerNumber(this, _destPhoneNumber);
+                    String ringToneFilePath = lut_utils.getUploadedTonePerNumber(this, destPhoneNumber);
                     if (ringToneFilePath.isEmpty())
                         UI_Utils.showCaseViewSelectMedia(this, MainActivity.this);
 
-                    _selectMediaBtn.setImageDrawable(null);
-                    _selectMediaBtn.setBackgroundColor(0x67000000);
+                    selectMediaBtn.setImageDrawable(null);
+                    selectMediaBtn.setBackgroundColor(0x67000000);
 
-                    _callerHasMedia = false;
+                    callerHasMedia = false;
                     disableMediaStatusArrived();
                 }
             }
@@ -1588,7 +1466,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 FileDoesNotExistException |
                 FileMissingExtensionException e) {
             e.printStackTrace();
-            lut_utils.removeUploadedMediaPerNumber(this, _destPhoneNumber);
+            lut_utils.removeUploadedMediaPerNumber(this, destPhoneNumber);
         }
     }
 
@@ -1599,19 +1477,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!enabled) {
-                BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, this, getResources(), R.drawable.select_profile_media_disabled, true);
+                BitmapUtils.execBitmapWorkerTask(defaultpic_enabled, this, getResources(), R.drawable.select_profile_media_disabled, true);
             } else {
 
-                String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, _destPhoneNumber);
+                String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
                     FileManager.FileType fType = FileManager.getFileType(lastUploadedMediaPath);
 
-                    BitmapUtils.execBitMapWorkerTask(_defaultpic_enabled, fType, lastUploadedMediaPath, true);
-                    _profileHasMedia = true;
+                    BitmapUtils.execBitMapWorkerTask(defaultpic_enabled, fType, lastUploadedMediaPath, true);
+                    profileHasMedia = true;
                 } else // enabled but no uploaded media
                 {
-                    BitmapUtils.execBitmapWorkerTask(_defaultpic_enabled, this, getResources(), R.drawable.select_profile_media_enabled, true);
-                    _profileHasMedia = false;
+                    BitmapUtils.execBitmapWorkerTask(defaultpic_enabled, this, getResources(), R.drawable.select_profile_media_enabled, true);
+                    profileHasMedia = false;
                 }
             }
 
@@ -1619,26 +1497,26 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 FileDoesNotExistException |
                 FileMissingExtensionException e) {
             e.printStackTrace();
-            lut_utils.removeUploadedMediaPerNumber(this, _destPhoneNumber);
+            lut_utils.removeUploadedMediaPerNumber(this, destPhoneNumber);
         }
     }
 
     private void drawRingToneName() {
 
         LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.CALLER_MEDIA);
-        String ringToneFilePath = lut_utils.getUploadedTonePerNumber(this, _destPhoneNumber);
+        String ringToneFilePath = lut_utils.getUploadedTonePerNumber(this, destPhoneNumber);
 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                _ringToneNameTextView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
-                _ringToneNameTextView.setVisibility(View.VISIBLE);
-                _callerHasRingtone = true;
+                ringToneNameTextView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameTextView.setVisibility(View.VISIBLE);
+                callerHasRingtone = true;
                 enableRingToneStatusArrived();
                 UI_Utils.showCaseViewAfterUploadAndCall(this, MainActivity.this);
             } else {
-                _ringToneNameTextView.setVisibility(View.INVISIBLE);
-                _callerHasRingtone = false;
+                ringToneNameTextView.setVisibility(View.INVISIBLE);
+                callerHasRingtone = false;
                 disableRingToneStatusArrived();
             }
         } catch (Exception e) {
@@ -1649,18 +1527,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void drawRingToneNameForProfile() {
 
         LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.PROFILE_MEDIA);
-        String ringToneFilePath = lut_utils.getUploadedTonePerNumber(this, _destPhoneNumber);
+        String ringToneFilePath = lut_utils.getUploadedTonePerNumber(this, destPhoneNumber);
 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                _ringToneNameForProfileTextView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
-                _ringToneNameForProfileTextView.setVisibility(View.VISIBLE);
-                _profileHasRingtone = true;
+                ringToneNameForProfileTextView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameForProfileTextView.setVisibility(View.VISIBLE);
+                profileHasRingtone = true;
                 UI_Utils.showCaseViewAfterUploadAndCall(this, MainActivity.this);
             } else {
-                _ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
-                _profileHasRingtone = false;
+                ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
+                profileHasRingtone = false;
             }
         } catch (Exception e) {
             log(Log.ERROR, TAG, "Failed to draw drawRingToneNameForProfile:" + (e.getMessage() != null ? e.getMessage() : e));
@@ -1669,22 +1547,22 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void disableRingToneName() {
 
-        _ringToneNameTextView.setVisibility(View.INVISIBLE);
+        ringToneNameTextView.setVisibility(View.INVISIBLE);
         disableRingToneStatusArrived();
     }
 
     private void disableRingToneNameForProfile() {
 
-        _ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
+        ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
 
     }
 
     private void drawSelectContactButton(boolean enabled) {
 
         if (enabled)
-            _selectContactBtn.setImageResource(R.drawable.select_contact_anim);
+            selectContactBtn.setImageResource(R.drawable.select_contact_anim);
         else
-            _selectContactBtn.setImageResource(R.drawable.select_contact_disabled);
+            selectContactBtn.setImageResource(R.drawable.select_contact_disabled);
     }
 
     private void writeInfoSnackBar(final SnackbarData snackBarData) {
@@ -1698,24 +1576,24 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         View mainActivity = findViewById(R.id.mainActivity);
 
         if (mainActivity != null && snackBarData.getText() != null) {
-            if (_snackBar != null)
-                _snackBar.dismiss();
+            if (snackBar != null)
+                snackBar.dismiss();
 
-            _snackBar = Snackbar
+            snackBar = Snackbar
                     .make(mainActivity, Html.fromHtml(snackBarData.getText()), duration)
                     .setActionTextColor(snackBarData.getColor());
-            _snackBar.setAction(R.string.snack_close, new OnClickListener() {
+            snackBar.setAction(R.string.snack_close, new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    _snackBar.dismiss();
+                    snackBar.dismiss();
                 }
             });
 
             if (snackBarData.isLoading()) {
-                Snackbar.SnackbarLayout snackbarLayout = (Snackbar.SnackbarLayout) _snackBar.getView();
+                Snackbar.SnackbarLayout snackbarLayout = (Snackbar.SnackbarLayout) snackBar.getView();
                 snackbarLayout.addView(new ProgressBar(this));
             }
-            _snackBar.show();
+            snackBar.show();
         }
     }
 
@@ -1723,8 +1601,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         switch (snackbarData.getStatus()) {
             case CLOSE:
-                if (_snackBar != null)
-                    _snackBar.dismiss();
+                if (snackBar != null)
+                    snackBar.dismiss();
                 break;
 
             case SHOW:
@@ -1776,30 +1654,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     //endregion
 
-    //region UploadFileFlowListener methods
-    @Override
-    public void continueUploadFileFlow(int order, Bundle bundle) {
-        if (order == mediaProcTasks.size()) {
-            uploadFile(bundle);
-            mediaProcTasks = null;
-            return;
-        }
 
-        MediaProcessingAsyncTask task = mediaProcTasks.get(order);
-        Log.i(TAG, "Handling media processing task: " + task.getClass().getSimpleName());
-        order++;
-
-        FileManager fileForUpload = (FileManager) bundle.get(FILE_FOR_UPLOAD);
-        if (task.isProcessingNeeded(MainActivity.this, fileForUpload)) {
-            Log.i(TAG, "Processing task: " + task.getClass().getSimpleName() + " is needed. Executing...");
-            task.execute(bundle);
-        } else {
-            continueUploadFileFlow(order, bundle);
-        }
-    }
-    //endregion
-
-    //region Private classes and AsyncTasks
+    //region Private classes
     private class DrawerItemClickListener implements
             ListView.OnItemClickListener {
         @Override
@@ -1811,562 +1667,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     }
 
-    private class UploadTask extends AsyncTask<Void, Integer, Void> implements IServerProxy {
-        private final String TAG = UploadTask.class.getSimpleName();
-        private ConnectionToServer _connectionToServer;
-        private HashMap _data;
-        private ProgressDialog _progDialog;
-        private UploadTask _taskInstance;
-        private BufferedInputStream _bis;
-        private PowerManager.WakeLock _wakeLock;
-        private FileManager _fileForUpload;
-
-        public UploadTask(Bundle bundle) {
-
-            _fileForUpload = (FileManager) bundle.get(FILE_FOR_UPLOAD);
-
-            HashMap<DataKeys, Object> data = getDataForUpload(bundle);
-
-            _connectionToServer = new ConnectionToServer(
-                    SharedConstants.STROAGE_SERVER_HOST,
-                    SharedConstants.STORAGE_SERVER_PORT,
-                    this);
-            _data = data;
-            _taskInstance = this;
-
-        }
-
-        @NonNull
-        private HashMap<DataKeys, Object> getDataForUpload(Bundle bundle) {
-            HashMap<DataKeys, Object> data = new HashMap();
-            String myId = Constants.MY_ID(MainActivity.this);
-            double appVersion = Constants.APP_VERSION(MainActivity.this);
-
-            data.put(DataKeys.APP_VERSION, appVersion);
-            data.put(DataKeys.SOURCE_ID, myId);
-            data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
-            data.put(DataKeys.DESTINATION_ID, bundle.get(DEST_ID));
-            data.put(DataKeys.DESTINATION_CONTACT_NAME, bundle.get(DEST_NAME));
-            data.put(DataKeys.MD5, _fileForUpload.getMd5());
-            data.put(DataKeys.MANAGED_FILE, _fileForUpload);
-            data.put(DataKeys.EXTENSION, _fileForUpload.getFileExtension());
-            data.put(DataKeys.FILE_PATH_ON_SRC_SD, _fileForUpload.getFile().getAbsolutePath());
-            data.put(DataKeys.FILE_SIZE, _fileForUpload.getFileSize());
-            data.put(DataKeys.FILE_TYPE, _fileForUpload.getFileType());
-            data.put(DataKeys.SPECIAL_MEDIA_TYPE, bundle.get(SPEC_MEDIA_TYPE));
-            data.put(DataKeys.SOURCE_WITH_EXTENSION, myId + "." + _fileForUpload.getFileExtension());
-            return data;
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            String cancel = getResources().getString(R.string.cancel);
-
-            _progDialog = new ProgressDialog(MainActivity.this);
-            _progDialog.setIndeterminate(false);
-            _progDialog.setCancelable(false);
-            _progDialog.setTitle(getResources().getString(R.string.uploading));
-            _progDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            _progDialog.setProgress(0);
-            _progDialog.setMax((int) _fileForUpload.getFileSize());
-            _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    _taskInstance.cancel(true);
-                }
-            });
-
-            _progDialog.show();
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            MessageToServer msgUF = new MessageToServer(ServerActionType.UPLOAD_FILE_V2, Constants.MY_ID(MainActivity.this), _data);
-
-            DataOutputStream dos;
-            try {
-
-                PowerManager powerManager = (PowerManager) MainActivity.this.getSystemService(Activity.POWER_SERVICE);
-                _wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "UploadTask_Lock");
-                _wakeLock.acquire();
-
-                _connectionToServer.openConnection();
-                _connectionToServer.sendToServer(msgUF);
-
-                log(Log.INFO, TAG, "Initiating file data upload. [Filepath]: " + _fileForUpload.getFile().getAbsolutePath());
-
-                dos = new DataOutputStream(_connectionToServer.getClientSocket().getOutputStream());
-
-                FileInputStream fis = new FileInputStream(_fileForUpload.getFile());
-                _bis = new BufferedInputStream(fis);
-
-                byte[] buf = new byte[1024 * 8];
-                long bytesToRead = _fileForUpload.getFileSize();
-                int bytesRead;
-                while (bytesToRead > 0 && (bytesRead = _bis.read(buf, 0, (int) Math.min(buf.length, bytesToRead))) != -1 && !isCancelled()) {
-                    dos.write(buf, 0, bytesRead);
-                    publishProgress((int) bytesRead);
-                    bytesToRead -= bytesRead;
-                }
-
-                try {
-                    Thread.sleep(1000); // Sleeping so in fast uploads the dialog won't appear and disappear too fast (like a blink)
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                if (_progDialog != null && _progDialog.isShowing()) {
-                    _progDialog.dismiss();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                log(Log.ERROR, TAG, "Failed:" + e.getMessage());
-                BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG,
-                        new EventReport(EventType.STORAGE_ACTION_FAILURE));
-            } finally {
-
-                try {
-                    _connectionToServer.closeConnection();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                if (_wakeLock.isHeld())
-                    _wakeLock.release();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onCancelled() {
-
-            if (_bis != null) {
-                try {
-                    _bis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            try {
-                _connectionToServer.closeConnection();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, new EventReport(EventType.LOADING_CANCEL));
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-
-            if (_progDialog != null) {
-                _progDialog.incrementProgressBy(progress[0]);
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-
-            String msg = MainActivity.this.getResources().getString(R.string.upload_success);
-            // Setting state
-            AppStateManager.setAppState(MainActivity.this, TAG, AppStateManager.STATE_READY);
-
-            // Setting parameters for snackbar message
-            int color = Color.GREEN;
-            int sBarDuration = Snackbar.LENGTH_LONG;
-
-            UI_Utils.showSnackBar(msg, color, sBarDuration, false, MainActivity.this);
-
-            waitingForTransferSuccess();
-        }
-
-        @Override
-        public void handleMessageFromServer(MessageToClient msg, ConnectionToServer connectionToServer) {
-
-            try {
-
-                ClientAction clientAction = ActionFactory.instance().getAction(msg.getActionType());
-                clientAction.setConnectionToServer(connectionToServer);
-                EventReport eventReport = clientAction.doClientAction(msg.getData());
-
-                if (eventReport.status() != EventType.NO_ACTION_REQUIRED)
-                    BroadcastUtils.sendEventReportBroadcast(MainActivity.this, TAG, eventReport);
-
-            } catch (Exception e) {
-                String errMsg = "Handling message from server failed. Reason:" + e.getMessage();
-                log(Log.INFO, TAG, errMsg);
-            } finally {
-
-                // Finished handling request-response transaction
-                try {
-                    connectionToServer.closeConnection();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        @Override
-        public void handleDisconnection(ConnectionToServer cts, String errMsg) {
-            // Ignoring. We don't wait for response from server on upload anyway
-        }
-
-    }
-
-    private class CompressTask extends MediaProcessingAsyncTask {
-        private final String TAG = CompressTask.class.getSimpleName();
-        private final String OUT_FOLDER = Constants.COMPRESSED_FOLDER;
-        private MediaFileProcessingUtils mediaFileProcessingUtils;
-        private String compressedFilePath;
-        private FileManager _baseFile;
-        private FileManager _compressedFile;
-        private CompressTask _instance = this;
-        private Bundle _bundle;
-        private Thread _workerThread;
-        private Thread _progressUpdateThread;
-
-        private UploadFileFlowListener _uploadFileFlow;
-
-        public CompressTask(int order, UploadFileFlowListener uploadFileFlow) {
-            super(order);
-            _uploadFileFlow = uploadFileFlow;
-            mediaFileProcessingUtils = new MediaFileProcessingUtils(_vk, _compressHandler);
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            String cancel = getResources().getString(R.string.cancel);
-
-            _progDialog = new ProgressDialog(MainActivity.this);
-            _progDialog.setIndeterminate(false);
-            _progDialog.setCancelable(false);
-            _progDialog.setTitle(getResources().getString(R.string.compressing_file));
-            _progDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            _progDialog.setProgress(0);
-            _progDialog.setMax(100);
-            _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    _compressHandler.sendEmptyMessage(MediaFileProcessingUtils.STOP_TRANSCODING_MSG);
-                    _instance.cancel(true);
-                }
-            });
-
-            _progDialog.show();
-        }
-
-        @Override
-        protected Bundle doInBackground(Bundle... params) {
-            try {
-                _bundle = params[0];
-                _baseFile = (FileManager) _bundle.get(FILE_FOR_UPLOAD);
-                compressedFilePath = OUT_FOLDER + getProcessedFileName(_baseFile, "comp");
-
-                _workerThread = new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-
-                        Log.d(TAG, "Worker started");
-                        _vk = new LoadJNI();
-
-                        _compressedFile = mediaFileProcessingUtils.compressMediaFile(_baseFile, compressedFilePath, MainActivity.this);
-                        _compressHandler.sendEmptyMessage(MediaFileProcessingUtils.FINISHED_TRANSCODING_MSG);
-                    }
-                });
-
-                _progressUpdateThread = new Thread(new Runnable() {
-
-                    ProgressCalculator pc = new ProgressCalculator(MediaFileProcessingUtils.VK_LOG_PATH);
-
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "Progress update started");
-                        int progress;
-                        try {
-                            _contCalcProgress = true;
-                            while (_contCalcProgress) {
-                                Thread.sleep(300);
-                                progress = pc.calcProgress();
-                                if (progress != 0 && progress < 100) {
-                                    log(Log.INFO, TAG, "Progress update thread. Progress is:" + progress + "%");
-                                    _progDialog.setProgress(progress);
-                                } else if (progress == 100) {
-                                    log(Log.INFO, TAG, "Progress is 100, exiting progress update thread");
-                                    _progDialog.setProgress(100);
-                                    pc.initCalcParamsForNextInter();
-
-                                    // Waiting for next iteration
-                                    synchronized (_lock) {
-                                        _lock.wait();
-                                        while (!_updateThreadNextIterStarted)
-                                            _lock.wait();
-                                    }
-                                }
-                            }
-                            _progDialog.setProgress(100);
-                        } catch (Exception e) {
-                            log(Log.ERROR, TAG, e.getMessage());
-                        }
-                    }
-                });
-
-                _workerThread.start();
-                _progressUpdateThread.start();
-                _workerThread.join();
-
-                _bundle.putSerializable(FILE_FOR_UPLOAD, _compressedFile);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                log(Log.ERROR, TAG, "Failed to compress file. Exception:" + e.getMessage());
-                _bundle.putSerializable(FILE_FOR_UPLOAD, _baseFile);
-            }
-            return _bundle;
-        }
-
-        @Override
-        protected void onCancelled() {
-            _progDialog.dismiss();
-            _workerThread.interrupt();
-            _progressUpdateThread.interrupt();
-            FileManager.delete(new File(compressedFilePath));
-            sendLoadingCancelled(MainActivity.this, TAG);
-        }
-
-        @Override
-        public boolean isProcessingNeeded(Context ctx, FileManager baseFile) {
-            return mediaFileProcessingUtils.isCompressionNeeded(MainActivity.this, baseFile);
-        }
-
-        @Override
-        public void onPostExecute(Bundle bundle) {
-            if (!isCancelled())
-                _uploadFileFlow.continueUploadFileFlow(order + 1, bundle);
-        }
-
-    }
-
-    private class TrimTask extends MediaProcessingAsyncTask {
-        private final String TAG = TrimTask.class.getSimpleName();
-        private final String OUT_FOLDER = Constants.COMPRESSED_FOLDER;
-        TrimTask _instance = this;
-        private MediaFileProcessingUtils mediaFileProcessingUtils;
-        private FileManager _baseFile;
-        private boolean calcProgress = false;
-        private FileManager _trimmedFile;
-        private Bundle _bundle;
-        private UploadFileFlowListener _uploadFileFlow;
-        private String trimmedFilePath;
-        private Thread _workerThread;
-        private Thread _updateProgressThread;
-
-
-        public TrimTask(int order, UploadFileFlowListener uploadFileFlow) {
-            super(order);
-            _uploadFileFlow = uploadFileFlow;
-
-            mediaFileProcessingUtils = new MediaFileProcessingUtils(_vk);
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            calcProgress = true;
-
-            String cancel = getResources().getString(R.string.cancel);
-
-            _progDialog = new ProgressDialog(MainActivity.this);
-            _progDialog.setIndeterminate(false);
-            _progDialog.setCancelable(false);
-            _progDialog.setTitle(getResources().getString(R.string.trimming));
-            _progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            _progDialog.setProgress(0);
-            _progDialog.setMax(100);
-            _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    _compressHandler.sendEmptyMessage(MediaFileProcessingUtils.STOP_TRANSCODING_MSG);
-                    _instance.cancel(true);
-                }
-            });
-
-            _progDialog.show();
-        }
-
-        @Override
-        protected Bundle doInBackground(Bundle... params) {
-
-            Log.d(TAG, "Worker started");
-            _bundle = params[0];
-            _baseFile = (FileManager) _bundle.get(FILE_FOR_UPLOAD);
-            trimmedFilePath = OUT_FOLDER + getProcessedFileName(_baseFile, "trimmed");
-
-            _vk = new LoadJNI();
-
-            _workerThread = new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-
-                    _trimmedFile = mediaFileProcessingUtils.trimMediaFile(_baseFile, trimmedFilePath, MainActivity.this);
-
-                    try {
-                        Thread.sleep(1000); // Sleeping so in fast trimmings the dialog won't appear and disappear too fast (like a blink)
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    _compressHandler.sendEmptyMessage(MediaFileProcessingUtils.FINISHED_TRANSCODING_MSG);
-
-                }
-            });
-
-            _updateProgressThread = new Thread(new Runnable() {
-
-                ProgressCalculator pc = new ProgressCalculator(MediaFileProcessingUtils.VK_LOG_PATH);
-
-                public void run() {
-                    Log.d(TAG, "Progress update started");
-                    int progress;
-                    try {
-                        while (calcProgress) {
-                            Thread.sleep(300);
-                            progress = pc.calcProgress();
-                            if (progress != 0 && progress < 100) {
-                                _progDialog.setProgress(progress);
-                            } else if (progress == 100) {
-                                log(Log.INFO, TAG, "Progress is 100, exiting progress update thread");
-                                _progDialog.setProgress(100);
-                                pc.initCalcParamsForNextInter();
-                                calcProgress = false;
-                            }
-                        }
-
-                    } catch (Exception e) {
-                        log(Log.ERROR, TAG, e.getMessage());
-                    }
-                }
-
-            });
-
-            _workerThread.start();
-            _updateProgressThread.start();
-
-            try {
-                _workerThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            _bundle.putSerializable(FILE_FOR_UPLOAD, _trimmedFile);
-            return _bundle;
-        }
-
-        @Override
-        protected void onCancelled() {
-            _progDialog.dismiss();
-            _workerThread.interrupt();
-            _updateProgressThread.interrupt();
-            FileManager.delete(new File(trimmedFilePath));
-            sendLoadingCancelled(MainActivity.this, TAG);
-        }
-
-        @Override
-        public boolean isProcessingNeeded(Context ctx, FileManager baseFile) {
-            return mediaFileProcessingUtils.isTrimNeeded(ctx, baseFile);
-        }
-
-        @Override
-        public void onPostExecute(Bundle bundle) {
-            if (!isCancelled())
-                _uploadFileFlow.continueUploadFileFlow(order + 1, bundle);
-        }
-
-    }
-
-    private class RotateTask extends MediaProcessingAsyncTask {
-        private final String TAG = RotateTask.class.getSimpleName();
-        private final String OUT_FOLDER = Constants.COMPRESSED_FOLDER;
-        private FileManager _baseFile;
-        private FileManager _rotatedFile;
-        private String rotatedFilePath;
-        private RotateTask _instance;
-        private Bundle _bundle;
-        private UploadFileFlowListener _uploadFileFlow;
-        private MediaFileProcessingUtils mediaFileProcessingUtils;
-
-
-        public RotateTask(int order, UploadFileFlowListener uploadFileFlow) {
-            super(order);
-            _uploadFileFlow = uploadFileFlow;
-            _instance = this;
-
-            mediaFileProcessingUtils = new MediaFileProcessingUtils();
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            String cancel = getResources().getString(R.string.cancel);
-
-            _progDialog = new ProgressDialog(MainActivity.this);
-            _progDialog.setIndeterminate(false);
-            _progDialog.setCancelable(false);
-            _progDialog.setTitle(getResources().getString(R.string.processing_image));
-            _progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    _instance.cancel(true);
-                }
-            });
-
-            _progDialog.show();
-        }
-
-        @Override
-        protected Bundle doInBackground(Bundle... params) {
-
-            Log.d(TAG, "Worker started");
-            _bundle = params[0];
-            _baseFile = (FileManager) _bundle.get(FILE_FOR_UPLOAD);
-            rotatedFilePath = OUT_FOLDER + getProcessedFileName(_baseFile, "rotated");
-
-            _rotatedFile = mediaFileProcessingUtils.rotateImageFile(_baseFile, rotatedFilePath, MainActivity.this);
-            _bundle.putSerializable(FILE_FOR_UPLOAD, _rotatedFile);
-
-            return _bundle;
-        }
-
-        @Override
-        protected void onCancelled() {
-            _progDialog.dismiss();
-            FileManager.delete(new File(rotatedFilePath));
-            sendLoadingCancelled(MainActivity.this, TAG);
-        }
-
-        @Override
-        public boolean isProcessingNeeded(Context ctx, FileManager baseFile) {
-            return mediaFileProcessingUtils.isRotationNeeded(ctx, baseFile.getFileType());
-        }
-
-        @Override
-        public void onPostExecute(Bundle bundle) {
-            _progDialog.dismiss();
-            if (!isCancelled())
-                _uploadFileFlow.continueUploadFileFlow(order + 1, bundle);
-        }
-
-    }
     //endregion
 }
 

@@ -2,22 +2,18 @@ package com.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
 
-import com.data_objects.Constants;
 import com.crashlytics.android.Crashlytics;
+import com.data_objects.Constants;
+
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-
-import FilesManager.FileManager;
-
-import static com.crashlytics.android.Crashlytics.log;
 
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
@@ -193,31 +189,35 @@ public abstract class MediaFilesUtils {
         return result;
     }
 
-    public static boolean doesFileExistInFolder(String folder, String targetFileName) {
-        boolean result = false;
-        File yourDir = new File(folder);
-        for (File f : yourDir.listFiles()) {
-
-            if (f.isFile()) {
-                String fileName = f.getName();
-                if (fileName.contains(targetFileName)) {
-                    result = true;
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-
-    public static String constructOutputFilePath(FileManager file, String procAction, String outPath) {
-        String currentDateTimeString = new SimpleDateFormat("dd_MM_yy_HHmmss").format(new Date());
-
-        // Givin a unique name to the file to make sure there won't be any duplicates
-        return outPath + currentDateTimeString + "_" + file.getMd5() + procAction + "." + file.getFileExtension();
-    }
-
     public static void triggerMediaScanOnFile(Context context, File file) {
         context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+    }
+
+    /**
+     * Retrieves the file duration using MediaMetadataRetriever
+     *
+     * @param managedFile The file to retrieve its duration
+     * @return The file duration in seconds
+     * @see MediaMetadataRetriever
+     */
+    public static long getFileDurationInSeconds(Context context, FileManager managedFile) {
+        return getFileDurationInMilliSeconds(context, managedFile) / 1000;
+    }
+
+    /**
+     * Retrieves the file duration using MediaMetadataRetriever
+     *
+     * @param managedFile The file to retrieve its duration
+     * @return The file duration in milliseconds
+     * @see MediaMetadataRetriever
+     */
+    public static long getFileDurationInMilliSeconds(Context context, FileManager managedFile) {
+
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(context, Uri.fromFile(managedFile.getFile()));
+        String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        long timeInMilli = Long.parseLong(time);
+        return timeInMilli;
     }
 
     public static FileManager createMediaFile(File file) {

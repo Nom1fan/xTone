@@ -15,5 +15,5 @@ public abstract class ActivityRequestCodes {
     public static final int REQUEST_CAMERA = 8;
     public static final int FIlE_CHOOSER = 9;
     public static final int SELECT_BLACK_LIST_CONTACTS = 10;
-
+    public static final int SELECT_DEFAULT_PROFILE_MEDIA = 11;
 }

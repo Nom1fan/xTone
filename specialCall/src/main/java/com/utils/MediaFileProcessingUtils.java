@@ -295,7 +295,7 @@ public class MediaFileProcessingUtils {
     public boolean isTrimNeeded(Context ctx, FileManager baseFile) {
         boolean isManualTrimNeeded = SharedPrefUtils.getInt(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC) > 0;
         boolean isAutoTrimNeeded = !baseFile.getFileType().equals(FileManager.FileType.IMAGE) &&
-                (_ffmpeg_utils.getFileDurationInMilliSeconds(ctx, baseFile) > MediaFileProcessingUtils.MAX_DURATION)
+                (MediaFilesUtils.getFileDurationInMilliSeconds(ctx, baseFile) > MediaFileProcessingUtils.MAX_DURATION)
                 && (isCompressionNeeded(ctx, baseFile));
 
         return (isAutoTrimNeeded || isManualTrimNeeded);

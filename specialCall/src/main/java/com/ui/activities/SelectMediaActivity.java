@@ -51,7 +51,6 @@ import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
-import Exceptions.InvalidDestinationNumberException;
 import FilesManager.FileManager;
 
 /**
@@ -69,8 +68,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private static final String TAG = SelectMediaActivity.class.getSimpleName();
     private String _recordedAudioFilePath;
     private int SMTypeCode;
-    private String _destName = "";
-    private String _destPhoneNumber = "";
     private float oldPosition = 0;
     private int moveLength= 0;
     private WebView mwebView;
@@ -83,18 +80,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         super.onCreate(savedInstanceState);
         Crashlytics.log(Log.INFO,TAG, "onCreate()");
         Intent intent = getIntent();
-        _destPhoneNumber = intent.getStringExtra(DESTINATION_NUMBER);
-        _destName = intent.getStringExtra(DESTINATION_NAME);
         SMTypeCode = intent.getIntExtra(SPECIAL_MEDIA_TYPE, 1);
 
-        try {
-            //TODO Move this check to MainActivity
-            checkDestinationNumber();
-        } catch (InvalidDestinationNumberException e) {
-            e.printStackTrace();
-            UI_Utils.callToast(getResources().getString(R.string.destnumber_invalid), Color.RED, Toast.LENGTH_LONG, getApplicationContext());
-            finish();
-        }
         initializeSelectMediaUI();
 
     }
@@ -109,15 +96,10 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         if (ActivityRequestCodes.SELECT_CALLER_MEDIA == SMTypeCode)
             mediaType.setText(R.string.select_caller_media_title);
-        else
+        else if (ActivityRequestCodes.SELECT_PROFILE_MEDIA == SMTypeCode)
             mediaType.setText(R.string.select_profile_media_title);
-
-        TextView nameOrPhone = (TextView) findViewById(R.id.contactNameOrNumber);
-
-        if (_destName.isEmpty())
-            nameOrPhone.setText(_destPhoneNumber);
-        else
-            nameOrPhone.setText(_destName);
+//        else if(ActivityRequestCodes.SELECT_DEFAULT_PROFILE_MEDIA == SMTypeCode)
+//            mediaType.setText(R.string.select_default_profile_media_title);
 
         ImageButton videoBtn = (ImageButton) findViewById(R.id.selectVideo);
         videoBtn.setOnClickListener(this);
@@ -464,14 +446,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         startActivityForResult(cameraIntent, ActivityRequestCodes.REQUEST_CAMERA);  // // TODO rony: 31/01/2016 see native camera opens and not other weird different cameras
 
-    }
-
-    private void checkDestinationNumber() throws InvalidDestinationNumberException {
-
-        if(_destPhoneNumber == null)
-            throw new InvalidDestinationNumberException();
-        if(_destPhoneNumber.equals("") || _destPhoneNumber.length() < 10)
-            throw new InvalidDestinationNumberException();
     }
 
     public void recordAudio() {

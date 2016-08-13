@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -66,7 +65,7 @@ public class FFMPEG_Utils {
             String vCodec = extension2vCodec.get(baseFile.getFileExtension());
             File compressedFile = new File(compressedFilePath);
 
-            long duration = getFileDurationInSeconds(context, baseFile); // In seconds
+            long duration = MediaFilesUtils.getFileDurationInSeconds(context, baseFile); // In seconds
             String bitrate = String.valueOf(MediaFileProcessingUtils.VIDEO_SIZE_COMPRESS_NEEDED * 8 / duration); // Units are bits/second
 
             // Command to reduce video bitrate
@@ -256,33 +255,6 @@ public class FFMPEG_Utils {
         String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
 
         return new int[]{Integer.parseInt(width), Integer.parseInt(height)};
-    }
-
-    /**
-     * Retrieves the file duration using MediaMetadataRetriever
-     *
-     * @param managedFile The file to retrieve its duration
-     * @return The file duration in seconds
-     * @see MediaMetadataRetriever
-     */
-    public long getFileDurationInSeconds(Context context, FileManager managedFile) {
-        return getFileDurationInMilliSeconds(context, managedFile) / 1000;
-    }
-
-    /**
-     * Retrieves the file duration using MediaMetadataRetriever
-     *
-     * @param managedFile The file to retrieve its duration
-     * @return The file duration in milliseconds
-     * @see MediaMetadataRetriever
-     */
-    public long getFileDurationInMilliSeconds(Context context, FileManager managedFile) {
-
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(context, Uri.fromFile(managedFile.getFile()));
-        String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        long timeInMilli = Long.parseLong(time);
-        return timeInMilli;
     }
 
     /**
