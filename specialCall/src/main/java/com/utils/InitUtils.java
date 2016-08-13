@@ -96,47 +96,52 @@ public abstract class InitUtils {
 
     private static void populateSharedPrefMedia(Context context,List<File> Directories, SpecialMediaType specialMediaType) {
 
-        for (int i=0; i<Directories.size(); i++) {
+        for (int i = 0; i < Directories.size(); i++) {
 
             List<File> DirFiles = getSpecificFolderFiles(new File(Directories.get(i).getAbsolutePath()));
 
-            for (int x=0; x<DirFiles.size(); x++) {
+            for (int x = 0; x < DirFiles.size(); x++) {
                 FileManager.FileType fType = null;
 
                 try {
                     String extension = FileManager.extractExtension(DirFiles.get(x).getAbsolutePath());
                     fType = FileManager.getFileTypeByExtension(extension);
-                }
-                catch(FileMissingExtensionException e)
-                {
-                    log(Log.INFO,TAG , "FileMissingExtensionException in initializeLoadingSavedMCFromDiskToSharedPrefs in" + Constants.OUTGOING_FOLDER);
+                } catch (FileMissingExtensionException e) {
+                    log(Log.INFO, TAG, "FileMissingExtensionException in initializeLoadingSavedMCFromDiskToSharedPrefs in" + specialMediaType.toString());
                     e.printStackTrace();
-                } catch(FileInvalidFormatException e)
-                {
-                    log(Log.INFO,TAG , "FileInvalidFormatException in initializeLoadingSavedMCFromDiskToSharedPrefs in" + Constants.OUTGOING_FOLDER);
+                } catch (FileInvalidFormatException e) {
+                    log(Log.INFO, TAG, "FileInvalidFormatException in initializeLoadingSavedMCFromDiskToSharedPrefs in" + specialMediaType.toString());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    log(Log.INFO, TAG, "populateSharedPrefMedia bad file  in initializeLoadingSavedMCFromDiskToSharedPrefs in" + specialMediaType.toString());
                     e.printStackTrace();
                 }
 
-                switch (fType) {
-                    case AUDIO:
+                if (fType != null)
+                    switch (fType) {
+                        case AUDIO:
 
-                        if (specialMediaType == SpecialMediaType.PROFILE_MEDIA)
-                            SharedPrefUtils.setString(context,SharedPrefUtils.FUNTONE_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
-                        else
-                            SharedPrefUtils.setString(context,SharedPrefUtils.RINGTONE_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
+                            if (specialMediaType == SpecialMediaType.PROFILE_MEDIA) {
+                                SharedPrefUtils.setString(context, SharedPrefUtils.FUNTONE_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
+                                log(Log.INFO, TAG, "populateSharedPrefMedia FUNTONE_FILEPATH: " + specialMediaType.toString() + " for: " + DirFiles.get(x).getName().split("\\.")[0] + " file: " + DirFiles.get(x).getAbsolutePath());
+                            } else {
+                                SharedPrefUtils.setString(context, SharedPrefUtils.RINGTONE_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
+                                log(Log.INFO, TAG, "populateSharedPrefMedia RINGTONE_FILEPATH: " + specialMediaType.toString() + " for: " + DirFiles.get(x).getName().split("\\.")[0] + " file: " + DirFiles.get(x).getAbsolutePath());
+                            }
+                            break;
 
-                        break;
+                        case VIDEO:
+                        case IMAGE:
 
-                    case VIDEO:
-                    case IMAGE:
-
-                        if (specialMediaType == SpecialMediaType.PROFILE_MEDIA)
-                            SharedPrefUtils.setString(context,SharedPrefUtils.PROFILE_MEDIA_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
-                        else
-                            SharedPrefUtils.setString(context,SharedPrefUtils.CALLER_MEDIA_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
-
-                        break;
-                }
+                            if (specialMediaType == SpecialMediaType.PROFILE_MEDIA) {
+                                SharedPrefUtils.setString(context, SharedPrefUtils.PROFILE_MEDIA_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
+                                log(Log.INFO, TAG, "populateSharedPrefMedia PROFILE_MEDIA_FILEPATH: " + specialMediaType.toString() + " for: " + DirFiles.get(x).getName().split("\\.")[0] + " file: " + DirFiles.get(x).getAbsolutePath());
+                            } else {
+                                SharedPrefUtils.setString(context, SharedPrefUtils.CALLER_MEDIA_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
+                                log(Log.INFO, TAG, "populateSharedPrefMedia CALLER_MEDIA_FILEPATH: " + specialMediaType.toString() + " for: " + DirFiles.get(x).getName().split("\\.")[0] + " file: " + DirFiles.get(x).getAbsolutePath());
+                            }
+                            break;
+                    }
             }
         }
     }
