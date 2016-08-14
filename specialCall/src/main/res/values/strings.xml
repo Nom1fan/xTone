@@ -59,7 +59,7 @@
     <string name="upload_took_too_long">Oops! Upload took too long</string>
     <string name="compressing_file">Compressing file...</string>
     <string name="compressing_file2">Optimizing resolution...</string>
-    <string name="trimming">Trimming to 30 seconds. Please wait...</string>
+    <string name="trimming">Trimming to 60 seconds. Please wait...</string>
     <string name="processing_image">Processing image...</string>
 
     <string name="upload_success">Media on the way!</string>
