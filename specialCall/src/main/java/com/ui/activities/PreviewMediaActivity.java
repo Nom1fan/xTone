@@ -274,6 +274,9 @@ public class PreviewMediaActivity extends AppCompatActivity {
 
                 previewThumbnail.setVisibility(View.INVISIBLE);
                 previewThumbnail.setClickable(false);
+                _previewVideoTrimFile = (ImageButton) findViewById(R.id.playVideoTrimPreview);
+                _previewVideoTrimFile.setVisibility(View.VISIBLE);
+
                 SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, 0);
                 SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, 0);
                 startInMili=0;
@@ -470,6 +473,25 @@ public class PreviewMediaActivity extends AppCompatActivity {
         CustomWaveformFragment(String filePath,Context context){
             _filePath = filePath;
             _Context = context;
+
+
+            _previewVideoTrimFile.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+
+                    if (isPreviewDisplaying) {
+                        onPlay(mStartPos);
+                        isPreviewDisplaying = false;
+                        _previewVideoTrimFile.setImageResource(R.drawable.play_preview_anim);
+
+                    } else {
+                        onPlay(mStartPos);
+                        isPreviewDisplaying = true;
+                        _previewVideoTrimFile.setImageResource(R.drawable.stop_preview_anim);
+
+                    }
+                }
+            });
+
         }
 
 
