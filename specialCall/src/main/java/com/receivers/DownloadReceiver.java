@@ -55,7 +55,7 @@ public class DownloadReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         EventReport eventReport = (EventReport) intent.getSerializableExtra(Event.EVENT_REPORT);
 
-        if (eventReport.status() == EventType.DOWNLOAD_SUCCESS) {
+        if (eventReport!=null && eventReport.status() == EventType.DOWNLOAD_SUCCESS) {
             Crashlytics.log(Log.INFO,TAG, "In: DOWNLOAD_SUCCESS");
 
             HashMap td = (HashMap) eventReport.data();

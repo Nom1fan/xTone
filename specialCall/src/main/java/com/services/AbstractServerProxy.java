@@ -116,7 +116,9 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
             clientAction.setConnectionToServer(connectionToServer);
             EventReport eventReport = clientAction.doClientAction(msg.getData());
 
-            if (eventReport.status() != EventType.NO_ACTION_REQUIRED)
+            if(eventReport==null)
+                log(Log.WARN, TAG, "ClientAction:" + clientAction.getClass().getSimpleName() + " returned null eventReport");
+            else if (eventReport.status() != EventType.NO_ACTION_REQUIRED)
                 BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, eventReport);
 
             setMidAction(false);

@@ -229,7 +229,9 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
             clientAction.setConnectionToServer(connectionToServer);
             EventReport eventReport = clientAction.doClientAction(msg.getData());
 
-            if (eventReport.status() != EventType.NO_ACTION_REQUIRED)
+            if(eventReport==null)
+                log(Log.WARN, TAG, "ClientAction:" + clientAction.getClass().getSimpleName() + " returned null eventReport");
+            else if (eventReport.status() != EventType.NO_ACTION_REQUIRED)
                 BroadcastUtils.sendEventReportBroadcast(context, TAG, eventReport);
 
         } catch (Exception e) {
