@@ -307,7 +307,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void enableLoginButton() {
 
-        Log.v(TAG, "Enabling LoginButton");
+        Log.d(TAG, "Enabling LoginButton");
 
         _loginBtn.setEnabled(true);
         _loginBtn.setImageResource(R.drawable.login_btn_anim);
@@ -316,7 +316,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void disableLoginButton() {
 
-        Log.v(TAG, "Disabling LoginButton");
+        Log.d(TAG, "Disabling LoginButton");
 
         _loginBtn.setEnabled(false);
         _loginBtn.setImageResource(R.drawable.login_icon_disabled);
@@ -324,7 +324,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void enableLoginEditText() {
 
-        Log.v(TAG, "Enabling LoginEditText");
+        Log.d(TAG, "Enabling LoginEditText");
 
         _loginNumberEditText.setEnabled(true);
         _loginNumberEditText.setTextColor(ContextCompat.getColor(this, R.color.white));
@@ -333,7 +333,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void disableLoginEditText() {
 
-        Log.v(TAG, "Disabling LoginEditText");
+        Log.d(TAG, "Disabling LoginEditText");
 
         _loginNumberEditText.setEnabled(false);
         _clearLoginPhoneText.setEnabled(false);
@@ -341,7 +341,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void enableSmsCodeEditText() {
 
-        Log.v(TAG, "Enabling SmsCodeEditText");
+        Log.d(TAG, "Enabling SmsCodeEditText");
 
         _smsCodeVerEditText.setEnabled(true);
         _smsCodeVerEditText.setTextColor(ContextCompat.getColor(this, R.color.white));
@@ -350,7 +350,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void disableSmsCodeEditText() {
 
-        Log.v(TAG, "Disabling SmsCodeEditText");
+        Log.d(TAG, "Disabling SmsCodeEditText");
 
         _smsCodeVerEditText.setEnabled(false);
         _clearLoginSmsText.setEnabled(false);
@@ -358,7 +358,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void enableGetSmsCodeButton() {
 
-        Log.v(TAG, "Enabling getSmsButton");
+        Log.d(TAG, "Enabling getSmsButton");
 
         boolean shouldEnable = true;
 
@@ -374,7 +374,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void disableGetSmsCodeButton() {
 
-        Log.v(TAG, "Disabling getSmsButton");
+        Log.d(TAG, "Disabling getSmsButton");
 
         _getSmsCodeBtn.setEnabled(false);
         _getSmsCodeBtn.setImageResource(R.drawable.send_sms_icon_disabled);

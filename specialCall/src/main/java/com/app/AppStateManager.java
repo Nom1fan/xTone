@@ -108,11 +108,11 @@ public class AppStateManager {
         if (isNonBlockingState(curState)) {
 
             if(curState.isEmpty()) {
-                Log.v(TAG, "saveCurrAppState:" + STATE_IDLE);
+                Log.d(TAG, "saveCurrAppState:" + STATE_IDLE);
                 SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_PREV_STATE, STATE_IDLE);
             }
             else {
-                Log.v(TAG, "saveCurrAppState:" + curState);
+                Log.d(TAG, "saveCurrAppState:" + curState);
                 SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_PREV_STATE, curState);
             }
         }

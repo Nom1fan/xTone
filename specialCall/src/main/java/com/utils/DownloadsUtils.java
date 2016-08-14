@@ -33,7 +33,7 @@ public abstract class DownloadsUtils {
         new Thread() {
             @Override
             public void run() {
-                Log.v(TAG, "Enqueuing pending download:" + pendingDlData);
+                Log.d(TAG, "Enqueuing pending download:" + pendingDlData);
 
                 String sourceId = pendingDlData.get(DataKeys.SOURCE_ID).toString();
                 String extension = pendingDlData.get(DataKeys.EXTENSION).toString();
@@ -60,7 +60,7 @@ public abstract class DownloadsUtils {
             }
         }.start();
 
-        //Log.v(TAG, "Download queue:" + _downloadQueue);
+        //Log.d(TAG, "Download queue:" + _downloadQueue);
     }
 
     public static void sendActionDownload(Context context, HashMap transferDetails) {
