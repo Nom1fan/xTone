@@ -39,6 +39,7 @@
     <string name="finished_waiting_msg"> המכשיר שלו כרגע לא זמין\n אנחנו נעדכן אותך</string>
     <string name="dont_show_again"> אל תראה את זה יותר</string>
     <string name="just_notify"> פשוט תעדכן</string>
+    <string name="block">\?חסום</string>
 
     <!--  Tips  -->
     <string name="set_window"> שחק עם חלון המדיה שלך</string>
