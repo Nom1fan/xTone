@@ -34,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/video_image"
-        android:src="@drawable/select_video_anim"
+        android:src="@drawable/selectmedia_btn_anim"
         android:id="@+id/selectVideo"
         android:layout_gravity="center_vertical"
         android:layout_alignParentRight="true"

@@ -8,7 +8,7 @@
     <string name="oops_try_again">Oops! please try again</string>
     <string name="disconnected">Huh? No internet?</string>
     <string name="invite">You are Invited to MediaCallz https://play.google.com/apps/testing/com.mediacallz.app</string>
-    <string name="block">Block\?</string>
+    <string name="block">Block</string>
 
     <!-- ### Activities ###  -->
     <!--  LoginActivity  -->
