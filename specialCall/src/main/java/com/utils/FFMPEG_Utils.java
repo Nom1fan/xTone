@@ -266,7 +266,7 @@ public class FFMPEG_Utils {
      */
     public int[] getImageResolution(FileManager managedFile) {
 
-        Bitmap bitmap = BitmapFactory.decodeFile(managedFile.getFileFullPath());
+        Bitmap bitmap = BitmapUtils.decodeSampledBitmapFromImageFile(managedFile.getFileFullPath());
         int height = bitmap.getHeight();
         int width = bitmap.getWidth();
         bitmap.recycle();
