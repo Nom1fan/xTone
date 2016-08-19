@@ -250,7 +250,7 @@ public class FFMPEG_Utils {
     public int[] getVideoResolution(FileManager managedFile) {
 
         MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
-        metaRetriever.setDataSource(managedFile.getFileFullPath());
+        metaRetriever.setDataSource(managedFile.getFile().getAbsolutePath());
         String height = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
         String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
 
