@@ -244,8 +244,8 @@
     <string name="enable_adv_settings_summary">In case you have bugs in receiving MC calls</string>
     <string name="foreground_settings_title">Enable forground MC service</string>
     <string name="foreground_settings_summary">In case you are missing MC calls ,enable this. may use more battery and (need app restart)</string>
-    <string name="ringing_override_settings_title">Enable ringing buggy override</string>
-    <string name="ringing_override_settings_summary">In case you receive Silent MC calls, this may fix your bug</string>
+    <string name="ringing_override_settings_title">for ringing issues(usually LG devices)</string>
+    <string name="ringing_override_settings_summary">In case you receive Silent MC calls or something else, this may fix your bug</string>
     <string name="delete_account_summary">Delete account and all data</string>
     <string name="send_logs_summary">send app activity logs for debugging</string>
 </resources>
