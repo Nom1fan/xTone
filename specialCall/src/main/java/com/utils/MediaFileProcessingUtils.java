@@ -36,7 +36,7 @@ public class MediaFileProcessingUtils {
     public static final int AUDIO_SIZE_COMPRESS_NEEDED = 3145728; // 3MB
     public static final int IMAGE_SIZE_COMPRESS_NEEDED = 1048576; // 1MB
     public static final int AFTER_TRIM_SIZE_COMPRESS_NEEDED = 4194304; // 4MB
-    public static final long MAX_DURATION = 31 * 1000;      // Milliseconds
+    public static final long MAX_DURATION = 61 * 1000;      // Milliseconds
     public static final int MIN_RESOLUTION = 320;     // MIN width resolution
     public static final int FINISHED_TRANSCODING_MSG = 0;
     public static final int COMPRESSION_PHASE_2 = 1;

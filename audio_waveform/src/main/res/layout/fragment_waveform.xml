@@ -47,7 +47,7 @@
     <LinearLayout
             style="@style/ToolbarBackground"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="3dp"
             android:gravity="center_horizontal"
         android:background="#004559">
 
@@ -58,7 +58,8 @@
                      android:contentDescription="@string/rewind"
                      android:src="@android:drawable/ic_media_previous"
             android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp" />
+            android:layout_marginBottom="5dp"
+            android:visibility="invisible" />
 
         <ImageButton android:id="@+id/play"
                      android:layout_width="71dip"
@@ -67,7 +68,8 @@
                      android:contentDescription="@string/play"
                      android:src="@android:drawable/ic_media_play"
             android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp" />
+            android:layout_marginBottom="5dp"
+            android:visibility="invisible" />
 
         <ImageButton android:id="@+id/ffwd"
                      android:layout_width="64dip"
@@ -76,7 +78,8 @@
                      android:contentDescription="@string/ffwd"
                      android:src="@android:drawable/ic_media_next"
             android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp" />
+            android:layout_marginBottom="5dp"
+            android:visibility="invisible" />
 
     </LinearLayout>
 

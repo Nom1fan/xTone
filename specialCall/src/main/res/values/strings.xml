@@ -8,6 +8,7 @@
     <string name="oops_try_again">Oops! please try again</string>
     <string name="disconnected">Huh? No internet?</string>
     <string name="invite">You are Invited to MediaCallz https://play.google.com/apps/testing/com.mediacallz.app</string>
+    <string name="block">Block</string>
 
     <!-- ### Activities ###  -->
     <!--  LoginActivity  -->
@@ -59,7 +60,7 @@
     <string name="upload_took_too_long">Oops! Upload took too long</string>
     <string name="compressing_file">Compressing file...</string>
     <string name="compressing_file2">Optimizing resolution...</string>
-    <string name="trimming">Trimming to 30 seconds. Please wait...</string>
+    <string name="trimming">Trimming to 60 seconds. Please wait...</string>
     <string name="processing_image">Processing image...</string>
 
     <string name="upload_success">Media on the way!</string>

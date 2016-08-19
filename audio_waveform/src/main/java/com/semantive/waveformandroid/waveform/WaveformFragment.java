@@ -245,8 +245,8 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
         if (marker == mStartMarker) {
             mStartPos = trap((int) (mTouchInitialStartPos + delta));
             mEndPos = trap((int) (mTouchInitialEndPos + delta));
-            if (Startmiliseconds <= (Endmiliseconds - 30000))
-                mEndPos = mStartPos + mWaveformView.millisecsToPixels(30000);
+            if (Startmiliseconds <= (Endmiliseconds - 60000))
+                mEndPos = mStartPos + mWaveformView.millisecsToPixels(60000);
 
 
             if (Startmiliseconds >= (Endmiliseconds - 1000)) {
@@ -264,8 +264,8 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
 
         } else {
 
-            if (Endmiliseconds >= (Startmiliseconds +30000))
-                mStartPos = mEndPos - mWaveformView.millisecsToPixels(30000);
+            if (Endmiliseconds >= (Startmiliseconds +60000))
+                mStartPos = mEndPos - mWaveformView.millisecsToPixels(60000);
 
             if (Startmiliseconds >= (Endmiliseconds)) {
 

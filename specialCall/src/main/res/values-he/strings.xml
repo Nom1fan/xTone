@@ -39,6 +39,7 @@
     <string name="finished_waiting_msg"> המכשיר של היעד כרגע לא זמין\n אנחנו נעדכן אותך כשהפעולה תתבצע</string>
     <string name="dont_show_again"> אל תראה את זה יותר</string>
     <string name="just_notify"> פשוט תעדכן אותי</string>
+    <string name="block">לחסום</string>
 
     <!--  Tips  -->
     <string name="set_window"> שחק עם חלון המדיה שלך</string>
@@ -67,7 +68,7 @@
 
     <string name="compressing_file">דוחס קובץ...</string>
     <string name="compressing_file2">מתאים רזולוציה...</string>
-    <string name="trimming">חותך את הקובץ ל-30 שניות. אנא המתן...</string>
+    <string name="trimming">חותך את הקובץ ל-60 שניות. אנא המתן...</string>
     <string name="processing_image">מעבד תמונה...</string>
 
     <string name="upload_success">המדיה בדרך!</string>

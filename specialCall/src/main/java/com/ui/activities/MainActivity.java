@@ -49,6 +49,7 @@ import com.app.AppStateManager;
 import com.async_tasks.AutoCompletePopulateListAsyncTask;
 import com.async_tasks.IsRegisteredTask;
 import com.batch.android.Batch;
+import com.crashlytics.android.Crashlytics;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.data_objects.ActivityRequestCodes;
@@ -146,6 +147,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         Log.i(TAG, "onCreate()");
 
         startLoginActivityIfLoggedOut();
+
+        // so we can know who device was crashed, and get it's phone number.
+        Crashlytics.setUserIdentifier(Constants.MY_ID(getApplicationContext()));
 
         if (AppStateManager.didAppCrash(this)) {
             Log.w(TAG, "Detected app previously crashed. Handling...");
@@ -1449,7 +1453,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         UI_Utils.showCaseViewSelectMedia(this, MainActivity.this);
 
                     selectMediaBtn.setImageDrawable(null);
-                    selectMediaBtn.setBackgroundColor(0x67000000);
+                    selectMediaBtn.setBackground(getResources().getDrawable(R.drawable.thumbnail_callermedia));
 
                     callerHasMedia = false;
                     disableMediaStatusArrived();
