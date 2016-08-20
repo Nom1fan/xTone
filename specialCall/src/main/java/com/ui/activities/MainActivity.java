@@ -1493,7 +1493,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     profileHasMedia = true;
                 } else // enabled but no uploaded media
                 {
-                    BitmapUtils.execBitmapWorkerTask(defaultpic_enabled, this, getResources(), R.drawable.select_profile_media_enabled, true);
+                   // BitmapUtils.execBitmapWorkerTask(defaultpic_enabled, this, getResources(), R.drawable.select_profile_media_enabled, true);
+                    defaultpic_enabled.setImageResource(R.drawable.profile_media_anim); // make the imageview pressed for PROFILE MEDIA BTN
                     profileHasMedia = false;
                 }
             }
