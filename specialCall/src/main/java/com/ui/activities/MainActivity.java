@@ -1453,7 +1453,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         UI_Utils.showCaseViewSelectMedia(this, MainActivity.this);
 
                     selectMediaBtn.setImageDrawable(null);
-                    selectMediaBtn.setBackground(getResources().getDrawable(R.drawable.thumbnail_callermedia));
+                    selectMediaBtn.setBackground(getResources().getDrawable(R.drawable.caller_media_anim));
 
                     callerHasMedia = false;
                     disableMediaStatusArrived();

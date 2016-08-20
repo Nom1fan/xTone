@@ -47,7 +47,7 @@
         android:layout_marginRight="30dp"
         android:layout_marginLeft="30dp"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/thumbnail_callermedia"
+        android:background="@drawable/caller_media_anim"
         android:cropToPadding="false"
         android:layout_marginTop="10dp" />
 
