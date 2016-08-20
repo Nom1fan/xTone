@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private boolean callerHasMedia = false;
     private boolean profileHasRingtone = false;
     private boolean callerHasRingtone = false;
+    private boolean openDrawer = false;
     private Snackbar snackBar;
     private Dialog tipDialog = null;
     private Dialog windowVideoDialog = null;
@@ -191,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         super.onResume();
         log(Log.INFO, TAG, "onResume()");
         setUserIdentifier(SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER));
-
+        openDrawer = false;
         String appState = getState();
         log(Log.INFO, TAG, "App State:" + appState);
 
@@ -252,6 +253,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         saveInstanceState();
 
         UI_Utils.dismissAllStandOutWindows(getApplicationContext());
+
+            /* Apply our splash exit (fade out) and main
+            entry (fade in) animation transitions. */
+       if (openDrawer)
+            overridePendingTransition(R.anim.slide_in_up, R.anim.no_animation); // open drawer animation
+
+
+
 //        UI_Utils.unbindDrawables(findViewById(R.id.mainActivity));
 //        System.gc();
     }
@@ -532,10 +541,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         mainIntent.putExtra(SelectMediaActivity.DESTINATION_NUMBER, destPhoneNumber);
         mainIntent.putExtra(SelectMediaActivity.DESTINATION_NAME, destName);
         startActivityForResult(mainIntent, ActivityRequestCodes.SELECT_MEDIA);
+        openDrawer = true;
 
-         /* Apply our splash exit (fade out) and main
-            entry (fade in) animation transitions. */
-        overridePendingTransition(R.anim.slide_in_up, R.anim.no_animation); // open drawer animation
     }
 
     public void onClick(View v) {
