@@ -1270,7 +1270,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         break;
                     case R.id.profile_media_tutorial:
 
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://youtu.be/f0ztFdBL8Ws")));
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://youtu.be/w2Jci6Ujbp0")));
 
                         break;
                 }
