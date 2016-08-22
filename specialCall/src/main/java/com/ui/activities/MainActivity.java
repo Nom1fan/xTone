@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private DrawerLayout mDrawerLayout;
     private ImageView mediaStatus;
     private ImageButton defaultpic_enabled;
+    private ImageButton tutorial_imageButton;
     private TextView ringToneNameTextView;
     private TextView ringToneNameForProfileTextView;
     private TextView profile_textview;
@@ -230,7 +231,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             syncAndroidVersionWithServer();
 
-            startingSetWindowVideoDialog();
+            // TODO: maybe we don't need this anymore and remove it. we have the tutorial videos and that's enough
+            //startingSetWindowVideoDialog();
+            UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
         }
 
     }
@@ -586,6 +589,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             AutoCompleteTextView textViewToClear = (AutoCompleteTextView) findViewById(R.id.CallNumber);
             textViewToClear.setText("");
 
+        }else if (id == R.id.tutorial_btn) {
+                openMCTutorialMenu();
         }
     }
 
@@ -884,6 +889,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         prepareSelectContactButton();
         prepareSelectProfileMediaButton();
         prepareClearTextButton();
+        prepareMCTutorialButton();
+    }
+
+    private void prepareMCTutorialButton() {
+
+        tutorial_imageButton = (ImageButton) findViewById(R.id.tutorial_btn);
+        if (tutorial_imageButton != null)
+            tutorial_imageButton.setOnClickListener(this);
+
     }
 
     //region UI States
@@ -1228,6 +1242,37 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         clearDialog.show(getFragmentManager(), TAG);
                         break;
 
+                }
+                return true;
+            }
+        });
+
+        popup.show();
+
+    }
+
+    private void openMCTutorialMenu() {
+
+        ImageButton tutorial_btn = (ImageButton) findViewById(R.id.tutorial_btn);
+        //Creating the instance of PopupMenu
+        PopupMenu popup = new PopupMenu(MainActivity.this, tutorial_btn);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.popup_tutorial_videos, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                log(Log.INFO, TAG, String.valueOf(item.getItemId()));
+                switch (item.getItemId()) {
+                    case R.id.caller_media_tutorial:
+
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://youtu.be/f0ztFdBL8Ws")));
+
+                        break;
+                    case R.id.profile_media_tutorial:
+
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://youtu.be/f0ztFdBL8Ws")));
+
+                        break;
                 }
                 return true;
             }

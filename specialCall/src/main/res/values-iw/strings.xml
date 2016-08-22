@@ -40,6 +40,10 @@
     <string name="dont_show_again"> אל תראה את זה יותר</string>
     <string name="just_notify"> פשוט תעדכן</string>
     <string name="block">לחסום</string>
+    <string name="tutorial_text">סרטוני</string>
+    <string name="tutorial_text1">הדרכה</string>
+    <string name="tutorial_caller">מדיית מתקשר</string>
+    <string name="tutorial_profile">מדיית פרופיל</string>
 
     <!--  Tips  -->
     <string name="set_window"> שחק עם חלון המדיה שלך</string>

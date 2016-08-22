@@ -278,6 +278,47 @@
         android:layout_marginLeft="5dp"
         android:layout_marginTop="15dp" />
 
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:id="@+id/tutorial_btn"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentRight="false"
+        android:src="@drawable/tutorial_anim"
+        android:scaleType="fitCenter"
+        android:background="#00ffffff"
+        android:layout_alignLeft="@+id/selectContactBtn"
+        android:layout_alignRight="@+id/selectContactBtn" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tutorial_text"
+        android:id="@+id/tutorial_textview"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:layout_below="@+id/tutorial_btn"
+        android:layout_alignParentRight="false"
+        android:layout_alignLeft="@+id/tutorial_btn"
+        android:layout_alignRight="@+id/tutorial_btn"
+        android:textSize="10dp"
+        android:textColor="@color/white" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tutorial_text1"
+        android:id="@+id/textView4"
+        android:fontFamily="sans-serif-light"
+        android:layout_below="@+id/tutorial_textview"
+        android:layout_toStartOf="@+id/ringtoneName"
+        android:layout_alignLeft="@+id/tutorial_textview"
+        android:layout_alignRight="@+id/tutorial_textview"
+        android:gravity="center"
+        android:textSize="10dp"
+        android:textColor="@color/white" />
+
 </RelativeLayout>
 
     <ListView

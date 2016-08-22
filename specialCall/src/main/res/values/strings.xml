@@ -9,6 +9,10 @@
     <string name="disconnected">Huh? No internet?</string>
     <string name="invite">You are Invited to MediaCallz https://play.google.com/apps/testing/com.mediacallz.app</string>
     <string name="block">Block</string>
+    <string name="tutorial_text">Instructional</string>
+    <string name="tutorial_text1">videos</string>
+    <string name="tutorial_caller">Caller media</string>
+    <string name="tutorial_profile">Profile media</string>
 
     <!-- ### Activities ###  -->
     <!--  LoginActivity  -->
