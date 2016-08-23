@@ -114,6 +114,7 @@ public abstract class SharedPrefUtils {
     public static final String PREVIEW_MC_WINDOW_Y_LOCATION_BY_USER     =   "PreviewMCWindowYLocationByUser";
     public static final String DEVICE_SCREEN_HEIGHET                    =   "DeviceScreenHeighet";
     public static final String DEVICE_SCREEN_WIDTH                      =   "DeviceScreenWidth";
+    public static final String DONT_BOTHER_INC_CALL_POPUP               =   "DontBotherIncomingCallPopUp";
 
     //endregion
 

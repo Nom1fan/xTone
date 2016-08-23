@@ -323,6 +323,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         //Crashlytics.log(Log.INFO,TAG, "onUpdate");
         try {
 
+            if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION))
+                 SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.DONT_BOTHER_INC_CALL_POPUP,true);
+
             ((VideoViewCustom) mSpecialCallView).setDimensions(window.getHeight(), window.getWidth());
             ((VideoViewCustom) mSpecialCallView).getHolder().setFixedSize(window.getHeight(), window.getWidth());
             ((VideoViewCustom) mSpecialCallView).postInvalidate(); // TODO Rony maybe not needed invalidate
@@ -426,7 +429,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         Point size = new Point();
         display.getSize(size);
         mWidth = size.x;
-        mHeight = size.y * 63 / 100;
+        mHeight = size.y * 55 / 100;
 
         showFirstTime = true;
 

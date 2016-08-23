@@ -9,6 +9,7 @@ import wei.mark.standout.StandOutWindow.StandOutLayoutParams;
 import wei.mark.standout.Utils;
 import wei.mark.standout.constants.StandOutFlags;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -372,6 +373,19 @@ public class Window extends FrameLayout {
 				.getLayoutParams();
 		if (params == null) {
 			params = originalParams;
+
+
+			try {
+				SharedPreferences prefs = mContext.getSharedPreferences("Services", Context.MODE_PRIVATE);
+				if (!prefs.getBoolean("DontBotherIncomingCallPopUp", false) && prefs.getBoolean("IncomingWindowSession", false)) {
+					Log.i(TAG, "got into it.....");
+					params.y = 500;  // TODO so it won't bother the incoming call pop up in the top of the screen
+				}
+			} catch (Exception e) {
+
+				Log.e(TAG, "SharedPreferences failure in Window.java (prefs.getBoolean(\"DontBotherIncomingCallPopUp\", false)) ");
+			}
+
 		}
 		return params;
 	}
