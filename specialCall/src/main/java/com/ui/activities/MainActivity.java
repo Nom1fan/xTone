@@ -74,8 +74,11 @@ import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
 import com.utils.SharedPrefUtils;
+import com.utils.SpecialDevicesUtils;
 import com.utils.UI_Utils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -83,6 +86,7 @@ import java.util.List;
 import java.util.Random;
 
 import DataObjects.DataKeys;
+import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
 import EventObjects.Event;
 import EventObjects.EventReport;
@@ -1170,6 +1174,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 //        dataList.add(new DrawerItem("Rate Us", R.drawable.rateus2));
         dataList.add(new DrawerItem(getResources().getString(R.string.app_settings), R.drawable.settingsicon));
         dataList.add(new DrawerItem(getResources().getString(R.string.about_FAQ), R.drawable.about_help));
+        dataList.add(new DrawerItem(getResources().getString(R.string.report_bug), R.drawable.report_bug));
 
         CustomDrawerAdapter mAdapter = new CustomDrawerAdapter(this, R.layout.custome_drawer_item,
                 dataList);
@@ -1196,9 +1201,52 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             case 3: // About & Help
                 appAboutAndHelp();
                 break;
+            case 4: // Send Bug
+                SendBugReport();
+                break;
         }
 
         mDrawerLayout.closeDrawer(DrawerList);
+    }
+
+    private void SendBugReport() {
+
+        // save logcat in file
+        File outputFile = new File(SharedConstants.ROOT_FOLDER,
+                "logcat.txt");
+        try {
+            Runtime.getRuntime().exec(
+                    "logcat -f " + outputFile.getAbsolutePath());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        //send file using email
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        // Set type to "email"
+        emailIntent.setType("vnd.android.cursor.dir/email");
+        String to[] = {"ronyahae@gmail.com" , "mormerhav@gmail.com"};
+        emailIntent .putExtra(Intent.EXTRA_EMAIL, to);
+        // the attachment
+        Uri uri = Uri.fromFile(outputFile);
+        emailIntent .putExtra(Intent.EXTRA_STREAM, uri);
+
+        if (getApplicationContext() !=null){
+            emailIntent.putExtra(Intent.EXTRA_TEXT,
+                    "\n MY_ID: " + Constants.MY_ID(getApplicationContext())
+                            +   "\n MY_BATCH_TOKEN: " + Constants.MY_BATCH_TOKEN(getApplicationContext())
+                            +   "\n Device Model: " + SpecialDevicesUtils.getDeviceName()
+                            +   "\n MY_ANDROID_VERSION: " + Constants.MY_ANDROID_VERSION(getApplicationContext())
+                            +   "\n MediaCallz App Version: " + Constants.APP_VERSION(getApplicationContext())
+            );
+
+            // the mail subject
+            emailIntent .putExtra(Intent.EXTRA_SUBJECT, "MediaCallz_Logs Received from: " + Constants.MY_ID(getApplicationContext()));
+        }
+        startActivity(Intent.createChooser(emailIntent , "Send email..."));
+
+
     }
 
     private void appSettings() {

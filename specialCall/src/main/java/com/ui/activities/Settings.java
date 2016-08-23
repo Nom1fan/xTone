@@ -85,52 +85,6 @@ public class Settings extends PreferenceFragment {
         });
 
 
-
-        Preference sendLogs = findPreference("Send Logs");
-        sendLogs.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-
-                Context context = getActivity().getApplicationContext();
-                // save logcat in file
-                File outputFile = new File(SharedConstants.ROOT_FOLDER,
-                        "logcat.txt");
-                try {
-                    Runtime.getRuntime().exec(
-                            "logcat -f " + outputFile.getAbsolutePath());
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                //send file using email
-                Intent emailIntent = new Intent(Intent.ACTION_SEND);
-                // Set type to "email"
-                emailIntent.setType("vnd.android.cursor.dir/email");
-                String to[] = {"ronyahae@gmail.com" , "mormerhav@gmail.com"};
-                emailIntent .putExtra(Intent.EXTRA_EMAIL, to);
-                // the attachment
-                Uri uri = Uri.fromFile(outputFile);
-                emailIntent .putExtra(Intent.EXTRA_STREAM, uri);
-
-                if (context !=null){
-                emailIntent.putExtra(Intent.EXTRA_TEXT,
-                        "\n MY_ID: " + Constants.MY_ID(context)
-                    +   "\n MY_BATCH_TOKEN: " + Constants.MY_BATCH_TOKEN(context)
-                    +   "\n Device Model: " + SpecialDevicesUtils.getDeviceName()
-                    +   "\n MY_ANDROID_VERSION: " + Constants.MY_ANDROID_VERSION(context)
-                    +   "\n MediaCallz App Version: " + Constants.APP_VERSION(context)
-                );
-
-                // the mail subject
-                emailIntent .putExtra(Intent.EXTRA_SUBJECT, "MediaCallz_Logs Received from: " + Constants.MY_ID(context));
-                }
-                startActivity(Intent.createChooser(emailIntent , "Send email..."));
-
-                return true;
-            }
-        });
-
         Preference button = findPreference("Delete Account");
         button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
