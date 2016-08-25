@@ -331,7 +331,7 @@ public abstract class UI_Utils {
 
     public static void dismissAllStandOutWindows(Context context) {
 
-        Intent closePrevious = new Intent(context, PreviewService.class);
+        Intent closePrevious = new Intent(context, PreviewService.class); // PREVIEW_SERVICE
         closePrevious.setAction(AbstractStandOutService.ACTION_CLOSE_ALL);
         context.startService(closePrevious);
     }

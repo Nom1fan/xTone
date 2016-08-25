@@ -377,9 +377,22 @@ public class Window extends FrameLayout {
 
 			try {
 				SharedPreferences prefs = mContext.getSharedPreferences("Services", Context.MODE_PRIVATE);
-				if (!prefs.getBoolean("DontBotherIncomingCallPopUp", false) && prefs.getBoolean("IncomingWindowSession", false)) {
-					Log.i(TAG, "got into it.....");
-					params.y = 500;  // TODO so it won't bother the incoming call pop up in the top of the screen
+				if (prefs.getBoolean("IncomingWindowSession", false)) {
+
+
+					if (!prefs.getBoolean("DontBotherIncomingCallPopUp", false)) {
+						Log.i(TAG, "DontBotherIncomingCallPopUp got into it.....");
+						params.y = 500;  // TODO so it won't bother the incoming call pop up in the top of the screen
+					}
+
+					if (prefs.getBoolean("AskBeforeMediaShowForStandOut", false) && prefs.getBoolean("AskBeforeMediaShow", false)) {
+						Log.i(TAG, "AskBeforeMediaShowForStandOut got into it.....");
+						params.width = 500;
+						params.height = 500;
+						params.y = 500;  // TODO so it won't bother the incoming call pop up in the top of the screen
+						params.x = 0;
+					}
+
 				}
 			} catch (Exception e) {
 

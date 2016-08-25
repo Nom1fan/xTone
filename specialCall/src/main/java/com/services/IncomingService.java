@@ -13,11 +13,14 @@ import android.os.Vibrator;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.data_objects.Constants;
 import com.data_objects.PermissionBlockListLevel;
+import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
@@ -29,6 +32,7 @@ import com.utils.UI_Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 import DataObjects.SpecialMediaType;
 import FilesManager.FileManager;
@@ -193,61 +197,18 @@ public class IncomingService extends AbstractStandOutService {
                             UI_Utils.dismissAllStandOutWindows(getApplicationContext());
                             SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.INCOMING_WINDOW_SESSION,true);
                             setRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION, true); // TODO placed here to fix a bug that sometimes it get entered twice (second time by the fallback receiver when we answer very quick) , is this a good place for it i don't know :/
-                            String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, incomingNumber);
-                            String ringtonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, incomingNumber);
-                            File mediaFile = new File(mediaFilePath);
-                            final File ringtoneFile = new File(ringtonePath);
 
                             mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-
                             backupRingSettings();
-                            try {
+                            backupMusicVolume();
 
-                              backupMusicVolume();
-                              setupStandOutWindowMusicVolumeLogic();
 
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                log(Log.ERROR,TAG, "Failed to set stream volume:" + e.getMessage());
-                            }
-
-                            boolean ringtoneExists = ringtoneFile.exists();
-                            //Check if Mute Was Needed if not return to UnMute.
-                            if (ringtoneExists && !MediaFilesUtils.isAudioFileCorrupted(ringtonePath,getApplicationContext())) {
-
-                               disableRingStream();
-                                SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, false);
-                                Runnable r = new Runnable() {
-                                    public void run() {
-                                        Log.d(TAG, "startRingtoneSpecialCall Thread");
-                                        try {
-                                            startAudioMediaMC(ringtoneFile.getAbsolutePath());
-
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                };
-                                new Thread(r).start();
+                            if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW)
+                                    && !SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)) {
+                                runAskBeforeShowMedia(incomingNumber);
                             } else {
-                                SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
-                                Log.i(TAG,"No Ringtone !!");
-                                ringtoneExists = false; // don't show volume buttons
+                                runIncomingMCMedia(incomingNumber);
                             }
-
-                            setTempMd5ForCallRecord(mediaFilePath, ringtonePath);
-
-                            startVisualMediaMC(mediaFilePath, incomingNumber,ringtoneExists,MediaFilesUtils.isVideoFileCorrupted(mediaFilePath,getApplicationContext()));
-
-
-                            MCHistoryUtils.reportMC(
-                                    getApplicationContext(),
-                                    incomingNumber,
-                                    Constants.MY_ID(getApplicationContext()),
-                                    mediaFile.exists() ? mediaFilePath : null,
-                                    ringtoneFile.exists() ? ringtonePath : null,
-                                    SpecialMediaType.CALLER_MEDIA);
-
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -291,6 +252,116 @@ public class IncomingService extends AbstractStandOutService {
                         new Thread(r).start();
                     }
             }
+    }
+
+    private void runAskBeforeShowMedia(String incomingNumber) {
+        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , true);
+        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
+
+        _contactName = ContactsUtils.getContactName(getApplicationContext(), incomingNumber);
+        mContactTitleOnWindow = (!_contactName.equals("") ? _contactName + " " + incomingNumber : incomingNumber);
+        Random r = new Random();
+        int randomWindowId = r.nextInt(Integer.MAX_VALUE);  // fixing a bug: when the same ID the window isn't released good enough so we need to make a different window in the mean time
+        prepareAskBeforeShowViewForSpecialCall(incomingNumber);
+        Intent i = new Intent(this, this.getClass());
+        i.putExtra("id", randomWindowId);
+        i.setAction(StandOutWindow.ACTION_SHOW);
+        startService(i);
+    }
+
+    private void prepareAskBeforeShowViewForSpecialCall(final String callNumber) {
+        log(Log.INFO,TAG, "Preparing SpecialCall view");
+
+        // Attempting to induce garbage collection
+        System.gc();
+
+        prepareRelativeLayout();
+
+        mSpecialCallView = new ImageView(this);
+        mSpecialCallView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT));
+        //     ((ImageView)mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_XY); STRECTH IMAGE ON FULL SCREEN <<< NOT SURE IT's GOOD !!!!!
+        ((ImageView) mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_CENTER); // <<  just place the image Center of Window and fit it with ratio
+
+        ((ImageView) mSpecialCallView).setImageResource(R.drawable.color_mc_anim);
+
+        mSpecialCallView.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                log(Log.INFO,TAG, "Asked to show media ! and he Said YES !! ");
+               // close(randomWindowId);
+                closeAll();
+                runIncomingMCMedia(callNumber);
+            }
+        });
+
+
+        mRelativeLayout.addView(mSpecialCallView);
+    }
+
+
+
+    private void runIncomingMCMedia(String incomingNumber) {
+
+
+
+        mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        backupRingSettings();
+        backupMusicVolume();
+
+        showFirstTime = true;
+
+        String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, incomingNumber);
+        String ringtonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, incomingNumber);
+        File mediaFile = new File(mediaFilePath);
+        final File ringtoneFile = new File(ringtonePath);
+
+        try{
+            setupStandOutWindowMusicVolumeLogic();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log(Log.ERROR,TAG, "Failed to set stream volume:" + e.getMessage());
+        }
+
+        boolean ringtoneExists = ringtoneFile.exists();
+        //Check if Mute Was Needed if not return to UnMute.
+        if (ringtoneExists && !MediaFilesUtils.isAudioFileCorrupted(ringtonePath,getApplicationContext())) {
+
+            disableRingStream();
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, false);
+            Runnable r = new Runnable() {
+                public void run() {
+                    Log.d(TAG, "startRingtoneSpecialCall Thread");
+                    try {
+                        startAudioMediaMC(ringtoneFile.getAbsolutePath());
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+            new Thread(r).start();
+        } else {
+            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
+            Log.i(TAG,"No Ringtone !!");
+            ringtoneExists = false; // don't show volume buttons
+        }
+
+        setTempMd5ForCallRecord(mediaFilePath, ringtonePath);
+
+        startVisualMediaMC(mediaFilePath, incomingNumber,ringtoneExists,MediaFilesUtils.isVideoFileCorrupted(mediaFilePath,getApplicationContext()));
+
+
+        MCHistoryUtils.reportMC(
+                getApplicationContext(),
+                incomingNumber,
+                Constants.MY_ID(getApplicationContext()),
+                mediaFile.exists() ? mediaFilePath : null,
+                ringtoneFile.exists() ? ringtonePath : null,
+                SpecialMediaType.CALLER_MEDIA);
+
+        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , false);
     }
 
     private void setupStandOutWindowMusicVolumeLogic() {

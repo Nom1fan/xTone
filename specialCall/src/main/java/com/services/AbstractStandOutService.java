@@ -172,7 +172,14 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         prepareMCButtonsOnRelativeLayoutOverlay();
 
-        frame.addView(mcButtonsOverlay);
+        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)) {
+            ImageView title_bkg = (ImageView) mcButtonsOverlay.findViewById(R.id.name_title_background);
+            ImageView volume_bkg = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_background);
+            title_bkg.setBackgroundColor(Color.TRANSPARENT);
+            volume_bkg.setBackgroundColor(Color.TRANSPARENT);
+        }
+
+            frame.addView(mcButtonsOverlay);
 
         mRelativeLayout.setBackgroundColor(Color.TRANSPARENT);
         windowCloseActionWasMade = false;
@@ -299,6 +306,15 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     public int getFlags(int id) {
         log(Log.INFO,TAG, "getFlags");
 
+
+        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)){
+                return StandOutFlags.FLAG_DECORATION_SYSTEM
+                        | StandOutFlags.FLAG_BODY_MOVE_ENABLE
+                        | StandOutFlags.FLAG_DECORATION_RESIZE_DISABLE
+                        | StandOutFlags.FLAG_DECORATION_MAXIMIZE_DISABLE;
+
+            }
+
         // These flags enable:
         // The system window decorations, to drag the window,
         // the ability to hide windows, and to tap the window to bring to front
@@ -323,8 +339,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         //Crashlytics.log(Log.INFO,TAG, "onUpdate");
         try {
 
-            if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION))
-                 SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.DONT_BOTHER_INC_CALL_POPUP,true);
+
 
             ((VideoViewCustom) mSpecialCallView).setDimensions(window.getHeight(), window.getWidth());
             ((VideoViewCustom) mSpecialCallView).getHolder().setFixedSize(window.getHeight(), window.getWidth());
@@ -356,11 +371,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         int coordinates[] = new int[2];
         window.getLocationOnScreen(coordinates);
 
+        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION)
+                && !SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)) // ignore when it's the AskBeforeShowView
+            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.DONT_BOTHER_INC_CALL_POPUP,true);
         //check that the window wasn't stretched larger than the screen params , because next time it will crash trying to fill the whole window
-
-
-
-
 
         if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET) >= window.getHeight() &&
                 SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH) >= window.getWidth()) {
@@ -391,7 +405,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION, false);
             }
 
-            if ((SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION))) {
+            if ((SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION)) &&
+               !(SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT))) { // don't save the size and location of AskBeforeShowView
+
                 // get size of window set last by user
                 SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_HEIGHET_BY_USER, window.getHeight());
                 SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_WIDTH_BY_USER, window.getWidth());
@@ -414,7 +430,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
 
         log(Log.INFO, TAG, "Heighet: " + String.valueOf(window.getHeight()) + "Width: " + String.valueOf(window.getWidth()) + "X: " + String.valueOf(coordinates[0]) + "Y: " + String.valueOf(coordinates[1] - statusBarHeighet));
-
+        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , false);
         stopSound();
         stopVibrator();
         //  releaseResources();
@@ -435,7 +451,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     }
 
-    private void prepareRelativeLayout() {
+    protected void prepareRelativeLayout() {
         log(Log.INFO,TAG, "Preparing RelativeLayout");
 
         // Creating a new RelativeLayout
@@ -576,8 +592,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         //     ((ImageView)mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_XY); STRECTH IMAGE ON FULL SCREEN <<< NOT SURE IT's GOOD !!!!!
         ((ImageView) mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_CENTER); // <<  just place the image Center of Window and fit it with ratio
 
-
-        ((ImageView) mSpecialCallView).setImageResource(R.drawable.color_mc);
+        ((ImageView) mSpecialCallView).setImageResource(R.drawable.ringtone_icon);
 
         mRelativeLayout.addView(mSpecialCallView);
     }

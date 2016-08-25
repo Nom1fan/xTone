@@ -231,6 +231,8 @@
         <item >1</item>
         <item >2</item>
     </string-array>
+    <string name="ask_before_show_title">שאל אם להציג מדיה בצלצול</string>
+    <string name="ask_before_show_summary">במהלך הצלצול נשאל אותך האם להראות את המדיה שנשלחה אלייך </string>
 
     <!--  about_help Layout   -->
     <string name="help_title">עזרה</string>

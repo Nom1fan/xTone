@@ -84,6 +84,23 @@ public class Settings extends PreferenceFragment {
             }
         });
 
+        CheckBoxPreference ask_before_show_checkbox = (CheckBoxPreference) findPreference("ask_before_show");
+
+        ask_before_show_checkbox.setChecked(SharedPrefUtils.getBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW));
+        ask_before_show_checkbox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                boolean checked = Boolean.valueOf(newValue.toString());
+
+                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW, checked);
+
+                return true;
+            }
+        });
+
+
+
 
         Preference button = findPreference("Delete Account");
         button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

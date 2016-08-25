@@ -9,6 +9,11 @@
             android:title="@string/wifi_title"
             android:summary="@string/wifi_summary" />
 
+        <CheckBoxPreference
+            android:key="ask_before_show"
+            android:title="@string/ask_before_show_title"
+            android:summary="@string/ask_before_show_summary" />
+
 
         <ListPreference
             android:key="save_media"
