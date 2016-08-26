@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.crashlytics.android.Crashlytics;
 import com.data_objects.Constants;
 
 import java.io.File;
@@ -67,6 +68,8 @@ public abstract class InitUtils {
 
         SharedPrefUtils.setInt(context, SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET, size.y);
         SharedPrefUtils.setInt(context, SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH, size.x);
+
+        Crashlytics.log(Log.INFO,TAG,"DEVICE_SCREEN_HEIGHET: " +size.y + "DEVICE_SCREEN_WIDTH: " + size.x);
 
     }
 

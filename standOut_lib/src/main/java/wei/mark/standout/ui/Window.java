@@ -381,22 +381,24 @@ public class Window extends FrameLayout {
 
 
 					if (!prefs.getBoolean("DontBotherIncomingCallPopUp", false)) {
-						Log.i(TAG, "DontBotherIncomingCallPopUp got into it.....");
-						params.y = 500;  // TODO so it won't bother the incoming call pop up in the top of the screen
+						params.y = prefs.getInt("DeviceScreenHeighet",1000) * 20 / 100;  // TODO so it won't bother the incoming call pop up in the top of the screen
+                        Log.i(TAG, "DontBotherIncomingCallPopUp got into it...width: "+params.width+" heighet: "+params.height+" X: "+params.x+" Y: " + params.y);
 					}
 
 					if (prefs.getBoolean("AskBeforeMediaShowForStandOut", false) && prefs.getBoolean("AskBeforeMediaShow", false)) {
-						Log.i(TAG, "AskBeforeMediaShowForStandOut got into it.....");
-						params.width = 500;
-						params.height = 500;
-						params.y = 500;  // TODO so it won't bother the incoming call pop up in the top of the screen
+
+						params.width = prefs.getInt("DeviceScreenWidth",500) * 25 / 100;
+						params.height = prefs.getInt("DeviceScreenHeighet",1000) * 20 / 100;
+						params.y = prefs.getInt("DeviceScreenHeighet",1000) * 20 / 100;  // TODO so it won't bother the incoming call pop up in the top of the screen
 						params.x = 0;
+                        Log.i(TAG, "AskBeforeMediaShowForStandOut got into it...width: "+params.width+" heighet: "+params.height+" X: "+params.x+" Y: " + params.y);
 					}
 
 				}
 			} catch (Exception e) {
 
-				Log.e(TAG, "SharedPreferences failure in Window.java (prefs.getBoolean(\"DontBotherIncomingCallPopUp\", false)) ");
+                e.printStackTrace();
+				Log.e(TAG, "getting SharedPreferences failure in Window.java");
 			}
 
 		}
