@@ -26,46 +26,45 @@
         android:textSize="18sp"
         android:background="#00ffffff"
         android:scaleType="fitCenter"
-        android:layout_below="@+id/profile_textview2"
         android:layout_alignParentLeft="false"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="false"
         android:layout_alignParentRight="false"
         android:layout_marginTop="22dp"
         android:layout_marginRight="5dp"
-        android:layout_marginLeft="5dp" />
+        android:layout_marginLeft="5dp"
+        android:layout_marginBottom="15dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@+id/destName"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:id="@+id/divider1" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/profile_textview2"
+        android:id="@+id/divider2" />
 
     <ImageButton
         android:id="@+id/selectMediaBtn"
-        android:layout_width="180dp"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:clickable="true"
         android:scaleType="fitCenter"
-        android:layout_below="@+id/caller_textview2"
-        android:layout_above="@+id/CallNow"
+        android:layout_below="@+id/divider2"
         android:layout_alignParentStart="false"
-        android:layout_marginRight="30dp"
-        android:layout_marginLeft="30dp"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/caller_media_anim"
+        android:background="@drawable/profile_media_anim"
         android:cropToPadding="false"
-        android:layout_marginTop="10dp" />
-
-    <ImageButton
-        android:id="@+id/selectmedia_btn_small"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:clickable="true"
-        android:scaleType="fitCenter"
-        android:src="@drawable/select_video_anim"
-        android:background="#00ffffff"
-        android:layout_below="@+id/destName"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="false"
-        android:layout_marginTop="10dp"
-        android:layout_alignLeft="@+id/selectContactBtn"
-        android:layout_alignRight="@+id/selectContactBtn" />
+        android:layout_marginTop="30dp" />
 
     <AutoCompleteTextView
         android:id="@+id/CallNumber"
@@ -84,45 +83,43 @@
         android:fontFamily="sans-serif-light"
         android:background="#01789b"
         android:textSize="25dp"
-        android:layout_below="@+id/selectProfileMediaBtn"
         android:textColor="#ffffff"
         android:textColorHint="#ffffff"
-        android:layout_marginTop="70dp"
         android:layout_toRightOf="@+id/clear"
         android:layout_toLeftOf="@+id/clear"
         android:layout_toStartOf="@+id/clear"
         android:layout_alignParentStart="false"
         android:layout_toEndOf="@+id/selectContactBtn"
-        android:textAlignment="center">
+        android:textAlignment="center"
+        android:layout_marginTop="28dp">
         <requestFocus />
     </AutoCompleteTextView>
 
     <ImageButton
         android:id="@+id/CallNow"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:src="@drawable/call_btn_anim"
         android:enabled="true"
         android:scaleType="fitCenter"
         android:background="#00ffffff"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentRight="false"
-        android:layout_marginBottom="10dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:visibility="invisible" />
 
     <ImageButton
         android:id="@+id/selectProfileMediaBtn"
         android:clickable="true"
-        android:src="@drawable/select_profile_media_disabled"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:src="@drawable/mc_caller_media_anim"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:background="@android:color/transparent"
         android:scaleType="fitCenter"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentTop="false"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/divider1"
+        android:layout_marginTop="30dp" />
 
 
     <ImageButton
@@ -188,7 +185,8 @@
         android:textAlignment="center"
         android:layout_alignLeft="@+id/selectContactBtn"
         android:layout_alignStart="@+id/selectContactBtn"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -234,11 +232,13 @@
         android:text="@string/media_the_contact_will_see"
         android:id="@+id/profile_textview"
         android:fontFamily="sans-serif-light"
-        android:textSize="14dp"
+        android:textSize="16dp"
         android:textColor="#ffffff"
+        android:gravity="center_horizontal"
+        android:layout_alignParentLeft="true"
         android:layout_below="@+id/selectProfileMediaBtn"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp" />
+        android:layout_alignRight="@+id/destName"
+        android:layout_alignParentRight="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -248,9 +248,12 @@
         android:id="@+id/media_textview"
         android:textSize="16dp"
         android:textColor="#ffffff"
-        android:layout_alignTop="@+id/caller_textview2"
-        android:layout_alignRight="@+id/CallNumber"
-        android:layout_alignStart="@+id/CallNumber" />
+        android:singleLine="true"
+        android:gravity="center_horizontal"
+        android:layout_alignRight="@+id/destName"
+        android:layout_below="@+id/selectMediaBtn"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentEnd="false" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -258,10 +261,15 @@
         android:text="@string/profile_textview"
         android:id="@+id/profile_textview2"
         android:fontFamily="sans-serif-light"
-        android:textSize="14dp"
+        android:textSize="16dp"
         android:textColor="#ff8400"
+        android:layout_marginBottom="25dp"
+        android:gravity="center_horizontal"
+        android:layout_alignRight="@+id/profile_textview"
         android:layout_below="@+id/profile_textview"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentRight="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -271,25 +279,24 @@
         android:id="@+id/caller_textview2"
         android:textSize="16dp"
         android:textColor="#ff8400"
-        android:layout_alignTop="@+id/selectmedia_btn_small"
-        android:layout_toLeftOf="@+id/media_textview"
-        android:layout_toEndOf="@+id/media_textview"
-        android:layout_marginRight="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="15dp" />
+        android:gravity="center_horizontal"
+        android:layout_below="@+id/media_textview"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/divider2" />
 
     <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:id="@+id/tutorial_btn"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentRight="false"
-        android:src="@drawable/tutorial_anim"
+        android:src="@drawable/about_help"
         android:scaleType="fitCenter"
         android:background="#00ffffff"
+        android:layout_alignParentTop="true"
         android:layout_alignLeft="@+id/selectContactBtn"
-        android:layout_alignRight="@+id/selectContactBtn" />
+        android:layout_alignStart="@+id/selectContactBtn"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="5dp"
+        android:visibility="gone" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -299,11 +306,14 @@
         android:fontFamily="sans-serif-light"
         android:gravity="center"
         android:layout_below="@+id/tutorial_btn"
-        android:layout_alignParentRight="false"
-        android:layout_alignLeft="@+id/tutorial_btn"
-        android:layout_alignRight="@+id/tutorial_btn"
         android:textSize="10dp"
-        android:textColor="@color/white" />
+        android:textColor="@color/white"
+        android:singleLine="true"
+        android:layout_alignRight="@+id/textView4"
+        android:layout_alignEnd="@+id/textView4"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:visibility="gone" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -312,12 +322,52 @@
         android:id="@+id/textView4"
         android:fontFamily="sans-serif-light"
         android:layout_below="@+id/tutorial_textview"
-        android:layout_toStartOf="@+id/ringtoneName"
-        android:layout_alignLeft="@+id/tutorial_textview"
-        android:layout_alignRight="@+id/tutorial_textview"
         android:gravity="center"
         android:textSize="10dp"
-        android:textColor="@color/white" />
+        android:textColor="@color/white"
+        android:singleLine="true"
+        android:layout_alignRight="@+id/selectContactBtn"
+        android:layout_alignEnd="@+id/selectContactBtn"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:visibility="gone" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/profileArrow"
+        android:layout_alignTop="@+id/selectProfileMediaBtn"
+        android:layout_alignBottom="@+id/selectProfileMediaBtn"
+        android:layout_toLeftOf="@+id/selectProfileMediaBtn"
+        android:src="@drawable/incoming_arrow" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/callerArrow"
+        android:layout_alignTop="@+id/selectMediaBtn"
+        android:layout_alignBottom="@+id/selectMediaBtn"
+        android:layout_toLeftOf="@+id/selectMediaBtn"
+        android:src="@drawable/outgoing_arrow" />
+
+    <ImageView
+        android:layout_width="170dp"
+        android:layout_height="120dp"
+        android:id="@+id/showcase_callermedia"
+        android:layout_below="@+id/divider2"
+        android:layout_above="@+id/caller_textview2"
+        android:layout_marginTop="20dp"
+        android:layout_alignLeft="@+id/callerArrow" />
+
+    <ImageView
+        android:layout_width="170dp"
+        android:layout_height="120dp"
+        android:id="@+id/showcase_profilemedia"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/divider1"
+        android:layout_above="@+id/profile_textview2"
+        android:layout_marginTop="20dp"
+        android:layout_alignLeft="@+id/profileArrow" />
 
 </RelativeLayout>
 

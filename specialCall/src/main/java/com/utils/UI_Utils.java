@@ -137,7 +137,7 @@ public abstract class UI_Utils {
                 .setTarget(target)
                 .setContentTitle(title)
                 .setContentText(details)
-                .hideOnTouchOutside().withMaterialShowcase()
+                .hideOnTouchOutside().withNewStyleShowcase()
                 .build().setButtonPosition(centerlizeParams());
 
     }
@@ -151,17 +151,18 @@ public abstract class UI_Utils {
     private static RelativeLayout.LayoutParams centerlizeParams() {
 
         RelativeLayout.LayoutParams rel_btn = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+             0,0);
 
         rel_btn.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
         rel_btn.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+
         rel_btn.bottomMargin = 100;
         return rel_btn;
     }
 
     public static void showCaseViewSelectProfile(Context context,Activity activity) {
 
-        ViewTarget targetProfileView = new ViewTarget(R.id.selectProfileMediaBtn, activity);
+        ViewTarget targetProfileView = new ViewTarget(R.id.showcase_profilemedia, activity);
         UI_Utils.showCaseView(activity, targetProfileView, context.getResources().getString(R.string.profile_sv_title), context.getResources().getString(R.string.profile_sv_details));
     }
 
@@ -179,13 +180,13 @@ public abstract class UI_Utils {
 
 
           try {
-              ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectmedia_btn_small, activity);
+              ViewTarget targetSelectMediaView = new ViewTarget(R.id.showcase_callermedia, activity);
               ShowcaseView sv = new ShowcaseView.Builder(activity)
                       .setTarget(targetSelectMediaView)
                       .setContentTitle(context.getResources().getString(R.string.callermedia_sv_title))
                       .setContentText(context.getResources().getString(R.string.callermedia_sv_details_image_ringtone))
                       .hideOnTouchOutside().
-                              withMaterialShowcase().build();
+                              withNewStyleShowcase().build();
 
               sv.setButtonPosition(centerlizeParams());
               sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
@@ -222,13 +223,13 @@ public abstract class UI_Utils {
         if (!SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW)) {
       try{
           SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, true);
-            ViewTarget targetSelectMediaView = new ViewTarget(R.id.selectmedia_btn_small, activity);
+            ViewTarget targetSelectMediaView = new ViewTarget(R.id.showcase_callermedia, activity);
             ShowcaseView sv = new ShowcaseView.Builder(activity)
                     .setTarget(targetSelectMediaView)
                     .setContentTitle(context.getResources().getString(R.string.callermedia_sv_title))
                     .setContentText(context.getResources().getString(R.string.callermedia_sv_details))
                     .hideOnTouchOutside().
-                            withMaterialShowcase().build();
+                            withNewStyleShowcase().build();
             sv.setButtonPosition(centerlizeParams());
 
             sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {

@@ -110,7 +110,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //region UI elements
     private ImageButton selectContactBtn;
     private ImageButton selectMediaBtn;
-    private ImageButton selectMediaBtn_small;
     private TextView selectMediaBtn_textview;
     private TextView selectMediaBtn_textview2;
     private ImageButton callBtn;
@@ -129,6 +128,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private TextView ringToneNameForProfileTextView;
     private TextView profile_textview;
     private TextView profile_textview2;
+    private ImageView profile_arrow;
+    private ImageView caller_arrow;
+    private View divider1;
+    private View divider2;
     private RelativeLayout mainActivityLayout;
     private ImageView ringtoneStatus;
     private AutoCompleteTextView destinationEditText;
@@ -235,8 +238,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             syncAndroidVersionWithServer();
 
-            // TODO: maybe we don't need this anymore and remove it. we have the tutorial videos and that's enough
-            //startingSetWindowVideoDialog();
             UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
         }
 
@@ -568,12 +569,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             else
                 selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
 
-        } else if (id == R.id.selectmedia_btn_small) {
-            if (callerHasMedia || callerHasRingtone)
-                openCallerMediaMenu();
-            else
-                selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
-
         } else if (id == R.id.selectProfileMediaBtn) {
 
             if (profileHasMedia || profileHasRingtone)
@@ -892,6 +887,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         prepareSelectMediaButton();
         prepareSelectContactButton();
         prepareSelectProfileMediaButton();
+        prepareDividers();
         prepareClearTextButton();
         prepareMCTutorialButton();
     }
@@ -911,6 +907,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         enableDestinationEditText();
         disableUserFetchProgressBar();
         disableSelectProfileMediaButton();
+        disableDividers();
         disableSelectCallerMediaButton();
         disableRingToneName();
         disableRingToneNameForProfile();
@@ -929,6 +926,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         drawRingToneNameForProfile();
         disableUserFetchProgressBar();
         enableSelectProfileMediaButton();
+        enableDividers();
         enableDestinationEditText();
         enableSelectContactButton();
         enableCallButton();
@@ -944,6 +942,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         reconnect();
         disableSelectCallerMediaButton();
         disableSelectProfileMediaButton();
+        disableDividers();
         disableUserFetchProgressBar();
         disableSelectContactButton();
         disableDestinationEditText();
@@ -959,6 +958,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         disableSelectCallerMediaButton();
         disableSelectProfileMediaButton();
+        disableDividers();
         disableSelectContactButton();
         disableDestinationEditText();
         disableCallButton();
@@ -1075,7 +1075,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 }
             });
         }
-        //    _callBtn_textview = (TextView) findViewById(R.id.dial_textview);
     }
 
     private void prepareSelectMediaButton() {
@@ -1084,12 +1083,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if (selectMediaBtn != null)
             selectMediaBtn.setOnClickListener(this);
 
-        selectMediaBtn_small = (ImageButton) findViewById(R.id.selectmedia_btn_small);
-        if (selectMediaBtn_small != null)
-            selectMediaBtn_small.setOnClickListener(this);
-
         selectMediaBtn_textview = (TextView) findViewById(R.id.media_textview);
         selectMediaBtn_textview2 = (TextView) findViewById(R.id.caller_textview2);
+        caller_arrow = (ImageView)findViewById(R.id.callerArrow);
 
     }
 
@@ -1109,6 +1105,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         profile_textview = (TextView) findViewById(R.id.profile_textview);
         profile_textview2 = (TextView) findViewById(R.id.profile_textview2);
+        profile_arrow = (ImageView) findViewById(R.id.profileArrow);
+
+    }
+
+    private void prepareDividers() {
+        divider1 = (View) findViewById(R.id.divider1);
+        divider2 = (View) findViewById(R.id.divider2);
     }
 
     private void setCustomActionBar() {
@@ -1370,9 +1373,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void disableCallButton() {
 
-        //  _callBtn_textview.setVisibility(View.INVISIBLE);
         if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION)) {
-            YoYo.with(Techniques.SlideOutRight)
+            YoYo.with(Techniques.SlideOutLeft)
                     .duration(300)
                     .playOn(findViewById(R.id.CallNow));
 
@@ -1384,7 +1386,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void enableCallButton() {
 
-        //  _callBtn_textview.setVisibility(View.VISIBLE);
         callBtn.setVisibility(View.VISIBLE);
         callBtn.setEnabled(true);
 
@@ -1398,22 +1399,42 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void disableSelectCallerMediaButton() {
 
         if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION)) {
-            Techniques tech = UI_Utils.getRandomOutTechniques();
-            YoYo.with(tech)
+            YoYo.with(Techniques.SlideOutLeft)
+                    .duration(1000)
+                    .playOn(findViewById(R.id.callerArrow));
+
+            YoYo.with(Techniques.SlideOutLeft)
+                    .duration(1000)
+                    .playOn(findViewById(R.id.profileArrow));
+
+            YoYo.with(Techniques.SlideOutRight)
+                    .duration(1000)
+                    .playOn(findViewById(R.id.selectProfileMediaBtn));
+
+            YoYo.with(Techniques.SlideOutRight)
+                    .duration(1000)
+                    .playOn(findViewById(R.id.ringtoneNameForProfile));
+
+            YoYo.with(Techniques.SlideOutRight)
                     .duration(1000)
                     .playOn(findViewById(R.id.selectMediaBtn));
 
-            YoYo.with(tech)
+            YoYo.with(Techniques.SlideOutRight)
                     .duration(1000)
                     .playOn(findViewById(R.id.ringtoneName));
-            selectMediaBtn.setClickable(false);
+
+          selectMediaBtn.setClickable(false);
         } else {
             selectMediaBtn.setVisibility(View.INVISIBLE);
+            caller_arrow.setVisibility(View.INVISIBLE);
+            profile_arrow.setVisibility(View.INVISIBLE);
+            defaultpic_enabled.setVisibility(View.INVISIBLE);
             ringToneNameTextView.setVisibility(View.INVISIBLE);
+            ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
         }
-        selectMediaBtn_small.setVisibility(View.INVISIBLE);
         selectMediaBtn_textview.setVisibility(View.INVISIBLE);
         selectMediaBtn_textview2.setVisibility(View.INVISIBLE);
+
         disableMediaStatusArrived();
     }
 
@@ -1421,28 +1442,47 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         defaultpic_enabled.setClickable(false);
         drawSelectProfileMediaButton(false);
-        ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
+
         profile_textview.setVisibility(View.INVISIBLE);
         profile_textview2.setVisibility(View.INVISIBLE);
+
+    }
+
+    private void disableDividers() {
+        divider1.setVisibility(View.INVISIBLE);
+        divider2.setVisibility(View.INVISIBLE);
     }
 
     private void enableSelectMediaButton() {
 
         selectMediaBtn.setClickable(true);
-        selectMediaBtn_small.setClickable(true);
-
         drawSelectMediaButton(true);
         selectMediaBtn.setVisibility(View.VISIBLE);
-        selectMediaBtn_small.setVisibility(View.VISIBLE);
         selectMediaBtn_textview.setVisibility(View.VISIBLE);
         selectMediaBtn_textview2.setVisibility(View.VISIBLE);
+        caller_arrow.setVisibility(View.VISIBLE);
 
-        Techniques tech = UI_Utils.getRandomInTechniques();
-        YoYo.with(tech)
+        YoYo.with(Techniques.SlideInLeft)
+                .duration(1000)
+                .playOn(findViewById(R.id.callerArrow));
+
+        YoYo.with(Techniques.SlideInLeft)
+                .duration(1000)
+                .playOn(findViewById(R.id.profileArrow));
+
+        YoYo.with(Techniques.SlideInRight)
+                .duration(1000)
+                .playOn(findViewById(R.id.selectProfileMediaBtn));
+
+        YoYo.with(Techniques.SlideInRight)
+                .duration(1000)
+                .playOn(findViewById(R.id.ringtoneNameForProfile));
+
+        YoYo.with(Techniques.SlideInRight)
                 .duration(1000)
                 .playOn(findViewById(R.id.selectMediaBtn));
 
-        YoYo.with(tech)
+        YoYo.with(Techniques.SlideInRight)
                 .duration(1000)
                 .playOn(findViewById(R.id.ringtoneName));
 
@@ -1453,7 +1493,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         defaultpic_enabled.setClickable(true);
         profile_textview.setVisibility(View.VISIBLE);
         profile_textview2.setVisibility(View.VISIBLE);
+        profile_arrow.setVisibility(View.VISIBLE);
+        defaultpic_enabled.setVisibility(View.VISIBLE);
         drawSelectProfileMediaButton(true);
+    }
+
+    private void enableDividers() {
+        divider1.setVisibility(View.VISIBLE);
+        divider2.setVisibility(View.VISIBLE);
     }
 
     private void disableSelectContactButton() {
@@ -1530,9 +1577,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
             FileManager.FileType fType;
 
-            if (!enabled)
-                selectMediaBtn.setImageResource(R.drawable.select_profile_media_disabled);
-            else {
+            if (enabled){
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
@@ -1553,7 +1598,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         UI_Utils.showCaseViewSelectMedia(this, MainActivity.this);
 
                     selectMediaBtn.setImageDrawable(null);
-                    selectMediaBtn.setBackground(getResources().getDrawable(R.drawable.caller_media_anim));
+                    selectMediaBtn.setBackground(getResources().getDrawable(R.drawable.profile_media_anim));
 
                     callerHasMedia = false;
                     disableMediaStatusArrived();
@@ -1574,9 +1619,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         try {
 
-            if (!enabled) {
-                BitmapUtils.execBitmapWorkerTask(defaultpic_enabled, this, getResources(), R.drawable.select_profile_media_disabled, true);
-            } else {
+            if (enabled){
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
@@ -1587,7 +1630,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 } else // enabled but no uploaded media
                 {
                    // BitmapUtils.execBitmapWorkerTask(defaultpic_enabled, this, getResources(), R.drawable.select_profile_media_enabled, true);
-                    defaultpic_enabled.setImageResource(R.drawable.profile_media_anim); // make the imageview pressed for PROFILE MEDIA BTN
+                    defaultpic_enabled.setImageResource(R.drawable.mc_caller_media_anim); // make the imageview pressed for PROFILE MEDIA BTN
                     profileHasMedia = false;
                 }
             }
