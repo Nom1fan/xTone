@@ -2,13 +2,18 @@ package com.utils;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.data_objects.Constants;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
 import java.io.File;
 import java.io.IOException;
@@ -168,5 +173,46 @@ public abstract class InitUtils {
             }
         }
         return inFiles;
+    }
+
+    public static void PopulateGAID(final Context context) {
+
+        AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+                AdvertisingIdClient.Info idInfo = null;
+                String advertId = null;
+                try {
+                    try {
+                        idInfo = AdvertisingIdClient.getAdvertisingIdInfo(context);
+                    } catch (GooglePlayServicesNotAvailableException e) {
+                        e.printStackTrace();
+                    } catch (GooglePlayServicesRepairableException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        advertId = idInfo.getId();
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                return advertId;
+            }
+
+            @Override
+            protected void onPostExecute(String advertId) {
+                Toast.makeText(context, advertId, Toast.LENGTH_SHORT).show();
+                SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL,SharedPrefUtils.GOOGLE_AD_ID, advertId );
+            }
+
+        };
+        task.execute();
     }
 }

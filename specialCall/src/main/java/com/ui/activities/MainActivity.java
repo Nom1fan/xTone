@@ -1238,7 +1238,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if (getApplicationContext() !=null){
             emailIntent.putExtra(Intent.EXTRA_TEXT,
                     "\n MY_ID: " + Constants.MY_ID(getApplicationContext())
-                            +   "\n MY_BATCH_TOKEN: " + Constants.MY_BATCH_TOKEN(getApplicationContext())
+                            +   "\n BATCH_INSTALLATION_ID: " + Constants.MY_BATCH_TOKEN(getApplicationContext())
+                            +   "\n GOOGLE_AD_ID: " + SharedPrefUtils.getString(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.GOOGLE_AD_ID)
                             +   "\n Device Model: " + SpecialDevicesUtils.getDeviceName()
                             +   "\n MY_ANDROID_VERSION: " + Constants.MY_ANDROID_VERSION(getApplicationContext())
                             +   "\n MediaCallz App Version: " + Constants.APP_VERSION(getApplicationContext())
