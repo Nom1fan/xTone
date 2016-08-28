@@ -1,7 +1,10 @@
 package com.utils;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Point;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
@@ -20,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
@@ -175,7 +179,7 @@ public abstract class InitUtils {
         return inFiles;
     }
 
-    public static void PopulateGAID(final Context context) {
+    public static void SendBugEmailAsyncTask(final Context context,final Activity activity) {
 
         AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
             @Override
@@ -208,11 +212,55 @@ public abstract class InitUtils {
 
             @Override
             protected void onPostExecute(String advertId) {
-                Toast.makeText(context, advertId, Toast.LENGTH_SHORT).show();
-                SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL,SharedPrefUtils.GOOGLE_AD_ID, advertId );
+
+                SendBugReport(context,advertId,activity);
+                log(Log.INFO,TAG, "Google Ad ID: " + advertId);
+
             }
 
         };
         task.execute();
     }
+
+    private static void SendBugReport(Context context,String GAID,Activity activity) {
+
+        // save logcat in file
+        File outputFile = new File(SharedConstants.ROOT_FOLDER,
+                "logcat.txt");
+        try {
+            Runtime.getRuntime().exec(
+                    "logcat -f " + outputFile.getAbsolutePath());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        //send file using email
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        // Set type to "email"
+        emailIntent.setType("vnd.android.cursor.dir/email");
+        String to[] = {"ronyahae@gmail.com" , "mormerhav@gmail.com"};
+        emailIntent .putExtra(Intent.EXTRA_EMAIL, to);
+        // the attachment
+        Uri uri = Uri.fromFile(outputFile);
+        emailIntent .putExtra(Intent.EXTRA_STREAM, uri);
+
+        if (context !=null){
+            emailIntent.putExtra(Intent.EXTRA_TEXT,
+                    "\n MY_ID: " + Constants.MY_ID(context)
+                            +   "\n BATCH_INSTALLATION_ID: " + Constants.MY_BATCH_TOKEN(context)
+                            +   "\n GOOGLE_AD_ID: " + GAID
+                            +   "\n Device Model: " + SpecialDevicesUtils.getDeviceName()
+                            +   "\n MY_ANDROID_VERSION: " + Constants.MY_ANDROID_VERSION(context)
+                            +   "\n MediaCallz App Version: " + Constants.APP_VERSION(context)
+            );
+
+            // the mail subject
+            emailIntent .putExtra(Intent.EXTRA_SUBJECT, "MediaCallz_Logs Received from: " + Constants.MY_ID(context));
+        }
+        activity.startActivity(Intent.createChooser(emailIntent , "Send email..."));
+
+    }
+
+
 }

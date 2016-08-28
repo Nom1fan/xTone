@@ -79,8 +79,6 @@ public class MediaCallzApp extends Application {
                 InitUtils.initializeLoadingSavedMCFromDiskToSharedPrefs(context);
 
                 InitUtils.saveAndroidVersion(context);
-
-                InitUtils.PopulateGAID(context); // Google Ad Id so we can follow it from Batch
             }
         } catch (Exception e) {
             String errMsg = "Failed to initialize. Please try to install again. Error:" + (e.getMessage()!=null ? e.getMessage() : e);

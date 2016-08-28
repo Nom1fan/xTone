@@ -71,6 +71,7 @@ import com.ui.dialogs.InviteDialog;
 import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
+import com.utils.InitUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
 import com.utils.SharedPrefUtils;
@@ -1205,53 +1206,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 appAboutAndHelp();
                 break;
             case 4: // Send Bug
-                SendBugReport();
+                InitUtils.SendBugEmailAsyncTask(getApplicationContext(),MainActivity.this);
                 break;
         }
 
         mDrawerLayout.closeDrawer(DrawerList);
     }
 
-    private void SendBugReport() {
 
-        // save logcat in file
-        File outputFile = new File(SharedConstants.ROOT_FOLDER,
-                "logcat.txt");
-        try {
-            Runtime.getRuntime().exec(
-                    "logcat -f " + outputFile.getAbsolutePath());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        //send file using email
-        Intent emailIntent = new Intent(Intent.ACTION_SEND);
-        // Set type to "email"
-        emailIntent.setType("vnd.android.cursor.dir/email");
-        String to[] = {"ronyahae@gmail.com" , "mormerhav@gmail.com"};
-        emailIntent .putExtra(Intent.EXTRA_EMAIL, to);
-        // the attachment
-        Uri uri = Uri.fromFile(outputFile);
-        emailIntent .putExtra(Intent.EXTRA_STREAM, uri);
-
-        if (getApplicationContext() !=null){
-            emailIntent.putExtra(Intent.EXTRA_TEXT,
-                    "\n MY_ID: " + Constants.MY_ID(getApplicationContext())
-                            +   "\n BATCH_INSTALLATION_ID: " + Constants.MY_BATCH_TOKEN(getApplicationContext())
-                            +   "\n GOOGLE_AD_ID: " + SharedPrefUtils.getString(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.GOOGLE_AD_ID)
-                            +   "\n Device Model: " + SpecialDevicesUtils.getDeviceName()
-                            +   "\n MY_ANDROID_VERSION: " + Constants.MY_ANDROID_VERSION(getApplicationContext())
-                            +   "\n MediaCallz App Version: " + Constants.APP_VERSION(getApplicationContext())
-            );
-
-            // the mail subject
-            emailIntent .putExtra(Intent.EXTRA_SUBJECT, "MediaCallz_Logs Received from: " + Constants.MY_ID(getApplicationContext()));
-        }
-        startActivity(Intent.createChooser(emailIntent , "Send email..."));
-
-
-    }
 
     private void appSettings() {
 
