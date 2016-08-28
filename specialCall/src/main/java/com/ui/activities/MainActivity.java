@@ -1587,8 +1587,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                     enableMediaStatusArrived();
                     // stretch the uploaded image as it won't stretch because we use a drawable instead that we don't want to stretch
-                    selectMediaBtn.setPadding(0, 0, 0, 0);
-                    selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_XY);
+                   // selectMediaBtn.setPadding(0, 0, 0, 0);
+                    selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
                     callerHasMedia = true;
                     UI_Utils.showCaseViewAfterUploadAndCall(this, MainActivity.this);
 
@@ -1598,7 +1598,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         UI_Utils.showCaseViewSelectMedia(this, MainActivity.this);
 
                     selectMediaBtn.setImageDrawable(null);
-                    selectMediaBtn.setBackground(getResources().getDrawable(R.drawable.profile_media_anim));
+                    selectMediaBtn.setImageResource(R.drawable.profile_media_anim);
 
                     callerHasMedia = false;
                     disableMediaStatusArrived();
