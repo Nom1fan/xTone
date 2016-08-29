@@ -1,7 +1,5 @@
 package com.services;
 
-import android.app.Activity;
-import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -48,10 +46,7 @@ public class IncomingService extends AbstractStandOutService {
     private boolean mWasSpecialRingTone = false;
     private boolean mVolumeChangeByService = false;
     private boolean mAlreadyMuted = false;
-    private boolean mKeyguardDismissed = false;
     private boolean mAnswered = false;
-    private KeyguardManager mKeyguardManager;
-    private KeyguardManager.KeyguardLock mLock;
     public static final String ACTION_START_FOREGROUND = "com.services.IncomingService.ACTION_START_FOREGROUND";
     public static final String ACTION_STOP_FOREGROUND = "com.services.IncomingService.ACTION_STOP_FOREGROUND";
 
@@ -108,10 +103,6 @@ public class IncomingService extends AbstractStandOutService {
     @Override
     public void createAndAttachView(int id, FrameLayout frame) {
         super.createAndAttachView(id, frame);
-
-        mKeyguardManager = (KeyguardManager) getSystemService(Activity.KEYGUARD_SERVICE);
-        mLock = mKeyguardManager.newKeyguardLock(KEYGUARD_SERVICE);
-        dismissKeyGuard(true);
     }
 
     @Override
@@ -619,30 +610,6 @@ public class IncomingService extends AbstractStandOutService {
 
 
 
-    private void dismissKeyGuard(boolean dismissOrNot) {
-
-        boolean isKeyguardLocked = false;
-        if (mKeyguardManager != null)
-            isKeyguardLocked = mKeyguardManager.isKeyguardLocked();
-
-
-        if (isKeyguardLocked && dismissOrNot) {
-            mLock.disableKeyguard();
-            mKeyguardDismissed = true;
-            log(Log.INFO,TAG, "Dismiss Keyguard");
-
-        }
-
-        if (mKeyguardDismissed && !dismissOrNot) {
-            mLock.reenableKeyguard();
-            mKeyguardDismissed = false;
-            log(Log.INFO,TAG, "REenable Keyguard");
-
-        }
-        log(Log.INFO,TAG, "!!! EnteredDismissedMethod !!! : isKeyGuardLocked: " + isKeyguardLocked + " mKeyguardDismissed: " + mKeyguardDismissed + " dismissOrNot: " + dismissOrNot);
-
-    }
-
     private void registerVolumeReceiver() {
 /*   // TODO UNCOMMENT IT IF WE NEED TO MUTE THE STREAM THROUGH THE HARD VOLUME BUTTONS  (WE COMMENTED THIS BECAUSE IT HAD SOME ISSUES WITH THE MC VOLUME BUTTON) , IF UNCOMMENT QA THE SHIT OUT OF IT.
         Runnable r = new Runnable() {
@@ -675,7 +642,6 @@ public class IncomingService extends AbstractStandOutService {
 
             try {
 
-                dismissKeyGuard(false);
                 enableRingStream();
 
                 try {
