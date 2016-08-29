@@ -45,7 +45,6 @@ public class OutgoingService extends AbstractStandOutService {
     public static boolean isLive = false;
     private static int TIME_TO_SLEEP_AVOIDING_BUGGY_STATE_IDLE = 1000;
     private OutgoingCallReceiver mOutgoingCallReceiver;
-    private boolean funtoneFileExists = false;
 
     public OutgoingService() {
         super(OutgoingService.class.getSimpleName());
@@ -290,26 +289,19 @@ public class OutgoingService extends AbstractStandOutService {
 
                             String visualMediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, outgoingCallNumber);
                             String audioMediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, outgoingCallNumber);
-
-                            File funToneFile = new File(audioMediaFilePath);
-
-                            if(funToneFile.exists()) {
-                                funtoneFileExists = true;
-                            }
+                            boolean funtoneExists = new File(audioMediaFilePath).exists() && !MediaFilesUtils.isAudioFileCorrupted(audioMediaFilePath,getApplicationContext());
+                            boolean visualMediaExists = new File(visualMediaFilePath).exists() && !MediaFilesUtils.isVideoFileCorrupted(visualMediaFilePath,getApplicationContext());
 
                             backupMusicVolume();
-
                           //  mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // setting max volume for music -5 as it's to high volume
-
 
                             setTempMd5ForCallRecord(visualMediaFilePath,audioMediaFilePath);
 
-                        if (!MediaFilesUtils.isAudioFileCorrupted(audioMediaFilePath,getApplicationContext()))
+                            if (funtoneExists)
                                 startAudioMediaMC(audioMediaFilePath);
-                            else
-                                funtoneFileExists = false; // don't show volume buttons
 
-                         startVisualMediaMC(visualMediaFilePath, outgoingCallNumber, funtoneFileExists,MediaFilesUtils.isVideoFileCorrupted(visualMediaFilePath,getApplicationContext()));
+                            if (visualMediaExists)
+                                startVisualMediaMC(visualMediaFilePath, outgoingCallNumber, funtoneExists, visualMediaExists);
 
 
                             MCHistoryUtils.reportMC(
@@ -328,7 +320,6 @@ public class OutgoingService extends AbstractStandOutService {
                             log(Log.ERROR,TAG, "CALL_STATE_RINGING failed:" + e.getMessage());
                         }
 
-                        funtoneFileExists = false;
 
                     }
             }

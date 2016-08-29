@@ -385,14 +385,14 @@ public class Window extends FrameLayout {
                         Log.i(TAG, "DontBotherIncomingCallPopUp got into it...width: "+params.width+" heighet: "+params.height+" X: "+params.x+" Y: " + params.y);
 					}
 
-					if (prefs.getBoolean("AskBeforeMediaShowForStandOut", false) && prefs.getBoolean("AskBeforeMediaShow", false)) {
+				/*	if (prefs.getBoolean("AskBeforeMediaShowForStandOut", false) && prefs.getBoolean("AskBeforeMediaShow", false)) {
 
 						params.width = prefs.getInt("DeviceScreenWidth",500) * 25 / 100;
 						params.height = prefs.getInt("DeviceScreenHeighet",1000) * 20 / 100;
 						params.y = prefs.getInt("DeviceScreenHeighet",1000) * 20 / 100;  // TODO so it won't bother the incoming call pop up in the top of the screen
 						params.x = 0;
                         Log.i(TAG, "AskBeforeMediaShowForStandOut got into it...width: "+params.width+" heighet: "+params.height+" X: "+params.x+" Y: " + params.y);
-					}
+					}*/
 
 				}
 			} catch (Exception e) {

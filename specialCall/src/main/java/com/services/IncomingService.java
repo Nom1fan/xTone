@@ -202,14 +202,21 @@ public class IncomingService extends AbstractStandOutService {
                             backupRingSettings();
                             backupMusicVolume();
 
+                            String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, incomingNumber);
+                            String ringtonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, incomingNumber);
 
-                            if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW)
-                                    && !SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)) {
-                                runAskBeforeShowMedia(incomingNumber);
-                            } else {
-                                runIncomingMCMedia(incomingNumber);
+                            boolean ringtoneExists = new File(ringtonePath).exists() && !MediaFilesUtils.isAudioFileCorrupted(ringtonePath,getApplicationContext());
+                            boolean visualMediaExists = new File(mediaFilePath).exists() && !MediaFilesUtils.isVideoFileCorrupted(mediaFilePath,getApplicationContext());
+
+                            if (ringtoneExists || visualMediaExists){
+
+                                if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW)
+                                        && !SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)) {
+                                    runAskBeforeShowMedia(incomingNumber,ringtoneExists,visualMediaExists);
+                                } else {
+                                    runIncomingMCMedia(incomingNumber,ringtoneExists,visualMediaExists);
+                                }
                             }
-
                         } catch (Exception e) {
                             e.printStackTrace();
                             log(Log.ERROR,TAG, "CALL_STATE_RINGING failed:" + e.getMessage());
@@ -254,7 +261,7 @@ public class IncomingService extends AbstractStandOutService {
             }
     }
 
-    private void runAskBeforeShowMedia(String incomingNumber) {
+    private void runAskBeforeShowMedia(String incomingNumber,boolean ringtoneExists,boolean visualMediaExists) {
         SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , true);
         SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
 
@@ -262,14 +269,14 @@ public class IncomingService extends AbstractStandOutService {
         mContactTitleOnWindow = (!_contactName.equals("") ? _contactName + " " + incomingNumber : incomingNumber);
         Random r = new Random();
         int randomWindowId = r.nextInt(Integer.MAX_VALUE);  // fixing a bug: when the same ID the window isn't released good enough so we need to make a different window in the mean time
-        prepareAskBeforeShowViewForSpecialCall(incomingNumber);
+        prepareAskBeforeShowViewForSpecialCall(incomingNumber,ringtoneExists,visualMediaExists);
         Intent i = new Intent(this, this.getClass());
         i.putExtra("id", randomWindowId);
         i.setAction(StandOutWindow.ACTION_SHOW);
         startService(i);
     }
 
-    private void prepareAskBeforeShowViewForSpecialCall(final String callNumber) {
+    private void prepareAskBeforeShowViewForSpecialCall(final String callNumber , final boolean ringtoneExists , final boolean visualMediaExists) {
         log(Log.INFO,TAG, "Preparing SpecialCall view");
 
         // Attempting to induce garbage collection
@@ -291,7 +298,7 @@ public class IncomingService extends AbstractStandOutService {
                 log(Log.INFO,TAG, "Asked to show media ! and he Said YES !! ");
                // close(randomWindowId);
                 closeAll();
-                runIncomingMCMedia(callNumber);
+                runIncomingMCMedia(callNumber,ringtoneExists,visualMediaExists);
             }
         });
 
@@ -301,9 +308,10 @@ public class IncomingService extends AbstractStandOutService {
 
 
 
-    private void runIncomingMCMedia(String incomingNumber) {
+    private void runIncomingMCMedia(String incomingNumber,boolean ringtoneExists,boolean visualMediaExists) {
 
-
+        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , false);
+        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.INCOMING_WINDOW_SESSION,true);
 
         mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         backupRingSettings();
@@ -324,9 +332,8 @@ public class IncomingService extends AbstractStandOutService {
             log(Log.ERROR,TAG, "Failed to set stream volume:" + e.getMessage());
         }
 
-        boolean ringtoneExists = ringtoneFile.exists();
         //Check if Mute Was Needed if not return to UnMute.
-        if (ringtoneExists && !MediaFilesUtils.isAudioFileCorrupted(ringtonePath,getApplicationContext())) {
+        if (ringtoneExists) {
 
             disableRingStream();
             SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, false);
@@ -350,18 +357,18 @@ public class IncomingService extends AbstractStandOutService {
 
         setTempMd5ForCallRecord(mediaFilePath, ringtonePath);
 
-        startVisualMediaMC(mediaFilePath, incomingNumber,ringtoneExists,MediaFilesUtils.isVideoFileCorrupted(mediaFilePath,getApplicationContext()));
+        startVisualMediaMC(mediaFilePath, incomingNumber,ringtoneExists,visualMediaExists);
 
 
         MCHistoryUtils.reportMC(
                 getApplicationContext(),
                 incomingNumber,
                 Constants.MY_ID(getApplicationContext()),
-                mediaFile.exists() ? mediaFilePath : null,
-                ringtoneFile.exists() ? ringtonePath : null,
+                visualMediaExists ? mediaFilePath : null,
+                ringtoneExists ? ringtonePath : null,
                 SpecialMediaType.CALLER_MEDIA);
 
-        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , false);
+
     }
 
     private void setupStandOutWindowMusicVolumeLogic() {

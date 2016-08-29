@@ -116,15 +116,14 @@ public class PreviewService extends AbstractStandOutService {
         String audioMediafilePath = intent.getStringExtra(AbstractStandOutService.PREVIEW_AUDIO);
         String standoutWindowUserTitle = Constants.MY_ID(getApplicationContext());
 
-        File audioMediaFile = new File(audioMediafilePath);
-        boolean audioFileExists = audioMediaFile.exists();
+        boolean funtoneExists = new File(audioMediafilePath).exists() && !MediaFilesUtils.isAudioFileCorrupted(audioMediafilePath,getApplicationContext());
+        boolean visualMediaExists = new File(visualMediaFilePath).exists() && !MediaFilesUtils.isVideoFileCorrupted(visualMediaFilePath,getApplicationContext());
 
-        if (!MediaFilesUtils.isAudioFileCorrupted(audioMediafilePath,getApplicationContext()))
-                startAudioMediaMC(audioMediafilePath);
-        else
-            audioFileExists = false; // don't show volume buttons
+        if (funtoneExists)
+            startAudioMediaMC(audioMediafilePath);
 
-        startVisualMediaMC(visualMediaFilePath, standoutWindowUserTitle, audioFileExists,MediaFilesUtils.isVideoFileCorrupted(visualMediaFilePath,getApplicationContext()));
+        if (visualMediaExists)
+            startVisualMediaMC(visualMediaFilePath, standoutWindowUserTitle, funtoneExists, visualMediaExists);
     }
 
     private void setVolumeOnForPreview() {
