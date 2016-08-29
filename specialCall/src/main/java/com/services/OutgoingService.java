@@ -300,8 +300,7 @@ public class OutgoingService extends AbstractStandOutService {
                             if (funtoneExists)
                                 startAudioMediaMC(audioMediaFilePath);
 
-                            if (visualMediaExists)
-                                startVisualMediaMC(visualMediaFilePath, outgoingCallNumber, funtoneExists, visualMediaExists);
+                             startVisualMediaMC(visualMediaFilePath, outgoingCallNumber, funtoneExists, visualMediaExists);
 
 
                             MCHistoryUtils.reportMC(
