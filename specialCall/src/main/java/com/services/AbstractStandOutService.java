@@ -443,7 +443,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
 
         log(Log.INFO, TAG, "Heighet: " + String.valueOf(window.getHeight()) + "Width: " + String.valueOf(window.getWidth()) + "X: " + String.valueOf(coordinates[0]) + "Y: " + String.valueOf(coordinates[1] - statusBarHeighet));
-       // SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , false);
+        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , false);
         stopSound();
         stopVibrator();
 

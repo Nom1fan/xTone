@@ -304,9 +304,7 @@ public class IncomingService extends AbstractStandOutService {
         SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , false);
         SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.INCOMING_WINDOW_SESSION,true);
 
-        mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-        backupRingSettings();
-        backupMusicVolume();
+        verifyAudioManager();
 
         showFirstTime = true;
 
@@ -715,7 +713,7 @@ public class IncomingService extends AbstractStandOutService {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }*/
-
+                SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , false);
                 Intent i = new Intent(getApplicationContext(), IncomingService.class);
                 i.setAction(StandOutWindow.ACTION_CLOSE_ALL);
                 startService(i);
