@@ -111,8 +111,6 @@ public class IncomingService extends AbstractStandOutService {
 
         if (fileType == FileManager.FileType.VIDEO) {
 
-            mWasSpecialRingTone = true; // Marking that the ring sound will be ours (video stream) and not native
-
             try {
                 disableRingStream();
                 log(Log.INFO,TAG, "MUTE STREAM_RING ");
@@ -157,7 +155,7 @@ public class IncomingService extends AbstractStandOutService {
     protected synchronized void syncOnCallStateChange(int state, String incomingNumber) {
 
         incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
-        log(Log.INFO,TAG,"before incoming phone number : " + incomingNumber);
+        log(Log.INFO,TAG,"Inside syncOnCallStateChange, incoming phone number : " + incomingNumber);
         mIncomingOutgoingNumber = incomingNumber;
         // Checking if number is in black list
         log(Log.INFO,TAG, " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION));
@@ -181,9 +179,9 @@ public class IncomingService extends AbstractStandOutService {
         if (!isBlocked || (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)))
             switch (state) {
                 case TelephonyManager.CALL_STATE_RINGING:
-
-                    log(Log.INFO,TAG,"CALL_STATE_RINGING " + incomingNumber);
+                    log(Log.INFO,TAG, "TelephonyManager.CALL_STATE_RINGING: " + incomingNumber);
                     if (!isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && !isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(incomingNumber) && (mAnswered == false)) {
+                        log(Log.INFO, TAG, "INSIDE MC TelephonyManager.CALL_STATE_RINGING: " + incomingNumber);
                         try {
                             UI_Utils.dismissAllStandOutWindows(getApplicationContext());
                             SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.INCOMING_WINDOW_SESSION,true);
@@ -200,13 +198,19 @@ public class IncomingService extends AbstractStandOutService {
                             boolean visualMediaExists = new File(mediaFilePath).exists() && !MediaFilesUtils.isVideoFileCorrupted(mediaFilePath,getApplicationContext());
 
                             if (ringtoneExists || visualMediaExists){
-
+                                log(Log.INFO,TAG, "MEDIA EXIST for incoming number RingtoneExists: " + ringtoneExists + " VisualMediaExists: " + visualMediaExists );
                                 if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW)
                                         && !SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)) {
                                     runAskBeforeShowMedia(incomingNumber,ringtoneExists,visualMediaExists);
                                 } else {
                                     runIncomingMCMedia(incomingNumber,ringtoneExists,visualMediaExists);
                                 }
+                            }else
+                            {
+                                setRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION, false);
+                                SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.INCOMING_WINDOW_SESSION,false);
+                                log(Log.INFO,TAG, "NO MEDIA ! for incoming number RingtoneExists:" + ringtoneExists + "VisualMediaExists: " + visualMediaExists );
+
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -217,8 +221,12 @@ public class IncomingService extends AbstractStandOutService {
                     break;
                 // TODO RONY Iteratively  inside enableRingStream() and   i.setAction(StandOutWindow.ACTION_CLOSE_ALL); will be before this method enableRingStream iteratively logic
                 case TelephonyManager.CALL_STATE_OFFHOOK:
+
+                    log(Log.INFO,TAG, "TelephonyManager.CALL_STATE_OFFHOOK");
+
                     if (isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)) {
-                        log(Log.INFO,TAG, "mAnswered = true");
+                        log(Log.INFO, TAG, "INSIDE MC TelephonyManager.CALL_STATE_OFFHOOK");
+                        log(Log.INFO,TAG, "making mAnswered = true");
                         mAnswered = true;
                         stopVibrator();
                         closeSpecialCallWindowAndRingtone();
@@ -226,36 +234,34 @@ public class IncomingService extends AbstractStandOutService {
                     break;
                 case TelephonyManager.CALL_STATE_IDLE:
                     log(Log.INFO,TAG, "TelephonyManager.CALL_STATE_IDLE");
-                    if (mWasSpecialRingTone) {
-                        mWasSpecialRingTone = false;
-                    }
-                    stopVibrator();
 
-                    closeSpecialCallWindowAndRingtone();
-                    if (mAnswered) {
+                        if (mAnswered || isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)) {
+                            log(Log.INFO, TAG, "INSIDE MC TelephonyManager.CALL_STATE_IDLE");
+                            stopVibrator();
+                            closeSpecialCallWindowAndRingtone();
 
-                        Runnable r = new Runnable() {
-                            public void run() {
-                                log(Log.INFO,TAG, "mAnswered = false");
-                                try {
-                                    Thread.sleep(2000, 0);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
+                            Runnable r = new Runnable() {
+                                public void run() {
+                                    log(Log.INFO, TAG, "making mAnswered = false");
+                                    try {
+                                        Thread.sleep(2000, 0);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    enableRingStream();
+                                    mAnswered = false;
                                 }
-
-                                enableRingStream();
-                                mAnswered = false;
-                            }
-                        };
-                        new Thread(r).start();
-                    }
+                            };
+                            new Thread(r).start();
+                        }
             }
     }
 
     private void runAskBeforeShowMedia(String incomingNumber,boolean ringtoneExists,boolean visualMediaExists) {
         SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , true);
         SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
-
+        log(Log.INFO,TAG, "Run Ask Before Show Media");
         _contactName = ContactsUtils.getContactName(getApplicationContext(), incomingNumber);
         mContactTitleOnWindow = (!_contactName.equals("") ? _contactName + " " + incomingNumber : incomingNumber);
         Random r = new Random();
@@ -301,8 +307,10 @@ public class IncomingService extends AbstractStandOutService {
 
     private void runIncomingMCMedia(String incomingNumber,boolean ringtoneExists,boolean visualMediaExists) {
 
+        log(Log.INFO,TAG, "runIncomingMCMedia RingtoneExists:" + ringtoneExists + "VisualMediaExists: " + visualMediaExists );
         SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , false);
         SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.INCOMING_WINDOW_SESSION,true);
+        setRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION, true);
 
         verifyAudioManager();
 
@@ -606,8 +614,6 @@ public class IncomingService extends AbstractStandOutService {
    }
 
 
-
-
     private void registerVolumeReceiver() {
 /*   // TODO UNCOMMENT IT IF WE NEED TO MUTE THE STREAM THROUGH THE HARD VOLUME BUTTONS  (WE COMMENTED THIS BECAUSE IT HAD SOME ISSUES WITH THE MC VOLUME BUTTON) , IF UNCOMMENT QA THE SHIT OUT OF IT.
         Runnable r = new Runnable() {
@@ -652,24 +658,16 @@ public class IncomingService extends AbstractStandOutService {
                     e.printStackTrace();
                 }
 
-
-
                 try {
                     returnToPreviousRingerMode();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
+                setRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION, false);
+
                 Runnable r = new Runnable() {
                     public void run() {
-                        setRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION, false);
-
-                 /*   try {
-                        if(mVolumeButtonReceiver!=null)
-                            unregisterReceiver(mVolumeButtonReceiver);
-                    } catch(Exception e) {
-                        Crashlytics.log(Log.ERROR,TAG,"UnregisterReceiver failed. Exception:"+ (e.getMessage()!=null? e.getMessage() : e));
-                    }*/
 
                         mVolumeChangeByService = false;
                         mAlreadyMuted = false;
@@ -706,13 +704,6 @@ public class IncomingService extends AbstractStandOutService {
 
                 new Thread(r).start();
 
-/*
-                try {
-                    verifyAudioManager();
-                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }*/
                 SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , false);
                 Intent i = new Intent(getApplicationContext(), IncomingService.class);
                 i.setAction(StandOutWindow.ACTION_CLOSE_ALL);
