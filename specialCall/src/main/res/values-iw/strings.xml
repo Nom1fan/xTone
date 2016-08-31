@@ -44,6 +44,7 @@
     <string name="tutorial_text1">הדרכה</string>
     <string name="tutorial_caller">מדיית מתקשר</string>
     <string name="tutorial_profile">מדיית פרופיל</string>
+    <string name="under_construction">בשיפוצים</string>
 
     <!--  Tips  -->
     <string name="set_window"> שחק עם חלון המדיה שלך</string>

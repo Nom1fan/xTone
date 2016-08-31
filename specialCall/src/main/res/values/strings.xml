@@ -13,6 +13,7 @@
     <string name="tutorial_text1">videos</string>
     <string name="tutorial_caller">Caller media</string>
     <string name="tutorial_profile">Profile media</string>
+    <string name="under_construction">Under Construction</string>
 
     <!-- ### Activities ###  -->
     <!--  LoginActivity  -->

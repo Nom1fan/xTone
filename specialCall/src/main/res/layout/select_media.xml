@@ -249,4 +249,28 @@
         android:layout_toRightOf="@+id/audio_textview"
         android:layout_toStartOf="@+id/audio_textview" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView2"
+        android:layout_alignTop="@+id/mc_gallery_textview"
+        android:layout_alignEnd="@+id/mc_gallery_textview"
+        android:src="@drawable/construction_worker"
+        android:layout_alignBottom="@+id/mc_gallery_textview"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/under_construction"
+        android:id="@+id/textView5"
+        android:layout_below="@+id/mc_gallery_textview"
+        android:layout_alignRight="@+id/mc_gallery_textview"
+        android:layout_alignEnd="@+id/mc_gallery_textview"
+        android:layout_marginLeft="5dp"
+        android:textColor="#fbff00"
+        android:textSize="15dp" />
+
 </RelativeLayout>
