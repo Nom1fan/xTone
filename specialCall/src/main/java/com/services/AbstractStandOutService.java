@@ -389,60 +389,78 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 && !SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)) // ignore when it's the AskBeforeShowView
             SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.DONT_BOTHER_INC_CALL_POPUP,true);
 
-        //check that the window wasn't stretched larger than the screen params , because next time it will crash trying to fill the whole window
-        if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET) >= window.getHeight() &&
-                SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH) >= window.getWidth()) {
+        int CurrentWindowHeighet = window.getHeight();
+        int CurrentWindowWidth = window.getWidth();
 
-            Crashlytics.log(Log.INFO,TAG," Original Device heighet: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET) + " new height: "+ window.getHeight()
-                    + " Original Device width: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH) + " new height: "+ window.getWidth());
+        int CurrentXCoordinate = coordinates[0];
+        int CurrentYCoordinate = coordinates[1] - statusBarHeighet;  // remove the Heighet of the status bar
+
+
+        log(Log.INFO, TAG, "what we receive onClose: Heighet: " + String.valueOf(CurrentWindowHeighet) + "Width: " + String.valueOf(CurrentWindowWidth) + "X: " + String.valueOf(CurrentXCoordinate) + "Y: " + String.valueOf(CurrentYCoordinate));
+
+        if (CurrentYCoordinate <0 || CurrentYCoordinate > CurrentWindowHeighet)
+                CurrentYCoordinate = 0;
+        if (CurrentXCoordinate < 0 || CurrentXCoordinate > CurrentWindowWidth)
+                CurrentXCoordinate = 0;
+
+
+        //check that the window wasn't stretched larger than the screen params , because next time it will crash trying to fill the whole window
+        if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET) < CurrentWindowHeighet) {
+            CurrentWindowHeighet = SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET) - 1;
+        }
+        //check that the window wasn't stretched larger than the screen params , because next time it will crash trying to fill the whole window
+        if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH) < CurrentWindowWidth) {
+            CurrentWindowWidth = SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH) - 1;
+        }
+
+
+            Crashlytics.log(Log.INFO,TAG," Original Device heighet: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET) + " new height: "+ CurrentWindowHeighet
+                    + " Original Device width: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH) + " new width: "+ CurrentWindowWidth);
 
 
             if (mPreviewStart) {
                 // get size of window set last by user
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_HEIGHET_BY_USER, window.getHeight());
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_WIDTH_BY_USER, window.getWidth());
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_HEIGHET_BY_USER, CurrentWindowHeighet);
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_WIDTH_BY_USER, CurrentWindowWidth);
 
                 // get location of window on screen set last by user
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_X_LOCATION_BY_USER, coordinates[0]);
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_Y_LOCATION_BY_USER, coordinates[1] - statusBarHeighet); // remove the Heighet of the status bar
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_X_LOCATION_BY_USER, CurrentXCoordinate);
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_Y_LOCATION_BY_USER, CurrentYCoordinate);
             }
 
             if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION)) {
 
                 // get size of window set last by user
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_HEIGHET_BY_USER, window.getHeight());
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_WIDTH_BY_USER, window.getWidth());
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_HEIGHET_BY_USER, CurrentWindowHeighet);
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_WIDTH_BY_USER, CurrentWindowWidth);
 
                 // get location of window on screen set last by user
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_X_LOCATION_BY_USER, coordinates[0]);
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_Y_LOCATION_BY_USER, coordinates[1] - statusBarHeighet); // remove the Heighet of the status bar
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_X_LOCATION_BY_USER, CurrentXCoordinate);
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_Y_LOCATION_BY_USER, CurrentYCoordinate);
                 SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION, false);
                 SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION, false);
 
-                log(Log.INFO, TAG, "Outgoing Call Heighet: " + String.valueOf(window.getHeight()) + "Width: " + String.valueOf(window.getWidth()) + "X: " + String.valueOf(coordinates[0]) + "Y: " + String.valueOf(coordinates[1] - statusBarHeighet));
+                log(Log.INFO, TAG, "Outgoing Call Heighet: " + String.valueOf(CurrentWindowHeighet) + "Width: " + String.valueOf(CurrentWindowWidth) + "X: " + String.valueOf(CurrentXCoordinate) + "Y: " + CurrentYCoordinate);
             }
 
             if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION) /*&&
                !SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)*/) { // don't save the size and location of AskBeforeShowView
 
                 // get size of window set last by user
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_HEIGHET_BY_USER, window.getHeight());
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_WIDTH_BY_USER, window.getWidth());
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_HEIGHET_BY_USER, CurrentWindowHeighet);
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_WIDTH_BY_USER, CurrentWindowWidth);
 
                 // get location of window on screen set last by user
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_X_LOCATION_BY_USER, coordinates[0]);
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_Y_LOCATION_BY_USER, coordinates[1] - statusBarHeighet); // remove the Heighet of the status bar
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_X_LOCATION_BY_USER, CurrentXCoordinate);
+                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_Y_LOCATION_BY_USER, CurrentYCoordinate);
                 SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION, false);
                 SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION, false);
 
-                log(Log.INFO, TAG, "Incoming Call Heighet: " + String.valueOf(window.getHeight()) + "Width: " + String.valueOf(window.getWidth()) + "X: " + String.valueOf(coordinates[0]) + "Y: " + String.valueOf(coordinates[1] - statusBarHeighet));
+                log(Log.INFO, TAG, "Incoming Call Heighet: " + String.valueOf(CurrentWindowHeighet) + " Width: " + String.valueOf(CurrentWindowWidth) + " X: " + String.valueOf(CurrentXCoordinate) + " Y: " + String.valueOf(CurrentYCoordinate));
             }
 
 
-        }
-
-
-        log(Log.INFO, TAG, "Heighet: " + String.valueOf(window.getHeight()) + "Width: " + String.valueOf(window.getWidth()) + "X: " + String.valueOf(coordinates[0]) + "Y: " + String.valueOf(coordinates[1] - statusBarHeighet));
+        log(Log.INFO, TAG, "Heighet: " + String.valueOf(CurrentWindowHeighet) + "Width: " + String.valueOf(CurrentWindowWidth) + "X: " + String.valueOf(CurrentXCoordinate) + "Y: " + String.valueOf(CurrentYCoordinate));
         SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , false);
         stopSound();
         stopVibrator();

@@ -119,8 +119,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         ImageButton recordAudioBtn = (ImageButton) findViewById(R.id.recordAudio);
         recordAudioBtn.setOnClickListener(this);
 
-        ImageButton mediacallzBtn = (ImageButton) findViewById(R.id.mediacallzBtn);
-        mediacallzBtn.setOnClickListener(this);
+
 
         TextView imageVideoTextView = (TextView) findViewById(R.id.image_video_textview);
         imageVideoTextView.setOnClickListener(this);
@@ -138,7 +137,12 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         recordAudioTextView.setOnClickListener(this);
 
         TextView galleryTexView = (TextView) findViewById(R.id.mc_gallery_textview);
-        galleryTexView.setOnClickListener(this);
+        ImageButton mediacallzBtn = (ImageButton) findViewById(R.id.mediacallzBtn);
+
+
+// TODO MOR: ##### uncomment this to enable the MC Gallery button #####
+      //  mediacallzBtn.setOnClickListener(this);
+      //  galleryTexView.setOnClickListener(this);
 
 
     }
