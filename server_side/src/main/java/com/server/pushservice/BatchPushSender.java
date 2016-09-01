@@ -1,6 +1,7 @@
 package com.server.pushservice;
 
 import com.google.gson.Gson;
+import com.server.lang.ServerConstants;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.logging.Logger;
 
-import DataObjects.SharedConstants;
 
 
 /**
@@ -26,15 +26,15 @@ import DataObjects.SharedConstants;
 public class BatchPushSender implements PushSender {
 
     private static final String REST_API_KEY    =   "2b2efabe088730905d0651656ffb642c";
-    private static final String LIVE_API_KEY    =   SharedConstants.LIVE_API_KEY;
+    private static final String LIVE_API_KEY    =   ServerConstants.LIVE_API_KEY;
     private static final String API_VERSION     =   "1.0";
     private static final String PUSH_URL        =   "https://api.batch.com/" + API_VERSION + "/" + LIVE_API_KEY + "/transactional/send";
 
     @Autowired
-    Logger logger;
+    private Logger logger;
 
     @Autowired
-    Gson gson;
+    private Gson gson;
 
     static
     {
@@ -120,6 +120,7 @@ public class BatchPushSender implements PushSender {
 
 
     private void pushData(String postData) throws Exception {
+        logger.info("Sending push data:" + postData);
         CloseableHttpClient httpClient = HttpClients.createDefault();
         CloseableHttpResponse response;
         HttpEntity entity;
