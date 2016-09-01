@@ -398,26 +398,19 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         log(Log.INFO, TAG, "what we receive onClose: Heighet: " + String.valueOf(CurrentWindowHeighet) + "Width: " + String.valueOf(CurrentWindowWidth) + "X: " + String.valueOf(CurrentXCoordinate) + "Y: " + String.valueOf(CurrentYCoordinate));
 
-        if (CurrentYCoordinate <0)
+        if (CurrentYCoordinate <0 || CurrentYCoordinate > CurrentWindowHeighet)
                 CurrentYCoordinate = 0;
-        if (CurrentXCoordinate < 0)
+        if (CurrentXCoordinate < 0 || CurrentXCoordinate > CurrentWindowWidth)
                 CurrentXCoordinate = 0;
 
 
         //check that the window wasn't stretched larger than the screen params , because next time it will crash trying to fill the whole window
         if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET) < CurrentWindowHeighet) {
-
             CurrentWindowHeighet = SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET) - 1;
-            CurrentYCoordinate = 0;
-            CurrentXCoordinate = 0;
         }
         //check that the window wasn't stretched larger than the screen params , because next time it will crash trying to fill the whole window
         if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH) < CurrentWindowWidth) {
-
             CurrentWindowWidth = SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH) - 1;
-            CurrentYCoordinate = 0;
-            CurrentXCoordinate = 0;
-
         }
 
 
