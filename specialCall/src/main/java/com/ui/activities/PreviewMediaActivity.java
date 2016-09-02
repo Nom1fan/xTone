@@ -213,21 +213,20 @@ public class PreviewMediaActivity extends AppCompatActivity {
                 videoSeekBar.setRangeValues(0, durationInMili); // TODO We want to display in time format !!!
                 videoSeekBar.setNotifyWhileDragging(true);
 
-                videoSeekBar.setOnRangeSeekBarChangeListener(new RangeSeekBar.OnRangeSeekBarChangeListener<Integer>() {
+                videoSeekBar.setOnRangeSeekBarChangeListener(new RangeSeekBar.OnRangeSeekBarChangeListener() {
                     @Override
-                    public void onRangeSeekBarValuesChanged(RangeSeekBar<?> bar, Integer minValue, Integer maxValue) {
-
-                        startInMili=minValue;
-                        endInMili=maxValue;
-                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, minValue);
-                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, maxValue);
+                    public void onRangeSeekBarValuesChanged(RangeSeekBar bar, Number minValue, Number maxValue) {
+                        startInMili= (int)minValue;
+                        endInMili= (int)maxValue;
+                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, (int)minValue);
+                        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC,(int) maxValue);
 
                         Log.i(TAG,"setOnRangeSeekBarChangeListener " + minValue + " " +maxValue  );
 
-                        int current_pos = minValue; // in mili
+                        int current_pos = (int)minValue; // in mili
                         trimVideoView.seekTo(current_pos);
                     }
-                });
+                } );
 
                 _previewVideoTrimFile.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {

@@ -59,7 +59,7 @@ dependencies {
     compile project(':aFileChooser')
     compile 'com.android.support:support-v4:23.1.1'
     compile 'com.android.support:appcompat-v7:23.1.1'
-    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+    compile 'commons-lang:commons-lang:2.6'
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
     compile 'com.android.support:design:23.1.1'
     compile 'com.google.android.gms:play-services-gcm:9.2.0'
@@ -76,7 +76,7 @@ dependencies {
         transitive = true;
     }
     compile project(path: ':audio_waveform')
-    compile 'org.florescu.android.rangeseekbar:rangeseekbar-library:0.3.0'
+    compile project(':rangeseekbar')
 }
 
 crashlytics {
