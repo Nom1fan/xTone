@@ -953,7 +953,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void enableStartingViews() {
 
-        if ((autoCompleteTextViewDestPhone.getText().toString().isEmpty())) {
+     //   if ((autoCompleteTextViewDestPhone.getText().toString().isEmpty())) {
 
             starting_textview.setVisibility(View.VISIBLE);
             starting_up_arrow.setVisibility(View.VISIBLE);
@@ -964,7 +964,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             YoYo.with(Techniques.FadeIn)
                     .duration(2000)
                     .playOn(findViewById(R.id.up_arrow_img));
-        }
+    //    }
 
     }
 
