@@ -75,11 +75,8 @@ import com.utils.InitUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
 import com.utils.SharedPrefUtils;
-import com.utils.SpecialDevicesUtils;
 import com.utils.UI_Utils;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -87,7 +84,6 @@ import java.util.List;
 import java.util.Random;
 
 import DataObjects.DataKeys;
-import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
 import EventObjects.Event;
 import EventObjects.EventReport;
@@ -131,6 +127,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private TextView profile_textview2;
     private ImageView profile_arrow;
     private ImageView caller_arrow;
+    private ImageView starting_up_arrow;
+    private TextView starting_textview;
     private View divider1;
     private View divider2;
     private RelativeLayout mainActivityLayout;
@@ -891,6 +889,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         prepareDividers();
         prepareClearTextButton();
         prepareMCTutorialButton();
+        prepareStartingView();
+    }
+
+    private void prepareStartingView() {
+
+        starting_textview = (TextView) findViewById(R.id.enter_contact_person_to_change_ring);
+        starting_up_arrow = (ImageView) findViewById(R.id.up_arrow_img);
     }
 
     private void prepareMCTutorialButton() {
@@ -914,6 +919,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         disableRingToneNameForProfile();
         disableCallButton();
         disableDestinationTextView();
+        enableStartingViews();
 
         if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION))
             SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, false);
@@ -932,9 +938,33 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         enableSelectContactButton();
         enableCallButton();
         enableSelectMediaButton();
+        disableStartingViews();
         if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION))
             SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, false);
 
+
+    }
+
+    private void disableStartingViews() {
+
+        starting_textview.setVisibility(View.INVISIBLE);
+        starting_up_arrow.setVisibility(View.INVISIBLE);
+    }
+
+    private void enableStartingViews() {
+
+        if ((autoCompleteTextViewDestPhone.getText().toString().isEmpty())) {
+
+            starting_textview.setVisibility(View.VISIBLE);
+            starting_up_arrow.setVisibility(View.VISIBLE);
+            YoYo.with(Techniques.FadeIn)
+                    .duration(2000)
+                    .playOn(findViewById(R.id.enter_contact_person_to_change_ring));
+
+            YoYo.with(Techniques.FadeIn)
+                    .duration(2000)
+                    .playOn(findViewById(R.id.up_arrow_img));
+        }
 
     }
 
@@ -948,6 +978,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         disableSelectContactButton();
         disableDestinationEditText();
         disableCallButton();
+        disableStartingViews();
 
         handleSnackBar(new SnackbarData(SnackbarData.SnackbarStatus.SHOW,
                 Color.RED,
@@ -963,6 +994,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         disableSelectContactButton();
         disableDestinationEditText();
         disableCallButton();
+        disableStartingViews();
     }
 
     private void stateLoggedOut() {

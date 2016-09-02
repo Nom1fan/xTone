@@ -14,6 +14,7 @@
     <string name="tutorial_caller">Caller media</string>
     <string name="tutorial_profile">Profile media</string>
     <string name="under_construction">Under Construction</string>
+    <string name="choose_contact_to_change_ring">Choose contact whom ring you want to change</string>
 
     <!-- ### Activities ###  -->
     <!--  LoginActivity  -->

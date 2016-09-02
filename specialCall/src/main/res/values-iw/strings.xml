@@ -45,6 +45,7 @@
     <string name="tutorial_caller">מדיית מתקשר</string>
     <string name="tutorial_profile">מדיית פרופיל</string>
     <string name="under_construction">בשיפוצים</string>
+    <string name="choose_contact_to_change_ring">בחר איש קשר שברצונך להחליף לו את הצלצול</string>
 
     <!--  Tips  -->
     <string name="set_window"> שחק עם חלון המדיה שלך</string>
