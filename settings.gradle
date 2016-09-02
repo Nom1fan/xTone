@@ -1,1 +1,1 @@
-include ':aFileChooser', ':ffmpeg4android_lib', ':server_side', ':shared', ':specialCall', ':standOut_lib', ':audio_waveform'
+include ':aFileChooser', ':ffmpeg4android_lib', ':server_side', ':shared', ':specialCall', ':standOut_lib', ':audio_waveform', ':rangeseekbar'
