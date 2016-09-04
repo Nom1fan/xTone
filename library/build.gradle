@@ -42,4 +42,4 @@ android.libraryVariants.all { variant ->
     artifacts.add('archives', task);
 }
 
-apply from: '../gradle/maven_push.gradle'
+//apply from: '../gradle/maven_push.gradle'
