@@ -1,6 +1,7 @@
 package com.server.database;
 
 import com.server.database.records.AppMetaDBO;
+import com.server.lang.ServerConstants;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,6 @@ import java.util.Map;
 import DataObjects.CallRecord;
 import DataObjects.DataKeys;
 import DataObjects.MediaTransferRecord;
-import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
 import DataObjects.UserDBO;
 import DataObjects.UserStatus;
@@ -39,8 +39,8 @@ public class MySqlDAO implements DAO {
     @Override
     public void initConn() throws SQLException {
 
-        _dbConn = DriverManager.getConnection("jdbc:mysql://" + SharedConstants.DB_SERVER_HOST + ":" + SharedConstants.DB_SERVER_PORT + "/sys?" +
-                "user=" + SharedConstants.DB_SERVER_USER + "&password=" + SharedConstants.DB_SERVER_PWD);
+        _dbConn = DriverManager.getConnection("jdbc:mysql://" + ServerConstants.DB_SERVER_HOST + ":" + ServerConstants.DB_SERVER_PORT + "/sys?" +
+                "user=" + ServerConstants.DB_SERVER_USER + "&password=" + ServerConstants.DB_SERVER_PWD);
     }
 
     @Override
