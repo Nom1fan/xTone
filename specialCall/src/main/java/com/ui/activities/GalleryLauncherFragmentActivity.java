@@ -86,7 +86,7 @@ public class GalleryLauncherFragmentActivity extends FragmentActivity {
                 if (fr == null) {
                     fr = new ImageGIFGridFragment();
                 }
-                titleRes = R.string.ac_name_image_grid;
+                titleRes = R.string.ac_name_image_gif;
                 break;
 
             case ImagePagerFragment.INDEX:

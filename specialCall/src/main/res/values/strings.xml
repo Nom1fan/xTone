@@ -261,9 +261,10 @@
 
     <!-- Activity titles -->
     <string name="ac_name_image_list">Image List Example</string>
-    <string name="ac_name_image_grid">Image Grid Example</string>
-    <string name="ac_name_image_pager">Image Pager Example</string>
-    <string name="ac_name_image_gallery">Image Gallery Example</string>
+    <string name="ac_name_image_gif">GIF Gallery</string>
+    <string name="ac_name_image_grid">Image Gallery</string>
+    <string name="ac_name_image_pager">Audio Gallery</string>
+    <string name="ac_name_image_gallery">Video Gallery</string>
     <string name="ac_name_complex">Complex Example</string>
     <!-- Labels -->
     <string name="label_examples">Examples</string>

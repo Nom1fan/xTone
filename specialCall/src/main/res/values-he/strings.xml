@@ -271,4 +271,18 @@
     <string name="delete_account_summary">מחיקת חשבון וכל המדיה שנשמרה</string>
     <string name="send_logs">שלח לוגים</string>
     <string name="send_logs_summary">שלח דוח פעילויות אחרונה של האפליקציה לניתוח</string>
+
+
+    <!--  ContentStore Layout   -->
+    <string name="ac_name_image_grid">גלריית תמונות</string>
+    <string name="ac_name_image_gif">גלריית גיפים</string>
+    <string name="ac_name_image_pager">גלריית אודיו</string>
+    <string name="ac_name_image_gallery">גלריית סרטונים</string>
+    <string name="button_image_grid">תמונות</string>
+    <string name="button_image_grid_gif">גיף</string>
+    <string name="button_video_gallery">סרטונים</string>
+    <string name="button_music_gallery">אודיו</string>
+
+
+
 </resources>
