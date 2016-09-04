@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:adjustViewBounds="true"
-        android:textColor="@color/background_floating_material_dark"
+        android:textColor="#ffffff"
         android:layout_below="@+id/audioimage"
         android:layout_centerHorizontal="true"
         android:layout_alignParentRight="true"
