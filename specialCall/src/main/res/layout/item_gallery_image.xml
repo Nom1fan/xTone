@@ -6,4 +6,5 @@
 	android:layout_gravity="center"
 	android:adjustViewBounds="true"
 	android:contentDescription="@string/descr_image"
-	android:scaleType="centerCrop" />
+	android:scaleType="centerCrop"
+	android:background="#004559" />

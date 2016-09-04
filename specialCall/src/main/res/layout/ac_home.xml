@@ -3,7 +3,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/bright_foreground_material_dark"
+    android:background="#004559"
     android:gravity="center_horizontal">
 
 		<!--<TextView-->

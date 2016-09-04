@@ -9,4 +9,4 @@
 	android:stretchMode="columnWidth"
 	android:verticalSpacing="4dip"
 	android:padding="4dip"
-    android:background="@color/background_floating_material_light" />
+    android:background="#004559" />

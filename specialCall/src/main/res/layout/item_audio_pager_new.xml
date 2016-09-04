@@ -5,7 +5,7 @@
     android:padding="1dip"
     android:orientation="vertical"
     android:gravity="top|center"
-    android:background="@color/background_floating_material_light">
+    android:background="#004559">
 
     <Button
         android:id="@+id/downloadButton"
@@ -67,7 +67,7 @@
         android:layout_alignLeft="@+id/audioimage"
         android:layout_alignStart="@+id/audioimage"
         android:layout_centerHorizontal="true"
-        android:textColor="#000000"
+        android:textColor="#ffffff"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:gravity="center" />

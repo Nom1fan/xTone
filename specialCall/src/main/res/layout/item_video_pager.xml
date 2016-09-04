@@ -3,7 +3,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:padding="1dip"
-    android:background="@color/background_floating_material_light">
+    android:background="#004559">
     <com.fragment.CustomVideoView
         android:id="@+id/videoView"
         android:layout_width="fill_parent"
@@ -41,6 +41,6 @@
         android:id="@+id/textView6"
         android:layout_gravity="center_horizontal|top"
         android:layout_marginTop="50dp"
-        android:textColor="#000000" />
+        android:textColor="#ffffff" />
 
 </FrameLayout>
