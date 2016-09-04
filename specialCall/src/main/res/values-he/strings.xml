@@ -282,7 +282,7 @@
     <string name="button_image_grid_gif">גיף</string>
     <string name="button_video_gallery">סרטונים</string>
     <string name="button_music_gallery">אודיו</string>
-
+    <string name="download_from_contentstore">הורדה</string>
 
 
 </resources>

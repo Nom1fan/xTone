@@ -12,7 +12,8 @@
         android:adjustViewBounds="true"
         android:contentDescription="@string/descr_image"
 
-        />
+        android:layout_marginTop="70dp"
+        android:layout_marginBottom="60dp" />
 
     <ProgressBar
         android:id="@+id/loading"
@@ -20,6 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone" />
+
     <Button
         android:id="@+id/downloadButton"
         android:layout_width="50dp"
@@ -27,7 +29,18 @@
         android:layout_below="@+id/image"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:background="@drawable/downloadbutton"
-        android:gravity="top|left" />
+        android:background="@drawable/download_btn_anim"
+        android:gravity="top|left"
+        android:layout_gravity="center_horizontal|top" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/download_from_contentstore"
+        android:id="@+id/textView6"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="50dp"
+        android:textColor="#000000" />
 
 </FrameLayout>
