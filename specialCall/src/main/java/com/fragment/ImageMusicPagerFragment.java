@@ -210,7 +210,7 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
         }
 
         @Override
-        public Object instantiateItem(ViewGroup view, int position) {
+        public Object instantiateItem(ViewGroup view, final int position) {
             RelativeLayout audioPageLayout = (RelativeLayout) inflater.inflate(R.layout.item_audio_pager_new, view, false);
             assert audioPageLayout != null;
 
@@ -238,7 +238,7 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
             Button downloadButton = (Button) audioPageLayout.findViewById(R.id.downloadButton);
             downloadButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View arg0) {
-
+                    downloadFile(audioUrls.get(position));
                 }
             });
 
