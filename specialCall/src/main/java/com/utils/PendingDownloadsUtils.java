@@ -24,9 +24,9 @@ import static com.crashlytics.android.Crashlytics.log;
 /**
  * Created by Mor on 02/05/2016.
  */
-public abstract class DownloadsUtils {
+public abstract class PendingDownloadsUtils {
 
-    private static final String TAG = DownloadsUtils.class.getSimpleName();
+    private static final String TAG = PendingDownloadsUtils.class.getSimpleName();
 
     public static void enqueuePendingDownload(final Context context, final HashMap pendingDlData) {
 

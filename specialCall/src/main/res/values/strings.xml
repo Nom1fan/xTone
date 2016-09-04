@@ -256,4 +256,38 @@
     <string name="ringing_override_settings_summary">In case you receive Silent MC calls or something else, this may fix your bug</string>
     <string name="delete_account_summary">Delete account and all data</string>
     <string name="send_logs_summary">send app activity logs for debugging</string>
+
+    <!-- Content Store -->
+
+    <!-- Activity titles -->
+    <string name="ac_name_image_list">Image List Example</string>
+    <string name="ac_name_image_grid">Image Grid Example</string>
+    <string name="ac_name_image_pager">Image Pager Example</string>
+    <string name="ac_name_image_gallery">Image Gallery Example</string>
+    <string name="ac_name_complex">Complex Example</string>
+    <!-- Labels -->
+    <string name="label_examples">Examples</string>
+    <string name="button_image_list">ListView</string>
+    <string name="button_image_grid">PHOTOS</string>
+    <string name="button_image_grid_gif">GIF</string>
+    <string name="button_image_pager">ViewPager</string>
+    <string name="button_image_gallery">Gallery</string>
+    <string name="button_video_gallery">Videos</string>
+    <string name="button_music_gallery">Audios</string>
+    <string name="button_list_and_grid">ViewPager (ListView + GridView)</string>
+
+    <string name="title_list">List</string>
+    <string name="title_grid">Grid</string>
+
+    <string name="menu_item_clear_memory_cache">Clear memory cache</string>
+    <string name="menu_item_clear_disc_cache">Clear disc cache</string>
+    <string name="menu_item_pause_on_scroll">Pause on scroll</string>
+    <string name="menu_item_pause_on_fling">Pause on fling</string>
+
+    <!-- Content descriptions -->
+    <string name="descr_image">Image</string>
+    <string name="fetching">Fetching content…</string>
+    <string name="buffering">Buffering…</string>
+    <string name="downlod_failed">Download failed!</string>
+
 </resources>

@@ -14,7 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.receivers.PushReceiver;
 import com.utils.BroadcastUtils;
-import com.utils.DownloadsUtils;
+import com.utils.PendingDownloadsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.NetworkingUtils;
 import com.utils.SharedPrefUtils;
@@ -111,15 +111,15 @@ public class PushService extends IntentService {
         if(isDownloadOnWifiOnly)
         {
             if(NetworkingUtils.isWifiConnected(this)) {
-                DownloadsUtils.sendActionDownload(this, transferDetails);
+                PendingDownloadsUtils.sendActionDownload(this, transferDetails);
             }
             else // Enqueuing pending download for later
             {
-                DownloadsUtils.enqueuePendingDownload(this, transferDetails);
+                PendingDownloadsUtils.enqueuePendingDownload(this, transferDetails);
             }
         }
         else {
-            DownloadsUtils.sendActionDownload(this, transferDetails);
+            PendingDownloadsUtils.sendActionDownload(this, transferDetails);
         }
     }
 

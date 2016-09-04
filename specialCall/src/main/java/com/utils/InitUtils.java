@@ -1,29 +1,24 @@
 package com.utils;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Point;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.data_objects.Constants;
-import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
 import Exceptions.FileInvalidFormatException;
 import Exceptions.FileMissingExtensionException;
@@ -44,26 +39,6 @@ public abstract class InitUtils {
         hideMediaFromGalleryScanner(Constants.OUTGOING_FOLDER);
     }
 
-    /**
-     * Prevents Android's media scanner from reading media files and including them in apps like Gallery or Music.
-     * @param path The path to set the media scanner to ignore
-     */
-    private static void hideMediaFromGalleryScanner(String path) {
-
-        log(Log.INFO,TAG, "create file : " + path + "/" + ".nomedia");
-
-        File new_file = new File(path + "/" + ".nomedia");
-        try {
-            if (new_file.createNewFile())
-                log(Log.INFO,TAG, ".nomedia Created !");
-            else
-                log(Log.INFO,TAG, ".nomedia Already Exists !");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     public static void initializeSettingsDefaultValues(Context context) {
 
         SharedPrefUtils.setBoolean(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.DOWNLOAD_ONLY_ON_WIFI, false);
@@ -78,12 +53,11 @@ public abstract class InitUtils {
         SharedPrefUtils.setInt(context, SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET, size.y);
         SharedPrefUtils.setInt(context, SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH, size.x);
 
-        Crashlytics.log(Log.INFO,TAG,"DEVICE_SCREEN_HEIGHET: " +size.y + "DEVICE_SCREEN_WIDTH: " + size.x);
+        Crashlytics.log(Log.INFO, TAG, "DEVICE_SCREEN_HEIGHET: " + size.y + "DEVICE_SCREEN_WIDTH: " + size.x);
 
     }
 
-
-    public static void initializeLoadingSavedMCFromDiskToSharedPrefs(Context context) {
+    public static void populateSavedMcFromDiskToSharedPrefs(Context context) {
 
         try {
             List<File> outgoingDirectories = getDirectories(new File(Constants.OUTGOING_FOLDER));
@@ -94,19 +68,34 @@ public abstract class InitUtils {
 
             //populating Incoming SharedPref with existing media files
             populateSharedPrefMedia(context, incomingDirectories, SpecialMediaType.CALLER_MEDIA);
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
     public static void saveAndroidVersion(Context context) {
 
         Constants.MY_ANDROID_VERSION(context, Build.VERSION.RELEASE);
     }
 
-    private static void populateSharedPrefMedia(Context context,List<File> Directories, SpecialMediaType specialMediaType) {
+    public static void initImageLoader(Context context) {
+        // This configuration tuning is custom. You can tune every option, you may tune some of them,
+        // or you can create default configuration by
+        //  ImageLoaderConfiguration.createDefault(this);
+        // method.
+        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(context);
+        config.threadPriority(Thread.NORM_PRIORITY - 2);
+        config.denyCacheImageMultipleSizesInMemory();
+        config.diskCacheFileNameGenerator(new Md5FileNameGenerator());
+        config.diskCacheSize(50 * 1024 * 1024); // 50 MiB
+        config.tasksProcessingOrder(QueueProcessingType.LIFO);
+        config.writeDebugLogs(); // Remove for release app
+
+        // Initialize ImageLoader with configuration.
+        ImageLoader.getInstance().init(config.build());
+    }
+
+    private static void populateSharedPrefMedia(Context context, List<File> Directories, SpecialMediaType specialMediaType) {
 
         for (int i = 0; i < Directories.size(); i++) {
 
@@ -119,13 +108,13 @@ public abstract class InitUtils {
                     String extension = FileManager.extractExtension(DirFiles.get(x).getAbsolutePath());
                     fType = FileManager.getFileTypeByExtension(extension);
                 } catch (FileMissingExtensionException e) {
-                    log(Log.INFO, TAG, "FileMissingExtensionException in initializeLoadingSavedMCFromDiskToSharedPrefs in" + specialMediaType.toString());
+                    log(Log.INFO, TAG, "FileMissingExtensionException in populateSavedMcFromDiskToSharedPrefs in" + specialMediaType.toString());
                     e.printStackTrace();
                 } catch (FileInvalidFormatException e) {
-                    log(Log.INFO, TAG, "FileInvalidFormatException in initializeLoadingSavedMCFromDiskToSharedPrefs in" + specialMediaType.toString());
+                    log(Log.INFO, TAG, "FileInvalidFormatException in populateSavedMcFromDiskToSharedPrefs in" + specialMediaType.toString());
                     e.printStackTrace();
                 } catch (Exception e) {
-                    log(Log.INFO, TAG, "populateSharedPrefMedia bad file  in initializeLoadingSavedMCFromDiskToSharedPrefs in" + specialMediaType.toString());
+                    log(Log.INFO, TAG, "populateSharedPrefMedia bad file  in populateSavedMcFromDiskToSharedPrefs in" + specialMediaType.toString());
                     e.printStackTrace();
                 }
 
@@ -159,13 +148,13 @@ public abstract class InitUtils {
     }
 
     private static List<File> getDirectories(File parentDir) {
-        ArrayList<File> inFiles = new ArrayList<File>();
+        ArrayList<File> inFiles = new ArrayList<>();
         File[] files = parentDir.listFiles();
         for (File file : files) {
             if (file.isDirectory())
                 inFiles.add(file);
-          }
-      return inFiles;
+        }
+        return inFiles;
     }
 
     private static List<File> getSpecificFolderFiles(File parentDir) {
@@ -179,88 +168,24 @@ public abstract class InitUtils {
         return inFiles;
     }
 
-    public static void SendBugEmailAsyncTask(final Context context,final Activity activity) {
+    /**
+     * Prevents Android's media scanner from reading media files and including them in apps like Gallery or Music.
+     *
+     * @param path The path to set the media scanner to ignore
+     */
+    private static void hideMediaFromGalleryScanner(String path) {
 
-        AsyncTask<Void, Void, String> task = new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                AdvertisingIdClient.Info idInfo = null;
-                String advertId = null;
-                try {
-                    try {
-                        idInfo = AdvertisingIdClient.getAdvertisingIdInfo(context);
-                    } catch (GooglePlayServicesNotAvailableException e) {
-                        e.printStackTrace();
-                    } catch (GooglePlayServicesRepairableException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        log(Log.INFO, TAG, "create file : " + path + "/" + ".nomedia");
 
-                    try {
-                        advertId = idInfo.getId();
-                    } catch (NullPointerException e) {
-                        e.printStackTrace();
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                return advertId;
-            }
-
-            @Override
-            protected void onPostExecute(String advertId) {
-
-                SendBugReport(context,advertId,activity);
-                log(Log.INFO,TAG, "Google Ad ID: " + advertId);
-
-            }
-
-        };
-        task.execute();
-    }
-
-    private static void SendBugReport(Context context,String GAID,Activity activity) {
-
-        // save logcat in file
-        File outputFile = new File(SharedConstants.ROOT_FOLDER,
-                "logcat.txt");
+        File new_file = new File(path + "/" + ".nomedia");
         try {
-            Runtime.getRuntime().exec(
-                    "logcat -f " + outputFile.getAbsolutePath());
+            if (new_file.createNewFile())
+                log(Log.INFO, TAG, ".nomedia Created !");
+            else
+                log(Log.INFO, TAG, ".nomedia Already Exists !");
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
-        //send file using email
-        Intent emailIntent = new Intent(Intent.ACTION_SEND);
-        // Set type to "email"
-        emailIntent.setType("vnd.android.cursor.dir/email");
-        String to[] = {"ronyahae@gmail.com" , "mormerhav@gmail.com"};
-        emailIntent .putExtra(Intent.EXTRA_EMAIL, to);
-        // the attachment
-        Uri uri = Uri.fromFile(outputFile);
-        emailIntent .putExtra(Intent.EXTRA_STREAM, uri);
-
-        if (context !=null){
-            emailIntent.putExtra(Intent.EXTRA_TEXT,
-                    "\n MY_ID: " + Constants.MY_ID(context)
-                            +   "\n BATCH_INSTALLATION_ID: " + Constants.MY_BATCH_TOKEN(context)
-                            +   "\n GOOGLE_AD_ID: " + GAID
-                            +   "\n Device Model: " + SpecialDevicesUtils.getDeviceName()
-                            +   "\n MY_ANDROID_VERSION: " + Constants.MY_ANDROID_VERSION(context)
-                            +   "\n MediaCallz App Version: " + Constants.APP_VERSION(context)
-            );
-
-            // the mail subject
-            emailIntent .putExtra(Intent.EXTRA_SUBJECT, "MediaCallz_Logs Received from: " + Constants.MY_ID(context));
-        }
-        activity.startActivity(Intent.createChooser(emailIntent , "Send email..."));
-
     }
-
-
 }

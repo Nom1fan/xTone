@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bright_foreground_material_dark"
+    android:gravity="center_horizontal">
+
+		<!--<TextView-->
+			<!--android:layout_width="fill_parent"-->
+			<!--android:layout_height="wrap_content"-->
+			<!--android:gravity="center"-->
+			<!--android:paddingBottom="10dip"-->
+			<!--android:paddingTop="20dip"-->
+			<!--android:text="@string/label_examples"-->
+			<!--android:textSize="24sp" />-->
+
+		<!--<Button-->
+			<!--android:layout_width="320dp"-->
+			<!--android:layout_height="wrap_content"-->
+			<!--android:layout_marginLeft="10dip"-->
+			<!--android:layout_marginRight="10dip"-->
+			<!--android:onClick="onImageListClick"-->
+			<!--android:text="@string/button_image_list" />-->
+
+		<Button
+			android:layout_width="100dp"
+			android:layout_height="100dp"
+			android:layout_marginLeft="10dip"
+			android:layout_marginRight="10dip"
+			android:onClick="onImageGridClick"
+			android:text="@string/button_image_grid"
+            android:background="@drawable/folder"
+            android:id="@+id/button2" />
+
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:onClick="onImageGIFGridClick"
+            android:text="@string/button_image_grid_gif"
+            android:background="@drawable/folder"
+            android:layout_below="@+id/button3"
+            android:layout_alignLeft="@+id/button3"
+            android:layout_alignStart="@+id/button3" />
+
+		<!--<Button-->
+			<!--android:layout_width="320dp"-->
+			<!--android:layout_height="wrap_content"-->
+			<!--android:layout_marginLeft="10dip"-->
+			<!--android:layout_marginRight="10dip"-->
+			<!--android:onClick="onImagePagerClick"-->
+			<!--android:text="@string/button_image_pager" />-->
+
+		<Button
+			android:layout_width="100dp"
+			android:layout_height="100dp"
+            android:onClick="onVideoGalleryClick"
+			android:text="@string/button_video_gallery"
+            android:background="@drawable/folder"
+            android:layout_below="@+id/button2"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
+
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:onClick="onMusicListClick"
+            android:text="@string/button_music_gallery"
+            android:background="@drawable/folder"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/button3" />
+
+        <!--<Button-->
+			<!--android:layout_width="320dp"-->
+			<!--android:layout_height="wrap_content"-->
+			<!--android:layout_marginLeft="10dip"-->
+			<!--android:layout_marginRight="10dip"-->
+			<!--android:onClick="onFragmentsClick"-->
+			<!--android:text="@string/button_list_and_grid" />-->
+	</RelativeLayout>

@@ -4,11 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.data_objects.Constants;
+
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,51 +40,6 @@ public abstract class MediaFilesUtils {
     private static final List<String> audioFormatsList = Arrays.asList(audioFormats);
     private static final String[] videoFormats = { "avi", "mpeg", "mp4", "3gp", "wmv" , "webm" , "mkv"  };
     private static final List<String> videoFormatsList = Arrays.asList(videoFormats);
-
-    private static boolean canVideoBePrepared(Context ctx, FileManager managedFile) {
-
-        boolean result = true;
-        try {
-            FileManager.FileType fType = managedFile.getFileType();
-            String filepath = managedFile.getFileFullPath();
-            final File root = new File(filepath);
-            Uri uri = Uri.fromFile(root);
-
-            switch (fType) {
-                case VIDEO:
-                    checkIfWeCanPrepareVideo(ctx, uri);
-                    break;
-
-                case IMAGE:
-                    break;
-            }
-        } catch (Exception e) {
-            result = false;
-        }
-        return result;
-
-    }
-
-    private static boolean canAudioBePrepared(Context ctx, FileManager managedFile) {
-
-        boolean result = true;
-        try {
-            FileManager.FileType fType = managedFile.getFileType();
-            String filepath = managedFile.getFileFullPath();
-            final File root = new File(filepath);
-            Uri uri = Uri.fromFile(root);
-
-            switch (fType) {
-                case AUDIO:
-                    checkIfWeCanPrepareSound(ctx, uri);
-                    break;
-            }
-        } catch (Exception e) {
-            result = false;
-        }
-        return result;
-
-    }
 
     public static boolean isVideoFileCorrupted(String mediaFilePath, Context context) {
 
@@ -133,27 +92,19 @@ public abstract class MediaFilesUtils {
         return fileIsCorrupted;
     }
 
-    private static void checkIfWeCanPrepareSound(Context ctx, Uri audioUri) throws IOException {
-
-        Crashlytics.log(Log.INFO,TAG, "Checking if Sound Can Be Prepared and work");
-        MediaPlayer mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setDataSource(ctx, audioUri);
-        mMediaPlayer.prepare();
-        mMediaPlayer.setLooping(true);
+    public static boolean isValidImageFormat(String pathOrUrl) {
+        String extension = pathOrUrl.substring(pathOrUrl.lastIndexOf(".") + 1);
+        return imageFormatsList.contains(extension.toLowerCase());
     }
 
-    private static void checkIfWeCanPrepareVideo(Context ctx, Uri videoUri) throws Exception {
+    public static boolean isValidAudioFormat(String pathOrUrl) {
+        String extension = pathOrUrl.substring(pathOrUrl.lastIndexOf(".") + 1);
+        return audioFormatsList.contains(extension.toLowerCase());
+    }
 
-        Crashlytics.log(Log.INFO,TAG, "Checking if Video Can Be Prepared and work");
-        MediaPlayer mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setDataSource(ctx, videoUri);
-        mMediaPlayer.prepare();
-        mMediaPlayer.setLooping(true);
-        int width = mMediaPlayer.getVideoWidth();
-        int height = mMediaPlayer.getVideoHeight();
-        if (width <= 0 || height <= 0) {
-            throw new Exception();
-        }
+    public static boolean isValidVideoFormat(String pathOrUrl) {
+        String extension = pathOrUrl.substring(pathOrUrl.lastIndexOf(".") + 1);
+        return videoFormatsList.contains(extension.toLowerCase());
     }
 
     public static boolean doesFileExistInHistoryFolderByMD5(String md5) {
@@ -230,5 +181,83 @@ public abstract class MediaFilesUtils {
             log(Log.ERROR, TAG, e.getMessage());
         }
         return result;
+    }
+
+    public static String getFileNameByUrl(Context context, String url) {
+        Ringtone r = RingtoneManager.getRingtone(context, Uri.parse(url));
+        return r.getTitle(context);
+    }
+
+    public static String getFileNameWithoutExtensionByUrl(Context context, String url) {
+        String fileName = getFileNameByUrl(context, url);
+        return FilenameUtils.removeExtension(fileName);
+    }
+
+    private static boolean canVideoBePrepared(Context ctx, FileManager managedFile) {
+
+        boolean result = true;
+        try {
+            FileManager.FileType fType = managedFile.getFileType();
+            String filepath = managedFile.getFileFullPath();
+            final File root = new File(filepath);
+            Uri uri = Uri.fromFile(root);
+
+            switch (fType) {
+                case VIDEO:
+                    checkIfWeCanPrepareVideo(ctx, uri);
+                    break;
+
+                case IMAGE:
+                    break;
+            }
+        } catch (Exception e) {
+            result = false;
+        }
+        return result;
+
+    }
+
+    private static boolean canAudioBePrepared(Context ctx, FileManager managedFile) {
+
+        boolean result = true;
+        try {
+            FileManager.FileType fType = managedFile.getFileType();
+            String filepath = managedFile.getFileFullPath();
+            final File root = new File(filepath);
+            Uri uri = Uri.fromFile(root);
+
+            switch (fType) {
+                case AUDIO:
+                    checkIfWeCanPrepareSound(ctx, uri);
+                    break;
+            }
+        } catch (Exception e) {
+            result = false;
+        }
+        return result;
+
+    }
+
+    private static void checkIfWeCanPrepareSound(Context ctx, Uri audioUri) throws IOException {
+
+        Crashlytics.log(Log.INFO,TAG, "Checking if Sound Can Be Prepared and work");
+        MediaPlayer mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setDataSource(ctx, audioUri);
+        mMediaPlayer.prepare();
+        mMediaPlayer.setLooping(true);
+    }
+
+    private static void checkIfWeCanPrepareVideo(Context ctx, Uri videoUri) throws Exception {
+
+        Crashlytics.log(Log.INFO,TAG, "Checking if Video Can Be Prepared and work");
+        MediaPlayer mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setDataSource(ctx, videoUri);
+        mMediaPlayer.prepare();
+        mMediaPlayer.setLooping(true);
+        int width = mMediaPlayer.getVideoWidth();
+        int height = mMediaPlayer.getVideoHeight();
+        if (width <= 0 || height <= 0) {
+            throw new Exception();
+        }
     }
 }

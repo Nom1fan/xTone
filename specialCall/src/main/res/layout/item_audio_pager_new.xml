@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="1dip"
+    android:orientation="vertical"
+    android:gravity="top|center"
+    android:background="@color/background_floating_material_light">
+
+    <Button
+        android:id="@+id/downloadButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/downloadbutton"
+        android:layout_gravity="top|left"
+        android:layout_marginTop="10dp"
+        android:layout_alignParentTop="true" />
+
+    <ImageView
+        android:id="@+id/audioimage"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:contentDescription="audio image"
+        android:layout_alignParentTop="false"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/downloadButton" />
+
+    <TextView
+        android:id="@+id/textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+        android:textColor="@color/background_floating_material_dark"
+        android:layout_below="@+id/audioimage"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
+        android:textAlignment="center"
+        android:text="hi"
+        android:gravity="center" />
+
+    <com.fragment.CustomVideoView
+        android:id="@+id/videoView"
+        android:layout_width="1dp"
+        android:layout_height="1dp"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+
+        android:visibility="visible"
+        android:background="#00ffffff"
+        android:layout_below="@+id/textview"
+        android:focusable="true"
+        android:clickable="true"
+        android:backgroundTint="#00ffffff"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>

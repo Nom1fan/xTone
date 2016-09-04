@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '22.0.1'
+    buildToolsVersion '23.0.2'
     defaultConfig {
         applicationId "com.mediacallz.app"
         minSdkVersion 16
@@ -11,6 +11,7 @@ android {
         ndk {
             abiFilter "armeabi-v7a"
         }
+        useLibrary 'org.apache.http.legacy'
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_7
             targetCompatibility JavaVersion.VERSION_1_7
@@ -77,6 +78,21 @@ dependencies {
     }
     compile project(path: ':audio_waveform')
     compile project(':rangeseekbar')
+    compile project(':library')
+    compile 'org.jsoup:jsoup:1.9.2'
+    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.felipecsl:gifimageview:2.1.0'
+    compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
+
+    // RecyclerView
+    compile 'com.android.support:recyclerview-v7:23.1.1'
+
+    // volley
+    compile 'com.android.volley:volley:1.0.0'
+
+    // glide
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'org.jsoup:jsoup:1.9.2'
 }
 
 crashlytics {
@@ -86,3 +102,21 @@ crashlytics {
 }
 
 apply plugin: 'com.google.gms.google-services'
+
+File propFile = file('signing.properties');
+if (propFile.exists()) {
+    def Properties props = new Properties()
+    props.load(new FileInputStream(propFile))
+
+    if (props.containsKey('STORE_FILE') && props.containsKey('STORE_PASSWORD') &&
+            props.containsKey('KEY_ALIAS') && props.containsKey('KEY_PASSWORD')) {
+        android.signingConfigs.release.storeFile = file(props['STORE_FILE'])
+        android.signingConfigs.release.storePassword = props['STORE_PASSWORD']
+        android.signingConfigs.release.keyAlias = props['KEY_ALIAS']
+        android.signingConfigs.release.keyPassword = props['KEY_PASSWORD']
+    } else {
+        android.buildTypes.release.signingConfig = null
+    }
+} else {
+    android.buildTypes.release.signingConfig = null
+}

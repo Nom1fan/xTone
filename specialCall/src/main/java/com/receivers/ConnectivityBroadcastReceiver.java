@@ -10,7 +10,7 @@ import android.util.Log;
 import com.app.AppStateManager;
 import com.services.LogicServerProxyService;
 import com.utils.BroadcastUtils;
-import com.utils.DownloadsUtils;
+import com.utils.PendingDownloadsUtils;
 
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -34,7 +34,7 @@ public class ConnectivityBroadcastReceiver extends WakefulBroadcastReceiver {
         if (activeNetwork != null && activeNetwork.isConnected()) {
             if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
                 wifiConnected = true;
-                DownloadsUtils.handlePendingDownloads(context);
+                PendingDownloadsUtils.handlePendingDownloads(context);
             } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
                 mobileConnected = true;
             }

@@ -49,7 +49,6 @@ public class PreviewMediaActivity extends AppCompatActivity {
     private FileManager _managedFile;
     private float _oldPosition =0;
     private int _moveLength = 0;
-    private int _SMTypeCode;
     private boolean isPreviewDisplaying = false;
     private ImageButton previewThumbnail;
     private ImageButton _previewVideoTrimFile;
@@ -69,7 +68,6 @@ public class PreviewMediaActivity extends AppCompatActivity {
         log(Log.INFO,TAG, "onCreate()");
         Intent intent = getIntent();
         _managedFile = (FileManager) intent.getSerializableExtra(MANAGED_MEDIA_FILE);
-        _SMTypeCode = intent.getIntExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, 1);
         initializePreviewMediaUI();
 
     }
@@ -411,7 +409,6 @@ public class PreviewMediaActivity extends AppCompatActivity {
 
         log(Log.INFO,TAG, "[File selected]: " + managedFile.getFileFullPath() + ". [File Size]: " + FileManager.getFileSizeFormat(managedFile.getFileSize()));
 
-        resultIntent.putExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, _SMTypeCode);
         resultIntent.putExtra(RESULT_FILE, managedFile);
 
         log(Log.INFO,TAG,"End returnFile");

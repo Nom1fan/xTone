@@ -25,6 +25,7 @@ public abstract class SharedPrefUtils {
     public static final String FUNTONE_FILEPATH                 =   "FunToneFilePath";
     public static final String SHOWCASE                         =   "Showcase";
     public static final String TRIMMED_FILES                    =   "TRIMMED_FILES";
+    public static final String CONTENT_STORE                    =   "CONTENT_STORE";
     //endregion
 
     public static final Set<String> allSharedPrefs = new HashSet<> (Arrays.asList(
@@ -76,6 +77,10 @@ public abstract class SharedPrefUtils {
     public static final String IMAGE_ROTATION_DEGREE                =   "ImageRotationDegree";
     public static final String AUDIO_VIDEO_START_TRIM_IN_MILISEC    =   "AudioVideoStartTrimInMiliSec";
     public static final String AUDIO_VIDEO_END_TRIM_IN_MILISEC      =   "AudioVideoEndTrimInMiliSec";
+    //endregion
+
+    //region Shared pref keys under CONTENT_STORE
+    public static final String RESULT_FILE_PATH_FROM_CONTENT_STORE =   "RESULT_FILE_PATH_FROM_CONTENT_STORE";
     //endregion
 
     //region Shared pref keys under SHOWCASE

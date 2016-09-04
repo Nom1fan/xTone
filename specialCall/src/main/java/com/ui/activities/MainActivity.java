@@ -48,6 +48,7 @@ import android.widget.TextView;
 import com.app.AppStateManager;
 import com.async_tasks.AutoCompletePopulateListAsyncTask;
 import com.async_tasks.IsRegisteredTask;
+import com.async_tasks.SendBugEmailAsyncTask;
 import com.batch.android.Batch;
 import com.crashlytics.android.Crashlytics;
 import com.daimajia.androidanimations.library.Techniques;
@@ -71,7 +72,6 @@ import com.ui.dialogs.InviteDialog;
 import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
-import com.utils.InitUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
 import com.utils.SharedPrefUtils;
@@ -541,7 +541,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         startService(showPreview);
     }
 
-    private void selectMedia(int specialMediaType) {
+    private void selectMedia(SpecialMediaType specialMediaType) {
 
         Intent mainIntent = new Intent(this, SelectMediaActivity.class);
         mainIntent.putExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, specialMediaType);
@@ -566,14 +566,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             if (callerHasMedia || callerHasRingtone)
                 openCallerMediaMenu();
             else
-                selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
+                selectMedia(SpecialMediaType.CALLER_MEDIA);
 
         } else if (id == R.id.selectProfileMediaBtn) {
 
             if (profileHasMedia || profileHasRingtone)
                 openProfileMediaMenu();
             else
-                selectMedia(ActivityRequestCodes.SELECT_PROFILE_MEDIA);
+                selectMedia(SpecialMediaType.PROFILE_MEDIA);
 
         } else if (id == R.id.selectContactBtn) {
 
@@ -1238,14 +1238,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 appAboutAndHelp();
                 break;
             case 4: // Send Bug
-                InitUtils.SendBugEmailAsyncTask(getApplicationContext(),MainActivity.this);
+                SendBugEmailAsyncTask sendBugEmailAsyncTask = new SendBugEmailAsyncTask(this);
+                sendBugEmailAsyncTask.execute();
                 break;
         }
 
         mDrawerLayout.closeDrawer(DrawerList);
     }
-
-
 
     private void appSettings() {
 
@@ -1276,7 +1275,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 log(Log.INFO, TAG, String.valueOf(item.getItemId()));
                 switch (item.getItemId()) {
                     case R.id.selectcallermedia:
-                        selectMedia(ActivityRequestCodes.SELECT_CALLER_MEDIA);
+                        selectMedia(SpecialMediaType.CALLER_MEDIA);
                         break;
                     case R.id.previewcallermedia:
 
@@ -1342,7 +1341,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                 switch (item.getItemId()) {
                     case R.id.specificprofile:
-                        selectMedia(ActivityRequestCodes.SELECT_PROFILE_MEDIA);
+                        selectMedia(SpecialMediaType.PROFILE_MEDIA);
                         break;
                     case R.id.previewprofilemedia:
                         startPreviewStandoutWindow(SpecialMediaType.PROFILE_MEDIA);

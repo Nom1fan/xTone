@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mediacallz.app"
     android:versionCode="40"
-    android:versionName="1.37" >
+    android:versionName="1.37">
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -29,7 +29,11 @@
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
-    <permission android:name="com.mediacallz.app.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+
+    <permission
+        android:name="com.mediacallz.app.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
     <uses-permission android:name="com.mediacallz.app.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
@@ -37,13 +41,14 @@
     <uses-permission android:name="android.permission.READ_SMS" />
 
 
-
     <application
         android:name="com.app.MediaCallzApp"
         android:allowBackup="true"
-        android:supportsRtl="true"
         android:icon="@mipmap/color_mc"
-        android:label="@string/app_name" >
+        android:label="@string/app_name"
+        android:supportsRtl="true">
+
+        <!-- MediaCallz Activities -->
 
         <activity
             android:name="com.ui.activities.SplashScreen"
@@ -60,36 +65,28 @@
             android:excludeFromRecents="false"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppTheme">
             <intent-filter>
-                <action android:name="android.intent.action.SEARCH"/>
+                <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
         </activity>
 
         <activity
             android:name="com.ui.activities.LoginActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-        </activity>
-
-        <receiver android:name="com.ui.activities.LoginActivity$IncomingSms">
-            <intent-filter>
-                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
-            </intent-filter>
-        </receiver>
+            android:theme="@style/AppTheme"/>
 
         <activity
             android:name="com.ui.activities.LoginWithTermsAndServiceActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Translucent" >
-        </activity>
+            android:theme="@style/Theme.AppCompat.Translucent"/>
 
         <activity
             android:name="com.ui.activities.SelectMediaActivity"
             android:excludeFromRecents="false"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppTheme">
 
         </activity>
 
@@ -98,7 +95,7 @@
             android:excludeFromRecents="false"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppTheme">
 
         </activity>
 
@@ -107,20 +104,66 @@
             android:excludeFromRecents="false"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppTheme">
 
             <intent-filter>
-                <action android:name="android.intent.action.SEARCH"/>
+                <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
 
         </activity>
+
+        <activity
+            android:name="com.ui.activities.SelectSpecificContacts"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.ui.activities.SetSettingsActivity"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.ui.activities.SetAboutHelpActivity"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+        </activity>
+
+        <!-- Content Store Activities  -->
+
+        <activity
+            android:name="com.ui.activities.HomeActivity"
+            android:label="@string/app_name">
+            <!--<intent-filter>-->
+            <!--<action android:name="android.intent.action.MAIN" />-->
+
+            <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        </activity>
+
+        <activity
+            android:name="com.ui.activities.GalleryLauncherFragmentActivity"
+            android:label="@string/ac_name_image_list" />
+
+        <activity
+            android:name="com.ui.activities.ComplexImageActivity"
+            android:label="@string/ac_name_complex" />
+
+        <!-- File Chooser Activities -->
 
         <activity
             android:name="com.ipaulpro.afilechooser.FileChooserActivity"
             android:enabled="@bool/use_activity"
             android:exported="true"
             android:icon="@drawable/ic_chooser"
-            android:label="@string/choose_file" >
+            android:label="@string/choose_file">
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
 
@@ -131,123 +174,121 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name="com.ui.activities.SelectSpecificContacts"
-            android:theme="@style/AppTheme" >
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH"/>
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="com.ui.activities.SetSettingsActivity"
-            android:theme="@style/AppTheme" >
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH"/>
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="com.ui.activities.SetAboutHelpActivity"
-            android:theme="@style/AppTheme" >
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH"/>
-            </intent-filter>
-        </activity>
+        <!-- MediaCallz Services -->
 
         <service
             android:name="com.services.IncomingService"
             android:enabled="true"
-            android:priority="999" >
-        </service>
+            android:priority="999"/>
 
         <service
             android:name="com.services.OutgoingService"
             android:enabled="true"
-            android:priority="999" >
-        </service>
+            android:priority="999"/>
 
         <service
             android:name="com.services.PreviewService"
             android:enabled="true"
-            android:priority="999" >
-        </service>
+            android:priority="999"/>
 
         <service
             android:name="com.services.LogicServerProxyService"
             android:enabled="true"
-            android:priority="998" >
-        </service>
+            android:priority="998"/>
 
         <service
             android:name="com.services.StorageServerProxyService"
             android:enabled="true"
-            android:priority="998" >
-        </service>
-
-        <receiver android:name="com.receivers.StartStandOutServicesFallBackReceiver" >
-            <intent-filter>
-                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
-                <action android:name="android.intent.action.PHONE_STATE" />
-                <action android:name="com.android.mediacallz.EVENT_ACTION" />
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-                <action android:name="com.android.mediacallz.ALARM_ACTION"/>
-            </intent-filter>
-        </receiver>
-
-
-        <receiver android:name="com.receivers.ConnectivityBroadcastReceiver" >
-            <intent-filter>
-                <action android:name="android.net.wifi.STATE_CHANGE"/>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name="com.receivers.BackgroundBroadcastReceiver" >
-            <intent-filter>
-                <action android:name="com.android.mediacallz.EVENT_ACTION" />
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name="com.receivers.DownloadReceiver" >
-            <intent-filter>
-                <action android:name="com.android.mediacallz.EVENT_ACTION" />
-            </intent-filter>
-        </receiver>
-
-        <service android:name="com.batch.android.BatchPushService" />
-
-        <receiver android:name="com.batch.android.BatchPushReceiver" android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="com.mediacallz.app" />
-            </intent-filter>
-        </receiver>
+            android:priority="998"/>
 
         <service android:name="com.services.PushService" />
 
-        <receiver android:name="com.receivers.PushReceiver" android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="com.mediacallz.app" />
-            </intent-filter>
-        </receiver>
+        <service
+            android:name="com.services.GetTokenIntentService"
+            android:exported="false"/>
 
-        <receiver android:name="com.receivers.BootCompletedBroadcastReceiver" >
+        <service
+            android:name="com.services.ClearMediaIntentService"
+            android:exported="false"/>
+
+        <!-- Batch Service -->
+
+        <service android:name="com.batch.android.BatchPushService" />
+
+        <!-- MediaCallz Broadcast Receivers -->
+
+        <receiver android:name="com.receivers.BootCompletedBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <service
-            android:name="com.services.GetTokenIntentService"
-            android:exported="false" >
-        </service>
+        <receiver android:name="com.ui.activities.LoginActivity$IncomingSms">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
 
-        <service
-            android:name="com.services.ClearMediaIntentService"
-            android:exported="false" >
-        </service>
+        <receiver android:name="com.receivers.StartStandOutServicesFallBackReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
+                <action android:name="android.intent.action.PHONE_STATE" />
+                <action android:name="com.android.mediacallz.EVENT_ACTION" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="com.android.mediacallz.ALARM_ACTION" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.receivers.ConnectivityBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.receivers.BackgroundBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.android.mediacallz.EVENT_ACTION" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name="com.receivers.DownloadReceiver">
+            <intent-filter>
+                <action android:name="com.android.mediacallz.EVENT_ACTION" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.receivers.PushReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.mediacallz.app" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Batch Receiver -->
+
+        <receiver
+            android:name="com.batch.android.BatchPushReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.mediacallz.app" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Content Store Receiver -->
+
+        <receiver android:name="com.widget.UILWidgetProvider">
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider" />
+
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+        </receiver>
 
         <meta-data
             android:name="io.fabric.ApiKey"

@@ -23,10 +23,6 @@ public abstract class SharedConstants {
   	public static final int LOGIC_SERVER_PORT = 8888;
 	public static final String STROAGE_SERVER_HOST = "server.mediacallz.com";
 	public static final int STORAGE_SERVER_PORT = 7777;
-	public static final String DB_SERVER_HOST = "localhost";
-	public static final int DB_SERVER_PORT = 3306;
-	public static final String DB_SERVER_USER = "root";
-	public static final String DB_SERVER_PWD = "egg9986";
     public static final String APP_NAME = "MediaCallz";
     public static final String LIVE_API_KEY = "56B47A2D7AF8834E6D36C9CBC3F32E";
     public static final String DEV_API_KEY = "DEV56B47A2D7D7E553A410B64C489D";

@@ -169,7 +169,6 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
             Intent previewIntentActivity = new Intent(selectMediaActivity, PreviewMediaActivity.class);
             previewIntentActivity.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
-            previewIntentActivity.putExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, selectMediaActivity.getSMTypeCode());
             selectMediaActivity.startActivityForResult(previewIntentActivity, ActivityRequestCodes.PREVIEW_MEDIA);
 
         } catch(FileExceedsMaxSizeException e) {

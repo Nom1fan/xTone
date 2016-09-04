@@ -47,7 +47,7 @@ public class MediaCallzApp extends Application {
         Batch.Push.setManualDisplay(true);
         Batch.setConfig(new Config(SharedConstants.LIVE_API_KEY));
 
-        Drawable d = getResources().getDrawable(R.drawable.color_mc);
+        Drawable d = getResources().getDrawable(R.drawable.color_mc, getTheme());
         int h = d.getIntrinsicHeight();
         int w = d.getIntrinsicWidth();
 
@@ -76,9 +76,12 @@ public class MediaCallzApp extends Application {
                 InitUtils.initializeSettingsDefaultValues(context);
 
                 //Populate SharedprefMEdia in case it's not the first time the app is installed, and you have saved media in the MediaCallz Outgoing/Incoming
-                InitUtils.initializeLoadingSavedMCFromDiskToSharedPrefs(context);
+                InitUtils.populateSavedMcFromDiskToSharedPrefs(context);
 
                 InitUtils.saveAndroidVersion(context);
+
+                InitUtils.initImageLoader(context);
+
             }
         } catch (Exception e) {
             String errMsg = "Failed to initialize. Please try to install again. Error:" + (e.getMessage()!=null ? e.getMessage() : e);
@@ -105,10 +108,11 @@ public class MediaCallzApp extends Application {
         AppStateManager.setDidAppCrash(context, true);
 
         log(Log.INFO, TAG, "Process you failed me! DIE PROCESS DIE !!!!");
-        android.os.Process.killProcess(android.os.Process.myPid());
+        e.printStackTrace();
+//        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
-    protected boolean isNetworkAvailable() {
+    private boolean isNetworkAvailable() {
 
         ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();

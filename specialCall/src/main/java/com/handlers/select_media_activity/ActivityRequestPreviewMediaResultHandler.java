@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
-import com.data_objects.ActivityRequestCodes;
 import com.handlers.Handler;
 import com.ui.activities.PreviewMediaActivity;
 import com.ui.activities.SelectMediaActivity;
@@ -21,13 +20,7 @@ public class ActivityRequestPreviewMediaResultHandler implements Handler {
     public void handle(Context ctx, Object... params) {
         Intent data = (Intent) params[0];
         SelectMediaActivity selectMediaActivity = (SelectMediaActivity) params[1];
-        SpecialMediaType specialMediaType = null;
-        int sMTypeCode = data.getIntExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, 1);
-        if (sMTypeCode == ActivityRequestCodes.SELECT_CALLER_MEDIA) {
-            specialMediaType = SpecialMediaType.CALLER_MEDIA;
-        } else if (sMTypeCode == ActivityRequestCodes.SELECT_PROFILE_MEDIA) {
-            specialMediaType = SpecialMediaType.PROFILE_MEDIA;
-        }
+        SpecialMediaType specialMediaType = (SpecialMediaType) params[2];
 
         FileManager resultFile = (FileManager) data.getSerializableExtra(PreviewMediaActivity.RESULT_FILE);
         Intent resultIntent = new Intent();
