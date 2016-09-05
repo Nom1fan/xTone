@@ -21,15 +21,15 @@
     <string name="register_success">Registration successful</string>
     <string name="register_failure">Oops! Registration failed. Please Try again.</string>
     <string name="wrong_credentials">Oops! Incorrect SMS code.\n Insert correct code and try again.</string>
-    <string name="initializing">Initializing...</string>
-    <string name="please_wait">Please wait...</string>
-    <string name="registering">Registering...</string>
-    <string name="reconnecting">Reconnecting...</string>
+    <string name="initializing">Initializing…</string>
+    <string name="please_wait">Please wait…</string>
+    <string name="registering">Registering…</string>
+    <string name="reconnecting">Reconnecting…</string>
     <string name="connected">Connected</string>
-    <string name="sms_code_failed">Oops! Getting SMS code failed. Please try again...</string>
-    <string name="get_sms_wait_text">The code should arrive in %1$d seconds...</string>
+    <string name="sms_code_failed">Oops! Getting SMS code failed. Please try again…</string>
+    <string name="get_sms_wait_text">The code should arrive in %1$d seconds…</string>
     <string name="get_sms_not_arrived">Code did not arrive? Try again!</string>
-    <string name="get_sms_time_till_retry">You may retry in %1$d seconds...</string>
+    <string name="get_sms_time_till_retry">You may retry in %1$d seconds…</string>
     <string name="get_sms_you_may_retry">You may now retry</string>
     <string name="get_sms_code">Click to receive SMS code</string>
     <string name="login">Click to login</string>
@@ -60,22 +60,22 @@
     <string name="destination_media_cleared">Media for %1$s was cleared!</string>
     <string name="user_is_registered">User %1$s is registered</string>
     <string name="user_is_unregistered">User %1$s is unregistered</string>
-    <string name="fetching_user_data">Fetching user data...</string>
+    <string name="fetching_user_data">Fetching user data…</string>
 
     <string name="compression_took_too_long">Oops! compression took too long</string>
     <string name="upload_took_too_long">Oops! Upload took too long</string>
-    <string name="compressing_file">Compressing file...</string>
-    <string name="compressing_file2">Optimizing resolution...</string>
-    <string name="trimming">Trimming to 60 seconds. Please wait...</string>
-    <string name="processing_image">Processing image...</string>
+    <string name="compressing_file">Compressing file…</string>
+    <string name="compressing_file2">Optimizing resolution…</string>
+    <string name="trimming">Trimming to 60 seconds. Please wait…</string>
+    <string name="processing_image">Processing image…</string>
 
     <string name="upload_success">Media on the way!</string>
-    <string name="uploading">Uploading...</string>
+    <string name="uploading">Uploading…</string>
     <string name="sent_invitation">Invitation Sent To: </string>
     <string name="share_subject">MediaCallz (Open it in Google Play Store to Download the Application)</string>
     <string name="share_via">Share via</string>
     <string name="delete_account_failed">Failed to delete account! Please contact MediaCallz support</string>
-    <string name="deleting_account_msg">Deleting account...</string>
+    <string name="deleting_account_msg">Deleting account…</string>
     <string name="action_cancelled">Action cancelled</string>
     <string name="invite_dialog_title">Unregistered</string>
     <string name="invite_dialog_summary"> Invite him now to get MediaCallz!</string>
@@ -104,10 +104,9 @@
     <string name="tip5_you_can_preview"> you can preview media you already sent. just choose contact, press on the media -> preview. </string>
 
     <!--  SelectMediaActivity  -->
-    <string name="recording">Recording...</string>
+    <string name="recording">Recording…</string>
     <string name="stop_recording">Stop recording</string>
     <string name="back">Back</string>
-    <string name="downloading">Downloading...</string>
     <string name="media_type">Media Type</string>
     <string name="record_video">Record Video</string>
     <string name="audio">Audio</string>
@@ -205,7 +204,7 @@
     <string name="all_can_mc_me">All can MC me</string>
     <string name="contacts_only">Contacts only</string>
     <string name="no_one">No one</string>
-    <string name="block_specific_contact">Block specific contacts ...</string>
+    <string name="block_specific_contact">Block specific contacts…</string>
     <string name="black_list">BLACK LIST:</string>
 
     <!--  select_spec_contacts Layout   -->
@@ -269,7 +268,7 @@
     <!-- Labels -->
     <string name="label_examples">Examples</string>
     <string name="button_image_list">ListView</string>
-    <string name="button_image_grid">PHOTOS</string>
+    <string name="button_image_grid">Photos</string>
     <string name="button_image_grid_gif">GIF</string>
     <string name="button_image_pager">ViewPager</string>
     <string name="button_image_gallery">Gallery</string>
@@ -288,6 +287,7 @@
     <!-- Content descriptions -->
     <string name="descr_image">Image</string>
     <string name="fetching">Fetching content…</string>
+    <string name="downloading">Downloading…</string>
     <string name="buffering">Buffering…</string>
     <string name="downlod_failed">Download failed!</string>
     <string name="download_from_contentstore">Download</string>

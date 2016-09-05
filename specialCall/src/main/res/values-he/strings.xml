@@ -74,11 +74,11 @@
 
     <string name="compressing_file">דוחס קובץ...</string>
     <string name="compressing_file2">מתאים רזולוציה...</string>
-    <string name="trimming">חותך את הקובץ ל-60 שניות. אנא המתן...</string>
-    <string name="processing_image">מעבד תמונה...</string>
+    <string name="trimming">חותך את הקובץ ל-60 שניות. אנא המתן…</string>
+    <string name="processing_image">מעבד תמונה…</string>
 
     <string name="upload_success">המדיה בדרך!</string>
-    <string name="uploading">מעלה...</string>
+    <string name="uploading">מעלה…</string>
 
     <string name="disconnected">הא? אין אינטרנט?</string>
 
@@ -93,9 +93,9 @@
     <string name="register_success">ההרשמה התבצעה</string>
     <string name="register_failure">אופס! ההרשמה נכשלה. אנא נסה שוב.</string>
     <string name="wrong_credentials">אופס! קוד סמס שגוי.\n הכנס קוד סמס תקין ונסה שוב.</string>
-    <string name="initializing">מאתחל...</string>
-    <string name="please_wait">אנא המתן...</string>
-    <string name="registering">נרשם...</string>
+    <string name="initializing">מאתחל…</string>
+    <string name="please_wait">אנא המתן…</string>
+    <string name="registering">נרשם…</string>
     <string name="reconnecting">מתחבר...</string>
     <string name="connected">מחובר</string>
     <string name="terms_and_conditions_title"> התנאים של השירות ומדיניות הפרטיות</string>
@@ -149,7 +149,7 @@
     <!--  BlockMCContacts  -->
     <string name="uknown">לא ידוע</string>
     <!--  SelectMediaActivity  -->
-    <string name="recording">מקליט...</string>
+    <string name="recording">מקליט…</string>
     <string name="stop_recording">עצור הקלטה</string>
     <string name="record_audio_title">הקלטת אודיו מוכנה</string>
     <string name="record_audio_desc">התחל הקלטה ?</string>
@@ -187,7 +187,7 @@
     <string name="your_phone"> מספר הנייד שלך</string>
 
     <!--  activity_main Layout   -->
-    <string name="to_dest_hint">אל...</string>
+    <string name="to_dest_hint">אל…</string>
     <string name="call_now">התקשר</string>
     <string name="ringtone_name">רינגטון</string>
     <string name="ringtone_name_hint">לא נבחר רינגטון!</string>
@@ -201,7 +201,6 @@
 
     <!--  select_media Layout   -->
     <string name="back">חזור</string>
-    <string name="downloading">הורדה מתבצעת...</string>
     <string name="media_type">סוג מדיה</string>
     <string name="record_video">הקלט וידיאו</string>
     <string name="audio">רינגטון</string>
@@ -283,6 +282,12 @@
     <string name="button_video_gallery">סרטונים</string>
     <string name="button_music_gallery">אודיו</string>
     <string name="download_from_contentstore">הורדה</string>
+
+    <!-- Content descriptions -->
+    <string name="fetching">מושך תוכן…</string>
+    <string name="buffering">מזרים מדיה…</string>
+    <string name="downlod_failed">ההורדה נכשלה!</string>
+    <string name="downloading">הורדה מתבצעת…</string>
 
 
 </resources>
