@@ -2,6 +2,7 @@ package com.fragment;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import com.async_tasks.PopulateUrlsAsyncTask;
 import com.async_tasks.PopulateUrlsAsyncTask.PostPopulateListener;
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
+import com.utils.UI_Utils;
 import com.validate.media.ValidateVideoFormatBehavior;
 
 import java.util.List;
@@ -57,9 +59,14 @@ public class VideoPagerFragment extends BaseFragment implements PostPopulateList
     @Override
     public void constructPostPopulate(List<String> urls) {
         videoUrls = urls;
-        videoViews = new CustomVideoView[videoUrls.size()];
 
-        preparePager();
+        if(videoUrls == null || videoUrls.isEmpty()) {
+            UI_Utils.callToast(getResources().getString(R.string.oops_try_again), Color.RED, getActivity());
+        }
+        else {
+            videoViews = new CustomVideoView[videoUrls.size()];
+            preparePager();
+        }
     }
 
     @Override
@@ -72,6 +79,14 @@ public class VideoPagerFragment extends BaseFragment implements PostPopulateList
         }
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.i(TAG, "onPause()");
+        mediacontroller.hide();
+
+    }
+
     private void preparePager() {
         pager.setAdapter(new ViewAdapter(getActivity()));
         pager.setVisibility(View.VISIBLE);
@@ -79,6 +94,7 @@ public class VideoPagerFragment extends BaseFragment implements PostPopulateList
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                Log.i(TAG, "onPageScrolled. Position:" + position);
                 playVideoInPage(position);
             }
 
@@ -157,9 +173,9 @@ public class VideoPagerFragment extends BaseFragment implements PostPopulateList
 
         @Override
         public Object instantiateItem(ViewGroup view, final int position) {
-
+            Log.i(TAG, "instantiateItem. Position:" + position);
             FrameLayout videoPageLayout = (FrameLayout) inflater.inflate(R.layout.item_video_pager, view, false);
-            if(videoPageLayout ==null) {
+            if(videoPageLayout == null) {
                 String errMsg = "VideoLayout returned as null after inflate()";
                 Log.e(TAG, errMsg);
                 throw new NullPointerException(errMsg);

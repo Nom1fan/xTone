@@ -22,6 +22,8 @@ import java.util.List;
 public class PopulateUrlsAsyncTask extends AsyncTask<Void, Void, List<String>> {
 
     private static final String TAG = PopulateUrlsAsyncTask.class.getSimpleName();
+
+    private static final int READ_TIMEOUT = 10*1000;
     private ValidateMediaFormatBehavior validateMediaFormatBehavior;
     private ArrayList<String> resultUrls = new ArrayList<>();
     private PostPopulateListener listener;
@@ -51,7 +53,7 @@ public class PopulateUrlsAsyncTask extends AsyncTask<Void, Void, List<String>> {
         Document doc;
         String link;
         try {
-            doc = Jsoup.connect(urlToScan).get();
+            doc = Jsoup.connect(urlToScan).timeout(READ_TIMEOUT).get();
             for (Element el : doc.select("td a")) {
                 link = el.attr("href");
                 Log.d(TAG, urlToScan + link);
