@@ -47,7 +47,7 @@ public class MediaCallzApp extends Application {
         Batch.Push.setManualDisplay(true);
         Batch.setConfig(new Config(SharedConstants.LIVE_API_KEY));
 
-        Drawable d = getResources().getDrawable(R.drawable.color_mc, getTheme());
+        Drawable d = getResources().getDrawable(R.drawable.color_mc);
         int h = d.getIntrinsicHeight();
         int w = d.getIntrinsicWidth();
 
