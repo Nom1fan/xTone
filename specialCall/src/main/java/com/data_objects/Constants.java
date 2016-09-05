@@ -43,9 +43,13 @@ public abstract class Constants {
     private static final String OUTGOING_FOLDER_NAME = "Outgoing_" + SharedConstants.APP_NAME;
     private static final String COMP_FOLDER_NAME = SharedConstants.APP_NAME + "_Compressed";
     private static final String HISTORY_FOLDER_NAME = SharedConstants.APP_NAME +"_History";
+    private static final String AUDIO_FOLDER_NAME = "AudioHistory";
     public static final String ROOT_FOLDER = setRootFolder();
     public static final String INCOMING_FOLDER = getIncomingFolder();
     public static final String OUTGOING_FOLDER = getOutgoingFolder();
+    public static final String AUDIO_HISTORY_FOLDER = getAudioHistoryFolder();
+
+
     public static final String COMPRESSED_FOLDER = getFolderForCompression();
     public static final String HISTORY_FOLDER = getHistoryFolderForCompression();
     public static final String STORE_URL = "http://server.mediacallz.com/ContentStore/files/";
@@ -81,6 +85,14 @@ public abstract class Constants {
         File outgoingFolder = new File(path);
         outgoingFolder.mkdirs();
         SharedConstants.OUTGOING_FOLDER = path;
+        return path;
+    }
+
+    private static String getAudioHistoryFolder() {
+
+        String path = ROOT_FOLDER + HISTORY_FOLDER_NAME +  "/" + AUDIO_FOLDER_NAME + "/" ;
+        File AudioHistoryFolder = new File(path);
+        AudioHistoryFolder.mkdirs();
         return path;
     }
 

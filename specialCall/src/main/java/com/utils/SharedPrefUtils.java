@@ -77,6 +77,7 @@ public abstract class SharedPrefUtils {
     public static final String IMAGE_ROTATION_DEGREE                =   "ImageRotationDegree";
     public static final String AUDIO_VIDEO_START_TRIM_IN_MILISEC    =   "AudioVideoStartTrimInMiliSec";
     public static final String AUDIO_VIDEO_END_TRIM_IN_MILISEC      =   "AudioVideoEndTrimInMiliSec";
+    public static final String AUDIO_HISTORY_EXIST                  =   "AUDIO_HISTORY_EXIST";
     //endregion
 
     //region Shared pref keys under CONTENT_STORE

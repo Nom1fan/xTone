@@ -123,6 +123,8 @@
     <string name="are_u_sure_title">Ready For Upload</string>
     <string name="are_u_sure_desc">   Are you sure you want to upload ?</string>
     <string name="upload">Upload</string>
+    <string name="audio_history">Audio history</string>
+    <string name="device_audio">Audio files from device</string>
 
     <!--  PreviewBeforeUploadLayout  -->
     <string name="fileType_video">Video</string>

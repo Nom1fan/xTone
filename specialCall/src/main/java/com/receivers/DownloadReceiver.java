@@ -242,7 +242,7 @@ public class DownloadReceiver extends BroadcastReceiver {
             FileManager.FileType fileType = FileManager.FileType.valueOf(td.get(DataKeys.FILE_TYPE).toString());
 
 
-            if(MediaFilesUtils.doesFileExistInHistoryFolderByMD5(md5))
+            if(MediaFilesUtils.doesFileExistInHistoryFolderByMD5(md5,Constants.HISTORY_FOLDER) || MediaFilesUtils.doesFileExistInHistoryFolderByMD5(md5,Constants.AUDIO_HISTORY_FOLDER))
                 return;
 
 
@@ -253,7 +253,14 @@ public class DownloadReceiver extends BroadcastReceiver {
 
             String currentDateTimeString = new SimpleDateFormat("dd_MM_yy_HHmmss").format(new Date());
 
-            String historyFileName = Constants.HISTORY_FOLDER + currentDateTimeString + "_" + contactName + "_" + md5 + "." + extension; //give a unique name to the file and make sure there won't be any duplicates
+            String historyFileName ="";
+            if (fileType == FileManager.FileType.AUDIO) {
+                historyFileName = Constants.AUDIO_HISTORY_FOLDER + currentDateTimeString + "_" + contactName + "_" + md5 + "." + extension; //give a unique name to the file and make sure there won't be any duplicates
+                SharedPrefUtils.setBoolean(context,SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_HISTORY_EXIST,true);
+            }
+            else
+                historyFileName = Constants.HISTORY_FOLDER + currentDateTimeString + "_" + contactName + "_" + md5 + "." + extension; //give a unique name to the file and make sure there won't be any duplicates
+
             File copyToHistoryFile = new File(historyFileName);
 
             if (!copyToHistoryFile.exists()) // if the file exist don't do any duplicate
@@ -261,19 +268,7 @@ public class DownloadReceiver extends BroadcastReceiver {
                 FileUtils.copyFile(downloadedFile, copyToHistoryFile);
                 Crashlytics.log(Log.INFO,TAG, "Creating a unique md5 file in the History Folder fileName:  " + copyToHistoryFile.getName());
                 if (fileType == FileManager.FileType.AUDIO) {
-                    ContentValues values = new ContentValues();
-                    values.put(MediaStore.MediaColumns.DATA, copyToHistoryFile.getName());
-                    values.put(MediaStore.MediaColumns.TITLE, copyToHistoryFile.getName());
-                    values.put(MediaStore.Audio.AudioColumns.ARTIST, copyToHistoryFile.getName());
-                    values.put(MediaStore.Audio.AudioColumns.ARTIST_ID, copyToHistoryFile.getName());
-                    values.put(MediaStore.Audio.AudioColumns.ALBUM, SharedConstants.APP_NAME);
-                    values.put(MediaStore.Audio.AudioColumns.ALBUM_KEY, SharedConstants.APP_NAME);
-                    values.put(MediaStore.Audio.AudioColumns.DISPLAY_NAME, copyToHistoryFile.getName());
-                    values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/*");
-                    values.put(MediaStore.Audio.Media.IS_MUSIC, true);
-                    Uri uri = MediaStore.Audio.Media.getContentUriForPath(historyFileName);
-                    context.getContentResolver().insert(uri, values);
-
+                    return;
                 }
 
                 MediaFilesUtils.triggerMediaScanOnFile(context, copyToHistoryFile);

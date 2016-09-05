@@ -16,10 +16,12 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.view.MotionEventCompat;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -293,11 +295,53 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     }
 
     private void openAudioMediaPath() {
-        // Create the ACTION_GET_CONTENT Intent
-        final Intent intent = FileUtils.createGetContentIntent("audio/*");
-        Intent chooserIntent = Intent.createChooser(intent, "Select Audio File");
-        startActivityForResult(chooserIntent, ActivityRequestCodes.FIlE_CHOOSER);
+
+        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_HISTORY_EXIST))
+            openAudioMenu();
+        else
+        {
+            final Intent intent = FileUtils.createGetContentIntent("audio/*");
+            Intent chooserIntent = Intent.createChooser(intent, "Select Audio File");
+            startActivityForResult(chooserIntent, ActivityRequestCodes.FIlE_CHOOSER);
+        }
     }
+
+    private void openAudioMenu() {
+        ImageButton profile = (ImageButton) findViewById(R.id.audio);
+        //Creating the instance of PopupMenu
+        PopupMenu popup = new PopupMenu(SelectMediaActivity.this, profile);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.popup_audio_menu, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+
+                log(Log.INFO, TAG, String.valueOf(item.getItemId()));
+
+                switch (item.getItemId()) {
+                    case R.id.device_audio:
+                        final Intent intent = FileUtils.createGetContentIntent("audio/*");
+                        Intent chooserIntent = Intent.createChooser(intent, "Select Audio File");
+                        startActivityForResult(chooserIntent, ActivityRequestCodes.FIlE_CHOOSER);
+                        break;
+
+                    case R.id.audio_history:
+
+                        Intent audioIntent = new Intent(SelectMediaActivity.this, AudioFilesHistoryActivity.class);
+                        audioIntent.putExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, specialMediaType);
+                        startActivityForResult(audioIntent, ActivityRequestCodes.PREVIEW_MEDIA);
+
+                        break;
+
+                }
+                return true;
+            }
+        });
+
+        popup.show();
+    }
+
+
 
     private void recordVideo() {
         // Determine Uri of camera image to save.

@@ -1,0 +1,387 @@
+package com.ui.activities;
+
+import android.app.Activity;
+import android.app.SearchManager;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
+import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.data_objects.ActivityRequestCodes;
+import com.data_objects.Constants;
+import com.data_objects.Contact;
+import com.ipaulpro.afilechooser.utils.FileUtils;
+import com.mediacallz.app.R;
+import com.utils.ContactsUtils;
+import com.utils.MCBlockListUtils;
+import com.utils.MediaFilesUtils;
+import com.utils.UI_Utils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import DataObjects.SpecialMediaType;
+import Exceptions.FileDoesNotExistException;
+import Exceptions.FileExceedsMaxSizeException;
+import Exceptions.FileInvalidFormatException;
+import Exceptions.FileMissingExtensionException;
+import FilesManager.FileManager;
+import utils.PhoneNumberUtils;
+
+import static com.crashlytics.android.Crashlytics.log;
+
+public class AudioFilesHistoryActivity extends AppCompatActivity implements OnItemClickListener {
+
+    private static final String TAG = AudioFilesHistoryActivity.class.getSimpleName();
+    private List<String> _namesInListView = new ArrayList<String>(); // the list that the adapter uses to populate the view
+    private BlackListAdapter _ma;
+    private ListView _lv;
+    private Set<String> _audioFilesSet = new HashSet<String>();
+    private MediaPlayer mMediaPlayer;
+    private String mChosenAudioFile;
+    private boolean oneTimeCheckBox;
+    private Button Upload_or_Cancel;
+    private SpecialMediaType specialMediaType;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.audio_history);
+        log(Log.INFO, TAG, "onCreate");
+        Intent intent = getIntent();
+        specialMediaType = (SpecialMediaType) intent.getSerializableExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        log(Log.INFO, TAG, "onResume()");
+
+
+        prepareListViewData();
+        prepareListView();
+        displayListViewWithNewData();
+
+        prepareChooseButton();
+    }
+
+    private void prepareChooseButton() {
+        Upload_or_Cancel = (Button) findViewById(R.id.choose);
+        Upload_or_Cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                log(Log.INFO, TAG, "choose Button Pressed");
+                returnWithResultIntent();
+
+            }
+        });
+    }
+
+    private void prepareListViewData() {
+        _audioFilesSet = MediaFilesUtils.getAllAudioHistoryFiles();
+        populateContactsToDisplayFromBlockedList(); // populate all contacts to view with checkboxes
+    }
+
+    private void displayListViewWithNewData() {
+        _ma = new BlackListAdapter();
+        _lv.setAdapter(_ma);  // link the listview with the adapter
+    }
+
+    private void prepareListView() {
+        _lv = (ListView) findViewById(R.id.lv);
+        _lv.setOnItemClickListener(this);
+        _lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        _lv.setItemsCanFocus(false);
+        _lv.setTextFilterEnabled(true);
+    }
+
+    // Search to get to the location of the contact
+    private SearchView.OnQueryTextListener onQueryTextListener() {
+        return new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                int position = 0;
+                while (position < _namesInListView.size() - 1) {
+                    if (_namesInListView.get(position).toUpperCase().contains(s.toUpperCase())) {
+                        _lv.smoothScrollToPositionFromTop(position, 0, 200);
+                        break;
+                    } else {
+                        position++;
+                    }
+                }
+
+                return false;
+            }
+        };
+    }
+
+    @Override // add search functionality
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        // Inflate menu to add items to action bar if it is present.
+        inflater.inflate(R.menu.select_contact_menu, menu);
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setOnQueryTextListener(onQueryTextListener());
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        return true;
+    }
+
+    @Override
+    protected void onPause() {
+        log(Log.INFO, TAG, "onPause");
+
+
+        if (mMediaPlayer == null)
+            mMediaPlayer = new MediaPlayer();
+        try {
+            mMediaPlayer.stop();
+            mMediaPlayer.release();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        returnWithResultIntent();
+        super.onPause();
+    }
+
+    private void returnWithResultIntent() {
+        Intent returnIntent = new Intent();
+
+        FileManager resultFile = createManagedFile(mChosenAudioFile);
+        if(resultFile == null)
+            finish();
+
+
+        returnIntent.putExtra(PreviewMediaActivity.RESULT_FILE, resultFile);
+
+        if (getParent() == null) {
+            setResult(Activity.RESULT_OK, returnIntent);
+        } else {
+            getParent().setResult(Activity.RESULT_OK, returnIntent);
+        }
+        finish();
+    }
+
+    private FileManager createManagedFile(String resultFilePath) {
+        FileManager managedFile = null;
+        try {
+            managedFile = new FileManager(resultFilePath);
+        } catch(Exception e) {
+            e.printStackTrace();
+            log(Log.ERROR, TAG, "Failed to create result managed file");
+        }
+        return managedFile;
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        log(Log.INFO, TAG, "onBackPressed");
+        returnWithResultIntent();
+        super.onBackPressed();
+    }
+
+
+    @Override
+    public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+        _ma.toggle(arg2);
+    }
+
+    public void populateContactsToDisplayFromBlockedList() {
+
+        _namesInListView = new ArrayList<String>();
+        for (String name : _audioFilesSet) {
+            String tmp_str[] = name.split(Constants.AUDIO_HISTORY_FOLDER);
+            String fileName = tmp_str[tmp_str.length-1];
+
+            if (!fileName.contains(".nomedia"))
+                _namesInListView.add(fileName);
+        }
+    }
+
+    class BlackListAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener//,Filterable
+    {
+        private SparseBooleanArray mCheckStates;
+        LayoutInflater mInflater;
+        TextView tv;
+        CheckBox cb;
+
+        BlackListAdapter() {
+            mCheckStates = new SparseBooleanArray(_namesInListView.size());
+            mInflater = (LayoutInflater) AudioFilesHistoryActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        @Override
+        public int getCount() {
+            return _namesInListView.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return position;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            View vi = convertView;
+            if (vi == null)
+                vi = LayoutInflater.from(getApplicationContext()).inflate(R.layout.row_for_audio_activity, null);  // vi = mInflater.inflate(R.layout.row, null);
+
+            tv = (TextView) vi.findViewById(R.id.textView1);
+            cb = (CheckBox) vi.findViewById(R.id.checkBox);
+
+            if (_namesInListView.get(position) != null)
+                tv.setText(_namesInListView.get(position));
+
+            cb.setTag(position);
+            cb.setOnCheckedChangeListener(this);
+
+           // if (_audioFilesSet != null) {
+           //     cb.setChecked(true);
+                _ma.notifyDataSetChanged();
+          //  }
+
+
+            return vi;
+        }
+
+        public boolean isChecked(int position) {
+            return mCheckStates.get(position, false);
+        }
+
+        public void setChecked(int position, boolean isChecked) {
+            mCheckStates.put(position, isChecked);
+        }
+
+        public void toggle(int position) {
+            setChecked(position, !isChecked(position));
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView,
+                                     boolean isChecked) {
+
+            mChosenAudioFile = Constants.AUDIO_HISTORY_FOLDER +_namesInListView.get((Integer) buttonView.getTag());
+            FileManager.FileType type = null;
+/*
+            for (String name : _audioFilesSet) {
+                //String tmp_str[] = name.split(Constants.AUDIO_HISTORY_FOLDER);
+                //String fileName = tmp_str[tmp_str.length-1];
+                String pathChosen = Constants.AUDIO_HISTORY_FOLDER + mChosenAudioFile;
+            if (pathChosen.equals(name))
+                   mChosenAudioFile = name;
+            }*/
+
+
+            if (!mChosenAudioFile.isEmpty() && isChecked && !oneTimeCheckBox) {
+
+                oneTimeCheckBox=true;
+
+                try {
+                    FileManager audioFileSelected = new FileManager(mChosenAudioFile);
+                    type = audioFileSelected.getFileType();
+                } catch (FileInvalidFormatException e) {
+                    e.printStackTrace();
+                } catch (FileExceedsMaxSizeException e) {
+                    e.printStackTrace();
+                } catch (FileDoesNotExistException e) {
+                    e.printStackTrace();
+                } catch (FileMissingExtensionException e) {
+                    e.printStackTrace();
+                }
+
+                if (type != FileManager.FileType.AUDIO) {
+                    return;
+                }
+
+
+                if (mMediaPlayer == null)
+                    mMediaPlayer = new MediaPlayer();
+                try {
+                    try {
+                        log(Log.INFO, TAG, "Audio File that will be played: " + mChosenAudioFile);
+                        mMediaPlayer.reset();
+                        mMediaPlayer.setDataSource(getApplicationContext(), Uri.parse(mChosenAudioFile));
+
+                    } catch (Exception e) {
+                        mMediaPlayer.reset();
+                        mMediaPlayer.setDataSource(getApplicationContext(),Uri.parse(mChosenAudioFile));
+                    }
+
+                    //mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    mMediaPlayer.prepare();
+                    mMediaPlayer.setLooping(true);
+                    mMediaPlayer.start();
+
+
+                    Upload_or_Cancel.setText(getResources().getString(R.string.upload));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    log(Log.ERROR, TAG, "Failed to play sound. Exception:" + e.getMessage());
+                }
+
+            }else if ((!mChosenAudioFile.isEmpty() && !isChecked && oneTimeCheckBox)){
+
+                mChosenAudioFile="";
+                oneTimeCheckBox=false;
+
+                if (mMediaPlayer == null)
+                    mMediaPlayer = new MediaPlayer();
+
+                try {
+                    mMediaPlayer.stop();
+                    mMediaPlayer.release();
+                    mMediaPlayer = null;
+
+                    Upload_or_Cancel.setText(getResources().getString(R.string.back));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
+
+}

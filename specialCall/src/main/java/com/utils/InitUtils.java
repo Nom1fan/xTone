@@ -37,6 +37,7 @@ public abstract class InitUtils {
 
         hideMediaFromGalleryScanner(Constants.INCOMING_FOLDER);
         hideMediaFromGalleryScanner(Constants.OUTGOING_FOLDER);
+        hideMediaFromGalleryScanner(Constants.AUDIO_HISTORY_FOLDER);
     }
 
     public static void initializeSettingsDefaultValues(Context context) {

@@ -119,6 +119,13 @@
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.ui.activities.AudioFilesHistoryActivity"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="com.ui.activities.SetSettingsActivity"

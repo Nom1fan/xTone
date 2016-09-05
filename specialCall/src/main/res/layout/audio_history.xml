@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity" >
+    tools:context=".MainActivity"
+    android:background="#004559">
 
    <ListView
        android:layout_width="match_parent"
@@ -15,25 +16,16 @@
        android:layout_alignParentEnd="true"
        android:layout_above="@+id/selectall"
        android:clickable="false"
-       />
+       android:background="#004559" />
 
      <Button
          android:id="@+id/choose"
          android:layout_width="wrap_content"
          android:layout_height="wrap_content"
-         android:text="@string/select_all"
+         android:text="@string/back"
          android:layout_alignParentBottom="true"
          android:layout_alignParentRight="true"
          android:layout_alignParentEnd="true" />
-
-    <Button
-        android:id="@+id/file_explorer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/unselect_all"
-        android:layout_alignTop="@+id/choose"
-        android:layout_toLeftOf="@+id/choose"
-        android:layout_toStartOf="@+id/choose" />
 
 </RelativeLayout>
 

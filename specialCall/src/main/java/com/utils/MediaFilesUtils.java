@@ -16,8 +16,11 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
@@ -107,9 +110,9 @@ public abstract class MediaFilesUtils {
         return videoFormatsList.contains(extension.toLowerCase());
     }
 
-    public static boolean doesFileExistInHistoryFolderByMD5(String md5) {
+    public static boolean doesFileExistInHistoryFolderByMD5(String md5,String folder) {
         boolean result = false;
-        File yourDir = new File(Constants.HISTORY_FOLDER);
+        File yourDir = new File(folder);
         for (File f : yourDir.listFiles()) {
 
             if (f.isFile()) {
@@ -143,6 +146,21 @@ public abstract class MediaFilesUtils {
     public static void triggerMediaScanOnFile(Context context, File file) {
         context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
     }
+
+    public static Set<String> getAllAudioHistoryFiles() {
+        File parentDir = new File(Constants.AUDIO_HISTORY_FOLDER);
+
+        Set<String> inFiles = new HashSet<String>();
+        File[] files = parentDir.listFiles();
+        for (File file : files) {
+            if (!file.isDirectory()) {
+
+                inFiles.add(file.getAbsolutePath());
+            }
+        }
+        return inFiles;
+    }
+
 
     /**
      * Retrieves the file duration using MediaMetadataRetriever

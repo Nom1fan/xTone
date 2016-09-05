@@ -157,6 +157,8 @@
     <string name="are_u_sure_title">מוכן לשליחה</string>
     <string name="are_u_sure_desc">   האם אתה בטוח שאתה מוכן לשליחה ?</string>
     <string name="upload">שלח</string>
+    <string name="audio_history">היסטוריית אודיו</string>
+    <string name="device_audio">קבצי אודיו מהמכשיר</string>
     <!-- ### Layouts XML ###  -->
 
     <!--  PreviewBeforeUploadLayout  -->
