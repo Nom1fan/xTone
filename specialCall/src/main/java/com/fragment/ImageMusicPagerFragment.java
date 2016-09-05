@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,7 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.CircleBitmapDisplayer;
 import com.utils.MediaFilesUtils;
+import com.utils.UI_Utils;
 import com.validate.media.ValidateAudioFormatBehavior;
 import com.validate.media.ValidateImageFormatBehavior;
 import com.validate.media.ValidateMediaFormatBehavior;
@@ -39,6 +41,7 @@ import java.util.List;
  */
 public class ImageMusicPagerFragment extends BaseFragment implements PopulateMultipleUrlsListsAsyncTask.PostMultiPopulateListener {
 
+    private static final String TAG = ImageMusicPagerFragment.class.getSimpleName();
     public static final int INDEX = 14;
 
     private static Integer currentViewPos;
@@ -52,6 +55,7 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.i(TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.fr_image_pager, container, false);
 
         prepareMediaController();
@@ -66,14 +70,17 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
 
     @Override
     public void constructPostPopulate(List<List<String>> urlsList) {
-        audioThumbsUrls = urlsList.get(0);
-        audioUrls = urlsList.get(1);
-        videoViews = new CustomVideoView[audioUrls.size()];
+        if(urlsList == null || urlsList.isEmpty()) {
+            UI_Utils.callToast(getResources().getString(R.string.oops_try_again), Color.RED, getActivity());
+        } else {
+            audioThumbsUrls = urlsList.get(0);
+            audioUrls = urlsList.get(1);
+            videoViews = new CustomVideoView[audioUrls.size()];
 
-        preparePager();
+            preparePager();
 
-        prepareFileNames();
-
+            prepareFileNames();
+        }
     }
 
     @Override
@@ -111,7 +118,7 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
     private void prepareFileNames() {
         fileNames = new ArrayList<>();
         for (String thumbUrl : audioThumbsUrls) {
-            String fileName = MediaFilesUtils.getFileNameWithoutExtensionByUrl(getActivity(), thumbUrl);
+            String fileName = MediaFilesUtils.getFileNameWithoutExtensionByUrl(thumbUrl);
             fileNames.add(fileName);
         }
     }
@@ -192,6 +199,7 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
                     .showImageOnLoading(R.drawable.ic_stub)
                     .showImageForEmptyUri(R.drawable.ic_empty)
                     .showImageOnFail(R.drawable.ic_error)
+                    //.resetViewBeforeLoading(true)
                     .cacheInMemory(true)
                     .cacheOnDisk(true)
                     .considerExifParams(true)
@@ -228,7 +236,6 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
 
             videoViews[position] = videoView;
             if (currentViewPos == null) {
-              //  videoViews[position].start();
                 currentViewPos = position;
                 playAudioFirstTime(position);
             }

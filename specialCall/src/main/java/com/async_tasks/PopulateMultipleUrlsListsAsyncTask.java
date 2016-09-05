@@ -20,6 +20,8 @@ import java.util.List;
 public class PopulateMultipleUrlsListsAsyncTask extends AsyncTask<Void, Void, List<List<String>>> {
 
     private static final String TAG = PopulateMultipleUrlsListsAsyncTask.class.getSimpleName();
+    private static final int READ_TIMEOUT = 10*1000;
+
     private List<ValidateMediaFormatBehavior> validateMediaFormatBehaviors;
     private PostMultiPopulateListener listener;
     private List<String> urlsToScan;
@@ -32,13 +34,14 @@ public class PopulateMultipleUrlsListsAsyncTask extends AsyncTask<Void, Void, Li
 
     @Override
     protected List<List<String>> doInBackground(Void... params) {
+        Log.i(TAG, "doInBackground");
         List<List<String>> resultsUrls = new LinkedList<>();
         Document doc;
         String link;
         for (int i = 0; i < urlsToScan.size(); i++) {
             try {
                 List resultUrls = new ArrayList();
-                doc = Jsoup.connect(urlsToScan.get(i)).get();
+                doc = Jsoup.connect(urlsToScan.get(i)).timeout(READ_TIMEOUT).get();
                 for (Element el : doc.select("td a")) {
                     link = el.attr("href");
                     Log.d(TAG, urlsToScan + link);

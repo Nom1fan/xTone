@@ -17,6 +17,7 @@ package com.fragment;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
@@ -38,6 +39,7 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.utils.UI_Utils;
 import com.validate.media.ValidateImageFormatBehavior;
 
 import java.util.List;
@@ -66,8 +68,14 @@ public class ImagePagerFragment extends BaseFragment implements PopulateUrlsAsyn
     @Override
     public void constructPostPopulate(List<String> urls) {
         imageUrls = urls;
-        pager.setAdapter(new ImageAdapter(getActivity()));
-        pager.setCurrentItem(getArguments().getInt(Constants.Extra.MEDIA_POSITION, 0));
+
+        if(imageUrls == null || imageUrls.isEmpty()) {
+            UI_Utils.callToast(getResources().getString(R.string.oops_try_again), Color.RED, getActivity());
+        }
+        else {
+            pager.setAdapter(new ImageAdapter(getActivity()));
+            pager.setCurrentItem(getArguments().getInt(Constants.Extra.MEDIA_POSITION, 0));
+        }
     }
 
     private class ImageAdapter extends PagerAdapter {

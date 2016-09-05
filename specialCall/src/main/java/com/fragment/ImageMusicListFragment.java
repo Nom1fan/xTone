@@ -18,6 +18,7 @@ package com.fragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +47,8 @@ import java.util.List;
 public class ImageMusicListFragment extends AbsListViewBaseFragment implements PopulateUrlsAsyncTask.PostPopulateListener {
 
 	public static final int INDEX = 12;
-    private List<String> audioThumbsUrls;
+	private static final String TAG = ImageMusicListFragment.class.getSimpleName();
+	private List<String> audioThumbsUrls;
 	private List<String> fileNames;
 
 	@Override
@@ -81,7 +83,7 @@ public class ImageMusicListFragment extends AbsListViewBaseFragment implements P
 	private void prepareFileNames() {
 		fileNames = new ArrayList<>();
 		for (String thumbUrl : audioThumbsUrls) {
-			String fileName = MediaFilesUtils.getFileNameWithoutExtensionByUrl(getActivity(), thumbUrl);
+			String fileName = MediaFilesUtils.getFileNameWithoutExtensionByUrl(thumbUrl);
 			fileNames.add(fileName);
 		}
 	}
@@ -123,6 +125,7 @@ public class ImageMusicListFragment extends AbsListViewBaseFragment implements P
 
 		@Override
 		public View getView(final int position, View convertView, ViewGroup parent) {
+			Log.d(TAG, "getView. Position:" + position);
 			View view = convertView;
 			final ViewHolder holder;
 			if (convertView == null) {
@@ -135,7 +138,10 @@ public class ImageMusicListFragment extends AbsListViewBaseFragment implements P
 				holder = (ViewHolder) view.getTag();
 			}
 
-            holder.text.setText(fileNames.get(position));
+			Log.d(TAG, "filesNames:" + (fileNames != null ? fileNames : "null"));
+			Log.d(TAG, "audioThumbsUrls:" + (audioThumbsUrls != null ? audioThumbsUrls : "null"));
+
+			holder.text.setText(fileNames.get(position));
             ImageLoader.getInstance().displayImage(audioThumbsUrls.get(position), holder.image, options);
 			return view;
 		}

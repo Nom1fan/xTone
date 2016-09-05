@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.util.Log;
 
@@ -201,14 +199,12 @@ public abstract class MediaFilesUtils {
         return result;
     }
 
-    public static String getFileNameByUrl(Context context, String url) {
-        Ringtone r = RingtoneManager.getRingtone(context, Uri.parse(url));
-        return r.getTitle(context);
+    public static String getFileNameByUrl(String url) {
+        return FilenameUtils.getName(url).replaceAll("%20"," ");
     }
 
-    public static String getFileNameWithoutExtensionByUrl(Context context, String url) {
-        String fileName = getFileNameByUrl(context, url);
-        return FilenameUtils.removeExtension(fileName);
+    public static String getFileNameWithoutExtensionByUrl(String url) {
+        return FilenameUtils.getBaseName(url).replaceAll("%20"," ");
     }
 
     private static boolean canVideoBePrepared(Context ctx, FileManager managedFile) {

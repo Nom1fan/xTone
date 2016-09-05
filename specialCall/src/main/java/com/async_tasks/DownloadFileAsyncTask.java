@@ -68,7 +68,7 @@ public class DownloadFileAsyncTask extends AsyncTask<Void, Integer, File> {
 
     @Override
     protected File doInBackground(Void... voids) {
-        String filename = MediaFilesUtils.getFileNameByUrl(context, url);
+        String filename = MediaFilesUtils.getFileNameByUrl(url);
         return downloadFile(filename);
     }
 
