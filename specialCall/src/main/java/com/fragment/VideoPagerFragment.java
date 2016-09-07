@@ -137,7 +137,8 @@ public class VideoPagerFragment extends BaseFragment implements PostPopulateList
 
             showProgressDialog();
 
-            videoViews[currentViewPos].pause();
+            if(videoViews[currentViewPos]!=null)
+                videoViews[currentViewPos].pause();
 
             videoViews[position].setVideoURI(Uri.parse(videoUrls.get(position)));
             videoViews[position].setMediaController(mediacontroller);
