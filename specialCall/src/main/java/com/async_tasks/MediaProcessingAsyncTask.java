@@ -29,6 +29,7 @@ public abstract class MediaProcessingAsyncTask extends AsyncTask<Bundle, Integer
 
     protected final String TAG = TrimTask.class.getSimpleName();
     protected final String OUT_FOLDER = Constants.COMPRESSED_FOLDER;
+    protected final String AUDIO_OUT_FOLDER = Constants.AUDIO_HISTORY_FOLDER;
     protected MediaProcessingAsyncTask instance = this;
     protected FileManager baseFile;
     protected boolean calcProgress = false;

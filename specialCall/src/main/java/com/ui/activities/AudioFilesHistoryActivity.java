@@ -173,7 +173,12 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
             {
                 String Title= "";
                 try {
-                    String removeThisString = fileName.substring(fileName.lastIndexOf("_"), fileName.lastIndexOf("."));
+                    String removeThisString;
+                    if (fileName.contains("trimmed"))
+                            removeThisString = fileName.substring(0, fileName.indexOf("_")+1);
+                        else
+                            removeThisString = fileName.substring(fileName.lastIndexOf("_"), fileName.lastIndexOf("."));
+
                     Title = fileName.replace(removeThisString, "");
                 }catch(Exception e)
                 {
