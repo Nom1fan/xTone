@@ -19,12 +19,14 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.utils.MediaFilesUtils;
+import com.utils.UI_Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,9 +50,12 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
     private ListView _lv;
     private Set<String> _audioFilesSet = new HashSet<String>();
     private MediaPlayer mMediaPlayer;
-    private String mChosenAudioFile;
+    private String mChosenAudioFile = "";
     private boolean oneTimeCheckBox;
-    private Button Upload_or_Cancel;
+    private ImageButton UploadBtn;
+    private ImageButton CancelBtn;
+    private ImageButton PlayPauseBtn;
+    private boolean isPreviewDisplaying = false;
     private HashMap<String,String> paths_to_titles;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +77,8 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
     }
 
     private void prepareChooseButton() {
-        Upload_or_Cancel = (Button) findViewById(R.id.choose);
-        Upload_or_Cancel.setOnClickListener(new View.OnClickListener() {
+        UploadBtn = (ImageButton) findViewById(R.id.audio_upload_btn);
+        UploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 log(Log.INFO, TAG, "choose Button Pressed");
@@ -81,6 +86,130 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
 
             }
         });
+
+        CancelBtn = (ImageButton) findViewById(R.id.audio_cancel_btn);
+        CancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                log(Log.INFO, TAG, "choose Button Pressed");
+                finish();
+
+            }
+        });
+
+        PlayPauseBtn = (ImageButton) findViewById(R.id.audio_play_pause_btn);
+        PlayPauseBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                if (isPreviewDisplaying) {
+
+                    playAudioFile();
+
+
+
+                } else {
+
+                    stopAudioFile();
+
+                }
+            }
+        });
+
+
+
+    }
+
+    private void stopAudioFile() {
+
+        if (mMediaPlayer == null)
+            mMediaPlayer = new MediaPlayer();
+
+        if (mMediaPlayer.isPlaying())
+        {
+            Log.i(TAG," STOP HISTORY AUDIO FILE");
+            try {
+                mMediaPlayer.stop();
+                mMediaPlayer.release();
+                mMediaPlayer = null;
+
+                isPreviewDisplaying = true;
+                PlayPauseBtn.setImageResource(R.drawable.play_preview_anim);
+                PlayPauseBtn.invalidate();
+
+                //UploadBtn.setText(getResources().getString(R.string.back));
+            } catch (Exception e) {
+                e.printStackTrace();
+                UI_Utils.callToast(getResources().getString(R.string.choose_audio_file), Color.WHITE, getApplicationContext());
+            }
+
+        }
+
+        isPreviewDisplaying = true;
+        PlayPauseBtn.setImageResource(R.drawable.play_preview_anim);
+        PlayPauseBtn.invalidate();
+
+
+
+    }
+
+    private void playAudioFile() {
+
+        if (mMediaPlayer == null)
+            mMediaPlayer = new MediaPlayer();
+
+        if (mChosenAudioFile.isEmpty()) {
+            UI_Utils.callToast(getResources().getString(R.string.choose_audio_file), Color.WHITE, getApplicationContext());
+            return;
+        }
+        FileManager.FileType type = null;
+        try {
+            FileManager audioFileSelected = new FileManager(mChosenAudioFile);
+            type = audioFileSelected.getFileType();
+        } catch (FileInvalidFormatException e) {
+            e.printStackTrace();
+        } catch (FileExceedsMaxSizeException e) {
+            e.printStackTrace();
+        } catch (FileDoesNotExistException e) {
+            e.printStackTrace();
+        } catch (FileMissingExtensionException e) {
+            e.printStackTrace();
+        }
+
+        if (type != FileManager.FileType.AUDIO) {
+            return;
+        }
+
+        try {
+            try {
+                log(Log.INFO, TAG, "Audio File that will be played: " + mChosenAudioFile);
+                mMediaPlayer.reset();
+                mMediaPlayer.setDataSource(getApplicationContext(), Uri.parse(mChosenAudioFile));
+
+            } catch (Exception e) {
+                mMediaPlayer.reset();
+                mMediaPlayer.setDataSource(getApplicationContext(),Uri.parse(mChosenAudioFile));
+            }
+
+            mMediaPlayer.prepare();
+            mMediaPlayer.setLooping(true);
+            mMediaPlayer.start();
+            Log.i(TAG," START HISTORY AUDIO FILE");
+
+
+
+            //UploadBtn.setText(getResources().getString(R.string.upload));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log(Log.ERROR, TAG, "Failed to play sound. Exception:" + e.getMessage());
+            UI_Utils.callToast(getResources().getString(R.string.choose_audio_file), Color.WHITE, getApplicationContext());
+
+        }
+
+        PlayPauseBtn.setImageResource(R.drawable.stop_preview_anim);
+        isPreviewDisplaying = false;
+        PlayPauseBtn.invalidate();
+
     }
 
     private void prepareListViewData() {
@@ -121,6 +250,11 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
     private void returnWithResultIntent() {
         Intent returnIntent = new Intent();
 
+
+        if (mChosenAudioFile.isEmpty()) {
+            UI_Utils.callToast(getResources().getString(R.string.choose_audio_file), Color.WHITE, getApplicationContext());
+            return;
+        }
 
         FileManager resultFile = createManagedFile(mChosenAudioFile);
         if(resultFile == null)
@@ -243,67 +377,9 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
                     String str = ((TextView)v).getText().toString();
                     mChosenAudioFile = paths_to_titles.get(str);
 
-                    if (mMediaPlayer == null)
-                        mMediaPlayer = new MediaPlayer();
+                   stopAudioFile();
 
-                    if (mMediaPlayer.isPlaying())
-                    {
-                        Log.i(TAG," STOP HISTORY AUDIO FILE");
-                        try {
-                            mMediaPlayer.stop();
-                            mMediaPlayer.release();
-                            mMediaPlayer = null;
-
-                            Upload_or_Cancel.setText(getResources().getString(R.string.back));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    if (mMediaPlayer == null)
-                        mMediaPlayer = new MediaPlayer();
-
-                    FileManager.FileType type = null;
-                        try {
-                            FileManager audioFileSelected = new FileManager(mChosenAudioFile);
-                            type = audioFileSelected.getFileType();
-                        } catch (FileInvalidFormatException e) {
-                            e.printStackTrace();
-                        } catch (FileExceedsMaxSizeException e) {
-                            e.printStackTrace();
-                        } catch (FileDoesNotExistException e) {
-                            e.printStackTrace();
-                        } catch (FileMissingExtensionException e) {
-                            e.printStackTrace();
-                        }
-
-                        if (type != FileManager.FileType.AUDIO) {
-                            return;
-                        }
-
-                        try {
-                            try {
-                                log(Log.INFO, TAG, "Audio File that will be played: " + mChosenAudioFile);
-                                mMediaPlayer.reset();
-                                mMediaPlayer.setDataSource(getApplicationContext(), Uri.parse(mChosenAudioFile));
-
-                            } catch (Exception e) {
-                                mMediaPlayer.reset();
-                                mMediaPlayer.setDataSource(getApplicationContext(),Uri.parse(mChosenAudioFile));
-                            }
-
-                            mMediaPlayer.prepare();
-                            mMediaPlayer.setLooping(true);
-                            mMediaPlayer.start();
-                            Log.i(TAG," START HISTORY AUDIO FILE");
-
-                            Upload_or_Cancel.setText(getResources().getString(R.string.upload));
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            log(Log.ERROR, TAG, "Failed to play sound. Exception:" + e.getMessage());
-                        }
+                 //playAudioFile();
                 }
             });
             _ma.notifyDataSetChanged();
@@ -341,7 +417,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
                 mMediaPlayer.release();
                 mMediaPlayer = null;
 
-                Upload_or_Cancel.setText(getResources().getString(R.string.back));
+                //UploadBtn.setText(getResources().getString(R.string.back));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -394,7 +470,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
                     mMediaPlayer.start();
 
 
-                    Upload_or_Cancel.setText(getResources().getString(R.string.upload));
+                  //  UploadBtn.setText(getResources().getString(R.string.upload));
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -417,7 +493,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
                     mMediaPlayer.release();
                     mMediaPlayer = null;
 
-                    Upload_or_Cancel.setText(getResources().getString(R.string.back));
+                    //UploadBtn.setText(getResources().getString(R.string.back));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
