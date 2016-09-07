@@ -10,6 +10,7 @@ import com.data_objects.KeysForBundle;
 import com.flows.UploadFileFlowListener;
 import com.mediacallz.app.R;
 import com.utils.MediaFileProcessingUtils;
+import com.utils.SharedPrefUtils;
 
 import java.io.File;
 
@@ -56,7 +57,14 @@ public class TrimTask extends MediaProcessingAsyncTask {
         Log.d(TAG, "Worker started");
         bundle = params[0];
         baseFile = (FileManager) bundle.get(KeysForBundle.FILE_FOR_UPLOAD);
-        processedFilePath = OUT_FOLDER + getProcessedFileName(baseFile, "trimmed");
+
+        if (baseFile.getFileType() == FileManager.FileType.AUDIO)
+        {
+            processedFilePath = AUDIO_OUT_FOLDER + getProcessedFileName(baseFile, (SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC)/1000)+"_trimmed");
+            SharedPrefUtils.setBoolean(context,SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_HISTORY_EXIST,true);
+        }
+        else
+             processedFilePath = OUT_FOLDER + getProcessedFileName(baseFile, (SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC)/1000)+"_trimmed");
 
         workerThread = new Thread(new Runnable() {
 

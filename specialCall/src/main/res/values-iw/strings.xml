@@ -155,6 +155,7 @@
     <string name="upload">שלח</string>
     <string name="audio_history">היסטוריית אודיו</string>
     <string name="device_audio">קבצי אודיו מהמכשיר</string>
+    <string name="choose_audio_file">בחר קובץ אודיו</string>
     <!-- ### Layouts XML ###  -->
 
     <!--  PreviewBeforeUploadLayout  -->

@@ -125,6 +125,7 @@
     <string name="upload">Upload</string>
     <string name="audio_history">Audio history</string>
     <string name="device_audio">Audio files from device</string>
+    <string name="choose_audio_file">Choose Audio File</string>
 
     <!--  PreviewBeforeUploadLayout  -->
     <string name="fileType_video">Video</string>

@@ -172,6 +172,9 @@ public class FFMPEG_Utils {
         String start = convertMillisToTimeFormat(startTime);
         String end = convertMillisToTimeFormat(endTime);
 
+        SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, 0);
+        SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, 0);
+
         Log.i(TAG, "Trimming video. Start: " + start + " End: " + end);
 
         try {
@@ -214,6 +217,9 @@ public class FFMPEG_Utils {
 
         String start = convertMillisToTimeFormat(startTime);
         String end = convertMillisToTimeFormat(endTime);
+
+        SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, 0);
+        SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, 0);
 
         Log.i(TAG, "Trimming audio. Start: " + start + " End: " + end);
 
