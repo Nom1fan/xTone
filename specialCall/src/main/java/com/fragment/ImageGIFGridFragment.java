@@ -70,8 +70,6 @@ public class ImageGIFGridFragment extends AbsListViewBaseFragment implements Pop
 
 	private class ImageAdapter extends BaseAdapter {
 
-		//private static final String[] IMAGE_URLS = Constants.IMAGES;
-
 		private LayoutInflater inflater;
 
 		private DisplayImageOptions options;
@@ -151,28 +149,7 @@ public class ImageGIFGridFragment extends AbsListViewBaseFragment implements Pop
 
 	static class ViewHolder {
 		ImageView imageView;
-        //GifImageView imageView;
 		ProgressBar progressBar;
 	}
-
-//    public class GifDataDownloader extends AsyncTask<String, Void, byte[]> {
-//        private static final String TAG = "GifDataDownloader";
-//
-//        @Override protected byte[] doInBackground(final String... params) {
-//            final String gifUrl = params[0];
-//
-//            if (gifUrl == null)
-//                return null;
-//
-//            try {
-//                return ByteArrayHttpClient.get(gifUrl);
-//            } catch (OutOfMemoryError e) {
-//                Log.e(TAG, "GifDecode OOM: " + gifUrl, e);
-//                return null;
-//            }
-//        }
-//    }
-
-
 
 }
