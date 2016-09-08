@@ -111,7 +111,7 @@ public class VideoPagerFragment extends BaseFragment implements PostPopulateList
     private void prepareMediaController() {
         mediacontroller = new MediaController(getActivity()) {
 
-            @Override
+           /* @Override
             public void hide() {
 
                 try {
@@ -119,11 +119,12 @@ public class VideoPagerFragment extends BaseFragment implements PostPopulateList
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-            }
+            }*/
 
             public boolean dispatchKeyEvent(KeyEvent event) {
                 if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
                     currentViewPos=null;
+                    mediacontroller.hide();
                     ((Activity) getContext()).finish();
                 }
                 return super.dispatchKeyEvent(event);

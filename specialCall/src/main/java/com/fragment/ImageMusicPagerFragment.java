@@ -138,7 +138,7 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
     private void prepareMediaController() {
         mediacontroller = new MediaController(getActivity()) {
 
-            @Override
+          /*  @Override
             public void hide() {
 
                 try {
@@ -146,11 +146,12 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-            }
+            }*/
 
             public boolean dispatchKeyEvent(KeyEvent event) {
                 if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
                     currentViewPos=null;
+                    mediacontroller.hide();
                     ((Activity) getContext()).finish();
                 }
                 return super.dispatchKeyEvent(event);
