@@ -32,9 +32,9 @@ public class MediaFileProcessingUtils {
     //region Constants for FFMPEG compression algorithms
     public static final String workFolder = Constants.COMPRESSED_FOLDER;
     public static final String VK_LOG_PATH = workFolder + "vk.log";
-    public static final int VIDEO_SIZE_COMPRESS_NEEDED = 3145728; // 3MB
-    public static final int AUDIO_SIZE_COMPRESS_NEEDED = 3145728; // 3MB
-    public static final int IMAGE_SIZE_COMPRESS_NEEDED = 1048576; // 1MB
+    public static final int VIDEO_SIZE_COMPRESS_NEEDED = 4194304; // 4MB
+    public static final int AUDIO_SIZE_COMPRESS_NEEDED = 4194304; // 4MB
+    public static final int IMAGE_SIZE_COMPRESS_NEEDED = 2097152; // 1MB
     public static final int AFTER_TRIM_SIZE_COMPRESS_NEEDED = 4194304; // 4MB
     public static final long MAX_DURATION = 61 * 1000;      // Milliseconds
     public static final int MIN_RESOLUTION = 320;     // MIN width resolution
