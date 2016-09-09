@@ -115,6 +115,7 @@
 
         <activity
             android:name="com.ui.activities.SelectSpecificContacts"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -122,6 +123,7 @@
         </activity>
         <activity
             android:name="com.ui.activities.AudioFilesHistoryActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -130,6 +132,7 @@
 
         <activity
             android:name="com.ui.activities.SetSettingsActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -138,6 +141,7 @@
 
         <activity
             android:name="com.ui.activities.SetAboutHelpActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />

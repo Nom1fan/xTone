@@ -14,6 +14,7 @@
        android:layout_alignParentStart="true"
        android:layout_alignParentRight="true"
        android:layout_alignParentEnd="false"
+       android:choiceMode="singleChoice"
        android:clickable="false"
        android:background="#004559"
        android:layout_alignParentTop="true"
