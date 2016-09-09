@@ -16,17 +16,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.utils.MediaFilesUtils;
 import com.utils.UI_Utils;
+
+import org.apache.commons.io.FilenameUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -300,8 +300,8 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
         paths_to_titles = new HashMap<String, String>();
         _namesInListView = new ArrayList<String>();
         for (String name : _audioFilesSet) {
-            String tmp_str[] = name.split(Constants.AUDIO_HISTORY_FOLDER);
-            String fileName = tmp_str[tmp_str.length-1];
+
+            String fileName = FilenameUtils.getName(name);
 
             if (!fileName.contains(".nomedia"))
             {
