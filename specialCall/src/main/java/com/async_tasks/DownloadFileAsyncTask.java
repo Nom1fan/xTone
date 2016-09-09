@@ -1,10 +1,13 @@
 package com.async_tasks;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.util.Log;
@@ -73,18 +76,18 @@ public class DownloadFileAsyncTask extends AsyncTask<Void, Integer, File> {
     }
 
     @Override
-    protected void onPostExecute(File downloadedFile) {
-        progressDialog.dismiss();
-        if(listener!=null)
-            listener.doCallBack(downloadedFile);
-    }
-
-    @Override
     protected void onProgressUpdate(Integer... progress) {
 
         if (progressDialog != null) {
             progressDialog.incrementProgressBy(progress[0]);
         }
+    }
+
+    @Override
+    protected void onPostExecute(File downloadedFile) {
+        dismissWithCheck(progressDialog);
+        if(listener!=null)
+            listener.doCallBack(downloadedFile);
     }
 
     public File downloadFile(String fileName) {
@@ -138,5 +141,46 @@ public class DownloadFileAsyncTask extends AsyncTask<Void, Integer, File> {
 
     public interface PostDownloadCallBackListener {
         void doCallBack(File file);
+    }
+
+    private void dismissWithCheck(Dialog dialog) {
+        if (dialog != null) {
+            if (dialog.isShowing()) {
+
+                //get the Context object that was used to great the dialog
+                Context context = ((ContextWrapper) dialog.getContext()).getBaseContext();
+
+                // if the Context used here was an activity AND it hasn't been finished or destroyed
+                // then dismiss it
+                if (context instanceof Activity) {
+
+                    // Api >=17
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                        if (!((Activity) context).isFinishing() && !((Activity) context).isDestroyed()) {
+                            dismissWithTryCatch(dialog);
+                        }
+                    } else {
+
+                        // Api < 17. Unfortunately cannot check for isDestroyed()
+                        if (!((Activity) context).isFinishing()) {
+                            dismissWithTryCatch(dialog);
+                        }
+                    }
+                } else
+                    // if the Context used wasn't an Activity, then dismiss it too
+                    dismissWithTryCatch(dialog);
+            }
+            dialog = null;
+        }
+    }
+
+    private void dismissWithTryCatch(Dialog dialog) {
+        try {
+            dialog.dismiss();
+        } catch (final Exception e) {
+            // Do nothing.
+        } finally {
+            dialog = null;
+        }
     }
 }
