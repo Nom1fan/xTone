@@ -212,6 +212,8 @@ public class OutgoingService extends AbstractStandOutService {
             boolean arrivedFromFallBack = action.equals(StartStandOutServicesFallBackReceiver.ACTION_START_OUTGOING_SERVICE);
               log(Log.INFO,TAG, "outgoingReceiver Action: " + action);
             if (action.equals(Intent.ACTION_NEW_OUTGOING_CALL) || arrivedFromFallBack) {
+
+
                 String outgoingCallNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
                 outgoingCallNumber = PhoneNumberUtils.toValidLocalPhoneNumber(outgoingCallNumber);
 
@@ -240,7 +242,7 @@ public class OutgoingService extends AbstractStandOutService {
                 // Checking if number is in black list
                 if (!isBlocked)
                     if (!isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) && !isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION) && PhoneNumberUtils.isValidPhoneNumber(outgoingCallNumber)) {
-
+                        backupMusicVolume();
                         try {
 
                             try { // Supposed to solve a bug in Samsung that the window shows too fast and make the call screen white. need to let the call screen start before showing our window
@@ -249,14 +251,13 @@ public class OutgoingService extends AbstractStandOutService {
                                 e.printStackTrace();
                             }
                             SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.OUTGOING_WINDOW_SESSION,true);
-                            mOutgoingCall=true;
 
                             String visualMediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, outgoingCallNumber);
                             String audioMediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, outgoingCallNumber);
                             boolean funtoneExists = new File(audioMediaFilePath).exists() && !MediaFilesUtils.isAudioFileCorrupted(audioMediaFilePath,getApplicationContext());
                             boolean visualMediaExists = new File(visualMediaFilePath).exists() && !MediaFilesUtils.isVideoFileCorrupted(visualMediaFilePath,getApplicationContext());
 
-                            backupMusicVolume();
+
                           //  mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0); // setting max volume for music -5 as it's to high volume
 
                             setTempMd5ForCallRecord(visualMediaFilePath,audioMediaFilePath);

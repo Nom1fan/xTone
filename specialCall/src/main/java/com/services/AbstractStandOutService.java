@@ -96,7 +96,6 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     private static final String alarmActionIntent = "com.android.mediacallz.ALARM_ACTION";
     protected boolean mPreviewStart = false;
     protected boolean showFirstTime = false;
-    protected boolean mOutgoingCall = false;
     protected Vibrator vibrator;
     protected String _contactName = "";
     public AbstractStandOutService(String TAG) {
@@ -988,7 +987,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         verifyAudioManager();
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
-        log(Log.INFO,TAG, "MUSIC_VOLUME Original: " + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        log(Log.INFO,TAG, "backupMusicVolume MUSIC_VOLUME Original: " + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
     }
 
     protected void backupRingSettings() {
@@ -1196,8 +1195,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
 
         try {
-         if(!mOutgoingCall)
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
+            log(Log.INFO,TAG, "releaseResources restore MUSIC_VOLUME to Original: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME));
         } catch (Exception e) {
             Crashlytics.log(Log.ERROR,TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
         }
@@ -1229,8 +1228,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         windowCloseActionWasMade = true;
         volumeChangeByMCButtons = false;
         mVolumeBeforeMute = 0;
-        mOutgoingCall=false;
-                isHidden = false;
+        isHidden = false;
         _contactName="";
         SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
         //mPhoneListener = null;

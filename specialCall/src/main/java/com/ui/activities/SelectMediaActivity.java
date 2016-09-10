@@ -393,7 +393,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     public void recordAudio() {
 
         String fname = "MyAudioRecording_" + System.currentTimeMillis() + ".m4a";
-        File sdAudioFile = new File(Constants.HISTORY_FOLDER, fname);
+        File sdAudioFile = new File(Constants.AUDIO_HISTORY_FOLDER, fname);
+        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_HISTORY_EXIST,true);
 
         sdAudioFile.delete();
         _recordedAudioFilePath = sdAudioFile.getAbsolutePath();
