@@ -75,7 +75,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
     private HashMap<DataKeys, Object> getDataForUpload(Bundle bundle) {
         HashMap<DataKeys, Object> data = new HashMap();
         String myId = Constants.MY_ID(context);
-        double appVersion = Constants.APP_VERSION(context);
+        double appVersion = Constants.APP_VERSION();
 
         data.put(DataKeys.APP_VERSION, appVersion);
         data.put(DataKeys.SOURCE_ID, myId);
