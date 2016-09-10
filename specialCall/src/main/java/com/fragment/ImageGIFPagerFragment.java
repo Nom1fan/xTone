@@ -39,7 +39,7 @@ import com.validate.media.ValidateImageFormatBehavior;
 
 import java.util.List;
 
-import static com.fragment.GifDataDownloader.*;
+import static com.fragment.GifDataDownloader.PostGifDataDownloadListener;
 
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)

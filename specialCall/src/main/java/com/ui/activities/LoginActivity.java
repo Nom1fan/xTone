@@ -8,7 +8,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,7 +21,6 @@ import android.widget.TextView;
 import com.app.AppStateManager;
 import com.async_tasks.GetSmsCodeTask;
 import com.batch.android.Batch;
-import com.crashlytics.android.Crashlytics;
 import com.data_objects.ActivityRequestCodes;
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
@@ -35,6 +33,8 @@ import EventObjects.Event;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import utils.PhoneNumberUtils;
+
+import static com.crashlytics.android.Crashlytics.log;
 
 
 /**
@@ -64,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Crashlytics.log(Log.INFO,TAG, "onCreate()");
+        log(Log.INFO,TAG, "onCreate()");
 
         initializeLoginUI();
     }
@@ -73,7 +73,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        Crashlytics.log(Log.INFO,TAG, "OnStart()");
+        log(Log.INFO,TAG, "OnStart()");
 
         Batch.onStart(this);
 
@@ -83,13 +83,13 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Crashlytics.log(Log.INFO,TAG, "onPause()");
+        log(Log.INFO,TAG, "onPause()");
 
         if (_eventReceiver != null) {
             try {
                 unregisterReceiver(_eventReceiver);
             } catch (Exception ex) {
-                Crashlytics.log(Log.ERROR,TAG, ex.getMessage());
+                log(Log.ERROR,TAG, ex.getMessage());
             }
         }
         saveInstanceState();
@@ -99,7 +99,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        Crashlytics.log(Log.INFO,TAG, "OnResume()");
+        log(Log.INFO,TAG, "OnResume()");
 
         restoreInstanceState();
 
@@ -294,7 +294,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void setInitTextView(String str) {
         if(str!=null) {
-            Crashlytics.log(Log.INFO, TAG, "SetInitTextView:" + str);
+            log(Log.INFO, TAG, "SetInitTextView:" + str);
             _initTextView.setVisibility(View.VISIBLE);
             _initTextView.setText(str);
         }
@@ -384,16 +384,17 @@ public class LoginActivity extends AppCompatActivity {
     private void continueToMainActivity() {
 
         int millisToWait = 1500;
-        Crashlytics.log(Log.INFO,TAG, String.format("Waiting %d milliseconds before continuing to MainActivity", millisToWait));
+        log(Log.INFO,TAG, String.format("Waiting %d milliseconds before continuing to MainActivity", millisToWait));
 
         try {
             Thread.sleep(millisToWait);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Crashlytics.log(Log.INFO,TAG, "Continuing to MainActivity");
+        log(Log.INFO,TAG, "Continuing to MainActivity");
         AppStateManager.setIsLoggedIn(this, true);
         final Intent i = new Intent(this, MainActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(i);
         finish();
 
@@ -405,7 +406,7 @@ public class LoginActivity extends AppCompatActivity {
     public void eventReceived(Event event) {
 
         final EventReport report = event.report();
-        Crashlytics.log(Log.INFO,TAG, "Receiving event:" + report.status());
+        log(Log.INFO,TAG, "Receiving event:" + report.status());
 
         switch (report.status()) {
 
@@ -436,9 +437,6 @@ public class LoginActivity extends AppCompatActivity {
 
     public static class IncomingSms extends BroadcastReceiver {
 
-        // Get the object of SmsManager
-        final SmsManager sms = SmsManager.getDefault();
-
         public void onReceive(Context context, Intent intent) {
 
             // Retrieves a map of extended data from the intent.
@@ -450,16 +448,15 @@ public class LoginActivity extends AppCompatActivity {
 
                     final Object[] pdusObj = (Object[]) bundle.get("pdus");
 
-                    for (int i = 0; i < pdusObj.length; i++) {
+                    for (Object aPdusObj : pdusObj) {
 
-                        SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
+                        SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) aPdusObj);
                         String phoneNumber = currentMessage.getDisplayOriginatingAddress();
 
-                        String senderNum = phoneNumber;
                         String message = currentMessage.getDisplayMessageBody();
 
 
-                        if (senderNum.toLowerCase().contains("mediacallz")) {
+                        if (phoneNumber.toLowerCase().contains("mediacallz")) {
                             SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE, PhoneNumberUtils.toNumeric(message));
                             SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE_RECEIVED, true);
                             BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, null, null));
@@ -468,7 +465,7 @@ public class LoginActivity extends AppCompatActivity {
                 } // bundle is null
 
             } catch (Exception e) {
-                Crashlytics.log(Log.ERROR,"SmsReceiver", "Exception smsReceiver" +e);
+                log(Log.ERROR,"SmsReceiver", "Exception smsReceiver" +e);
 
             }
         }
@@ -499,7 +496,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void restoreInstanceState() {
 
-        Crashlytics.log(Log.INFO,TAG, "Restoring instance state");
+        log(Log.INFO,TAG, "Restoring instance state");
 
         // Restoring login number
         String loginNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER);
@@ -546,7 +543,7 @@ public class LoginActivity extends AppCompatActivity {
 
         String appState = getState();
 
-        Crashlytics.log(Log.INFO,TAG, "Syncing UI with appState:" + appState);
+        log(Log.INFO,TAG, "Syncing UI with appState:" + appState);
 
         switch (appState) {
 

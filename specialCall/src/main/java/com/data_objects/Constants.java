@@ -37,7 +37,6 @@ public abstract class Constants {
 
     // Constants for Website
     public static final String TERMS_AND_PRIVACY_URL = "http://www.mediacallz.com/terms-of-service---privacy-policy.html";
-    public static final String MEDIACALLZ_CONTENT_STORE_URL = "http://" + SharedConstants.STROAGE_SERVER_HOST + "/ContentStore/";
 
     private static final String INCOMING_FOLDER_NAME = "Incoming_" + SharedConstants.APP_NAME;
     private static final String OUTGOING_FOLDER_NAME = "Outgoing_" + SharedConstants.APP_NAME;

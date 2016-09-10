@@ -208,7 +208,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
                 endInMili =  Integer.parseInt(String.valueOf(durationInMili));
                 SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC,endInMili);
 
-                videoSeekBar.setRangeValues(0, durationInMili); // TODO We want to display in time format !!!
+                videoSeekBar.setRangeValues(0, durationInMili);
                 videoSeekBar.setNotifyWhileDragging(true);
 
                 videoSeekBar.setOnRangeSeekBarChangeListener(new RangeSeekBar.OnRangeSeekBarChangeListener() {
