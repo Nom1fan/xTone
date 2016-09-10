@@ -123,7 +123,7 @@ public class ConnectionToClient extends Thread {
         } catch (IOException ex) {
             server.clientConnectionException(this, ex);
             try {
-                closeAll();
+                close();
             } catch (Exception ignored) {}
             //throw ex;  // Rethrow the exception.
             return;
