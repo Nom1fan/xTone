@@ -142,11 +142,13 @@ public class ConnectionToClient extends Thread
       }
       catch (Exception ignored) { }
 
-      throw ex;  // Rethrow the exception.
+      //throw ex;  // Rethrow the exception.
+      server.clientConnectionException(this, ex);
+      return;
     }
 
     readyToStop = false;
-    start(); // Start the thread waits for _data from the socket
+    start(); // Start the thread waits for data from the socket
   }
 
 // INSTANCE METHODS *************************************************
