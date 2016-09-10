@@ -31,9 +31,9 @@ public class ServerActionGetSmsCode extends ServerAction {
     @Override
     public void doAction(Map data) {
 
-        String internationePhoneNumber = (String) data.get(DataKeys.INTERNATIONAL_PHONE_NUMBER);
+        String interPhoneNumber = (String) data.get(DataKeys.INTERNATIONAL_PHONE_NUMBER);
 
-        logger.info("Generating SMS code for [User]:" + internationePhoneNumber);
+        logger.info("Generating SMS code for [User]:" + interPhoneNumber);
 
         int code = RandUtils.getRand(MIN,MAX);
 
@@ -44,7 +44,7 @@ public class ServerActionGetSmsCode extends ServerAction {
 
         HashMap<DataKeys, Object> replyData = new HashMap<>();
         if(isOK) {
-            smsSender.sendSms(internationePhoneNumber, msg);
+            smsSender.sendSms(interPhoneNumber, msg);
             replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.GET_SMS_CODE_SUCCESS));
             replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
         }

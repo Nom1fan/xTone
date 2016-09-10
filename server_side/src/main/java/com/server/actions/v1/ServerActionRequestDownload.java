@@ -3,6 +3,7 @@ package com.server.actions.v1;
 import com.server.actions.ServerAction;
 import com.server.annotations.ServerActionAnno;
 import com.server.database.DAO;
+import com.server.lang.LangStrings;
 
 import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
@@ -13,8 +14,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-
 import DataObjects.DataKeys;
 import DataObjects.PushEventKeys;
 import EventObjects.EventReport;
@@ -23,7 +22,6 @@ import Exceptions.DownloadRequestFailedException;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import com.server.lang.LangStrings;
 
 /**
  * Created by Mor on 23/04/2016.
@@ -39,11 +37,6 @@ public class ServerActionRequestDownload extends ServerAction {
 
     public ServerActionRequestDownload() {
         super(ServerActionType.REQUEST_DOWNLOAD);
-    }
-
-    @PostConstruct
-    public void init() {
-        strings = stringsFactory.getStrings(LangStrings.Languages.ENGLISH.toString());
     }
 
     @Override

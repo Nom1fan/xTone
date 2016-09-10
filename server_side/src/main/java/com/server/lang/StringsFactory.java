@@ -5,5 +5,6 @@ package com.server.lang;
  */
 public interface StringsFactory {
 
+    String DEFAULT_LANG = "en";
     LangStrings getStrings(String locale);
 }
