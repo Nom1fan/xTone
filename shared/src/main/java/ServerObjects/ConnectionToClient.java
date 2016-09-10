@@ -9,6 +9,7 @@ import java.net.*;
 import java.util.*;
 
 // End of ConnectionToClient class
+
 /**
  * An instance of this class is created by the server when a client
  * connects. It accepts messages coming from the client and is
@@ -16,10 +17,10 @@ import java.util.*;
  * private to this class. The AbstractServer contains a set of
  * instances of this class and is responsible for adding and deleting
  * them.<p>
- *
+ * <p>
  * Several public service methods are provided to applications that use
  * this framework, and several hook methods are also available<p>
- *
+ * <p>
  * The modifications made to this class in version 2.2 are:
  * <ul>
  * <li> A new hook method called <code>handleMessageFromClient()</code>
@@ -43,12 +44,12 @@ import java.util.*;
  * server callback when an object of unknown class is received from the input stream
  * or when the message handler throw a <code>RuntimeException</code>
  * <li> The <code>clientDisconnected</code> callback might be called after
- * <code>clientException</code> if the exception causes the end of te thread.
+ * <code>clientException</code> if the exception causes the end of the thread.
  * <li> The call to <code>clientDisconnected</code> has been moved from
- * <code>close</code> to <code>run</code> method to garantee
+ * <code>close</code> to <code>run</code> method to guarantee
  * that connection is really closed when this callback is called.
  * </ul><p>
- *
+ * <p>
  * Project Name: OCSF (Object Client-Server Framework)<p>
  *
  * @author Dr Robert Lagani&egrave;re
@@ -57,331 +58,290 @@ import java.util.*;
  * @author Paul Holden
  * @version December 2003 (2.31)
  */
-public class ConnectionToClient extends Thread
-{
+public class ConnectionToClient extends Thread {
 // INSTANCE VARIABLES ***********************************************
 
-  /**
-   * A reference to the Server that created this instance.
-   */
-  private AbstractServer server;
+    /**
+     * A reference to the Server that created this instance.
+     */
+    private AbstractServer server;
+    /**
+     * Sockets are used in the operating system as channels
+     * of communication between two processes.
+     *
+     * @see java.net.Socket
+     */
+    private Socket clientSocket;
+    /**
+     * Stream used to read from the client.
+     */
+    private ObjectInputStream input;
+    /**
+     * Stream used to write to the client.
+     */
+    private ObjectOutputStream output;
+    /**
+     * Indicates if the thread is ready to stop. Set to true when closing
+     * of the connection is initiated.
+     */
+    private boolean readyToStop;
+    /**
+     * Map to save information about the client such as its login ID.
+     * The initial size of the map is small since it is not expected
+     * that concrete servers will want to store many different types of
+     * information about each client. Used by the setInfo and getInfo
+     * methods.
+     */
+    private HashMap savedInfo = new HashMap(10);
 
-  public Socket getClientSocket() {
-    return clientSocket;
-  }
+    /**
+     * Constructs a new connection to a client.
+     *
+     * @param group        the thread group that contains the connections.
+     * @param clientSocket contains the client's socket.
+     * @param server       a reference to the server that created
+     *                     this instance
+     * @throws IOException if an I/O error occur when creating
+     *                     the connection.
+     */
+    protected ConnectionToClient(ThreadGroup group, Socket clientSocket,
+                                 AbstractServer server) throws IOException {
+        super(group, (Runnable) null);
+        // Initialize variables
+        this.clientSocket = clientSocket;
+        this.server = server;
 
-  /**
-   * Sockets are used in the operating system as channels
-   * of communication between two processes.
-   * @see java.net.Socket
-   */
-  private Socket clientSocket;
+        final int TIMEOUT = 10 * 1000;
+        clientSocket.setSoTimeout(TIMEOUT);
 
-  /**
-   * Stream used to read from the client.
-   */
-  private ObjectInputStream input;
+        //Initialize the objects streams
+        try {
+            output = new ObjectOutputStream(clientSocket.getOutputStream());
+            output.flush();
+            input = new ObjectInputStream(clientSocket.getInputStream());
 
-  /**
-   * Stream used to write to the client.
-   */
-  private ObjectOutputStream output;
+        } catch (IOException ex) {
+            server.clientConnectionException(this, ex);
+            try {
+                close();
+            } catch (Exception ignored) {}
+            //throw ex;  // Rethrow the exception.
+            return;
+        }
 
-  /**
-   * Indicates if the thread is ready to stop. Set to true when closing
-   * of the connection is initiated.
-   */
-  private boolean readyToStop;
-
-  /**
-   * Map to save information about the client such as its login ID.
-   * The initial size of the map is small since it is not expected
-   * that concrete servers will want to store many different types of
-   * information about each client. Used by the setInfo and getInfo
-   * methods.
-   */
-  private HashMap savedInfo = new HashMap(10);
+        readyToStop = false;
+        start(); // Start the thread waits for data from the socket
+    }
 
 
 // CONSTRUCTORS *****************************************************
 
-  /**
-   * Constructs a new connection to a client.
-   *
-   * @param group the thread group that contains the connections.
-   * @param clientSocket contains the client's socket.
-   * @param server a reference to the server that created
-   *        this instance
-   * @exception IOException if an I/O error occur when creating
-   *        the connection.
-   */
-  protected ConnectionToClient(ThreadGroup group, Socket clientSocket,
-                               AbstractServer server) throws IOException
-  {
-    super(group,(Runnable)null);
-    // Initialize variables
-    this.clientSocket = clientSocket;
-    this.server = server;
-
-    final int TIMEOUT = 60*1000*5;
-    clientSocket.setSoTimeout(TIMEOUT); // make sure timeout is 5 min
-
-    //Initialize the objects streams
-    try
-    {
-      output = new ObjectOutputStream(clientSocket.getOutputStream());
-      output.flush();
-      input = new ObjectInputStream(clientSocket.getInputStream());
-
+    public Socket getClientSocket() {
+        return clientSocket;
     }
-    catch (IOException ex)
-    {
-      try
-      {
-        closeAll();
-      }
-      catch (Exception ignored) { }
-
-      throw ex;  // Rethrow the exception.
-    }
-
-    readyToStop = false;
-    start(); // Start the thread waits for _data from the socket
-  }
 
 // INSTANCE METHODS *************************************************
 
-  /**
-   * Sends an object to the client.
-   * This method can be overriden, but if so it should still perform
-   * the general function of sending to client, by calling the
-   * <code>super.sendToClient()</code> method
-   * perhaps after some kind of filtering is done.
-   *
-   * @param msg the message to be sent.
-   * @exception IOException if an I/O error occur when sending the
-   *    message.
-   */
-  public void sendToClient(Object msg) throws IOException
-  {
-    if (clientSocket == null || output == null)
-      throw new SocketException("socket does not exist");
+    /**
+     * Sends an object to the client.
+     * This method can be overriden, but if so it should still perform
+     * the general function of sending to client, by calling the
+     * <code>super.sendToClient()</code> method
+     * perhaps after some kind of filtering is done.
+     *
+     * @param msg the message to be sent.
+     * @throws IOException if an I/O error occur when sending the
+     *                     message.
+     */
+    public void sendToClient(Object msg) throws IOException {
+        if (clientSocket == null || output == null)
+            throw new SocketException("socket does not exist");
 
-    output.writeObject(msg);
-    output.flush();
-  }
+        output.writeObject(msg);
+        output.flush();
+    }
 
-  /**
-   * Closes the client.
-   * If the connection is already closed, this
-   * call has no effect.
-   *
-   * @exception IOException if an error occurs when closing the socket.
-   */
-  final public void close() throws IOException
-  {
+    /**
+     * Closes the client.
+     * If the connection is already closed, this
+     * call has no effect.
+     *
+     * @throws IOException if an error occurs when closing the socket.
+     */
+    final public void close() throws IOException {
 
-    readyToStop = true; // Set the flag that tells the thread to stop
-    closeAll();
-  }
+        readyToStop = true; // Set the flag that tells the thread to stop
+        closeAll();
+    }
 
 // ACCESSING METHODS ------------------------------------------------
 
-  /**
-   * Returns the address of the client.
-   *
-   * @return the client's Internet address.
-   */
-  final public InetAddress getInetAddress()
-  {
-    return clientSocket == null ? null : clientSocket.getInetAddress();
-  }
+    /**
+     * Returns the address of the client.
+     *
+     * @return the client's Internet address.
+     */
+    final public InetAddress getInetAddress() {
+        return clientSocket == null ? null : clientSocket.getInetAddress();
+    }
 
-  /**
-   * Returns a string representation of the client.
-   *
-   * @return the client's description.
-   */
-  public String toString()
-  {
-    return clientSocket == null ? null :
-            clientSocket.getInetAddress().getHostName()
-                    +" (" + clientSocket.getInetAddress().getHostAddress() + ")";
-  }
+    /**
+     * Returns a string representation of the client.
+     *
+     * @return the client's description.
+     */
+    public String toString() {
+        return clientSocket == null ? null :
+                clientSocket.getInetAddress().getHostName()
+                        + " (" + clientSocket.getInetAddress().getHostAddress() + ")";
+    }
 
-  /**
-   * Saves arbitrary information about this client. Designed to be
-   * used by concrete subclasses of AbstractServer. Based on a hash map.
-   *
-   * @param infoType   identifies the type of information
-   * @param info       the information itself.
-   */
-  public void setInfo(String infoType, Object info)
-  {
-    savedInfo.put(infoType, info);
-  }
+    /**
+     * Saves arbitrary information about this client. Designed to be
+     * used by concrete subclasses of AbstractServer. Based on a hash map.
+     *
+     * @param infoType identifies the type of information
+     * @param info     the information itself.
+     */
+    public void setInfo(String infoType, Object info) {
+        savedInfo.put(infoType, info);
+    }
 
-  /**
-   * Returns information about the client saved using setInfo.
-   * Based on a hash map.
-   *
-   * @param infoType   identifies the type of information
-   */
-  public Object getInfo(String infoType)
-  {
-    return savedInfo.get(infoType);
-  }
+    /**
+     * Returns information about the client saved using setInfo.
+     * Based on a hash map.
+     *
+     * @param infoType identifies the type of information
+     */
+    public Object getInfo(String infoType) {
+        return savedInfo.get(infoType);
+    }
 
 // RUN METHOD -------------------------------------------------------
 
-  /**
-   * Constantly reads the client's input stream.
-   * Sends all objects that are read to the server.
-   * Not to be called.
-   */
-  final public void run()
-  {
-    server.clientConnected(this);
+    /**
+     * Constantly reads the client's input stream.
+     * Sends all objects that are read to the server.
+     * Not to be called.
+     */
+    final public void run() {
+        server.clientConnected(this);
 
-    // This loop reads the input stream and responds to messages
-    // from clients
-    try
-    {
-      // The message from the client
-      Object msg;
+        // This loop reads the input stream and responds to messages
+        // from clients
+        try {
+            // The message from the client
+            Object msg;
 
-      while (!readyToStop)
-      {
-        // This block waits until it reads a message from the client
-        // and then sends it for handling by the server
+            while (!readyToStop) {
+                // This block waits until it reads a message from the client
+                // and then sends it for handling by the server
 
-        try { // Added in version 2.31
+                try { // Added in version 2.31
 
-          // wait to receive an object
-          msg = input.readObject();
+                    // wait to receive an object
+                    msg = input.readObject();
 
-          if (!readyToStop && handleMessageFromClient(msg)) // Added in version 2.2
-          {
-            server.receiveMessageFromClient(msg, this);
-          }
+                    if (!readyToStop && handleMessageFromClient(msg)) // Added in version 2.2
+                    {
+                        server.receiveMessageFromClient(msg, this);
+                    }
 
-        } catch(ClassNotFoundException ex) { // when an unknown class is received
+                } catch (ClassNotFoundException | RuntimeException ex) { // when an unknown class is received
 
-          server.clientException(this, ex);
+                    server.clientException(this, ex);
+                }
+            }
+        } catch (InterruptedIOException exception) {
+            // This will be thrown when a timeout occurs.
+            // The client has not sent any message and timeout occured. Closing socket.
+            if (!readyToStop) {
+                server.clientTimedOut(this);
+                try {
+                    close();
+                } catch (Exception ignored) {
+                }
+            }
+        } catch (EOFException exception) {
+            if (!readyToStop) {
+                try {
+                    close();
+                } catch (Exception ignored) {
+                }
 
-        } catch (RuntimeException ex) { // thrown by handleMessageFromClient or receiveMessageFromClient
+            }
+        } catch (Exception exception) {
+            if (!readyToStop) {
+                try {
+                    close();
+                } catch (Exception ignored) {
+                }
 
-          server.clientException(this, ex);
+                server.clientException(this, exception);
+            }
+        } finally {
+
+            server.clientDisconnected(this);   // moved here in version 2.31
         }
-      }
     }
-    catch (InterruptedIOException exception)
-    {
-      // This will be thrown when a timeout occurs.
-      // The client has not sent any message and timeout occured. Closing socket.
-      if (!readyToStop)
-      {
-        try
-        {
-          close();
-        }
-        catch (Exception ignored) { }
-
-        server.clientTimedOut(this);
-      }
-    }
-    catch(EOFException exception) {
-      if (!readyToStop)
-      {
-        try
-        {
-          close();
-        }
-        catch (Exception ignored) { }
-
-      }
-    }
-    catch (Exception exception)
-    {
-      if (!readyToStop)
-      {
-        try
-        {
-          close();
-        }
-        catch (Exception ignored) { }
-
-        server.clientException(this, exception);
-      }
-    } finally {
-
-      server.clientDisconnected(this);   // moved here in version 2.31
-    }
-  }
 
 // METHODS DESIGNED THAT MAY BE OVERRIDDEN BY SUBCLASSES ---------
 
-  /**
-   * Hook method called each time a new message
-   * is received by this client. If this method
-   * return true, then the method <code>handleMessageFromClient()</code>
-   * of <code>AbstractServer</code> will also be called after.
-   * The default implementation simply returns true.
-   *
-   * @param message   the message sent.
-   */
-  protected boolean handleMessageFromClient(Object message)
-  {
-    return true;
-  }
+    /**
+     * Hook method called each time a new message
+     * is received by this client. If this method
+     * return true, then the method <code>handleMessageFromClient()</code>
+     * of <code>AbstractServer</code> will also be called after.
+     * The default implementation simply returns true.
+     *
+     * @param message the message sent.
+     */
+    protected boolean handleMessageFromClient(Object message) {
+        return true;
+    }
 
 // METHODS TO BE USED FROM WITHIN THE FRAMEWORK ONLY ----------------
 
-  /**
-   * Closes all connection to the server.
-   *
-   * @exception IOException if an I/O error occur when closing the
-   *     connection.
-   */
-  private void closeAll() throws IOException
-  {
-    // This method is final since version 2.2
+    /**
+     * Closes all connection to the server.
+     *
+     * @throws IOException if an I/O error occur when closing the
+     *                     connection.
+     */
+    private void closeAll() throws IOException {
+        // This method is final since version 2.2
 
-    try
-    {
-      // Close the socket
-      if (clientSocket != null)
-        clientSocket.close();
+        try {
+            // Close the socket
+            if (clientSocket != null)
+                clientSocket.close();
 
-      // Close the output stream
-      if (output != null)
-        output.close();
+            // Close the output stream
+            if (output != null)
+                output.close();
 
-      // Close the input stream
-      if (input != null)
-        input.close();
+            // Close the input stream
+            if (input != null)
+                input.close();
+        } finally {
+            // Set the streams and the sockets to NULL no matter what
+            // Doing so allows, but does not require, any finalizers
+            // of these objects to reclaim system resources if and
+            // when they are garbage collected.
+            output = null;
+            input = null;
+            clientSocket = null;
+        }
     }
-    finally
-    {
-      // Set the streams and the sockets to NULL no matter what
-      // Doing so allows, but does not require, any finalizers
-      // of these objects to reclaim system resources if and
-      // when they are garbage collected.
-      output = null;
-      input = null;
-      clientSocket = null;
-    }
-  }
 
-  /**
-   * This method is called by garbage collection.
-   */
-  protected void finalize() throws Throwable {
-    super.finalize();
-    try
-    {
-      closeAll();
+    /**
+     * This method is called by garbage collection.
+     */
+    protected void finalize() throws Throwable {
+        super.finalize();
+        try {
+            closeAll();
+        } catch (IOException ignored) {
+        }
     }
-    catch(IOException ignored) {}
-  }
 }
