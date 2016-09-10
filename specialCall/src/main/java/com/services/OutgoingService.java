@@ -43,7 +43,6 @@ import static com.crashlytics.android.Crashlytics.log;
 public class OutgoingService extends AbstractStandOutService {
 
     public static boolean isLive = false;
-    private static int TIME_TO_SLEEP_AVOIDING_BUGGY_STATE_IDLE = 1000;
     private OutgoingCallReceiver mOutgoingCallReceiver;
 
     public OutgoingService() {
@@ -98,12 +97,12 @@ public class OutgoingService extends AbstractStandOutService {
 
         if (!MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext()))
 
+            log(Log.INFO,TAG, "TelephonyManager IDLE=0, OFFHOOK=2. STATE WAS:" + state);
             switch (state) {
 
                 case TelephonyManager.CALL_STATE_IDLE:
-                case TelephonyManager.CALL_STATE_OFFHOOK:
+               // case TelephonyManager.CALL_STATE_OFFHOOK:
 
-                    log(Log.INFO,TAG, "TelephonyManager IDLE=0, OFFHOOK=2. STATE WAS:" + state);
                     if (isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION)) {
                         log(Log.INFO,TAG, "TelephonyManager inside mInRingingSession IDLE=0, OFFHOOK=2. STATE WAS:" + state);
 
@@ -129,9 +128,13 @@ public class OutgoingService extends AbstractStandOutService {
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.prepare();
             mMediaPlayer.setLooping(true);
+
+            verifyAudioManager();
+            mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+            log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
+            mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+
             mMediaPlayer.start();
-
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -146,14 +149,8 @@ public class OutgoingService extends AbstractStandOutService {
         log(Log.INFO,TAG, "android.os.Build.VERSION.SDK_INT : " + String.valueOf(android.os.Build.VERSION.SDK_INT) + " Build.VERSION_CODES.KITKAT = " + Build.VERSION_CODES.KITKAT);
         //    Crashlytics.log(Log.INFO,TAG, "MUTE by button");
         volumeChangeByMCButtons = true;
-        verifyAudioManager();
-        mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
-      //  mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
-        mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
         log(Log.INFO,TAG, "Set Silent , now volume: " + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
         isMuted = true;
-
         mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.mute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
         mSpecialCallMutUnMuteBtn.bringToFront();
         //  }
@@ -188,51 +185,18 @@ public class OutgoingService extends AbstractStandOutService {
                     mMediaPlayer = mp;
                     mMediaPlayer.setLooping(true);
                     mMediaPlayer.setVolume(1.0f, 1.0f);
+
+                    verifyAudioManager();
+                    mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                    log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
+                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+
                     mMediaPlayer.start();
                     log(Log.INFO,TAG, "prepareVideoListener MUSIC_VOLUME Original" + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                 }
             };
     }
 
-    private void resumeMusicStreamBackToPrevious() {
-
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(2000); // fix bug: sound in mute , closing call and it sounds for a second in the end.
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                verifyAudioManager();
-
-
-                try {
-                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
-                } catch (Exception e) {
-                    log(Log.ERROR,TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
-                }
-            }
-        }.start();
-    }
-
-    private void syncWithBuggyIdleState() {
-
-        new Thread() {
-            @Override
-            public void run() {
-
-                try {
-                    Thread.sleep(TIME_TO_SLEEP_AVOIDING_BUGGY_STATE_IDLE);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                log(Log.INFO,TAG, "syncWithBuggyIdleState");
-                setRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION, true);
-            }
-        }.start();
-    }
     //endregion
 
     //region Private classes and listeners
@@ -311,7 +275,7 @@ public class OutgoingService extends AbstractStandOutService {
                                     audioMediaFilePath,
                                     SpecialMediaType.PROFILE_MEDIA);
 
-                            syncWithBuggyIdleState();
+                            setRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION, true);
 
 
                         } catch (Exception e) {

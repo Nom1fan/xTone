@@ -74,6 +74,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected ImageView mSpecialCallMutUnMuteBtn;
     protected ImageView mSpecialCallVolumeUpBtn;
     protected ImageView mSpecialCallVolumeDownBtn;
+    protected ImageView mSpecialCallResetPlayerBtn;
     protected TextView mSpecialCallVolumeValueTextView;
     protected ImageView mSpecialCallBlockBtn;
     protected RelativeLayout mRelativeLayout;
@@ -657,7 +658,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
         mSpecialCallVolumeUpBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_up);
         mSpecialCallVolumeValueTextView = (TextView) mcButtonsOverlay.findViewById(R.id.volume_value);
+        mSpecialCallResetPlayerBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.reset_time);
 
+        mSpecialCallResetPlayerBtn.setVisibility(View.INVISIBLE);
         mSpecialCallMutUnMuteBtn.setVisibility(View.INVISIBLE);
         mSpecialCallVolumeDownBtn.setVisibility(View.INVISIBLE);
         mSpecialCallVolumeUpBtn.setVisibility(View.INVISIBLE);
@@ -726,7 +729,23 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
         mSpecialCallVolumeUpBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_up);
+        mSpecialCallResetPlayerBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.reset_time);
         mSpecialCallVolumeValueTextView = (TextView) mcButtonsOverlay.findViewById(R.id.volume_value);
+
+
+        mSpecialCallResetPlayerBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                if (mMediaPlayer !=null)
+                {
+                    if (mMediaPlayer.isPlaying())
+                        mMediaPlayer.seekTo(0);
+                }
+                stopVibrator();
+
+            }
+        });
+
 
         //ImageView for volume down Special Incoming Call
         mSpecialCallVolumeDownBtn.setOnClickListener(new View.OnClickListener() {
