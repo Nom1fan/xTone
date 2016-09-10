@@ -1,6 +1,6 @@
 apply plugin: 'java'
 
-version = '2.06'
+version = '2.06.1'
 
 //create a single Jar with all dependencies
 task fatJar(type: Jar) {
