@@ -16,8 +16,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -102,21 +100,12 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
             public void onClick(View v) {
 
                 if (isPreviewDisplaying) {
-
                     playAudioFile();
-
-
-
                 } else {
-
                     stopAudioFile();
-
                 }
             }
         });
-
-
-
     }
 
     private void stopAudioFile() {
@@ -326,11 +315,12 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
         }
     }
 
-    class BlackListAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener//,Filterable
+    class BlackListAdapter extends BaseAdapter//,Filterable
     {
         private SparseBooleanArray mCheckStates;
         LayoutInflater mInflater;
         TextView tv;
+        String chosenTitle;
         TextView old_tv;
 
         BlackListAdapter() {
@@ -364,6 +354,13 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
             if (_namesInListView.get(position) != null)
                 tv.setText(_namesInListView.get(position));
 
+
+
+                tv.setTextColor(Color.WHITE);
+
+            if (tv.getText().equals(chosenTitle))
+                tv.setTextColor(Color.YELLOW);
+
             tv.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -374,12 +371,12 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
                     old_tv =(TextView)v;
 
                     ((TextView)v).setTextColor(Color.YELLOW);
-                    String str = ((TextView)v).getText().toString();
-                    mChosenAudioFile = paths_to_titles.get(str);
+                    chosenTitle = ((TextView)v).getText().toString();
+                    mChosenAudioFile = paths_to_titles.get(chosenTitle);
+                    _ma.notifyDataSetChanged();
 
                    stopAudioFile();
 
-                 //playAudioFile();
                 }
             });
             _ma.notifyDataSetChanged();
@@ -399,107 +396,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
             setChecked(position, !isChecked(position));
         }
 
-        public void setAllUnchecked() {
 
-            for (int i = 0; i < paths_to_titles.size(); i++) {
-                _ma.setChecked(i, false);
-                _lv.setItemChecked(i, false);
-                CheckBox cb = (CheckBox)(_lv.findViewWithTag(i));
-                cb.setChecked(false);
-                _ma.notifyDataSetChanged();
-            }
-
-            if (mMediaPlayer == null)
-                mMediaPlayer = new MediaPlayer();
-
-            try {
-                mMediaPlayer.stop();
-                mMediaPlayer.release();
-                mMediaPlayer = null;
-
-                //UploadBtn.setText(getResources().getString(R.string.back));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        }
-
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView,
-                                     boolean isChecked) {
-
-            mChosenAudioFile = paths_to_titles.get(_namesInListView.get((Integer) buttonView.getTag()));
-            FileManager.FileType type = null;
-
-            if (!mChosenAudioFile.isEmpty() && isChecked /*&& !oneTimeCheckBox*/) {
-                setAllUnchecked();
-                oneTimeCheckBox=true;
-                try {
-                    FileManager audioFileSelected = new FileManager(mChosenAudioFile);
-                    type = audioFileSelected.getFileType();
-                } catch (FileInvalidFormatException e) {
-                    e.printStackTrace();
-                } catch (FileExceedsMaxSizeException e) {
-                    e.printStackTrace();
-                } catch (FileDoesNotExistException e) {
-                    e.printStackTrace();
-                } catch (FileMissingExtensionException e) {
-                    e.printStackTrace();
-                }
-
-                if (type != FileManager.FileType.AUDIO) {
-                    return;
-                }
-
-
-                if (mMediaPlayer == null)
-                    mMediaPlayer = new MediaPlayer();
-                try {
-                    try {
-                        log(Log.INFO, TAG, "Audio File that will be played: " + mChosenAudioFile);
-                        mMediaPlayer.reset();
-                        mMediaPlayer.setDataSource(getApplicationContext(), Uri.parse(mChosenAudioFile));
-
-                    } catch (Exception e) {
-                        mMediaPlayer.reset();
-                        mMediaPlayer.setDataSource(getApplicationContext(),Uri.parse(mChosenAudioFile));
-                    }
-
-                    mMediaPlayer.prepare();
-                    mMediaPlayer.setLooping(true);
-                    mMediaPlayer.start();
-
-
-                  //  UploadBtn.setText(getResources().getString(R.string.upload));
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    log(Log.ERROR, TAG, "Failed to play sound. Exception:" + e.getMessage());
-                }
-
-            }else if ((!mChosenAudioFile.isEmpty() && !isChecked /*&& oneTimeCheckBox*/)){
-
-                setAllUnchecked();
-
-             //   setChecked((Integer) buttonView.getTag(),isChecked);
-                mChosenAudioFile="";
-                oneTimeCheckBox=false;
-
-                if (mMediaPlayer == null)
-                    mMediaPlayer = new MediaPlayer();
-
-                try {
-                    mMediaPlayer.stop();
-                    mMediaPlayer.release();
-                    mMediaPlayer = null;
-
-                    //UploadBtn.setText(getResources().getString(R.string.back));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }
     }
 
 }
