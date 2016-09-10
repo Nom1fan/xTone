@@ -43,9 +43,9 @@ import java.util.*;
  * server callback when an object of unknown class is received from the input stream
  * or when the message handler throw a <code>RuntimeException</code>
  * <li> The <code>clientDisconnected</code> callback might be called after
- * <code>clientException</code> if the exception causes the end of te thread.
+ * <code>clientException</code> if the exception causes the end of the thread.
  * <li> The call to <code>clientDisconnected</code> has been moved from
- * <code>close</code> to <code>run</code> method to garantee
+ * <code>close</code> to <code>run</code> method to guarantee
  * that connection is really closed when this callback is called.
  * </ul><p>
  *
@@ -123,8 +123,8 @@ public class ConnectionToClient extends Thread
     this.clientSocket = clientSocket;
     this.server = server;
 
-    final int TIMEOUT = 60*1000*5;
-    clientSocket.setSoTimeout(TIMEOUT); // make sure timeout is 5 min
+    final int TIMEOUT = 10*1000;
+    clientSocket.setSoTimeout(TIMEOUT);
 
     //Initialize the objects streams
     try
@@ -265,13 +265,10 @@ public class ConnectionToClient extends Thread
             server.receiveMessageFromClient(msg, this);
           }
 
-        } catch(ClassNotFoundException ex) { // when an unknown class is received
+        } catch(ClassNotFoundException | RuntimeException ex) { // when an unknown class is received
 
           server.clientException(this, ex);
 
-        } catch (RuntimeException ex) { // thrown by handleMessageFromClient or receiveMessageFromClient
-
-          server.clientException(this, ex);
         }
       }
     }
