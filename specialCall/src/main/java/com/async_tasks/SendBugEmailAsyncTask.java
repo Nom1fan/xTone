@@ -97,7 +97,7 @@ public class SendBugEmailAsyncTask extends AsyncTask<Void,Void,String> {
                             + "\n GOOGLE_AD_ID: " + GAID
                             + "\n Device Model: " + SpecialDevicesUtils.getDeviceName()
                             + "\n MY_ANDROID_VERSION: " + Constants.MY_ANDROID_VERSION(activity)
-                            + "\n MediaCallz App Version: " + Constants.APP_VERSION(activity)
+                            + "\n MediaCallz App Version: " + Constants.APP_VERSION()
             );
 
             // the mail subject

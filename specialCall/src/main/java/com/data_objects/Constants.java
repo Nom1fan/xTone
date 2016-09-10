@@ -1,11 +1,9 @@
 package com.data_objects;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Environment;
-import android.util.Log;
 
+import com.mediacallz.app.BuildConfig;
 import com.mediacallz.app.R;
 import com.utils.SharedPrefUtils;
 
@@ -13,23 +11,12 @@ import java.io.File;
 
 import DataObjects.SharedConstants;
 
-import static com.crashlytics.android.Crashlytics.log;
-
 public abstract class Constants {
 
     private static final String TAG = Constants.class.getSimpleName();
 
-    // Initialized using InitUtils in MediaCallzApp class
-    public static double APP_VERSION(Context context) {
-        Double appVersion;
-        try {
-            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            appVersion = Double.valueOf(packageInfo.versionName);
-        } catch(PackageManager.NameNotFoundException e) {
-            log(Log.ERROR,TAG, "Failed to retrieve app version. Setting default app version for emergency!");
-            appVersion = 1.10;
-        }
-        return appVersion;
+    public static double APP_VERSION() {
+        return Double.valueOf(BuildConfig.VERSION_NAME);
     }
 
     // Constants for Batch

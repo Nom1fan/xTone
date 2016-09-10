@@ -601,7 +601,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             case APP_RECORD_RECEIVED: {
                 HashMap<DataKeys, Object> data = (HashMap) report.data();
 
-                if (Constants.APP_VERSION(this) < (double) data.get(DataKeys.MIN_SUPPORTED_VERSION))
+                if (Constants.APP_VERSION() < (double) data.get(DataKeys.MIN_SUPPORTED_VERSION))
                     showMandatoryUpdateDialog();
             }
             break;

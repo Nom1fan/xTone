@@ -257,7 +257,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
     protected HashMap<DataKeys, Object> getDefaultMessageData() {
         HashMap<DataKeys, Object> data = new HashMap();
-        data.put(DataKeys.APP_VERSION, Constants.APP_VERSION(this));
+        data.put(DataKeys.APP_VERSION, Constants.APP_VERSION());
         return data;
     }
     //endregion

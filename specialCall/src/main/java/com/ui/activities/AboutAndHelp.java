@@ -110,7 +110,7 @@ public class AboutAndHelp extends PreferenceFragment {
 
 
         Preference version = findPreference("version");
-        String appVersion = String.valueOf(Constants.APP_VERSION(getActivity()));
+        String appVersion = String.valueOf(Constants.APP_VERSION());
         version.setSummary(appVersion);
         //endregion
 
