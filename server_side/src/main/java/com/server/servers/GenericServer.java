@@ -135,6 +135,11 @@ public class GenericServer extends AbstractServer {
     }
 
     @Override
+    synchronized protected void clientConnected(ConnectionToClient client) {
+        logger.info("Client:" + client + " connected");
+    }
+
+    @Override
     synchronized protected void clientException(ConnectionToClient client, Throwable exception) {
 
         exception.printStackTrace();
@@ -145,7 +150,6 @@ public class GenericServer extends AbstractServer {
     @Override
     synchronized protected void clientConnectionException(ConnectionToClient client, Throwable ex) {
         logger.severe("Failed to create streams for client:" + client + " [Exception]:" + (ex.getMessage()!=null ? ex.getMessage() : ex));
-        closeConnectionToClient(client);
     }
 
     @Override
