@@ -156,7 +156,7 @@
     <string name="update">Update</string>
     <string name="close_app">Close</string>
     <string name="ask_before_show_title">Ask before media show</string>
-    <string name="ask_before_show_summary">during the ring we will ask if you want us to show you the media that was sent</string>
+    <string name="ask_before_show_summary">During the ring, you will be prompted whether to display the media that was sent</string>
 
 
     <!--  SnackBar  -->
