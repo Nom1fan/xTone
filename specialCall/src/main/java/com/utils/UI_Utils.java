@@ -287,7 +287,7 @@ public abstract class UI_Utils {
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(applicationContext, R.style.AlertDialogCustom));
         builder.setTitle(title);
-        builder.setMessage(String.format(msg, 10))
+        builder.setMessage(String.format(msg, 20))
 
                 .setView(checkBoxView)
                 .setCancelable(false)
@@ -304,7 +304,7 @@ public abstract class UI_Utils {
 
 
 
-        new CountDownTimer(10000, 1000) {
+        new CountDownTimer(20000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 _waitingForTransferSuccessDialog.setMessage(String.format(msg, millisUntilFinished/1000));
