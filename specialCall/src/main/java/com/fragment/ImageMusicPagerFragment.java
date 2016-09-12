@@ -49,6 +49,7 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
     private CustomVideoView videoView = null;
     private CustomVideoView[] videoViews;
     private MediaController mediacontroller;
+    private ImageView mImageViewForMediaController;
     private List<String> fileNames;
     private List<String> audioThumbsUrls;
     private List<String> audioUrls;
@@ -248,6 +249,14 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
             downloadButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View arg0) {
                     downloadFile(audioUrls.get(position));
+                }
+            });
+
+
+            mImageViewForMediaController = (ImageView) audioPageLayout.findViewById(R.id.imageView_for_mediacontroller);
+            mImageViewForMediaController.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View arg0) {
+                    mediacontroller.show();
                 }
             });
 
