@@ -178,13 +178,16 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (10 == s.length()) {
 
-                    String token = Constants.MY_BATCH_TOKEN(getApplicationContext());
-                    if (token != null && !token.equals("")) {
-                        enableGetSmsCodeButton();
-                        enableSmsCodeEditText();
+                    if (PhoneNumberUtils.isValidPhoneNumber(s.toString())) {
 
-                        if (4 == _smsCodeVerEditText.getText().toString().length())
-                            enableLoginButton();
+                        String token = Constants.MY_BATCH_TOKEN(getApplicationContext());
+                        if (token != null && !token.equals("")) {
+                            enableGetSmsCodeButton();
+                            enableSmsCodeEditText();
+
+                            if (4 == _smsCodeVerEditText.getText().toString().length())
+                                enableLoginButton();
+                        }
                     }
                 } else {
                     disableSmsCodeEditText();

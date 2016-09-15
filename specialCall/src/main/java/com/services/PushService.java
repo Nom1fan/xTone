@@ -46,9 +46,17 @@ public class PushService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
 
+        if (intent !=null)
+            log(Log.INFO,TAG, "PushService onHandleIntentAction ACTION: " + intent.getAction() + " DATA: " +intent.getData() +" DATASTRING: "+ intent.getDataString());
+        else
+            log(Log.INFO,TAG, "PushService onHandleIntent: INTENT NULL !!!");
+
         try {
             if (!Batch.Push.shouldDisplayPush(this, intent)) // Check that the push is valid
             {
+                if (intent !=null)
+                        log(Log.INFO,TAG, "PushService Push isn't Valid this how he looks ACTION: " + intent.getAction() + " DATA: " +intent.getData() +" DATASTRING: "+ intent.getDataString() );
+
                 String errMsg = "Invalid push data! Push data was null. Terminating push receive";
                 log(Log.ERROR,TAG, errMsg);
                 throw new Exception(errMsg);
@@ -89,7 +97,8 @@ public class PushService extends IntentService {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            PushReceiver.completeWakefulIntent(intent);
+            if (intent!=null)
+                PushReceiver.completeWakefulIntent(intent);
         }
     }
 

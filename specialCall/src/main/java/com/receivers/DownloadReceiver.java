@@ -124,6 +124,9 @@ public class DownloadReceiver extends BroadcastReceiver {
 
         File[] files = new File(_newFileDir).listFiles();
 
+        if (files == null)
+            return;
+
         try {
             switch (newDownloadedFileType) {
                 case AUDIO:
