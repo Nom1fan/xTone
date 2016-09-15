@@ -26,22 +26,26 @@
 		<Button
 			android:layout_width="100dp"
 			android:layout_height="100dp"
-			android:layout_marginLeft="10dip"
-			android:layout_marginRight="10dip"
+			android:layout_marginLeft="50dp"
+			android:layout_marginRight="50dp"
 			android:onClick="onImageGridClick"
-			android:text="@string/button_image_grid"
-            android:background="@drawable/folder"
-            android:id="@+id/button2" />
+			android:background="@drawable/select_image_anim"
+            android:id="@+id/button2"
+			android:layout_marginTop="50dp"
+			android:layout_below="@+id/textView12"
+			android:layout_alignParentStart="true"
+			android:layout_alignParentEnd="false" />
 
         <Button
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:onClick="onImageGIFGridClick"
-            android:text="@string/button_image_grid_gif"
-            android:background="@drawable/folder"
+			android:background="@drawable/gif_btn_anim"
             android:layout_below="@+id/button3"
             android:layout_alignLeft="@+id/button3"
-            android:layout_alignStart="@+id/button3" />
+            android:layout_alignStart="@+id/button3"
+			android:id="@+id/button4"
+			android:layout_marginTop="80dp" />
 
 		<!--<Button-->
 			<!--android:layout_width="320dp"-->
@@ -55,23 +59,90 @@
 			android:layout_width="100dp"
 			android:layout_height="100dp"
             android:onClick="onVideoGalleryClick"
-			android:text="@string/button_video_gallery"
-            android:background="@drawable/folder"
+			android:background="@drawable/select_video_anim"
             android:layout_below="@+id/button2"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+			android:layout_alignParentStart="false"
+			android:id="@+id/button"
+			android:layout_marginTop="80dp"
+			android:layout_alignRight="@+id/button2"
+			android:layout_alignLeft="@+id/button2" />
 
         <Button
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:onClick="onMusicListClick"
-            android:text="@string/button_music_gallery"
-            android:background="@drawable/folder"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:id="@+id/button3" />
+			android:background="@drawable/select_audio_anim"
+			android:id="@+id/button3"
+			android:layout_alignParentStart="false"
+			android:layout_alignParentEnd="true"
+			android:layout_below="@+id/textView12"
+			android:layout_marginTop="50dp"
+			android:layout_marginRight="50dp"
+			android:layout_marginLeft="50dp" />
 
-        <!--<Button-->
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:text="@string/button_video_gallery"
+		android:id="@+id/textView8"
+		android:layout_below="@+id/button"
+		android:layout_alignLeft="@+id/button"
+		android:layout_alignRight="@+id/button"
+		android:gravity="center"
+		android:textColor="#ffffff" />
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:text="@string/button_image_grid"
+		android:id="@+id/textView9"
+		android:gravity="center"
+		android:textColor="#ffffff"
+		android:layout_below="@+id/button2"
+		android:layout_alignLeft="@+id/button2"
+		android:layout_alignRight="@+id/button2" />
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:text="@string/button_music_gallery"
+		android:id="@+id/textView10"
+		android:gravity="center"
+		android:textColor="#ffffff"
+		android:layout_alignRight="@+id/button3"
+		android:layout_below="@+id/button3"
+		android:layout_alignLeft="@+id/button3" />
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:text="@string/button_image_grid_gif"
+		android:id="@+id/textView11"
+		android:gravity="center"
+		android:textColor="#ffffff"
+		android:layout_below="@+id/button4"
+		android:layout_alignRight="@+id/button4"
+		android:layout_alignLeft="@+id/button4" />
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:text="@string/mediacallz_gallery"
+		android:id="@+id/textView12"
+		android:layout_alignParentTop="true"
+		android:layout_centerHorizontal="true"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentRight="true"
+		android:gravity="center_horizontal"
+		android:textColor="#ffffff"
+		android:textSize="40dp" />
+
+	<!--<Button-->
 			<!--android:layout_width="320dp"-->
 			<!--android:layout_height="wrap_content"-->
 			<!--android:layout_marginLeft="10dip"-->
