@@ -1,37 +1,33 @@
 package MessagesToClient;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
-import DataObjects.DataKeys;
 
 /**
  * Abstract message to the client, containing information and enables generic interface for client actions corresponding to the message
  * @author Mor
  *
  */
-public class MessageToClient implements Serializable {
+public class MessageToClient<T> implements Serializable {
 
-	protected HashMap<DataKeys, Object> _data;
-	protected ClientActionType _clientActionType;
+	protected T result;
+	protected ClientActionType actionType;
 
-	public MessageToClient(ClientActionType clientActionType) {
+	public MessageToClient(ClientActionType actionType) {
 
-		_clientActionType = clientActionType;
+		this.actionType = actionType;
 	}
 
-	public MessageToClient(ClientActionType clientActionType, HashMap<DataKeys, Object> data) {
+	public MessageToClient(ClientActionType actionType, T result) {
 
-		_data = data;
-		_clientActionType = clientActionType;
+		this.result = result;
+		this.actionType = actionType;
 	}
 
-	public Map getData() {
-		return _data;
+	public T getResult() {
+		return result;
 	}
 
 	public ClientActionType getActionType() {
-		return _clientActionType;
+		return actionType;
 	}
 
 }

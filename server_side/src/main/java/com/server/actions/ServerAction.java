@@ -79,7 +79,7 @@ public abstract class ServerAction {
     protected final boolean replyToClient(MessageToClient msg) {
 
         try {
-            logger.info(messageInitiaterId + " [Message]:" + msg.getActionType() + " [Data]:" + msg.getData());
+            logger.info(messageInitiaterId + " [Message]:" + msg.getActionType() + " [Data]:" + msg.getResult());
 
             if (clientConnection == null)
                 throw (new NullPointerException("Could not get client connection for user:" + messageInitiaterId));

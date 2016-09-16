@@ -14,41 +14,44 @@ import com.actions.ActionFactory;
 import com.actions.ClientAction;
 import com.app.AppStateManager;
 import com.data_objects.Constants;
+import com.google.gson.reflect.TypeToken;
 import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ClientObjects.ConnectionToServer;
 import ClientObjects.IServerProxy;
 import DataObjects.DataKeys;
-import DataObjects.SharedConstants;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import MessagesToClient.MessageToClient;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static java.util.AbstractMap.SimpleEntry;
 
 /**
  * Created by mor on 18/10/2015.
  */
 public abstract class AbstractServerProxy extends Service implements IServerProxy {
 
+    protected static final String HOST = Constants.SERVER_HOST;
+    protected static final int PORT = Constants.SERVER_PORT;
+    protected static final String ROOT_URL = "http://" + HOST + ":" + PORT;
+
+    //region Response type tokens
+    protected TypeToken<MessageToClient<EventReport>> RESPONSE_EVENT_REPORT = new TypeToken<MessageToClient<EventReport>>(){};
+    protected TypeToken<MessageToClient<Map>> RESPONSE_MAP = new TypeToken<MessageToClient<Map>>(){};
+    //endregion
+
     //region Service actions
-    public static final String ACTION_CANCEL = "com.services.AbstractServerProxy.ACTION_CANCEL";
     public static final String ACTION_RECONNECT = "com.services.LogicServerProxyService.RECONNECT";
     public static final String ACTION_RESET_RECONNECT_INTERVAL = "com.services.LogicServerProxyService.RESET_RECONNECT_INTERVAL";
     //endregion
 
-    //region Service intent keys
-    public static final String ACTION_TO_CANCEL = "ACTION_TO_CANCEL";
-    //endregion
-
-    protected String host;
-    protected int port;
     protected static final long INITIAL_RETRY_INTERVAL = 1000 * 1;
     protected static final long MAXIMUM_RETRY_INTERVAL = 1000 * 10;
     protected String TAG;
@@ -64,7 +67,6 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        SharedConstants.INCOMING_FOLDER = Constants.INCOMING_FOLDER;
 
         return START_NOT_STICKY;
     }
@@ -96,25 +98,21 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     public void handleDisconnection(ConnectionToServer cts, String errMsg) {
 
         log(Log.ERROR,TAG, errMsg);
-        try {
-            cts.closeConnection();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        cts.closeConnection();
         connections.remove(cts);
         if(isNetworkAvailable())
             BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.LOADING_TIMEOUT));
 
     }
 
+    //endregion
     @Override
     public void handleMessageFromServer(MessageToClient msg, ConnectionToServer connectionToServer) {
 
         try {
             ClientAction clientAction = ActionFactory.instance().getAction(msg.getActionType());
             clientAction.setConnectionToServer(connectionToServer);
-            EventReport eventReport = clientAction.doClientAction(msg.getData());
+            EventReport eventReport = clientAction.doClientAction(msg.getResult());
 
             if(eventReport==null)
                 log(Log.WARN, TAG, "ClientAction:" + clientAction.getClass().getSimpleName() + " returned null eventReport");
@@ -136,16 +134,11 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
             releaseLockIfNecessary();
         }
     }
-    //endregion
 
     //region Internal operations methods
     protected ConnectionToServer openSocket() throws IOException {
-        log(Log.INFO,TAG, "Opening socket...");
-        ConnectionToServer connectionToServer = new ConnectionToServer(host, port, this);
-        connectionToServer.openConnection();
+        ConnectionToServer connectionToServer = new ConnectionToServer(this);
         connections.add(connectionToServer);
-        log(Log.INFO,TAG, "Socket is open");
-
         return connectionToServer;
     }
 
@@ -157,14 +150,13 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         }
     }
 
-    protected final void reconnect(String host, int port) throws IOException {
-
-        log(Log.INFO,TAG, "Reconnecting...");
-        ConnectionToServer connectionToServer = new ConnectionToServer(host, port, this);
-        connectionToServer.openConnection();
-        connectionToServer.closeConnection();
-        log(Log.INFO,TAG, "Reconnected successfully");
-
+    protected final boolean pingReceived() throws IOException {
+        boolean pingOK;
+        log(Log.INFO,TAG, "Pinging...");
+        ConnectionToServer connectionToServer = new ConnectionToServer(this);
+        pingOK = connectionToServer.ping(HOST, PORT);
+        log(Log.INFO,TAG, "Ping successfull");
+        return pingOK;
     }
 
     protected void cancelReconnect() {
@@ -179,7 +171,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
     protected void scheduleReconnect(long startTime) {
 
-        log(Log.INFO,TAG, "Scheduling reconnect");
+        log(Log.INFO,TAG, "Scheduling pingReceived");
         if(!isNetworkAvailable()) {
             if (!AppStateManager.getAppState(this).equals(AppStateManager.STATE_DISABLED))
                 BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.DISCONNECTED));
@@ -255,11 +247,13 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         return activeNetwork != null && activeNetwork.isConnected();
     }
 
-    protected HashMap<DataKeys, Object> getDefaultMessageData() {
-        HashMap<DataKeys, Object> data = new HashMap();
-        data.put(DataKeys.APP_VERSION, Constants.APP_VERSION());
+    protected List<SimpleEntry> getDefaultMessageData() {
+        List<SimpleEntry> data = new LinkedList<>();
+        data.add(new SimpleEntry<>(DataKeys.MESSAGE_INITIATER_ID, Constants.MY_ID(this)));
+        data.add(new SimpleEntry<>(DataKeys.APP_VERSION.toString(), Constants.APP_VERSION()));
         return data;
     }
+
     //endregion
     //endregion
 }

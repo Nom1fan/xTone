@@ -33,6 +33,7 @@ public class ServerActionRegister extends ServerAction {
         String pushToken = (String) data.get(DataKeys.PUSH_TOKEN);
         int expectedSmsCode = smsVerificationAccess.getSmsVerificationCode(messageInitiaterId);
 
+
         if(smsCode!= SmsVerificationAccessImpl.NO_SMS_CODE && smsCode == expectedSmsCode) {
             try {
                 // User device record support was inserted in v1.13

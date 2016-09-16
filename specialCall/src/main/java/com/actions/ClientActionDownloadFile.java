@@ -55,7 +55,7 @@ public class ClientActionDownloadFile extends ClientAction {
 
             FileOutputStream fos = new FileOutputStream(fileStoragePath);
             bos = new BufferedOutputStream(fos);
-            DataInputStream dis = new DataInputStream(_connectionToServer.getClientSocket().getInputStream());
+            DataInputStream dis = new DataInputStream(_connectionToServer.getConnection().getInputStream());
 
             System.out.println("Reading data...");
             Object oFileSize = data.get(DataKeys.FILE_SIZE);

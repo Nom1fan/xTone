@@ -110,7 +110,7 @@ public class DownloadFileAsyncTask extends AsyncTask<Void, Integer, File> {
             in = conn.getInputStream();
 
             byte[] buf = new byte[1024 * 8];
-            long bytesToRead = fileSize;
+            long bytesToRead = fileSize ;
             int bytesRead;
             while (bytesToRead > 0 && (bytesRead = in.read(buf, 0, (int) Math.min(buf.length, bytesToRead))) != -1 && !isCancelled()) {
                 fos.write(buf, 0, bytesRead);

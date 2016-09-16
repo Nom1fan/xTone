@@ -5,6 +5,7 @@ import java.util.Map;
 
 import ClientObjects.ConnectionToServer;
 import EventObjects.EventReport;
+import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
 
 /**
@@ -21,6 +22,9 @@ public abstract class ClientAction {
     }
 
     abstract public EventReport doClientAction(Map DATA) throws IOException;
+    public EventReport doClientAction(Object result) {
+        return new EventReport(EventType.NO_ACTION_REQUIRED);
+    }
 
     public void setConnectionToServer(ConnectionToServer connectionToServer) {
         _connectionToServer = connectionToServer;

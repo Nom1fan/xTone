@@ -14,6 +14,8 @@ import DataObjects.SharedConstants;
 public abstract class Constants {
 
     private static final String TAG = Constants.class.getSimpleName();
+    public static final String SERVER_HOST = "server.mediacallz.com";
+    public static final int SERVER_PORT = 8080;
 
     public static double APP_VERSION() {
         return Double.valueOf(BuildConfig.VERSION_NAME);
