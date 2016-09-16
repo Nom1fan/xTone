@@ -44,5 +44,6 @@ public enum EventType implements Serializable {
 	GET_SMS_CODE_SUCCESS,
 	DELETE_FROM_DB_SUCCESS,
 	DELETE_FROM_DB_FAILURE,
+	NO_INTERNET,
 	LOADING_CANCEL
 }
