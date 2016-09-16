@@ -20,14 +20,19 @@ public class PushReceiver extends WakefulBroadcastReceiver {
 
     public void onReceive(Context context, Intent intent) {
 
-        if (intent !=null)
-            log(Log.INFO,TAG, "PushReceiver  ACTION: " + intent.getAction() + " DATA: " +intent.getData() +" DATASTRING: "+ intent.getDataString());
-        else
-            log(Log.INFO,TAG, "PushReceiver: INTENT NULL !!!");
-        ComponentName componentName = new ComponentName(context.getPackageName(), PushService.class.getName());
+        if (intent !=null) {
+            log(Log.INFO, TAG, "PushReceiver  ACTION: " + intent.getAction() + " DATA: " + intent.getData() + " DATASTRING: " + intent.getDataString());
+            ComponentName componentName = new ComponentName(context.getPackageName(), PushService.class.getName());
+            log(Log.INFO,TAG, "PushReceiver startWakefulService with componentName: " + componentName.getClassName());
+            startWakefulService(context, intent.setComponent(componentName));
+            log(Log.INFO,TAG, "PushReceiver started pushService with componentName: " + componentName.getClassName());
+            setResultCode(Activity.RESULT_OK);
+        }
+        else {
+            log(Log.INFO, TAG, "PushReceiver: INTENT NULL !!!");
+            setResultCode(Activity.RESULT_CANCELED);
+        }
 
-        log(Log.INFO,TAG, "PushReceiver startWakefulService with componentName: " + componentName.getClassName());
-        startWakefulService(context, intent.setComponent(componentName));
-        setResultCode(Activity.RESULT_OK);
+
     }
 }
