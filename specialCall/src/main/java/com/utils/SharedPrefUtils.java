@@ -91,9 +91,7 @@ public abstract class SharedPrefUtils {
     //endregion
 
     //region Shared pref keys under SERVER_PROXY
-    public static final String RECONNECT_INTERVAL               =   "RECONNECT_INTERVAL";
     public static final String WAS_MID_ACTION                   =   "WAS_MID_ACTION";
-    public static final String IS_RECONNECTING                  =   "IS_RECONNECTING";
     //endregion
 
     //region Shared pref keys under SERVICES

@@ -8,7 +8,6 @@ import android.util.Log;
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.utils.BroadcastUtils;
-import com.utils.SharedPrefUtils;
 import com.utils.SpecialDevicesUtils;
 
 import java.io.IOException;
@@ -87,94 +86,84 @@ public class LogicServerProxyService extends AbstractServerProxy {
         if (shouldStop)
             return START_REDELIVER_INTENT;
 
-        new Thread() {
+        if(isNetworkAvailable()) {
 
-            @Override
-            public void run() {
-                if (intent != null) {
-                    String action = intent.getAction();
-                    log(Log.INFO,TAG, "Action:" + action);
+            new Thread() {
 
-                    HashMap<DataKeys, Object> data = getDefaultMessageData();
+                @Override
+                public void run() {
+                    if (intent != null) {
+                        String action = intent.getAction();
+                        log(Log.INFO, TAG, "Action:" + action);
 
-                    try {
+                        HashMap<DataKeys, Object> data = getDefaultMessageData();
 
-                        switch (action) {
+                        try {
 
-                            case ACTION_REGISTER:
-                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                int smsCode = intent.getIntExtra(SMS_CODE, 0);
-                                actionRegister(openSocket(), smsCode, data);
+                            switch (action) {
+
+                                case ACTION_REGISTER:
+                                    setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
+                                    int smsCode = intent.getIntExtra(SMS_CODE, 0);
+                                    actionRegister(openSocket(), smsCode, data);
+                                    break;
+
+                                case ACTION_UNREGISTER:
+                                    setMidAction(true);
+                                    actionUnregister(openSocket(), data);
+                                    break;
+
+                                case ACTION_GET_SMS_CODE:
+                                    setMidAction(true);
+                                    String interPhoneNumber = intent.getStringExtra(INTERNATIONAL_PHONE);
+                                    actionGetSmsCode(openSocket(),
+                                            Constants.MY_ID(getApplicationContext()), interPhoneNumber, data);
+                                    break;
+
+                                case ACTION_GET_APP_RECORD:
+                                    setMidAction(true);
+                                    actionGetAppRecord(openSocket(), data);
+                                    break;
+
+                                case ACTION_ISREGISTERED: {
+                                    setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
+                                    String destId = intent.getStringExtra(DESTINATION_ID);
+                                    actionIsRegistered(openSocket(), destId, data);
+                                }
                                 break;
 
-                            case ACTION_UNREGISTER:
-                                setMidAction(true);
-                                actionUnregister(openSocket(), data);
-                                break;
+                                case ACTION_INSERT_CALL_RECORD:
+                                    setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
+                                    CallRecord callRecord = (CallRecord) intent.getSerializableExtra(CALL_RECORD);
+                                    actionInsertMediaCallRecord(openSocket(), callRecord, data);
+                                    break;
 
-                            case ACTION_GET_SMS_CODE:
-                                setMidAction(true);
-                                String interPhoneNumber = intent.getStringExtra(INTERNATIONAL_PHONE);
-                                actionGetSmsCode(openSocket(),
-                                        Constants.MY_ID(getApplicationContext()) ,interPhoneNumber , data);
-                                break;
+                                case ACTION_UPDATE_USER_RECORD:
+                                    setMidAction(true);
+                                    HashMap userRecord = (HashMap) intent.getSerializableExtra(USER_RECORD);
+                                    data.putAll(userRecord);
+                                    actionUpdateUserRecord(openSocket(), data);
+                                    break;
 
-                            case ACTION_GET_APP_RECORD:
-                                setMidAction(true);
-                                actionGetAppRecord(openSocket(), data);
-                                break;
+                                default:
+                                    setMidAction(false);
+                                    log(Log.WARN, TAG, "Service started with invalid action:" + action);
 
-                            case ACTION_ISREGISTERED: {
-                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                String destId = intent.getStringExtra(DESTINATION_ID);
-                                actionIsRegistered(openSocket(), destId, data);
                             }
-                                break;
-
-                            case ACTION_RECONNECT:
-                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                reconnectIfNecessary();
-                                break;
-
-                            case ACTION_RESET_RECONNECT_INTERVAL:
-                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
-                                break;
-
-                            case ACTION_INSERT_CALL_RECORD:
-                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                CallRecord callRecord = (CallRecord) intent.getSerializableExtra(CALL_RECORD);
-                                actionInsertMediaCallRecord(openSocket(), callRecord, data);
-                                break;
-
-                            case ACTION_UPDATE_USER_RECORD:
-                                setMidAction(true);
-                                HashMap userRecord = (HashMap)intent.getSerializableExtra(USER_RECORD);
-                                data.putAll(userRecord);
-                                actionUpdateUserRecord(openSocket(), data);
-                                break;
-
-                            default:
-                                setMidAction(false);
-                                log(Log.WARN,TAG, "Service started with invalid action:" + action);
-
+                        }  catch (Exception e) {
+                            e.printStackTrace();
+                            String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
+                            handleActionFailure();
+                            log(Log.ERROR, TAG, errMsg);
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        String errMsg = "Action:" + action + " failed. Exception:" + e.getMessage();
-                        log(Log.ERROR,TAG, errMsg);
-                        //scheduleReconnect(System.currentTimeMillis());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
-                        handleActionFailure();
-                        log(Log.ERROR,TAG, errMsg);
-                    }
-                } else
-                    log(Log.WARN,TAG, "Service started with missing action");
+                    } else
+                        log(Log.WARN, TAG, "Service started with missing action");
 
-            }
-        }.start();
+                }
+            }.start();
+        } else {
+            BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.NO_INTERNET, getResources().getString(R.string.disconnected)));
+        }
 
         markCrashedServiceHandlingComplete(flags, startId);
 
@@ -268,38 +257,5 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
         BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.LOGIC_ACTION_FAILURE));
     }
-    //endregion
-
-    //region Networking methods
-    private synchronized void reconnectIfNecessary() throws IOException {
-
-        if (isNetworkAvailable()) {
-            //BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.RECONNECT_ATTEMPT, getResources().getString(R.string.reconnecting)));
-            try {
-                reconnect(host, port);
-                BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.CONNECTED, getResources().getString(R.string.connected)));
-                cancelReconnect();
-                SharedPrefUtils.setLong(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
-            } catch(IOException e) {
-                scheduleReconnect(System.currentTimeMillis());
-            }
-        } else {
-            scheduleReconnect(System.currentTimeMillis());
-        }
-    }
-
-//    /**
-//     * Deals with disconnection and schedules a reconnect
-//     * This method is called by ConnectionToServer connectionException() method
-//     *
-//     * @param cts The connection to server that triggered this method
-//     * @param errMsg The error message to display in the log
-//     */
-//    @Override
-//    public void handleDisconnection(ConnectionToServer cts, String errMsg) {
-//        super.handleDisconnection(cts, errMsg);
-//
-//        scheduleReconnect(System.currentTimeMillis());
-//    }
     //endregion
 }

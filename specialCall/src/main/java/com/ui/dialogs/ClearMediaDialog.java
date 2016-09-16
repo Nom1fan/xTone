@@ -3,14 +3,17 @@ package com.ui.dialogs;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.widget.TextView;
 
 import com.app.AppStateManager;
 import com.mediacallz.app.R;
 import com.services.StorageServerProxyService;
+import com.utils.UI_Utils;
 
 import DataObjects.SpecialMediaType;
 
@@ -50,6 +53,7 @@ public class ClearMediaDialog extends android.app.DialogFragment {
                         String timeoutMsg = getActivity().getResources().getString(R.string.oops_try_again);
                         String loadingMsg = getActivity().getResources().getString(R.string.please_wait);
                         AppStateManager.setLoadingState(getActivity(), TAG, loadingMsg, timeoutMsg);
+                        UI_Utils.showSnackBar(loadingMsg, Color.GREEN, Snackbar.LENGTH_INDEFINITE, true, getActivity());
 
                     }
                 })

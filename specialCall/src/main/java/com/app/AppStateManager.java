@@ -15,7 +15,6 @@ public class AppStateManager {
 
     //region Shared prefs values under APP_STATE
     public static final String IS_LOGGED_IN     = "IsLoggedIn";
-    public static final String STATE_DISABLED   = "Disabled";
     public static final String STATE_READY      = "Ready";
     public static final String STATE_IDLE       = "Idle";
     public static final String STATE_LOADING    = "Loading";
@@ -69,18 +68,17 @@ public class AppStateManager {
 
     public static boolean isNonBlockingState(Context context) {
 
-        return !getAppState(context).equals(AppStateManager.STATE_DISABLED) &&
-                !getAppState(context).equals(AppStateManager.STATE_LOADING);
+        return !getAppState(context).equals(AppStateManager.STATE_LOADING);
     }
 
     public static boolean isNonBlockingState(String state) {
 
-        return !state.equals(STATE_DISABLED) && !state.equals(STATE_LOADING);
+        return !state.equals(STATE_LOADING);
     }
 
     public static boolean isBlockingState(String state) {
 
-        return state.equals(STATE_DISABLED) || state.equals(STATE_LOADING);
+        return state.equals(STATE_LOADING);
     }
 
     public static String getLoadingMsg(Context context) {

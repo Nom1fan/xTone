@@ -10,7 +10,6 @@ import com.handlers.background_broadcast_receiver.EventClearSuccessHandler;
 import com.handlers.background_broadcast_receiver.EventCompressingHandler;
 import com.handlers.background_broadcast_receiver.EventConnectedHandler;
 import com.handlers.background_broadcast_receiver.EventDestinationDownloadCompleteHandler;
-import com.handlers.background_broadcast_receiver.EventDisconnectedHandler;
 import com.handlers.background_broadcast_receiver.EventDisplayErrorHandler;
 import com.handlers.background_broadcast_receiver.EventDisplayMessageHandler;
 import com.handlers.background_broadcast_receiver.EventFetchingUserDataHandler;
@@ -23,6 +22,7 @@ import com.handlers.background_broadcast_receiver.EventUnregisterSuccessHandler;
 import com.handlers.background_broadcast_receiver.EventUpdateUserRecordSuccessHandler;
 import com.handlers.background_broadcast_receiver.EventUserRegisteredFalseHandler;
 import com.handlers.background_broadcast_receiver.EventUserRegisteredTrueHandler;
+import com.handlers.background_broadcast_receiver.EventNoInternetHandler;
 import com.handlers.select_media_activity.ActivityRequestCameraHandler;
 import com.handlers.select_media_activity.ActivityRequestFileChooserHandler;
 import com.handlers.select_media_activity.ActivityRequestPreviewMediaResultHandler;
@@ -62,6 +62,7 @@ public class HandlerFactory {
         put(EventType.ISREGISTERED_ERROR, EventNegativeEventHandler.class);
         put(EventType.STORAGE_ACTION_FAILURE, EventNegativeEventHandler.class);
         put(EventType.UNREGISTER_FAILURE, EventNegativeEventHandler.class);
+        put(EventType.LOGIC_ACTION_FAILURE, EventNegativeEventHandler.class);
         put(EventType.USER_REGISTERED_FALSE, EventUserRegisteredFalseHandler.class);
         put(EventType.USER_REGISTERED_TRUE, EventUserRegisteredTrueHandler.class);
         put(EventType.UNREGISTER_SUCCESS, EventUnregisterSuccessHandler.class);
@@ -69,13 +70,13 @@ public class HandlerFactory {
         put(EventType.REGISTER_FAILURE, EventRegisterFailureHandler.class);
         put(EventType.DESTINATION_DOWNLOAD_COMPLETE, EventDestinationDownloadCompleteHandler.class);
         put(EventType.CONNECTED, EventConnectedHandler.class);
-        put(EventType.DISCONNECTED, EventDisconnectedHandler.class);
         put(EventType.COMPRESSING, EventCompressingHandler.class);
         put(EventType.DISPLAY_ERROR, EventDisplayErrorHandler.class);
         put(EventType.DISPLAY_MESSAGE, EventDisplayMessageHandler.class);
         put(EventType.GET_SMS_CODE_FAILURE, EventGetSmsCodeFailureHandler.class);
         put(EventType.LOADING_CANCEL, EventLoadingCancelHandler.class);
         put(EventType.LOADING_TIMEOUT, EventLoadingTimeoutHandler.class);
+        put(EventType.NO_INTERNET, EventNoInternetHandler.class);
     }};
 
     private Map<String, Map> class2HandlerMap = new HashMap() {{

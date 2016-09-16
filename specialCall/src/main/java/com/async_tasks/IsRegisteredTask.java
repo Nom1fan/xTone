@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 
 import com.app.AppStateManager;
 import com.interfaces.ICallbackListener;
-import com.mediacallz.app.R;
 import com.services.LogicServerProxyService;
 import com.utils.BroadcastUtils;
 import com.utils.CacheUtils;
@@ -72,10 +71,6 @@ public class IsRegisteredTask extends AsyncTask<Context, Void, Void> {
     protected void onPostExecute(Void v) {
 
         if (_showProgressBar) {
-
-            String timeoutMsg = _context.getResources().getString(R.string.register_failure);
-            String loadingMsg = _context.getResources().getString(R.string.registering);
-            AppStateManager.setLoadingState(_context, TAG, loadingMsg, timeoutMsg);
             _callbackListener.doCallBackAction(ENABLE_FETCH_PROGRESS_BAR);
         }
     }

@@ -49,13 +49,10 @@ public class ConnectivityBroadcastReceiver extends WakefulBroadcastReceiver {
             if (AppStateManager.isBlockingState(appState)) {
                 log(Log.INFO,TAG, "Starting LogicServerProxyService...");
                 Intent i = new Intent(context, LogicServerProxyService.class);
-                i.setAction(LogicServerProxyService.ACTION_RESET_RECONNECT_INTERVAL);
-                context.startService(i);
                 i.setAction(LogicServerProxyService.ACTION_RECONNECT);
                 context.startService(i);
             }
         } else {
-            AppStateManager.setAppState(context, TAG, AppStateManager.STATE_DISABLED);
             BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.DISCONNECTED));
         }
     }

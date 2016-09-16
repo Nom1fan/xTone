@@ -485,7 +485,7 @@ public class LoginActivity extends AppCompatActivity {
         SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER, loginNumber);
 
         // Saving sms code
-        String smsCode = "";
+        String smsCode;
         if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE_RECEIVED))
         {
             smsCode = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE);
@@ -556,10 +556,6 @@ public class LoginActivity extends AppCompatActivity {
 
             case AppStateManager.STATE_LOADING:
                 stateLoading();
-                break;
-
-            case AppStateManager.STATE_DISABLED:
-                stateDisabled();
                 break;
         }
     }

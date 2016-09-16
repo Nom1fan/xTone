@@ -6,6 +6,7 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.data_objects.Constants;
+import com.mediacallz.app.R;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
 
@@ -72,52 +73,51 @@ public class StorageServerProxyService extends AbstractServerProxy {
 
         final Intent intentForThread = intent;
 
-        new Thread() {
-            @Override
-            public void run() {
+        if(isNetworkAvailable()) {
 
-                if (intentForThread != null) {
-                    String action = intentForThread.getAction();
-                    log(Log.INFO,TAG, "ClientActionType:" + action);
+            new Thread() {
+                @Override
+                public void run() {
 
-                    PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+                    if (intentForThread != null) {
+                        String action = intentForThread.getAction();
+                        log(Log.INFO, TAG, "ClientActionType:" + action);
 
-                    HashMap<DataKeys,Object> data = getDefaultMessageData();
+                        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
 
-                    try {
-                        switch (action) {
-                            case ACTION_DOWNLOAD:
-                                actionDownload(intentForThread, powerManager, data);
-                                break;
+                        HashMap<DataKeys, Object> data = getDefaultMessageData();
 
-                            case ACTION_CLEAR_MEDIA:
-                                actionClear(intentForThread, data);
-                                break;
+                        try {
+                            switch (action) {
+                                case ACTION_DOWNLOAD:
+                                    actionDownload(intentForThread, powerManager, data);
+                                    break;
 
-                            case ACTION_NOTIFY_MEDIA_CLEARED:
-                                actionNotifyMediaCleared(intentForThread, data);
-                                break;
+                                case ACTION_CLEAR_MEDIA:
+                                    actionClear(intentForThread, data);
+                                    break;
 
-                            default:
-                                setMidAction(false);
-                                log(Log.WARN,TAG, "Service started with invalid action:" + action);
+                                case ACTION_NOTIFY_MEDIA_CLEARED:
+                                    actionNotifyMediaCleared(intentForThread, data);
+                                    break;
+
+                                default:
+                                    setMidAction(false);
+                                    log(Log.WARN, TAG, "Service started with invalid action:" + action);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            String errMsg = "ClientActionType failed:" + action + " Exception:" + e.getMessage();
+                            handleActionFailed();
+                            log(Log.ERROR, TAG, errMsg);
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        String errMsg = "ClientActionType failed:" + action + " Exception:" + e.getMessage();
-                        handleActionFailed();
-                        log(Log.ERROR,TAG, errMsg);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        String errMsg = "ClientActionType failed:" + action + " Exception:" + e.getMessage();
-                        handleActionFailed();
-                        log(Log.ERROR,TAG, errMsg);
-                    }
-                } else
-                    log(Log.WARN,TAG, "Service started with missing action");
-            }
-        }.start();
-
+                    } else
+                        log(Log.WARN, TAG, "Service started with missing action");
+                }
+            }.start();
+        } else {
+            BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.NO_INTERNET, getResources().getString(R.string.disconnected)));
+        }
         markCrashedServiceHandlingComplete(flags, startId);
 
         return START_REDELIVER_INTENT;
@@ -164,7 +164,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
 
     private void handleActionFailed() {
 
-        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.STORAGE_ACTION_FAILURE, null ,null));
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.STORAGE_ACTION_FAILURE));
     }
     //endregion
 
