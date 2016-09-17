@@ -2,8 +2,6 @@ package com.services;
 
 import android.app.Service;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
@@ -12,6 +10,7 @@ import com.actions.ActionFactory;
 import com.actions.ClientAction;
 import com.data_objects.Constants;
 import com.utils.BroadcastUtils;
+import com.utils.NetworkingUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.IOException;
@@ -34,20 +33,14 @@ import static com.crashlytics.android.Crashlytics.log;
  */
 public abstract class AbstractServerProxy extends Service implements IServerProxy {
 
-    //region Service actions
-    public static final String ACTION_RECONNECT = "com.services.LogicServerProxyService.RECONNECT";
-    //endregion
-
     //region Service intent keys
     public static final String ACTION_TO_CANCEL = "ACTION_TO_CANCEL";
     //endregion
 
     protected String host;
     protected int port;
-    protected static final long RETRY_INTERVAL = 5 * 1000;
     protected String TAG;
     protected PowerManager.WakeLock wakeLock;
-    protected ConnectivityManager connManager;
     protected List<ConnectionToServer> connections = new LinkedList<>();
 
     public AbstractServerProxy(String tag) {
@@ -65,8 +58,6 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
     @Override
     public void onCreate() {
-
-        connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 
         log(Log.INFO,TAG, "Created");
         //callInfoToast(TAG + " created");
@@ -97,7 +88,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         }
 
         connections.remove(cts);
-        if(isNetworkAvailable())
+        if(NetworkingUtils.isNetworkAvailable(getApplicationContext()))
             BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.LOADING_TIMEOUT));
 
     }
@@ -182,14 +173,8 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         SharedPrefUtils.setBoolean(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_MID_ACTION, bool);
     }
 
-    protected boolean isNetworkAvailable() {
-
-        NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnected();
-    }
-
     protected HashMap<DataKeys, Object> getDefaultMessageData() {
-        HashMap<DataKeys, Object> data = new HashMap();
+        HashMap<DataKeys, Object> data = new HashMap<>();
         data.put(DataKeys.APP_VERSION, Constants.APP_VERSION());
         return data;
     }

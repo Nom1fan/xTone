@@ -6,9 +6,9 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.data_objects.Constants;
-import com.mediacallz.app.R;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
+import com.utils.NetworkingUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -73,7 +73,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
 
         final Intent intentForThread = intent;
 
-        if(isNetworkAvailable()) {
+        if(NetworkingUtils.isNetworkAvailable(this)) {
 
             new Thread() {
                 @Override
@@ -116,7 +116,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
                 }
             }.start();
         } else {
-            BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.NO_INTERNET, getResources().getString(R.string.disconnected)));
+            BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.NO_INTERNET));
         }
         markCrashedServiceHandlingComplete(flags, startId);
 

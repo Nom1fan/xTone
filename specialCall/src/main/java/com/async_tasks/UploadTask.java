@@ -19,6 +19,7 @@ import com.data_objects.Constants;
 import com.data_objects.KeysForBundle;
 import com.mediacallz.app.R;
 import com.utils.BroadcastUtils;
+import com.utils.NetworkingUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -47,33 +48,34 @@ import static com.crashlytics.android.Crashlytics.log;
  */
 public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServerProxy {
     private final String TAG = UploadTask.class.getSimpleName();
-    private ConnectionToServer _connectionToServer;
-    private HashMap _data;
-    private ProgressDialog _progDialog;
-    private UploadTask _taskInstance;
+    private ConnectionToServer connectionToServer;
+    private HashMap data;
+    private ProgressDialog progDialog;
+    private UploadTask taskInstance;
     private BufferedInputStream _bis;
-    private PowerManager.WakeLock _wakeLock;
-    private FileManager _fileForUpload;
+    private PowerManager.WakeLock wakeLock;
+    private FileManager fileForUpload;
     private Context context;
+    private boolean fileUploadSuccess = false;
 
     public UploadTask(Context context, Bundle bundle) {
         this.context = context;
-        _fileForUpload = (FileManager) bundle.get(KeysForBundle.FILE_FOR_UPLOAD);
+        fileForUpload = (FileManager) bundle.get(KeysForBundle.FILE_FOR_UPLOAD);
 
         HashMap<DataKeys, Object> data = getDataForUpload(bundle);
 
-        _connectionToServer = new ConnectionToServer(
+        connectionToServer = new ConnectionToServer(
                 SharedConstants.STROAGE_SERVER_HOST,
                 SharedConstants.STORAGE_SERVER_PORT,
                 this);
-        _data = data;
-        _taskInstance = this;
+        this.data = data;
+        taskInstance = this;
 
     }
 
     @NonNull
     private HashMap<DataKeys, Object> getDataForUpload(Bundle bundle) {
-        HashMap<DataKeys, Object> data = new HashMap();
+        HashMap<DataKeys, Object> data = new HashMap<>();
         String myId = Constants.MY_ID(context);
         double appVersion = Constants.APP_VERSION();
 
@@ -82,14 +84,14 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
         data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
         data.put(DataKeys.DESTINATION_ID, bundle.get(KeysForBundle.DEST_ID));
         data.put(DataKeys.DESTINATION_CONTACT_NAME, bundle.get(KeysForBundle.DEST_NAME));
-        data.put(DataKeys.MD5, _fileForUpload.getMd5());
-        data.put(DataKeys.MANAGED_FILE, _fileForUpload);
-        data.put(DataKeys.EXTENSION, _fileForUpload.getFileExtension());
-        data.put(DataKeys.FILE_PATH_ON_SRC_SD, _fileForUpload.getFile().getAbsolutePath());
-        data.put(DataKeys.FILE_SIZE, _fileForUpload.getFileSize());
-        data.put(DataKeys.FILE_TYPE, _fileForUpload.getFileType());
+        data.put(DataKeys.MD5, fileForUpload.getMd5());
+        data.put(DataKeys.MANAGED_FILE, fileForUpload);
+        data.put(DataKeys.EXTENSION, fileForUpload.getFileExtension());
+        data.put(DataKeys.FILE_PATH_ON_SRC_SD, fileForUpload.getFile().getAbsolutePath());
+        data.put(DataKeys.FILE_SIZE, fileForUpload.getFileSize());
+        data.put(DataKeys.FILE_TYPE, fileForUpload.getFileType());
         data.put(DataKeys.SPECIAL_MEDIA_TYPE, bundle.get(KeysForBundle.SPEC_MEDIA_TYPE));
-        data.put(DataKeys.SOURCE_WITH_EXTENSION, myId + "." + _fileForUpload.getFileExtension());
+        data.put(DataKeys.SOURCE_WITH_EXTENSION, myId + "." + fileForUpload.getFileExtension());
         return data;
     }
 
@@ -98,48 +100,61 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
 
         String cancel = context.getResources().getString(R.string.cancel);
 
-        _progDialog = new ProgressDialog(context);
-        _progDialog.setIndeterminate(false);
-        _progDialog.setCancelable(false);
-        _progDialog.setTitle(context.getResources().getString(R.string.uploading));
-        _progDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        _progDialog.setProgress(0);
-        _progDialog.setMax((int) _fileForUpload.getFileSize());
-        _progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
+        progDialog = new ProgressDialog(context);
+        progDialog.setIndeterminate(false);
+        progDialog.setCancelable(false);
+        progDialog.setTitle(context.getResources().getString(R.string.uploading));
+        progDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progDialog.setProgress(0);
+        progDialog.setMax((int) fileForUpload.getFileSize());
+        progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                _taskInstance.cancel(true);
+                taskInstance.cancel(true);
             }
         });
 
-        _progDialog.show();
+        progDialog.show();
     }
 
     @Override
     protected Void doInBackground(Void... voids) {
 
-        MessageToServer msgUF = new MessageToServer(ServerActionType.UPLOAD_FILE_V2, Constants.MY_ID(context), _data);
+        if(NetworkingUtils.isNetworkAvailable(context))
+            executeFileUpload();
+        else
+            reportNoInternet();
+
+        return null;
+    }
+
+    private void reportNoInternet() {
+        BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.NO_INTERNET));
+    }
+
+    private void executeFileUpload() {
+        MessageToServer msgUF = new MessageToServer(ServerActionType.UPLOAD_FILE_V2, Constants.MY_ID(context), data);
 
         DataOutputStream dos;
         try {
 
             PowerManager powerManager = (PowerManager) context.getSystemService(Activity.POWER_SERVICE);
-            _wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "UploadTask_Lock");
-            _wakeLock.acquire();
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "UploadTask_Lock");
+            wakeLock.acquire();
 
-            _connectionToServer.openConnection();
-            _connectionToServer.sendToServer(msgUF);
+            connectionToServer.openConnection();
+            connectionToServer.sendToServer(msgUF);
 
-            log(Log.INFO, TAG, "Initiating file data upload. [Filepath]: " + _fileForUpload.getFile().getAbsolutePath());
+            log(Log.INFO, TAG, "Initiating file data upload. [Filepath]: " + fileForUpload.getFile().getAbsolutePath());
 
-            dos = new DataOutputStream(_connectionToServer.getClientSocket().getOutputStream());
+            dos = new DataOutputStream(connectionToServer.getClientSocket().getOutputStream());
 
-            FileInputStream fis = new FileInputStream(_fileForUpload.getFile());
+            FileInputStream fis = new FileInputStream(fileForUpload.getFile());
             _bis = new BufferedInputStream(fis);
 
             byte[] buf = new byte[1024 * 8];
-            long bytesToRead = _fileForUpload.getFileSize();
+            long bytesToRead = fileForUpload.getFileSize();
             int bytesRead;
             while (bytesToRead > 0 && (bytesRead = _bis.read(buf, 0, (int) Math.min(buf.length, bytesToRead))) != -1 && !isCancelled()) {
                 dos.write(buf, 0, bytesRead);
@@ -153,10 +168,8 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
                 e.printStackTrace();
             }
 
-            if (_progDialog != null && _progDialog.isShowing()) {
-                _progDialog.dismiss();
-            }
-        } catch (IOException e) {
+            fileUploadSuccess = true;
+        } catch (Exception e) {
             e.printStackTrace();
             log(Log.ERROR, TAG, "Failed:" + e.getMessage());
             BroadcastUtils.sendEventReportBroadcast(context, TAG,
@@ -164,16 +177,14 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
         } finally {
 
             try {
-                _connectionToServer.closeConnection();
+                connectionToServer.closeConnection();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            if (_wakeLock.isHeld())
-                _wakeLock.release();
+            if (wakeLock.isHeld())
+                wakeLock.release();
         }
-
-        return null;
     }
 
     @Override
@@ -188,7 +199,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
         }
 
         try {
-            _connectionToServer.closeConnection();
+            connectionToServer.closeConnection();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -199,14 +210,24 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
     @Override
     protected void onProgressUpdate(Integer... progress) {
 
-        if (_progDialog != null) {
-            _progDialog.incrementProgressBy(progress[0]);
+        if (progDialog != null) {
+            progDialog.incrementProgressBy(progress[0]);
         }
     }
 
     @Override
     protected void onPostExecute(Void result) {
 
+        if (progDialog != null && progDialog.isShowing()) {
+            progDialog.dismiss();
+        }
+        if(fileUploadSuccess) {
+            reportSuccess();
+            waitingForTransferSuccess();
+        }
+    }
+
+    private void reportSuccess() {
         String msg = context.getResources().getString(R.string.upload_success);
         // Setting state
         AppStateManager.setAppState(context, TAG, AppStateManager.STATE_READY);
@@ -216,8 +237,6 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
         int sBarDuration = Snackbar.LENGTH_LONG;
 
         UI_Utils.showSnackBar(msg, color, sBarDuration, false, context);
-
-        waitingForTransferSuccess();
     }
 
     @Override

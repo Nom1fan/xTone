@@ -6,8 +6,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.data_objects.Constants;
-import com.mediacallz.app.R;
 import com.utils.BroadcastUtils;
+import com.utils.NetworkingUtils;
 import com.utils.SpecialDevicesUtils;
 
 import java.io.IOException;
@@ -86,7 +86,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
         if (shouldStop)
             return START_REDELIVER_INTENT;
 
-        if(isNetworkAvailable()) {
+        if(NetworkingUtils.isNetworkAvailable(this)) {
 
             new Thread() {
 
@@ -162,7 +162,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
                 }
             }.start();
         } else {
-            BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.NO_INTERNET, getResources().getString(R.string.disconnected)));
+            BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.NO_INTERNET));
         }
 
         markCrashedServiceHandlingComplete(flags, startId);

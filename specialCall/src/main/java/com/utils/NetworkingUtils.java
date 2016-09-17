@@ -25,4 +25,11 @@ public abstract class NetworkingUtils {
         return isWifiConnected;
 
     }
+
+    public static boolean isNetworkAvailable(Context context) {
+
+        ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnected();
+    }
 }

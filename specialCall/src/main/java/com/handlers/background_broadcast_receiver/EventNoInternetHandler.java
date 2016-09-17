@@ -6,6 +6,7 @@ import android.support.design.widget.Snackbar;
 
 import com.app.AppStateManager;
 import com.handlers.Handler;
+import com.mediacallz.app.R;
 import com.utils.BroadcastUtils;
 import com.utils.UI_Utils;
 
@@ -21,13 +22,13 @@ public class EventNoInternetHandler implements Handler {
 
     @Override
     public void handle(Context ctx, Object... params) {
-        EventReport eventReportNoInternet = (EventReport) params[0];
+        String msgNoInternet = ctx.getResources().getString(R.string.disconnected);
         AppStateManager.setAppState(ctx, TAG, AppStateManager.getAppPrevState(ctx));
 
         if (AppStateManager.isLoggedIn(ctx)) {
-            UI_Utils.showSnackBar(eventReportNoInternet.desc(), Color.RED, Snackbar.LENGTH_LONG, false, ctx);
+            UI_Utils.showSnackBar(msgNoInternet, Color.RED, Snackbar.LENGTH_INDEFINITE, false, ctx);
         } else {
-            EventReport refreshUIReport = new EventReport(EventType.REFRESH_UI, eventReportNoInternet.desc());
+            EventReport refreshUIReport = new EventReport(EventType.REFRESH_UI, msgNoInternet);
             BroadcastUtils.sendEventReportBroadcast(ctx, TAG, refreshUIReport);
         }
     }

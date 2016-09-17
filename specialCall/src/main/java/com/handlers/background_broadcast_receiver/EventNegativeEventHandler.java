@@ -20,6 +20,6 @@ public class EventNegativeEventHandler implements Handler {
     public void handle(Context ctx, Object... params) {
         String msg = ctx.getResources().getString(R.string.oops_try_again);
         AppStateManager.setAppState(ctx, TAG, AppStateManager.STATE_IDLE);
-        UI_Utils.showSnackBar(msg, Color.RED, Snackbar.LENGTH_LONG, false, ctx);
+        UI_Utils.showSnackBar(msg, Color.RED, Snackbar.LENGTH_INDEFINITE, false, ctx);
     }
 }
