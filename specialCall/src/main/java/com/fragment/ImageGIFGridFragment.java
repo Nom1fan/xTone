@@ -59,13 +59,19 @@ public class ImageGIFGridFragment extends AbsListViewBaseFragment implements Pop
 	@Override
 	public void constructPostPopulate(List<String> urls) {
 		imageUrls = urls;
-		listView.setAdapter(new ImageAdapter(getActivity()));
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				startGIFImagePagerActivity(position);
-			}
-		});
+
+		if(imageUrls == null || imageUrls.isEmpty()) {
+			showErrFailedToPopulate();
+		}
+		else {
+			listView.setAdapter(new ImageAdapter(getActivity()));
+			listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					startGIFImagePagerActivity(position);
+				}
+			});
+		}
 	}
 
 	private class ImageAdapter extends BaseAdapter {

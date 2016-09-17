@@ -27,7 +27,6 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.CircleBitmapDisplayer;
 import com.utils.MediaFilesUtils;
-import com.utils.UI_Utils;
 import com.validate.media.ValidateAudioFormatBehavior;
 import com.validate.media.ValidateImageFormatBehavior;
 import com.validate.media.ValidateMediaFormatBehavior;
@@ -72,15 +71,22 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
     @Override
     public void constructPostPopulate(List<List<String>> urlsList) {
         if(urlsList == null || urlsList.isEmpty()) {
-            UI_Utils.callToast(getResources().getString(R.string.oops_try_again), Color.RED, getActivity());
+            showErrFailedToPopulate();
         } else {
             audioThumbsUrls = urlsList.get(0);
             audioUrls = urlsList.get(1);
-            videoViews = new CustomVideoView[audioUrls.size()];
 
-            preparePager();
+            if(audioThumbsUrls == null || audioThumbsUrls.isEmpty() ||
+                    audioUrls == null || audioUrls.isEmpty()) {
+                showErrFailedToPopulate();
+            }
+            else {
+                videoViews = new CustomVideoView[audioUrls.size()];
 
-            prepareFileNames();
+                preparePager();
+
+                prepareFileNames();
+            }
         }
     }
 

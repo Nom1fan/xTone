@@ -65,8 +65,14 @@ public class ImageGIFPagerFragment extends BaseFragment implements PostPopulateL
     @Override
     public void constructPostPopulate(List<String> urls) {
         gifUrls = urls;
-        pager.setAdapter(new ImageAdapter(getActivity()));
-        pager.setCurrentItem(getArguments().getInt(Constants.Extra.MEDIA_POSITION, 0));
+
+        if(gifUrls == null || gifUrls.isEmpty()) {
+            showErrFailedToPopulate();
+        }
+        else {
+            pager.setAdapter(new ImageAdapter(getActivity()));
+            pager.setCurrentItem(getArguments().getInt(Constants.Extra.MEDIA_POSITION, 0));
+        }
     }
 
     @Override

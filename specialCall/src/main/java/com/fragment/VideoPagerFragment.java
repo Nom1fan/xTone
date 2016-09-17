@@ -2,7 +2,6 @@ package com.fragment;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,7 +21,6 @@ import com.async_tasks.PopulateUrlsAsyncTask;
 import com.async_tasks.PopulateUrlsAsyncTask.PostPopulateListener;
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
-import com.utils.UI_Utils;
 import com.validate.media.ValidateVideoFormatBehavior;
 
 import java.util.List;
@@ -61,7 +59,7 @@ public class VideoPagerFragment extends BaseFragment implements PostPopulateList
         videoUrls = urls;
 
         if(videoUrls == null || videoUrls.isEmpty()) {
-            UI_Utils.callToast(getResources().getString(R.string.oops_try_again), Color.RED, getActivity());
+            showErrFailedToPopulate();
         }
         else {
             videoViews = new CustomVideoView[videoUrls.size()];

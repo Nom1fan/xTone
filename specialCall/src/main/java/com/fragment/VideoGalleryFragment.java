@@ -46,13 +46,19 @@ public class VideoGalleryFragment extends AbsListViewBaseFragment implements Pop
     @Override
     public void constructPostPopulate(List<String> urls) {
         videoThumbsUrl = urls;
-        listView.setAdapter(new ImageAdapter(getActivity()));
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                startVideoPagerActivity(position);
-            }
-        });
+
+        if(videoThumbsUrl == null || videoThumbsUrl.isEmpty()) {
+         showErrFailedToPopulate();
+        }
+        else {
+            listView.setAdapter(new ImageAdapter(getActivity()));
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    startVideoPagerActivity(position);
+                }
+            });
+        }
     }
 
     private class ImageAdapter extends BaseAdapter {

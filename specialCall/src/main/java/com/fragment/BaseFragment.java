@@ -17,6 +17,7 @@ package com.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -30,6 +31,8 @@ import com.flows.DownloadFileFlow;
 import com.mediacallz.app.R;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.ui.activities.PreviewMediaActivity;
+import com.utils.NetworkingUtils;
+import com.utils.UI_Utils;
 
 import java.io.File;
 
@@ -96,6 +99,16 @@ public abstract class BaseFragment extends Fragment implements PostDownloadCallB
                 progressDialog.dismiss();
             }
         });
+    }
+
+    protected void showErrFailedToPopulate() {
+        String errMsg;
+        if(!NetworkingUtils.isNetworkAvailable(getActivity()))
+            errMsg = getResources().getString(R.string.disconnected);
+        else
+            errMsg = getResources().getString(R.string.oops_try_again);
+
+        UI_Utils.callToast(errMsg, Color.RED, getActivity());
     }
 
     @Override

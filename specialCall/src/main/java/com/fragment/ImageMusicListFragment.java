@@ -69,13 +69,19 @@ public class ImageMusicListFragment extends AbsListViewBaseFragment implements P
     @Override
     public void constructPostPopulate(List<String> urls) {
         audioThumbsUrls = urls;
-        listView.setAdapter(new ImageAdapter(getActivity()));
-        listView.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                startAudioPagerActivity(position);
-            }
-        });
+
+		if(audioThumbsUrls == null || audioThumbsUrls.isEmpty()) {
+			showErrFailedToPopulate();
+		}
+		else {
+			listView.setAdapter(new ImageAdapter(getActivity()));
+			listView.setOnItemClickListener(new OnItemClickListener() {
+				@Override
+				public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+					startAudioPagerActivity(position);
+				}
+			});
+		}
 
 		prepareFileNames();
     }

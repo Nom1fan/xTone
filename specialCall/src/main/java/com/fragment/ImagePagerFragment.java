@@ -17,7 +17,6 @@ package com.fragment;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
@@ -31,6 +30,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.async_tasks.PopulateUrlsAsyncTask;
+import com.async_tasks.PopulateUrlsAsyncTask.PostPopulateListener;
 import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -39,7 +39,6 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.utils.UI_Utils;
 import com.validate.media.ValidateImageFormatBehavior;
 
 import java.util.List;
@@ -47,7 +46,7 @@ import java.util.List;
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
-public class ImagePagerFragment extends BaseFragment implements PopulateUrlsAsyncTask.PostPopulateListener {
+public class ImagePagerFragment extends BaseFragment implements PostPopulateListener {
 
     private static final String TAG = ImagePagerFragment.class.getSimpleName();
     public static final int INDEX = 2;
@@ -70,7 +69,7 @@ public class ImagePagerFragment extends BaseFragment implements PopulateUrlsAsyn
         imageUrls = urls;
 
         if(imageUrls == null || imageUrls.isEmpty()) {
-            UI_Utils.callToast(getResources().getString(R.string.oops_try_again), Color.RED, getActivity());
+            showErrFailedToPopulate();
         }
         else {
             pager.setAdapter(new ImageAdapter(getActivity()));
