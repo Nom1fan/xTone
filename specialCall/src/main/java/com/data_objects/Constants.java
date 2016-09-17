@@ -23,7 +23,7 @@ public abstract class Constants {
     public static final String GCM_SENDER_ID = "817954308887";
 
     // Constants for Website
-    public static final String TERMS_AND_PRIVACY_URL = "http://www.mediacallz.com/terms-of-service---privacy-policy.html";
+    public static final String TERMS_AND_PRIVACY_URL = "http://www.mediacallz.com/page/%D7%AA%D7%A0%D7%90%D7%99%D7%9D%20%D7%95%D7%A4%D7%A8%D7%98%D7%99%D7%95%D7%AA";
 
     private static final String INCOMING_FOLDER_NAME = "Incoming_" + SharedConstants.APP_NAME;
     private static final String OUTGOING_FOLDER_NAME = "Outgoing_" + SharedConstants.APP_NAME;
