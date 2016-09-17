@@ -19,9 +19,9 @@ public abstract class SharedConstants {
 
     //region Shared constants
     //TODO Turn all of these into configuration file (XML/JSON instead of constants)
-  	public static final String LOGIC_SERVER_HOST = "epicall.no-ip.biz";
+  	public static final String LOGIC_SERVER_HOST = "server.mediacallz.com";
   	public static final int LOGIC_SERVER_PORT = 8888;
-	public static final String STROAGE_SERVER_HOST = "epicall.no-ip.biz";
+	public static final String STROAGE_SERVER_HOST = "server.mediacallz.com";
 	public static final int STORAGE_SERVER_PORT = 7777;
     public static final String APP_NAME = "MediaCallz";
     public static final String LIVE_API_KEY = "56B47A2D7AF8834E6D36C9CBC3F32E";
