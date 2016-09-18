@@ -1,8 +1,12 @@
-package ClientObjects;
+package com.client;
 
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPostHC4;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,9 +15,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -33,20 +36,24 @@ public class ConnectionToServer {
     private IServerProxy serverProxy;
     private Gson gson;
     private HttpURLConnection conn;
+    private CloseableHttpClient httpClient = null;
+    private HttpPostHC4 post;
+    private Type responseType;
 
     /**
      * Constructs the client.
      */
-    public ConnectionToServer(IServerProxy serverProxy) {
+    public ConnectionToServer(IServerProxy serverProxy, Type responseType) {
         this.serverProxy = serverProxy;
+        this.responseType = responseType;
         gson = new Gson();
     }
 
-    public <RESPONSE> void sendToServer(URL url, List<SimpleEntry> params, TypeToken<MessageToClient<RESPONSE>> responseTypeToken) {
+    public void sendToServer(String url, List<SimpleEntry> params) {
 
         try {
             sendRequest(url, params);
-            readResponse(responseTypeToken);
+            readResponse();
         } catch (IOException e) {
             connectionException(e);
         } finally {
@@ -55,12 +62,37 @@ public class ConnectionToServer {
         }
     }
 
-    public void sendToServer(URL url, List<SimpleEntry> params) {
-        sendToServer(url, params, new TypeToken<MessageToClient<Void>>(){});
+    public void sendMultipartToServer(String url, ProgressiveEntity progressiveEntity) {
+        CloseableHttpResponse response = null;
+        try {
+            httpClient = HttpClientBuilder.create().build();
+            post = new HttpPostHC4(url);
+            post.setEntity(progressiveEntity);
+            response = httpClient.execute(post);
+            BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+            String responseMessage = br.readLine();
+            MessageToClient msg = extractResponse(responseMessage);
+            serverProxy.handleMessageFromServer(msg, this);
+
+        } catch (IOException e) {
+            connectionException(e);
+        } finally {
+            if(httpClient!=null) {
+                try {
+                    httpClient.close();
+                } catch (IOException ignored) {}
+            }
+            if(response!=null) {
+                try {
+                    response.close();
+                } catch (IOException ignored) {}
+            }
+        }
     }
 
-    private void sendRequest(URL url, List<SimpleEntry> params) throws IOException {
-        conn = (HttpURLConnection) openConnection(url);
+    private void sendRequest(String url, List<SimpleEntry> params) throws IOException {
+
+        conn = (HttpURLConnection) openConnection(new URL(url));
 
         OutputStream os = conn.getOutputStream();
         BufferedWriter writer = new BufferedWriter(
@@ -72,22 +104,14 @@ public class ConnectionToServer {
         conn.connect();
     }
 
-    public void asyncSendToServer(URL url, List<SimpleEntry> params) {
-        try {
-            sendRequest(url, params);
-        } catch (IOException e) {
-            connectionException(e);
-        }
-    }
-
-    public <RESPONSE> void readResponse(TypeToken<MessageToClient<RESPONSE>> responseTypeToken) throws IOException {
+    private void readResponse() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
         String responseMessage = br.readLine();
-        MessageToClient<RESPONSE> response = extractResponse(responseMessage, responseTypeToken);
+        MessageToClient response = extractResponse(responseMessage);
         serverProxy.handleMessageFromServer(response, this);
     }
 
-    public URLConnection openConnection(URL url) throws IOException {
+    private URLConnection openConnection(URL url) throws IOException {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(READ_TIMEOUT);
         conn.setConnectTimeout(CONNECT_TIMEOUT);
@@ -98,22 +122,21 @@ public class ConnectionToServer {
     }
 
     public void closeConnection() {
-        conn.disconnect();
+        if(conn!=null)
+            conn.disconnect();
+        if(httpClient!=null) {
+            try {
+                httpClient.close();
+                if(!post.isAborted())
+                    post.abort();
+            } catch (IOException ignored) {}
+        }
     }
 
-    public void connectionException(Exception e) {
+    private void connectionException(Exception e) {
 
         String errMsg = "Connection error";
         serverProxy.handleDisconnection(this, e != null ? errMsg + ":" + e.toString() : errMsg);
-    }
-
-    public boolean ping(String host, int port) {
-        try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress(host, port), CONNECT_TIMEOUT);
-            return true;
-        } catch (IOException e) {
-            return false; // Either timeout or unreachable or failed DNS lookup.
-        }
     }
 
     private String getQuery(List<SimpleEntry> params) throws UnsupportedEncodingException
@@ -136,8 +159,8 @@ public class ConnectionToServer {
         return result.toString();
     }
 
-    private <RESPONSE> MessageToClient<RESPONSE> extractResponse(String resJson, TypeToken<MessageToClient<RESPONSE>> resType) {
-        return gson.fromJson(resJson, resType.getType());
+    private MessageToClient extractResponse(String resJson) {
+        return gson.fromJson(resJson, responseType);
     }
 
     public HttpURLConnection getConnection() {

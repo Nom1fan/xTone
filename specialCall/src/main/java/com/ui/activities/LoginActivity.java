@@ -554,10 +554,6 @@ public class LoginActivity extends AppCompatActivity {
             case AppStateManager.STATE_LOADING:
                 stateLoading();
                 break;
-
-            case AppStateManager.STATE_DISABLED:
-                stateDisabled();
-                break;
         }
     }
 

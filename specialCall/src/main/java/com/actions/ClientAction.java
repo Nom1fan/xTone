@@ -3,7 +3,7 @@ package com.actions;
 import java.io.IOException;
 import java.util.Map;
 
-import ClientObjects.ConnectionToServer;
+import com.client.ConnectionToServer;
 import EventObjects.EventReport;
 import EventObjects.EventType;
 import MessagesToClient.ClientActionType;

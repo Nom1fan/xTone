@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             // ASYNC TASK To Populate all contacts , it can take long time and it delays the UI
             new AutoCompletePopulateListAsyncTask(autoCompleteTextViewDestPhone).execute(getApplicationContext());
 
-            if (!appState.equals(AppStateManager.STATE_LOADING) && !appState.equals(AppStateManager.STATE_DISABLED))
+            if (!appState.equals(AppStateManager.STATE_LOADING))
                 handleSnackBar(new SnackbarData(SnackbarData.SnackbarStatus.CLOSE, 0, 0, null));
 
             restoreInstanceState();
@@ -839,14 +839,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
-    private void reconnect() {
-
-        Intent i = new Intent();
-        i.setClass(getBaseContext(), LogicServerProxyService.class);
-        i.setAction(LogicServerProxyService.ACTION_RECONNECT);
-        startService(i);
-    }
-
     private void BlockMCContacts() {
         saveInstanceState();
         Intent y = new Intent();
@@ -968,24 +960,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     }
 
-    public void stateDisabled() {
-
-        reconnect();
-        disableSelectCallerMediaButton();
-        disableSelectProfileMediaButton();
-        disableDividers();
-        disableUserFetchProgressBar();
-        disableSelectContactButton();
-        disableDestinationEditText();
-        disableCallButton();
-        disableStartingViews();
-
-        handleSnackBar(new SnackbarData(SnackbarData.SnackbarStatus.SHOW,
-                Color.RED,
-                Snackbar.LENGTH_INDEFINITE,
-                getResources().getString(R.string.disconnected)));
-    }
-
     public void stateLoading() {
 
         disableSelectCallerMediaButton();
@@ -1033,10 +1007,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             case AppStateManager.STATE_LOADING:
                 stateLoading();
-                break;
-
-            case AppStateManager.STATE_DISABLED:
-                stateDisabled();
                 break;
         }
     }

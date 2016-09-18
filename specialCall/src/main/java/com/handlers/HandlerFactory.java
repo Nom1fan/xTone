@@ -10,7 +10,6 @@ import com.handlers.background_broadcast_receiver.EventClearSuccessHandler;
 import com.handlers.background_broadcast_receiver.EventCompressingHandler;
 import com.handlers.background_broadcast_receiver.EventConnectedHandler;
 import com.handlers.background_broadcast_receiver.EventDestinationDownloadCompleteHandler;
-import com.handlers.background_broadcast_receiver.EventDisconnectedHandler;
 import com.handlers.background_broadcast_receiver.EventDisplayErrorHandler;
 import com.handlers.background_broadcast_receiver.EventDisplayMessageHandler;
 import com.handlers.background_broadcast_receiver.EventFetchingUserDataHandler;
@@ -69,7 +68,6 @@ public class HandlerFactory {
         put(EventType.REGISTER_FAILURE, EventRegisterFailureHandler.class);
         put(EventType.DESTINATION_DOWNLOAD_COMPLETE, EventDestinationDownloadCompleteHandler.class);
         put(EventType.CONNECTED, EventConnectedHandler.class);
-        put(EventType.DISCONNECTED, EventDisconnectedHandler.class);
         put(EventType.COMPRESSING, EventCompressingHandler.class);
         put(EventType.DISPLAY_ERROR, EventDisplayErrorHandler.class);
         put(EventType.DISPLAY_MESSAGE, EventDisplayMessageHandler.class);

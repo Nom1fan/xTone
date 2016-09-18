@@ -7,13 +7,7 @@ import android.net.NetworkInfo;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
-import com.app.AppStateManager;
-import com.services.LogicServerProxyService;
-import com.utils.BroadcastUtils;
 import com.utils.PendingDownloadsUtils;
-
-import EventObjects.EventReport;
-import EventObjects.EventType;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -41,23 +35,6 @@ public class ConnectivityBroadcastReceiver extends WakefulBroadcastReceiver {
         }
 
         log(Log.INFO,TAG, "Connectivity changed. Wifi=" + wifiConnected + ". Mobile=" + mobileConnected);
-
-        if (wifiConnected || mobileConnected) {
-
-            String appState = AppStateManager.getAppState(context);
-            log(Log.INFO,TAG, "App State:" +    appState);
-            if (AppStateManager.isBlockingState(appState)) {
-                log(Log.INFO,TAG, "Starting LogicServerProxyService...");
-                Intent i = new Intent(context, LogicServerProxyService.class);
-                i.setAction(LogicServerProxyService.ACTION_RESET_RECONNECT_INTERVAL);
-                context.startService(i);
-                i.setAction(LogicServerProxyService.ACTION_RECONNECT);
-                context.startService(i);
-            }
-        } else {
-            AppStateManager.setAppState(context, TAG, AppStateManager.STATE_DISABLED);
-            BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.DISCONNECTED));
-        }
     }
 
 }

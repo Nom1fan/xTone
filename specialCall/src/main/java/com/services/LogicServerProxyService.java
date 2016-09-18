@@ -5,19 +5,16 @@ import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.client.ConnectionToServer;
 import com.data_objects.Constants;
-import com.mediacallz.app.R;
 import com.utils.BroadcastUtils;
-import com.utils.SharedPrefUtils;
 import com.utils.SpecialDevicesUtils;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import ClientObjects.ConnectionToServer;
 import DataObjects.CallRecord;
 import DataObjects.DataKeys;
 import EventObjects.EventReport;
@@ -113,7 +110,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
                             case ACTION_REGISTER:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 int smsCode = intent.getIntExtra(SMS_CODE, 0);
-                                actionRegister(openSocket(), smsCode, data);
+                                actionRegister(openSocket(responseTypes.TYPE_MAP), smsCode, data);
                                 break;
 
 //                            case ACTION_UNREGISTER:
@@ -124,7 +121,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
                             case ACTION_GET_SMS_CODE:
                                 setMidAction(true);
                                 String interPhoneNumber = intent.getStringExtra(INTERNATIONAL_PHONE);
-                                actionGetSmsCode(openSocket(),
+                                actionGetSmsCode(openSocket(responseTypes.TYPE_EVENT_REPORT),
                                         Constants.MY_ID(getApplicationContext()), interPhoneNumber, data);
                                 break;
 
@@ -139,16 +136,6 @@ public class LogicServerProxyService extends AbstractServerProxy {
 //                                actionIsRegistered(openSocket(), destId, data);
 //                            }
 //                            break;
-
-                            case ACTION_RECONNECT:
-                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                reconnectIfNecessary();
-                                break;
-
-                            case ACTION_RESET_RECONNECT_INTERVAL:
-                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-                                SharedPrefUtils.setLong(getApplicationContext(), SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
-                                break;
 
 //                            case ACTION_INSERT_CALL_RECORD:
 //                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
@@ -213,10 +200,9 @@ public class LogicServerProxyService extends AbstractServerProxy {
 //    }
 
     private void actionGetSmsCode(ConnectionToServer connectionToServer, String localNumber, String interPhoneNumber, List<SimpleEntry> data) throws IOException {
-        URL url = new URL(URL_GET_SMS_AUTH);
         data.add(new SimpleEntry<>(DataKeys.INTERNATIONAL_PHONE_NUMBER.toString(), interPhoneNumber));
         data.add(new SimpleEntry<>(DataKeys.MESSAGE_INITIATER_ID.toString(), localNumber));
-        connectionToServer.sendToServer(url, data, RESPONSE_EVENT_REPORT);
+        connectionToServer.sendToServer(URL_GET_SMS_AUTH, data);
     }
 
 //    private void actionGetAppRecord(ConnectionToServer connectionToServer, HashMap<DataKeys, Object> data) throws IOException {
@@ -227,13 +213,12 @@ public class LogicServerProxyService extends AbstractServerProxy {
     private void actionRegister(ConnectionToServer connectionToServer, int smsCode, List<SimpleEntry> data) throws IOException {
 
         log(Log.INFO, TAG, "Initiating actionRegister sequence...");
-        URL url = new URL(URL_REGISTER);
         data.add(new SimpleEntry<>(DataKeys.DEVICE_MODEL, SpecialDevicesUtils.getDeviceName()));
         data.add(new SimpleEntry<>(DataKeys.ANDROID_VERSION, Build.VERSION.RELEASE));
         data.add(new SimpleEntry<>(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(this)));
         data.add(new SimpleEntry<>(DataKeys.SMS_CODE, smsCode));
 
-        connectionToServer.sendToServer(url, data, RESPONSE_MAP);
+        connectionToServer.sendToServer(URL_REGISTER, data);
 
     }
 
@@ -268,37 +253,5 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
         BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.LOGIC_ACTION_FAILURE));
     }
-    //endregion
-
-    //region Networking methods
-    private synchronized void reconnectIfNecessary() throws IOException {
-
-        if (isNetworkAvailable()) {
-                if(pingReceived()) {
-                    BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.CONNECTED, getResources().getString(R.string.connected)));
-                    cancelReconnect();
-                    SharedPrefUtils.setLong(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.RECONNECT_INTERVAL, INITIAL_RETRY_INTERVAL);
-                }
-                else
-                    scheduleReconnect(System.currentTimeMillis());
-
-        } else {
-            scheduleReconnect(System.currentTimeMillis());
-        }
-    }
-
-//    /**
-//     * Deals with disconnection and schedules a reconnect
-//     * This method is called by ConnectionToServer connectionException() method
-//     *
-//     * @param cts The connection to server that triggered this method
-//     * @param errMsg The error message to display in the log
-//     */
-//    @Override
-//    public void handleDisconnection(ConnectionToServer cts, String errMsg) {
-//        super.handleDisconnection(cts, errMsg);
-//
-//        scheduleReconnect(System.currentTimeMillis());
-//    }
     //endregion
 }
