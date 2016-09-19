@@ -1,7 +1,6 @@
 package com.actions;
 
 import java.io.IOException;
-import java.util.Map;
 
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -10,7 +9,7 @@ import MessagesToClient.ClientActionType;
 /**
  * Created by Mor on 27/04/2016.
  */
-public class ClientActionGetAppRecordRes extends ClientAction {
+public class ClientActionGetAppRecordRes extends ClientAction<Void> {
 
     public ClientActionGetAppRecordRes() {
         super(ClientActionType.GET_APP_RECORD_RES);
@@ -19,7 +18,7 @@ public class ClientActionGetAppRecordRes extends ClientAction {
     }
 
     @Override
-    public EventReport doClientAction(Map data) throws IOException {
+    public EventReport doClientAction(Void data) throws IOException {
 
         return new EventReport(EventType.APP_RECORD_RECEIVED, null, data);
     }

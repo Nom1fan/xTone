@@ -11,7 +11,7 @@ import MessagesToClient.ClientActionType;
 /**
  * Created by Mor on 27/04/2016.
  */
-public class ClientActionUpdateUserRecordRes extends ClientAction {
+public class ClientActionUpdateUserRecordRes extends ClientAction<Map<DataKeys,Object>> {
 
 
     public ClientActionUpdateUserRecordRes() {
@@ -19,7 +19,7 @@ public class ClientActionUpdateUserRecordRes extends ClientAction {
     }
 
     @Override
-    public EventReport doClientAction(Map data) throws IOException {
+    public EventReport doClientAction(Map<DataKeys,Object> data) throws IOException {
 
         boolean _isRegisterSuccess = (boolean) data.get(DataKeys.IS_UPDATE_SUCCESS);
 

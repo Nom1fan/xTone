@@ -11,16 +11,12 @@ import com.utils.BroadcastUtils;
 import com.utils.SpecialDevicesUtils;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import DataObjects.CallRecord;
 import DataObjects.DataKeys;
 import EventObjects.EventReport;
 import EventObjects.EventType;
-import MessagesToServer.MessageToServer;
-import MessagesToServer.ServerActionType;
 
 import static com.crashlytics.android.Crashlytics.log;
 import static java.util.AbstractMap.SimpleEntry;
@@ -130,12 +126,12 @@ public class LogicServerProxyService extends AbstractServerProxy {
 //                                actionGetAppRecord(openSocket(), data);
 //                                break;
 //
-//                            case ACTION_ISREGISTERED: {
-//                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-//                                String destId = intent.getStringExtra(DESTINATION_ID);
-//                                actionIsRegistered(openSocket(), destId, data);
-//                            }
-//                            break;
+                            case ACTION_ISREGISTERED: {
+                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
+                                String destId = intent.getStringExtra(DESTINATION_ID);
+                                actionIsRegistered(openSocket(responseTypes.TYPE_MAP), destId, data);
+                            }
+                            break;
 
 //                            case ACTION_INSERT_CALL_RECORD:
 //                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
@@ -186,18 +182,15 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
     //region Action methods
 
-//    /**
-//     * Enables to check if a destination number is logged-in/online
-//     *
-//     * @param destinationId - The number of whom to check is logged-in
-//     */
-//    private void actionIsRegistered(ConnectionToServer connectionToServer, String destinationId, HashMap<DataKeys, Object> data) throws IOException {
-//
-//        data.put(DataKeys.DESTINATION_ID, destinationId);
-//
-//        MessageToServer msgIsLogin = new MessageToServer(ServerActionType.IS_REGISTERED, Constants.MY_ID(this), data);
-//        connectionToServer.sendToServer(msgIsLogin);
-//    }
+    /**
+     * Enables to check if a destination number is logged-in/online
+     *
+     * @param destinationId - The number of whom to check is logged-in
+     */
+    private void actionIsRegistered(ConnectionToServer connectionToServer, String destinationId, List<SimpleEntry> data) throws IOException {
+        data.add(new SimpleEntry<>(DataKeys.DESTINATION_ID, destinationId));
+        connectionToServer.sendToServer(URL_ISREGISTERED, data);
+    }
 
     private void actionGetSmsCode(ConnectionToServer connectionToServer, String localNumber, String interPhoneNumber, List<SimpleEntry> data) throws IOException {
         data.add(new SimpleEntry<>(DataKeys.INTERNATIONAL_PHONE_NUMBER.toString(), interPhoneNumber));
@@ -231,14 +224,14 @@ public class LogicServerProxyService extends AbstractServerProxy {
 //        connectionToServer.sendToServer(msgUnregister);
 //    }
 
-    private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, CallRecord callRecordDBO, HashMap<DataKeys, Object> data) throws IOException {
-
-        log(Log.INFO, TAG, "Initiating actionInsertMediaCallRecord sequence...");
-        data.put(DataKeys.CALL_RECORD, callRecordDBO);
-
-        MessageToServer msgInsertMCrecord = new MessageToServer(ServerActionType.INSERT_MEDIA_CALL_RECORD, callRecordDBO.get_sourceId(), data);
-//        connectionToServer.sendToServer(msgInsertMCrecord);
-    }
+//    private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, CallRecord callRecordDBO, HashMap<DataKeys, Object> data) throws IOException {
+//
+//        log(Log.INFO, TAG, "Initiating actionInsertMediaCallRecord sequence...");
+//        data.put(DataKeys.CALL_RECORD, callRecordDBO);
+//
+//        MessageToServer msgInsertMCrecord = new MessageToServer(ServerActionType.INSERT_MEDIA_CALL_RECORD, callRecordDBO.get_sourceId(), data);
+////        connectionToServer.sendToServer(msgInsertMCrecord);
+//    }
 
 //    private void actionUpdateUserRecord(ConnectionToServer connectionToServer, HashMap<DataKeys, Object> data) throws IOException {
 //

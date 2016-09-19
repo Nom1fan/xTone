@@ -11,14 +11,14 @@ import MessagesToClient.ClientActionType;
 /**
  * Created by Mor on 27/04/2016.
  */
-public class ClientActionUnregisterRes extends ClientAction {
+public class ClientActionUnregisterRes extends ClientAction<Map<DataKeys,Object>> {
 
     public ClientActionUnregisterRes() {
         super(ClientActionType.UNREGISTER_RES);
     }
 
     @Override
-    public EventReport doClientAction(Map data) throws IOException {
+    public EventReport doClientAction(Map<DataKeys,Object> data) throws IOException {
 
         boolean isUnregisterSuccess = (boolean) data.get(DataKeys.IS_UNREGISTER_SUCCESS);
 

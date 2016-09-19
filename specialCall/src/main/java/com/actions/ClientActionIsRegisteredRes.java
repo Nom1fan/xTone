@@ -11,7 +11,7 @@ import MessagesToClient.ClientActionType;
 /**
  * Created by Mor on 27/04/2016.
  */
-public class ClientActionIsRegisteredRes extends ClientAction {
+public class ClientActionIsRegisteredRes extends ClientAction<Map<DataKeys,Object>> {
 
 
     public ClientActionIsRegisteredRes() {
@@ -19,7 +19,7 @@ public class ClientActionIsRegisteredRes extends ClientAction {
     }
 
     @Override
-    public EventReport doClientAction(Map data) throws IOException {
+    public EventReport doClientAction(Map<DataKeys,Object> data) throws IOException {
 
         boolean isRegistered = (boolean) data.get(DataKeys.IS_REGISTERED);
         String phone = (String) data.get(DataKeys.DESTINATION_ID);

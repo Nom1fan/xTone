@@ -17,14 +17,14 @@ import MessagesToClient.ClientActionType;
 /**
  * Created by Mor on 27/04/2016.
  */
-public class ClientActionDownloadFile extends ClientAction {
+public class ClientActionDownloadFile extends ClientAction<Map<DataKeys, Object>> {
 
     public ClientActionDownloadFile() {
         super(ClientActionType.DOWNLOAD_FILE);
     }
 
     @Override
-    public EventReport doClientAction(Map data) throws IOException {
+    public EventReport doClientAction(Map<DataKeys,Object> data) throws IOException {
 
         String sourceId = data.get(DataKeys.SOURCE_ID).toString();
         String fileName = data.get(DataKeys.SOURCE_WITH_EXTENSION).toString();

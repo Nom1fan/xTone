@@ -3,11 +3,6 @@ package com.client;
 
 import com.google.gson.Gson;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPostHC4;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -23,6 +18,10 @@ import java.net.URLEncoder;
 import java.util.List;
 
 import MessagesToClient.MessageToClient;
+import cz.msebera.android.httpclient.client.methods.CloseableHttpResponse;
+import cz.msebera.android.httpclient.client.methods.HttpPost;
+import cz.msebera.android.httpclient.impl.client.CloseableHttpClient;
+import cz.msebera.android.httpclient.impl.client.HttpClientBuilder;
 
 import static java.util.AbstractMap.SimpleEntry;
 
@@ -37,7 +36,7 @@ public class ConnectionToServer {
     private Gson gson;
     private HttpURLConnection conn;
     private CloseableHttpClient httpClient = null;
-    private HttpPostHC4 post;
+    private HttpPost post;
     private Type responseType;
 
     /**
@@ -66,7 +65,7 @@ public class ConnectionToServer {
         CloseableHttpResponse response = null;
         try {
             httpClient = HttpClientBuilder.create().build();
-            post = new HttpPostHC4(url);
+            post = new HttpPost(url);
             post.setEntity(progressiveEntity);
             response = httpClient.execute(post);
             BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));

@@ -25,11 +25,6 @@ import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
-
 import java.lang.reflect.Type;
 import java.util.Locale;
 
@@ -38,6 +33,10 @@ import EventObjects.EventReport;
 import EventObjects.EventType;
 import FilesManager.FileManager;
 import MessagesToClient.MessageToClient;
+import cz.msebera.android.httpclient.HttpEntity;
+import cz.msebera.android.httpclient.entity.mime.HttpMultipartMode;
+import cz.msebera.android.httpclient.entity.mime.MultipartEntityBuilder;
+import cz.msebera.android.httpclient.entity.mime.content.FileBody;
 
 import static com.crashlytics.android.Crashlytics.log;
 import static com.data_objects.KeysForBundle.DEST_ID;
@@ -197,7 +196,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
         builder.addPart("fileForUpload", fb);
         prepareDataForUpload(builder, bundle);
         HttpEntity httpEntity = builder.build();
-        return new ProgressiveEntity(httpEntity, fileForUpload.getFileSize(), this);
+        return new ProgressiveEntity(httpEntity, this);
     }
 
     private void prepareDataForUpload(MultipartEntityBuilder builder, Bundle bundle) {

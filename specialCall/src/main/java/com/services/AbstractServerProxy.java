@@ -45,7 +45,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
         public final Type TYPE_EVENT_REPORT = new TypeToken<MessageToClient<EventReport>>() {
         }.getType();
-        public final Type TYPE_MAP = new TypeToken<MessageToClient<Map>>() {
+        public final Type TYPE_MAP = new TypeToken<MessageToClient<Map<DataKeys,Object>>>() {
         }.getType();
     }
     protected ResponseTypes responseTypes = new ResponseTypes();
@@ -98,8 +98,12 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         cts.closeConnection();
         connections.remove(cts);
         if(isNetworkAvailable())
-            BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.LOADING_TIMEOUT));
+            sendLoadingTimeout();
 
+    }
+
+    private void sendLoadingTimeout() {
+        BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.LOADING_TIMEOUT));
     }
 
     //endregion
@@ -120,14 +124,8 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
 
         } catch (Exception e) {
             String errMsg = "Handling message from server failed. Reason:" + e.getMessage();
-            log(Log.ERROR,TAG, errMsg);
+            handleDisconnection(connectionToServer, errMsg);
         } finally {
-            try {
-                // Finished handling request-response transaction
-                connectionToServer.closeConnection();
-            } catch (Exception ignored) {
-            }
-            connections.remove(connectionToServer);
             releaseLockIfNecessary();
         }
     }

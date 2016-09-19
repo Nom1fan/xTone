@@ -1,24 +1,22 @@
 package com.client;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.HttpEntity;
 
 /**
  * Created by Mor on 17/09/2016.
  */
 public class ProgressiveEntity implements HttpEntity {
     private HttpEntity httpEntity;
-    private long fileSize;
     private ProgressListener progressListener;
 
-    public ProgressiveEntity(HttpEntity httpEntity, long fileSize, ProgressListener progressListener) {
+    public ProgressiveEntity(HttpEntity httpEntity, ProgressListener progressListener) {
         this.httpEntity = httpEntity;
-        this.fileSize = fileSize;
         this.progressListener = progressListener;
     }
 
@@ -97,24 +95,14 @@ public class ProgressiveEntity implements HttpEntity {
         } // CONSIDER import this class (and risk more Jar File Hell)
 
         class ProgressiveOutputStream extends ProxyOutputStream {
-            private long totalSent;
-            private int percentage;
-            private int lastPercentagePublished;
 
             private ProgressiveOutputStream(OutputStream proxy) {
                 super(proxy);
-                totalSent = 0;
             }
 
             public void write(byte[] bts, int st, int end) throws IOException {
-
                 out.write(bts, st, end);
-                totalSent += end;
-                percentage = ((int) ((totalSent / (float) fileSize) * 100));
-                if (percentage - lastPercentagePublished > 0) {
-                    progressListener.reportProgress(percentage);
-                    lastPercentagePublished = percentage;
-                }
+                progressListener.reportProgress(bts.length);
             }
         }
 

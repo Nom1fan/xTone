@@ -60,6 +60,7 @@ public class MediaCallzApp extends Application {
             if (AppStateManager.getAppState(context).equals("")) {
 
                 AppStateManager.setIsLoggedIn(this, false);
+                AppStateManager.setAppState(context, TAG, AppStateManager.STATE_IDLE);
 
                 //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
                 UI_Utils.makeActionOverflowMenuShown(context);

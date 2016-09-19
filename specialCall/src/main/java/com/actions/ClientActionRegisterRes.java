@@ -12,7 +12,7 @@ import MessagesToClient.ClientActionType;
 /**
  * Created by Mor on 27/04/2016.
  */
-public class ClientActionRegisterRes extends ClientAction {
+public class ClientActionRegisterRes extends ClientAction<Map<DataKeys,Object>> {
 
 
     public ClientActionRegisterRes() {
@@ -20,7 +20,7 @@ public class ClientActionRegisterRes extends ClientAction {
     }
 
     @Override
-    public EventReport doClientAction(Map data) throws IOException {
+    public EventReport doClientAction(Map<DataKeys,Object> data) throws IOException {
 
         boolean _isRegisterSuccess = (boolean) data.get(DataKeys.IS_REGISTER_SUCCESS);
         ResponseCodes resCode = (ResponseCodes) data.get(DataKeys.RESPONSE_CODE);
