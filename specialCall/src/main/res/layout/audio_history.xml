@@ -58,10 +58,11 @@
         android:src="@drawable/play_preview_anim"
         android:background="#004559"
         android:cropToPadding="true"
-        android:layout_above="@+id/imageButton2"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
         android:layout_marginBottom="20dp"
-        android:layout_alignParentBottom="true" />
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="120dp"
+        android:layout_marginRight="120dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -91,6 +92,21 @@
         android:layout_alignStart="@+id/audio_cancel_btn"
         android:layout_alignRight="@+id/audio_cancel_btn"
         android:layout_alignEnd="@+id/audio_cancel_btn" />
+
+ <ImageButton
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:id="@+id/DeleteBtn"
+     android:layout_gravity="bottom|right"
+     android:visibility="visible"
+     android:src="@drawable/delete_btn_anim"
+     android:background="#004559"
+     android:cropToPadding="true"
+     android:layout_alignBottom="@+id/audio_play_pause_btn"
+     android:layout_alignTop="@+id/audio_play_pause_btn"
+     android:layout_alignParentEnd="true"
+     android:layout_marginRight="120dp"
+     android:layout_marginLeft="120dp" />
 
 </RelativeLayout>
 

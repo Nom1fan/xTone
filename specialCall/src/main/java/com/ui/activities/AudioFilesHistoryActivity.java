@@ -2,12 +2,15 @@ package com.ui.activities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -51,6 +54,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
     private String mChosenAudioFile = "";
     private boolean oneTimeCheckBox;
     private ImageButton UploadBtn;
+    private ImageButton DeleteBtn;
     private ImageButton CancelBtn;
     private ImageButton PlayPauseBtn;
     private boolean isPreviewDisplaying = false;
@@ -89,7 +93,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
         CancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                log(Log.INFO, TAG, "choose Button Pressed");
+                log(Log.INFO, TAG, "choose CancelBtn Pressed");
                 finish();
 
             }
@@ -106,6 +110,84 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
                 }
             }
         });
+
+        DeleteBtn = (ImageButton) findViewById(R.id.DeleteBtn);
+        DeleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                log(Log.INFO, TAG, "choose Delete Pressed");
+
+
+                if (mChosenAudioFile.isEmpty()) {
+                    UI_Utils.callToast(getResources().getString(R.string.choose_audio_file), Color.WHITE, getApplicationContext());
+                    return;
+                }else {
+
+
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(AudioFilesHistoryActivity.this, R.style.AppTheme));
+                    builder.setTitle(AudioFilesHistoryActivity.this.getResources().getString(R.string.delete_file));
+                    builder.setMessage(AudioFilesHistoryActivity.this.getResources().getString(R.string.delete_file_are_u_sure))
+
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+
+                                    dialog.cancel();
+
+                                }
+                            })
+                            .setPositiveButton(AudioFilesHistoryActivity.this.getResources().getString(R.string.delete), new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+
+                                    deleteAudioFile();
+                                    prepareListViewData();
+                                    prepareListView();
+                                    displayListViewWithNewData();
+
+                                    mChosenAudioFile="";
+                                    log(Log.INFO,TAG , "delete audio file");
+                                }
+                            });
+
+                  AlertDialog DeleteDialog = builder.create();
+                  DeleteDialog.show();
+
+                }
+            }
+        });
+
+
+
+
+    }
+
+    private void deleteAudioFile() {
+
+
+
+        FileManager.FileType type = null;
+        FileManager audioFileSelected= null;
+        try {
+            audioFileSelected = new FileManager(mChosenAudioFile);
+            type = audioFileSelected.getFileType();
+        } catch (FileInvalidFormatException e) {
+            e.printStackTrace();
+        } catch (FileExceedsMaxSizeException e) {
+            e.printStackTrace();
+        } catch (FileDoesNotExistException e) {
+            e.printStackTrace();
+        } catch (FileMissingExtensionException e) {
+            e.printStackTrace();
+        }
+
+        if (type != FileManager.FileType.AUDIO) {
+            return;
+        }
+
+          log(Log.INFO, TAG, "Audio File that will be deleted: " + mChosenAudioFile);
+          audioFileSelected.delete();
+
+
+
     }
 
     private void stopAudioFile() {
