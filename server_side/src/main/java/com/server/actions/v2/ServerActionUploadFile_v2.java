@@ -1,6 +1,8 @@
 package com.server.actions.v2;
 
-import com.server.annotations.ServerActionAnno;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -15,7 +17,8 @@ import MessagesToServer.ServerActionType;
 /**
  * Created by Mor on 23/04/2016.
  */
-@ServerActionAnno(actionType = ServerActionType.UPLOAD_FILE_V2)
+@Component("UPLOAD_FILE_V2")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ServerActionUploadFile_v2 extends com.server.actions.v1.ServerActionUploadFile {
 
     public ServerActionUploadFile_v2() {

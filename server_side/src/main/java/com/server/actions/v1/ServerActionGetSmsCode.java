@@ -1,8 +1,11 @@
 package com.server.actions.v1;
 
 import com.server.actions.ServerAction;
-import com.server.annotations.ServerActionAnno;
 import com.server.lang.LangStrings;
+
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +21,8 @@ import utils.RandUtils;
 /**
  * Created by Mor on 23/04/2016.
  */
-@ServerActionAnno(actionType = ServerActionType.GET_SMS_CODE)
+@Component("GET_SMS_CODE")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ServerActionGetSmsCode extends ServerAction {
 
     private static final int MIN = 1000;

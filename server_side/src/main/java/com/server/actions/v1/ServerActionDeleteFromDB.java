@@ -1,5 +1,11 @@
 package com.server.actions.v1;
 
+import com.server.actions.ServerAction;
+
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
@@ -10,13 +16,12 @@ import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import com.server.actions.ServerAction;
-import com.server.annotations.ServerActionAnno;
 
 /**
  * Created by Mor on 18/06/2016.
  */
-@ServerActionAnno(actionType = ServerActionType.DELETE_FROM_DB)
+@Component("DELETE_FROM_DB")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ServerActionDeleteFromDB extends ServerAction {
 
     public ServerActionDeleteFromDB() {

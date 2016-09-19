@@ -1,7 +1,10 @@
 package com.server.actions.v1;
 
 import com.server.actions.ServerAction;
-import com.server.annotations.ServerActionAnno;
+
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -16,7 +19,8 @@ import MessagesToServer.ServerActionType;
 /**
  * Created by Mor on 23/04/2016.
  */
-@ServerActionAnno(actionType = ServerActionType.UPDATE_USER_RECORD)
+@Component("UPDATE_USER_RECORD")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ServerActionUpdateUserRecord extends ServerAction {
 
     public ServerActionUpdateUserRecord() {

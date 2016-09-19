@@ -2,20 +2,27 @@ package com.server.spring;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.server.actions.ActionFactory;
+import com.server.actions.ServerActionFactory;
 import com.server.database.DAO;
 import com.server.database.DaoFactory;
 import com.server.servers.GenericServer;
+import com.ui.MainFrame;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ServiceLocatorFactoryBean;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import DataObjects.SharedConstants;
+import Exceptions.NoSuchActionException;
 import LogObjects.LogsManager;
 
 /**
@@ -26,14 +33,25 @@ import LogObjects.LogsManager;
 public class SpringConfig {
 
     @Autowired
-    private ActionFactory actionFactory;
-
-    @Autowired
     private DaoFactory daoFactory;
 
     @Autowired
     private DAO dao;
 
+    @Bean
+    public ServiceLocatorFactoryBean getFactoryServiceLocatorFactoryBean()
+    {
+        ServiceLocatorFactoryBean bean = new ServiceLocatorFactoryBean();
+        bean.setServiceLocatorInterface(ServerActionFactory.class);
+        bean.setServiceLocatorExceptionClass(NoSuchActionException.class);
+        return bean;
+    }
+
+    @Bean
+    public ServerActionFactory getServerActionFactory()
+    {
+        return (ServerActionFactory) getFactoryServiceLocatorFactoryBean().getObject();
+    }
 
     @Bean
     public Logger logger() {
@@ -44,7 +62,8 @@ public class SpringConfig {
             e.printStackTrace();
         }
 
-        return LogsManager.get_serverLogger();
+        logger = LogsManager.get_serverLogger(logLevel);
+        return logger;
     }
 
     @Bean
@@ -56,7 +75,7 @@ public class SpringConfig {
     @Bean(name = "LogicServer")
     public GenericServer logicServer() {
         GenericServer server = new GenericServer("LogicServer", SharedConstants.LOGIC_SERVER_PORT);
-        server.setActionFactory(actionFactory);
+        server.setServerActionFactory(getServerActionFactory());
         server.setDao(dao);
         server.setLogger(logger());
 
@@ -66,10 +85,33 @@ public class SpringConfig {
     @Bean(name = "StorageServer")
     public GenericServer storageServer() {
         GenericServer server = new GenericServer("StorageServer", SharedConstants.STORAGE_SERVER_PORT);
-        server.setActionFactory(actionFactory);
+        server.setServerActionFactory(getServerActionFactory());
         server.setDao(dao);
         server.setLogger(logger());
 
         return server;
+    }
+
+
+    private static Map<String,Level> logLevelsMap = new HashMap<String,Level>() {{
+        put("DEBUG", Level.CONFIG);
+        put("CONFIG", Level.CONFIG);
+        put("INFO", Level.INFO);
+    }};
+    private static Logger logger;
+    private static Level logLevel = Level.INFO;
+
+    public static void main(String[] args) {
+        if(args.length > 0)
+            setLogLevel(args[0]);
+
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringConfig.class);
+        context.getBean(MainFrame.class);
+
+        logger.info("Log level:" + logger.getLevel());
+    }
+
+    private static void setLogLevel(String logLevel) {
+        SpringConfig.logLevel = logLevelsMap.get(logLevel.toUpperCase());
     }
 }

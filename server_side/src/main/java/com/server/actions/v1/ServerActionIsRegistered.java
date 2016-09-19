@@ -1,7 +1,10 @@
 package com.server.actions.v1;
 
 import com.server.actions.ServerAction;
-import com.server.annotations.ServerActionAnno;
+
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +17,8 @@ import MessagesToServer.ServerActionType;
 /**
  * Created by Mor on 23/04/2016.
  */
-@ServerActionAnno(actionType = ServerActionType.IS_REGISTERED)
+@Component("IS_REGISTERED")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ServerActionIsRegistered extends ServerAction {
 
     public ServerActionIsRegistered() {

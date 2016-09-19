@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -23,7 +24,7 @@ public abstract class LogsManager {
 	/**
 	 * @return The global server side logger
 	 */
-	public static Logger get_serverLogger() {
+	public static Logger get_serverLogger(Level logLevel) {
 		
 		if(_serverLogger ==null)
 		{
@@ -37,6 +38,7 @@ public abstract class LogsManager {
 				fh = new FileHandler(LOG_DIR +pattern, limit ,numLogFiles, true);
 				fh.setFormatter(new SingleLineFormatter());
 				_serverLogger.addHandler(fh);
+				_serverLogger.setLevel(logLevel);
 				_serverLogger.setUseParentHandlers(false);
 			}
 			catch (SecurityException | IOException e) {

@@ -1,6 +1,5 @@
 package com.server.actions;
 
-import com.server.annotations.ServerActionAnno;
 import com.server.database.DAO;
 import com.server.database.SmsVerificationAccess;
 import com.server.database.UserDataAccess;
@@ -27,7 +26,6 @@ import ServerObjects.ConnectionToClient;
 /**
  * Created by Mor on 23/04/2016.
  */
-@ServerActionAnno(actionType = ServerActionType.ABSTRACT)
 public abstract class ServerAction {
 
     @Autowired
@@ -55,7 +53,7 @@ public abstract class ServerAction {
     protected String messageInitiaterId;
     protected final HashMap<DataKeys, Object> replyData;
     private final ServerActionType serverActionType;
-    private final List<ServerActionType> preRegistrationActions = new LinkedList() {{
+    private final List<ServerActionType> preRegistrationActions = new LinkedList<ServerActionType>() {{
         add(ServerActionType.REGISTER);
         add(ServerActionType.GET_SMS_CODE);
         add(ServerActionType.GET_SMS_CODE_FOR_LOAD_TEST);

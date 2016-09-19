@@ -1,9 +1,12 @@
 package com.server.actions.v1;
 
 import com.server.actions.ServerAction;
-import com.server.annotations.ServerActionAnno;
 import com.server.database.SmsVerificationAccessImpl;
 import com.server.lang.ServerConstants;
+
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -17,7 +20,8 @@ import MessagesToServer.ServerActionType;
 /**
  * Created by Mor on 23/04/2016.
  */
-@ServerActionAnno(actionType = ServerActionType.REGISTER)
+@Component("REGISTER")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ServerActionRegister extends ServerAction {
 
     public ServerActionRegister() {

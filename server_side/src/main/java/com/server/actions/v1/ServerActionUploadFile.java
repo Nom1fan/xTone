@@ -1,10 +1,13 @@
 package com.server.actions.v1;
 
 import com.server.actions.ServerAction;
-import com.server.annotations.ServerActionAnno;
 import com.server.handlers.SpMediaPathHandler;
+import com.server.lang.LangStrings;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -17,7 +20,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 import DataObjects.DataKeys;
 import DataObjects.PushEventKeys;
@@ -28,12 +30,12 @@ import FilesManager.FileManager;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import com.server.lang.LangStrings;
 
 /**
  * Created by Mor on 23/04/2016.
  */
-@ServerActionAnno(actionType = ServerActionType.UPLOAD_FILE)
+@Component("UPLOAD_FILE")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ServerActionUploadFile extends ServerAction {
 
     protected String destId;

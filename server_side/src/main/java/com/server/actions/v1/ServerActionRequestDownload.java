@@ -1,9 +1,12 @@
 package com.server.actions.v1;
 
 import com.server.actions.ServerAction;
-import com.server.annotations.ServerActionAnno;
 import com.server.database.DAO;
 import com.server.lang.LangStrings;
+
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
@@ -26,7 +29,8 @@ import MessagesToServer.ServerActionType;
 /**
  * Created by Mor on 23/04/2016.
  */
-@ServerActionAnno(actionType = ServerActionType.REQUEST_DOWNLOAD)
+@Component("REQUEST_DOWNLOAD")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ServerActionRequestDownload extends ServerAction {
 
     private LangStrings strings;

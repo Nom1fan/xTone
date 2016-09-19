@@ -1,7 +1,7 @@
 package com.server.servers;
 
-import com.server.actions.ActionFactory;
 import com.server.actions.ServerAction;
+import com.server.actions.ServerActionFactory;
 import com.server.database.DAO;
 import com.server.lang.ServerConstants;
 
@@ -22,7 +22,7 @@ public class GenericServer extends AbstractServer {
 
     private Logger logger;
 
-    private ActionFactory actionFactory;
+    private ServerActionFactory serverActionFactory;
 
     private final String serverName;
 
@@ -66,7 +66,7 @@ public class GenericServer extends AbstractServer {
         try {
             String clientId = msg.get_messageInitiaterId();
             ctc.setInfo("id", clientId);
-            ServerAction serverAction = actionFactory.getAction(msg.getActionType());
+            ServerAction serverAction = serverActionFactory.getServerAction(msg.getActionType());
             serverAction.setMessageInitiaterId(clientId);
             serverAction.setClientConnection(ctc);
             serverAction.verifyUserRegistration();
@@ -136,7 +136,7 @@ public class GenericServer extends AbstractServer {
 
     @Override
     synchronized protected void clientConnected(ConnectionToClient client) {
-        logger.info("Client:" + client + " connected");
+        logger.config("Client:" + client + " connected");
     }
 
     @Override
@@ -186,7 +186,7 @@ public class GenericServer extends AbstractServer {
         this.dao = dao;
     }
 
-    public void setActionFactory(ActionFactory actionFactory) {
-        this.actionFactory = actionFactory;
+    public void setServerActionFactory(ServerActionFactory serverActionFactory) {
+        this.serverActionFactory = serverActionFactory;
     }
 }

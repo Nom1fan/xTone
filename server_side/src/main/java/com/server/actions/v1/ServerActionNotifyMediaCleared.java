@@ -1,7 +1,11 @@
 package com.server.actions.v1;
 
 import com.server.actions.ServerAction;
-import com.server.annotations.ServerActionAnno;
+import com.server.lang.LangStrings;
+
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -14,12 +18,12 @@ import EventObjects.EventType;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;
-import com.server.lang.LangStrings;
 
 /**
  * Created by Mor on 23/04/2016.
  */
-@ServerActionAnno(actionType = ServerActionType.NOTIFY_MEDIA_CLEARED)
+@Component("NOTIFY_MEDIA_CLEARED")
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ServerActionNotifyMediaCleared extends ServerAction {
 
     public ServerActionNotifyMediaCleared() {
