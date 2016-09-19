@@ -380,11 +380,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     getApplicationContext().getResources().getString(R.string.tip2_profile),
                     getApplicationContext().getResources().getString(R.string.tip3_block),
                     getApplicationContext().getResources().getString(R.string.tip4_image_audio_gif),
-                    getApplicationContext().getResources().getString(R.string.tip5_you_can_preview)
+                    getApplicationContext().getResources().getString(R.string.tip5_you_can_preview),
+                    getApplicationContext().getResources().getString(R.string.tip6_ask_before_show)
             };
 
             Random r = new Random();
-            tipsNum = r.nextInt(5);
+            tipsNum = r.nextInt(6);
 
             final int arrayLength = tipsCircularArray.length;
 

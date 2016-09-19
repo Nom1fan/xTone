@@ -60,6 +60,7 @@
     <string name="tip3_block"> ניתן לחסום אנשים מתפריט צדדי->מי רשאי לשלוח לי. או כאשר המדייה מופיעה, יש כפתור אדום לחסימה  </string>
     <string name="tip4_image_audio_gif"> ניתן להעלות תמונה + רינגטון ביחד ולחוד. תמונה יכולה להיות גם גיף </string>
     <string name="tip5_you_can_preview"> ניתן לראות מדייה שנשלחה. בחר איש קשר ולחץ על המדיה שנשלחה -> קדימון </string>
+    <string name="tip6_ask_before_show">בהגדרות ניתן להגדיר שבמהלך הצלצול נשאל אותך האם להראות את המדיה שנשלחה אלייך </string>
     <string name="cant_send_to_self">אופס! אינך יכול לבחור מדיה לעצמך!</string>
 
     <string name="file_invalid">אופס! קובץ או תיקייה לא חוקיים</string>

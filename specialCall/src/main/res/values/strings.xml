@@ -102,6 +102,7 @@
     <string name="tip3_block"> you can block contact media through menu->who can mc me.\n or when it shows, there is a red block button that blocks also. </string>
     <string name="tip4_image_audio_gif"> you can add audio +image together and Separately, image can be also GIF. </string>
     <string name="tip5_you_can_preview"> you can preview media you already sent. just choose contact, press on the media -> preview. </string>
+    <string name="tip6_ask_before_show"> in settings you can set that during the ring, you will be prompted whether to display the media that was sent </string>
 
     <!--  SelectMediaActivity  -->
     <string name="recording">Recording…</string>
