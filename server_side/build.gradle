@@ -7,7 +7,7 @@ task fatJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'Server Side Gradle Jar File',
                 'Implementation-Version': version,
-                'Main-Class': 'com.ui.MainFrame'
+                'Main-Class': 'com.server.spring.SpringConfig'
     }
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
