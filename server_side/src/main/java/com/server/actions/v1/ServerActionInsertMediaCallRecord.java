@@ -34,13 +34,14 @@ public class ServerActionInsertMediaCallRecord extends ServerAction {
     public void doAction(Map data) {
 
         CallRecord callRecord = (CallRecord) data.get(DataKeys.CALL_RECORD);
+        logger.info("Inserting call record" + callRecord.toString());
         try {
             dao.insertMediaCallRecord(callRecord);
         } catch (SQLException e) {
             e.printStackTrace();
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
-        HashMap<DataKeys, Object> replyData = new HashMap();
+        HashMap<DataKeys, Object> replyData = new HashMap<>();
         replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.NO_ACTION_REQUIRED));
         replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
     }
