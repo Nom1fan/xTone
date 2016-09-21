@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -52,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText _smsCodeVerEditText;
     private ImageButton _loginBtn;
     private ImageButton _getSmsCodeBtn;
+    private ImageView _loginlogo;
     private ProgressBar _initProgressBar;
     private TextView _initTextView;
     private GetSmsCodeTask _getSmsCodeTask;
@@ -135,12 +137,32 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.loginuser);
 
+        prepareLoginLogo();
         prepareLoginNumberEditText();
         prepareSmsCodeVerificationEditText();
         prepareLoginButton();
         prepareInitTextView();
         prepareInitProgressBar();
         prepareGetSmsCodeButton();
+
+    }
+
+    private void prepareLoginLogo() {
+
+        _loginlogo = (ImageView) findViewById(R.id.loginlogo);
+        _loginlogo.setEnabled(true);
+
+        _loginlogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                _loginBtn.setVisibility(View.VISIBLE);
+                _smsCodeVerEditText.setVisibility(View.VISIBLE);
+                _clearLoginSmsText.setVisibility(View.VISIBLE);
+
+            }
+        });
+
 
     }
 
@@ -163,6 +185,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 _loginNumberEditText.setText("");
+
+                _loginBtn.setVisibility(View.INVISIBLE);
+                _smsCodeVerEditText.setVisibility(View.INVISIBLE);
+                _clearLoginSmsText.setVisibility(View.INVISIBLE);
+
             }
         });
 
@@ -186,7 +213,13 @@ public class LoginActivity extends AppCompatActivity {
                             enableSmsCodeEditText();
 
                             if (4 == _smsCodeVerEditText.getText().toString().length())
+                            {
                                 enableLoginButton();
+                                _loginBtn.setVisibility(View.VISIBLE);
+                                _smsCodeVerEditText.setVisibility(View.VISIBLE);
+                                _clearLoginSmsText.setVisibility(View.VISIBLE);
+
+                            }
                         }
                     }
                 } else {
@@ -245,6 +278,10 @@ public class LoginActivity extends AppCompatActivity {
 
                 String phoneNumber = _loginNumberEditText.getText().toString();
                 getSms(phoneNumber);
+
+                _loginBtn.setVisibility(View.VISIBLE);
+                _smsCodeVerEditText.setVisibility(View.VISIBLE);
+                _clearLoginSmsText.setVisibility(View.VISIBLE);
             }
         });
         disableGetSmsCodeButton();

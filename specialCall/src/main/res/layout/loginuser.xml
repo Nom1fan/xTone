@@ -29,7 +29,8 @@
         android:src="@drawable/login_icon"
         android:layout_marginBottom="20dp"
         android:background="#00ffffff"
-        android:clickable="true" />
+        android:clickable="true"
+        android:visibility="invisible" />
 
     <EditText
         android:id="@+id/SMSCodeEditText"
@@ -50,7 +51,8 @@
         android:layout_alignLeft="@+id/LoginNumber"
         android:layout_alignStart="@+id/LoginNumber"
         android:layout_toLeftOf="@+id/login_phone_clear"
-        android:layout_toStartOf="@+id/login_phone_clear" />
+        android:layout_toStartOf="@+id/login_phone_clear"
+        android:visibility="invisible" />
 
     <EditText
         android:id="@+id/LoginNumber"
@@ -148,7 +150,8 @@
         android:layout_alignTop="@+id/SMSCodeEditText"
         android:layout_alignLeft="@+id/login_phone_clear"
         android:layout_alignStart="@+id/login_phone_clear"
-        android:layout_above="@+id/login_btn" />
+        android:layout_above="@+id/login_btn"
+        android:visibility="invisible" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -170,6 +173,7 @@
         android:layout_below="@+id/SMSCodeEditText"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:textColor="#ffffff" />
+        android:textColor="#ffffff"
+        android:visibility="invisible" />
 
 </RelativeLayout>
