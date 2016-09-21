@@ -145,6 +145,17 @@ public class LoginActivity extends AppCompatActivity {
         prepareInitProgressBar();
         prepareGetSmsCodeButton();
 
+        if (10 == SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER).length())
+        {
+           visibleSmsButtons();
+        }
+
+    }
+
+    private void visibleSmsButtons() {
+        _loginBtn.setVisibility(View.VISIBLE);
+        _smsCodeVerEditText.setVisibility(View.VISIBLE);
+        _clearLoginSmsText.setVisibility(View.VISIBLE);
     }
 
     private void prepareLoginLogo() {
@@ -156,9 +167,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                _loginBtn.setVisibility(View.VISIBLE);
-                _smsCodeVerEditText.setVisibility(View.VISIBLE);
-                _clearLoginSmsText.setVisibility(View.VISIBLE);
+               visibleSmsButtons();
 
             }
         });
@@ -186,9 +195,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 _loginNumberEditText.setText("");
 
-                _loginBtn.setVisibility(View.INVISIBLE);
-                _smsCodeVerEditText.setVisibility(View.INVISIBLE);
-                _clearLoginSmsText.setVisibility(View.INVISIBLE);
+              invisibleSmsButtons();
 
             }
         });
@@ -215,9 +222,7 @@ public class LoginActivity extends AppCompatActivity {
                             if (4 == _smsCodeVerEditText.getText().toString().length())
                             {
                                 enableLoginButton();
-                                _loginBtn.setVisibility(View.VISIBLE);
-                                _smsCodeVerEditText.setVisibility(View.VISIBLE);
-                                _clearLoginSmsText.setVisibility(View.VISIBLE);
+                               visibleSmsButtons();
 
                             }
                         }
@@ -235,6 +240,12 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
         enableLoginEditText();
+    }
+
+    private void invisibleSmsButtons() {
+        _loginBtn.setVisibility(View.INVISIBLE);
+        _smsCodeVerEditText.setVisibility(View.INVISIBLE);
+        _clearLoginSmsText.setVisibility(View.INVISIBLE);
     }
 
     private void prepareLoginButton() {
@@ -279,9 +290,7 @@ public class LoginActivity extends AppCompatActivity {
                 String phoneNumber = _loginNumberEditText.getText().toString();
                 getSms(phoneNumber);
 
-                _loginBtn.setVisibility(View.VISIBLE);
-                _smsCodeVerEditText.setVisibility(View.VISIBLE);
-                _clearLoginSmsText.setVisibility(View.VISIBLE);
+               visibleSmsButtons();
             }
         });
         disableGetSmsCodeButton();
@@ -469,6 +478,11 @@ public class LoginActivity extends AppCompatActivity {
                 syncUIwithAppState();
                 saveInstanceState();
                 restoreInstanceState();
+                if(10 == _loginNumberEditText.getText().length() && 4 == _smsCodeVerEditText.getText().length()) {
+                    visibleSmsButtons();
+                    _loginBtn.performClick();
+
+                }
                 break;
 
             default: // Event not meant for LoginActivity receiver
