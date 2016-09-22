@@ -563,13 +563,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             launchDialer(destPhoneNumber);
 
-        } else if (id == R.id.selectMediaBtn) {
+        } else if (id == R.id.selectMediaBtn || id == R.id.callerArrow) {
             if (callerHasMedia || callerHasRingtone)
                 openCallerMediaMenu();
             else
                 selectMedia(SpecialMediaType.CALLER_MEDIA);
 
-        } else if (id == R.id.selectProfileMediaBtn) {
+        } else if (id == R.id.selectProfileMediaBtn || id == R.id.profileArrow) {
 
             if (profileHasMedia || profileHasRingtone)
                 openProfileMediaMenu();
@@ -1089,7 +1089,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         selectMediaBtn_textview = (TextView) findViewById(R.id.media_textview);
         selectMediaBtn_textview2 = (TextView) findViewById(R.id.caller_textview2);
+
         caller_arrow = (ImageView)findViewById(R.id.callerArrow);
+        if (caller_arrow != null)
+            caller_arrow.setOnClickListener(this);
 
     }
 
@@ -1110,6 +1113,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         profile_textview = (TextView) findViewById(R.id.profile_textview);
         profile_textview2 = (TextView) findViewById(R.id.profile_textview2);
         profile_arrow = (ImageView) findViewById(R.id.profileArrow);
+        if (profile_arrow != null)
+            profile_arrow.setOnClickListener(this);
 
     }
 
@@ -1389,6 +1394,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     .playOn(findViewById(R.id.ringtoneName));
 
           selectMediaBtn.setClickable(false);
+            caller_arrow.setClickable(false);
         } else {
             selectMediaBtn.setVisibility(View.INVISIBLE);
             caller_arrow.setVisibility(View.INVISIBLE);
@@ -1406,6 +1412,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void disableSelectProfileMediaButton() {
 
         defaultpic_enabled.setClickable(false);
+        profile_arrow.setClickable(false);
         drawSelectProfileMediaButton(false);
 
         profile_textview.setVisibility(View.INVISIBLE);
@@ -1421,6 +1428,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void enableSelectMediaButton() {
 
         selectMediaBtn.setClickable(true);
+        caller_arrow.setClickable(true);
         drawSelectMediaButton(true);
         selectMediaBtn.setVisibility(View.VISIBLE);
         selectMediaBtn_textview.setVisibility(View.VISIBLE);
@@ -1456,6 +1464,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void enableSelectProfileMediaButton() {
 
         defaultpic_enabled.setClickable(true);
+        profile_arrow.setClickable(true);
         profile_textview.setVisibility(View.VISIBLE);
         profile_textview2.setVisibility(View.VISIBLE);
         profile_arrow.setVisibility(View.VISIBLE);

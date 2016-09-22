@@ -156,26 +156,30 @@
         android:layout_centerHorizontal="true" />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:id="@+id/callerArrow"
         android:layout_alignTop="@+id/selectMediaBtn"
         android:layout_alignBottom="@+id/selectMediaBtn"
-        android:src="@drawable/outgoing_arrow"
+        android:src="@drawable/caller_arrow_anim"
         android:layout_alignLeft="@+id/profileArrow"
         android:layout_alignRight="@+id/profileArrow"
-        android:layout_toLeftOf="@+id/selectMediaBtn" />
+        android:layout_toLeftOf="@+id/selectMediaBtn"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp" />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:id="@+id/profileArrow"
         android:layout_alignTop="@+id/selectProfileMediaBtn"
         android:layout_alignBottom="@+id/selectProfileMediaBtn"
-        android:src="@drawable/incoming_arrow"
+        android:src="@drawable/profile_arrow_anim"
         android:layout_alignParentLeft="true"
         android:layout_toLeftOf="@+id/selectProfileMediaBtn"
-        android:layout_marginLeft="30dp" />
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp" />
 
     <AutoCompleteTextView
         android:id="@+id/CallNumber"

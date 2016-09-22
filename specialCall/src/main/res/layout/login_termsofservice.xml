@@ -10,10 +10,11 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:id="@+id/loginlogo"
-        android:src="@drawable/select_profile_media_enabled"
+        android:src="@drawable/color_mc"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="false" />
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentRight="false"
+        android:layout_centerHorizontal="true" />
 
     <RelativeLayout
         android:layout_width="match_parent"
