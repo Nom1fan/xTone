@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar _initProgressBar;
     private TextView _initTextView;
     private GetSmsCodeTask _getSmsCodeTask;
-
+    private  static boolean  _sentFromReceiver=false;
     private ImageButton _clearLoginPhoneText;
     private ImageButton _clearLoginSmsText;
     //endregion
@@ -478,9 +478,10 @@ public class LoginActivity extends AppCompatActivity {
                 syncUIwithAppState();
                 saveInstanceState();
                 restoreInstanceState();
-                if(10 == _loginNumberEditText.getText().length() && 4 == _smsCodeVerEditText.getText().length()) {
+                if(10 == _loginNumberEditText.getText().length() && 4 == _smsCodeVerEditText.getText().length() && _sentFromReceiver) {
                     visibleSmsButtons();
                     _loginBtn.performClick();
+                    _sentFromReceiver=false;
 
                 }
                 break;
@@ -513,6 +514,7 @@ public class LoginActivity extends AppCompatActivity {
                         if (phoneNumber.toLowerCase().contains("mediacallz")) {
                             SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE, PhoneNumberUtils.toNumeric(message));
                             SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE_RECEIVED, true);
+                            _sentFromReceiver=true;
                             BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, null, null));
                         }
                     } // end for loop

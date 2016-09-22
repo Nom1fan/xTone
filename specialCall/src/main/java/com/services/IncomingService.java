@@ -287,7 +287,7 @@ public class IncomingService extends AbstractStandOutService {
         //     ((ImageView)mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_XY); STRECTH IMAGE ON FULL SCREEN <<< NOT SURE IT's GOOD !!!!!
         ((ImageView) mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_CENTER); // <<  just place the image Center of Window and fit it with ratio
 
-        ((ImageView) mSpecialCallView).setImageResource(R.drawable.color_mc_anim);
+        ((ImageView) mSpecialCallView).setImageResource(R.drawable.profile_media_anim);
 
         mSpecialCallView.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {

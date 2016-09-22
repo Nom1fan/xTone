@@ -1548,7 +1548,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 if (!lastUploadedMediaPath.equals("")) {
                     fType = FileManager.getFileType(lastUploadedMediaPath);
 
-                    BitmapUtils.execBitMapWorkerTask(selectMediaBtn, fType, lastUploadedMediaPath, false);
+                    BitmapUtils.execBitMapWorkerTask(selectMediaBtn, fType, lastUploadedMediaPath, true);
 
                     enableMediaStatusArrived();
                     // stretch the uploaded image as it won't stretch because we use a drawable instead that we don't want to stretch

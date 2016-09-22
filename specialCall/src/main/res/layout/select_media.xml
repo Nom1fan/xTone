@@ -72,9 +72,8 @@
         android:layout_below="@+id/image_video_textview"
         android:background="#00ffffff"
         android:layout_marginTop="20dp"
-        android:layout_toRightOf="@+id/selectMediaType"
-        android:layout_toLeftOf="@+id/mc_icon"
-        android:layout_toEndOf="@+id/mc_icon" />
+        android:layout_alignStart="@+id/selectVideo"
+        android:layout_alignEnd="@+id/selectImage" />
 
     <ImageButton
         android:layout_width="wrap_content"
@@ -101,9 +100,10 @@
         android:layout_below="@+id/recordVideo"
         android:background="#00ffffff"
         android:layout_marginTop="20dp"
-        android:layout_toLeftOf="@+id/mc_icon"
         android:layout_alignLeft="@+id/recordVideo"
-        android:layout_alignEnd="@+id/recordVideo" />
+        android:layout_alignEnd="@+id/recordVideo"
+        android:layout_alignStart="@+id/audio"
+        android:layout_alignRight="@+id/recordVideo" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -134,12 +134,11 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:id="@+id/mc_icon"
-        android:src="@drawable/select_profile_media_enabled"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentStart="true"
+        android:src="@drawable/color_mc"
+        android:layout_alignParentStart="false"
         android:clickable="true"
-        android:layout_alignParentLeft="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true" />
 
     <TextView
         android:layout_width="wrap_content"
