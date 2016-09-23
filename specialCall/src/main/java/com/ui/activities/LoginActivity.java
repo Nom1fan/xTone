@@ -210,6 +210,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
+                if (0 == s.length())
+                    _clearLoginPhoneText.setImageResource(0);
+                else
+                    _clearLoginPhoneText.setImageResource(R.drawable.clear_btn_anim);
+
                 if (10 == s.length()) {
 
                     if (PhoneNumberUtils.isValidPhoneNumber(s.toString())) {
@@ -315,6 +320,11 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                if (0 == s.length())
+                    _clearLoginSmsText.setImageResource(0);
+                else
+                    _clearLoginSmsText.setImageResource(R.drawable.clear_btn_anim);
 
                 if (4 == s.length()) {
                     enableLoginButton();
