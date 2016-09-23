@@ -120,8 +120,8 @@
         android:layout_alignParentRight="true"
         android:textSize="35dp"
         android:fontFamily="sans-serif"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
         android:layout_marginTop="10dp"
         android:textColor="#ffffff" />
 
