@@ -344,11 +344,13 @@ public class LoginActivity extends AppCompatActivity {
     private void enableProgressBar() {
 
         _initProgressBar.setVisibility(ProgressBar.VISIBLE);
+        _loginlogo.setVisibility(View.INVISIBLE);
     }
 
     private void disableProgressBar() {
 
         _initProgressBar.setVisibility(ProgressBar.GONE);
+        _loginlogo.setVisibility(View.VISIBLE);
     }
 
     private void setInitTextView(String str) {
