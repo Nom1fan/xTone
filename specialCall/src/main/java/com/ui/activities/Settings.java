@@ -1,8 +1,5 @@
 package com.ui.activities;
 
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -10,16 +7,9 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.util.Log;
 
-import com.data_objects.Constants;
 import com.mediacallz.app.R;
 import com.ui.dialogs.DeleteAccountDialog;
 import com.utils.SharedPrefUtils;
-import com.utils.SpecialDevicesUtils;
-
-import java.io.File;
-import java.io.IOException;
-
-import DataObjects.SharedConstants;
 
 import static com.crashlytics.android.Crashlytics.log;
 

@@ -29,9 +29,9 @@ public class ActionFactory {
         switch(clientActionType) {
 
 
-            case DOWNLOAD_FILE:
-                resultClientAction = new ClientActionDownloadFile();
-                break;
+//            case DOWNLOAD_FILE:
+//                resultClientAction = new ClientActionDownloadFile();
+//                break;
             case GET_APP_RECORD_RES:
                 resultClientAction = new ClientActionGetAppRecordRes();
                 break;

@@ -9,37 +9,61 @@ import com.utils.SharedPrefUtils;
 
 import java.io.File;
 
-import DataObjects.SharedConstants;
-
 public abstract class Constants {
 
     private static final String TAG = Constants.class.getSimpleName();
-    public static final String SERVER_HOST = "server.mediacallz.com";
-    public static final int SERVER_PORT = 8080;
+
+    //region App
+    public static final String APP_NAME = "MediaCallz";
 
     public static double APP_VERSION() {
         return Double.valueOf(BuildConfig.VERSION_NAME);
     }
 
-    // Constants for Batch
+    public static String MY_ID(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER); }
+    public static void MY_ID(Context context, String number) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, number); }
+
+    // Android version upon register, and then used to sync with server after every upgrade
+    public static String MY_ANDROID_VERSION(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ANDROID_VERSION); }
+    public static void MY_ANDROID_VERSION(Context context, String androidVersion) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ANDROID_VERSION, androidVersion); }
+    //endregion
+
+    //region Connection to server
+    public static final String SERVER_HOST = "5.29.242.61";
+    public static final int SERVER_PORT = 8080;
+    //endregion
+
+    //region Batch
     public static final String GCM_SENDER_ID = "817954308887";
+    public static final String LIVE_API_KEY = "56B47A2D7AF8834E6D36C9CBC3F32E";
+    public static final String DEV_API_KEY = "DEV56B47A2D7D7E553A410B64C489D";
 
-    // Constants for Website
+    public static String MY_BATCH_TOKEN(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN); }
+    public static void MY_BATCH_TOKEN(Context context, String token) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN, token); }
+    //endregion
+
+    //region Website
     public static final String TERMS_AND_PRIVACY_URL = "http://www.mediacallz.com/terms-of-service---privacy-policy.html";
+    //endregion
 
-    private static final String INCOMING_FOLDER_NAME = "Incoming_" + SharedConstants.APP_NAME;
-    private static final String OUTGOING_FOLDER_NAME = "Outgoing_" + SharedConstants.APP_NAME;
-    private static final String COMP_FOLDER_NAME = SharedConstants.APP_NAME + "_Compressed";
-    private static final String HISTORY_FOLDER_NAME = SharedConstants.APP_NAME +"_History";
+    //region Folder names
+    private static final String INCOMING_FOLDER_NAME = "Incoming_" + APP_NAME;
+    private static final String OUTGOING_FOLDER_NAME = "Outgoing_" + APP_NAME;
+    private static final String COMP_FOLDER_NAME = APP_NAME + "_Compressed";
+    private static final String HISTORY_FOLDER_NAME = APP_NAME +"_History";
     private static final String AUDIO_FOLDER_NAME = "AudioHistory";
-    public static final String ROOT_FOLDER = setRootFolder();
+    //endregion
+
+    //region Folder paths
     public static final String INCOMING_FOLDER = getIncomingFolder();
     public static final String OUTGOING_FOLDER = getOutgoingFolder();
     public static final String AUDIO_HISTORY_FOLDER = getAudioHistoryFolder();
-
-
+    public static final String ROOT_FOLDER = getRootFolder();
     public static final String COMPRESSED_FOLDER = getFolderForCompression();
     public static final String HISTORY_FOLDER = getHistoryFolderForCompression();
+    //endregion
+
+    //region Content Store
     public static final String STORE_URL = "http://server.mediacallz.com/ContentStore/files/";
     public static final String IMAGE_LIB_URL = STORE_URL + "Image/";
     public static final String GIF_LIB_URL = STORE_URL + "Gif/";
@@ -47,23 +71,14 @@ public abstract class Constants {
     public static final String AUDIO_THUMBS_URL = STORE_URL + "Audio/Thumbnails/";
     public static final String VIDEO_LIB_URL = STORE_URL + "Video/";
     public static final String VIDEO_THUMBS_URL = STORE_URL + "Video/Thumbnails/";
+    //endregion
 
-    public static String MY_ID(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER); }
-    public static void MY_ID(Context context, String number) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, number); }
-
-    public static String MY_BATCH_TOKEN(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN); }
-    public static void MY_BATCH_TOKEN(Context context, String token) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN, token); }
-
-    // Android version upon register, and then used to sync with server after every upgrade
-    public static String MY_ANDROID_VERSION(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ANDROID_VERSION); }
-    public static void MY_ANDROID_VERSION(Context context, String androidVersion) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ANDROID_VERSION, androidVersion); }
-
+    //region Getters
     private static String getIncomingFolder() {
 
         String path = ROOT_FOLDER + INCOMING_FOLDER_NAME + "/";
         File incomingFolder = new File(path);
         incomingFolder.mkdirs();
-        SharedConstants.INCOMING_FOLDER = path;
         return path;
     }
 
@@ -72,7 +87,6 @@ public abstract class Constants {
         String path = ROOT_FOLDER + OUTGOING_FOLDER_NAME + "/";
         File outgoingFolder = new File(path);
         outgoingFolder.mkdirs();
-        SharedConstants.OUTGOING_FOLDER = path;
         return path;
     }
 
@@ -99,21 +113,20 @@ public abstract class Constants {
         return path;
     }
 
-    private static String setRootFolder() {
+    private static String getRootFolder() {
 
-        String path = Environment.getExternalStorageDirectory() + "/" + SharedConstants.APP_NAME + "/";
+        String path = Environment.getExternalStorageDirectory() + "/" + APP_NAME + "/";
         File rootFolder = new File(path);
         rootFolder.mkdirs();
-        SharedConstants.ROOT_FOLDER = path;
         return path;
     }
+    //endregion
 
+    //region Perhaps unnecessary shit
     public static class Extra {
         public static final String FRAGMENT_INDEX = "FRAGMENT_INDEX";
         public static final String MEDIA_POSITION = "MEDIA_POSITION";
     }
-
-    //region Perhaps unnecessary shit
     public static final String[] IMAGES = new String[] {
             // Heavy images
             "https://lh6.googleusercontent.com/-55osAWw3x0Q/URquUtcFr5I/AAAAAAAAAbs/rWlj1RUKrYI/s1024/A%252520Photographer.jpg",

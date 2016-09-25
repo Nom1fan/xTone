@@ -185,7 +185,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     protected List<SimpleEntry> getDefaultMessageData() {
         List<SimpleEntry> data = new LinkedList<>();
         data.add(new SimpleEntry<>(DataKeys.MESSAGE_INITIATER_ID, Constants.MY_ID(this)));
-        data.add(new SimpleEntry<>(DataKeys.APP_VERSION.toString(), Constants.APP_VERSION()));
+        data.add(new SimpleEntry<>(DataKeys.APP_VERSION, Constants.APP_VERSION()));
         return data;
     }
 

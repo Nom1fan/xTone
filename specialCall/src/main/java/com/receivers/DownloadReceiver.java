@@ -1,11 +1,8 @@
 package com.receivers;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -25,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import DataObjects.DataKeys;
-import DataObjects.SharedConstants;
 import DataObjects.SpecialMediaType;
 import EventObjects.Event;
 import EventObjects.EventReport;

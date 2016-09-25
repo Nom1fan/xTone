@@ -1,10 +1,16 @@
 package com.client;
 
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -15,17 +21,21 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.List;
 
 import MessagesToClient.MessageToClient;
-import cz.msebera.android.httpclient.client.methods.CloseableHttpResponse;
+import cz.msebera.android.httpclient.HttpResponse;
+import cz.msebera.android.httpclient.client.HttpClient;
 import cz.msebera.android.httpclient.client.methods.HttpPost;
-import cz.msebera.android.httpclient.impl.client.CloseableHttpClient;
 import cz.msebera.android.httpclient.impl.client.HttpClientBuilder;
 
+import static com.crashlytics.android.Crashlytics.log;
 import static java.util.AbstractMap.SimpleEntry;
 
 public class ConnectionToServer {
+
+    private static final String TAG = ConnectionToServer.class.getSimpleName();
 
     private static final int READ_TIMEOUT = 10000;
     private static final int CONNECT_TIMEOUT = 15000;
@@ -35,8 +45,6 @@ public class ConnectionToServer {
     private IServerProxy serverProxy;
     private Gson gson;
     private HttpURLConnection conn;
-    private CloseableHttpClient httpClient = null;
-    private HttpPost post;
     private Type responseType;
 
     /**
@@ -62,31 +70,82 @@ public class ConnectionToServer {
     }
 
     public void sendMultipartToServer(String url, ProgressiveEntity progressiveEntity) {
-        CloseableHttpResponse response = null;
+
+        HttpPost post = null;
         try {
-            httpClient = HttpClientBuilder.create().build();
+            HttpClient client = HttpClientBuilder.create().build();
             post = new HttpPost(url);
             post.setEntity(progressiveEntity);
-            response = httpClient.execute(post);
+            HttpResponse response = client.execute(post);
             BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
             String responseMessage = br.readLine();
             MessageToClient msg = extractResponse(responseMessage);
             serverProxy.handleMessageFromServer(msg, this);
-
         } catch (IOException e) {
             connectionException(e);
         } finally {
-            if(httpClient!=null) {
-                try {
-                    httpClient.close();
-                } catch (IOException ignored) {}
-            }
-            if(response!=null) {
-                try {
-                    response.close();
-                } catch (IOException ignored) {}
-            }
+            if(post!=null)
+                post.releaseConnection();
+
         }
+    }
+
+    public void download(String url, String pathToDownload, String fileName, long fileSize ,List<SimpleEntry> data) {
+
+        BufferedOutputStream bos = null;
+        try
+        {
+            sendRequest(url, data);
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+
+                // Creating file and directories for downloaded file
+                File newDir = new File(pathToDownload);
+                newDir.mkdirs();
+                String downloadFilePath = pathToDownload + fileName;
+                File newFile = new File(downloadFilePath);
+                newFile.createNewFile();
+
+                FileOutputStream fos = new FileOutputStream(newFile);
+                bos = new BufferedOutputStream(fos);
+                DataInputStream dis = new DataInputStream(conn.getInputStream());
+
+                System.out.println("Reading data...");
+                byte[] buf = new byte[1024 * 8];
+                long fileSizeConst = fileSize;
+                int bytesRead;
+                Double progPercent, prevProgPercent = 0.0;
+
+                while (fileSize > 0 && (bytesRead = dis.read(buf, 0, (int) Math.min(buf.length, fileSize))) != -1) {
+                    bos.write(buf, 0, bytesRead);
+                    progPercent = calcProgressPercentage(fileSize, fileSizeConst);
+                    if(progPercent - prevProgPercent >= 1) {
+                        publishProgress(progPercent);
+                        prevProgPercent = progPercent;
+                    }
+                    fileSize -= bytesRead;
+                }
+                if (fileSize > 0)
+                    throw new IOException("download was stopped abruptly");
+            }
+            else
+                log(Log.ERROR, TAG, "Download failed. Response code:" + responseCode);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(bos!=null)
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            closeConnection();
+        }
+    }
+
+    public HttpURLConnection getConnection() {
+        return conn;
     }
 
     private void sendRequest(String url, List<SimpleEntry> params) throws IOException {
@@ -121,15 +180,7 @@ public class ConnectionToServer {
     }
 
     public void closeConnection() {
-        if(conn!=null)
-            conn.disconnect();
-        if(httpClient!=null) {
-            try {
-                httpClient.close();
-                if(!post.isAborted())
-                    post.abort();
-            } catch (IOException ignored) {}
-        }
+        conn.disconnect();
     }
 
     private void connectionException(Exception e) {
@@ -162,7 +213,12 @@ public class ConnectionToServer {
         return gson.fromJson(resJson, responseType);
     }
 
-    public HttpURLConnection getConnection() {
-        return conn;
+    private void publishProgress(double progPercent) {
+        System.out.println("Download progress:" + new DecimalFormat("#").format(progPercent) + "%");
+    }
+
+    private double calcProgressPercentage(long fileSize, long fileSizeConst) {
+
+        return ((fileSizeConst - fileSize) / (double) fileSizeConst) * 100;
     }
 }

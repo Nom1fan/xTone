@@ -15,8 +15,6 @@ import com.utils.SpecialDevicesUtils;
 import java.io.File;
 import java.io.IOException;
 
-import DataObjects.SharedConstants;
-
 import static com.crashlytics.android.Crashlytics.log;
 
 /**
@@ -71,7 +69,7 @@ public class SendBugEmailAsyncTask extends AsyncTask<Void,Void,String> {
     private void sendBugReport(String GAID, Activity activity) {
 
         // save logcat in file
-        File outputFile = new File(SharedConstants.ROOT_FOLDER,
+        File outputFile = new File(Constants.ROOT_FOLDER,
                 "logcat.txt");
         try {
             Runtime.getRuntime().exec(

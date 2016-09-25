@@ -18,7 +18,6 @@ import com.utils.BitmapUtils;
 import com.utils.InitUtils;
 import com.utils.UI_Utils;
 
-import DataObjects.SharedConstants;
 import io.fabric.sdk.android.Fabric;
 
 import static com.crashlytics.android.Crashlytics.log;
@@ -45,7 +44,7 @@ public class MediaCallzApp extends Application {
         // Initializing Batch for push notifications
         Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
         Batch.Push.setManualDisplay(true);
-        Batch.setConfig(new Config(SharedConstants.LIVE_API_KEY));
+        Batch.setConfig(new Config(Constants.LIVE_API_KEY));
 
         Drawable d = getResources().getDrawable(R.drawable.color_mc);
         int h = d.getIntrinsicHeight();
