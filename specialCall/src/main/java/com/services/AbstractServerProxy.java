@@ -109,9 +109,9 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     //endregion
     @Override
     public void handleMessageFromServer(MessageToClient msg, ConnectionToServer connectionToServer) {
-
+        ClientAction clientAction = null;
         try {
-            ClientAction clientAction = ActionFactory.instance().getAction(msg.getActionType());
+            clientAction = ActionFactory.instance().getAction(msg.getActionType());
             clientAction.setConnectionToServer(connectionToServer);
             EventReport eventReport = clientAction.doClientAction(msg.getResult());
 
@@ -123,7 +123,12 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
             setMidAction(false);
 
         } catch (Exception e) {
-            String errMsg = "Handling message from server failed. Reason:" + e.getMessage();
+            String errMsg;
+            if (clientAction == null)
+                errMsg = "Handling message from server failed. ClientAction was null. Message:" + msg;
+            else
+                errMsg = "Handling message from server failed. ClientAction:" + clientAction.getClass().getSimpleName() + " Reason:" + e.getMessage();
+            log(Log.ERROR, TAG, errMsg);
             handleDisconnection(connectionToServer, errMsg);
         } finally {
             releaseLockIfNecessary();

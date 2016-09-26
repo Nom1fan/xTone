@@ -175,10 +175,6 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
             else
                 errMsg = "Handling message from server failed. ClientAction:" + clientAction.getClass().getSimpleName() + " Reason:" + e.getMessage();
             log(Log.ERROR, TAG, errMsg);
-        } finally {
-
-            // Finished handling request-response transaction
-            connectionToServer.closeConnection();
         }
     }
 
