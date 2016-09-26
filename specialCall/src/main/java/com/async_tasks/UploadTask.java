@@ -156,9 +156,10 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
     @Override
     public void handleMessageFromServer(MessageToClient msg, ConnectionToServer connectionToServer) {
 
+        ClientAction clientAction = null;
         try {
 
-            ClientAction clientAction = ActionFactory.instance().getAction(msg.getActionType());
+            clientAction = ActionFactory.instance().getAction(msg.getActionType());
             clientAction.setConnectionToServer(connectionToServer);
             EventReport eventReport = clientAction.doClientAction(msg.getResult());
 
@@ -168,8 +169,12 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
                 BroadcastUtils.sendEventReportBroadcast(context, TAG, eventReport);
 
         } catch (Exception e) {
-            String errMsg = "Handling message from server failed. Reason:" + e.getMessage();
-            log(Log.INFO, TAG, errMsg);
+            String errMsg;
+            if(clientAction==null)
+                errMsg = "Handling message from server failed. ClientAction was null. Message:" + msg;
+            else
+                errMsg = "Handling message from server failed. ClientAction:" + clientAction.getClass().getSimpleName() + " Reason:" + e.getMessage();
+            log(Log.ERROR, TAG, errMsg);
         } finally {
 
             // Finished handling request-response transaction

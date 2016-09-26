@@ -8,55 +8,55 @@ public class EventReport implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -224696528176497072L;
-	private EventType _status;
-	private String _desc;
-	private Object _data;
+	private EventType status;
+	private String desc;
+	private Object data;
 	
 	public EventReport(EventType status, String desc, Object data) {
-		_status = status;
-		_desc = desc;
-		_data = data;
+		this.status = status;
+		this.desc = desc;
+		this.data = data;
 		
 	}
 
 	public EventReport(EventType status, Object data) {
-		_status = status;
-		_data = data;
+		this.status = status;
+		this.data = data;
 	}
 
 	public EventReport(EventType status, String desc) {
-		this._desc = desc;
-		this._status = status;
+		this.desc = desc;
+		this.status = status;
 	}
 
     public EventReport(EventType status) {
-        this._status = status;
+        this.status = status;
     }
 
     public EventType status() {
-		return _status;
+		return status;
 	}
 	
 	public String desc() {
-		return _desc;
+		return desc;
 	}
 	
 	public Object data() {
-		return _data;
+		return data;
 	}
 
 	@Override
 	public String toString() {
 
 		String str;
-		if(_desc!=null)
-			str = String.format("[EventType]: %s [EventDesc]: %s [EventData]: %s", _status, _desc, _desc);
+		if(desc !=null)
+			str = String.format("[EventType]: %s [EventDesc]: %s [EventData]: %s", status, desc, desc);
 		else
-			str = String.format("[EventType]: %s [EventData]: %s", _status, _data);
+			str = String.format("[EventType]: %s [EventData]: %s", status, data);
 		return str;
 	}
 
-	public void set_data(String _data) {
-		this._data = _data;
+	public void setData(String data) {
+		this.data = data;
 	}
 }
