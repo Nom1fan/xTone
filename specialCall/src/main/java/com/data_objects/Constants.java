@@ -55,10 +55,10 @@ public abstract class Constants {
     //endregion
 
     //region Folder paths
+    public static final String ROOT_FOLDER = getRootFolder();
     public static final String INCOMING_FOLDER = getIncomingFolder();
     public static final String OUTGOING_FOLDER = getOutgoingFolder();
     public static final String AUDIO_HISTORY_FOLDER = getAudioHistoryFolder();
-    public static final String ROOT_FOLDER = getRootFolder();
     public static final String COMPRESSED_FOLDER = getFolderForCompression();
     public static final String HISTORY_FOLDER = getHistoryFolderForCompression();
     //endregion
