@@ -48,17 +48,17 @@ import static com.data_objects.KeysForBundle.SPEC_MEDIA_TYPE;
  * Created by Mor on 11/08/2016.
  */
 public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServerProxy, ProgressListener {
-    private final String TAG = UploadTask.class.getSimpleName();
     private static final String URL_UPLOAD = "http://" + Constants.SERVER_HOST + ":" + Constants.SERVER_PORT + "/v1/UploadFile";
+    private static final Type RESPONSE_TYPE = new TypeToken<MessageToClient<EventReport>>() {
+    }.getType();
+    private final String TAG = UploadTask.class.getSimpleName();
     private ConnectionToServer connectionToServer;
     private ProgressDialog progDialog;
     private UploadTask taskInstance;
     private PowerManager.WakeLock wakeLock;
-    private FileManager fileForUpload;
     private Context context;
+    private FileManager fileForUpload;
     private ProgressiveEntity progressiveEntity;
-    private static final Type RESPONSE_TYPE = new TypeToken<MessageToClient<EventReport>>() {
-    }.getType();
 
     public UploadTask(Context context, Bundle bundle) {
         this.context = context;
@@ -163,14 +163,14 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
             clientAction.setConnectionToServer(connectionToServer);
             EventReport eventReport = clientAction.doClientAction(msg.getResult());
 
-            if(eventReport==null)
+            if (eventReport == null)
                 log(Log.WARN, TAG, "ClientAction:" + clientAction.getClass().getSimpleName() + " returned null eventReport");
             else if (eventReport.status() != EventType.NO_ACTION_REQUIRED)
                 BroadcastUtils.sendEventReportBroadcast(context, TAG, eventReport);
 
         } catch (Exception e) {
             String errMsg;
-            if(clientAction==null)
+            if (clientAction == null)
                 errMsg = "Handling message from server failed. ClientAction was null. Message:" + msg;
             else
                 errMsg = "Handling message from server failed. ClientAction:" + clientAction.getClass().getSimpleName() + " Reason:" + e.getMessage();
