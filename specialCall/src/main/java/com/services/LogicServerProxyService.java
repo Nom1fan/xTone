@@ -57,7 +57,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
     protected static final String URL_UNREGISTER = ROOT_URL + "/v1/UnRegister";
     protected static final String URL_ISREGISTERED = ROOT_URL + "/v1/IsRegistered";
     protected static final String URL_INSERT_CALL_RECORD = ROOT_URL + "/v1/InsertCallRecord";
-    protected static final String URL_GET_APP_RECORD = ROOT_URL + "/v1/GetAppRecord";
+    protected static final String URL_GET_APP_RECORD = ROOT_URL + "/v1/GetAppMeta";
     protected static final String URL_UPDATE_USER_RECORD = ROOT_URL + "/v1/UpdateUserRecord";
     //endregion
 
@@ -121,11 +121,11 @@ public class LogicServerProxyService extends AbstractServerProxy {
                                         Constants.MY_ID(getApplicationContext()), interPhoneNumber, data);
                                 break;
 
-//                            case ACTION_GET_APP_RECORD:
-//                                setMidAction(true);
-//                                actionGetAppRecord(openSocket(), data);
-//                                break;
-//
+                            case ACTION_GET_APP_RECORD:
+                                setMidAction(true);
+                                actionGetAppRecord(openSocket(responseTypes.TYPE_MAP), data);
+                                break;
+
                             case ACTION_ISREGISTERED: {
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 String destId = intent.getStringExtra(DESTINATION_ID);
@@ -198,10 +198,9 @@ public class LogicServerProxyService extends AbstractServerProxy {
         connectionToServer.sendToServer(URL_GET_SMS_AUTH, data);
     }
 
-//    private void actionGetAppRecord(ConnectionToServer connectionToServer, HashMap<DataKeys, Object> data) throws IOException {
-//
-//        connectionToServer.sendToServer(new MessageToServer(ServerActionType.GET_APP_RECORD, Constants.MY_ID(this), data));
-//    }
+    private void actionGetAppRecord(ConnectionToServer connectionToServer, List<SimpleEntry> data) throws IOException {
+        connectionToServer.sendToServer(URL_GET_APP_RECORD, data);
+    }
 
     private void actionRegister(ConnectionToServer connectionToServer, int smsCode, List<SimpleEntry> data) throws IOException {
 
