@@ -211,6 +211,7 @@ public abstract class MediaFilesUtils {
 
         boolean result = true;
         try {
+            Crashlytics.log(Log.INFO,TAG, "INSIDE canVideoBePrepared files point of view");
             FileManager.FileType fType = managedFile.getFileType();
             String filepath = managedFile.getFileFullPath();
             final File root = new File(filepath);
@@ -226,6 +227,8 @@ public abstract class MediaFilesUtils {
             }
         } catch (Exception e) {
             result = false;
+            e.printStackTrace();
+            Crashlytics.log(Log.ERROR,TAG, "Failed canVideoBePrepared files exception message: " + e.getMessage());
         }
         return result;
 
@@ -235,6 +238,7 @@ public abstract class MediaFilesUtils {
 
         boolean result = true;
         try {
+            Crashlytics.log(Log.INFO,TAG, "INSIDE canAudioBePrepared files point of view");
             FileManager.FileType fType = managedFile.getFileType();
             String filepath = managedFile.getFileFullPath();
             final File root = new File(filepath);
@@ -247,6 +251,8 @@ public abstract class MediaFilesUtils {
             }
         } catch (Exception e) {
             result = false;
+            e.printStackTrace();
+            Crashlytics.log(Log.ERROR,TAG, "Failed canAudioBePrepared files exception message: " + e.getMessage());
         }
         return result;
 
