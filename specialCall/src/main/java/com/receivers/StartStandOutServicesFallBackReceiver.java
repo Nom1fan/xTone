@@ -96,6 +96,7 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
 
             Intent outgoingServiceIntent = new Intent(context, OutgoingService.class);
             outgoingServiceIntent.setAction(OutgoingService.ACTION_START);
+            outgoingServiceIntent.putExtra(WAKEFUL_INTENT, true);
             Crashlytics.log(Log.INFO,TAG, " Starting Outgoing Service");
             startWakefulService(context, outgoingServiceIntent);
 

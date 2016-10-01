@@ -65,6 +65,10 @@ public class OutgoingService extends AbstractStandOutService {
         prepareVideoListener();
         checkIntent(intent);
 
+        if (intent!=null)
+            if (intent.getBooleanExtra(StartStandOutServicesFallBackReceiver.WAKEFUL_INTENT,true))
+                StartStandOutServicesFallBackReceiver.completeWakefulIntent(intent);
+
         return START_STICKY;
     }
 
