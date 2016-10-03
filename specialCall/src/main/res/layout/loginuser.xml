@@ -89,7 +89,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="20dp"
-        android:layout_below="@+id/loginlogo" />
+        android:layout_below="@+id/loginlogo"
+        android:textColor="#ffffff" />
 
     <ProgressBar
         android:layout_width="wrap_content"
