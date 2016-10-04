@@ -59,7 +59,20 @@ public class ConnectionToServer {
     public void sendToServer(String url, List<SimpleEntry> params) {
 
         try {
-            sendRequest(url, params);
+            sendRequestParams(url, params);
+            readResponse();
+        } catch (IOException e) {
+            connectionException(e);
+        } finally {
+            if(conn!=null)
+                conn.disconnect();
+        }
+    }
+
+    public <T> void sendToServer(String url, T requestBody) {
+
+        try {
+            sendRequestBody(url, requestBody);
             readResponse();
         } catch (IOException e) {
             connectionException(e);
@@ -95,7 +108,7 @@ public class ConnectionToServer {
         BufferedOutputStream bos = null;
         try
         {
-            sendRequest(url, data);
+            sendRequestParams(url, data);
             int responseCode = conn.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
 
@@ -148,7 +161,7 @@ public class ConnectionToServer {
         return conn;
     }
 
-    private void sendRequest(String url, List<SimpleEntry> params) throws IOException {
+    private void sendRequestParams(String url, List<SimpleEntry> params) throws IOException {
 
         conn = (HttpURLConnection) openConnection(new URL(url));
 
@@ -156,6 +169,21 @@ public class ConnectionToServer {
         BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(os, ENCODING));
         writer.write(getQuery(params));
+        writer.flush();
+        writer.close();
+        os.close();
+        conn.connect();
+    }
+
+    private <T> void sendRequestBody(String url, T requestBody) throws IOException {
+
+        conn = (HttpURLConnection) openConnection(new URL(url));
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+        OutputStream os = conn.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(os, ENCODING));
+        writer.write(gson.toJson(requestBody));
         writer.flush();
         writer.close();
         os.close();

@@ -15,6 +15,7 @@ import com.client.IServerProxy;
 import com.data_objects.Constants;
 import com.google.gson.reflect.TypeToken;
 import com.utils.BroadcastUtils;
+import com.utils.CollectionsUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.IOException;
@@ -39,6 +40,8 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     protected static final String HOST = Constants.SERVER_HOST;
     protected static final int PORT = Constants.SERVER_PORT;
     protected static final String ROOT_URL = "http://" + HOST + ":" + PORT;
+
+    protected CollectionsUtils<DataKeys,Object> collectionsUtils = new CollectionsUtils<>();
 
     //region Response types
     protected class ResponseTypes {

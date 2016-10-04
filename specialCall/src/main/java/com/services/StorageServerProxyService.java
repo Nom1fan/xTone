@@ -8,7 +8,7 @@ import android.util.Log;
 import com.client.ConnectionToServer;
 import com.data_objects.Constants;
 import com.utils.BroadcastUtils;
-import com.utils.CollectionsUtils;
+import com.utils.ContactsUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,9 +50,9 @@ public class StorageServerProxyService extends AbstractServerProxy {
 
     //region Action URLs
     protected static final String URL_DOWNLOAD = ROOT_URL + "/v1/DownloadFile";
+    protected static final String URL_CLEAR_MEDIA = ROOT_URL + "/v1/ClearMedia";
+    protected static final String URL_NOTIFY_MEDIA_CLEARED = ROOT_URL + "/v1/NotifyMediaCleared";
     //endregion
-
-    private CollectionsUtils<DataKeys,Object> collectionsUtils = new CollectionsUtils<>();
 
     public StorageServerProxyService() {
         super(StorageServerProxyService.class.getSimpleName());
@@ -93,23 +93,18 @@ public class StorageServerProxyService extends AbstractServerProxy {
                                 actionDownload(intentForThread, powerManager, data);
                                 break;
 
-//                            case ACTION_CLEAR_MEDIA:
-//                                actionClear(intentForThread, data);
-//                                break;
-//
-//                            case ACTION_NOTIFY_MEDIA_CLEARED:
-//                                actionNotifyMediaCleared(intentForThread, data);
-//                                break;
+                            case ACTION_CLEAR_MEDIA:
+                                actionClear(openSocket(responseTypes.TYPE_MAP), intentForThread, data);
+                                break;
+
+                            case ACTION_NOTIFY_MEDIA_CLEARED:
+                                actionNotifyMediaCleared(intentForThread, data);
+                                break;
 
                             default:
                                 setMidAction(false);
                                 log(Log.WARN,TAG, "Service started with invalid action:" + action);
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        String errMsg = "ClientActionType failed:" + action + " Exception:" + e.getMessage();
-                        handleActionFailed();
-                        log(Log.ERROR,TAG, errMsg);
                     } catch (Exception e) {
                         e.printStackTrace();
                         String errMsg = "ClientActionType failed:" + action + " Exception:" + e.getMessage();
@@ -144,26 +139,29 @@ public class StorageServerProxyService extends AbstractServerProxy {
         requestDownloadFromServer(openSocket(null), data);
     }
 
-//    private void actionClear(Intent intent, HashMap<DataKeys,Object> data) throws IOException {
-//
-//        setMidAction(true);
-//        ConnectionToServer connectionToServer = openSocket();
-//        String destId = intent.getStringExtra(DESTINATION_ID);
-//        SpecialMediaType specialMediaType = (SpecialMediaType) intent.getSerializableExtra(SPECIAL_MEDIA_TYPE);
-//        data.put(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage());
-//        sendClearCommandToServer(connectionToServer, destId, specialMediaType, data);
-//    }
+    private void actionClear(ConnectionToServer connectionToServer, Intent intent, List<SimpleEntry> data) throws IOException {
 
-//    private void actionNotifyMediaCleared(Intent intent, HashMap<DataKeys,Object> data) throws IOException {
-//
-//        setMidAction(true);
-//        ConnectionToServer connectionToServer = openSocket();
-//        HashMap tdData = (HashMap) intent.getSerializableExtra(TRANSFER_DETAILS);
-//        tdData.putAll(data);
-//        tdData.put(DataKeys.DESTINATION_LOCALE, Locale.getDefault().getLanguage());
-//        MessageToServer msgNMC = new MessageToServer(ServerActionType.NOTIFY_MEDIA_CLEARED, Constants.MY_ID(getApplicationContext()), tdData);
-//        connectionToServer.sendToServer(msgNMC);
-//    }
+        setMidAction(true);
+        String destId = intent.getStringExtra(DESTINATION_ID);
+        SpecialMediaType specialMediaType = (SpecialMediaType) intent.getSerializableExtra(SPECIAL_MEDIA_TYPE);
+        data.add(new SimpleEntry<>(DataKeys.SOURCE_LOCALE, Locale.getDefault().getLanguage()));
+        data.add(new SimpleEntry<>(DataKeys.DESTINATION_ID, destId));
+        data.add(new SimpleEntry<>(DataKeys.SPECIAL_MEDIA_TYPE, specialMediaType));
+        data.add(new SimpleEntry<>(DataKeys.DESTINATION_CONTACT_NAME, ContactsUtils.getContactName(this, destId)));
+        data.add(new SimpleEntry<>(DataKeys.SOURCE_ID, Constants.MY_ID(this)));
+
+        connectionToServer.sendToServer(URL_CLEAR_MEDIA, data);
+    }
+
+    private void actionNotifyMediaCleared(Intent intent, List<SimpleEntry> data) throws IOException {
+
+        setMidAction(true);
+        ConnectionToServer connectionToServer = openSocket(responseTypes.TYPE_EVENT_REPORT);
+        HashMap tdData = (HashMap) intent.getSerializableExtra(TRANSFER_DETAILS);
+        collectionsUtils.addMapElementsToSimpleEntryList(data, tdData);
+        data.add(new SimpleEntry<>(DataKeys.DESTINATION_LOCALE, Locale.getDefault().getLanguage()));
+        connectionToServer.sendToServer(URL_NOTIFY_MEDIA_CLEARED, data);
+    }
 
     private void handleActionFailed() {
 
@@ -172,29 +170,6 @@ public class StorageServerProxyService extends AbstractServerProxy {
     //endregion
 
     //region Storage operations methods
-
-//    /**
-//     * Sends a clear media command to the server
-//     *
-//     * @param connectionToServer
-//     * @param destId             The destination id of the user for which the media will be cleared
-//     * @param specialMediaType   The special media type of the media to clear
-//     * @throws IOException
-//     */
-//    private void sendClearCommandToServer(
-//            ConnectionToServer connectionToServer,
-//            String destId,
-//            SpecialMediaType specialMediaType,
-//            HashMap<DataKeys,Object> data) throws IOException {
-//
-//        data.put(DataKeys.DESTINATION_ID, destId);
-//        data.put(DataKeys.SPECIAL_MEDIA_TYPE, specialMediaType);
-//        data.put(DataKeys.DESTINATION_CONTACT_NAME, ContactsUtils.getContactName(this, destId));
-//        data.put(DataKeys.SOURCE_ID, Constants.MY_ID(this));
-//
-//        MessageToServer msgCM = new MessageToServer(ServerActionType.CLEAR_MEDIA, Constants.MY_ID(this), data);
-//        connectionToServer.sendToServer(msgCM);
-//    }
 
     /**
      * Requests a download from the server

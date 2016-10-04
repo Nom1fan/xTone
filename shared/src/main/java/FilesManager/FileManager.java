@@ -36,6 +36,7 @@ public class FileManager implements Serializable {
     private static final String[] audioFormats = { "mp3", "ogg" , "flac" , "mid" , "xmf" , "mxmf" , "rtx" , "ota" , "imy" , "wav" ,"m4a" , "aac", "amr"};
     private static final String[] videoFormats = { "mp4", "3gp", "webm" , "mkv"  };
 
+    private String md5;
     private File _file;
     private String _extension;
     private long _size;
@@ -132,8 +133,9 @@ public class FileManager implements Serializable {
     }
 
     public String getMd5() {
-
-        return FileManager.getMD5(getFileFullPath());
+        if(md5==null)
+            md5 = FileManager.getMD5(getFileFullPath());
+        return md5;
     }
 
     /**
@@ -169,6 +171,10 @@ public class FileManager implements Serializable {
 
     public long getFileSize() {
         return _size;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
     }
 
     /**

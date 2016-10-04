@@ -12,16 +12,16 @@ public class CallRecord implements Serializable {
     private static final long serialVersionUID = 7408472793374531808L;
     private static final String TAG = CallRecord.class.getSimpleName();
 
-    private String _sourceId;
-    private String _destinationId;
+    private String sourceId;
+    private String destinationId;
 
-    private FileManager _visualMediaFile;
-    private FileManager _audioMediaFile;
+    private FileManager visualMediaFile;
+    private FileManager audioMediaFile;
 
-    private String _visualMd5;
-    private String _audioMd5;
+    private String visualMd5;
+    private String audioMd5;
 
-    private SpecialMediaType _spMediaType;
+    private SpecialMediaType spMediaType;
 
     public CallRecord(String source,
                       String destination,
@@ -31,19 +31,19 @@ public class CallRecord implements Serializable {
                       String audioMd5,
                       SpecialMediaType spMediaType) {
 
-        _sourceId = source;
-        _destinationId = destination;
+        sourceId = source;
+        destinationId = destination;
 
-        _visualMediaFile = visualMediaFile;
-        _audioMediaFile = audioMediaFile;
+        this.visualMediaFile = visualMediaFile;
+        this.audioMediaFile = audioMediaFile;
 
         if(visualM5!=null)
-            _visualMd5 = visualM5;
+            visualMd5 = visualM5;
 
         if(audioMd5!=null)
-            _audioMd5 = audioMd5;
+            this.audioMd5 = audioMd5;
 
-        _spMediaType = spMediaType;
+        this.spMediaType = spMediaType;
 
         System.out.println("I/" + TAG + ": CallRecord:" + this.toString());
     }
@@ -53,47 +53,47 @@ public class CallRecord implements Serializable {
 
         StringBuilder builder = new StringBuilder();
         builder.
-                append(", [Source]:").append(_sourceId).
-                append(", [Destination]:").append(_destinationId).
-                append(", [Special Media Type]:").append(_spMediaType.toString());
+                append(", [Source]:").append(sourceId).
+                append(", [Destination]:").append(destinationId).
+                append(", [Special Media Type]:").append(spMediaType.toString());
 
-                if(_visualMediaFile!=null) {
-                    builder.append(", [Visual Media File]:").append(_visualMediaFile);
-                    builder.append(", [visual_md5]:").append(_visualMd5);
+                if(visualMediaFile !=null) {
+                    builder.append(", [Visual Media File]:").append(visualMediaFile);
+                    builder.append(", [visual_md5]:").append(visualMd5);
                 }
-                if (_audioMediaFile !=null) {
-                    builder.append(", [Audio Media File]:").append(_audioMediaFile);
-                    builder.append(", [audio_md5]:").append(_audioMd5);
+                if (audioMediaFile !=null) {
+                    builder.append(", [Audio Media File]:").append(audioMediaFile);
+                    builder.append(", [audio_md5]:").append(audioMd5);
                 }
 
         return builder.toString();
     }
 
-    public SpecialMediaType get_spMediaType() {
-        return _spMediaType;
+    public SpecialMediaType getSpMediaType() {
+        return spMediaType;
     }
 
-    public FileManager get_visualMediaFile() {
-        return _visualMediaFile;
+    public FileManager getVisualMediaFile() {
+        return visualMediaFile;
     }
 
-    public String get_destinationId() {
-        return _destinationId;
+    public String getDestinationId() {
+        return destinationId;
     }
 
-    public String get_sourceId() {
-        return _sourceId;
+    public String getSourceId() {
+        return sourceId;
     }
 
-    public FileManager get_audioMediaFile() {
-        return _audioMediaFile;
+    public FileManager getAudioMediaFile() {
+        return audioMediaFile;
     }
 
-    public String get_visualMd5() {
-        return _visualMd5;
+    public String getVisualMd5() {
+        return visualMd5;
     }
 
-    public String get_audioMd5() {
-        return _audioMd5;
+    public String getAudioMd5() {
+        return audioMd5;
     }
 }

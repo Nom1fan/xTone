@@ -11,9 +11,11 @@ import com.utils.BroadcastUtils;
 import com.utils.SpecialDevicesUtils;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import DataObjects.CallRecord;
 import DataObjects.DataKeys;
 import EventObjects.EventReport;
 import EventObjects.EventType;
@@ -56,7 +58,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
     protected static final String URL_REGISTER = ROOT_URL + "/v1/Register";
     protected static final String URL_UNREGISTER = ROOT_URL + "/v1/UnRegister";
     protected static final String URL_ISREGISTERED = ROOT_URL + "/v1/IsRegistered";
-    protected static final String URL_INSERT_CALL_RECORD = ROOT_URL + "/v1/InsertCallRecord";
+    protected static final String URL_INSERT_CALL_RECORD = ROOT_URL + "/v1/InsertMediaCallRecord";
     protected static final String URL_GET_APP_RECORD = ROOT_URL + "/v1/GetAppMeta";
     protected static final String URL_UPDATE_USER_RECORD = ROOT_URL + "/v1/UpdateUserRecord";
     //endregion
@@ -109,10 +111,10 @@ public class LogicServerProxyService extends AbstractServerProxy {
                                 actionRegister(openSocket(responseTypes.TYPE_MAP), smsCode, data);
                                 break;
 
-//                            case ACTION_UNREGISTER:
-//                                setMidAction(true);
-//                                actionUnregister(openSocket(), data);
-//                                break;
+                            case ACTION_UNREGISTER:
+                                setMidAction(true);
+                                actionUnregister(openSocket(responseTypes.TYPE_MAP), data);
+                                break;
 
                             case ACTION_GET_SMS_CODE:
                                 setMidAction(true);
@@ -133,18 +135,19 @@ public class LogicServerProxyService extends AbstractServerProxy {
                             }
                             break;
 
-//                            case ACTION_INSERT_CALL_RECORD:
-//                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
-//                                CallRecord callRecord = (CallRecord) intent.getSerializableExtra(CALL_RECORD);
-//                                actionInsertMediaCallRecord(openSocket(), callRecord, data);
-//                                break;
+                            case ACTION_INSERT_CALL_RECORD:
+                                setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
+                                CallRecord callRecord = (CallRecord) intent.getSerializableExtra(CALL_RECORD);
+                                data.add(new SimpleEntry<>(DataKeys.CALL_RECORD, callRecord));
+                                actionInsertMediaCallRecord(openSocket(responseTypes.TYPE_EVENT_REPORT), data);
+                                break;
 
-//                            case ACTION_UPDATE_USER_RECORD:
-//                                setMidAction(true);
-//                                HashMap userRecord = (HashMap) intent.getSerializableExtra(USER_RECORD);
-//                                data.putAll(userRecord);
-//                                actionUpdateUserRecord(openSocket(), data);
-//                                break;
+                            case ACTION_UPDATE_USER_RECORD:
+                                setMidAction(true);
+                                HashMap userRecord = (HashMap) intent.getSerializableExtra(USER_RECORD);
+                                collectionsUtils.addMapElementsToSimpleEntryList(data, userRecord);
+                                actionUpdateUserRecord(openSocket(responseTypes.TYPE_MAP), data);
+                                break;
 
                             default:
                                 setMidAction(false);
@@ -214,32 +217,22 @@ public class LogicServerProxyService extends AbstractServerProxy {
 
     }
 
-//    private void actionUnregister(ConnectionToServer connectionToServer,List<SimpleEntry> data) throws IOException {
-//
-//        log(Log.INFO, TAG, "Initating actionUnregister sequence...");
-//
-//        data.add(new SimpleEntry(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(this)));
-//
-//        connectionToServer.sendToServer(msgUnregister);
-//    }
+    private void actionUnregister(ConnectionToServer connectionToServer, List<SimpleEntry> data) throws IOException {
+        log(Log.INFO, TAG, "Initating actionUnregister sequence...");
+        data.add(new SimpleEntry<>(DataKeys.PUSH_TOKEN, Constants.MY_BATCH_TOKEN(this)));
+        connectionToServer.sendToServer(URL_UNREGISTER, data);
+    }
 
-//    private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, CallRecord callRecordDBO, HashMap<DataKeys, Object> data) throws IOException {
-//
-//        log(Log.INFO, TAG, "Initiating actionInsertMediaCallRecord sequence...");
-//        data.put(DataKeys.CALL_RECORD, callRecordDBO);
-//
-//        MessageToServer msgInsertMCrecord = new MessageToServer(ServerActionType.INSERT_MEDIA_CALL_RECORD, callRecordDBO.get_sourceId(), data);
-////        connectionToServer.sendToServer(msgInsertMCrecord);
-//    }
+    private void actionInsertMediaCallRecord(ConnectionToServer connectionToServer, List<SimpleEntry> data) throws IOException {
 
-//    private void actionUpdateUserRecord(ConnectionToServer connectionToServer, HashMap<DataKeys, Object> data) throws IOException {
-//
-//        log(Log.INFO, TAG, "Initiating actionUpdateUserRecord sequence...");
-//
-//        MessageToServer msgUUR = new MessageToServer(ServerActionType.UPDATE_USER_RECORD, Constants.MY_ID(this), data);
-//        connectionToServer.sendToServer(msgUUR);
-//
-//    }
+        log(Log.INFO, TAG, "Initiating actionInsertMediaCallRecord sequence...");
+        connectionToServer.sendToServer(URL_INSERT_CALL_RECORD, data);
+    }
+
+    private void actionUpdateUserRecord(ConnectionToServer connectionToServer, List<SimpleEntry> data) throws IOException {
+        log(Log.INFO, TAG, "Initiating actionUpdateUserRecord sequence...");
+        connectionToServer.sendToServer(URL_UPDATE_USER_RECORD, data);
+    }
 
     private void handleActionFailure() {
 
