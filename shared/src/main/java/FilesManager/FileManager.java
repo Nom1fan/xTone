@@ -68,6 +68,7 @@ public class FileManager implements Serializable {
                 _extension = extractExtension(_file.getAbsolutePath());
                 _fileType = validateFileFormat();
                 _size = _file.length();
+                md5 = FileManager.getMD5(getFileFullPath());
             }
             else
                 throw new FileDoesNotExistException("File does not exist:"+_file.getAbsolutePath());
@@ -95,6 +96,7 @@ public class FileManager implements Serializable {
                 _extension = extractExtension(filePath);
                 _fileType = validateFileFormat();
                 _size = (int) _file.length();
+                md5 = FileManager.getMD5(getFileFullPath());
             }
             else
                 throw new FileDoesNotExistException("File does not exist:"+filePath);
@@ -133,8 +135,6 @@ public class FileManager implements Serializable {
     }
 
     public String getMd5() {
-        if(md5==null)
-            md5 = FileManager.getMD5(getFileFullPath());
         return md5;
     }
 
