@@ -21,7 +21,7 @@ public class CallRecord implements Serializable {
     private String visualMd5;
     private String audioMd5;
 
-    private SpecialMediaType spMediaType;
+    private SpecialMediaType specialMediaType;
 
     public CallRecord(String source,
                       String destination,
@@ -29,7 +29,7 @@ public class CallRecord implements Serializable {
                       String visualM5,
                       FileManager audioMediaFile,
                       String audioMd5,
-                      SpecialMediaType spMediaType) {
+                      SpecialMediaType specialMediaType) {
 
         sourceId = source;
         destinationId = destination;
@@ -43,7 +43,7 @@ public class CallRecord implements Serializable {
         if(audioMd5!=null)
             this.audioMd5 = audioMd5;
 
-        this.spMediaType = spMediaType;
+        this.specialMediaType = specialMediaType;
 
         System.out.println("I/" + TAG + ": CallRecord:" + this.toString());
     }
@@ -55,7 +55,7 @@ public class CallRecord implements Serializable {
         builder.
                 append(", [Source]:").append(sourceId).
                 append(", [Destination]:").append(destinationId).
-                append(", [Special Media Type]:").append(spMediaType.toString());
+                append(", [Special Media Type]:").append(specialMediaType.toString());
 
                 if(visualMediaFile !=null) {
                     builder.append(", [Visual Media File]:").append(visualMediaFile);
@@ -69,8 +69,8 @@ public class CallRecord implements Serializable {
         return builder.toString();
     }
 
-    public SpecialMediaType getSpMediaType() {
-        return spMediaType;
+    public SpecialMediaType getSpecialMediaType() {
+        return specialMediaType;
     }
 
     public FileManager getVisualMediaFile() {

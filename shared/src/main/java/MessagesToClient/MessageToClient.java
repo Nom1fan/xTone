@@ -30,4 +30,11 @@ public class MessageToClient<T> implements Serializable {
 		return actionType;
 	}
 
+	@Override
+	public String toString() {
+		return "MessageToClient{" +
+				"result=" + result +
+				", actionType=" + actionType +
+				'}';
+	}
 }

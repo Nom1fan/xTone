@@ -73,7 +73,7 @@ public class IsRegisteredTask extends AsyncTask<Context, Void, Void> {
 
         if (_showProgressBar) {
 
-            String timeoutMsg = _context.getResources().getString(R.string.register_failure);
+            String timeoutMsg = _context.getResources().getString(R.string.oops_try_again);
             String loadingMsg = _context.getResources().getString(R.string.registering);
             AppStateManager.setLoadingState(_context, TAG, loadingMsg, timeoutMsg);
             _callbackListener.doCallBackAction(ENABLE_FETCH_PROGRESS_BAR);
