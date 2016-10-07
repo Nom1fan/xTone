@@ -94,7 +94,7 @@ public class StorageServerProxyService extends AbstractServerProxy {
                                 break;
 
                             case ACTION_CLEAR_MEDIA:
-                                actionClear(openSocket(responseTypes.TYPE_MAP), intentForThread, data);
+                                actionClear(openSocket(responseTypes.TYPE_EVENT_REPORT), intentForThread, data);
                                 break;
 
                             case ACTION_NOTIFY_MEDIA_CLEARED:

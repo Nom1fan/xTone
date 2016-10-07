@@ -128,9 +128,10 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         } catch (Exception e) {
             String errMsg;
             if (clientAction == null)
-                errMsg = "Handling message from server failed. ClientAction was null. Message:" + msg.getActionType();
+                errMsg = "Handling message from server failed. ClientAction was null. Message:" + msg;
             else
-                errMsg = "Handling message from server failed. ClientAction:" + clientAction.getClass().getSimpleName() + " Reason:" + e.getMessage();
+                errMsg = "Handling message from server failed. Message:" + msg;
+            e.printStackTrace();
             log(Log.ERROR, TAG, errMsg);
             handleDisconnection(connectionToServer, errMsg);
         } finally {
