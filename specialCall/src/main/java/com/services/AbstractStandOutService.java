@@ -1204,7 +1204,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         try {
             if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
                 mMediaPlayer.setVolume(0, 0);
-                //mMediaPlayer.release();
+                mMediaPlayer.stop();
+                mMediaPlayer.release();
+                mMediaPlayer = null;
             } else
                 log(Log.INFO,TAG, "mMediaPlayer is null or isn't playing");
         } catch (Exception e) {

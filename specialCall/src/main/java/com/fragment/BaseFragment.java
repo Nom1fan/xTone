@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.async_tasks.DownloadFileAsyncTask.PostDownloadCallBackListener;
 import com.data_objects.ActivityRequestCodes;
@@ -31,6 +32,7 @@ import com.flows.DownloadFileFlow;
 import com.mediacallz.app.R;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.ui.activities.PreviewMediaActivity;
+import com.utils.MediaFilesUtils;
 import com.utils.NetworkingUtils;
 import com.utils.UI_Utils;
 
@@ -115,9 +117,13 @@ public abstract class BaseFragment extends Fragment implements PostDownloadCallB
     public void doCallBack(File file) {
         try {
             FileManager managedFile = new FileManager(file);
-            Intent i = new Intent(getActivity(), PreviewMediaActivity.class);
-            i.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
-            getActivity().startActivityForResult(i, ActivityRequestCodes.PREVIEW_MEDIA);
+
+            if (MediaFilesUtils.canMediaBePrepared(getActivity(), managedFile)) {
+                Intent i = new Intent(getActivity(), PreviewMediaActivity.class);
+                i.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
+                getActivity().startActivityForResult(i, ActivityRequestCodes.PREVIEW_MEDIA);
+            } else
+                UI_Utils.callToast(getActivity().getResources().getString(R.string.file_invalid), Color.RED, Toast.LENGTH_LONG, getActivity());
 
         } catch(Exception e) {
             e.printStackTrace();

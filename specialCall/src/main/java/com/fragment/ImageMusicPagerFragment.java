@@ -254,6 +254,7 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
             Button downloadButton = (Button) audioPageLayout.findViewById(R.id.downloadButton);
             downloadButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View arg0) {
+                    videoViews[currentViewPos].pause();
                     downloadFile(audioUrls.get(position));
                 }
             });
