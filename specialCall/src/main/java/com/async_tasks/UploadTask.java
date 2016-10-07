@@ -26,6 +26,7 @@ import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.util.Locale;
 
 import DataObjects.DataKeys;
@@ -34,6 +35,7 @@ import EventObjects.EventType;
 import FilesManager.FileManager;
 import MessagesToClient.MessageToClient;
 import cz.msebera.android.httpclient.HttpEntity;
+import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.entity.mime.HttpMultipartMode;
 import cz.msebera.android.httpclient.entity.mime.MultipartEntityBuilder;
 import cz.msebera.android.httpclient.entity.mime.content.FileBody;
@@ -193,6 +195,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
     private ProgressiveEntity prepareProgressiveEntity(Bundle bundle) {
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
         builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        builder.setCharset(Charset.defaultCharset());
         FileBody fb = new FileBody(fileForUpload.getFile());
         builder.addPart("fileForUpload", fb);
         prepareDataForUpload(builder, bundle);
@@ -209,7 +212,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
         builder.addTextBody(DataKeys.SOURCE_ID.toString(), myId);
         builder.addTextBody(DataKeys.SOURCE_LOCALE.toString(), Locale.getDefault().getLanguage());
         builder.addTextBody(DataKeys.DESTINATION_ID.toString(), bundle.get(DEST_ID).toString());
-        builder.addTextBody(DataKeys.DESTINATION_CONTACT_NAME.toString(), bundle.get(DEST_NAME).toString());
+        builder.addTextBody(DataKeys.DESTINATION_CONTACT_NAME.toString(), bundle.get(DEST_NAME).toString(), ContentType.TEXT_PLAIN.withCharset("UTF-8"));
         builder.addTextBody(DataKeys.MD5.toString(), fileForUpload.getMd5());
         builder.addTextBody(DataKeys.EXTENSION.toString(), fileForUpload.getFileExtension());
         builder.addTextBody(DataKeys.FILE_PATH_ON_SRC_SD.toString(), fileForUpload.getFile().getAbsolutePath());
