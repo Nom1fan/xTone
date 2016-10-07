@@ -115,7 +115,7 @@ public class ConnectionToServer {
                 // Creating file and directories for downloaded file
                 File newDir = new File(pathToDownload);
                 newDir.mkdirs();
-                String downloadFilePath = pathToDownload + fileName;
+                String downloadFilePath = pathToDownload + "/" + fileName;
                 File newFile = new File(downloadFilePath);
                 newFile.createNewFile();
 
