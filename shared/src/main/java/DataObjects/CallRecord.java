@@ -1,7 +1,5 @@
 package DataObjects;
 
-import com.google.gson.Gson;
-
 import java.io.Serializable;
 
 import FilesManager.FileManager;
@@ -52,7 +50,23 @@ public class CallRecord implements Serializable {
 
     @Override
     public String toString() {
-        return new Gson().toJson(this);
+
+        StringBuilder builder = new StringBuilder();
+        builder.
+                append(", [Source]:").append(sourceId).
+                append(", [Destination]:").append(destinationId).
+                append(", [Special Media Type]:").append(specialMediaType.toString());
+
+                if(visualMediaFile !=null) {
+                    builder.append(", [Visual Media File]:").append(visualMediaFile);
+                    builder.append(", [visual_md5]:").append(visualMd5);
+                }
+                if (audioMediaFile !=null) {
+                    builder.append(", [Audio Media File]:").append(audioMediaFile);
+                    builder.append(", [audio_md5]:").append(audioMd5);
+                }
+
+        return builder.toString();
     }
 
     public SpecialMediaType getSpecialMediaType() {

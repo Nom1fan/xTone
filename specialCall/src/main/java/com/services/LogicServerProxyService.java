@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.client.ConnectionToServer;
 import com.data_objects.Constants;
+import com.google.gson.Gson;
 import com.utils.BroadcastUtils;
 import com.utils.SpecialDevicesUtils;
 
@@ -138,7 +139,7 @@ public class LogicServerProxyService extends AbstractServerProxy {
                             case ACTION_INSERT_CALL_RECORD:
                                 setMidAction(true); // This flag will be marked as false after action work is complete. Otherwise, work will be retried in redeliver intent flow.
                                 CallRecord callRecord = (CallRecord) intent.getSerializableExtra(CALL_RECORD);
-                                data.add(new SimpleEntry<>(DataKeys.CALL_RECORD, callRecord));
+                                data.add(new SimpleEntry<>(DataKeys.CALL_RECORD, new Gson().toJson(callRecord)));
                                 actionInsertMediaCallRecord(openSocket(responseTypes.TYPE_EVENT_REPORT), data);
                                 break;
 
