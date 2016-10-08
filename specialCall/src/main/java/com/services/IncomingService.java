@@ -318,7 +318,6 @@ public class IncomingService extends AbstractStandOutService {
 
         String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, incomingNumber);
         String ringtonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, incomingNumber);
-        File mediaFile = new File(mediaFilePath);
         final File ringtoneFile = new File(ringtonePath);
 
         try{

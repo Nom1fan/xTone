@@ -998,7 +998,22 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         log(Log.INFO,TAG, "RINGER_MODE Original: " + ringerMode);
         SharedPrefUtils.setInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE , ringerMode);
 
+        //in case volume is low 1 or 2 , check for 3 seconds if it's not start low and than get stronger
+        int timeout = 0;
         int ringVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_RING);
+        while ((ringVolume == 1 || ringVolume ==2) && timeout<3000 ) //3sec
+        {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            ringVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_RING);
+            log(Log.INFO,TAG, "WHILE time: "+ timeout + " ringVolume Original: " + ringVolume );
+            timeout +=100;
+        }
+
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME, ringVolume);
         log(Log.INFO,TAG, "mRingVolume Original: " + ringVolume);
     }
