@@ -73,9 +73,18 @@ public class SendBugEmailAsyncTask extends AsyncTask<Void,Void,String> {
         // save logcat in file
         File outputFile = new File(SharedConstants.ROOT_FOLDER,
                 "logcat.txt");
+
+        if (outputFile.exists()) {
+            outputFile.delete();
+            try {
+                outputFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         try {
-            Runtime.getRuntime().exec(
-                    "logcat -f " + outputFile.getAbsolutePath());
+            // limit size of log to 10MB
+            Runtime.getRuntime().exec("logcat -v time -n 1 -r 10240000 -f " + outputFile.getAbsolutePath());
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
