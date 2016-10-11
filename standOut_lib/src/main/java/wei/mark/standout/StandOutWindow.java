@@ -1176,7 +1176,7 @@ public abstract class StandOutWindow extends Service {
 						+ "memory situations.");
 			}
 		}*/
-		focus(id);
+		//focus(id);   /// window shouldn't be focused when first show
 
 		return window;
 	}
