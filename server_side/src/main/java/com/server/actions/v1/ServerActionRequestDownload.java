@@ -1,7 +1,7 @@
 package com.server.actions.v1;
 
 import com.server.actions.ServerAction;
-import com.server.database.DAO;
+import com.server.database.Dao;
 import com.server.lang.LangStrings;
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -71,7 +71,7 @@ public class ServerActionRequestDownload extends ServerAction {
 
             // Marking in communication history record that the transfer was successful
             char TRUE = '1';
-            dao.updateMediaTransferRecord(commId, DAO.COL_TRANSFER_SUCCESS, TRUE);
+            dao.updateMediaTransferRecord(commId, Dao.COL_TRANSFER_SUCCESS, TRUE);
 
 
         } catch (DownloadRequestFailedException | SQLException e) {
@@ -152,7 +152,7 @@ public class ServerActionRequestDownload extends ServerAction {
         // Marking in communication history record that the transfer has failed
         char FALSE = '0';
         try {
-            dao.updateMediaTransferRecord(commId, DAO.COL_TRANSFER_SUCCESS, FALSE);
+            dao.updateMediaTransferRecord(commId, Dao.COL_TRANSFER_SUCCESS, FALSE);
         } catch (SQLException e1) {
             e1.printStackTrace();
         }

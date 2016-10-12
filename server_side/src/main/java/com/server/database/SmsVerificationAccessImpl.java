@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class SmsVerificationAccessImpl implements SmsVerificationAccess {
 
     @Autowired
-    private DAO dao;
+    private Dao dao;
     
     @Autowired
     private Logger logger;
@@ -42,7 +42,7 @@ public class SmsVerificationAccessImpl implements SmsVerificationAccess {
     public int getSmsVerificationCode(String uid) {
 
         try {
-            int code = dao.getUserSmsVerificationCode(uid);
+            int code = dao.getSmsVerificationCode(uid);
             return code!=0 ? code : NO_SMS_CODE;
         } catch (SQLException e) {
             e.printStackTrace();

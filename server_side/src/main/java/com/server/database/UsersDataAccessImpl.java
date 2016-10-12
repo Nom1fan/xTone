@@ -1,5 +1,7 @@
 package com.server.database;
 
+import com.server.database.dbos.MediaTransferDBO;
+import com.server.database.dbos.UserDBO;
 import com.server.pushservice.PushSender;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import DataObjects.DataKeys;
-import DataObjects.MediaTransferRecord;
 import DataObjects.PushEventKeys;
 import DataObjects.SpecialMediaType;
-import DataObjects.UserDBO;
 import DataObjects.UserStatus;
 
 
@@ -33,7 +33,7 @@ public class UsersDataAccessImpl implements UserDataAccess {
     private PushSender pushSender;
 
     @Autowired
-    private DAO dao;
+    private Dao dao;
     
     @Autowired
     private Logger logger;
@@ -42,14 +42,14 @@ public class UsersDataAccessImpl implements UserDataAccess {
     public boolean unregisterUser(String userId, String token) {
 
         try {
-            List<MediaTransferRecord> records = dao.getAllUserMediaTransferRecords(userId);
+            List<MediaTransferDBO> records = dao.getAllUserMediaTransferRecords(userId);
 
             Set<String> destinations = new HashSet<>();
 
             // Creating a set of all destinations who received media from the user
-            for(MediaTransferRecord record : records) {
-                if(record.is_transfer_success())
-                    destinations.add(record.get_dest_uid());
+            for(MediaTransferDBO record : records) {
+                if(record.isTransfer_success())
+                    destinations.add(record.getUid_dest());
             }
 
             // Clearing all media sent to these destinations by user

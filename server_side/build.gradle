@@ -1,6 +1,6 @@
 apply plugin: 'java'
 
-version = '2.08'
+version = '2.09'
 
 //create a single Jar with all dependencies
 task fatJar(type: Jar) {
@@ -22,9 +22,9 @@ dependencies {
     compile 'org.kie.modules:org-apache-commons-logging-main:6.3.0.Final'
     compile 'org.apache.httpcomponents:httpclient:4.5.2'
     compile 'org.apache.httpcomponents:httpcore:4.4.4'
-    // https://mvnrepository.com/artifact/org.springframework/spring-context
     compile group: 'org.springframework', name: 'spring-context', version: '4.3.1.RELEASE'
-
-
+    compile group: 'org.springframework', name: 'spring-jdbc', version: '4.3.3.RELEASE'
+    compile group: 'com.mchange', name: 'c3p0', version: '0.9.5.2'
+    compile 'org.projectlombok:lombok:1.16.10'
 }
 

@@ -1,4 +1,4 @@
-package com.server.lang;
+package com.server.data;
 
 /**
  * Created by Mor on 26/03/2016.

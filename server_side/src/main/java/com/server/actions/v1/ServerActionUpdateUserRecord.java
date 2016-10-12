@@ -1,6 +1,7 @@
 package com.server.actions.v1;
 
 import com.server.actions.ServerAction;
+import com.server.database.dbos.UserDBO;
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -11,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import DataObjects.DataKeys;
-import DataObjects.UserDBO;
 import MessagesToClient.ClientActionType;
 import MessagesToClient.MessageToClient;
 import MessagesToServer.ServerActionType;

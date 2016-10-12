@@ -79,18 +79,9 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     //region IServerProxy methods
     @Override
     public void handleDisconnection(ConnectionToServer cts, String errMsg) {
-
-        log(Log.ERROR,TAG, errMsg);
-        try {
-            cts.closeConnection();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         connections.remove(cts);
         if(NetworkingUtils.isNetworkAvailable(getApplicationContext()))
             BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.LOADING_TIMEOUT));
-
     }
 
     @Override

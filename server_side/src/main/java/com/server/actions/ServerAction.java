@@ -1,6 +1,6 @@
 package com.server.actions;
 
-import com.server.database.DAO;
+import com.server.database.Dao;
 import com.server.database.SmsVerificationAccess;
 import com.server.database.UserDataAccess;
 import com.server.lang.StringsFactory;
@@ -35,7 +35,7 @@ public abstract class ServerAction {
     protected SmsSender smsSender;
 
     @Autowired
-    protected DAO dao;
+    protected Dao dao;
 
     @Autowired
     protected UserDataAccess usersDataAccess;

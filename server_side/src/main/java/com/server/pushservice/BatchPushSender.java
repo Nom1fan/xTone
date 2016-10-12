@@ -1,7 +1,7 @@
 package com.server.pushservice;
 
 import com.google.gson.Gson;
-import com.server.lang.ServerConstants;
+import com.server.data.ServerConstants;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;

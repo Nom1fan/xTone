@@ -2,8 +2,8 @@ package com.server.servers;
 
 import com.server.actions.ServerAction;
 import com.server.actions.ServerActionFactory;
-import com.server.database.DAO;
-import com.server.lang.ServerConstants;
+import com.server.database.Dao;
+import com.server.data.ServerConstants;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -18,7 +18,7 @@ import ServerObjects.ConnectionToClient;
  */
 public class GenericServer extends AbstractServer {
 
-    private DAO dao;
+    private Dao dao;
 
     private Logger logger;
 
@@ -182,7 +182,7 @@ public class GenericServer extends AbstractServer {
         this.logger = logger;
     }
 
-    public void setDao(DAO dao) {
+    public void setDao(Dao dao) {
         this.dao = dao;
     }
 

@@ -1,57 +1,47 @@
 package com.server.database;
 
-import com.server.database.records.AppMetaDBO;
-import com.server.lang.ServerConstants;
+import com.mchange.v2.c3p0.PooledDataSource;
+import com.server.data.MediaFile;
+import com.server.data.UserStatus;
+import com.server.database.dbos.AppMetaDBO;
+import com.server.database.dbos.MediaCallDBO;
+import com.server.database.dbos.MediaFileDBO;
+import com.server.database.dbos.MediaTransferDBO;
+import com.server.database.dbos.SmsVerificationDBO;
+import com.server.database.dbos.UserDBO;
+import com.server.database.rowmappers.AppMetaRowMapper;
+import com.server.database.rowmappers.MediaFileRowMapper;
+import com.server.database.rowmappers.MediaTransferRowMapper;
+import com.server.database.rowmappers.SmsVerificationRowMapper;
+import com.server.database.rowmappers.UserDboRowMapper;
 
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.logging.Logger;
 
-import DataObjects.CallRecord;
-import DataObjects.DataKeys;
-import DataObjects.MediaTransferRecord;
-import DataObjects.SpecialMediaType;
-import DataObjects.UserDBO;
-import DataObjects.UserStatus;
-import FilesManager.FileManager;
 
 /**
  * Created by Mor on 19/12/2015.
  */
-@Component
-@Scope(value = "prototype")
-public class MySqlDAO implements DAO {
+@Repository
+public class MySqlDao implements Dao {
 
-    private Connection _dbConn;
+    @Autowired
+    private Logger logger;
 
-    //region DAO methods implementations
-    @Override
-    public void initConn() throws SQLException {
-
-        _dbConn = DriverManager.getConnection("jdbc:mysql://" + ServerConstants.DB_SERVER_HOST + ":" + ServerConstants.DB_SERVER_PORT + "/sys?" +
-                "user=" + ServerConstants.DB_SERVER_USER + "&password=" + ServerConstants.DB_SERVER_PWD);
-    }
-
-    @Override
-    public void closeConn() {
-
-        if (_dbConn != null)
-            try {
-                _dbConn.close();
-            } catch (SQLException ignored) {
-            }
-    }
+    @Autowired
+    private PooledDataSource dataSource;
 
     @Override
     public void registerUser(String uid, String token) throws SQLException {
@@ -152,88 +142,17 @@ public class MySqlDAO implements DAO {
 
     @Override
     public UserDBO getUserRecord(String uid) throws SQLException {
-
+        JdbcOperations jdbcOperations = new JdbcTemplate(dataSource);
         String query = "SELECT *" + " FROM " + TABLE_USERS + " WHERE " + COL_UID + "=" + quote(uid);
-        Statement st = null;
-        ResultSet resultSet = null;
-        UserDBO record = null;
-
-        try {
-            initConn(); // Must init before each query since after 8 hours the connection is timed out
-            st = _dbConn.createStatement();
-            resultSet = st.executeQuery(query);
-            while (resultSet.next()) {
-                record = new UserDBO(
-                        resultSet.getString(1),                                 // uid
-                        resultSet.getString(2),                                 // token
-                        resultSet.getDate(3),                                   // registered_date
-                        Enum.valueOf(UserStatus.class, resultSet.getString(4)), // user_status
-                        resultSet.getDate(5),                                   // unregistered_date
-                        resultSet.getInt(6),                                    // unregistered_count
-                        resultSet.getString(7),                                 // device_model
-                        resultSet.getString(8)                                  // android_version
-                );
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            if (st != null)
-                try {
-                    st.close();
-                } catch (SQLException ignored) {
-                }
-            if (resultSet != null)
-                try {
-                    resultSet.close();
-                } catch (SQLException ignored) {
-                }
-            closeConn();
-        }
-        return record;
+        logger.config("Executing SQL query:[" + query + "]");
+        return jdbcOperations.queryForObject(query, new UserDboRowMapper());
     }
 
     @Override
     public AppMetaDBO getAppMetaRecord() throws SQLException {
-
-        StringBuilder query = new StringBuilder();
-
-        query.
-                append("SELECT ").append("*").
-                append(" FROM ").append(TABLE_APP_META);
-
-        Statement st = null;
-        ResultSet resultSet = null;
-        AppMetaDBO appMetaDBO = null;
-
-        try {
-            initConn(); // Must init before each query since after 8 hours the connection is timed out
-            st = _dbConn.createStatement();
-            resultSet = st.executeQuery(query.toString());
-            double[] res = new double[2];
-            if (resultSet.first()) {
-                res[0] = resultSet.getDouble(1);
-            }
-
-            appMetaDBO = new AppMetaDBO(res[0]);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            if (st != null)
-                try {
-                    st.close();
-                } catch (SQLException ignored) {
-                }
-            if (resultSet != null)
-                try {
-                    resultSet.close();
-                } catch (SQLException ignored) {
-                }
-            closeConn();
-        }
-        return appMetaDBO;
+        JdbcOperations jdbcOperations = new JdbcTemplate(dataSource);
+        String query = "SELECT * FROM " + TABLE_APP_META;
+        return jdbcOperations.queryForObject(query, new AppMetaRowMapper());
     }
 
     //TODO Mor: Test this method
@@ -334,7 +253,6 @@ public class MySqlDAO implements DAO {
     @Override
     public void updateUserRecord(String uid, UserDBO userRecord) throws SQLException {
 
-
         StringBuilder query = new StringBuilder("UPDATE " + TABLE_USERS);
         uid = quote(uid);
         String androidVersion = quote(userRecord.getAndroidVersion());
@@ -378,107 +296,58 @@ public class MySqlDAO implements DAO {
     }
 
     @Override
-    public int insertMediaTransferRecord(Map data) throws SQLException {
+    public int insertMediaTransferRecord(MediaTransferDBO mediaTransferDBO, MediaFileDBO mediaFileDBO) throws SQLException {
 
-        String extension = (String) data.get(DataKeys.EXTENSION);
-        long fileSize = (long) data.get(DataKeys.FILE_SIZE);
+        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(dataSource).
+                withTableName(TABLE_MEDIA_TRANSFERS).
+                usingGeneratedKeyColumns(COL_TRANSFER_ID);
 
-        insertMediaFileRecord(
-                data.get(DataKeys.MD5).toString(),
-                extension,
-                fileSize,
-                COL_TRANSFER_COUNT);
+        insertMediaFileRecord(mediaFileDBO, COL_TRANSFER_COUNT);
 
-        StringBuilder query = new StringBuilder();
-        query.
-                append("INSERT INTO ").
-                append(TABLE_MEDIA_TRANSFERS).
-                append(" (").
-                append(COL_TYPE).append(",").
-                append(COL_MD5).append(",").
-                append(COL_UID_SRC).append(",").
-                append(COL_UID_DEST).
-                append(")").
-                append(" VALUES (").
-                append(quote(data.get(DataKeys.SPECIAL_MEDIA_TYPE).toString())).append(",").
-                append(quote(data.get(DataKeys.MD5).toString())).append(",").
-                append(quote(data.get(DataKeys.SOURCE_ID).toString())).append(",").
-                append(quote(data.get(DataKeys.DESTINATION_ID).toString())).
-                append(")");
-
-        return executeReturnGenKeyQuery(query.toString());
+        SqlParameterSource parameters = new BeanPropertySqlParameterSource(mediaTransferDBO);
+        return jdbcInsert.executeAndReturnKey(parameters).intValue();
     }
 
     @Override
-    public void insertMediaCallRecord(CallRecord callRecord) throws SQLException {
+    public int insertMediaCallRecord(MediaCallDBO mediaCallDBO, List<MediaFile> mediaFiles) throws SQLException {
 
-        String type = callRecord.get_spMediaType().toString();
-        FileManager visualMediaFile;
-        FileManager audioMediaFile;
-        String visualMd5 = null;
-        String audioMd5 = null;
+        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(dataSource).
+                withTableName(TABLE_MEDIA_CALLS).
+                usingGeneratedKeyColumns(COL_CALL_ID);
 
-        if ((visualMediaFile = callRecord.get_visualMediaFile()) != null) {
-
-            visualMd5 = callRecord.get_visualMd5();
-            insertMediaFileRecord(visualMd5,
-                    visualMediaFile.getFileExtension(),
-                    (int) visualMediaFile.getFileSize(),
-                    COL_CALL_COUNT);
+        for (MediaFile mediaFile : mediaFiles) {
+            if (mediaFile != null)
+                insertMediaFileRecord(new MediaFileDBO(mediaFile.getMd5(), mediaFile.getExtension(), mediaFile.getSize()), COL_TRANSFER_COUNT);
         }
 
-        if((audioMediaFile = callRecord.get_audioMediaFile()) != null) {
-
-            audioMd5 = callRecord.get_audioMd5();
-            insertMediaFileRecord(audioMd5,
-                    audioMediaFile.getFileExtension(),
-                    (int) audioMediaFile.getFileSize(),
-                    COL_CALL_COUNT);
-        }
-
-        StringBuilder query = new StringBuilder();
-        query.
-                append("INSERT INTO ").
-                append(TABLE_MEDIA_CALLS).
-                append(" (").
-                append(COL_TYPE).append(",").
-                append(COL_MD5_VISUAL).append(",").
-                append(COL_MD5_AUDIO).append(",").
-                append(COL_UID_SRC).append(",").
-                append(COL_UID_DEST).
-                append(")").
-                append(" VALUES (").
-                append(quote(type)).append(",").
-                append(visualMd5 != null ? quote(visualMd5) : null).append(",").
-                append(audioMd5!=null ? quote(audioMd5) : null).append(",").
-                append(quote(callRecord.get_sourceId())).append(",").
-                append(quote(callRecord.get_destinationId())).
-                append(")");
-
-        executeQuery(query.toString());
+        SqlParameterSource parameters = new BeanPropertySqlParameterSource(mediaCallDBO);
+        return jdbcInsert.executeAndReturnKey(parameters).intValue();
     }
 
     @Override
-    public void insertMediaFileRecord(String md5, String extension, long size, String countColToInc) throws SQLException {
+    public void insertMediaFileRecord(MediaFileDBO mediaFileDBO, String countColToInc) throws SQLException {
 
-        StringBuilder query = new StringBuilder();
-        query.
-                append("INSERT IGNORE INTO ").
-                append(TABLE_MEDIA_FILES).
-                append(" (").
-                append(COL_MD5).append(",").
-                append(COL_CONTENT_EXTENSION).append(",").
-                append(COL_CONTENT_SIZE).
-                append(")").
-                append(" VALUES (").
-                append(quote(md5)).append(",").
-                append(quote(extension)).append(",").
-                append(quote(String.valueOf(size))).
-                append(")");
+        if(getMediaFileRecord(mediaFileDBO.getMd5())!=null) {
+            incrementColumn(TABLE_MEDIA_FILES, countColToInc, COL_MD5, mediaFileDBO.getMd5());
+            return;
+        }
+        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(dataSource).
+                withTableName(TABLE_MEDIA_FILES);
 
-        executeQuery(query.toString());
+        SqlParameterSource parameterSource = new BeanPropertySqlParameterSource(mediaFileDBO);
+        jdbcInsert.execute(parameterSource);
+        incrementColumn(TABLE_MEDIA_FILES, countColToInc, COL_MD5, mediaFileDBO.getMd5());
+    }
 
-        incrementColumn(TABLE_MEDIA_FILES, countColToInc, COL_MD5, md5);
+    @Override
+    public MediaFileDBO getMediaFileRecord(String md5) throws SQLException {
+        MediaFileDBO result = null;
+        try {
+            JdbcOperations jdbcOperations = new JdbcTemplate(dataSource);
+            String query = "SELECT * FROM " + TABLE_MEDIA_FILES + " WHERE " + COL_MD5 + "=" + quote(md5);
+            result = jdbcOperations.queryForObject(query, new MediaFileRowMapper());
+        } catch(EmptyResultDataAccessException ignored) {}
+        return result;
     }
 
     @Override
@@ -503,81 +372,23 @@ public class MySqlDAO implements DAO {
     }
 
     @Override
-    public int getUserSmsVerificationCode(String uid) throws SQLException {
-
-        String query = "SELECT " + COL_CODE + " FROM " + TABLE_SMS_VERIFICATION + " WHERE " + COL_UID + "=" + quote(uid);
-        Statement st = null;
-        ResultSet resultSet = null;
-        int code = 0;
-
+    public int getSmsVerificationCode(String uid) throws SQLException {
+        int smsCode = 0;
         try {
-            initConn(); // Must init before each query since after 8 hours the connection is timed out
-            st = _dbConn.createStatement();
-            resultSet = st.executeQuery(query);
-            if (resultSet.first())
-                code = resultSet.getInt(1);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            if (st != null)
-                try {
-                    st.close();
-                } catch (SQLException ignored) {
-                }
-            if (resultSet != null)
-                try {
-                    resultSet.close();
-                } catch (SQLException ignored) {
-                }
-            closeConn();
-        }
-        return code;
+            String query = "SELECT * FROM " + TABLE_SMS_VERIFICATION + " WHERE " + COL_UID + "=" + quote(uid);
+            JdbcOperations jdbcOperations = new JdbcTemplate(dataSource);
+
+            SmsVerificationDBO smsVerificationDBO = jdbcOperations.queryForObject(query, new SmsVerificationRowMapper());
+            smsCode = smsVerificationDBO.getCode();
+        } catch (EmptyResultDataAccessException ignored) {}
+        return smsCode;
     }
 
     @Override
-    public List<MediaTransferRecord> getAllUserMediaTransferRecords(String uid) throws SQLException {
-
-        String query = "SELECT *" + " FROM " + TABLE_MEDIA_TRANSFERS + " WHERE " + COL_UID_SRC + "=" + quote(uid);
-        Statement st = null;
-        ResultSet resultSet = null;
-        List<MediaTransferRecord> records = new LinkedList<MediaTransferRecord>();
-
-        try {
-            initConn(); // Must init before each query since after 8 hours the connection is timed out
-            st = _dbConn.createStatement();
-            resultSet = st.executeQuery(query);
-            while (resultSet.next()) {
-
-                records.add(new MediaTransferRecord(
-                        resultSet.getInt(1),    // transfer_id
-                        Enum.valueOf(SpecialMediaType.class, resultSet.getString(2)), // type
-                        resultSet.getString(3), // md5
-                        resultSet.getString(4), // uid_src
-                        resultSet.getString(5), // uid_dest
-                        resultSet.getDate(6),   // datetime
-                        (resultSet.getInt(7)!=0), // transfer_success
-                        resultSet.getDate(8)    // transfer_datetime
-                ));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            if (st != null)
-                try {
-                    st.close();
-                } catch (SQLException ignored) {
-                }
-            if (resultSet != null)
-                try {
-                    resultSet.close();
-                } catch (SQLException ignored) {
-                }
-            closeConn();
-        }
-        return records;
+    public List<MediaTransferDBO> getAllUserMediaTransferRecords(String uid) throws SQLException {
+        JdbcOperations jdbcOperations = new JdbcTemplate(dataSource);
+        String query = "SELECT *" + " FROM " + TABLE_MEDIA_TRANSFERS + " WHERE " + COL_UID_SRC + "=?";
+        return jdbcOperations.query(query, new MediaTransferRowMapper(), uid);
     }
 
     @Override
@@ -608,54 +419,10 @@ public class MySqlDAO implements DAO {
     }
     //endregion
 
-    //region Internal operations methods and helpers
-    private int executeReturnGenKeyQuery(String query) throws SQLException {
-
-        PreparedStatement preparedStatement = null;
-        try {
-            initConn(); // Must init before each query since after 8 hours the connection is timed out
-            preparedStatement = _dbConn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            preparedStatement.executeUpdate();
-            ResultSet res = preparedStatement.getGeneratedKeys();
-            if (res.next())
-                return res.getInt(1);
-            throw new SQLException("No generated key returned from query");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            if (preparedStatement != null)
-                try {
-                    preparedStatement.close();
-                    preparedStatement = null;
-                } catch (SQLException ignored) {
-                }
-            closeConn();
-        }
-    }
-
     private void executeQuery(String query) throws SQLException {
-
-
-        Statement stmt = null;
-        try {
-            initConn(); // Must init before each query since after 8 hours the connection is timed out
-            stmt = _dbConn.createStatement();
-            stmt.execute(query);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            if (stmt != null) {
-                try {
-                    stmt.close();
-                    stmt = null;
-                } catch (SQLException ignored) {
-                }
-            }
-            closeConn();
-        }
+        logger.config("Executing SQL query:[" + query + "]");
+        JdbcOperations jdbcOperations = new JdbcTemplate(dataSource);
+        jdbcOperations.execute(query);
     }
 
     private String quote(String str) {

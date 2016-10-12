@@ -43,7 +43,7 @@ public class ServerActionUploadFile_v2 extends com.server.actions.v1.ServerActio
         dataForHandler.put(DataKeys.FILE_FULL_PATH, fileFullPath);
         data.putAll(dataForHandler);
 
-        initiateUploadfileFlow(data, fileFullPath, fileSize, specialMediaType);
+        initiateUploadFileFlow(data, fileFullPath, fileSize, specialMediaType);
 
     }
 }

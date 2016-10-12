@@ -1,6 +1,8 @@
 package com.server.actions.v1;
 
 import com.server.actions.ServerAction;
+import com.server.database.dbos.MediaFileDBO;
+import com.server.database.dbos.MediaTransferDBO;
 import com.server.handlers.SpMediaPathHandler;
 import com.server.lang.LangStrings;
 
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +55,16 @@ public class ServerActionUploadFile extends ServerAction {
     }
 
 
+    @Autowired
+    public void initMap(List<SpMediaPathHandler> spMediaPathHandlerList) {
+        for (SpMediaPathHandler spMediaPathHandler : spMediaPathHandlerList) {
+            spMedia2PathHandlerMap.put(spMediaPathHandler.getHandledSpMediaType(), spMediaPathHandler);
+        }
+    }
+
     @Override
     public void doAction(Map data) throws IOException {
-        
+
         StringBuilder fileFullPath = new StringBuilder();
         Path currentRelativePath = Paths.get("");
 
@@ -70,11 +80,11 @@ public class ServerActionUploadFile extends ServerAction {
         dataForHandler.put(DataKeys.FILE_FULL_PATH, fileFullPath);
         data.putAll(dataForHandler);
 
-        initiateUploadfileFlow(data, fileFullPath, managedFile.getFileSize(), specialMediaType);
+        initiateUploadFileFlow(data, fileFullPath, managedFile.getFileSize(), specialMediaType);
 
     }
 
-    protected void initiateUploadfileFlow(Map data, StringBuilder fileFullPath, long fileSize, SpecialMediaType specialMediaType) {
+    protected void initiateUploadFileFlow(Map data, StringBuilder fileFullPath, long fileSize, SpecialMediaType specialMediaType) {
         SpMediaPathHandler spMediaPathHandler = spMedia2PathHandlerMap.get(specialMediaType);
         spMediaPathHandler.appendPathForMedia(data);
 
@@ -100,14 +110,15 @@ public class ServerActionUploadFile extends ServerAction {
             logger.info("Reading data...");
             byte[] buf = new byte[1024 * 8];
             int bytesRead;
-            while (fileSize > 0 && (bytesRead = dis.read(buf, 0, (int) Math.min(buf.length, fileSize))) != -1) {
+            long bytesLeft = fileSize;
+            while (bytesLeft > 0 && (bytesRead = dis.read(buf, 0, (int) Math.min(buf.length, fileSize))) != -1) {
                 bos.write(buf, 0, bytesRead);
-                fileSize -= bytesRead;
+                bytesLeft -= bytesRead;
             }
 
-            if (fileSize > 0)
+            if (bytesLeft > 0)
                 throw new IOException("Upload was stopped abruptly");
-            else if (fileSize < 0)
+            else if (bytesLeft < 0)
                 throw new IOException("Read too many bytes. Upload seems corrupted.");
 
 
@@ -117,7 +128,7 @@ public class ServerActionUploadFile extends ServerAction {
             replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
 
             // Inserting the record of the file upload, retrieving back the commId
-            int commId = dao.insertMediaTransferRecord(data);
+            int commId = insertFileUploadRecord(data, specialMediaType, destId, fileSize);
             logger.info("commId returned:" + commId);
 
             // Sending file to destination
@@ -144,11 +155,19 @@ public class ServerActionUploadFile extends ServerAction {
         }
     }
 
-    @Autowired
-    public void initMap(List<SpMediaPathHandler> spMediaPathHandlerList) {
-        for (SpMediaPathHandler spMediaPathHandler : spMediaPathHandlerList) {
-            spMedia2PathHandlerMap.put(spMediaPathHandler.getHandledSpMediaType(), spMediaPathHandler);
-        }
+    private Integer insertFileUploadRecord(Map<DataKeys, Object> data, SpecialMediaType specialMediaType, String destId, long fileSize) throws SQLException {
+        String md5 = data.get(DataKeys.MD5).toString();
+        String extension = data.get(DataKeys.EXTENSION).toString();
+        MediaTransferDBO mediaTransferDBO = new MediaTransferDBO(
+                specialMediaType,
+                md5,
+                data.get(DataKeys.SOURCE_ID).toString(),
+                destId
+                ,new Date());
+
+        Integer commId = dao.insertMediaTransferRecord(mediaTransferDBO, new MediaFileDBO(md5, extension, fileSize));
+        logger.info("commId returned:" + commId);
+        return commId;
     }
 
     private void sendMediaUndeliveredMsgToUploader(Map data) {
@@ -165,7 +184,7 @@ public class ServerActionUploadFile extends ServerAction {
         String errMsgHtml = String.format(strings.media_undelivered_body(), destHtml);
 
         // Packing HTML string as push data
-        HashMap<DataKeys, Object> replyData = new HashMap();
+        HashMap<DataKeys, Object> replyData = new HashMap<>();
         replyData.put(DataKeys.HTML_STRING, errMsgHtml);
 
         String initiaterToken = usersDataAccess.getUserRecord(messageInitiaterId).getToken();

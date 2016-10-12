@@ -1,6 +1,7 @@
 package com.server.database;
 
-import DataObjects.UserDBO;
+
+import com.server.database.dbos.UserDBO;
 
 /**
  * Created by Mor on 25/07/2016.

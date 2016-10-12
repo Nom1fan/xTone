@@ -2,9 +2,10 @@ package com.server.spring;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.server.actions.ServerActionFactory;
-import com.server.database.DAO;
-import com.server.database.DaoFactory;
+import com.server.database.Dao;
+import com.server.data.ServerConstants;
 import com.server.servers.GenericServer;
 import com.ui.MainFrame;
 
@@ -33,13 +34,10 @@ import LogObjects.LogsManager;
 public class SpringConfig {
 
     @Autowired
-    private DaoFactory daoFactory;
-
-    @Autowired
-    private DAO dao;
+    private Dao dao;
 
     @Bean
-    public ServiceLocatorFactoryBean getFactoryServiceLocatorFactoryBean()
+    public ServiceLocatorFactoryBean getServiceLocatorFactoryBean()
     {
         ServiceLocatorFactoryBean bean = new ServiceLocatorFactoryBean();
         bean.setServiceLocatorInterface(ServerActionFactory.class);
@@ -50,7 +48,18 @@ public class SpringConfig {
     @Bean
     public ServerActionFactory getServerActionFactory()
     {
-        return (ServerActionFactory) getFactoryServiceLocatorFactoryBean().getObject();
+        return (ServerActionFactory) getServiceLocatorFactoryBean().getObject();
+    }
+
+    @Bean
+    ComboPooledDataSource getDataSource() {
+        ComboPooledDataSource dataSource = new ComboPooledDataSource();
+        String jdbcUrl = "jdbc:mysql://" + ServerConstants.DB_SERVER_HOST + ":" + ServerConstants.DB_SERVER_PORT + "/sys";
+        dataSource.setJdbcUrl(jdbcUrl);
+//        dataSource.setTestConnectionOnCheckin(true);
+        dataSource.setUser(ServerConstants.DB_SERVER_USER);
+        dataSource.setPassword(ServerConstants.DB_SERVER_PWD);
+        return dataSource;
     }
 
     @Bean

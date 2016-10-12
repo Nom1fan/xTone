@@ -1,6 +1,7 @@
 package com.ui;
 
-import com.server.database.DAO;
+import com.server.database.Dao;
+import com.server.database.dbos.UserDBO;
 import com.server.pushservice.PushSender;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import DataObjects.PushEventKeys;
-import DataObjects.UserDBO;
 
 /**
  * Created by Mor on 28/03/2016.
@@ -26,7 +26,7 @@ import DataObjects.UserDBO;
 public class SendPushPanel extends JPanel {
 
     @Autowired
-    private DAO dao;
+    private Dao dao;
 
     @Autowired
     private PushSender pushSender;

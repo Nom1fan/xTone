@@ -2,7 +2,7 @@ package com.server.actions.v1;
 
 import com.server.actions.ServerAction;
 import com.server.database.SmsVerificationAccessImpl;
-import com.server.lang.ServerConstants;
+import com.server.data.ServerConstants;
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;

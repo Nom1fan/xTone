@@ -163,7 +163,7 @@ public abstract class AbstractClient implements Runnable
         {
             try
             {
-                closeAll();
+                closeConnection();
                 connectionException(ex);
             }
             catch (Exception ignored) { }

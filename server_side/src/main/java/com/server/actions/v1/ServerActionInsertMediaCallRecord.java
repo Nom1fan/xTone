@@ -1,13 +1,19 @@
 package com.server.actions.v1;
 
 import com.server.actions.ServerAction;
+import com.server.data.ExtendedCallRecord;
+import com.server.data.MediaFile;
+import com.server.database.dbos.MediaCallDBO;
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -36,7 +42,10 @@ public class ServerActionInsertMediaCallRecord extends ServerAction {
         CallRecord callRecord = (CallRecord) data.get(DataKeys.CALL_RECORD);
         logger.info("Inserting call record" + callRecord.toString());
         try {
-            dao.insertMediaCallRecord(callRecord);
+            ExtendedCallRecord extendedCallRecord = new ExtendedCallRecord(callRecord);
+            MediaCallDBO mediaCallDBO = prepareMediaCallDBO(extendedCallRecord);
+            List<MediaFile> mediaFiles = prepareMediaFiles(extendedCallRecord);
+            int callId = dao.insertMediaCallRecord(mediaCallDBO, mediaFiles);
         } catch (SQLException e) {
             e.printStackTrace();
             logger.log(Level.SEVERE, e.getMessage(), e);
@@ -44,5 +53,24 @@ public class ServerActionInsertMediaCallRecord extends ServerAction {
         HashMap<DataKeys, Object> replyData = new HashMap<>();
         replyData.put(DataKeys.EVENT_REPORT, new EventReport(EventType.NO_ACTION_REQUIRED));
         replyToClient(new MessageToClient(ClientActionType.TRIGGER_EVENT, replyData));
+    }
+
+    private List<MediaFile> prepareMediaFiles(final ExtendedCallRecord callRecord) {
+        LinkedList<MediaFile> mediaFiles = new LinkedList<>();
+        if(callRecord.getVisualMediaFile()!=null)
+            mediaFiles.add(callRecord.getVisualMediaFile());
+        if(callRecord.getAudioMediaFile()!=null)
+            mediaFiles.add(callRecord.getAudioMediaFile());
+        return mediaFiles;
+    }
+
+    private MediaCallDBO prepareMediaCallDBO(ExtendedCallRecord callRecord) {
+        return new MediaCallDBO(
+                callRecord.getSpecialMediaType(),
+                callRecord.getVisualMd5(),
+                callRecord.getAudioMd5(),
+                callRecord.getSourceId(),
+                callRecord.getDestinationId(),
+                new Date());
     }
 }
