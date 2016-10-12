@@ -34,7 +34,7 @@
     <string name="get_sms_code">Click to receive SMS code</string>
     <string name="login">Click to login</string>
     <string name="sign_in">Sign-in</string>
-    <string name="sms_code_hint"> SMS code you received</string>
+    <string name="sms_code_hint"> SMS code</string>
     <string name="your_phone"> Your phone number</string>
     <string name="terms_and_conditions_title">Terms of Service and Privacy Policy</string>
     <string name="login_terms_title">Terms of Service</string>
@@ -78,7 +78,7 @@
     <string name="deleting_account_msg">Deleting account…</string>
     <string name="action_cancelled">Action cancelled</string>
     <string name="invite_dialog_title">Unregistered</string>
-    <string name="invite_dialog_summary"> Invite him now to get MediaCallz!</string>
+    <string name="invite_dialog_summary"> Invite him now to get MediaCallz, and surprise him with video ringtones and more</string>
     <string name="invite_btn">Invite</string>
     <string name="clear_dialog_title">Return to normal ringing (without media)</string>
     <string name="clear_dialog_summary"> This will remove MC media from that user, so you will call without media</string>

@@ -3,7 +3,6 @@ package com.handlers.select_media_activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
@@ -15,11 +14,11 @@ import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
 import com.ui.activities.PreviewMediaActivity;
 import com.ui.activities.SelectMediaActivity;
+import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
-import java.io.IOException;
 
 import Exceptions.FileDoesNotExistException;
 import Exceptions.FileExceedsMaxSizeException;
@@ -33,7 +32,6 @@ import FilesManager.FileManager;
 public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
     protected String TAG;
-    protected MediaPlayer mMediaPlayer = new MediaPlayer();
     protected SelectMediaActivity selectMediaActivity;
 
     protected void startPreviewActivity(Context ctx, Intent data, boolean isCamera) {
@@ -44,7 +42,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
             FileManager managedFile;
 
             managedFile = new FileManager(filepath);
-            if(canMediaBePrepared(ctx, managedFile)) {
+            if(MediaFilesUtils.canMediaBePrepared(ctx, managedFile)) {
                 startPreviewActivity(managedFile.getFileFullPath());
             }
             else
@@ -60,57 +58,6 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         } catch (Exception e) {
             e.printStackTrace();
             showInvalidFileOrPathToast(selectMediaActivity);
-        }
-    }
-
-    protected boolean canMediaBePrepared(Context ctx, FileManager managedFile) {
-
-        boolean result = true;
-        try {
-            FileManager.FileType fType = managedFile.getFileType();
-            String filepath = managedFile.getFileFullPath();
-            final File root = new File(filepath);
-            Uri uri = Uri.fromFile(root);
-
-            switch (fType) {
-                case AUDIO:
-                    checkIfWeCanPrepareSound(ctx, uri);
-                    break;
-
-                case VIDEO:
-                    checkIfWeCanPrepareVideo(ctx, uri);
-                    break;
-
-                case IMAGE:
-                    break;
-            }
-        } catch (Exception e) {
-            result = false;
-        }
-        return result;
-
-    }
-
-    protected void checkIfWeCanPrepareSound(Context ctx ,Uri audioUri) throws IOException {
-
-        Crashlytics.log(Log.INFO,TAG, "Checking if Sound Can Be Prepared and work");
-        mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setDataSource(ctx, audioUri);
-        mMediaPlayer.prepare();
-        mMediaPlayer.setLooping(true);
-    }
-
-    protected void checkIfWeCanPrepareVideo(Context ctx, Uri videoUri) throws Exception {
-
-        Crashlytics.log(Log.INFO,TAG, "Checking if Video Can Be Prepared and work");
-        mMediaPlayer = new MediaPlayer();
-        mMediaPlayer.setDataSource(ctx, videoUri);
-        mMediaPlayer.prepare();
-        mMediaPlayer.setLooping(true);
-        int width = mMediaPlayer.getVideoWidth();
-        int height = mMediaPlayer.getVideoHeight();
-        if (width <= 0 || height <= 0) {
-            throw new Exception();
         }
     }
 

@@ -204,6 +204,7 @@ public class VideoPagerFragment extends BaseFragment implements PostPopulateList
             Button downloadButton = (Button) videoPageLayout.findViewById(R.id.downloadButton);
             downloadButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View arg0) {
+                    videoViews[currentViewPos].pause();
                     downloadFile(videoUrls.get(position));
                 }
             });

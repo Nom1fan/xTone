@@ -200,8 +200,6 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
             Log.i(TAG," STOP HISTORY AUDIO FILE");
             try {
                 mMediaPlayer.stop();
-                mMediaPlayer.release();
-                mMediaPlayer = null;
 
                 isPreviewDisplaying = true;
                 PlayPauseBtn.setImageResource(R.drawable.play_preview_anim);
@@ -310,12 +308,29 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
             mMediaPlayer = new MediaPlayer();
         try {
             mMediaPlayer.stop();
-            mMediaPlayer.release();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        log(Log.INFO, TAG, "onDestroy");
+
+
+        if (mMediaPlayer == null)
+            mMediaPlayer = new MediaPlayer();
+        try {
+            mMediaPlayer.release();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        super.onDestroy();
+
     }
 
     private void returnWithResultIntent() {

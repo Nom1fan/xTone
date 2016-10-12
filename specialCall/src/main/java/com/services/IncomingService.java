@@ -187,15 +187,35 @@ public class IncomingService extends AbstractStandOutService {
                             SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.INCOMING_WINDOW_SESSION,true);
                             setRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION, true); // TODO placed here to fix a bug that sometimes it get entered twice (second time by the fallback receiver when we answer very quick) , is this a good place for it i don't know :/
 
-                            mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                            backupRingSettings();
-                            backupMusicVolume();
 
                             String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, incomingNumber);
                             String ringtonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, incomingNumber);
 
                             boolean ringtoneExists = new File(ringtonePath).exists() && !MediaFilesUtils.isAudioFileCorrupted(ringtonePath,getApplicationContext());
                             boolean visualMediaExists = new File(mediaFilePath).exists() && !MediaFilesUtils.isVideoFileCorrupted(mediaFilePath,getApplicationContext());
+                            boolean willMuteRing = false;
+
+                            if (visualMediaExists)
+                            {
+                                try {
+                                    FileManager managedFile = new FileManager(mediaFilePath);
+                                    FileManager.FileType fType = managedFile.getFileType();
+                                    if (fType.equals(FileManager.FileType.VIDEO))
+                                        willMuteRing = true;
+                                }catch (Exception e)
+                                {
+                                    e.printStackTrace();
+                                    log(Log.INFO,TAG, "Video Is missing or corrupted. when checking visualMediaExists File Path: " + mediaFilePath);
+                                }
+                            }
+
+                            willMuteRing = ringtoneExists || willMuteRing;
+
+
+                            mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                            backupRingSettings(willMuteRing);
+                            backupMusicVolume();
+
 
                             if (ringtoneExists || visualMediaExists){
                                 log(Log.INFO,TAG, "MEDIA EXIST for incoming number RingtoneExists: " + ringtoneExists + " VisualMediaExists: " + visualMediaExists );
@@ -318,7 +338,6 @@ public class IncomingService extends AbstractStandOutService {
 
         String mediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, incomingNumber);
         String ringtonePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, incomingNumber);
-        File mediaFile = new File(mediaFilePath);
         final File ringtoneFile = new File(ringtonePath);
 
         try{

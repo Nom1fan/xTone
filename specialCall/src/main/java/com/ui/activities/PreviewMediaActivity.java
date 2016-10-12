@@ -259,9 +259,10 @@ public class PreviewMediaActivity extends AppCompatActivity {
         fileType.setText(getResources().getString(R.string.fileType_audio));
 
         MediaPlayer mp = MediaPlayer.create(PreviewMediaActivity.this, Uri.parse(_managedFile.getFileFullPath()));
-        if  (mp.getDuration() <= MIN_MILISECS_FOR_AUDIO_EDIT) {
-            return;
-        }
+        if (mp!=null)
+            if  (mp.getDuration() <= MIN_MILISECS_FOR_AUDIO_EDIT) {
+                return;
+            }
 
         final ImageButton edit_audio = (ImageButton) findViewById(R.id.editAudio);
         edit_audio.setClickable(true);

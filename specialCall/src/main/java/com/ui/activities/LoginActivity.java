@@ -210,6 +210,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
+                if (0 == s.length())
+                    _clearLoginPhoneText.setImageResource(0);
+                else
+                    _clearLoginPhoneText.setImageResource(R.drawable.clear_btn_anim);
+
                 if (10 == s.length()) {
 
                     if (PhoneNumberUtils.isValidPhoneNumber(s.toString())) {
@@ -316,6 +321,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
+                if (0 == s.length())
+                    _clearLoginSmsText.setImageResource(0);
+                else
+                    _clearLoginSmsText.setImageResource(R.drawable.clear_btn_anim);
+
                 if (4 == s.length()) {
                     enableLoginButton();
                 } else
@@ -334,11 +344,13 @@ public class LoginActivity extends AppCompatActivity {
     private void enableProgressBar() {
 
         _initProgressBar.setVisibility(ProgressBar.VISIBLE);
+        _loginlogo.setVisibility(View.INVISIBLE);
     }
 
     private void disableProgressBar() {
 
         _initProgressBar.setVisibility(ProgressBar.GONE);
+        _loginlogo.setVisibility(View.VISIBLE);
     }
 
     private void setInitTextView(String str) {

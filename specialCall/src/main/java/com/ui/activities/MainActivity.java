@@ -793,6 +793,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 public void onTextChanged(CharSequence s, int start, int before,
                                           int count) {
 
+
+                    if (0 == s.length())
+                        clearText.setImageResource(0);
+                    else
+                        clearText.setImageResource(R.drawable.clear_btn_anim);
+
                     String destPhone = s.toString();
 
                     if (PhoneNumberUtils.isValidPhoneNumber(destPhone)) {
