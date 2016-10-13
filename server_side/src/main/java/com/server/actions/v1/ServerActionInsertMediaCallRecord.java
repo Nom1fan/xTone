@@ -46,6 +46,7 @@ public class ServerActionInsertMediaCallRecord extends ServerAction {
             MediaCallDBO mediaCallDBO = prepareMediaCallDBO(extendedCallRecord);
             List<MediaFile> mediaFiles = prepareMediaFiles(extendedCallRecord);
             int callId = dao.insertMediaCallRecord(mediaCallDBO, mediaFiles);
+            logger.info("Call record inserted. CallId:[" + callId + "]");
         } catch (SQLException e) {
             e.printStackTrace();
             logger.log(Level.SEVERE, e.getMessage(), e);
