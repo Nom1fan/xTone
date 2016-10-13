@@ -47,7 +47,7 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
     private ViewPager pager;
     private CustomVideoView videoView = null;
     private CustomVideoView[] videoViews;
-    private MediaController mediacontroller;
+    private MediaController mediaController;
     private ImageView mImageViewForMediaController;
     private List<String> fileNames;
     private List<String> audioThumbsUrls;
@@ -109,11 +109,11 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
                 videoViews[currentViewPos].pause();
 
             videoViews[position].setVideoURI(Uri.parse(audioUrls.get(position)));
-            videoViews[position].setMediaController(mediacontroller);
+            videoViews[position].setMediaController(mediaController);
             videoViews[position].setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 public void onPrepared(MediaPlayer mp) {
                     dismissProgressDialog();
-                    mediacontroller.show();
+                    mediaController.show();
                 }
             });
 
@@ -144,13 +144,13 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
     }
 
     private void prepareMediaController() {
-        mediacontroller = new MediaController(getActivity()) {
+        mediaController = new MediaController(getActivity()) {
 
           /*  @Override
             public void hide() {
 
                 try {
-                    mediacontroller.show();
+                    mediaController.show();
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -159,13 +159,13 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
             public boolean dispatchKeyEvent(KeyEvent event) {
                 if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
                     currentViewPos=null;
-                    mediacontroller.hide();
+                    mediaController.hide();
                     ((Activity) getContext()).finish();
                 }
                 return super.dispatchKeyEvent(event);
             }
         };
-        mediacontroller.setAnchorView(videoView);
+        mediaController.setAnchorView(videoView);
     }
 
     private void preparePager() {
@@ -232,14 +232,14 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
             assert audioPageLayout != null;
 
             videoView = (CustomVideoView) audioPageLayout.findViewById(R.id.videoView);
-            videoView.setMediaController(mediacontroller);
+            videoView.setMediaController(mediaController);
            // videoView.setVideoURI(Uri.parse(audioUrls.get(position)));
 
             videoView.requestFocus();
             videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 public void onPrepared(MediaPlayer mp) {
                     dismissProgressDialog();
-                    mediacontroller.show();
+                    mediaController.show();
                 }
             });
 
@@ -263,7 +263,11 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
             mImageViewForMediaController = (ImageView) audioPageLayout.findViewById(R.id.imageView_for_mediacontroller);
             mImageViewForMediaController.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View arg0) {
-                    mediacontroller.show();
+
+                    if (videoViews[currentViewPos] != null) {
+                        mediaController.setMediaPlayer(videoViews[currentViewPos]);
+                        mediaController.show();
+                    }
                 }
             });
 
