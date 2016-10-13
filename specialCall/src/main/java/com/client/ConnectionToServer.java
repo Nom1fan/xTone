@@ -139,7 +139,7 @@ public class ConnectionToServer {
                     fileSize -= bytesRead;
                 }
                 if (fileSize > 0)
-                    throw new IOException("download was stopped abruptly");
+                    throw new IOException("download was stopped abruptly. " + fileSize + " bytes left.");
             }
             else
                 log(Log.ERROR, TAG, "Download failed. Response code:" + responseCode);

@@ -197,7 +197,10 @@ public class StorageServerProxyService extends AbstractServerProxy {
 
         }
 
-        long fileSize = Long.valueOf(collectionsUtils.extractValueFromSimpleEntryList(DataKeys.FILE_SIZE, data).toString());
+        String sFileSize = collectionsUtils.extractValueFromSimpleEntryList(DataKeys.FILE_SIZE, data).toString();
+        long fileSize;
+        try { fileSize = Long.valueOf(sFileSize); }
+        catch(Exception e) { fileSize = Double.valueOf(sFileSize).longValue(); }
         connectionToServer.download(URL_DOWNLOAD, folderPath.getAbsolutePath(), fileName, fileSize, data);
     }
 
