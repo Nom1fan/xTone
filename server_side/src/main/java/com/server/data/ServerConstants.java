@@ -19,6 +19,11 @@ public abstract class ServerConstants {
     public static final int DB_SERVER_PORT = 3306;
     public static final String DB_SERVER_USER = "root";
     public static final String DB_SERVER_PWD = "egg9986";
+    public static final int DB_MAX_POOL_SIZE = 20;
+    public static final int DB_ACQUIRE_INCREMENT = 1;
+    public static final boolean DB_TEST_CONNECTION_ON_CHECKIN = true;
+    public static final int DB_IDLE_CONNECTION_PERIOD = 300;
+    public static final int DB_IDLE_TIME_EXCESS_CONNECTIONS = 240;
     //endregion
 
     //region Directory paths properties

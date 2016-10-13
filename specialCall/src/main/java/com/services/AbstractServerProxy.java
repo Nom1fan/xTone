@@ -100,6 +100,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
             setMidAction(false);
 
         } catch (Exception e) {
+            e.printStackTrace();
             String errMsg = "Handling message from server failed. Reason:" + e.getMessage();
             log(Log.ERROR,TAG, errMsg);
         } finally {

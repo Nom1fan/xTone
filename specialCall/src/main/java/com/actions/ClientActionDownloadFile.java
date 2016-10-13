@@ -58,18 +58,21 @@ public class ClientActionDownloadFile extends ClientAction {
             DataInputStream dis = new DataInputStream(_connectionToServer.getClientSocket().getInputStream());
 
             System.out.println("Reading data...");
-            Object oFileSize = data.get(DataKeys.FILE_SIZE);
+            String sFileSize = data.get(DataKeys.FILE_SIZE).toString();
+            long fileSize;
             byte[] buf = new byte[1024*8];
-            long fileSize = oFileSize instanceof Long ? (Long)oFileSize : ((Double)oFileSize).longValue();
+            try { fileSize = Long.valueOf(sFileSize); }
+            catch(Exception e) { fileSize = Double.valueOf(sFileSize).longValue(); }
             int bytesRead;
-            while (fileSize > 0 && (bytesRead = dis.read(buf, 0, (int)Math.min(buf.length, fileSize))) != -1)
+            long bytesToRead = fileSize;
+            while (bytesToRead > 0 && (bytesRead = dis.read(buf, 0, (int)Math.min(buf.length, fileSize))) != -1)
             {
                 bos.write(buf,0,bytesRead);
-                fileSize -= bytesRead;
+                bytesToRead -= bytesRead;
             }
 
-            if(fileSize > 0)
-                throw new IOException("download was stopped abruptly");
+            if(bytesToRead > 0)
+                throw new IOException("download was stopped abruptly. " + bytesToRead + " out of " + fileSize + " bytes left.");
 
         }
         finally {

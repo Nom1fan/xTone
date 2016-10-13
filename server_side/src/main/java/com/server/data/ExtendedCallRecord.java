@@ -31,11 +31,12 @@ public class ExtendedCallRecord implements Serializable {
         sourceId = callRecord.get_sourceId();
         destinationId = callRecord.get_destinationId();
 
-        visualMediaFile = new MediaFile(callRecord.get_visualMediaFile().getFile());
-        audioMediaFile = new MediaFile(callRecord.get_audioMediaFile().getFile());
-
         visualMd5 = callRecord.get_visualMd5();
         audioMd5 = callRecord.get_audioMd5();
+
+        visualMediaFile = new MediaFile(callRecord.get_visualMediaFile().getFile(), visualMd5);
+        audioMediaFile = new MediaFile(callRecord.get_audioMediaFile().getFile(), audioMd5);
+
     }
 }
 

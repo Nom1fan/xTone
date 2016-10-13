@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.server.actions.ServerActionFactory;
-import com.server.database.Dao;
 import com.server.data.ServerConstants;
+import com.server.database.Dao;
 import com.server.servers.GenericServer;
 import com.ui.MainFrame;
 
@@ -56,9 +56,13 @@ public class SpringConfig {
         ComboPooledDataSource dataSource = new ComboPooledDataSource();
         String jdbcUrl = "jdbc:mysql://" + ServerConstants.DB_SERVER_HOST + ":" + ServerConstants.DB_SERVER_PORT + "/sys";
         dataSource.setJdbcUrl(jdbcUrl);
-//        dataSource.setTestConnectionOnCheckin(true);
         dataSource.setUser(ServerConstants.DB_SERVER_USER);
         dataSource.setPassword(ServerConstants.DB_SERVER_PWD);
+        dataSource.setMaxPoolSize(ServerConstants.DB_MAX_POOL_SIZE);
+        dataSource.setAcquireIncrement(ServerConstants.DB_ACQUIRE_INCREMENT);
+        dataSource.setTestConnectionOnCheckin(ServerConstants.DB_TEST_CONNECTION_ON_CHECKIN);
+        dataSource.setIdleConnectionTestPeriod(ServerConstants.DB_IDLE_CONNECTION_PERIOD);
+        dataSource.setMaxIdleTimeExcessConnections(ServerConstants.DB_IDLE_TIME_EXCESS_CONNECTIONS);
         return dataSource;
     }
 

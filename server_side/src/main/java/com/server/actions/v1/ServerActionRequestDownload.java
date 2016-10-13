@@ -46,8 +46,9 @@ public class ServerActionRequestDownload extends ServerAction {
     @Override
     public void doAction(Map data) throws IOException {
 
-        Object oCommId = data.get(DataKeys.COMM_ID);
-        commId = oCommId instanceof Double ? ((Double) oCommId).intValue() : (int) oCommId;
+        String oCommId = data.get(DataKeys.COMM_ID).toString();
+        try { commId = Integer.valueOf(oCommId); }
+        catch(Exception e) { commId = Double.valueOf(oCommId).intValue(); }
         sourceId = (String) data.get(DataKeys.SOURCE_ID);
         destId = (String) data.get(DataKeys.DESTINATION_ID);
         destContact = (String) data.get(DataKeys.DESTINATION_CONTACT_NAME);

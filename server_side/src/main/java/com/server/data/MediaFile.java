@@ -19,10 +19,15 @@ public class MediaFile implements Serializable {
     private FileType fileType;
     private boolean isCompressed = false;
 
+    public MediaFile(File file, String md5) {
+        this(file);
+        this.md5 = md5;
+    }
+
     public enum FileType { IMAGE, VIDEO, AUDIO }
 
     public MediaFile(File file) {
-        md5 = MediaFilesUtils.getMD5(file.getAbsolutePath());
+        md5 = file.exists() ?  MediaFilesUtils.getMD5(file.getAbsolutePath()) : null;
         this.file = file;
         extension = FilenameUtils.getExtension(file.getAbsolutePath());
         size = file.length();
