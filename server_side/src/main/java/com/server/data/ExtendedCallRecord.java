@@ -1,5 +1,6 @@
 package com.server.data;
 
+import java.io.File;
 import java.io.Serializable;
 
 import DataObjects.CallRecord;
@@ -34,9 +35,10 @@ public class ExtendedCallRecord implements Serializable {
         visualMd5 = callRecord.get_visualMd5();
         audioMd5 = callRecord.get_audioMd5();
 
-        visualMediaFile = new MediaFile(callRecord.get_visualMediaFile().getFile(), visualMd5);
-        audioMediaFile = new MediaFile(callRecord.get_audioMediaFile().getFile(), audioMd5);
-
+        File visualFile = callRecord.get_visualMediaFile()!= null ? callRecord.get_visualMediaFile().getFile() : null;
+        visualMediaFile = new MediaFile(visualFile, visualMd5);
+        File audioFile = callRecord.get_audioMediaFile()!= null ? callRecord.get_audioMediaFile().getFile() : null;
+        audioMediaFile = new MediaFile(audioFile, audioMd5);
     }
 }
 
