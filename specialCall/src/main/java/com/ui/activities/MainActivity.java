@@ -612,10 +612,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 inviteDialog.show(getFragmentManager(), TAG);
                 break;
 
-            case CLEAR_SENT:
-
-                break;
-
             case REFRESH_UI:
                 SnackbarData data = (SnackbarData) report.data();
                 syncUIwithAppState();
