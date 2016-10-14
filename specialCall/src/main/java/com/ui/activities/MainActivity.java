@@ -613,10 +613,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 break;
 
             case CLEAR_SENT:
-                if (!SharedPrefUtils.getBoolean(MainActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {
-                    UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this, "ClearMediaDialog", getResources().getString(R.string.sending_clear_contact)
-                            , getResources().getString(R.string.waiting_for_clear_transfer_sucess_dialog_msg));
-                }
+
                 break;
 
             case REFRESH_UI:
@@ -1265,7 +1262,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                         break;
                     case R.id.clearcallermedia:
-                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.CALLER_MEDIA, destPhoneNumber);
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.CALLER_MEDIA, destPhoneNumber,MainActivity.this);
                         clearDialog.show(getFragmentManager(), TAG);
                         break;
 
@@ -1330,7 +1327,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         break;
                     case R.id.clearprofilemedia:
 
-                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.PROFILE_MEDIA, destPhoneNumber);
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.PROFILE_MEDIA, destPhoneNumber,MainActivity.this);
                         clearDialog.show(getFragmentManager(), TAG);
 
                         break;

@@ -1,18 +1,17 @@
 package com.ui.dialogs;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.widget.TextView;
 
-import com.app.AppStateManager;
 import com.mediacallz.app.R;
 import com.services.StorageServerProxyService;
+import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import DataObjects.SpecialMediaType;
@@ -23,11 +22,13 @@ public class ClearMediaDialog extends android.app.DialogFragment {
     private static final String TAG  = ClearMediaDialog.class.getSimpleName();
     private String _destPhoneNumber  = "";
     private SpecialMediaType spMediaType;
+    private Context mcontext;
 
-    public ClearMediaDialog(SpecialMediaType MediaType , String destphoneNumber){
+    public ClearMediaDialog(SpecialMediaType MediaType , String destphoneNumber ,Context context ){
 
         _destPhoneNumber = destphoneNumber;
         spMediaType = MediaType;
+        mcontext = context;
     }
 
     @NonNull
@@ -50,10 +51,10 @@ public class ClearMediaDialog extends android.app.DialogFragment {
                         i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, spMediaType);
                         getActivity().getApplicationContext().startService(i);
 
-                        String timeoutMsg = getActivity().getResources().getString(R.string.oops_try_again);
-                        String loadingMsg = getActivity().getResources().getString(R.string.please_wait);
-                        AppStateManager.setLoadingState(getActivity(), TAG, loadingMsg, timeoutMsg);
-                        UI_Utils.showSnackBar(loadingMsg, Color.GREEN, Snackbar.LENGTH_INDEFINITE, true, getActivity());
+                        if (!SharedPrefUtils.getBoolean(mcontext, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {
+                            UI_Utils.showWaitingForTranferSuccussDialog(mcontext, "ClearMediaDialog", getResources().getString(R.string.sending_clear_contact)
+                                    , getResources().getString(R.string.waiting_for_clear_transfer_sucess_dialog_msg));
+                        }
 
                     }
                 })
