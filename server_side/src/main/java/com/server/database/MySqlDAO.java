@@ -142,10 +142,14 @@ public class MySqlDao implements Dao {
 
     @Override
     public UserDBO getUserRecord(String uid) throws SQLException {
-        JdbcOperations jdbcOperations = new JdbcTemplate(dataSource);
-        String query = "SELECT *" + " FROM " + TABLE_USERS + " WHERE " + COL_UID + "=" + quote(uid);
-        logger.config("Executing SQL query:[" + query + "]");
-        return jdbcOperations.queryForObject(query, new UserDboRowMapper());
+        UserDBO result = null;
+        try {
+            JdbcOperations jdbcOperations = new JdbcTemplate(dataSource);
+            String query = "SELECT *" + " FROM " + TABLE_USERS + " WHERE " + COL_UID + "=" + quote(uid);
+            logger.config("Executing SQL query:[" + query + "]");
+            result = jdbcOperations.queryForObject(query, new UserDboRowMapper());
+        } catch(EmptyResultDataAccessException ignored) {}
+        return result;
     }
 
     @Override
