@@ -51,7 +51,7 @@ public class DownloadFileAsyncTask extends AsyncTask<Void, Integer, File> {
         super.onPreExecute();
         String cancel = context.getResources().getString(R.string.cancel);
 
-        progressDialog = new ProgressDialog(context);
+        progressDialog = new ProgressDialog(context,R.style.AlertDialogCustom);
         progressDialog.setIndeterminate(false);
         progressDialog.setCancelable(false);
         progressDialog.setTitle(context.getResources().getString(R.string.downloading));

@@ -100,7 +100,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
 
         String cancel = context.getResources().getString(R.string.cancel);
 
-        progDialog = new ProgressDialog(context);
+        progDialog = new ProgressDialog(context,R.style.AlertDialogCustom);
         progDialog.setIndeterminate(false);
         progDialog.setCancelable(false);
         progDialog.setTitle(context.getResources().getString(R.string.uploading));
