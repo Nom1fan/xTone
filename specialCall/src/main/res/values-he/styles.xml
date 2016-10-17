@@ -93,9 +93,11 @@
 
 
     <style name="AlertDialogCustom" parent="Theme.AppCompat.Dialog">
-        <item name="android:textColor">#00FF00</item>
-        <item name="android:typeface">monospace</item>
-        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">#ff8400</item>
+        <item name="colorAccent">#B5A1FF</item>
+        <item name="android:typeface">serif</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:background">#004559</item>
     </style>
 
     <style name="Theme.AppCompat.Translucent">

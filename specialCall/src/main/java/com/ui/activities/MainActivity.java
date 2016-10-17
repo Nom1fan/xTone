@@ -81,7 +81,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 import DataObjects.DataKeys;
 import DataObjects.SpecialMediaType;
@@ -141,10 +140,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private boolean callerHasRingtone = false;
     private boolean openDrawer = false;
     private Snackbar snackBar;
-    private Dialog tipDialog = null;
     private Dialog windowVideoDialog = null;
-    private String[] tipsCircularArray;
-    private int tipsNum;
     private UploadFileFlow uploadFileFlow = new UploadFileFlow();
     //endregion
 
@@ -371,80 +367,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     //region Assisting methods (onClick(), eventReceived(), ...)
     private void startingTipDialog() {
-
         if (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_TIP)) {
-
-
-            tipsCircularArray = new String[]{
-                    getApplicationContext().getResources().getString(R.string.tip1_windowresize),
-                    getApplicationContext().getResources().getString(R.string.tip2_profile),
-                    getApplicationContext().getResources().getString(R.string.tip3_block),
-                    getApplicationContext().getResources().getString(R.string.tip4_image_audio_gif),
-                    getApplicationContext().getResources().getString(R.string.tip5_you_can_preview),
-                    getApplicationContext().getResources().getString(R.string.tip6_ask_before_show)
-            };
-
-            Random r = new Random();
-            tipsNum = r.nextInt(6);
-
-            final int arrayLength = tipsCircularArray.length;
-
-            if (tipDialog == null) {
-                tipDialog = new Dialog(MainActivity.this);
-
-                // custom dialog
-
-                tipDialog.setContentView(R.layout.tip_dialog);
-
-                // set the custom dialog components - text, image and button
-                final TextView text = (TextView) tipDialog.findViewById(R.id.tip_msg);
-                text.setText(tipsCircularArray[tipsNum % arrayLength]);
-
-
-                Button nextTipBtn = (Button) tipDialog.findViewById(R.id.next_tip);
-                // if button is clicked, close the custom dialog
-                nextTipBtn.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        text.setText(tipsCircularArray[tipsNum++ % arrayLength]);
-                    }
-                });
-
-                tipDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(final DialogInterface arg0) {
-                        tipDialog = null;
-                    }
-                });
-
-                Button skipBtn = (Button) tipDialog.findViewById(R.id.skip);
-                // if button is clicked, close the custom dialog
-                skipBtn.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        tipDialog.dismiss();
-                    }
-                });
-
-                CheckBox checkBox = (CheckBox) tipDialog.findViewById(R.id.dont_show_tips);
-                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                        SharedPrefUtils.setBoolean(MainActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_TIP, isChecked);
-
-                    }
-                });
-                checkBox.setText(MainActivity.this.getResources().getString(R.string.dont_show_again));
-
-
-                tipDialog.show();
-
-
-            }
-
-
+            Intent tip = new Intent(getApplicationContext(),TipActivityDialog.class);
+            startActivity(tip);
         }
     }
 
