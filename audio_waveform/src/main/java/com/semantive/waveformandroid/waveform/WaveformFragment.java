@@ -484,6 +484,13 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
                     mInfo.setText(e.toString());
                     return;
                 }
+
+                if (mSoundFile == null)
+                { Log.e(TAG, "Error while loading sound file");
+                    mProgressDialog.dismiss();
+                    mInfo.setText("Error while loading sound file");
+                    return;}
+
                 if (mLoadingKeepGoing) {
                     mHandler.post(() -> finishOpeningSoundFile());
                 }
@@ -737,6 +744,10 @@ public abstract class WaveformFragment extends Fragment implements MarkerView.Ma
     }
 
     protected synchronized void onPlay(int startPosition) {
+
+       if (mSoundFile == null)
+           return;
+
         if (mIsPlaying) {
             handlePause();
             return;

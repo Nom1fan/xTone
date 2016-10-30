@@ -253,6 +253,9 @@ public class WaveformView extends View {
     }
 
     public int maxPos() {
+        if (mSoundFile == null)
+            return 0;
+
         return mLenByZoomLevel[mZoomLevel];
     }
 
