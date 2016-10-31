@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.annotation.NonNull;
@@ -100,7 +101,10 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
 
         String cancel = context.getResources().getString(R.string.cancel);
 
-        progDialog = new ProgressDialog(context,R.style.AlertDialogCustom);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT)
+            progDialog = new ProgressDialog(context,R.style.AlertDialogCustom);
+        else
+            progDialog = new ProgressDialog(context);
         progDialog.setIndeterminate(false);
         progDialog.setCancelable(false);
         progDialog.setTitle(context.getResources().getString(R.string.uploading));

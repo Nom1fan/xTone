@@ -3,6 +3,7 @@ package com.async_tasks;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -32,7 +33,10 @@ public class TrimTask extends MediaProcessingAsyncTask {
 
         String cancel = context.getResources().getString(R.string.cancel);
 
-        progressDialog = new ProgressDialog(context,R.style.AlertDialogCustom);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT)
+            progressDialog = new ProgressDialog(context,R.style.AlertDialogCustom);
+        else
+            progressDialog = new ProgressDialog(context);
         progressDialog.setIndeterminate(false);
         progressDialog.setCancelable(false);
         progressDialog.setTitle(context.getResources().getString(R.string.trimming));
