@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mediacallz.app"
-    android:versionCode="52"
-    android:versionName="1.49">
+    android:versionCode="53"
+    android:versionName="1.50">
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -71,6 +71,11 @@
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.ui.activities.TipActivityDialog"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Dialog"/>
 
         <activity
             android:name="com.ui.activities.LoginActivity"

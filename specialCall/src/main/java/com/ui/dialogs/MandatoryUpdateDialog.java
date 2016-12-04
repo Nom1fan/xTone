@@ -3,11 +3,13 @@ package com.ui.dialogs;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.view.ContextThemeWrapper;
 import android.widget.TextView;
 import com.mediacallz.app.R;
 
@@ -18,10 +20,11 @@ public class MandatoryUpdateDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.AlertDialogCustom));
 
         TextView content = new TextView(getContext());
         content.setText(R.string.mandatory_update_content);
+        content.setTextColor(Color.WHITE);
 
         String msg = getResources().getString(R.string.mandatory_update_title);
 
