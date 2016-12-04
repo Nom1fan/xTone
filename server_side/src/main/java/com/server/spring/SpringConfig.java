@@ -10,11 +10,14 @@ import com.server.servers.GenericServer;
 import com.ui.MainFrame;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ServiceLocatorFactoryBean;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,8 +33,40 @@ import LogObjects.LogsManager;
  * Created by Mor on 25/07/2016.
  */
 @Configuration
+@PropertySource("/application.properties")
 @ComponentScan(basePackages = "com")
 public class SpringConfig {
+
+    @Value("${db.host}")
+    private String dbHost;
+
+    @Value("${db.port}")
+    private int dbPort;
+
+    @Value("${db.name}")
+    private String dbName;
+
+    @Value("${db.username}")
+    private String dbUserName;
+
+    @Value("${db.password}")
+    private String dbPassword;
+
+    @Value("${db.maxPoolSize}")
+    private int dbMaxPoolSize;
+
+    @Value("${db.acquireIncrement}")
+    private int dbAcquireIncrement;
+
+    @Value("${db.testConnectionOnCheckIn}")
+    private boolean dbTestConnectionOnCheckIn;
+
+    @Value("${db.idleConnectionTestPeriod}")
+    private int dbIdleConnectionTestPeriod;
+
+    @Value("${db.maxIdleTimeExcessConnections}")
+    private int dbMaxIdleTimeExcessConnections;
+
 
     @Autowired
     private Dao dao;
@@ -54,15 +89,15 @@ public class SpringConfig {
     @Bean
     ComboPooledDataSource getDataSource() {
         ComboPooledDataSource dataSource = new ComboPooledDataSource();
-        String jdbcUrl = "jdbc:mysql://" + ServerConstants.DB_SERVER_HOST + ":" + ServerConstants.DB_SERVER_PORT + "/sys";
+        String jdbcUrl = "jdbc:mysql://" + dbHost + ":" + dbPort + "/sys";
         dataSource.setJdbcUrl(jdbcUrl);
-        dataSource.setUser(ServerConstants.DB_SERVER_USER);
-        dataSource.setPassword(ServerConstants.DB_SERVER_PWD);
-        dataSource.setMaxPoolSize(ServerConstants.DB_MAX_POOL_SIZE);
-        dataSource.setAcquireIncrement(ServerConstants.DB_ACQUIRE_INCREMENT);
-        dataSource.setTestConnectionOnCheckin(ServerConstants.DB_TEST_CONNECTION_ON_CHECKIN);
-        dataSource.setIdleConnectionTestPeriod(ServerConstants.DB_IDLE_CONNECTION_PERIOD);
-        dataSource.setMaxIdleTimeExcessConnections(ServerConstants.DB_IDLE_TIME_EXCESS_CONNECTIONS);
+        dataSource.setUser(dbUserName);
+        dataSource.setPassword(dbPassword);
+        dataSource.setMaxPoolSize(dbMaxPoolSize);
+        dataSource.setAcquireIncrement(dbAcquireIncrement);
+        dataSource.setTestConnectionOnCheckin(dbTestConnectionOnCheckIn);
+        dataSource.setIdleConnectionTestPeriod(dbIdleConnectionTestPeriod);
+        dataSource.setMaxIdleTimeExcessConnections(dbMaxIdleTimeExcessConnections);
         return dataSource;
     }
 
@@ -103,6 +138,11 @@ public class SpringConfig {
         server.setLogger(logger());
 
         return server;
+    }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer getConfigurer() {
+        return new PropertySourcesPlaceholderConfigurer();
     }
 
 
