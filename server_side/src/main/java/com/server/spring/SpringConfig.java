@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.server.actions.ServerActionFactory;
-import com.server.data.ServerConstants;
 import com.server.database.Dao;
 import com.server.servers.GenericServer;
 import com.ui.MainFrame;
@@ -34,46 +33,61 @@ import LogObjects.LogsManager;
  */
 @Configuration
 @PropertySource("/application.properties")
+@PropertySource(value = "${app.properties}", ignoreResourceNotFound = true)
 @ComponentScan(basePackages = "com")
 public class SpringConfig {
 
+    private static Map<String, Level> logLevelsMap = new HashMap<String, Level>() {{
+        put("DEBUG", Level.CONFIG);
+        put("CONFIG", Level.CONFIG);
+        put("INFO", Level.INFO);
+    }};
+    private static Logger logger;
+    private static Level logLevel = Level.INFO;
     @Value("${db.host}")
     private String dbHost;
-
     @Value("${db.port}")
     private int dbPort;
-
     @Value("${db.name}")
     private String dbName;
-
     @Value("${db.username}")
     private String dbUserName;
-
     @Value("${db.password}")
     private String dbPassword;
-
     @Value("${db.maxPoolSize}")
     private int dbMaxPoolSize;
-
     @Value("${db.acquireIncrement}")
     private int dbAcquireIncrement;
-
     @Value("${db.testConnectionOnCheckIn}")
     private boolean dbTestConnectionOnCheckIn;
-
     @Value("${db.idleConnectionTestPeriod}")
     private int dbIdleConnectionTestPeriod;
-
     @Value("${db.maxIdleTimeExcessConnections}")
     private int dbMaxIdleTimeExcessConnections;
-
-
     @Autowired
     private Dao dao;
 
     @Bean
-    public ServiceLocatorFactoryBean getServiceLocatorFactoryBean()
-    {
+    public static PropertySourcesPlaceholderConfigurer getConfigurer() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
+
+    public static void main(String[] args) {
+        if (args.length > 0)
+            setLogLevel(args[0]);
+
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringConfig.class);
+        context.getBean(MainFrame.class);
+
+        logger.info("Log level:" + logger.getLevel());
+    }
+
+    private static void setLogLevel(String logLevel) {
+        SpringConfig.logLevel = logLevelsMap.get(logLevel.toUpperCase());
+    }
+
+    @Bean
+    public ServiceLocatorFactoryBean getServiceLocatorFactoryBean() {
         ServiceLocatorFactoryBean bean = new ServiceLocatorFactoryBean();
         bean.setServiceLocatorInterface(ServerActionFactory.class);
         bean.setServiceLocatorExceptionClass(NoSuchActionException.class);
@@ -81,13 +95,12 @@ public class SpringConfig {
     }
 
     @Bean
-    public ServerActionFactory getServerActionFactory()
-    {
+    public ServerActionFactory getServerActionFactory() {
         return (ServerActionFactory) getServiceLocatorFactoryBean().getObject();
     }
 
     @Bean
-    ComboPooledDataSource getDataSource() {
+    public ComboPooledDataSource getDataSource() {
         ComboPooledDataSource dataSource = new ComboPooledDataSource();
         String jdbcUrl = "jdbc:mysql://" + dbHost + ":" + dbPort + "/sys";
         dataSource.setJdbcUrl(jdbcUrl);
@@ -98,6 +111,10 @@ public class SpringConfig {
         dataSource.setTestConnectionOnCheckin(dbTestConnectionOnCheckIn);
         dataSource.setIdleConnectionTestPeriod(dbIdleConnectionTestPeriod);
         dataSource.setMaxIdleTimeExcessConnections(dbMaxIdleTimeExcessConnections);
+
+        String dataSourceLog = "[ " + "Url:" + jdbcUrl + ", Username:" + dbUserName + ", Password:" + dbPassword + "]";
+        logger.config("Loaded data source:" + dataSourceLog);
+
         return dataSource;
     }
 
@@ -138,33 +155,5 @@ public class SpringConfig {
         server.setLogger(logger());
 
         return server;
-    }
-
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer getConfigurer() {
-        return new PropertySourcesPlaceholderConfigurer();
-    }
-
-
-    private static Map<String,Level> logLevelsMap = new HashMap<String,Level>() {{
-        put("DEBUG", Level.CONFIG);
-        put("CONFIG", Level.CONFIG);
-        put("INFO", Level.INFO);
-    }};
-    private static Logger logger;
-    private static Level logLevel = Level.INFO;
-
-    public static void main(String[] args) {
-        if(args.length > 0)
-            setLogLevel(args[0]);
-
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringConfig.class);
-        context.getBean(MainFrame.class);
-
-        logger.info("Log level:" + logger.getLevel());
-    }
-
-    private static void setLogLevel(String logLevel) {
-        SpringConfig.logLevel = logLevelsMap.get(logLevel.toUpperCase());
     }
 }
