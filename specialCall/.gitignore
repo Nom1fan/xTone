@@ -1,13 +1,13 @@
 
 lint.xml
 specialCall.iml
-
 bin/
 gen/
 
 # Gradle files
 build/
-.idea
+/.idea
+
 
 # Local configuration file (sdk path, etc)
 local.properties
