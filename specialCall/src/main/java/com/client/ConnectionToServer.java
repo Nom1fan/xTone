@@ -90,10 +90,11 @@ public class ConnectionToServer {
             post = new HttpPost(url);
             post.setEntity(progressiveEntity);
             HttpResponse response = client.execute(post);
+            int statusCode = response.getStatusLine().getStatusCode();
             BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
             String responseMessage = br.readLine();
             MessageToClient msg = extractResponse(responseMessage);
-            serverProxy.handleMessageFromServer(msg, this);
+            serverProxy.handleMessageFromServer(msg, statusCode, this);
         } catch (IOException e) {
             connectionException(e);
         } finally {
@@ -193,8 +194,9 @@ public class ConnectionToServer {
     private void readResponse() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
         String responseMessage = br.readLine();
+        int responseCode = conn.getResponseCode();
         MessageToClient response = extractResponse(responseMessage);
-        serverProxy.handleMessageFromServer(response, this);
+        serverProxy.handleMessageFromServer(response, responseCode, this);
     }
 
     private URLConnection openConnection(URL url) throws IOException {

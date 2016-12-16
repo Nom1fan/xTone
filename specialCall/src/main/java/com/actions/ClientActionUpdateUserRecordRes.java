@@ -19,7 +19,7 @@ public class ClientActionUpdateUserRecordRes extends ClientAction<Map<DataKeys,O
     }
 
     @Override
-    public EventReport doClientAction(Map<DataKeys,Object> data) throws IOException {
+    public EventReport doClientAction(Map<DataKeys,Object> data, int responseCode) throws IOException {
 
         boolean _isRegisterSuccess = (boolean) data.get(DataKeys.IS_UPDATE_SUCCESS);
 

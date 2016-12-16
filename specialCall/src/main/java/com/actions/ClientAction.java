@@ -20,7 +20,7 @@ public abstract class ClientAction<DATA_TYPE> {
         _clientActionType = clientActionType;
     }
 
-    abstract public EventReport doClientAction(DATA_TYPE data) throws IOException;
+    abstract public EventReport doClientAction(DATA_TYPE data, int responseCode) throws IOException;
 
     public void setConnectionToServer(ConnectionToServer connectionToServer) {
         _connectionToServer = connectionToServer;

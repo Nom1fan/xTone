@@ -156,14 +156,14 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
     }
 
     @Override
-    public void handleMessageFromServer(MessageToClient msg, ConnectionToServer connectionToServer) {
+    public void handleMessageFromServer(MessageToClient msg, int responseCode ,ConnectionToServer connectionToServer) {
 
         ClientAction clientAction = null;
         try {
 
             clientAction = ActionFactory.instance().getAction(msg.getActionType());
             clientAction.setConnectionToServer(connectionToServer);
-            EventReport eventReport = clientAction.doClientAction(msg.getResult());
+            EventReport eventReport = clientAction.doClientAction(msg.getResult(), responseCode);
 
             if (eventReport == null)
                 log(Log.WARN, TAG, "ClientAction:" + clientAction.getClass().getSimpleName() + " returned null eventReport");

@@ -27,10 +27,9 @@ public class ClientActionGetAppRecordRes extends ClientAction<Map<DataKeys, Obje
     }
 
     @Override
-    public EventReport doClientAction(Map<DataKeys, Object> data) throws IOException {
+    public EventReport doClientAction(Map<DataKeys, Object> data, int responseCode) throws IOException {
 
         if (data.get(DataKeys.MIN_SUPPORTED_VERSION) == null) {
-            ResponseCodes responseCode = (ResponseCodes) data.get(DataKeys.RESPONSE_CODE);
             String errMsg = (String) data.get(DataKeys.ERR_MSG);
             log(Log.ERROR, TAG, "Failed to retrieve app record. ResponseCode:[" + responseCode + "] Message:[" + errMsg + "]");
             return new EventReport(EventType.NO_ACTION_REQUIRED, errMsg);
