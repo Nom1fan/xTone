@@ -6,18 +6,18 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.util.Log;
 
-import com.dal_objects.DAL_Access;
-import com.dal_objects.IDAL;
+import com.dal.objects.DAL_Access;
+import com.dal.objects.IDAL;
 import com.services.StorageServerProxyService;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import DataObjects.DataKeys;
-import DataObjects.PushEventKeys;
-import Exceptions.FileInvalidFormatException;
-import FilesManager.FileManager;
+import com.data.objects.DataKeys;
+import com.data.objects.PushEventKeys;
+import com.exceptions.FileInvalidFormatException;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -143,15 +143,15 @@ public abstract class PendingDownloadsUtils {
         }
 
         try {
-            FileManager.FileType newDownloadedFileType = FileManager.getFileTypeByExtension(newDownloadedExtension);
+            MediaFile.FileType newDownloadedFileType = MediaFile.getFileTypeByExtension(newDownloadedExtension);
             switch (newDownloadedFileType) {
                 case AUDIO:
 
                     for (String extension : extensions) {
-                        FileManager.FileType fileType = FileManager.getFileTypeByExtension(extension);
+                        MediaFile.FileType fileType = MediaFile.getFileTypeByExtension(extension);
 
-                        if ((fileType == FileManager.FileType.VIDEO ||
-                                        fileType == FileManager.FileType.AUDIO)) {
+                        if ((fileType == MediaFile.FileType.VIDEO ||
+                                        fileType == MediaFile.FileType.AUDIO)) {
 
                             whereCols = new String[] { IDAL.COL_SOURCE_ID, IDAL.COL_EXTENSION, IDAL.COL_SPECIAL_MEDIA_TYPE };
                             operators = new String[] { IDAL.AND, IDAL.AND };
@@ -164,10 +164,10 @@ public abstract class PendingDownloadsUtils {
                 case IMAGE:
 
                     for (String extension : extensions) {
-                        FileManager.FileType fileType = FileManager.getFileTypeByExtension(extension);
+                        MediaFile.FileType fileType = MediaFile.getFileTypeByExtension(extension);
 
-                        if ((fileType == FileManager.FileType.VIDEO ||
-                                        fileType == FileManager.FileType.IMAGE)) {
+                        if ((fileType == MediaFile.FileType.VIDEO ||
+                                        fileType == MediaFile.FileType.IMAGE)) {
 
                             whereCols = new String[] { IDAL.COL_SOURCE_ID, IDAL.COL_EXTENSION, IDAL.COL_SPECIAL_MEDIA_TYPE };
                             operators = new String[] { IDAL.AND, IDAL.AND };

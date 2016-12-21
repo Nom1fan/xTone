@@ -1,11 +1,9 @@
 package com.actions;
 
-import android.util.Log;
+import com.event.EventReport;
+import com.model.response.ClientActionType;
 
 import java.io.IOException;
-
-import EventObjects.EventReport;
-import MessagesToClient.ClientActionType;
 
 /**
  * Created by Mor on 27/04/2016.
@@ -19,9 +17,7 @@ public class ClientActionTriggerEvent extends ClientAction<EventReport> {
     }
 
     @Override
-    public EventReport doClientAction(EventReport eventReport, int responseCode) throws IOException {
-
-        Log.i(TAG, "Response code:" + responseCode);
+    public EventReport doClientAction(EventReport eventReport) throws IOException {
 
         return eventReport;
     }

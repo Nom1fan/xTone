@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
-import com.data_objects.Constants;
-import com.data_objects.Contact;
+import com.data.objects.Constants;
+import com.data.objects.Contact;
 import com.utils.ContactsUtils;
 import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
@@ -21,16 +21,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import DataObjects.DataKeys;
-import DataObjects.SpecialMediaType;
-import EventObjects.Event;
-import EventObjects.EventReport;
-import EventObjects.EventType;
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
-import FilesManager.FileManager;
-import utils.PhoneNumberUtils;
+import com.data.objects.DataKeys;
+import com.data.objects.SpecialMediaType;
+import com.event.Event;
+import com.event.EventReport;
+import com.event.EventType;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
+import com.utils.PhoneNumberUtils;
 
 
 public class DownloadReceiver extends BroadcastReceiver {
@@ -61,7 +61,7 @@ public class DownloadReceiver extends BroadcastReceiver {
             if(isAuthorizedToLeaveMedia(context,td.get(DataKeys.SOURCE_ID).toString()))
                  copyToHistoryForGalleryShow(context, td);
 
-            FileManager.FileType fType = FileManager.FileType.valueOf(td.get(DataKeys.FILE_TYPE).toString());
+            MediaFile.FileType fType = MediaFile.FileType.valueOf(td.get(DataKeys.FILE_TYPE).toString());
             String fFullName = td.get(DataKeys.SOURCE_WITH_EXTENSION).toString();
             String source = td.get(DataKeys.SOURCE_ID).toString();
             String md5 = td.get(DataKeys.MD5).toString();
@@ -116,7 +116,7 @@ public class DownloadReceiver extends BroadcastReceiver {
      * @param newDownloadedFileType The type of the files just downloaded and should be created in the source designated folder
      * @param source                The source number of the sender of the file
      */
-    private void deleteFilesIfNecessary(Context context, String addedFileName, FileManager.FileType newDownloadedFileType, String source) {
+    private void deleteFilesIfNecessary(Context context, String addedFileName, MediaFile.FileType newDownloadedFileType, String source) {
 
         File[] files = new File(_newFileDir).listFiles();
 
@@ -126,12 +126,12 @@ public class DownloadReceiver extends BroadcastReceiver {
 
                     for (File file : files) {
                         String fileName = file.getName(); // This includes extension
-                        FileManager.FileType fileType = FileManager.getFileType(file);
+                        MediaFile.FileType fileType = MediaFile.getFileType(file);
 
                         if (!fileName.equals(addedFileName) &&
-                                (fileType == FileManager.FileType.VIDEO ||
-                                        fileType == FileManager.FileType.AUDIO)) {
-                            FileManager.delete(file);
+                                (fileType == MediaFile.FileType.VIDEO ||
+                                        fileType == MediaFile.FileType.AUDIO)) {
+                            MediaFile.delete(file);
                             SharedPrefUtils.remove(context, _sharedPrefKeyForVisualMedia, source);
                         }
                     }
@@ -140,12 +140,12 @@ public class DownloadReceiver extends BroadcastReceiver {
 
                     for (File file : files) {
                         String fileName = file.getName(); // This includes extension
-                        FileManager.FileType fileType = FileManager.getFileType(file);
+                        MediaFile.FileType fileType = MediaFile.getFileType(file);
 
                         if (!fileName.equals(addedFileName) &&
-                                (fileType == FileManager.FileType.VIDEO ||
-                                        fileType == FileManager.FileType.IMAGE)) {
-                            FileManager.delete(file);
+                                (fileType == MediaFile.FileType.VIDEO ||
+                                        fileType == MediaFile.FileType.IMAGE)) {
+                            MediaFile.delete(file);
                         }
                     }
                     break;
@@ -155,7 +155,7 @@ public class DownloadReceiver extends BroadcastReceiver {
                     for (File file : files) {
                         String fileName = file.getName(); // This includes extension
                         if (!fileName.equals(addedFileName)) {
-                            FileManager.delete(file);
+                            MediaFile.delete(file);
                             SharedPrefUtils.remove(context, _sharedPrefKeyForAudioMedia, source);
                         }
                     }
@@ -235,7 +235,7 @@ public class DownloadReceiver extends BroadcastReceiver {
             File downloadedFile = new File(_newFileFullPath);
             String extension = td.get(DataKeys.EXTENSION).toString();
             String md5 = td.get(DataKeys.MD5).toString();
-            FileManager.FileType fileType = FileManager.FileType.valueOf(td.get(DataKeys.FILE_TYPE).toString());
+            MediaFile.FileType fileType = MediaFile.FileType.valueOf(td.get(DataKeys.FILE_TYPE).toString());
 
 
             if(MediaFilesUtils.doesFileExistInHistoryFolderByMD5(md5,Constants.HISTORY_FOLDER) || MediaFilesUtils.doesFileExistInHistoryFolderByMD5(md5,Constants.AUDIO_HISTORY_FOLDER))
@@ -250,7 +250,7 @@ public class DownloadReceiver extends BroadcastReceiver {
             String currentDateTimeString = new SimpleDateFormat("dd_MM_yy_HHmmss").format(new Date());
 
             String historyFileName ="";
-            if (fileType == FileManager.FileType.AUDIO) {
+            if (fileType == MediaFile.FileType.AUDIO) {
                 historyFileName = Constants.AUDIO_HISTORY_FOLDER + currentDateTimeString + "_" + contactName + "_" + md5 + "." + extension; //give a unique name to the file and make sure there won't be any duplicates
                 SharedPrefUtils.setBoolean(context,SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_HISTORY_EXIST,true);
             }
@@ -263,7 +263,7 @@ public class DownloadReceiver extends BroadcastReceiver {
             {
                 FileUtils.copyFile(downloadedFile, copyToHistoryFile);
                 Crashlytics.log(Log.INFO,TAG, "Creating a unique md5 file in the History Folder fileName:  " + copyToHistoryFile.getName());
-                if (fileType == FileManager.FileType.AUDIO) {
+                if (fileType == MediaFile.FileType.AUDIO) {
                     return;
                 }
 

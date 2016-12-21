@@ -9,7 +9,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.data_objects.ActivityRequestCodes;
+import com.data.objects.ActivityRequestCodes;
 import com.handlers.Handler;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
@@ -21,11 +21,11 @@ import com.utils.UI_Utils;
 import java.io.File;
 import java.io.IOException;
 
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileExceedsMaxSizeException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
-import FilesManager.FileManager;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileExceedsMaxSizeException;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
 
 /**
  * Created by Mor on 16/07/2016.
@@ -41,9 +41,9 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         try {
             String filepath = getFilePathFromIntent(ctx, data, isCamera);
 
-            FileManager managedFile;
+            MediaFile managedFile;
 
-            managedFile = new FileManager(filepath);
+            managedFile = new MediaFile(filepath);
             if(canMediaBePrepared(ctx, managedFile)) {
                 startPreviewActivity(managedFile.getFileFullPath());
             }
@@ -53,7 +53,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         } catch(FileExceedsMaxSizeException e) {
             e.printStackTrace();
             String errMsg = String.format(ctx.getResources().getString(R.string.file_over_max_size),
-                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+                    MediaFile.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, ctx);
 
@@ -63,11 +63,11 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         }
     }
 
-    protected boolean canMediaBePrepared(Context ctx, FileManager managedFile) {
+    protected boolean canMediaBePrepared(Context ctx, MediaFile managedFile) {
 
         boolean result = true;
         try {
-            FileManager.FileType fType = managedFile.getFileType();
+            MediaFile.FileType fType = managedFile.getFileType();
             String filepath = managedFile.getFileFullPath();
             final File root = new File(filepath);
             Uri uri = Uri.fromFile(root);
@@ -148,7 +148,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
                 File file = new File(resultPath);
 
                 try {
-                    String extension = FileManager.extractExtension(resultPath);
+                    String extension = MediaFile.extractExtension(resultPath);
                     Crashlytics.log(Log.INFO, TAG, "isCamera True, Extension saved in camera: " + extension);
                 } catch (FileMissingExtensionException e) {
 
@@ -163,9 +163,9 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
     private void startPreviewActivity(String filepath) {
 
-        FileManager managedFile;
+        MediaFile managedFile;
         try {
-            managedFile = new FileManager(filepath);
+            managedFile = new MediaFile(filepath);
 
             Intent previewIntentActivity = new Intent(selectMediaActivity, PreviewMediaActivity.class);
             previewIntentActivity.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
@@ -174,7 +174,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         } catch(FileExceedsMaxSizeException e) {
             e.printStackTrace();
             String errMsg = String.format(selectMediaActivity.getResources().getString(R.string.file_over_max_size),
-                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+                    MediaFile.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, selectMediaActivity);
             selectMediaActivity.finish();

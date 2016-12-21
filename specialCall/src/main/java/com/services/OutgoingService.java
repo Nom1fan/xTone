@@ -13,8 +13,8 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.data_objects.Constants;
-import com.data_objects.PermissionBlockListLevel;
+import com.data.objects.Constants;
+import com.data.objects.PermissionBlockListLevel;
 import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.ContactsUtils;
@@ -28,8 +28,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
-import DataObjects.SpecialMediaType;
-import utils.PhoneNumberUtils;
+import com.data.objects.SpecialMediaType;
+import com.utils.PhoneNumberUtils;
 import wei.mark.standout.ui.Window;
 
 import static com.crashlytics.android.Crashlytics.log;

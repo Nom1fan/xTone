@@ -6,7 +6,12 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.client.ConnectionToServer;
-import com.data_objects.Constants;
+import com.data.objects.Constants;
+import com.data.objects.DataKeys;
+import com.data.objects.PushEventKeys;
+import com.data.objects.SpecialMediaType;
+import com.event.EventReport;
+import com.event.EventType;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
 
@@ -15,12 +20,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-
-import DataObjects.DataKeys;
-import DataObjects.PushEventKeys;
-import DataObjects.SpecialMediaType;
-import EventObjects.EventReport;
-import EventObjects.EventType;
 
 import static com.crashlytics.android.Crashlytics.log;
 import static java.util.AbstractMap.SimpleEntry;

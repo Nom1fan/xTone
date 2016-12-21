@@ -32,11 +32,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileExceedsMaxSizeException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
-import FilesManager.FileManager;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileExceedsMaxSizeException;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -150,9 +150,9 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
             UI_Utils.callToast(getResources().getString(R.string.choose_audio_file), Color.WHITE, getApplicationContext());
             return;
         }
-        FileManager.FileType type = null;
+        MediaFile.FileType type = null;
         try {
-            FileManager audioFileSelected = new FileManager(mChosenAudioFile);
+            MediaFile audioFileSelected = new MediaFile(mChosenAudioFile);
             type = audioFileSelected.getFileType();
         } catch (FileInvalidFormatException e) {
             e.printStackTrace();
@@ -164,7 +164,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
             e.printStackTrace();
         }
 
-        if (type != FileManager.FileType.AUDIO) {
+        if (type != MediaFile.FileType.AUDIO) {
             return;
         }
 
@@ -245,7 +245,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
             return;
         }
 
-        FileManager resultFile = createManagedFile(mChosenAudioFile);
+        MediaFile resultFile = createManagedFile(mChosenAudioFile);
         if(resultFile == null)
             finish();
 
@@ -260,10 +260,10 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
         finish();
     }
 
-    private FileManager createManagedFile(String resultFilePath) {
-        FileManager managedFile = null;
+    private MediaFile createManagedFile(String resultFilePath) {
+        MediaFile managedFile = null;
         try {
-            managedFile = new FileManager(resultFilePath);
+            managedFile = new MediaFile(resultFilePath);
         } catch(Exception e) {
             e.printStackTrace();
             log(Log.ERROR, TAG, "Failed to create result managed file");

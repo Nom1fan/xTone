@@ -8,13 +8,13 @@ import com.services.LogicServerProxyService;
 
 import java.io.File;
 
-import DataObjects.CallRecord;
-import DataObjects.SpecialMediaType;
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileExceedsMaxSizeException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
-import FilesManager.FileManager;
+import com.data.objects.CallRecord;
+import com.data.objects.SpecialMediaType;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileExceedsMaxSizeException;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -48,9 +48,9 @@ public abstract class MCHistoryUtils {
                 CallRecord callRecord = new CallRecord(
                         src,
                         dest,
-                        visualExists ? new FileManager(visualMediaPath) : null,
+                        visualExists ? new MediaFile(visualMediaPath) : null,
                         SharedPrefUtils.getString(context, SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5),
-                        audioExists ? new FileManager(audioMediaPath) : null,
+                        audioExists ? new MediaFile(audioMediaPath) : null,
                         SharedPrefUtils.getString(context, SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_AUDIOMD5),
                         specialMediaType);
 

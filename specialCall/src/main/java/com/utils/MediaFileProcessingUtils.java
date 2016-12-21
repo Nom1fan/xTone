@@ -9,7 +9,7 @@ import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.data_objects.Constants;
+import com.data.objects.Constants;
 import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.netcompss.loader.LoadJNI;
 
@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import FilesManager.FileManager;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -63,23 +63,23 @@ public class MediaFileProcessingUtils {
 
 
     //region Main media file processing methods
-    public FileManager trimMediaFile(FileManager baseFile, String trimmedFilePath, Context context) {
+    public MediaFile trimMediaFile(MediaFile baseFile, String trimmedFilePath, Context context) {
 
         if (GeneralUtils.isLicenseValid(context, workFolder) < 0) {
             return baseFile;
         }
 
-        FileManager trimmedFile = null;
-        FileManager.FileType type = baseFile.getFileType();
+        MediaFile trimmedFile = null;
+        MediaFile.FileType type = baseFile.getFileType();
 
         Log.d(TAG, "Acquire wake lock");
         PowerManager.WakeLock wakeLock = getWakeLock(context);
         wakeLock.acquire();
 
-        if (type.equals(FileManager.FileType.AUDIO))
+        if (type.equals(MediaFile.FileType.AUDIO))
             trimmedFile = trimAudio(baseFile, trimmedFilePath, context);
 
-        if (type.equals(FileManager.FileType.VIDEO))
+        if (type.equals(MediaFile.FileType.VIDEO))
             trimmedFile = trimVideo(baseFile, trimmedFilePath, context);
 
         releaseWakeLock(wakeLock);
@@ -101,17 +101,17 @@ public class MediaFileProcessingUtils {
      * @param context  Application context
      * @return The compressed file, if necessary (and possible). Otherwise, the base file.
      */
-    public FileManager compressMediaFile(FileManager baseFile, String compressedFilePath, Context context) {
+    public MediaFile compressMediaFile(MediaFile baseFile, String compressedFilePath, Context context) {
 
         if (GeneralUtils.isLicenseValid(context, workFolder) < 0) {
             return baseFile;
         }
 
-        FileManager alreadyCompFile = getAlreadyCompFile(baseFile);
+        MediaFile alreadyCompFile = getAlreadyCompFile(baseFile);
         if (alreadyCompFile != null)
             return alreadyCompFile;
 
-        FileManager compressedFile = null;
+        MediaFile compressedFile = null;
 
         Log.d(TAG, "Acquire wake lock");
         PowerManager.WakeLock wakeLock = getWakeLock(context);
@@ -137,7 +137,7 @@ public class MediaFileProcessingUtils {
             if (isFileTrimmed(context, baseFile)) {
                 String trimmedFilePath = baseFile.getFile().getAbsolutePath();
                 SharedPrefUtils.remove(context, SharedPrefUtils.TRIMMED_FILES, trimmedFilePath);
-                FileManager.delete(baseFile.getFile());
+                MediaFile.delete(baseFile.getFile());
             }
 
             MediaFilesUtils.triggerMediaScanOnFile(context, compressedFile.getFile());
@@ -147,14 +147,14 @@ public class MediaFileProcessingUtils {
         return baseFile;
     }
 
-    public FileManager rotateImageFile(FileManager baseFile, String rotatedImageFilepath, Context context) {
+    public MediaFile rotateImageFile(MediaFile baseFile, String rotatedImageFilepath, Context context) {
 
         int degrees = SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.IMAGE_ROTATION_DEGREE);
 
         PowerManager.WakeLock wakeLock = getWakeLock(context);
         wakeLock.acquire();
 
-        FileManager rotatedFile = rotateImage(baseFile, rotatedImageFilepath, degrees);
+        MediaFile rotatedFile = rotateImage(baseFile, rotatedImageFilepath, degrees);
 
         releaseWakeLock(wakeLock);
 
@@ -169,7 +169,7 @@ public class MediaFileProcessingUtils {
 
     //region Sub media file proecessing methods
     @Nullable
-    private FileManager rotateImage(FileManager baseFile, String rotatedImageFilepath, int degrees) {
+    private MediaFile rotateImage(MediaFile baseFile, String rotatedImageFilepath, int degrees) {
         File rotatedFile = null;
         String imagePath = baseFile.getFileFullPath();
         Bitmap bmp = BitmapUtils.decodeSampledBitmapFromImageFile(imagePath);
@@ -185,7 +185,7 @@ public class MediaFileProcessingUtils {
             rotatedFile = new File(rotatedImageFilepath);
             fos = new FileOutputStream(rotatedFile);
             bmp.compress(Bitmap.CompressFormat.PNG, 100, fos); // PNG is a lossless format, the compression factor (100) is ignored
-            return new FileManager(rotatedFile);
+            return new MediaFile(rotatedFile);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -204,9 +204,9 @@ public class MediaFileProcessingUtils {
     }
 
     @Nullable
-    private FileManager compressVideo(FileManager baseFile, String compressedFilePath, Context context) {
+    private MediaFile compressVideo(MediaFile baseFile, String compressedFilePath, Context context) {
 
-        FileManager modifiedFile;
+        MediaFile modifiedFile;
 
         int[] res = _ffmpeg_utils.getVideoResolution(baseFile);
         int width = res[0];
@@ -217,9 +217,9 @@ public class MediaFileProcessingUtils {
     }
 
     @Nullable
-    private FileManager compressImage(FileManager baseFile, String compressedFilePath, Context context) {
+    private MediaFile compressImage(MediaFile baseFile, String compressedFilePath, Context context) {
 
-        FileManager modifiedFile;
+        MediaFile modifiedFile;
 
         if (baseFile.getFileExtension().equals("gif")) {
 
@@ -235,14 +235,14 @@ public class MediaFileProcessingUtils {
         return modifiedFile;
     }
 
-    private FileManager compressAudio(FileManager baseFile, String outputDir, Context context) {
+    private MediaFile compressAudio(MediaFile baseFile, String outputDir, Context context) {
         return baseFile; //TODO check if there is a way to compress non-wav audio files further
     }
 
     @Nullable
-    private FileManager trimVideo(FileManager baseFile, String trimmedFilePath, Context context) {
+    private MediaFile trimVideo(MediaFile baseFile, String trimmedFilePath, Context context) {
 
-        FileManager modifiedFile = null;
+        MediaFile modifiedFile = null;
         TrimData trimData = new TrimData().getTrimData(context, "video");
         long startTime = trimData.getStartTime();
         long endTime = trimData.getEndTime();
@@ -252,9 +252,9 @@ public class MediaFileProcessingUtils {
     }
 
     @Nullable
-    private FileManager trimAudio(FileManager baseFile, String trimmedFilePath, Context context) {
+    private MediaFile trimAudio(MediaFile baseFile, String trimmedFilePath, Context context) {
 
-        FileManager modifiedFile = null;
+        MediaFile modifiedFile = null;
         TrimData trimData = new TrimData().getTrimData(context, "audio");
         long startTime = trimData.getStartTime();
         long endTime = trimData.getEndTime();
@@ -265,7 +265,7 @@ public class MediaFileProcessingUtils {
     //endregion
 
     //region Helper methods
-    public boolean isCompressionNeeded(Context context, FileManager managedfile) {
+    public boolean isCompressionNeeded(Context context, MediaFile managedfile) {
 
         // Trim reduced file size enough - No need for compression
         if (isFileTrimmed(context, managedfile) && managedfile.getFileSize() < AFTER_TRIM_SIZE_COMPRESS_NEEDED)
@@ -292,9 +292,9 @@ public class MediaFileProcessingUtils {
         return true;
     }
 
-    public boolean isTrimNeeded(Context ctx, FileManager baseFile) {
+    public boolean isTrimNeeded(Context ctx, MediaFile baseFile) {
         boolean isManualTrimNeeded = SharedPrefUtils.getInt(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC) > 0;
-        boolean isAutoTrimNeeded = !baseFile.getFileType().equals(FileManager.FileType.IMAGE) &&
+        boolean isAutoTrimNeeded = !baseFile.getFileType().equals(MediaFile.FileType.IMAGE) &&
                 (MediaFilesUtils.getFileDurationInMilliSeconds(ctx, baseFile) > MediaFileProcessingUtils.MAX_DURATION)
                 && (isCompressionNeeded(ctx, baseFile));
 
@@ -302,16 +302,16 @@ public class MediaFileProcessingUtils {
 
     }
 
-    public boolean isRotationNeeded(Context ctx, FileManager.FileType fileType) {
-        return fileType.equals(FileManager.FileType.IMAGE) &&
+    public boolean isRotationNeeded(Context ctx, MediaFile.FileType fileType) {
+        return fileType.equals(MediaFile.FileType.IMAGE) &&
                 SharedPrefUtils.getInt(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.IMAGE_ROTATION_DEGREE) > 0;
     }
 
-    private boolean isFileTrimmed(Context context, FileManager baseFile) {
+    private boolean isFileTrimmed(Context context, MediaFile baseFile) {
         return SharedPrefUtils.getBoolean(context, SharedPrefUtils.TRIMMED_FILES, baseFile.getFile().getAbsolutePath());
     }
 
-    private boolean isFileCompressed(Context context, FileManager baseFile) {
+    private boolean isFileCompressed(Context context, MediaFile baseFile) {
         boolean isComp = false;
         try {
             isComp = FileUtils.directoryContains(new File(Constants.COMPRESSED_FOLDER), baseFile.getFile()) && !isFileTrimmed(context, baseFile);
@@ -326,8 +326,8 @@ public class MediaFileProcessingUtils {
     }
 
     @Nullable
-    private FileManager getAlreadyCompFile(FileManager baseFile) {
-        FileManager compressedFile = null;
+    private MediaFile getAlreadyCompFile(MediaFile baseFile) {
+        MediaFile compressedFile = null;
 
         try {
             File potentialCompFile = MediaFilesUtils.getFileByMD5(baseFile.getMd5(), Constants.COMPRESSED_FOLDER);

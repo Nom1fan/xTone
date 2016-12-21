@@ -29,8 +29,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.async_tasks.PopulateUrlsAsyncTask;
-import com.data_objects.Constants;
+import com.async.tasks.PopulateUrlsAsyncTask;
+import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;

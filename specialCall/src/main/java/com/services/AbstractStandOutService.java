@@ -44,14 +44,14 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileExceedsMaxSizeException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
-import FilesManager.FileManager;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileExceedsMaxSizeException;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
-import utils.PhoneNumberUtils;
+import com.utils.PhoneNumberUtils;
 import wei.mark.standout.StandOutWindow;
 import wei.mark.standout.constants.StandOutFlags;
 import wei.mark.standout.ui.Window;
@@ -504,7 +504,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         String ext="";
 
         try {
-            ext = FileManager.extractExtension(mediaFilePath);
+            ext = MediaFile.extractExtension(mediaFilePath);
         } catch (FileMissingExtensionException e) {
             e.printStackTrace();
         }
@@ -627,7 +627,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mRelativeLayout.addView(mSpecialCallView);
     }
 
-    protected void prepareViewForSpecialCall(FileManager.FileType fileType, String mediaFilePath) {
+    protected void prepareViewForSpecialCall(MediaFile.FileType fileType, String mediaFilePath) {
         log(Log.INFO,TAG, "Preparing SpecialCall view");
 
         // Attempting to induce garbage collection
@@ -636,7 +636,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         prepareRelativeLayout();
 
         // Displaying image during call
-        if (fileType == FileManager.FileType.IMAGE) {
+        if (fileType == MediaFile.FileType.IMAGE) {
 
             try {
                 prepareImageView(mediaFilePath);
@@ -645,7 +645,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             }
         }
         // Displaying video during call
-        else if (fileType == FileManager.FileType.VIDEO)
+        else if (fileType == MediaFile.FileType.VIDEO)
             prepareVideoView(mediaFilePath);
 
         mRelativeLayout.addView(mSpecialCallView);
@@ -1045,7 +1045,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         if (VisualMediaExists) {
             try {
-                FileManager fm = new FileManager(visualMediaFilePath);
+                MediaFile fm = new MediaFile(visualMediaFilePath);
                 prepareViewForSpecialCall(fm.getFileType(), fm.getFileFullPath());
                 Intent i = new Intent(this, this.getClass());
                 i.putExtra("id", randomWindowId);
@@ -1138,10 +1138,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected void setTempMd5ForCallRecord(String visualFilePath, String audioFilePath) {
 
         if(new File(audioFilePath).exists())
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES ,SharedPrefUtils.TEMP_AUDIOMD5, FileManager.getMD5(audioFilePath));
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES ,SharedPrefUtils.TEMP_AUDIOMD5, MediaFile.getMD5(audioFilePath));
 
         if(new File(visualFilePath).exists())
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5, FileManager.getMD5(visualFilePath));
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5, MediaFile.getMD5(visualFilePath));
 
     }
 

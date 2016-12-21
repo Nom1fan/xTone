@@ -13,8 +13,8 @@ import com.mediacallz.app.R;
 import com.services.LogicServerProxyService;
 import com.ui.activities.MainActivity;
 
-import EventObjects.EventReport;
-import EventObjects.EventType;
+import com.event.EventReport;
+import com.event.EventType;
 
 
 public class DeleteAccountDialog extends android.app.DialogFragment {

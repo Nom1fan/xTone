@@ -12,9 +12,9 @@ import com.utils.UI_Utils;
 
 import java.util.Map;
 
-import DataObjects.DataKeys;
-import DataObjects.SpecialMediaType;
-import EventObjects.EventReport;
+import com.data.objects.DataKeys;
+import com.data.objects.SpecialMediaType;
+import com.event.EventReport;
 
 /**
  * Created by Mor on 16/07/2016.

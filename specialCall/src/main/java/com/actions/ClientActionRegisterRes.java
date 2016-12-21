@@ -1,17 +1,18 @@
 package com.actions;
 
-import java.io.IOException;
-import java.util.Map;
+import com.event.EventReport;
+import com.event.EventType;
+import com.model.response.ClientActionType;
+import com.model.response.Response;
 
-import DataObjects.DataKeys;
-import EventObjects.EventReport;
-import EventObjects.EventType;
-import MessagesToClient.ClientActionType;
+import java.io.IOException;
+
+import cz.msebera.android.httpclient.HttpStatus;
 
 /**
  * Created by Mor on 27/04/2016.
  */
-public class ClientActionRegisterRes extends ClientAction<Map<DataKeys,Object>> {
+public class ClientActionRegisterRes extends ClientAction<Response> {
 
 
     public ClientActionRegisterRes() {
@@ -19,18 +20,19 @@ public class ClientActionRegisterRes extends ClientAction<Map<DataKeys,Object>> 
     }
 
     @Override
-    public EventReport doClientAction(Map<DataKeys,Object> data, int responseCode) throws IOException {
-
-        boolean _isRegisterSuccess = (boolean) data.get(DataKeys.IS_REGISTER_SUCCESS);
+    public EventReport doClientAction(Response response) throws IOException {
 
         EventType eventType;
-        if(_isRegisterSuccess) {
+        String errMsg = null;
+        int responseCode = response.getResponseCode();
+        if(responseCode == HttpStatus.SC_OK) {
             eventType = EventType.REGISTER_SUCCESS;
         }
         else {
             eventType = EventType.REGISTER_FAILURE;
+            errMsg = "Registration failed. [Response code]:" + responseCode + " [Response message]:" + response.getMessage();
         }
 
-        return new EventReport(eventType, null, responseCode);
+        return new EventReport(eventType, errMsg, responseCode);
     }
 }

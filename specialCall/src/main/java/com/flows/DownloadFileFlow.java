@@ -2,9 +2,9 @@ package com.flows;
 
 import android.content.Context;
 
-import com.async_tasks.DownloadFileAsyncTask;
-import com.async_tasks.DownloadFileAsyncTask.PostDownloadCallBackListener;
-import com.async_tasks.GetFileSizeFromUrlAsyncTask;
+import com.async.tasks.DownloadFileAsyncTask;
+import com.async.tasks.DownloadFileAsyncTask.PostDownloadCallBackListener;
+import com.async.tasks.GetFileSizeFromUrlAsyncTask;
 
 import java.io.IOException;
 

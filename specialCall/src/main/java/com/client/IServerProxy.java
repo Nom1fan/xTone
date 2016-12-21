@@ -1,9 +1,9 @@
 package com.client;
 
-import MessagesToClient.MessageToClient;
+import com.model.response.Response;
 
 public interface IServerProxy {
 
-	void handleMessageFromServer(MessageToClient msg, int responseCode ,ConnectionToServer connectionToServer);
+	void handleMessageFromServer(Response msg, ConnectionToServer connectionToServer);
 	void handleDisconnection(ConnectionToServer cts, String msg);
 }

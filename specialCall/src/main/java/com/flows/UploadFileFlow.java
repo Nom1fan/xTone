@@ -4,16 +4,16 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.async_tasks.CompressTask;
-import com.async_tasks.MediaProcessingAsyncTask;
-import com.async_tasks.RotateTask;
-import com.async_tasks.TrimTask;
-import com.async_tasks.UploadTask;
-import com.data_objects.KeysForBundle;
+import com.async.tasks.CompressTask;
+import com.async.tasks.MediaProcessingAsyncTask;
+import com.async.tasks.RotateTask;
+import com.async.tasks.TrimTask;
+import com.async.tasks.UploadTask;
+import com.data.objects.KeysForBundle;
 
 import java.util.LinkedList;
 
-import FilesManager.FileManager;
+import com.files.media.MediaFile;
 
 /**
  * Created by Mor on 11/08/2016.
@@ -49,7 +49,7 @@ public class UploadFileFlow implements UploadFileFlowListener {
         Log.i(TAG, "Handling media processing task: " + task.getClass().getSimpleName());
         order++;
 
-        FileManager fileForUpload = (FileManager) bundle.get(KeysForBundle.FILE_FOR_UPLOAD);
+        MediaFile fileForUpload = (MediaFile) bundle.get(KeysForBundle.FILE_FOR_UPLOAD);
         if (task.isProcessingNeeded(context, fileForUpload)) {
             Log.i(TAG, "Processing task: " + task.getClass().getSimpleName() + " is needed. Executing...");
             task.execute(bundle);

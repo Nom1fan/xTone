@@ -3,7 +3,8 @@ package com.handlers;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
-import com.data_objects.ActivityRequestCodes;
+import com.data.objects.ActivityRequestCodes;
+import com.event.EventType;
 import com.handlers.background_broadcast_receiver.EventClearFailureHandler;
 import com.handlers.background_broadcast_receiver.EventClearSentHandler;
 import com.handlers.background_broadcast_receiver.EventClearSuccessHandler;
@@ -22,17 +23,23 @@ import com.handlers.background_broadcast_receiver.EventUnregisterSuccessHandler;
 import com.handlers.background_broadcast_receiver.EventUpdateUserRecordSuccessHandler;
 import com.handlers.background_broadcast_receiver.EventUserRegisteredFalseHandler;
 import com.handlers.background_broadcast_receiver.EventUserRegisteredTrueHandler;
+import com.handlers.logic_server_proxy_service.GetAppRecordActionHandler;
+import com.handlers.logic_server_proxy_service.GetSmsActionHandler;
+import com.handlers.logic_server_proxy_service.InsertCallRecordActionHandler;
+import com.handlers.logic_server_proxy_service.IsRegisteredActionHandler;
+import com.handlers.logic_server_proxy_service.RegisterActionHandler;
+import com.handlers.logic_server_proxy_service.UnregisterActionHandler;
+import com.handlers.logic_server_proxy_service.UpdateUserRecordActionHandler;
 import com.handlers.select_media_activity.ActivityRequestCameraHandler;
 import com.handlers.select_media_activity.ActivityRequestFileChooserHandler;
 import com.handlers.select_media_activity.ActivityRequestPreviewMediaResultHandler;
 import com.receivers.BackgroundBroadcastReceiver;
+import com.services.LogicServerProxyService;
 import com.ui.activities.MainActivity;
 import com.ui.activities.SelectMediaActivity;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import EventObjects.EventType;
 
 /**
  * Created by Mor on 16/07/2016.
@@ -82,6 +89,16 @@ public class HandlerFactory {
         put(MainActivity.class.getSimpleName(), mainActivityHandlers);
     }};
 
+    private Map<String, Class<ActionHandler>> class2ActionHandlerMap = new HashMap(){{
+        put(LogicServerProxyService.ACTION_REGISTER, RegisterActionHandler.class);
+        put(LogicServerProxyService.ACTION_GET_SMS_CODE, GetSmsActionHandler.class);
+        put(LogicServerProxyService.ACTION_GET_APP_RECORD, GetAppRecordActionHandler.class);
+        put(LogicServerProxyService.ACTION_ISREGISTERED, IsRegisteredActionHandler.class);
+        put(LogicServerProxyService.ACTION_INSERT_CALL_RECORD, InsertCallRecordActionHandler.class);
+        put(LogicServerProxyService.ACTION_UPDATE_USER_RECORD, UpdateUserRecordActionHandler.class);
+        put(LogicServerProxyService.ACTION_UNREGISTER, UnregisterActionHandler.class);
+    }};
+
     public static HandlerFactory getInstance() {
         if (ourInstance == null)
             ourInstance = new HandlerFactory();
@@ -100,6 +117,25 @@ public class HandlerFactory {
             handlerClass = (Class<Handler>) handlers.get(key);
             if (handlerClass == null) {
                 throw new Exception("No handler for key:" + key);
+            }
+
+            resultHandler = handlerClass.newInstance();
+
+        } catch (Exception e) {
+            Crashlytics.log(Log.WARN, TAG, e.getMessage());
+
+        }
+        return resultHandler;
+    }
+
+    public ActionHandler getActionHandler(String action) {
+        ActionHandler resultHandler = null;
+        Class<ActionHandler> handlerClass;
+        try {
+
+            handlerClass = class2ActionHandlerMap.get(action);
+            if (handlerClass == null) {
+                throw new Exception("No handler for action:" + action);
             }
 
             resultHandler = handlerClass.newInstance();

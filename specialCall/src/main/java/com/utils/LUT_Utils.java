@@ -3,11 +3,11 @@ package com.utils;
 import android.content.Context;
 import android.util.Log;
 
-import DataObjects.SpecialMediaType;
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
-import FilesManager.FileManager;
+import com.data.objects.SpecialMediaType;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
 
 /**
  * Last Uploads Thumbnails Utilities. Manages the last upload that was made per user for each special media type using SharedPreferences
@@ -74,7 +74,7 @@ public class LUT_Utils {
         SharedPrefUtils.remove(context, _SharedPrefKeyForAudioMedia, destPhoneNumber);
     }
 
-    public void saveUploadedPerNumber(Context context, String destPhoneNumber, FileManager.FileType fileType, String mediaPath) {
+    public void saveUploadedPerNumber(Context context, String destPhoneNumber, MediaFile.FileType fileType, String mediaPath) {
 
         Log.d(TAG, "saveUploadedPerNumber(): destPhoneNumber=" +
                 destPhoneNumber + ", fileType="+fileType +", mediaPath="+mediaPath);
@@ -94,8 +94,8 @@ public class LUT_Utils {
                 String thumbPath = getUploadedMediaPerNumber(context, destPhoneNumber);
                 if(!thumbPath.equals("")) {
                     try {
-                        FileManager.FileType prevType = FileManager.getFileType(thumbPath);
-                        if (prevType == FileManager.FileType.VIDEO)
+                        MediaFile.FileType prevType = MediaFile.getFileType(thumbPath);
+                        if (prevType == MediaFile.FileType.VIDEO)
                             removeUploadedMediaPerNumber(context, destPhoneNumber);
 
                     } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException e) {

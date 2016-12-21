@@ -29,7 +29,7 @@ import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.utils.InitUtils;
 
-import static com.data_objects.Constants.IMAGES;
+import static com.data.objects.Constants.IMAGES;
 
 /**
  * Example widget provider

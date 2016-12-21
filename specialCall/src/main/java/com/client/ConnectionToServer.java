@@ -4,6 +4,7 @@ package com.client;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.model.response.Response;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -24,7 +25,6 @@ import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.util.List;
 
-import MessagesToClient.MessageToClient;
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.client.HttpClient;
 import cz.msebera.android.httpclient.client.methods.HttpPost;
@@ -45,6 +45,11 @@ public class ConnectionToServer {
     private IServerProxy serverProxy;
     private Gson gson;
     private HttpURLConnection conn;
+
+    public void setResponseType(Type responseType) {
+        this.responseType = responseType;
+    }
+
     private Type responseType;
 
     /**
@@ -56,6 +61,10 @@ public class ConnectionToServer {
         gson = new Gson();
     }
 
+    public ConnectionToServer() {
+        gson = new Gson();
+    }
+
     public void sendToServer(String url, List<SimpleEntry> params) {
 
         try {
@@ -64,7 +73,7 @@ public class ConnectionToServer {
         } catch (IOException e) {
             connectionException(e);
         } finally {
-            if(conn!=null)
+            if (conn != null)
                 conn.disconnect();
         }
     }
@@ -77,9 +86,20 @@ public class ConnectionToServer {
         } catch (IOException e) {
             connectionException(e);
         } finally {
-            if(conn!=null)
+            if (conn != null)
                 conn.disconnect();
         }
+    }
+
+    public <T> int send(String url, T requestBody) throws IOException {
+        sendRequestBody(url, requestBody);
+        return conn.getResponseCode();
+    }
+
+    public <T> Response<T> read() throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+        String responseBody = br.readLine();
+        return extractResponse(responseBody);
     }
 
     public void sendMultipartToServer(String url, ProgressiveEntity progressiveEntity) {
@@ -89,26 +109,26 @@ public class ConnectionToServer {
             HttpClient client = HttpClientBuilder.create().build();
             post = new HttpPost(url);
             post.setEntity(progressiveEntity);
-            HttpResponse response = client.execute(post);
-            int statusCode = response.getStatusLine().getStatusCode();
-            BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+            HttpResponse httpResponse = client.execute(post);
+            int responseCode = httpResponse.getStatusLine().getStatusCode();
+            BufferedReader br = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()));
             String responseMessage = br.readLine();
-            MessageToClient msg = extractResponse(responseMessage);
-            serverProxy.handleMessageFromServer(msg, statusCode, this);
+            Response response = extractResponse(responseMessage);
+            response.setResponseCode(responseCode);
+            serverProxy.handleMessageFromServer(response, this);
         } catch (IOException e) {
             connectionException(e);
         } finally {
-            if(post!=null)
+            if (post != null)
                 post.releaseConnection();
 
         }
     }
 
-    public void download(String url, String pathToDownload, String fileName, long fileSize ,List<SimpleEntry> data) {
+    public void download(String url, String pathToDownload, String fileName, long fileSize, List<SimpleEntry> data) {
 
         BufferedOutputStream bos = null;
-        try
-        {
+        try {
             sendRequestParams(url, data);
             int responseCode = conn.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -133,7 +153,7 @@ public class ConnectionToServer {
                 while (fileSize > 0 && (bytesRead = dis.read(buf, 0, (int) Math.min(buf.length, fileSize))) != -1) {
                     bos.write(buf, 0, bytesRead);
                     progPercent = calcProgressPercentage(fileSize, fileSizeConst);
-                    if(progPercent - prevProgPercent >= 1) {
+                    if (progPercent - prevProgPercent >= 1) {
                         publishProgress(progPercent);
                         prevProgPercent = progPercent;
                     }
@@ -141,14 +161,13 @@ public class ConnectionToServer {
                 }
                 if (fileSize > 0)
                     throw new IOException("download was stopped abruptly. " + fileSize + " bytes left.");
-            }
-            else
+            } else
                 log(Log.ERROR, TAG, "Download failed. Response code:" + responseCode);
 
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if(bos!=null)
+            if (bos != null)
                 try {
                     bos.close();
                 } catch (IOException e) {
@@ -176,6 +195,7 @@ public class ConnectionToServer {
         conn.connect();
     }
 
+
     private <T> void sendRequestBody(String url, T requestBody) throws IOException {
 
         conn = (HttpURLConnection) openConnection(new URL(url));
@@ -191,12 +211,15 @@ public class ConnectionToServer {
         conn.connect();
     }
 
-    private void readResponse() throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-        String responseMessage = br.readLine();
+    public void readResponse() throws IOException {
         int responseCode = conn.getResponseCode();
-        MessageToClient response = extractResponse(responseMessage);
-        serverProxy.handleMessageFromServer(response, responseCode, this);
+        BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+        String responseBody = br.readLine();
+        String responseMessage = conn.getResponseMessage();
+        Response response = extractResponse(responseBody);
+        response.setResponseCode(responseCode);
+        response.setMessage(responseMessage);
+        serverProxy.handleMessageFromServer(response, this);
     }
 
     private URLConnection openConnection(URL url) throws IOException {
@@ -214,18 +237,15 @@ public class ConnectionToServer {
     }
 
     private void connectionException(Exception e) {
-
         String errMsg = "Connection error";
         serverProxy.handleDisconnection(this, e != null ? errMsg + ":" + e.toString() : errMsg);
     }
 
-    private String getQuery(List<SimpleEntry> params) throws UnsupportedEncodingException
-    {
+    private String getQuery(List<SimpleEntry> params) throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
         boolean first = true;
 
-        for (SimpleEntry pair : params)
-        {
+        for (SimpleEntry pair : params) {
             if (first)
                 first = false;
             else
@@ -239,7 +259,7 @@ public class ConnectionToServer {
         return result.toString();
     }
 
-    private MessageToClient extractResponse(String resJson) {
+    private <T> Response<T> extractResponse(String resJson) {
         return gson.fromJson(resJson, responseType);
     }
 
@@ -250,5 +270,11 @@ public class ConnectionToServer {
     private double calcProgressPercentage(long fileSize, long fileSizeConst) {
 
         return ((fileSizeConst - fileSize) / (double) fileSizeConst) * 100;
+    }
+
+    public void disconnect() {
+        if(conn!=null) {
+            conn.disconnect();
+        }
     }
 }

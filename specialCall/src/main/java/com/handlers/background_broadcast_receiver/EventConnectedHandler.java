@@ -10,8 +10,8 @@ import com.mediacallz.app.R;
 import com.utils.BroadcastUtils;
 import com.utils.UI_Utils;
 
-import EventObjects.EventReport;
-import EventObjects.EventType;
+import com.event.EventReport;
+import com.event.EventType;
 
 /**
  * Created by Mor on 16/07/2016.

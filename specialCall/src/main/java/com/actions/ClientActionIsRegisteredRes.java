@@ -1,14 +1,12 @@
 package com.actions;
 
-import android.util.Log;
+import com.data.objects.DataKeys;
+import com.event.EventReport;
+import com.event.EventType;
+import com.model.response.ClientActionType;
 
 import java.io.IOException;
 import java.util.Map;
-
-import DataObjects.DataKeys;
-import EventObjects.EventReport;
-import EventObjects.EventType;
-import MessagesToClient.ClientActionType;
 
 /**
  * Created by Mor on 27/04/2016.
@@ -22,11 +20,9 @@ public class ClientActionIsRegisteredRes extends ClientAction<Map<DataKeys,Objec
     }
 
     @Override
-    public EventReport doClientAction(Map<DataKeys,Object> data, int responseCode) throws IOException {
+    public EventReport doClientAction(Map<DataKeys,Object> data) throws IOException {
 
-        Log.i(TAG, "Response Code:" + responseCode);
-
-        boolean isRegistered = (boolean) data.get(DataKeys.IS_REGISTERED);
+        boolean isRegistered = (boolean) data.get(DataKeys.IS_REGISTERED_RES);
         String phone = (String) data.get(DataKeys.DESTINATION_ID);
 
         String desc;

@@ -12,7 +12,7 @@ import com.app.AppStateManager;
 import com.mediacallz.app.R;
 import com.services.StorageServerProxyService;
 
-import DataObjects.SpecialMediaType;
+import com.data.objects.SpecialMediaType;
 
 
 public class ClearMediaDialog extends android.app.DialogFragment {

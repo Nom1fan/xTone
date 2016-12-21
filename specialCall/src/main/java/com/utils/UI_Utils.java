@@ -21,7 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.daimajia.androidanimations.library.Techniques;
-import com.data_objects.SnackbarData;
+import com.data.objects.SnackbarData;
 import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
@@ -32,8 +32,8 @@ import com.services.PreviewService;
 import java.lang.reflect.Field;
 import java.util.Random;
 
-import EventObjects.EventReport;
-import EventObjects.EventType;
+import com.event.EventReport;
+import com.event.EventType;
 
 import static com.crashlytics.android.Crashlytics.log;
 

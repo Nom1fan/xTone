@@ -23,10 +23,10 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-import DataObjects.DataKeys;
-import DataObjects.PushEventKeys;
-import EventObjects.EventReport;
-import EventObjects.EventType;
+import com.data.objects.DataKeys;
+import com.data.objects.PushEventKeys;
+import com.event.EventReport;
+import com.event.EventType;
 
 import static com.crashlytics.android.Crashlytics.log;
 

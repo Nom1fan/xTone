@@ -1,16 +1,15 @@
 package com.actions;
 
 import com.client.ConnectionToServer;
+import com.event.EventReport;
+import com.model.response.ClientActionType;
 
 import java.io.IOException;
-
-import EventObjects.EventReport;
-import MessagesToClient.ClientActionType;
 
 /**
  * Created by Mor on 26/04/2016.
  */
-public abstract class ClientAction<DATA_TYPE> {
+public abstract class ClientAction<RESPONSE> {
 
     protected ClientActionType _clientActionType;
     protected ConnectionToServer _connectionToServer;
@@ -20,7 +19,7 @@ public abstract class ClientAction<DATA_TYPE> {
         _clientActionType = clientActionType;
     }
 
-    abstract public EventReport doClientAction(DATA_TYPE data, int responseCode) throws IOException;
+    abstract public EventReport doClientAction(RESPONSE response) throws IOException;
 
     public void setConnectionToServer(ConnectionToServer connectionToServer) {
         _connectionToServer = connectionToServer;

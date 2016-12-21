@@ -13,8 +13,8 @@
 //import DataObjects.SharedConstants;
 //import DataObjects.SpecialMediaType;
 //import EventObjects.EventReport;
-//import EventObjects.EventType;
-//import MessagesToClient.ClientActionType;
+//import com.event.EventType;
+//import com.model.response.ClientActionType;
 //
 ///**
 // * Created by Mor on 27/04/2016.

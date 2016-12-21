@@ -1,7 +1,7 @@
 package com.actions;
 
-import Exceptions.NoSuchActionException;
-import MessagesToClient.ClientActionType;
+import com.exceptions.NoSuchActionException;
+import com.model.response.ClientActionType;
 
 /**
  * Created by Mor on 23/04/2016.

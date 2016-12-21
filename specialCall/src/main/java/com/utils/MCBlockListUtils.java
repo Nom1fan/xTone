@@ -3,14 +3,12 @@ package com.utils;
 import android.content.Context;
 import android.util.Log;
 
-import com.data_objects.Contact;
-import com.data_objects.PermissionBlockListLevel;
+import com.data.objects.Contact;
+import com.data.objects.PermissionBlockListLevel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import utils.PhoneNumberUtils;
 
 import static com.crashlytics.android.Crashlytics.log;
 

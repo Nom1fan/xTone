@@ -6,12 +6,10 @@ import android.net.Uri;
 import android.provider.Contacts;
 import android.provider.ContactsContract;
 
-import com.data_objects.Contact;
+import com.data.objects.Contact;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import utils.PhoneNumberUtils;
 
 /**
  * Created by Mor on 18/02/2016.

@@ -13,10 +13,10 @@ import com.utils.UI_Utils;
 
 import java.util.Map;
 
-import DataObjects.DataKeys;
-import DataObjects.SpecialMediaType;
-import EventObjects.EventReport;
-import FilesManager.FileManager;
+import com.data.objects.DataKeys;
+import com.data.objects.SpecialMediaType;
+import com.event.EventReport;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -39,7 +39,7 @@ public class EventDestinationDownloadCompleteHandler implements Handler {
         lut_utils.saveUploadedPerNumber(
                 ctx,
                 destId,
-                FileManager.FileType.valueOf(data.get(DataKeys.FILE_TYPE).toString()),
+                MediaFile.FileType.valueOf(data.get(DataKeys.FILE_TYPE).toString()),
                 data.get(DataKeys.FILE_PATH_ON_SRC_SD).toString());
 
         UI_Utils.dismissTransferSuccessDialog();

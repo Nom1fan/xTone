@@ -10,7 +10,7 @@ import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
 import com.utils.UI_Utils;
 
-import EventObjects.EventReport;
+import com.event.EventReport;
 
 /**
  * Created by Mor on 16/07/2016.

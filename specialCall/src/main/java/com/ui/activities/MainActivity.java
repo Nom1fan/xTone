@@ -46,18 +46,25 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.app.AppStateManager;
-import com.async_tasks.AutoCompletePopulateListAsyncTask;
-import com.async_tasks.IsRegisteredTask;
-import com.async_tasks.SendBugEmailAsyncTask;
+import com.async.tasks.AutoCompletePopulateListAsyncTask;
+import com.async.tasks.IsRegisteredTask;
+import com.async.tasks.SendBugEmailAsyncTask;
 import com.batch.android.Batch;
 import com.crashlytics.android.Crashlytics;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
-import com.data_objects.ActivityRequestCodes;
-import com.data_objects.Constants;
-import com.data_objects.Contact;
-import com.data_objects.KeysForBundle;
-import com.data_objects.SnackbarData;
+import com.data.objects.ActivityRequestCodes;
+import com.data.objects.Constants;
+import com.data.objects.Contact;
+import com.data.objects.KeysForBundle;
+import com.data.objects.SnackbarData;
+import com.data.objects.SpecialMediaType;
+import com.event.Event;
+import com.event.EventReport;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
 import com.flows.UploadFileFlow;
 import com.interfaces.ICallbackListener;
 import com.mediacallz.app.R;
@@ -74,24 +81,14 @@ import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
+import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-
-import DataObjects.DataKeys;
-import DataObjects.SpecialMediaType;
-import EventObjects.Event;
-import EventObjects.EventReport;
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
-import FilesManager.FileManager;
-import utils.PhoneNumberUtils;
 
 import static com.crashlytics.android.Crashlytics.log;
 import static com.crashlytics.android.Crashlytics.setUserIdentifier;
@@ -314,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         writeInfoSnackBar(snackbarData);
                     } else {
                         SpecialMediaType specialMediaType = (SpecialMediaType) data.getSerializableExtra(SelectMediaActivity.RESULT_SPECIAL_MEDIA_TYPE);
-                        FileManager fm = (FileManager) data.getSerializableExtra(SelectMediaActivity.RESULT_FILE);
+                        MediaFile fm = (MediaFile) data.getSerializableExtra(SelectMediaActivity.RESULT_FILE);
 
                         Bundle bundle = new Bundle();
                         bundle.putSerializable(KeysForBundle.FILE_FOR_UPLOAD, fm);
@@ -599,9 +596,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         switch (report.status()) {
 
             case APP_RECORD_RECEIVED: {
-                HashMap<DataKeys, Object> data = (HashMap) report.data();
+                double lastSupportedVersion = (double) report.data();
 
-                if (Constants.APP_VERSION() < (double) data.get(DataKeys.MIN_SUPPORTED_VERSION))
+                if (Constants.APP_VERSION() < lastSupportedVersion)
                     showMandatoryUpdateDialog();
             }
             break;
@@ -639,17 +636,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     private void syncAndroidVersionWithServer() {
-
         if (!Constants.MY_ANDROID_VERSION(this).equals(Build.VERSION.RELEASE)) {
-
             Intent i = new Intent(this, LogicServerProxyService.class);
             i.setAction(LogicServerProxyService.ACTION_UPDATE_USER_RECORD);
-
-            HashMap<DataKeys, Object> data = new HashMap<>();
-            //data.put(DataKeys.ANDROID_VERSION, Build.VERSION.RELEASE);
-            data.put(DataKeys.ANDROID_VERSION, Build.VERSION.RELEASE);
-
-            i.putExtra(LogicServerProxyService.USER_RECORD, data);
             startService(i);
         }
     }
@@ -1539,13 +1528,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.CALLER_MEDIA);
         try {
-            FileManager.FileType fType;
+            MediaFile.FileType fType;
 
             if (enabled){
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
-                    fType = FileManager.getFileType(lastUploadedMediaPath);
+                    fType = MediaFile.getFileType(lastUploadedMediaPath);
 
                     BitmapUtils.execBitMapWorkerTask(selectMediaBtn, fType, lastUploadedMediaPath, false);
 
@@ -1587,7 +1576,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
-                    FileManager.FileType fType = FileManager.getFileType(lastUploadedMediaPath);
+                    MediaFile.FileType fType = MediaFile.getFileType(lastUploadedMediaPath);
 
                     BitmapUtils.execBitMapWorkerTask(defaultpic_enabled, fType, lastUploadedMediaPath, true);
                     profileHasMedia = true;
@@ -1615,7 +1604,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                ringToneNameTextView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameTextView.setText(MediaFile.getFileNameWithExtension(ringToneFilePath));
                 ringToneNameTextView.setVisibility(View.VISIBLE);
                 callerHasRingtone = true;
                 enableRingToneStatusArrived();
@@ -1638,7 +1627,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                ringToneNameForProfileTextView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameForProfileTextView.setText(MediaFile.getFileNameWithExtension(ringToneFilePath));
                 ringToneNameForProfileTextView.setVisibility(View.VISIBLE);
                 profileHasRingtone = true;
                 UI_Utils.showCaseViewAfterUploadAndCall(this, MainActivity.this);

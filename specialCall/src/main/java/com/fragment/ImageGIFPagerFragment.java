@@ -30,9 +30,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import com.async_tasks.PopulateUrlsAsyncTask;
-import com.async_tasks.PopulateUrlsAsyncTask.PostPopulateListener;
-import com.data_objects.Constants;
+import com.async.tasks.PopulateUrlsAsyncTask;
+import com.async.tasks.PopulateUrlsAsyncTask.PostPopulateListener;
+import com.data.objects.Constants;
 import com.felipecsl.gifimageview.library.GifImageView;
 import com.mediacallz.app.R;
 import com.validate.media.ValidateImageFormatBehavior;

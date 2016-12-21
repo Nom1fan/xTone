@@ -8,23 +8,22 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
-import com.data_objects.Constants;
+import com.data.objects.Constants;
 
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileExceedsMaxSizeException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
-import FilesManager.FileManager;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileExceedsMaxSizeException;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -46,7 +45,7 @@ public abstract class MediaFilesUtils {
 
         boolean fileIsCorrupted;
         try {
-            FileManager managedFile = new FileManager(mediaFilePath);
+            MediaFile managedFile = new MediaFile(mediaFilePath);
             if(canVideoBePrepared(context, managedFile))
                 fileIsCorrupted = false;
             else
@@ -71,7 +70,7 @@ public abstract class MediaFilesUtils {
 
         boolean fileIsCorrupted;
         try {
-            FileManager managedFile = new FileManager(mediaFilePath);
+            MediaFile managedFile = new MediaFile(mediaFilePath);
 
             if(canAudioBePrepared(context, managedFile))
                 fileIsCorrupted = false;
@@ -167,7 +166,7 @@ public abstract class MediaFilesUtils {
      * @return The file duration in seconds
      * @see MediaMetadataRetriever
      */
-    public static long getFileDurationInSeconds(Context context, FileManager managedFile) {
+    public static long getFileDurationInSeconds(Context context, MediaFile managedFile) {
         return getFileDurationInMilliSeconds(context, managedFile) / 1000;
     }
 
@@ -178,7 +177,7 @@ public abstract class MediaFilesUtils {
      * @return The file duration in milliseconds
      * @see MediaMetadataRetriever
      */
-    public static long getFileDurationInMilliSeconds(Context context, FileManager managedFile) {
+    public static long getFileDurationInMilliSeconds(Context context, MediaFile managedFile) {
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(context, Uri.fromFile(managedFile.getFile()));
@@ -187,10 +186,10 @@ public abstract class MediaFilesUtils {
         return timeInMilli;
     }
 
-    public static FileManager createMediaFile(File file) {
-        FileManager result = null;
+    public static MediaFile createMediaFile(File file) {
+        MediaFile result = null;
         try {
-            result =  new FileManager(file);
+            result = new MediaFile(file);
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -207,11 +206,11 @@ public abstract class MediaFilesUtils {
         return FilenameUtils.getBaseName(url).replaceAll("%20"," ");
     }
 
-    private static boolean canVideoBePrepared(Context ctx, FileManager managedFile) {
+    private static boolean canVideoBePrepared(Context ctx, MediaFile managedFile) {
 
         boolean result = true;
         try {
-            FileManager.FileType fType = managedFile.getFileType();
+            MediaFile.FileType fType = managedFile.getFileType();
             String filepath = managedFile.getFileFullPath();
             final File root = new File(filepath);
             Uri uri = Uri.fromFile(root);
@@ -231,11 +230,11 @@ public abstract class MediaFilesUtils {
 
     }
 
-    private static boolean canAudioBePrepared(Context ctx, FileManager managedFile) {
+    private static boolean canAudioBePrepared(Context ctx, MediaFile managedFile) {
 
         boolean result = true;
         try {
-            FileManager.FileType fType = managedFile.getFileType();
+            MediaFile.FileType fType = managedFile.getFileType();
             String filepath = managedFile.getFileFullPath();
             final File root = new File(filepath);
             Uri uri = Uri.fromFile(root);

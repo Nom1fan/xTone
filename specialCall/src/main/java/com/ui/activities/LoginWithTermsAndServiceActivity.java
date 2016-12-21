@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.data_objects.Constants;
+import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.services.LogicServerProxyService;
 

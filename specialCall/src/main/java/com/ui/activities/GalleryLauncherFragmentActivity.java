@@ -22,8 +22,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
-import com.data_objects.ActivityRequestCodes;
-import com.data_objects.Constants;
+import com.data.objects.ActivityRequestCodes;
+import com.data.objects.Constants;
 import com.fragment.ImageGIFGridFragment;
 import com.fragment.ImageGIFPagerFragment;
 import com.fragment.ImageGalleryFragment;
@@ -37,7 +37,7 @@ import com.fragment.VideoPagerFragment;
 import com.mediacallz.app.R;
 import com.utils.SharedPrefUtils;
 
-import FilesManager.FileManager;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -184,7 +184,7 @@ public class GalleryLauncherFragmentActivity extends FragmentActivity {
         log(Log.INFO, TAG, "onActivityResult");
         if(resultCode == Activity.RESULT_OK) {
             if (requestCode == ActivityRequestCodes.PREVIEW_MEDIA) {
-                FileManager resultFile = (FileManager) data.getSerializableExtra(PreviewMediaActivity.RESULT_FILE);
+                MediaFile resultFile = (MediaFile) data.getSerializableExtra(PreviewMediaActivity.RESULT_FILE);
                 setResultFilePathFromContentStore(resultFile.getFile().getAbsolutePath());
                 finish();
             }

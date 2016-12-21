@@ -12,7 +12,7 @@ import android.util.Log;
 import com.batch.android.Batch;
 import com.batch.android.Config;
 import com.crashlytics.android.Crashlytics;
-import com.data_objects.Constants;
+import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.utils.BitmapUtils;
 import com.utils.InitUtils;

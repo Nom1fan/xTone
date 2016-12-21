@@ -8,7 +8,7 @@ import android.view.Display;
 import android.view.WindowManager;
 
 import com.crashlytics.android.Crashlytics;
-import com.data_objects.Constants;
+import com.data.objects.Constants;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -19,10 +19,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import DataObjects.SpecialMediaType;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
-import FilesManager.FileManager;
+import com.data.objects.SpecialMediaType;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -103,11 +103,11 @@ public abstract class InitUtils {
             List<File> DirFiles = getSpecificFolderFiles(new File(Directories.get(i).getAbsolutePath()));
 
             for (int x = 0; x < DirFiles.size(); x++) {
-                FileManager.FileType fType = null;
+                MediaFile.FileType fType = null;
 
                 try {
-                    String extension = FileManager.extractExtension(DirFiles.get(x).getAbsolutePath());
-                    fType = FileManager.getFileTypeByExtension(extension);
+                    String extension = MediaFile.extractExtension(DirFiles.get(x).getAbsolutePath());
+                    fType = MediaFile.getFileTypeByExtension(extension);
                 } catch (FileMissingExtensionException e) {
                     log(Log.INFO, TAG, "FileMissingExtensionException in populateSavedMcFromDiskToSharedPrefs in" + specialMediaType.toString());
                     e.printStackTrace();

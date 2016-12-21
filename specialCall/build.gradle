@@ -28,7 +28,7 @@ android {
         }
     }
     packagingOptions {
-        pickFirst  'META-INF/license.txt'
+        pickFirst 'META-INF/license.txt'
         exclude 'META-INF/DEPENDENCIES.txt'
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/dependencies.txt'
@@ -55,13 +55,11 @@ repositories {
     mavenCentral()
     maven { url "http://maven.batch.com/release" }
     maven { url 'https://maven.fabric.io/public' }
-
 }
 
 
 
 dependencies {
-    compile project(':shared')
     compile project(':ffmpeg4android_lib')
     compile project(':standOut_lib')
     compile project(':aFileChooser')
@@ -99,9 +97,13 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'org.jsoup:jsoup:1.9.2'
     compile group: 'org.apache.httpcomponents', name: 'httpclient-android', version: '4.3.5'
-    compile group: 'cz.msebera.android' , name: 'httpclient' , version: '4.4.1.2'
+    compile group: 'cz.msebera.android', name: 'httpclient', version: '4.4.1.2'
     compile 'org.apache.httpcomponents:httpmime:4.3.5'
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
+
+    // gson
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.4'
+
 }
 
 crashlytics {

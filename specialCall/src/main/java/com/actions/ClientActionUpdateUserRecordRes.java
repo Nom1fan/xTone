@@ -1,12 +1,12 @@
 package com.actions;
 
+import com.data.objects.DataKeys;
+import com.event.EventReport;
+import com.event.EventType;
+import com.model.response.ClientActionType;
+
 import java.io.IOException;
 import java.util.Map;
-
-import DataObjects.DataKeys;
-import EventObjects.EventReport;
-import EventObjects.EventType;
-import MessagesToClient.ClientActionType;
 
 /**
  * Created by Mor on 27/04/2016.
@@ -19,7 +19,7 @@ public class ClientActionUpdateUserRecordRes extends ClientAction<Map<DataKeys,O
     }
 
     @Override
-    public EventReport doClientAction(Map<DataKeys,Object> data, int responseCode) throws IOException {
+    public EventReport doClientAction(Map<DataKeys,Object> data) throws IOException {
 
         boolean _isRegisterSuccess = (boolean) data.get(DataKeys.IS_UPDATE_SUCCESS);
 

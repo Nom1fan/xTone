@@ -4,7 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-import com.data_objects.Constants;
+import com.data.objects.Constants;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
@@ -12,9 +12,9 @@ import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.Map;
 
-import DataObjects.DataKeys;
-import DataObjects.SpecialMediaType;
-import FilesManager.FileManager;
+import com.data.objects.DataKeys;
+import com.data.objects.SpecialMediaType;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -56,14 +56,14 @@ public class ClearMediaIntentService extends IntentService {
                         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, phoneNumber);
                         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, phoneNumber);
                         folderPath = Constants.INCOMING_FOLDER + phoneNumber;
-                        FileManager.deleteDirectory(new File(folderPath));
+                        MediaFile.deleteDirectory(new File(folderPath));
                         break;
                     case PROFILE_MEDIA:
                         log(Log.INFO,TAG, "Clearing PROFILE_MEDIA");
                         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, phoneNumber);
                         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, phoneNumber);
                         folderPath = Constants.OUTGOING_FOLDER + phoneNumber;
-                        FileManager.deleteDirectory(new File(folderPath));
+                        MediaFile.deleteDirectory(new File(folderPath));
                         break;
 
                     case MY_DEFAULT_PROFILE_MEDIA:
