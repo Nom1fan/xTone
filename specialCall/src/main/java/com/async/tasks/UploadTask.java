@@ -11,11 +11,8 @@ import android.os.PowerManager;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 
-import com.actions.ActionFactory;
-import com.actions.ClientAction;
 import com.app.AppStateManager;
 import com.client.ConnectionToServer;
-import com.client.IServerProxy;
 import com.client.ProgressListener;
 import com.client.ProgressiveEntity;
 import com.data.objects.Constants;
@@ -24,19 +21,18 @@ import com.event.EventReport;
 import com.event.EventType;
 import com.files.media.MediaFile;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.mediacallz.app.R;
 import com.model.request.UploadFileRequest;
-import com.model.response.Response;
 import com.utils.BroadcastUtils;
+import com.utils.RequestUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
-import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.HttpEntity;
+import cz.msebera.android.httpclient.HttpStatus;
 import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.entity.mime.HttpMultipartMode;
 import cz.msebera.android.httpclient.entity.mime.MultipartEntityBuilder;
@@ -52,10 +48,8 @@ import static com.data.objects.KeysForBundle.SPEC_MEDIA_TYPE;
 /**
  * Created by Mor on 11/08/2016.
  */
-public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServerProxy, ProgressListener {
+public class UploadTask extends AsyncTask<Void, Integer, Void> implements ProgressListener {
     private static final String URL_UPLOAD = "http://" + Constants.SERVER_HOST + ":" + Constants.SERVER_PORT + "/v1/UploadFile";
-    private static final Type RESPONSE_TYPE = new TypeToken<Response<EventReport>>() {
-    }.getType();
     private final String TAG = UploadTask.class.getSimpleName();
     private ConnectionToServer connectionToServer;
     private ProgressDialog progDialog;
@@ -64,16 +58,14 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
     private Context context;
     private MediaFile fileForUpload;
     private ProgressiveEntity progressiveEntity;
+    private boolean isOK = true;
 
     public UploadTask(Context context, Bundle bundle) {
         this.context = context;
         fileForUpload = (MediaFile) bundle.get(FILE_FOR_UPLOAD);
-
         progressiveEntity = prepareProgressiveEntity(bundle);
-
-        connectionToServer = new ConnectionToServer(this, RESPONSE_TYPE);
+        connectionToServer = new ConnectionToServer();
         taskInstance = this;
-
     }
 
     @Override
@@ -103,13 +95,15 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
     protected Void doInBackground(Void... voids) {
 
         try {
-
             PowerManager powerManager = (PowerManager) context.getSystemService(Activity.POWER_SERVICE);
             wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "UploadTask_Lock");
             wakeLock.acquire();
 
             log(Log.INFO, TAG, "Initiating file data upload. [Filepath]: " + fileForUpload.getFile().getAbsolutePath());
-            connectionToServer.sendMultipartToServer(URL_UPLOAD, progressiveEntity);
+            int responseCode = connectionToServer.sendMultipartToServer(URL_UPLOAD, progressiveEntity);
+            if (responseCode != HttpStatus.SC_OK) {
+                isOK = false;
+            }
 
             try {
                 Thread.sleep(1000); // Sleeping so in fast uploads the dialog won't appear and disappear too fast (like a blink)
@@ -123,6 +117,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
         } finally {
             if (wakeLock.isHeld())
                 wakeLock.release();
+            connectionToServer.disconnect();
         }
 
         return null;
@@ -130,13 +125,12 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
 
     @Override
     protected void onCancelled() {
-        connectionToServer.closeConnection();
+        connectionToServer.disconnect();
         BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.LOADING_CANCEL));
     }
 
     @Override
     protected void onProgressUpdate(Integer... progress) {
-
         if (progDialog != null) {
             progDialog.incrementProgressBy(progress[0]);
         }
@@ -145,50 +139,24 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
     @Override
     protected void onPostExecute(Void result) {
 
-        String msg = context.getResources().getString(R.string.upload_success);
-        // Setting state
-        AppStateManager.setAppState(context, TAG, AppStateManager.STATE_READY);
+        if(isOK) {
+            String msg = context.getResources().getString(R.string.upload_success);
+            // Setting state
+            AppStateManager.setAppState(context, TAG, AppStateManager.STATE_READY);
 
-        // Setting parameters for snackbar message
-        int color = Color.GREEN;
-        int sBarDuration = Snackbar.LENGTH_LONG;
+            // Setting parameters for snackbar message
+            int color = Color.GREEN;
+            int sBarDuration = Snackbar.LENGTH_LONG;
 
-        UI_Utils.showSnackBar(msg, color, sBarDuration, false, context);
+            UI_Utils.showSnackBar(msg, color, sBarDuration, false, context);
 
-        waitingForTransferSuccess();
-    }
-
-    @Override
-    public void handleMessageFromServer(Response msg, ConnectionToServer connectionToServer) {
-
-        ClientAction clientAction = null;
-        try {
-
-            clientAction = ActionFactory.instance().getAction(msg.getActionType());
-            clientAction.setConnectionToServer(connectionToServer);
-            EventReport eventReport = clientAction.doClientAction(msg.getResult());
-
-            if (eventReport == null)
-                log(Log.WARN, TAG, "ClientAction:" + clientAction.getClass().getSimpleName() + " returned null eventReport");
-            else if (eventReport.status() != EventType.NO_ACTION_REQUIRED)
-                BroadcastUtils.sendEventReportBroadcast(context, TAG, eventReport);
-
-        } catch (Exception e) {
-            String errMsg;
-            if (clientAction == null)
-                errMsg = "Handling message from server failed. ClientAction was null. Message:" + msg;
-            else
-                errMsg = "Handling message from server failed. ClientAction:" + clientAction.getClass().getSimpleName() + " Reason:" + e.getMessage();
-            log(Log.ERROR, TAG, errMsg);
+            waitingForTransferSuccess();
+        }
+        else {
+            BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.STORAGE_ACTION_FAILURE));
         }
     }
 
-    @Override
-    public void handleDisconnection(ConnectionToServer cts, String errMsg) {
-        log(Log.ERROR, TAG, "Failed:" + errMsg);
-        BroadcastUtils.sendEventReportBroadcast(context, TAG,
-                new EventReport(EventType.STORAGE_ACTION_FAILURE));
-    }
 
     @Override
     public void reportProgress(int bytesWritten) {
@@ -211,15 +179,14 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements IServe
         double appVersion = Constants.APP_VERSION();
 
         UploadFileRequest uploadFileRequest = new UploadFileRequest();
-        uploadFileRequest.setMessageInitiaterId(myId);
-        uploadFileRequest.setAppVersion(String.valueOf(appVersion));
+        RequestUtils.prepareDefaultRequest(context, uploadFileRequest);
         uploadFileRequest.setSourceId(myId);
         uploadFileRequest.setSourceLocale(Locale.getDefault().getLanguage());
         uploadFileRequest.setDestinationId(bundle.get(DEST_ID).toString());
         uploadFileRequest.setDestinationContactName(bundle.get(DEST_NAME).toString());
         uploadFileRequest.setMediaFile(fileForUpload);
         uploadFileRequest.setFilePathOnSrcSd(fileForUpload.getFile().getAbsolutePath());
-        uploadFileRequest.setSpecialMediaType((SpecialMediaType)bundle.get(SPEC_MEDIA_TYPE));
+        uploadFileRequest.setSpecialMediaType((SpecialMediaType) bundle.get(SPEC_MEDIA_TYPE));
         uploadFileRequest.setSourceWithExtension(myId + "." + fileForUpload.getFileExtension());
 
 //        builder.addTextBody(DataKeys.DESTINATION_CONTACT_NAME.toString(), , ContentType.TEXT_PLAIN.withCharset("UTF-8"));

@@ -37,7 +37,9 @@ public class AutoCompletePopulateListAsyncTask extends AsyncTask<Context, Intege
 
     @Override
     protected void onPostExecute(FilterWithSpaceAdapter mWithSpaceAdapter) {
-        autoCompleteTextViewWeakReference.get().setAdapter(mWithSpaceAdapter);
+        AutoCompleteTextView autoCompleteTextView = autoCompleteTextViewWeakReference.get();
+        if (autoCompleteTextView != null)
+            autoCompleteTextView.setAdapter(mWithSpaceAdapter);
     }
 
     public void PopulatePeopleList(Context context) {
@@ -45,7 +47,7 @@ public class AutoCompletePopulateListAsyncTask extends AsyncTask<Context, Intege
         mPeopleList.clear();
         List<Contact> allContacts = ContactsUtils.getAllContacts(context);
 
-        for(Contact contact: allContacts)
+        for (Contact contact : allContacts)
             mPeopleList.add(contact.get_name() + "\n" + contact.get_phoneNumber());
 
     }

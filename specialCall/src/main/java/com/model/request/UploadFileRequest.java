@@ -10,7 +10,6 @@ import com.files.media.MediaFile;
 public class UploadFileRequest extends Request {
 
     private String sourceId;
-    private String sourceLocale;
     private String destinationId;
     private String destinationContactName;
     private MediaFile mediaFile;
@@ -24,14 +23,6 @@ public class UploadFileRequest extends Request {
 
     public void setSourceId(String sourceId) {
         this.sourceId = sourceId;
-    }
-
-    public String getSourceLocale() {
-        return sourceLocale;
-    }
-
-    public void setSourceLocale(String sourceLocale) {
-        this.sourceLocale = sourceLocale;
     }
 
     public String getDestinationId() {

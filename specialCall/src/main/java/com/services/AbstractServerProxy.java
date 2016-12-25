@@ -22,6 +22,7 @@ import com.model.request.Request;
 import com.model.response.Response;
 import com.utils.BroadcastUtils;
 import com.utils.CollectionsUtils;
+import com.utils.RequestUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.IOException;
@@ -86,7 +87,7 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     public void handleDisconnection(ConnectionToServer cts, String errMsg) {
 
         log(Log.ERROR, TAG, errMsg);
-        cts.closeConnection();
+        cts.disconnect();
         connections.remove(cts);
         if (isNetworkAvailable())
             sendLoadingTimeout();
@@ -187,11 +188,10 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
         return data;
     }
 
-    protected void prepareDefaultMessageData(Request request) {
-        request.setMessageInitiaterId(Constants.MY_ID(this));
-        request.setAppVersion(String.valueOf(Constants.APP_VERSION()));
-        request.setPushToken(Constants.MY_BATCH_TOKEN(this));
-        request.setAndroidVersion(Build.VERSION.RELEASE);
+    protected Request prepareDefaultRequestData() {
+        Request request = new Request();
+        RequestUtils.prepareDefaultRequest(getApplicationContext(), request);
+        return request;
     }
 
     //region Response types

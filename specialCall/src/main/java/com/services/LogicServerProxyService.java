@@ -66,9 +66,10 @@ public class LogicServerProxyService extends AbstractServerProxy implements Runn
     }
 
     @Override
-    protected void prepareDefaultMessageData(Request request) {
-        super.prepareDefaultMessageData(request);
+    protected Request prepareDefaultRequestData() {
+        Request request = super.prepareDefaultRequestData();
         request.setSourceLocale(Locale.getDefault().getLanguage());
+        return request;
     }
     //endregion
 
@@ -104,7 +105,7 @@ public class LogicServerProxyService extends AbstractServerProxy implements Runn
     //endregion
 
     private void handleActionFailure() {
-        BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.LOGIC_ACTION_FAILURE));
+        BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.LOADING_TIMEOUT));
     }
 
     @Override
@@ -113,8 +114,7 @@ public class LogicServerProxyService extends AbstractServerProxy implements Runn
             String action = intent.getAction();
             log(Log.INFO, TAG, "Action:" + action);
 
-            Request request = new Request();
-            prepareDefaultMessageData(request);
+            Request request = prepareDefaultRequestData();
             ConnectionToServer connectionToServer = new ConnectionToServer();
 
             try {
@@ -129,11 +129,6 @@ public class LogicServerProxyService extends AbstractServerProxy implements Runn
                 actionHandler.handleAction(actionBundle);
                 setMidAction(false);
 
-            } catch (IOException e) {
-                e.printStackTrace();
-                String errMsg = "Action:" + action + " failed. Exception:" + e.getMessage();
-                log(Log.ERROR, TAG, errMsg);
-                //scheduleReconnect(System.currentTimeMillis());
             } catch (Exception e) {
                 e.printStackTrace();
                 String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();

@@ -26,6 +26,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import cz.msebera.android.httpclient.HttpResponse;
+import cz.msebera.android.httpclient.HttpStatus;
 import cz.msebera.android.httpclient.client.HttpClient;
 import cz.msebera.android.httpclient.client.methods.HttpPost;
 import cz.msebera.android.httpclient.impl.client.HttpClientBuilder;
@@ -102,27 +103,26 @@ public class ConnectionToServer {
         return extractResponse(responseBody);
     }
 
-    public void sendMultipartToServer(String url, ProgressiveEntity progressiveEntity) {
+    public int sendMultipartToServer(String url, ProgressiveEntity progressiveEntity) {
 
         HttpPost post = null;
+        int responseCode = -1;
         try {
             HttpClient client = HttpClientBuilder.create().build();
             post = new HttpPost(url);
             post.setEntity(progressiveEntity);
             HttpResponse httpResponse = client.execute(post);
-            int responseCode = httpResponse.getStatusLine().getStatusCode();
-            BufferedReader br = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()));
-            String responseMessage = br.readLine();
-            Response response = extractResponse(responseMessage);
-            response.setResponseCode(responseCode);
-            serverProxy.handleMessageFromServer(response, this);
+            //  BufferedReader br = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()));
+            //  String responseMessage = br.readLine();
+            //  Response response = extractResponse(responseMessage);
+            responseCode =  httpResponse.getStatusLine().getStatusCode();
         } catch (IOException e) {
             connectionException(e);
         } finally {
             if (post != null)
                 post.releaseConnection();
-
         }
+        return responseCode;
     }
 
     public void download(String url, String pathToDownload, String fileName, long fileSize, List<SimpleEntry> data) {
@@ -131,7 +131,7 @@ public class ConnectionToServer {
         try {
             sendRequestParams(url, data);
             int responseCode = conn.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
+            if (responseCode == HttpStatus.SC_OK) {
 
                 // Creating file and directories for downloaded file
                 File newDir = new File(pathToDownload);
@@ -173,12 +173,29 @@ public class ConnectionToServer {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            closeConnection();
+            disconnect();
         }
     }
 
     public HttpURLConnection getConnection() {
         return conn;
+    }
+
+    public void readResponse() throws IOException {
+        int responseCode = conn.getResponseCode();
+        BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+        String responseBody = br.readLine();
+        String responseMessage = conn.getResponseMessage();
+        Response response = extractResponse(responseBody);
+        response.setMessage(responseMessage);
+        response.setResponseCode(responseCode);
+        serverProxy.handleMessageFromServer(response, this);
+    }
+
+    public void disconnect() {
+        if (conn != null) {
+            conn.disconnect();
+        }
     }
 
     private void sendRequestParams(String url, List<SimpleEntry> params) throws IOException {
@@ -195,7 +212,6 @@ public class ConnectionToServer {
         conn.connect();
     }
 
-
     private <T> void sendRequestBody(String url, T requestBody) throws IOException {
 
         conn = (HttpURLConnection) openConnection(new URL(url));
@@ -211,17 +227,6 @@ public class ConnectionToServer {
         conn.connect();
     }
 
-    public void readResponse() throws IOException {
-        int responseCode = conn.getResponseCode();
-        BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-        String responseBody = br.readLine();
-        String responseMessage = conn.getResponseMessage();
-        Response response = extractResponse(responseBody);
-        response.setResponseCode(responseCode);
-        response.setMessage(responseMessage);
-        serverProxy.handleMessageFromServer(response, this);
-    }
-
     private URLConnection openConnection(URL url) throws IOException {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(READ_TIMEOUT);
@@ -230,10 +235,6 @@ public class ConnectionToServer {
         conn.setDoInput(true);
         conn.setDoOutput(true);
         return conn;
-    }
-
-    public void closeConnection() {
-        conn.disconnect();
     }
 
     private void connectionException(Exception e) {
@@ -270,11 +271,5 @@ public class ConnectionToServer {
     private double calcProgressPercentage(long fileSize, long fileSizeConst) {
 
         return ((fileSizeConst - fileSize) / (double) fileSizeConst) * 100;
-    }
-
-    public void disconnect() {
-        if(conn!=null) {
-            conn.disconnect();
-        }
     }
 }
