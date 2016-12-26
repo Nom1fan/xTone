@@ -4,6 +4,7 @@ package com.client;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.model.request.DownloadFileRequest;
 import com.model.response.Response;
 
 import java.io.BufferedOutputStream;
@@ -125,19 +126,18 @@ public class ConnectionToServer {
         return responseCode;
     }
 
-    public void download(String url, String pathToDownload, String fileName, long fileSize, List<SimpleEntry> data) {
+    public void download(String url, String pathToDownload, long fileSize, DownloadFileRequest request) {
 
         BufferedOutputStream bos = null;
         try {
-            sendRequestParams(url, data);
+            sendRequestBody(url, request);
             int responseCode = conn.getResponseCode();
             if (responseCode == HttpStatus.SC_OK) {
 
                 // Creating file and directories for downloaded file
                 File newDir = new File(pathToDownload);
                 newDir.mkdirs();
-                String downloadFilePath = pathToDownload + "/" + fileName;
-                File newFile = new File(downloadFilePath);
+                File newFile = new File(pathToDownload);
                 newFile.createNewFile();
 
                 FileOutputStream fos = new FileOutputStream(newFile);

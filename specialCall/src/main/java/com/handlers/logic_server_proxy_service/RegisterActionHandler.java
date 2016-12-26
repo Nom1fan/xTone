@@ -10,16 +10,17 @@ import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
 import com.model.request.RegisterRequest;
 import com.model.response.Response;
-import com.services.LogicServerProxyService;
 import com.utils.BroadcastUtils;
 import com.utils.SpecialDevicesUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.HttpStatus;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static com.services.ServerProxyService.SMS_CODE;
 
 /**
  * Created by Mor on 20/12/2016.
@@ -33,11 +34,11 @@ public class RegisterActionHandler implements ActionHandler {
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
-        int smsCode = actionBundle.getIntent().getIntExtra(LogicServerProxyService.SMS_CODE, 0);
+        int smsCode = actionBundle.getIntent().getIntExtra(SMS_CODE, 0);
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
         RegisterRequest registerRequest = new RegisterRequest(actionBundle.getRequest());
-
+        registerRequest.setSourceLocale(Locale.getDefault().getLanguage());
         log(Log.INFO, TAG, "Initiating actionRegister sequence...");
         registerRequest.setDeviceModel(SpecialDevicesUtils.getDeviceName());
         registerRequest.setAndroidVersion(Build.VERSION.RELEASE);

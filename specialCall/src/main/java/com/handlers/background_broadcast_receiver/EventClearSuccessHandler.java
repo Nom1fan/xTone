@@ -27,10 +27,10 @@ public class EventClearSuccessHandler implements Handler {
     public void handle(Context ctx, Object... params) {
         EventReport eventReport = (EventReport) params[0];
 
-        // Preparing _data for uploaded media thumbnail removal
-        Map data = (Map) eventReport.data();
-        String destId = data.get(DataKeys.DESTINATION_ID).toString();
-        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.valueOf(data.get(DataKeys.SPECIAL_MEDIA_TYPE).toString()));
+        // Preparing data for uploaded media thumbnail removal
+        SpecialMediaType specialMediaType = (SpecialMediaType) eventReport.data();
+        String destId = eventReport.desc();
+        LUT_Utils lut_utils = new LUT_Utils(specialMediaType);
         lut_utils.removeUploadedMediaPerNumber(ctx, destId);
         lut_utils.removeUploadedTonePerNumber(ctx, destId);
         

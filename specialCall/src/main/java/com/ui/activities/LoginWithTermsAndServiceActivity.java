@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.data.objects.Constants;
 import com.mediacallz.app.R;
-import com.services.LogicServerProxyService;
+import com.services.ServerProxyService;
 
 import java.util.Locale;
 
@@ -95,9 +95,9 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
 
                 Constants.MY_ID(getApplicationContext(), _loginNumber);
 
-                Intent i = new Intent(getApplicationContext(), LogicServerProxyService.class);
-                i.setAction(LogicServerProxyService.ACTION_REGISTER);
-                i.putExtra(LogicServerProxyService.SMS_CODE, Integer.parseInt(_smsVerificationCode));
+                Intent i = new Intent(getApplicationContext(), ServerProxyService.class);
+                i.setAction(ServerProxyService.ACTION_REGISTER);
+                i.putExtra(ServerProxyService.SMS_CODE, Integer.parseInt(_smsVerificationCode));
                 getApplicationContext().startService(i);
 
                 setResult(Activity.RESULT_OK);

@@ -207,12 +207,7 @@
             android:priority="999"/>
 
         <service
-            android:name="com.services.LogicServerProxyService"
-            android:enabled="true"
-            android:priority="998"/>
-
-        <service
-            android:name="com.services.StorageServerProxyService"
+            android:name="com.services.ServerProxyService"
             android:enabled="true"
             android:priority="998"/>
 

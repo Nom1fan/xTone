@@ -71,9 +71,9 @@ import com.mediacallz.app.R;
 import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.services.AbstractStandOutService;
 import com.services.IncomingService;
-import com.services.LogicServerProxyService;
 import com.services.OutgoingService;
 import com.services.PreviewService;
+import com.services.ServerProxyService;
 import com.ui.dialogs.ClearMediaDialog;
 import com.ui.dialogs.InviteDialog;
 import com.ui.dialogs.MandatoryUpdateDialog;
@@ -630,15 +630,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //TODO change this to campaign API push for all users in case of last supported version change
     private void getAppRecord() {
 
-        Intent i = new Intent(this, LogicServerProxyService.class);
-        i.setAction(LogicServerProxyService.ACTION_GET_APP_RECORD);
+        Intent i = new Intent(this, ServerProxyService.class);
+        i.setAction(ServerProxyService.ACTION_GET_APP_RECORD);
         startService(i);
     }
 
     private void syncAndroidVersionWithServer() {
         if (!Constants.MY_ANDROID_VERSION(this).equals(Build.VERSION.RELEASE)) {
-            Intent i = new Intent(this, LogicServerProxyService.class);
-            i.setAction(LogicServerProxyService.ACTION_UPDATE_USER_RECORD);
+            Intent i = new Intent(this, ServerProxyService.class);
+            i.setAction(ServerProxyService.ACTION_UPDATE_USER_RECORD);
             startService(i);
         }
     }

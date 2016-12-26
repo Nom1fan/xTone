@@ -9,15 +9,16 @@ import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
 import com.model.request.GetSmsRequest;
 import com.model.response.Response;
-import com.services.LogicServerProxyService;
 import com.utils.BroadcastUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.HttpStatus;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static com.services.ServerProxyService.INTERNATIONAL_PHONE;
 
 /**
  * Created by Mor on 20/12/2016.
@@ -30,10 +31,11 @@ public class GetSmsActionHandler implements ActionHandler {
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
-        String interPhoneNumber = actionBundle.getIntent().getStringExtra(LogicServerProxyService.INTERNATIONAL_PHONE);
+        String interPhoneNumber = actionBundle.getIntent().getStringExtra(INTERNATIONAL_PHONE);
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
         GetSmsRequest getSmsRequest = new GetSmsRequest(actionBundle.getRequest());
+        getSmsRequest.setSourceLocale(Locale.getDefault().getLanguage());
         getSmsRequest.setInternationalPhoneNumber(interPhoneNumber);
         int responseCode = connectionToServer.send(URL_GET_SMS_AUTH, getSmsRequest);
 

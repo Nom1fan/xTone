@@ -13,6 +13,7 @@ import com.utils.BroadcastUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.HttpStatus;
 
@@ -23,7 +24,7 @@ import static com.crashlytics.android.Crashlytics.log;
  */
 public class GetAppRecordActionHandler implements ActionHandler {
 
-    protected static final String URL_GET_APP_RECORD = ROOT_URL + "/v1/GetAppMeta";
+    private static final String URL_GET_APP_RECORD = ROOT_URL + "/v1/GetAppMeta";
     private static final String TAG = GetAppRecordActionHandler.class.getSimpleName();
     private static final Type responseType = new TypeToken<Response<AppMetaDTO>>() {
     }.getType();
@@ -32,6 +33,7 @@ public class GetAppRecordActionHandler implements ActionHandler {
     public void handleAction(ActionBundle actionBundle) throws IOException {
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
+        actionBundle.getRequest().setSourceLocale(Locale.getDefault().getLanguage());
         int responseCode = connectionToServer.send(URL_GET_APP_RECORD, actionBundle.getRequest());
 
         if (responseCode == HttpStatus.SC_OK) {

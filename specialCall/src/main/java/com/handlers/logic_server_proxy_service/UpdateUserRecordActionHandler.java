@@ -9,6 +9,7 @@ import com.model.response.Response;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.HttpStatus;
 
@@ -22,12 +23,13 @@ public class UpdateUserRecordActionHandler implements ActionHandler {
     private static final String TAG = UpdateUserRecordActionHandler.class.getSimpleName();
     private static final Type responseType = new TypeToken<Response>() {
     }.getType();
-    protected static final String URL_UPDATE_USER_RECORD = ROOT_URL + "/v1/UpdateUserRecord";
+    private static final String URL_UPDATE_USER_RECORD = ROOT_URL + "/v1/UpdateUserRecord";
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
+        actionBundle.getRequest().setSourceLocale(Locale.getDefault().getLanguage());
 
         log(Log.INFO, TAG, "Initiating update user record sequence...");
         int responseCode = connectionToServer.send(URL_UPDATE_USER_RECORD, actionBundle.getRequest());

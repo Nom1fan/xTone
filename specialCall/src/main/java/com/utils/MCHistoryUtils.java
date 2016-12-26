@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.services.LogicServerProxyService;
-
 import java.io.File;
 
 import com.data.objects.CallRecord;
@@ -15,6 +13,7 @@ import com.exceptions.FileExceedsMaxSizeException;
 import com.exceptions.FileInvalidFormatException;
 import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
+import com.services.ServerProxyService;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -56,9 +55,9 @@ public abstract class MCHistoryUtils {
 
                 log(Log.INFO,TAG, "Reporting MC:" + callRecord);
 
-                Intent i = new Intent(context, LogicServerProxyService.class);
-                i.setAction(LogicServerProxyService.ACTION_INSERT_CALL_RECORD);
-                i.putExtra(LogicServerProxyService.CALL_RECORD, callRecord);
+                Intent i = new Intent(context, ServerProxyService.class);
+                i.setAction(ServerProxyService.ACTION_INSERT_CALL_RECORD);
+                i.putExtra(ServerProxyService.CALL_RECORD, callRecord);
                 context.startService(i);
             }
 

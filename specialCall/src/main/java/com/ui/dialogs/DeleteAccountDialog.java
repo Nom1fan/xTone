@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.app.AppStateManager;
 import com.mediacallz.app.R;
-import com.services.LogicServerProxyService;
+import com.services.ServerProxyService;
 import com.ui.activities.MainActivity;
 
 import com.event.EventReport;
@@ -35,8 +35,8 @@ public class DeleteAccountDialog extends android.app.DialogFragment {
                 .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
-                        Intent i = new Intent(getActivity(), LogicServerProxyService.class);
-                        i.setAction(LogicServerProxyService.ACTION_UNREGISTER);
+                        Intent i = new Intent(getActivity(), ServerProxyService.class);
+                        i.setAction(ServerProxyService.ACTION_UNREGISTER);
                         getActivity().startService(i);
 
                         // Preparing loading state with timeout in case unregister fails

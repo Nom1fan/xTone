@@ -13,6 +13,10 @@ public class NotifyMediaClearedRequest extends Request {
     private SpecialMediaType specialMediaType;
     private String sourceLocale;
 
+    public NotifyMediaClearedRequest(Request request) {
+        request.copy(this);
+    }
+
     public String getSourceId() {
         return sourceId;
     }

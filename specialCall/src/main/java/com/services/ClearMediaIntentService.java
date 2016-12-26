@@ -77,9 +77,9 @@ public class ClearMediaIntentService extends IntentService {
                 }
 
                 // Notifying clear requester that media was successfully cleared
-                Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
-                i.setAction(StorageServerProxyService.ACTION_NOTIFY_MEDIA_CLEARED);
-                i.putExtra(StorageServerProxyService.TRANSFER_DETAILS, (Serializable) data);
+                Intent i = new Intent(getApplicationContext(), ServerProxyService.class);
+                i.setAction(ServerProxyService.ACTION_NOTIFY_MEDIA_CLEARED);
+                i.putExtra(ServerProxyService.TRANSFER_DETAILS, (Serializable) data);
                 startService(i);
 
             } catch (FileNotFoundException e) {

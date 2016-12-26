@@ -18,8 +18,8 @@ public class EventClearFailureHandler implements Handler {
 
     @Override
     public void handle(Context ctx, Object... params) {
-        AppStateManager.setAppState(ctx, TAG, AppStateManager.getAppPrevState(ctx));
         String msg = ctx.getResources().getString(R.string.oops_try_again);
+        AppStateManager.setAppState(ctx, TAG, AppStateManager.getAppPrevState(ctx));
         UI_Utils.showSnackBar(msg, Color.RED, Snackbar.LENGTH_LONG, false, ctx);
     }
 }

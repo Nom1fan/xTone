@@ -25,7 +25,7 @@ import com.data.objects.ActivityRequestCodes;
 import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.services.GetTokenIntentService;
-import com.services.LogicServerProxyService;
+import com.services.ServerProxyService;
 import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 
@@ -533,9 +533,9 @@ public class LoginActivity extends AppCompatActivity {
 
         Constants.MY_ID(this, phoneNumber);
 
-        Intent i = new Intent(this, LogicServerProxyService.class);
-        i.setAction(LogicServerProxyService.ACTION_GET_SMS_CODE);
-        i.putExtra(LogicServerProxyService.INTERNATIONAL_PHONE, interPhoneNumber);
+        Intent i = new Intent(this, ServerProxyService.class);
+        i.setAction(ServerProxyService.ACTION_GET_SMS_CODE);
+        i.putExtra(ServerProxyService.INTERNATIONAL_PHONE, interPhoneNumber);
         startService(i);
     }
 

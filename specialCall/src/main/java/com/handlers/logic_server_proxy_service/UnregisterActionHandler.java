@@ -13,6 +13,7 @@ import com.utils.BroadcastUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.HttpStatus;
 
@@ -31,6 +32,7 @@ public class UnregisterActionHandler implements ActionHandler {
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
         UnRegisterRequest unRegisterRequest = new UnRegisterRequest();
+        unRegisterRequest.setSourceLocale(Locale.getDefault().getLanguage());
 
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
@@ -41,9 +43,9 @@ public class UnregisterActionHandler implements ActionHandler {
 
         EventReport eventReport;
         if(responseCode == HttpStatus.SC_OK)
-            eventReport = new EventReport(EventType.UNREGISTER_SUCCESS, null);
+            eventReport = new EventReport(EventType.UNREGISTER_SUCCESS);
         else
-            eventReport = new EventReport(EventType.UNREGISTER_FAILURE, null);
+            eventReport = new EventReport(EventType.UNREGISTER_FAILURE);
 
         BroadcastUtils.sendEventReportBroadcast(actionBundle.getCtx(), TAG, eventReport);
     }

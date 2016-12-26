@@ -23,10 +23,13 @@ import com.handlers.background_broadcast_receiver.EventUnregisterSuccessHandler;
 import com.handlers.background_broadcast_receiver.EventUpdateUserRecordSuccessHandler;
 import com.handlers.background_broadcast_receiver.EventUserRegisteredFalseHandler;
 import com.handlers.background_broadcast_receiver.EventUserRegisteredTrueHandler;
+import com.handlers.logic_server_proxy_service.ClearMediaActionHandler;
+import com.handlers.logic_server_proxy_service.DownloadFileActionHandler;
 import com.handlers.logic_server_proxy_service.GetAppRecordActionHandler;
 import com.handlers.logic_server_proxy_service.GetSmsActionHandler;
 import com.handlers.logic_server_proxy_service.InsertCallRecordActionHandler;
 import com.handlers.logic_server_proxy_service.IsRegisteredActionHandler;
+import com.handlers.logic_server_proxy_service.NotifyMediaClearedActionHandler;
 import com.handlers.logic_server_proxy_service.RegisterActionHandler;
 import com.handlers.logic_server_proxy_service.UnregisterActionHandler;
 import com.handlers.logic_server_proxy_service.UpdateUserRecordActionHandler;
@@ -34,7 +37,7 @@ import com.handlers.select_media_activity.ActivityRequestCameraHandler;
 import com.handlers.select_media_activity.ActivityRequestFileChooserHandler;
 import com.handlers.select_media_activity.ActivityRequestPreviewMediaResultHandler;
 import com.receivers.BackgroundBroadcastReceiver;
-import com.services.LogicServerProxyService;
+import com.services.ServerProxyService;
 import com.ui.activities.MainActivity;
 import com.ui.activities.SelectMediaActivity;
 
@@ -90,13 +93,16 @@ public class HandlerFactory {
     }};
 
     private Map<String, Class<ActionHandler>> class2ActionHandlerMap = new HashMap(){{
-        put(LogicServerProxyService.ACTION_REGISTER, RegisterActionHandler.class);
-        put(LogicServerProxyService.ACTION_GET_SMS_CODE, GetSmsActionHandler.class);
-        put(LogicServerProxyService.ACTION_GET_APP_RECORD, GetAppRecordActionHandler.class);
-        put(LogicServerProxyService.ACTION_ISREGISTERED, IsRegisteredActionHandler.class);
-        put(LogicServerProxyService.ACTION_INSERT_CALL_RECORD, InsertCallRecordActionHandler.class);
-        put(LogicServerProxyService.ACTION_UPDATE_USER_RECORD, UpdateUserRecordActionHandler.class);
-        put(LogicServerProxyService.ACTION_UNREGISTER, UnregisterActionHandler.class);
+        put(ServerProxyService.ACTION_REGISTER, RegisterActionHandler.class);
+        put(ServerProxyService.ACTION_GET_SMS_CODE, GetSmsActionHandler.class);
+        put(ServerProxyService.ACTION_GET_APP_RECORD, GetAppRecordActionHandler.class);
+        put(ServerProxyService.ACTION_ISREGISTERED, IsRegisteredActionHandler.class);
+        put(ServerProxyService.ACTION_INSERT_CALL_RECORD, InsertCallRecordActionHandler.class);
+        put(ServerProxyService.ACTION_UPDATE_USER_RECORD, UpdateUserRecordActionHandler.class);
+        put(ServerProxyService.ACTION_UNREGISTER, UnregisterActionHandler.class);
+        put(ServerProxyService.ACTION_DOWNLOAD, DownloadFileActionHandler.class);
+        put(ServerProxyService.ACTION_CLEAR_MEDIA, ClearMediaActionHandler.class);
+        put(ServerProxyService.ACTION_NOTIFY_MEDIA_CLEARED, NotifyMediaClearedActionHandler.class);
     }};
 
     public static HandlerFactory getInstance() {

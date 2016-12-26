@@ -18,6 +18,10 @@ public class DownloadFileRequest extends Request {
     private MediaFile.FileType fileType;
     private String filePathOnSrcSd;
 
+    public DownloadFileRequest(Request request) {
+        request.copy(this);
+    }
+
     public int getCommId() {
         return commId;
     }

@@ -14,6 +14,20 @@ public class ClearMediaRequest extends Request {
 
     private String sourceId;
 
+    private String destinationContactName;
+
+    public ClearMediaRequest(Request request) {
+        request.copy(this);
+    }
+
+    public String getDestinationContactName() {
+        return destinationContactName;
+    }
+
+    public void setDestinationContactName(String destinationContactName) {
+        this.destinationContactName = destinationContactName;
+    }
+
     public String getDestinationId() {
         return destinationId;
     }

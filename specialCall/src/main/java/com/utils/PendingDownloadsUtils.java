@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.dal.objects.DAL_Access;
 import com.dal.objects.IDAL;
-import com.services.StorageServerProxyService;
+import com.services.ServerProxyService;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -65,8 +65,8 @@ public abstract class PendingDownloadsUtils {
 
     public static void sendActionDownload(Context context, HashMap transferDetails) {
 
-        Intent i = new Intent(context, StorageServerProxyService.class);
-        i.setAction(StorageServerProxyService.ACTION_DOWNLOAD);
+        Intent i = new Intent(context, ServerProxyService.class);
+        i.setAction(ServerProxyService.ACTION_DOWNLOAD);
         i.putExtra(PushEventKeys.PUSH_DATA, transferDetails);
         context.startService(i);
     }

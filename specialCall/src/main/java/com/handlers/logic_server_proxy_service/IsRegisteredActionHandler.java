@@ -11,15 +11,16 @@ import com.handlers.ActionHandler;
 import com.model.request.IsRegisteredRequest;
 import com.model.response.Response;
 import com.model.response.UserDTO;
-import com.services.LogicServerProxyService;
 import com.utils.BroadcastUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.HttpStatus;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static com.services.ServerProxyService.DESTINATION_ID;
 
 /**
  * Created by Mor on 20/12/2016.
@@ -33,12 +34,12 @@ public class IsRegisteredActionHandler implements ActionHandler {
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
-        String destinationId = actionBundle.getIntent().getStringExtra(LogicServerProxyService.DESTINATION_ID);
+        String destinationId = actionBundle.getIntent().getStringExtra(DESTINATION_ID);
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
         IsRegisteredRequest isRegisteredRequest = new IsRegisteredRequest(actionBundle.getRequest());
         isRegisteredRequest.setDestinationId(destinationId);
-
+        isRegisteredRequest.setSourceLocale(Locale.getDefault().getLanguage());
         log(Log.INFO, TAG, "Initiating IsRegistered sequence...");
         int responseCode = connectionToServer.send(URL_ISREGISTERED, isRegisteredRequest);
 

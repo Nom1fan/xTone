@@ -7,7 +7,7 @@ import android.os.AsyncTask;
 import com.app.AppStateManager;
 import com.interfaces.ICallbackListener;
 import com.mediacallz.app.R;
-import com.services.LogicServerProxyService;
+import com.services.ServerProxyService;
 import com.utils.BroadcastUtils;
 import com.utils.CacheUtils;
 
@@ -57,9 +57,9 @@ public class IsRegisteredTask extends AsyncTask<Context, Void, Void> {
                     new EventReport(EventType.FETCHING_USER_DATA));
 
             // Sending action to find out if user is registered
-            Intent i = new Intent(_context, LogicServerProxyService.class);
-            i.setAction(LogicServerProxyService.ACTION_ISREGISTERED);
-            i.putExtra(LogicServerProxyService.DESTINATION_ID, _destPhone);
+            Intent i = new Intent(_context, ServerProxyService.class);
+            i.setAction(ServerProxyService.ACTION_ISREGISTERED);
+            i.putExtra(ServerProxyService.DESTINATION_ID, _destPhone);
             _context.startService(i);
 
             _showProgressBar = true;

@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.app.AppStateManager;
 import com.mediacallz.app.R;
-import com.services.StorageServerProxyService;
+import com.services.ServerProxyService;
 
 import com.data.objects.SpecialMediaType;
 
@@ -41,10 +41,10 @@ public class ClearMediaDialog extends android.app.DialogFragment {
                 .setPositiveButton(R.string.clear_btn, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
-                        Intent i = new Intent(getActivity().getApplicationContext(), StorageServerProxyService.class);
-                        i.setAction(StorageServerProxyService.ACTION_CLEAR_MEDIA);
-                        i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);
-                        i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, spMediaType);
+                        Intent i = new Intent(getActivity().getApplicationContext(), ServerProxyService.class);
+                        i.setAction(ServerProxyService.ACTION_CLEAR_MEDIA);
+                        i.putExtra(ServerProxyService.DESTINATION_ID, _destPhoneNumber);
+                        i.putExtra(ServerProxyService.SPECIAL_MEDIA_TYPE, spMediaType);
                         getActivity().getApplicationContext().startService(i);
 
                         String timeoutMsg = getActivity().getResources().getString(R.string.oops_try_again);
