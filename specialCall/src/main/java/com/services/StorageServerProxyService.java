@@ -33,7 +33,7 @@ import static java.util.AbstractMap.SimpleEntry;
  *
  * @author Mor
  */
-public class StorageServerProxyService extends AbstractServerProxy {
+public class StorageServerProxyService extends AbstractServerProxy implements Runnable {
 
     //region Service actions
     public static final String ACTION_DOWNLOAD              =   "com.services.StorageServerProxyService.DOWNLOAD";
@@ -72,52 +72,53 @@ public class StorageServerProxyService extends AbstractServerProxy {
         if (shouldStop)
             return START_REDELIVER_INTENT;
 
-        final Intent intentForThread = intent;
+        this.intent = intent;
+        this.flags = flags;
+        this.startId = startId;
 
-        new Thread() {
-            @Override
-            public void run() {
-
-                if (intentForThread != null) {
-                    String action = intentForThread.getAction();
-                    log(Log.INFO,TAG, "ClientActionType:" + action);
-
-                    PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-
-                    List<SimpleEntry> data = getDefaultMessageData();
-
-                    try {
-                        switch (action) {
-                            case ACTION_DOWNLOAD:
-                                actionDownload(intentForThread, powerManager, data);
-                                break;
-
-                            case ACTION_CLEAR_MEDIA:
-                                actionClear(openSocket(responseTypes.TYPE_EVENT_REPORT), intentForThread, data);
-                                break;
-
-                            case ACTION_NOTIFY_MEDIA_CLEARED:
-                                actionNotifyMediaCleared(intentForThread, data);
-                                break;
-
-                            default:
-                                setMidAction(false);
-                                log(Log.WARN,TAG, "Service started with invalid action:" + action);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        String errMsg = "ClientActionType failed:" + action + " Exception:" + e.getMessage();
-                        handleActionFailed();
-                        log(Log.ERROR,TAG, errMsg);
-                    }
-                } else
-                    log(Log.WARN,TAG, "Service started with missing action");
-            }
-        }.start();
-
-        markCrashedServiceHandlingComplete(flags, startId);
+        new Thread(this).start();
 
         return START_REDELIVER_INTENT;
+    }
+
+    @Override
+    public void run() {
+        if (intent != null) {
+            String action = intent.getAction();
+            log(Log.INFO,TAG, "ClientActionType:" + action);
+
+            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+
+            List<SimpleEntry> data = getDefaultMessageData();
+
+            try {
+                switch (action) {
+                    case ACTION_DOWNLOAD:
+                        actionDownload(intent, powerManager, data);
+                        break;
+
+                    case ACTION_CLEAR_MEDIA:
+                        actionClear(openSocket(responseTypes.TYPE_EVENT_REPORT), intent, data);
+                        break;
+
+                    case ACTION_NOTIFY_MEDIA_CLEARED:
+                        actionNotifyMediaCleared(intent, data);
+                        break;
+
+                    default:
+                        setMidAction(false);
+                        log(Log.WARN,TAG, "Service started with invalid action:" + action);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                String errMsg = "ClientActionType failed:" + action + " Exception:" + e.getMessage();
+                handleActionFailed();
+                log(Log.ERROR,TAG, errMsg);
+            }
+        } else
+            log(Log.WARN,TAG, "Service started with missing action");
+
+        markCrashedServiceHandlingComplete(flags, startId);
     }
 
     @Override

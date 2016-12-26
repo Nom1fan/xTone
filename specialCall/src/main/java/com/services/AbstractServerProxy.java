@@ -49,6 +49,9 @@ public abstract class AbstractServerProxy extends Service implements IServerProx
     protected PowerManager.WakeLock wakeLock;
     protected ConnectivityManager connManager;
     protected List<ConnectionToServer> connections = new LinkedList<>();
+    protected Intent intent;
+    protected int flags;
+    protected int startId;
     public AbstractServerProxy(String tag) {
         TAG = tag;
     }

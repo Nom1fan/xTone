@@ -1,6 +1,5 @@
 
 lint.xml
-specialCall.iml
 bin/
 gen/
 
@@ -29,3 +28,7 @@ captures/
 
 fabric.properties
 google-services.json
+
+# Local iml files
+specialCall.iml
+

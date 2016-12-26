@@ -88,10 +88,6 @@ public class LogicServerProxyService extends AbstractServerProxy implements Runn
         if (shouldStop)
             return START_REDELIVER_INTENT;
 
-        this.intent = intent;
-        this.flags = flags;
-        this.startId = startId;
-
         new Thread(this).start();
 
         return START_REDELIVER_INTENT;
