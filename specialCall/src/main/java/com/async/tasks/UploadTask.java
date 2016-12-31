@@ -169,15 +169,13 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements Progre
         builder.setCharset(Charset.defaultCharset());
         FileBody fb = new FileBody(fileForUpload.getFile());
         builder.addPart("fileForUpload", fb);
-        builder.addPart("jsonPart", new StringBody(prepareDataForUpload(bundle), ContentType.TEXT_PLAIN));
+        builder.addPart("jsonPart", new StringBody(prepareDataForUpload(bundle), ContentType.TEXT_PLAIN.withCharset("UTF-8")));
         HttpEntity httpEntity = builder.build();
         return new ProgressiveEntity(httpEntity, this);
     }
 
     private String prepareDataForUpload(Bundle bundle) {
         String myId = Constants.MY_ID(context);
-        double appVersion = Constants.APP_VERSION();
-
         UploadFileRequest uploadFileRequest = new UploadFileRequest();
         RequestUtils.prepareDefaultRequest(context, uploadFileRequest);
         uploadFileRequest.setSourceId(myId);

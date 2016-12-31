@@ -5,11 +5,11 @@ package com.model.request;
  */
 public class GetSmsRequest extends Request {
 
+    private String internationalPhoneNumber;
+
     public GetSmsRequest(Request request) {
         request.copy(this);
     }
-
-    private String internationalPhoneNumber;
 
     public String getInternationalPhoneNumber() {
         return internationalPhoneNumber;

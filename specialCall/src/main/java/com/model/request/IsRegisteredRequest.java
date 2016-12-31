@@ -5,11 +5,11 @@ package com.model.request;
  */
 public class IsRegisteredRequest extends Request {
 
+    private String destinationId;
+
     public IsRegisteredRequest(Request request) {
         request.copy(this);
     }
-
-    private String destinationId;
 
     public String getDestinationId() {
         return destinationId;

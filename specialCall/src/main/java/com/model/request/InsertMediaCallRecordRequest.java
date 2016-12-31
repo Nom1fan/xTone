@@ -8,11 +8,11 @@ import com.data.objects.CallRecord;
  */
 public class InsertMediaCallRecordRequest extends Request {
 
+    private CallRecord callRecord;
+
     public InsertMediaCallRecordRequest(Request request) {
         request.copy(this);
     }
-
-    private CallRecord callRecord;
 
     public CallRecord getCallRecord() {
         return callRecord;

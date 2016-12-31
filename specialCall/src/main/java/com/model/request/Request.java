@@ -5,6 +5,14 @@ package com.model.request;
  */
 public class Request {
 
+    private String messageInitiaterId;
+    private String pushToken;
+    private String androidVersion;
+    private String iosVersion;
+    private String appVersion;
+    private String sourceLocale;
+    private String deviceModel;
+
     public void copy(Request request) {
         request.setMessageInitiaterId(getMessageInitiaterId());
         request.setSourceLocale(getSourceLocale());
@@ -14,17 +22,6 @@ public class Request {
         request.setPushToken(getPushToken());
     }
 
-    private String messageInitiaterId;
-
-    private String pushToken;
-
-    private String androidVersion;
-
-    private String iosVersion;
-
-    private String appVersion;
-
-    private String sourceLocale;
 
     public String getMessageInitiaterId() {
         return messageInitiaterId;
@@ -72,5 +69,13 @@ public class Request {
 
     public void setSourceLocale(String sourceLocale) {
         this.sourceLocale = sourceLocale;
+    }
+
+    public String getDeviceModel() {
+        return deviceModel;
+    }
+
+    public void setDeviceModel(String deviceModel) {
+        this.deviceModel = deviceModel;
     }
 }

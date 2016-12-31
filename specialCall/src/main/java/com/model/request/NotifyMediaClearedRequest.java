@@ -11,7 +11,6 @@ public class NotifyMediaClearedRequest extends Request {
     private String sourceId;
     private String destinationContactName;
     private SpecialMediaType specialMediaType;
-    private String sourceLocale;
 
     public NotifyMediaClearedRequest(Request request) {
         request.copy(this);
@@ -39,13 +38,5 @@ public class NotifyMediaClearedRequest extends Request {
 
     public void setSpecialMediaType(SpecialMediaType specialMediaType) {
         this.specialMediaType = specialMediaType;
-    }
-
-    public String getSourceLocale() {
-        return sourceLocale;
-    }
-
-    public void setSourceLocale(String sourceLocale) {
-        this.sourceLocale = sourceLocale;
     }
 }

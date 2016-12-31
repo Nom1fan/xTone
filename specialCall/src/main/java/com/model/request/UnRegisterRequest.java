@@ -6,17 +6,6 @@ package com.model.request;
 
 public class UnRegisterRequest extends Request {
 
-    private String pushToken;
-
-    @Override
-    public String getPushToken() {
-        return pushToken;
-    }
-
-    @Override
-    public void setPushToken(String pushToken) {
-        this.pushToken = pushToken;
-    }
 }
 
 

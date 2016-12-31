@@ -5,13 +5,11 @@ package com.model.request;
  */
 public class RegisterRequest extends Request {
 
+    private int smsCode;
+
     public RegisterRequest(Request request) {
         request.copy(this);
     }
-
-    private int smsCode;
-
-    private String deviceModel;
 
     public int getSmsCode() {
         return smsCode;
@@ -19,14 +17,6 @@ public class RegisterRequest extends Request {
 
     public void setSmsCode(int smsCode) {
         this.smsCode = smsCode;
-    }
-
-    public String getDeviceModel() {
-        return deviceModel;
-    }
-
-    public void setDeviceModel(String deviceModel) {
-        this.deviceModel = deviceModel;
     }
 }
 

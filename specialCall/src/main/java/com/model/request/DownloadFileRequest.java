@@ -12,7 +12,6 @@ public class DownloadFileRequest extends Request {
     private String sourceId;
     private String destinationId;
     private String destinationContactName;
-    private String sourceLocale;
     private String filePathOnServer;
     private SpecialMediaType specialMediaType;
     private MediaFile.FileType fileType;
@@ -52,14 +51,6 @@ public class DownloadFileRequest extends Request {
 
     public void setDestinationContactName(String destinationContactName) {
         this.destinationContactName = destinationContactName;
-    }
-
-    public String getSourceLocale() {
-        return sourceLocale;
-    }
-
-    public void setSourceLocale(String sourceLocale) {
-        this.sourceLocale = sourceLocale;
     }
 
     public String getFilePathOnServer() {

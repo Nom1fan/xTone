@@ -1,5 +1,6 @@
 package com.handlers.logic_server_proxy_service;
 
+import android.content.Context;
 import android.os.PowerManager;
 import android.util.Log;
 
@@ -8,10 +9,14 @@ import com.data.objects.Constants;
 import com.data.objects.DataKeys;
 import com.data.objects.PushEventKeys;
 import com.data.objects.SpecialMediaType;
+import com.event.EventReport;
+import com.event.EventType;
+import com.files.media.MediaFile;
 import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
 import com.model.request.DownloadFileRequest;
 import com.model.response.Response;
+import com.utils.BroadcastUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,14 +47,14 @@ public class DownloadFileActionHandler implements ActionHandler {
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
         DownloadFileRequest request = new DownloadFileRequest(actionBundle.getRequest());
-
+        request.setDestinationId(request.getMessageInitiaterId());
         PowerManager powerManager = (PowerManager) actionBundle.getCtx().getSystemService(POWER_SERVICE);
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
         wakeLock.acquire();
         HashMap pushData = (HashMap) actionBundle.getIntent().getSerializableExtra(PushEventKeys.PUSH_DATA);
 
         try {
-            requestDownloadFromServer(connectionToServer, pushData, request);
+            requestDownloadFromServer(actionBundle.getCtx(), connectionToServer, pushData, request);
         } finally {
             if (wakeLock.isHeld()) {
                 wakeLock.release();
@@ -57,11 +62,13 @@ public class DownloadFileActionHandler implements ActionHandler {
         }
     }
 
-    private void requestDownloadFromServer(ConnectionToServer connectionToServer, HashMap pushData, DownloadFileRequest request) {
+    private void requestDownloadFromServer(Context ctx, ConnectionToServer connectionToServer, HashMap pushData, DownloadFileRequest request) {
+        Integer commId = Integer.valueOf(pushData.get(DataKeys.COMM_ID).toString());
+        request.setCommId(commId);
         String fileName = pushData.get(DataKeys.SOURCE_WITH_EXTENSION).toString();
         SpecialMediaType specialMediaType = SpecialMediaType.valueOf(pushData.get(DataKeys.SPECIAL_MEDIA_TYPE).toString());
-        String pathToDownload = resolvePathBySpecialMediaType(specialMediaType, fileName);
         request.setSourceId(pushData.get(DataKeys.SOURCE_ID).toString());
+        String pathToDownload = resolvePathBySpecialMediaType(specialMediaType, request.getSourceId(), fileName);
         String sFileSize = pushData.get(DataKeys.FILE_SIZE).toString();
         long fileSize;
         try {
@@ -69,17 +76,30 @@ public class DownloadFileActionHandler implements ActionHandler {
         } catch (Exception e) {
             fileSize = Double.valueOf(sFileSize).longValue();
         }
-        connectionToServer.download(URL_DOWNLOAD, pathToDownload, fileSize, request);
+        String destinationContactName = pushData.get(DataKeys.DESTINATION_CONTACT_NAME).toString();
+        request.setDestinationContactName(destinationContactName);
+        MediaFile.FileType fileType = MediaFile.FileType.valueOf(pushData.get(DataKeys.FILE_TYPE).toString());
+        String sourceLocale = pushData.get(DataKeys.SOURCE_LOCALE).toString();
+        request.setSourceLocale(sourceLocale);
+        request.setFileType(fileType);
+        request.setFilePathOnServer(pushData.get(DataKeys.FILE_PATH_ON_SERVER).toString());
+        request.setFilePathOnSrcSd(pushData.get(DataKeys.FILE_PATH_ON_SRC_SD).toString());
+        request.setSpecialMediaType(specialMediaType);
+
+        boolean success = connectionToServer.download(URL_DOWNLOAD, pathToDownload, fileSize, request);
+        if(success) {
+            BroadcastUtils.sendEventReportBroadcast(ctx, TAG, new EventReport(EventType.DOWNLOAD_SUCCESS, pushData));
+        }
     }
 
-    private String resolvePathBySpecialMediaType(SpecialMediaType specialMediaType, String fileName) {
+    private String resolvePathBySpecialMediaType(SpecialMediaType specialMediaType, String folderName, String fileName) {
         String filePath;
         switch (specialMediaType) {
             case CALLER_MEDIA:
-                filePath = Constants.INCOMING_FOLDER + fileName;
+                filePath = Constants.INCOMING_FOLDER + folderName + "/" + fileName;
                 break;
             case PROFILE_MEDIA:
-                filePath = Constants.OUTGOING_FOLDER + fileName;
+                filePath = Constants.OUTGOING_FOLDER + folderName + "/" + fileName;
                 break;
             default:
                 throw new UnsupportedOperationException("Not yet implemented");
