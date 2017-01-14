@@ -137,7 +137,7 @@ public class MediaFileProcessingUtils {
             if (isFileTrimmed(context, baseFile)) {
                 String trimmedFilePath = baseFile.getFile().getAbsolutePath();
                 SharedPrefUtils.remove(context, SharedPrefUtils.TRIMMED_FILES, trimmedFilePath);
-                MediaFile.delete(baseFile.getFile());
+                MediaFilesUtils.delete(baseFile.getFile());
             }
 
             MediaFilesUtils.triggerMediaScanOnFile(context, compressedFile.getFile());

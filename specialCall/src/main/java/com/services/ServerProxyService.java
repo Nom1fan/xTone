@@ -47,7 +47,7 @@ public class ServerProxyService extends Service implements Runnable {
     public static final String SMS_CODE = "SMS_CODE";
     public static final String INTERNATIONAL_PHONE = "INTERNATIONAL_PHONE";
     public static final String SPECIAL_MEDIA_TYPE = "SPECIAL_MEDIA_TYPE";
-    public static final String TRANSFER_DETAILS = "TRANSFER_DETAILS";
+    public static final String CLEAR_MEDIA_DATA = "CLEAR_MEDIA_DATA";
     //endregion
 
     private Intent intent;

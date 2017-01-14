@@ -21,18 +21,15 @@ import static com.crashlytics.android.Crashlytics.log;
 public class UpdateUserRecordActionHandler implements ActionHandler {
 
     private static final String TAG = UpdateUserRecordActionHandler.class.getSimpleName();
-    private static final Type responseType = new TypeToken<Response>() {
-    }.getType();
     private static final String URL_UPDATE_USER_RECORD = ROOT_URL + "/v1/UpdateUserRecord";
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
-        connectionToServer.setResponseType(responseType);
         actionBundle.getRequest().setSourceLocale(Locale.getDefault().getLanguage());
 
         log(Log.INFO, TAG, "Initiating update user record sequence...");
-        int responseCode = connectionToServer.send(URL_UPDATE_USER_RECORD, actionBundle.getRequest());
+        int responseCode = connectionToServer.sendRequest(URL_UPDATE_USER_RECORD, actionBundle.getRequest());
 
         if(responseCode != HttpStatus.SC_OK) {
             log(Log.ERROR, TAG, "Insert call record failed. [Response code]:" + responseCode);

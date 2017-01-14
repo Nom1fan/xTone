@@ -34,10 +34,10 @@ public class GetAppRecordActionHandler implements ActionHandler {
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
         actionBundle.getRequest().setSourceLocale(Locale.getDefault().getLanguage());
-        int responseCode = connectionToServer.send(URL_GET_APP_RECORD, actionBundle.getRequest());
+        int responseCode = connectionToServer.sendRequest(URL_GET_APP_RECORD, actionBundle.getRequest());
 
         if (responseCode == HttpStatus.SC_OK) {
-            Response<AppMetaDTO> response = connectionToServer.read();
+            Response<AppMetaDTO> response = connectionToServer.readResponse();
             EventReport eventReport = new EventReport(EventType.APP_RECORD_RECEIVED, response.getResult().getLastSupportedAppVersion());
             BroadcastUtils.sendEventReportBroadcast(actionBundle.getCtx(), TAG, eventReport);
         } else {

@@ -80,7 +80,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
 
         TextView fileType = (TextView) findViewById(R.id.upload_file_type);
         TextView fileName = (TextView) findViewById(R.id.upload_file_name);
-        fileName.setText(MediaFile.getFileNameWithExtension(_managedFile.getFileFullPath()));
+        fileName.setText(MediaFilesUtils.getFileNameWithExtension(_managedFile.getFileFullPath()));
         fType = _managedFile.getFileType();
 
         prepareUploadBtn();
@@ -407,7 +407,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
         Intent resultIntent = new Intent();
         log(Log.INFO,TAG,"returnFile");
 
-        log(Log.INFO,TAG, "[File selected]: " + managedFile.getFileFullPath() + ". [File Size]: " + MediaFile.getFileSizeFormat(managedFile.getFileSize()));
+        log(Log.INFO,TAG, "[File selected]: " + managedFile.getFileFullPath() + ". [File Size]: " + MediaFilesUtils.getFileSizeFormat(managedFile.getFileSize()));
 
         resultIntent.putExtra(RESULT_FILE, managedFile);
 

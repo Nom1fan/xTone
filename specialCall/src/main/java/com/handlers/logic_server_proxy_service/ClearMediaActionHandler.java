@@ -1,7 +1,9 @@
 package com.handlers.logic_server_proxy_service;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.app.AppStateManager;
 import com.client.ConnectionToServer;
 import com.data.objects.Constants;
 import com.data.objects.SpecialMediaType;
@@ -37,6 +39,7 @@ public class ClearMediaActionHandler implements ActionHandler {
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
+        Context ctx = actionBundle.getCtx();
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
 
@@ -46,19 +49,19 @@ public class ClearMediaActionHandler implements ActionHandler {
         ClearMediaRequest request = new ClearMediaRequest(actionBundle.getRequest());
         request.setSourceLocale(Locale.getDefault().getLanguage());
         request.setDestinationId(destId);
-        request.setSourceId(Constants.MY_ID(actionBundle.getCtx()));
+        request.setSourceId(Constants.MY_ID(ctx));
         request.setSpecialMediaType(specialMediaType);
-        request.setDestinationContactName(ContactsUtils.getContactName(actionBundle.getCtx(), destId));
+        request.setDestinationContactName(ContactsUtils.getContactName(ctx, destId));
 
-        int responseCode = connectionToServer.send(URL_CLEAR_MEDIA, request);
-
-        EventType eventType;
-        if (responseCode == HttpStatus.SC_OK) {
-            eventType = EventType.CLEAR_SUCCESS;
-        } else {
-            log(Log.ERROR, TAG, "Get App Record failed. [Response code]:" + responseCode);
-            eventType = EventType.CLEAR_FAILURE;
+        int responseCode = connectionToServer.sendRequest(URL_CLEAR_MEDIA, request);
+        if(responseCode == HttpStatus.SC_OK) {
+            AppStateManager.setAppState(ctx, TAG, AppStateManager.getAppPrevState(ctx));
+            BroadcastUtils.sendEventReportBroadcast(ctx, TAG, new EventReport(EventType.CLEAR_SENT));
         }
-        BroadcastUtils.sendEventReportBroadcast(actionBundle.getCtx(), TAG, new EventReport(eventType, destId, specialMediaType));
+        else {
+            log(Log.ERROR, TAG, "Clear media failed. [Response code]:" + responseCode);
+            BroadcastUtils.sendEventReportBroadcast(ctx, TAG, new EventReport(EventType.CLEAR_FAILURE, destId, specialMediaType));
+        }
+
     }
 }

@@ -4,16 +4,14 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 
+import com.app.AppStateManager;
+import com.data.objects.ClearSuccessData;
 import com.handlers.Handler;
 import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
 import com.utils.UI_Utils;
 
-import java.util.Map;
-
-import com.data.objects.DataKeys;
-import com.data.objects.SpecialMediaType;
 import com.event.EventReport;
 
 /**
@@ -28,9 +26,9 @@ public class EventClearSuccessHandler implements Handler {
         EventReport eventReport = (EventReport) params[0];
 
         // Preparing data for uploaded media thumbnail removal
-        SpecialMediaType specialMediaType = (SpecialMediaType) eventReport.data();
-        String destId = eventReport.desc();
-        LUT_Utils lut_utils = new LUT_Utils(specialMediaType);
+        ClearSuccessData clearSuccessData = (ClearSuccessData) eventReport.data();
+        LUT_Utils lut_utils = new LUT_Utils(clearSuccessData.getSpecialMediaType());
+        String destId = clearSuccessData.getDestinationId();
         lut_utils.removeUploadedMediaPerNumber(ctx, destId);
         lut_utils.removeUploadedTonePerNumber(ctx, destId);
         

@@ -26,18 +26,16 @@ import static com.services.ServerProxyService.INTERNATIONAL_PHONE;
 public class GetSmsActionHandler implements ActionHandler {
 
     private static final String TAG = GetSmsActionHandler.class.getSimpleName();
-    private static final Type responseType = new TypeToken<Response>() {}.getType();
     private static final String URL_GET_SMS_AUTH = ROOT_URL + "/v1/GetSmsAuthCode";
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
         String interPhoneNumber = actionBundle.getIntent().getStringExtra(INTERNATIONAL_PHONE);
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
-        connectionToServer.setResponseType(responseType);
         GetSmsRequest getSmsRequest = new GetSmsRequest(actionBundle.getRequest());
         getSmsRequest.setSourceLocale(Locale.getDefault().getLanguage());
         getSmsRequest.setInternationalPhoneNumber(interPhoneNumber);
-        int responseCode = connectionToServer.send(URL_GET_SMS_AUTH, getSmsRequest);
+        int responseCode = connectionToServer.sendRequest(URL_GET_SMS_AUTH, getSmsRequest);
 
         if(responseCode== HttpStatus.SC_OK) {
             BroadcastUtils.sendEventReportBroadcast(actionBundle.getCtx(), TAG, new EventReport(EventType.GET_SMS_CODE_SUCCESS));

@@ -15,6 +15,7 @@ import com.utils.MediaFileProcessingUtils;
 import java.io.File;
 
 import com.files.media.MediaFile;
+import com.utils.MediaFilesUtils;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -91,7 +92,7 @@ public class CompressTask extends MediaProcessingAsyncTask {
         progressDialog.dismiss();
         workerThread.interrupt();
         updateProgressThread.interrupt();
-        MediaFile.delete(new File(processedFilePath));
+        MediaFilesUtils.delete(new File(processedFilePath));
         sendLoadingCancelled(context, TAG);
     }
 

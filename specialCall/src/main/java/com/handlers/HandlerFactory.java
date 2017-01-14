@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.data.objects.ActivityRequestCodes;
+import com.data.objects.PushEventKeys;
 import com.event.EventType;
 import com.handlers.background_broadcast_receiver.EventClearFailureHandler;
 import com.handlers.background_broadcast_receiver.EventClearSentHandler;
@@ -13,6 +14,8 @@ import com.handlers.background_broadcast_receiver.EventConnectedHandler;
 import com.handlers.background_broadcast_receiver.EventDestinationDownloadCompleteHandler;
 import com.handlers.background_broadcast_receiver.EventDisplayErrorHandler;
 import com.handlers.background_broadcast_receiver.EventDisplayMessageHandler;
+import com.handlers.background_broadcast_receiver.EventDownloadFailureHandler;
+import com.handlers.background_broadcast_receiver.EventDownloadReceivedHandler;
 import com.handlers.background_broadcast_receiver.EventFetchingUserDataHandler;
 import com.handlers.background_broadcast_receiver.EventGetSmsCodeFailureHandler;
 import com.handlers.background_broadcast_receiver.EventLoadingCancelHandler;
@@ -33,6 +36,13 @@ import com.handlers.logic_server_proxy_service.NotifyMediaClearedActionHandler;
 import com.handlers.logic_server_proxy_service.RegisterActionHandler;
 import com.handlers.logic_server_proxy_service.UnregisterActionHandler;
 import com.handlers.logic_server_proxy_service.UpdateUserRecordActionHandler;
+import com.handlers.push.service.PushClearMediaHandler;
+import com.handlers.push.service.PushClearSuccessHandler;
+import com.handlers.push.service.PushPendingDownloadHandler;
+import com.handlers.push.service.PushShowErrorHandler;
+import com.handlers.push.service.PushShowMessageHandler;
+import com.handlers.push.service.PushTransferFailureHandler;
+import com.handlers.push.service.PushTransferSuccessHandler;
 import com.handlers.select_media_activity.ActivityRequestCameraHandler;
 import com.handlers.select_media_activity.ActivityRequestFileChooserHandler;
 import com.handlers.select_media_activity.ActivityRequestPreviewMediaResultHandler;
@@ -84,6 +94,8 @@ public class HandlerFactory {
         put(EventType.GET_SMS_CODE_FAILURE, EventGetSmsCodeFailureHandler.class);
         put(EventType.LOADING_CANCEL, EventLoadingCancelHandler.class);
         put(EventType.LOADING_TIMEOUT, EventLoadingTimeoutHandler.class);
+        put(EventType.DESTINATION_DOWNLOAD_FAILED, EventDownloadFailureHandler.class);
+        put(EventType.DOWNLOAD_SUCCESS, EventDownloadReceivedHandler.class);
     }};
 
     private Map<String, Map> class2HandlerMap = new HashMap() {{
@@ -92,7 +104,7 @@ public class HandlerFactory {
         put(MainActivity.class.getSimpleName(), mainActivityHandlers);
     }};
 
-    private Map<String, Class<ActionHandler>> class2ActionHandlerMap = new HashMap(){{
+    private Map<String, Class<ActionHandler>> class2ActionHandlerMap = new HashMap() {{
         put(ServerProxyService.ACTION_REGISTER, RegisterActionHandler.class);
         put(ServerProxyService.ACTION_GET_SMS_CODE, GetSmsActionHandler.class);
         put(ServerProxyService.ACTION_GET_APP_RECORD, GetAppRecordActionHandler.class);
@@ -103,6 +115,16 @@ public class HandlerFactory {
         put(ServerProxyService.ACTION_DOWNLOAD, DownloadFileActionHandler.class);
         put(ServerProxyService.ACTION_CLEAR_MEDIA, ClearMediaActionHandler.class);
         put(ServerProxyService.ACTION_NOTIFY_MEDIA_CLEARED, NotifyMediaClearedActionHandler.class);
+    }};
+
+    private Map<String, Class<PushHandler>> class2PushHandlerMap = new HashMap() {{
+        put(PushEventKeys.PENDING_DOWNLOAD, PushPendingDownloadHandler.class);
+        put(PushEventKeys.TRANSFER_SUCCESS, PushTransferSuccessHandler.class);
+        put(PushEventKeys.CLEAR_MEDIA, PushClearMediaHandler.class);
+        put(PushEventKeys.CLEAR_SUCCESS, PushClearSuccessHandler.class);
+        put(PushEventKeys.SHOW_MESSAGE, PushShowMessageHandler.class);
+        put(PushEventKeys.SHOW_ERROR, PushShowErrorHandler.class);
+        put(PushEventKeys.TRANSFER_FAILURE, PushTransferFailureHandler.class);
     }};
 
     public static HandlerFactory getInstance() {
@@ -152,5 +174,26 @@ public class HandlerFactory {
         }
         return resultHandler;
     }
+
+    public PushHandler getPushHandler(String action) {
+        PushHandler resultHandler = null;
+        Class<PushHandler> handlerClass;
+        try {
+
+            handlerClass = class2PushHandlerMap.get(action);
+            if (handlerClass == null) {
+                throw new Exception("No handler for action:" + action);
+            }
+
+            resultHandler = handlerClass.newInstance();
+
+        } catch (Exception e) {
+            Crashlytics.log(Log.WARN, TAG, e.getMessage());
+
+        }
+        return resultHandler;
+    }
+
+
 }
 

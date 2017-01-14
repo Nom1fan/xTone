@@ -24,8 +24,6 @@ import static com.services.ServerProxyService.CALL_RECORD;
 public class InsertCallRecordActionHandler implements ActionHandler {
 
     private static final String TAG = InsertCallRecordActionHandler.class.getSimpleName();
-    private static final Type responseType = new TypeToken<Response>() {
-    }.getType();
     private static final String URL_INSERT_CALL_RECORD = ROOT_URL + "/v1/InsertMediaCallRecord";
 
     @Override
@@ -35,13 +33,12 @@ public class InsertCallRecordActionHandler implements ActionHandler {
         request.setCallRecord(callRecord);
         request.setSourceLocale(Locale.getDefault().getLanguage());
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
-        connectionToServer.setResponseType(responseType);
-
 
         log(Log.INFO, TAG, "Initiating insert call record sequence...");
-        int responseCode = connectionToServer.send(URL_INSERT_CALL_RECORD, request);
+        int responseCode = connectionToServer.sendRequest(URL_INSERT_CALL_RECORD, request);
+        connectionToServer.readResponse();
 
-        if(responseCode != HttpStatus.SC_OK) {
+        if (responseCode != HttpStatus.SC_OK) {
             log(Log.ERROR, TAG, "Insert call record failed. [Response code]:" + responseCode);
         }
     }

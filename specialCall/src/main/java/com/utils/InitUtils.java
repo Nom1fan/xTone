@@ -106,8 +106,8 @@ public abstract class InitUtils {
                 MediaFile.FileType fType = null;
 
                 try {
-                    String extension = MediaFile.extractExtension(DirFiles.get(x).getAbsolutePath());
-                    fType = MediaFile.getFileTypeByExtension(extension);
+                    String extension = MediaFilesUtils.extractExtension(DirFiles.get(x).getAbsolutePath());
+                    fType = MediaFilesUtils.getFileTypeByExtension(extension);
                 } catch (FileMissingExtensionException e) {
                     log(Log.INFO, TAG, "FileMissingExtensionException in populateSavedMcFromDiskToSharedPrefs in" + specialMediaType.toString());
                     e.printStackTrace();

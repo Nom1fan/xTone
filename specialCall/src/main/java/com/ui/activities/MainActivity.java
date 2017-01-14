@@ -81,6 +81,7 @@ import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
+import com.utils.MediaFilesUtils;
 import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
@@ -611,7 +612,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             case CLEAR_SENT:
                 if (!SharedPrefUtils.getBoolean(MainActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {
                     UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this, "ClearMediaDialog", getResources().getString(R.string.sending_clear_contact)
-                            , getResources().getString(R.string.waiting_for_clear_transfer_sucess_dialog_msg));
+                            , getResources().getString(R.string.waiting_for_clear_transfer_success_dialog_msg));
                 }
                 break;
 
@@ -1534,7 +1535,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
-                    fType = MediaFile.getFileType(lastUploadedMediaPath);
+                    fType = MediaFilesUtils.getFileType(lastUploadedMediaPath);
 
                     BitmapUtils.execBitMapWorkerTask(selectMediaBtn, fType, lastUploadedMediaPath, false);
 
@@ -1576,7 +1577,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
-                    MediaFile.FileType fType = MediaFile.getFileType(lastUploadedMediaPath);
+                    MediaFile.FileType fType = MediaFilesUtils.getFileType(lastUploadedMediaPath);
 
                     BitmapUtils.execBitMapWorkerTask(defaultpic_enabled, fType, lastUploadedMediaPath, true);
                     profileHasMedia = true;
@@ -1604,7 +1605,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                ringToneNameTextView.setText(MediaFile.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameTextView.setText(MediaFilesUtils.getFileNameWithExtension(ringToneFilePath));
                 ringToneNameTextView.setVisibility(View.VISIBLE);
                 callerHasRingtone = true;
                 enableRingToneStatusArrived();
@@ -1627,7 +1628,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                ringToneNameForProfileTextView.setText(MediaFile.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameForProfileTextView.setText(MediaFilesUtils.getFileNameWithExtension(ringToneFilePath));
                 ringToneNameForProfileTextView.setVisibility(View.VISIBLE);
                 profileHasRingtone = true;
                 UI_Utils.showCaseViewAfterUploadAndCall(this, MainActivity.this);

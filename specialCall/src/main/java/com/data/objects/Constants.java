@@ -1,13 +1,17 @@
 package com.data.objects;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
+import android.util.Log;
 
 import com.mediacallz.app.BuildConfig;
 import com.mediacallz.app.R;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
+
+import static com.crashlytics.android.Crashlytics.log;
 
 public abstract class Constants {
 
@@ -26,6 +30,23 @@ public abstract class Constants {
     // Android version upon register, and then used to sync with server after every upgrade
     public static String MY_ANDROID_VERSION(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ANDROID_VERSION); }
     public static void MY_ANDROID_VERSION(Context context, String androidVersion) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ANDROID_VERSION, androidVersion); }
+    //endregion
+
+    //region Device Hardware
+    private static String MY_DEVICE_MODEL;
+
+    public static String MY_DEVICE_MODEL() {
+        if(MY_DEVICE_MODEL == null) {
+            String manufacturer = Build.MANUFACTURER;
+            String model = Build.MODEL;
+            if (model.startsWith(manufacturer)) {
+                return model.toLowerCase();
+            }
+            log(Log.INFO, TAG, "Manufacturer device name: " + manufacturer + " " + model);
+            MY_DEVICE_MODEL = (manufacturer + " " + model).toLowerCase();
+        }
+        return MY_DEVICE_MODEL;
+    }
     //endregion
 
     //region Connection to server

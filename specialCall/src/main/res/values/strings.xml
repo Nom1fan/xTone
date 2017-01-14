@@ -57,6 +57,7 @@
     <string name="file_over_max_size">Oops! Select file smaller than: %1$s</string>
     <string name="destnumber_invalid">Oops! Invalid number</string>
     <string name="destination_download_complete">Media for %1$s is ready!</string>
+    <string name="destination_download_failed">Oops! %1$s did not receive your media.</string>
     <string name="destination_media_cleared">Media for %1$s was cleared!</string>
     <string name="user_is_registered">User %1$s is registered</string>
     <string name="user_is_unregistered">User %1$s is unregistered</string>
@@ -86,7 +87,7 @@
     <string name="sending_to_contact">Sending Destination</string>
     <string name="waiting_for_transfer_sucess_dialog_msg"> Will be ready in about %1$d seconds\n if destination device is available.\n If not, you will be notified once it is ready</string>
     <string name="sending_clear_contact"> Clearing Destination Media</string>
-    <string name="waiting_for_clear_transfer_sucess_dialog_msg"> Clearing it in about %1$d seconds\n if destination device is available.\n If not, you will be notified once it is cleared</string>
+    <string name="waiting_for_clear_transfer_success_dialog_msg"> Clearing it in about %1$d seconds\n if destination device is available.\n If not, you will be notified once it is cleared</string>
     <string name="finished_waiting_msg"> Destination device is not available right now\n You will be notified when action is finished</string>
     <string name="dont_show_again"> Do not show again</string>
     <string name="just_notify"> Just notify me</string>

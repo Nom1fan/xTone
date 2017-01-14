@@ -34,6 +34,7 @@ import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
+import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -504,7 +505,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         String ext="";
 
         try {
-            ext = MediaFile.extractExtension(mediaFilePath);
+            ext = MediaFilesUtils.extractExtension(mediaFilePath);
         } catch (FileMissingExtensionException e) {
             e.printStackTrace();
         }
@@ -1138,10 +1139,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected void setTempMd5ForCallRecord(String visualFilePath, String audioFilePath) {
 
         if(new File(audioFilePath).exists())
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES ,SharedPrefUtils.TEMP_AUDIOMD5, MediaFile.getMD5(audioFilePath));
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES ,SharedPrefUtils.TEMP_AUDIOMD5, MediaFilesUtils.getMD5(audioFilePath));
 
         if(new File(visualFilePath).exists())
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5, MediaFile.getMD5(visualFilePath));
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5, MediaFilesUtils.getMD5(visualFilePath));
 
     }
 

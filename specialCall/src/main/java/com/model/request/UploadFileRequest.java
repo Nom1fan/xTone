@@ -12,10 +12,9 @@ public class UploadFileRequest extends Request {
     private String sourceId;
     private String destinationId;
     private String destinationContactName;
-    private MediaFile mediaFile;
+    private MediaFile mediaFileDTO;
     private String filePathOnSrcSd;
     private SpecialMediaType specialMediaType;
-    private String sourceWithExtension;
 
     public String getSourceId() {
         return sourceId;
@@ -41,12 +40,12 @@ public class UploadFileRequest extends Request {
         this.destinationContactName = destinationContactName;
     }
 
-    public MediaFile getMediaFile() {
-        return mediaFile;
+    public MediaFile getMediaFileDTO() {
+        return mediaFileDTO;
     }
 
-    public void setMediaFile(MediaFile mediaFile) {
-        this.mediaFile = mediaFile;
+    public void setMediaFileDTO(MediaFile mediaFileDTO) {
+        this.mediaFileDTO = mediaFileDTO;
     }
 
     public String getFilePathOnSrcSd() {
@@ -63,13 +62,5 @@ public class UploadFileRequest extends Request {
 
     public void setSpecialMediaType(SpecialMediaType specialMediaType) {
         this.specialMediaType = specialMediaType;
-    }
-
-    public String getSourceWithExtension() {
-        return sourceWithExtension;
-    }
-
-    public void setSourceWithExtension(String sourceWithExtension) {
-        this.sourceWithExtension = sourceWithExtension;
     }
 }

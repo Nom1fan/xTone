@@ -16,5 +16,6 @@ public abstract class RequestUtils {
         request.setAppVersion(String.valueOf(Constants.APP_VERSION()));
         request.setPushToken(Constants.MY_BATCH_TOKEN(context));
         request.setAndroidVersion(Build.VERSION.RELEASE);
+        request.setDeviceModel(Constants.MY_DEVICE_MODEL());
     }
 }

@@ -15,6 +15,7 @@ import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
 import com.ui.activities.PreviewMediaActivity;
 import com.ui.activities.SelectMediaActivity;
+import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -53,7 +54,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         } catch(FileExceedsMaxSizeException e) {
             e.printStackTrace();
             String errMsg = String.format(ctx.getResources().getString(R.string.file_over_max_size),
-                    MediaFile.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
+                    MediaFilesUtils.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, ctx);
 
@@ -148,7 +149,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
                 File file = new File(resultPath);
 
                 try {
-                    String extension = MediaFile.extractExtension(resultPath);
+                    String extension = MediaFilesUtils.extractExtension(resultPath);
                     Crashlytics.log(Log.INFO, TAG, "isCamera True, Extension saved in camera: " + extension);
                 } catch (FileMissingExtensionException e) {
 
@@ -174,7 +175,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         } catch(FileExceedsMaxSizeException e) {
             e.printStackTrace();
             String errMsg = String.format(selectMediaActivity.getResources().getString(R.string.file_over_max_size),
-                    MediaFile.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
+                    MediaFilesUtils.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, selectMediaActivity);
             selectMediaActivity.finish();

@@ -13,7 +13,7 @@ public class PushEventKeys {
     public static final String SHOW_MESSAGE = "SHOW_MESSAGE";
     public static final String SHOW_ERROR = "SHOW_ERROR";
     public static final String TRANSFER_SUCCESS = "TRANSFER_SUCCESS";
+    public static final String TRANSFER_FAILURE = "TRANSFER_FAILURE";
     public static final String PUSH_DATA = "alert";
     public static final String PUSH_DATA_EXTRA = "PUSH_DATA_EXTRA";
-
 }

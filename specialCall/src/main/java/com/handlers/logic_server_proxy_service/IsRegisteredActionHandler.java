@@ -41,12 +41,12 @@ public class IsRegisteredActionHandler implements ActionHandler {
         isRegisteredRequest.setDestinationId(destinationId);
         isRegisteredRequest.setSourceLocale(Locale.getDefault().getLanguage());
         log(Log.INFO, TAG, "Initiating IsRegistered sequence...");
-        int responseCode = connectionToServer.send(URL_ISREGISTERED, isRegisteredRequest);
+        int responseCode = connectionToServer.sendRequest(URL_ISREGISTERED, isRegisteredRequest);
 
         EventReport eventReport;
         String desc;
         if (responseCode == HttpStatus.SC_OK) {
-            Response<UserDTO> response = connectionToServer.read();
+            Response<UserDTO> response = connectionToServer.readResponse();
             UserDTO userDTO = response.getResult();
             String uid = userDTO.getUid();
             if (userDTO.getUserStatus().equals(UserStatus.REGISTERED)) {

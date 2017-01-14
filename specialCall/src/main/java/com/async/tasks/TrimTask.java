@@ -10,6 +10,7 @@ import com.data.objects.KeysForBundle;
 import com.flows.UploadFileFlowListener;
 import com.mediacallz.app.R;
 import com.utils.MediaFileProcessingUtils;
+import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
@@ -104,7 +105,7 @@ public class TrimTask extends MediaProcessingAsyncTask {
         progressDialog.dismiss();
         workerThread.interrupt();
         updateProgressThread.interrupt();
-        MediaFile.delete(new File(processedFilePath));
+        MediaFilesUtils.delete(new File(processedFilePath));
         sendLoadingCancelled(context, TAG);
     }
 

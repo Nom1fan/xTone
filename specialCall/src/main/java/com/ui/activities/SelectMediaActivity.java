@@ -31,6 +31,7 @@ import com.handlers.Handler;
 import com.handlers.HandlerFactory;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
+import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -169,7 +170,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         } catch (FileExceedsMaxSizeException e) {
             e.printStackTrace();
             String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
-                    MediaFile.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
+                    MediaFilesUtils.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
             finish();

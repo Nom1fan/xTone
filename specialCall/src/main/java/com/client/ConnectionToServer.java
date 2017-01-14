@@ -14,6 +14,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -61,12 +62,13 @@ public class ConnectionToServer {
         gson = new Gson();
     }
 
-    public <T> int send(String url, T requestBody) throws IOException {
+    public <T> int sendRequest(String url, T requestBody) throws IOException {
         sendRequestBody(url, requestBody);
+        logErrors();
         return conn.getResponseCode();
     }
 
-    public <T> Response<T> read() throws IOException {
+    public <T> Response<T> readResponse() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
         String responseBody = br.readLine();
         return extractResponse(responseBody);
@@ -84,7 +86,7 @@ public class ConnectionToServer {
             //  BufferedReader br = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()));
             //  String responseMessage = br.readLine();
             //  Response response = extractResponse(responseMessage);
-            responseCode =  httpResponse.getStatusLine().getStatusCode();
+            responseCode = httpResponse.getStatusLine().getStatusCode();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -189,5 +191,24 @@ public class ConnectionToServer {
 
     private double calcProgressPercentage(long fileSize, long fileSizeConst) {
         return ((fileSizeConst - fileSize) / (double) fileSizeConst) * 100;
+    }
+
+    private void logErrors() {
+        if(conn.getErrorStream()!=null)
+            log(Log.INFO, TAG, "Response errors:" + readStream(conn.getErrorStream()));
+    }
+
+    private String readStream(InputStream stream)  {
+        StringBuilder builder = new StringBuilder();
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(stream))) {
+            String line;
+            while ((line = in.readLine()) != null) {
+                builder.append(line); // + "\r\n"(no need, json has no line breaks!)
+            }
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return builder.toString();
     }
 }

@@ -25,8 +25,6 @@ import static com.crashlytics.android.Crashlytics.log;
 public class UnregisterActionHandler implements ActionHandler {
 
     private static final String TAG = UnregisterActionHandler.class.getSimpleName();
-    private static final Type responseType = new TypeToken<Response>() {
-    }.getType();
     private static final String URL_UNREGISTER = ROOT_URL + "/v1/UnRegister";
 
     @Override
@@ -35,11 +33,9 @@ public class UnregisterActionHandler implements ActionHandler {
         unRegisterRequest.setSourceLocale(Locale.getDefault().getLanguage());
 
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
-        connectionToServer.setResponseType(responseType);
-
 
         log(Log.INFO, TAG, "Initiating insert call record sequence...");
-        int responseCode = connectionToServer.send(URL_UNREGISTER, unRegisterRequest);
+        int responseCode = connectionToServer.sendRequest(URL_UNREGISTER, unRegisterRequest);
 
         EventReport eventReport;
         if(responseCode == HttpStatus.SC_OK)

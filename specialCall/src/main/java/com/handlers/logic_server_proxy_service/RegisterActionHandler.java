@@ -28,22 +28,19 @@ import static com.services.ServerProxyService.SMS_CODE;
 public class RegisterActionHandler implements ActionHandler {
 
     private static final String TAG = RegisterActionHandler.class.getSimpleName();
-    private static final Type responseType = new TypeToken<Response>() {
-    }.getType();
     private static final String URL_REGISTER = ROOT_URL + "/v1/Register";
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
         int smsCode = actionBundle.getIntent().getIntExtra(SMS_CODE, 0);
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
-        connectionToServer.setResponseType(responseType);
         RegisterRequest registerRequest = new RegisterRequest(actionBundle.getRequest());
         registerRequest.setSourceLocale(Locale.getDefault().getLanguage());
         log(Log.INFO, TAG, "Initiating actionRegister sequence...");
         registerRequest.setDeviceModel(SpecialDevicesUtils.getDeviceName());
         registerRequest.setAndroidVersion(Build.VERSION.RELEASE);
         registerRequest.setSmsCode(smsCode);
-        int responseCode = connectionToServer.send(URL_REGISTER, registerRequest);
+        int responseCode = connectionToServer.sendRequest(URL_REGISTER, registerRequest);
 
         EventType eventType;
         String errMsg = null;

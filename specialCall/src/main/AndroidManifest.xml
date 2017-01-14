@@ -262,12 +262,6 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.receivers.DownloadReceiver">
-            <intent-filter>
-                <action android:name="com.android.mediacallz.EVENT_ACTION" />
-            </intent-filter>
-        </receiver>
-
         <receiver
             android:name="com.receivers.PushReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">

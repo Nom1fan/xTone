@@ -14,7 +14,6 @@ public class DownloadFileRequest extends Request {
     private String destinationContactName;
     private String filePathOnServer;
     private SpecialMediaType specialMediaType;
-    private MediaFile.FileType fileType;
     private String filePathOnSrcSd;
 
     public DownloadFileRequest(Request request) {
@@ -67,14 +66,6 @@ public class DownloadFileRequest extends Request {
 
     public void setSpecialMediaType(SpecialMediaType specialMediaType) {
         this.specialMediaType = specialMediaType;
-    }
-
-    public MediaFile.FileType getFileType() {
-        return fileType;
-    }
-
-    public void setFileType(MediaFile.FileType fileType) {
-        this.fileType = fileType;
     }
 
     public String getFilePathOnSrcSd() {

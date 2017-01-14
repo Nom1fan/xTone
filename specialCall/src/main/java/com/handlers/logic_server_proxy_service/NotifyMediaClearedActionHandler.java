@@ -3,32 +3,20 @@ package com.handlers.logic_server_proxy_service;
 import android.util.Log;
 
 import com.client.ConnectionToServer;
-import com.data.objects.Constants;
-import com.data.objects.DataKeys;
-import com.data.objects.SpecialMediaType;
-import com.event.EventReport;
-import com.event.EventType;
+import com.data.objects.ClearMediaData;
 import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
-import com.model.request.ClearMediaRequest;
 import com.model.request.NotifyMediaClearedRequest;
 import com.model.response.AppMetaDTO;
 import com.model.response.Response;
-import com.utils.BroadcastUtils;
-import com.utils.ContactsUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.AbstractMap;
-import java.util.HashMap;
-import java.util.Locale;
 
 import cz.msebera.android.httpclient.HttpStatus;
 
 import static com.crashlytics.android.Crashlytics.log;
-import static com.services.ServerProxyService.DESTINATION_ID;
-import static com.services.ServerProxyService.SPECIAL_MEDIA_TYPE;
-import static com.services.ServerProxyService.TRANSFER_DETAILS;
+import static com.services.ServerProxyService.CLEAR_MEDIA_DATA;
 
 /**
  * Created by Mor on 20/12/2016.
@@ -45,11 +33,13 @@ public class NotifyMediaClearedActionHandler implements ActionHandler {
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
 
-        HashMap tdData = (HashMap) actionBundle.getIntent().getSerializableExtra(TRANSFER_DETAILS);
+        ClearMediaData clearMediaData = (ClearMediaData) actionBundle.getIntent().getSerializableExtra(CLEAR_MEDIA_DATA);
         NotifyMediaClearedRequest request = new NotifyMediaClearedRequest(actionBundle.getRequest());
-        request.setSourceLocale(tdData.get(DataKeys.SOURCE_LOCALE).toString());
+        request.setSourceLocale(clearMediaData.getSourceLocale());
+        request.setSourceId(clearMediaData.getSourceId());
+        request.setSpecialMediaType(clearMediaData.getSpecialMediaType());
 
-        int responseCode = connectionToServer.send(URL_NOTIFY_MEDIA_CLEARED, request);
+        int responseCode = connectionToServer.sendRequest(URL_NOTIFY_MEDIA_CLEARED, request);
         if (responseCode != HttpStatus.SC_OK) {
             log(Log.ERROR, TAG, "Notify media cleared failed. [Response code]:" + responseCode);
         }

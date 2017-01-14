@@ -20,6 +20,7 @@ public class Request {
         request.setIosVersion(getIosVersion());
         request.setAndroidVersion(getAndroidVersion());
         request.setPushToken(getPushToken());
+        request.setDeviceModel(getDeviceModel());
     }
 
 

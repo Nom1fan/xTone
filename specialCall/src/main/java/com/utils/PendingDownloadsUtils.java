@@ -8,13 +8,13 @@ import android.util.Log;
 
 import com.dal.objects.DAL_Access;
 import com.dal.objects.IDAL;
+import com.data.objects.PendingDownloadData;
+import com.data.objects.SpecialMediaType;
 import com.services.ServerProxyService;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.data.objects.DataKeys;
 import com.data.objects.PushEventKeys;
 import com.exceptions.FileInvalidFormatException;
 import com.files.media.MediaFile;
@@ -28,33 +28,33 @@ public abstract class PendingDownloadsUtils {
 
     private static final String TAG = PendingDownloadsUtils.class.getSimpleName();
 
-    public static void enqueuePendingDownload(final Context context, final HashMap pendingDlData) {
+    public static void enqueuePendingDownload(final Context context, final PendingDownloadData pendingDlData) {
 
         new Thread() {
             @Override
             public void run() {
                 Log.d(TAG, "Enqueuing pending download:" + pendingDlData);
 
-                String sourceId = pendingDlData.get(DataKeys.SOURCE_ID).toString();
-                String extension = pendingDlData.get(DataKeys.EXTENSION).toString();
-                String specialMediaType = pendingDlData.get(DataKeys.SPECIAL_MEDIA_TYPE).toString();
+                String sourceId = pendingDlData.getSourceId();
+                String extension = pendingDlData.getMediaFileDTO().getExtension();
+                String specialMediaType = pendingDlData.getSpecialMediaType().toString();
 
                 deletePendingDLrecordsIfNecessary(context, sourceId, extension, specialMediaType);
 
                 ContentValues values = new ContentValues();
                 values.put(IDAL.COL_SOURCE_ID, sourceId);
-                values.put(IDAL.COL_DEST_ID, pendingDlData.get(DataKeys.DESTINATION_ID).toString());
-                values.put(IDAL.COL_DEST_CONTACT, pendingDlData.get(DataKeys.DESTINATION_CONTACT_NAME).toString());
+                values.put(IDAL.COL_DEST_ID, pendingDlData.getDestinationId());
+                values.put(IDAL.COL_DEST_CONTACT, pendingDlData.getDestinationContactName());
                 values.put(IDAL.COL_EXTENSION, extension);
-                values.put(IDAL.COL_SOURCE_WITH_EXT, pendingDlData.get(DataKeys.SOURCE_WITH_EXTENSION).toString());
-                values.put(IDAL.COL_FILEPATH_ON_SRC_SD, pendingDlData.get(DataKeys.FILE_PATH_ON_SRC_SD).toString());
-                values.put(IDAL.COL_FILETYPE, pendingDlData.get(DataKeys.FILE_TYPE).toString());
-                values.put(IDAL.COL_FILESIZE, pendingDlData.get(DataKeys.FILE_SIZE).toString());
-                values.put(IDAL.COL_MD5, pendingDlData.get(DataKeys.MD5).toString());
-                values.put(IDAL.COL_COMMID, pendingDlData.get(DataKeys.COMM_ID).toString());
-                values.put(IDAL.COL_FILEPATH_ON_SERVER, pendingDlData.get(DataKeys.FILE_PATH_ON_SERVER).toString());
-                values.put(IDAL.COL_SOURCE_LOCALE, pendingDlData.get(DataKeys.SOURCE_LOCALE).toString());
-                values.put(IDAL.COL_SPECIAL_MEDIA_TYPE, pendingDlData.get(DataKeys.SPECIAL_MEDIA_TYPE).toString());
+                values.put(IDAL.COL_SOURCE_WITH_EXT, pendingDlData.getSourceId() + "." + extension);
+                values.put(IDAL.COL_FILEPATH_ON_SRC_SD, pendingDlData.getFilePathOnSrcSd());
+                values.put(IDAL.COL_FILETYPE, pendingDlData.getMediaFileDTO().getFileType().toString());
+                values.put(IDAL.COL_FILESIZE, pendingDlData.getMediaFileDTO().getFileSize());
+                values.put(IDAL.COL_MD5, pendingDlData.getMediaFileDTO().getFileSize());
+                values.put(IDAL.COL_COMMID, pendingDlData.getCommId());
+                values.put(IDAL.COL_FILEPATH_ON_SERVER, pendingDlData.getFilePathOnServer());
+                values.put(IDAL.COL_SOURCE_LOCALE, pendingDlData.getSourceLocale());
+                values.put(IDAL.COL_SPECIAL_MEDIA_TYPE, specialMediaType);
 
                 DAL_Access.getInstance(context).insertValues(IDAL.TABLE_DOWNLOADS, values);
             }
@@ -63,11 +63,10 @@ public abstract class PendingDownloadsUtils {
         //Log.d(TAG, "Download queue:" + _downloadQueue);
     }
 
-    public static void sendActionDownload(Context context, HashMap transferDetails) {
-
+    public static void sendActionDownload(Context context, PendingDownloadData pendingDownloadData) {
         Intent i = new Intent(context, ServerProxyService.class);
         i.setAction(ServerProxyService.ACTION_DOWNLOAD);
-        i.putExtra(PushEventKeys.PUSH_DATA, transferDetails);
+        i.putExtra(PushEventKeys.PUSH_DATA, pendingDownloadData);
         context.startService(i);
     }
 
@@ -81,26 +80,29 @@ public abstract class PendingDownloadsUtils {
                 try {
                     cursor = DAL_Access.getInstance(context).getAllValues(IDAL.TABLE_DOWNLOADS);
 
-                    HashMap<DataKeys, Object> pendingDownload = new HashMap();
+                    PendingDownloadData pendingDownloadData = new PendingDownloadData();
                     while (cursor.moveToNext())
                     {
-                        pendingDownload.put(DataKeys.SOURCE_ID, cursor.getString(cursor.getColumnIndex(IDAL.COL_SOURCE_ID)));
-                        pendingDownload.put(DataKeys.DESTINATION_ID, cursor.getString(cursor.getColumnIndex(IDAL.COL_DEST_ID)));
-                        pendingDownload.put(DataKeys.DESTINATION_CONTACT_NAME, cursor.getString(cursor.getColumnIndex(IDAL.COL_DEST_CONTACT)));
-                        pendingDownload.put(DataKeys.EXTENSION, cursor.getString(cursor.getColumnIndex(IDAL.COL_EXTENSION)));
-                        pendingDownload.put(DataKeys.SOURCE_WITH_EXTENSION, cursor.getString(cursor.getColumnIndex(IDAL.COL_SOURCE_WITH_EXT)));
-                        pendingDownload.put(DataKeys.FILE_PATH_ON_SRC_SD, cursor.getString(cursor.getColumnIndex(IDAL.COL_FILEPATH_ON_SRC_SD)));
-                        pendingDownload.put(DataKeys.FILE_TYPE, cursor.getString(cursor.getColumnIndex(IDAL.COL_FILETYPE)));
-                        pendingDownload.put(DataKeys.FILE_SIZE, cursor.getLong(cursor.getColumnIndex(IDAL.COL_FILESIZE)));
-                        pendingDownload.put(DataKeys.MD5, cursor.getString(cursor.getColumnIndex(IDAL.COL_MD5)));
-                        pendingDownload.put(DataKeys.COMM_ID, cursor.getInt(cursor.getColumnIndex(IDAL.COL_COMMID)));
-                        pendingDownload.put(DataKeys.FILE_PATH_ON_SERVER, cursor.getString(cursor.getColumnIndex(IDAL.COL_FILEPATH_ON_SERVER)));
-                        pendingDownload.put(DataKeys.SOURCE_LOCALE, cursor.getString(cursor.getColumnIndex(IDAL.COL_SOURCE_LOCALE)));
-                        pendingDownload.put(DataKeys.SPECIAL_MEDIA_TYPE, cursor.getString(cursor.getColumnIndex(IDAL.COL_SPECIAL_MEDIA_TYPE)));
+                        MediaFile mediaFile = new MediaFile();
+                        mediaFile.setExtension(cursor.getString(cursor.getColumnIndex(IDAL.COL_EXTENSION)));
+                        mediaFile.setFileType(MediaFile.FileType.valueOf(cursor.getString(cursor.getColumnIndex(IDAL.COL_FILETYPE))));
+                        mediaFile.setSize(cursor.getLong(cursor.getColumnIndex(IDAL.COL_FILESIZE)));
+                        mediaFile.setMd5(cursor.getString(cursor.getColumnIndex(IDAL.COL_MD5)));
 
-                        log(Log.INFO,TAG, "Sending pending download:" + pendingDownload);
+                        pendingDownloadData.setSourceId(cursor.getString(cursor.getColumnIndex(IDAL.COL_SOURCE_ID)));
+                        pendingDownloadData.setDestinationId(cursor.getString(cursor.getColumnIndex(IDAL.COL_DEST_ID)));
+                        pendingDownloadData.setDestinationContactName(cursor.getString(cursor.getColumnIndex(IDAL.COL_DEST_CONTACT)));
+                        pendingDownloadData.setFilePathOnSrcSd(cursor.getString(cursor.getColumnIndex(IDAL.COL_FILEPATH_ON_SRC_SD)));
+                        pendingDownloadData.setCommId(cursor.getInt(cursor.getColumnIndex(IDAL.COL_COMMID)));
+                        pendingDownloadData.setFilePathOnServer(cursor.getString(cursor.getColumnIndex(IDAL.COL_FILEPATH_ON_SERVER)));
+                        pendingDownloadData.setSourceLocale(cursor.getString(cursor.getColumnIndex(IDAL.COL_SOURCE_LOCALE)));
+                        pendingDownloadData.setSpecialMediaType(SpecialMediaType.valueOf(cursor.getString(cursor.getColumnIndex(IDAL.COL_SPECIAL_MEDIA_TYPE))));
 
-                        sendActionDownload(context, pendingDownload);
+                        pendingDownloadData.setMediaFileDTO(mediaFile);
+
+                        log(Log.INFO,TAG, "Sending pending download:" + pendingDownloadData);
+
+                        sendActionDownload(context, pendingDownloadData);
 
                         DAL_Access.getInstance(context).deleteRow(
                                 IDAL.TABLE_DOWNLOADS,
@@ -143,12 +145,12 @@ public abstract class PendingDownloadsUtils {
         }
 
         try {
-            MediaFile.FileType newDownloadedFileType = MediaFile.getFileTypeByExtension(newDownloadedExtension);
+            MediaFile.FileType newDownloadedFileType = MediaFilesUtils.getFileTypeByExtension(newDownloadedExtension);
             switch (newDownloadedFileType) {
                 case AUDIO:
 
                     for (String extension : extensions) {
-                        MediaFile.FileType fileType = MediaFile.getFileTypeByExtension(extension);
+                        MediaFile.FileType fileType = MediaFilesUtils.getFileTypeByExtension(extension);
 
                         if ((fileType == MediaFile.FileType.VIDEO ||
                                         fileType == MediaFile.FileType.AUDIO)) {
@@ -164,7 +166,7 @@ public abstract class PendingDownloadsUtils {
                 case IMAGE:
 
                     for (String extension : extensions) {
-                        MediaFile.FileType fileType = MediaFile.getFileTypeByExtension(extension);
+                        MediaFile.FileType fileType = MediaFilesUtils.getFileTypeByExtension(extension);
 
                         if ((fileType == MediaFile.FileType.VIDEO ||
                                         fileType == MediaFile.FileType.IMAGE)) {

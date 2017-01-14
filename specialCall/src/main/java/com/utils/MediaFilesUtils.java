@@ -10,10 +10,19 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.data.objects.Constants;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -140,6 +149,83 @@ public abstract class MediaFilesUtils {
         return result;
     }
 
+    public static MediaFile.FileType getFileType(String filePath) throws FileInvalidFormatException, FileDoesNotExistException, FileMissingExtensionException {
+
+        File file = new File(filePath);
+        if(file.exists()) {
+            String extension = extractExtension(filePath);
+            if (Arrays.asList(imageFormats).contains(extension))
+                return MediaFile.FileType.IMAGE;
+            else if (Arrays.asList(audioFormats).contains(extension))
+                return MediaFile.FileType.AUDIO;
+            else if (Arrays.asList(videoFormats).contains(extension))
+                return MediaFile.FileType.VIDEO;
+            else
+            {
+                delete(file);
+                throw new FileInvalidFormatException(extension);
+            }
+        }
+        else
+            throw new FileDoesNotExistException("File does not exist:"+file.getAbsolutePath());
+
+    }
+
+    public static MediaFile.FileType getFileType(File file) throws FileInvalidFormatException, FileDoesNotExistException, FileMissingExtensionException {
+
+
+        if(file.exists()) {
+            String extension = extractExtension(file.getAbsolutePath());
+            if (Arrays.asList(imageFormats).contains(extension))
+                return MediaFile.FileType.IMAGE;
+            else if (Arrays.asList(audioFormats).contains(extension))
+                return MediaFile.FileType.AUDIO;
+            else if (Arrays.asList(videoFormats).contains(extension))
+                return MediaFile.FileType.VIDEO;
+            else
+            {
+                delete(file);
+                throw new FileInvalidFormatException(extension);
+            }
+        }
+        else
+            throw new FileDoesNotExistException("File does not exist:"+file.getAbsolutePath());
+
+
+    }
+
+    public static MediaFile.FileType getFileTypeByExtension(String extension) throws FileInvalidFormatException {
+
+        if (Arrays.asList(imageFormats).contains(extension))
+            return MediaFile.FileType.IMAGE;
+        else if (Arrays.asList(audioFormats).contains(extension))
+            return MediaFile.FileType.AUDIO;
+        else if (Arrays.asList(videoFormats).contains(extension))
+            return MediaFile.FileType.VIDEO;
+        else
+            throw new FileInvalidFormatException(extension);
+    }
+
+    public static String extractExtension(String filePath) throws FileMissingExtensionException{
+
+        String tmp_str[] = filePath.split("\\.(?=[^\\.]+$)"); // getting last
+        if(tmp_str.length<2)
+            throw new FileMissingExtensionException("File is missing extension:"+filePath);
+        String ext = tmp_str[1];
+        return ext.toLowerCase();
+    }
+
+    /**
+     * Allows to delete a file safely (renaming first)
+     * @param file - The file to delete
+     */
+    public static void delete(File file) {
+
+        final File to = new File(file.getAbsolutePath() + System.currentTimeMillis());
+        file.renameTo(to);
+        to.delete();
+    }
+
     public static void triggerMediaScanOnFile(Context context, File file) {
         context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
     }
@@ -156,6 +242,165 @@ public abstract class MediaFilesUtils {
             }
         }
         return inFiles;
+    }
+
+    /**
+     *
+     * @param _fileSize - The size of the file in bytes
+     * @return - The size of the files in common unit format (KB/MB)
+     */
+    public static String getFileSizeFormat(double _fileSize) {
+
+        double MB = (int)Math.pow(2, 20);
+        double KB = (int)Math.pow(2, 10);
+        DecimalFormat df = new DecimalFormat("#.00"); // rounding to max 2 decimal places
+
+        if(_fileSize>=MB)
+        {
+            double fileSizeInMB = _fileSize/MB; // File size in MBs
+            return df.format(fileSizeInMB)+"MB";
+        }
+        else if(_fileSize>=KB)
+        {
+            double fileSizeInKB = _fileSize/KB; // File size in KBs
+            return df.format(fileSizeInKB)+"KB";
+        }
+
+        // File size in Bytes
+        return df.format(_fileSize)+"B";
+    }
+
+
+    /**
+     * Creates a new file on the File System from given bytes array
+     * @param filePath
+     * @param fileData
+     * @throws IOException
+     */
+    public static void createNewFile(String filePath, byte[] fileData) throws IOException {
+
+        FileOutputStream fos;
+        BufferedOutputStream bos;
+
+        // Creating file
+        File newFile = new File(filePath);
+        newFile.getParentFile().mkdirs();
+        newFile.createNewFile();
+        fos = new FileOutputStream(newFile);
+        bos = new BufferedOutputStream(fos);
+
+        // Writing file to disk
+        bos.write(fileData);
+        bos.flush();
+        bos.close();
+    }
+
+    public static String getFileNameWithExtension(String filePath){
+
+        String tmp_str[] = filePath.split("\\/");
+
+        String fileName = tmp_str[tmp_str.length-1];
+
+        return fileName;
+
+    }
+
+    /**
+     * Return the unique MD5 for the specific file
+     * @param filepath
+     * @return md5 string
+     * @throws Exception
+     */
+    public static String getMD5(String filepath) {
+
+        try {
+
+            InputStream input =  new FileInputStream(filepath);
+            byte[] buffer = new byte[1024];
+
+            MessageDigest hashMsgDigest = null;
+            hashMsgDigest = MessageDigest.getInstance("MD5");
+
+            int read;
+            do {
+                read = input.read(buffer);
+                if (read > 0) {
+                    hashMsgDigest.update(buffer, 0, read);
+                }
+            } while (read != -1);
+            input.close();
+
+            StringBuffer hexString = new StringBuffer();
+            byte[] hash = hashMsgDigest.digest();
+
+            for (int i = 0; i < hash.length; i++) {
+                if ((0xff & hash[i]) < 0x10) {
+                    hexString.append("0"
+                            + Integer.toHexString((0xFF & hash[i])));
+                } else {
+                    hexString.append(Integer.toHexString(0xFF & hash[i]));
+                }
+            }
+
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException | IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Deleting a directory recursively
+     * @param directory - The directory to delete
+     * @return
+     * @throws NullPointerException
+     * @throws FileNotFoundException
+     */
+    public static boolean deleteDirectory(File directory) throws NullPointerException, FileNotFoundException {
+
+        if(directory == null)
+            throw new NullPointerException("The file parameter cannot be null");
+
+        if (directory.exists()) {
+            File[] files = directory.listFiles();
+            if (files == null) {
+                return true;
+            }
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].isDirectory()) {
+                    deleteDirectory(files[i]);
+                } else {
+                    files[i].delete();
+                }
+            }
+        }
+        else
+            throw new FileNotFoundException();
+
+        return(directory.delete());
+
+    }
+
+    /**
+     * Deleting a directory's contents recursively
+     * @param directory - The directory to delete its contents
+     * @return
+     * @throws NullPointerException
+     * @throws FileNotFoundException
+     */
+    public static void deleteDirectoryContents(File directory) throws NullPointerException, IOException {
+
+        FileUtils.cleanDirectory(directory);
+    }
+
+    public static boolean isExtensionValid(String extension) {
+
+        return Arrays.asList(MediaFilesUtils.imageFormats).contains(extension) ||
+                Arrays.asList(MediaFilesUtils.videoFormats).contains(extension) ||
+                Arrays.asList(MediaFilesUtils.audioFormats).contains(extension);
+
+
     }
 
 
