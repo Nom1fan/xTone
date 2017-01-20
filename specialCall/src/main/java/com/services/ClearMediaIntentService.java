@@ -4,17 +4,15 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-import com.data_objects.Constants;
+import com.data.objects.ClearMediaData;
+import com.data.objects.Constants;
+import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.Serializable;
-import java.util.Map;
 
-import DataObjects.DataKeys;
-import DataObjects.SpecialMediaType;
-import FilesManager.FileManager;
+import com.data.objects.SpecialMediaType;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -24,7 +22,7 @@ import static com.crashlytics.android.Crashlytics.log;
 public class ClearMediaIntentService extends IntentService {
 
     public static final String TAG = ClearMediaIntentService.class.getSimpleName();
-    public static final String TRANSFER_DETAILS = "TransferDetails";
+    public static final String CLEAR_MEDIA_DATA = "CLEAR_MEDIA_DATA";
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -43,9 +41,9 @@ public class ClearMediaIntentService extends IntentService {
         log(Log.INFO,TAG, "Handling intent");
         if(intent!=null) {
 
-            Map data = (Map) intent.getSerializableExtra(TRANSFER_DETAILS);
-            SpecialMediaType specialMediaType = SpecialMediaType.valueOf(data.get(DataKeys.SPECIAL_MEDIA_TYPE).toString());
-            String phoneNumber = data.get(DataKeys.SOURCE_ID).toString();
+            ClearMediaData data = (ClearMediaData) intent.getSerializableExtra(CLEAR_MEDIA_DATA);
+            SpecialMediaType specialMediaType = data.getSpecialMediaType();
+            String phoneNumber = data.getSourceId();
 
             try {
                 String folderPath;
@@ -56,14 +54,14 @@ public class ClearMediaIntentService extends IntentService {
                         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, phoneNumber);
                         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, phoneNumber);
                         folderPath = Constants.INCOMING_FOLDER + phoneNumber;
-                        FileManager.deleteDirectory(new File(folderPath));
+                        MediaFilesUtils.deleteDirectory(new File(folderPath));
                         break;
                     case PROFILE_MEDIA:
                         log(Log.INFO,TAG, "Clearing PROFILE_MEDIA");
                         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, phoneNumber);
                         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, phoneNumber);
                         folderPath = Constants.OUTGOING_FOLDER + phoneNumber;
-                        FileManager.deleteDirectory(new File(folderPath));
+                        MediaFilesUtils.deleteDirectory(new File(folderPath));
                         break;
 
                     case MY_DEFAULT_PROFILE_MEDIA:
@@ -77,9 +75,9 @@ public class ClearMediaIntentService extends IntentService {
                 }
 
                 // Notifying clear requester that media was successfully cleared
-                Intent i = new Intent(getApplicationContext(), StorageServerProxyService.class);
-                i.setAction(StorageServerProxyService.ACTION_NOTIFY_MEDIA_CLEARED);
-                i.putExtra(StorageServerProxyService.TRANSFER_DETAILS, (Serializable) data);
+                Intent i = new Intent(getApplicationContext(), ServerProxyService.class);
+                i.setAction(ServerProxyService.ACTION_NOTIFY_MEDIA_CLEARED);
+                i.putExtra(ServerProxyService.CLEAR_MEDIA_DATA, data);
                 startService(i);
 
             } catch (FileNotFoundException e) {

@@ -5,18 +5,14 @@ import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 
+import com.data.objects.PendingDownloadData;
 import com.handlers.Handler;
 import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
 import com.utils.UI_Utils;
 
-import java.util.Map;
-
-import DataObjects.DataKeys;
-import DataObjects.SpecialMediaType;
-import EventObjects.EventReport;
-import FilesManager.FileManager;
+import com.event.EventReport;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -33,15 +29,10 @@ public class EventDestinationDownloadCompleteHandler implements Handler {
 
         log(Log.INFO,TAG, "In: DESTINATION_DOWNLOAD_COMPLETE");
         // Preparing _data for uploaded media thumbnail display
-        Map data = (Map) eventReport.data();
-        String destId = data.get(DataKeys.DESTINATION_ID).toString();
-        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.valueOf(data.get(DataKeys.SPECIAL_MEDIA_TYPE).toString()));
-        lut_utils.saveUploadedPerNumber(
-                ctx,
-                destId,
-                FileManager.FileType.valueOf(data.get(DataKeys.FILE_TYPE).toString()),
-                data.get(DataKeys.FILE_PATH_ON_SRC_SD).toString());
-
+        PendingDownloadData data = (PendingDownloadData) eventReport.data();
+        String destId = data.getDestinationId();
+        LUT_Utils lut_utils = new LUT_Utils(data.getSpecialMediaType());
+        lut_utils.saveUploadedPerNumber(ctx, destId, data.getFilePathOnSrcSd());
         UI_Utils.dismissTransferSuccessDialog();
         String msg = String.format(ctx.getResources().getString(R.string.destination_download_complete),
                 ContactsUtils.getContactNameHtml(ctx, destId));

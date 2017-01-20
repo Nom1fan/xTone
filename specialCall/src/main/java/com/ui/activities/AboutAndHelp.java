@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 
-import com.data_objects.Constants;
+import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.utils.SharedPrefUtils;
 

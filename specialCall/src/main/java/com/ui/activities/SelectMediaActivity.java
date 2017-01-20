@@ -25,24 +25,25 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.data_objects.ActivityRequestCodes;
-import com.data_objects.Constants;
+import com.data.objects.ActivityRequestCodes;
+import com.data.objects.Constants;
 import com.handlers.Handler;
 import com.handlers.HandlerFactory;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
+import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
 import java.util.List;
 
-import DataObjects.SpecialMediaType;
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileExceedsMaxSizeException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
-import FilesManager.FileManager;
+import com.data.objects.SpecialMediaType;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileExceedsMaxSizeException;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -157,9 +158,9 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     private void startPreviewActivity(String filepath) {
 
-        FileManager managedFile;
+        MediaFile managedFile;
         try {
-            managedFile = new FileManager(filepath);
+            managedFile = new MediaFile(filepath);
 
             Intent previewIntentActivity = new Intent(this, PreviewMediaActivity.class);
             previewIntentActivity.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
@@ -169,7 +170,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         } catch (FileExceedsMaxSizeException e) {
             e.printStackTrace();
             String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
-                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+                    MediaFilesUtils.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
             finish();

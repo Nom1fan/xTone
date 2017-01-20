@@ -3,12 +3,13 @@ package com.handlers.select_media_activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.data_objects.ActivityRequestCodes;
+import com.data.objects.ActivityRequestCodes;
 import com.handlers.Handler;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
@@ -19,12 +20,13 @@ import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
+import java.io.IOException;
 
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileExceedsMaxSizeException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
-import FilesManager.FileManager;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileExceedsMaxSizeException;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
 
 /**
  * Created by Mor on 16/07/2016.
@@ -32,6 +34,7 @@ import FilesManager.FileManager;
 public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
     protected String TAG;
+    protected MediaPlayer mMediaPlayer = new MediaPlayer();
     protected SelectMediaActivity selectMediaActivity;
 
     protected void startPreviewActivity(Context ctx, Intent data, boolean isCamera) {
@@ -39,10 +42,10 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         try {
             String filepath = getFilePathFromIntent(ctx, data, isCamera);
 
-            FileManager managedFile;
+            MediaFile managedFile;
 
-            managedFile = new FileManager(filepath);
-            if(MediaFilesUtils.canMediaBePrepared(ctx, managedFile)) {
+            managedFile = new MediaFile(filepath);
+            if(canMediaBePrepared(ctx, managedFile)) {
                 startPreviewActivity(managedFile.getFileFullPath());
             }
             else
@@ -51,13 +54,64 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         } catch(FileExceedsMaxSizeException e) {
             e.printStackTrace();
             String errMsg = String.format(ctx.getResources().getString(R.string.file_over_max_size),
-                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+                    MediaFilesUtils.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, ctx);
 
         } catch (Exception e) {
             e.printStackTrace();
             showInvalidFileOrPathToast(selectMediaActivity);
+        }
+    }
+
+    protected boolean canMediaBePrepared(Context ctx, MediaFile managedFile) {
+
+        boolean result = true;
+        try {
+            MediaFile.FileType fType = managedFile.getFileType();
+            String filepath = managedFile.getFileFullPath();
+            final File root = new File(filepath);
+            Uri uri = Uri.fromFile(root);
+
+            switch (fType) {
+                case AUDIO:
+                    checkIfWeCanPrepareSound(ctx, uri);
+                    break;
+
+                case VIDEO:
+                    checkIfWeCanPrepareVideo(ctx, uri);
+                    break;
+
+                case IMAGE:
+                    break;
+            }
+        } catch (Exception e) {
+            result = false;
+        }
+        return result;
+
+    }
+
+    protected void checkIfWeCanPrepareSound(Context ctx ,Uri audioUri) throws IOException {
+
+        Crashlytics.log(Log.INFO,TAG, "Checking if Sound Can Be Prepared and work");
+        mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setDataSource(ctx, audioUri);
+        mMediaPlayer.prepare();
+        mMediaPlayer.setLooping(true);
+    }
+
+    protected void checkIfWeCanPrepareVideo(Context ctx, Uri videoUri) throws Exception {
+
+        Crashlytics.log(Log.INFO,TAG, "Checking if Video Can Be Prepared and work");
+        mMediaPlayer = new MediaPlayer();
+        mMediaPlayer.setDataSource(ctx, videoUri);
+        mMediaPlayer.prepare();
+        mMediaPlayer.setLooping(true);
+        int width = mMediaPlayer.getVideoWidth();
+        int height = mMediaPlayer.getVideoHeight();
+        if (width <= 0 || height <= 0) {
+            throw new Exception();
         }
     }
 
@@ -95,7 +149,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
                 File file = new File(resultPath);
 
                 try {
-                    String extension = FileManager.extractExtension(resultPath);
+                    String extension = MediaFilesUtils.extractExtension(resultPath);
                     Crashlytics.log(Log.INFO, TAG, "isCamera True, Extension saved in camera: " + extension);
                 } catch (FileMissingExtensionException e) {
 
@@ -110,9 +164,9 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
     private void startPreviewActivity(String filepath) {
 
-        FileManager managedFile;
+        MediaFile managedFile;
         try {
-            managedFile = new FileManager(filepath);
+            managedFile = new MediaFile(filepath);
 
             Intent previewIntentActivity = new Intent(selectMediaActivity, PreviewMediaActivity.class);
             previewIntentActivity.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
@@ -121,7 +175,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         } catch(FileExceedsMaxSizeException e) {
             e.printStackTrace();
             String errMsg = String.format(selectMediaActivity.getResources().getString(R.string.file_over_max_size),
-                    FileManager.getFileSizeFormat(FileManager.MAX_FILE_SIZE));
+                    MediaFilesUtils.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, selectMediaActivity);
             selectMediaActivity.finish();

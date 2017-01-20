@@ -8,8 +8,8 @@ import com.handlers.Handler;
 import com.ui.activities.PreviewMediaActivity;
 import com.ui.activities.SelectMediaActivity;
 
-import DataObjects.SpecialMediaType;
-import FilesManager.FileManager;
+import com.data.objects.SpecialMediaType;
+import com.files.media.MediaFile;
 
 /**
  * Created by Mor on 16/07/2016.
@@ -22,7 +22,7 @@ public class ActivityRequestPreviewMediaResultHandler implements Handler {
         SelectMediaActivity selectMediaActivity = (SelectMediaActivity) params[1];
         SpecialMediaType specialMediaType = (SpecialMediaType) params[2];
 
-        FileManager resultFile = (FileManager) data.getSerializableExtra(PreviewMediaActivity.RESULT_FILE);
+        MediaFile resultFile = (MediaFile) data.getSerializableExtra(PreviewMediaActivity.RESULT_FILE);
         Intent resultIntent = new Intent();
 
         resultIntent.putExtra(SelectMediaActivity.RESULT_SPECIAL_MEDIA_TYPE, specialMediaType);

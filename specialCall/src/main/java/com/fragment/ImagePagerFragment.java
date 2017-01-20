@@ -17,6 +17,7 @@ package com.fragment;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
@@ -29,9 +30,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.async_tasks.PopulateUrlsAsyncTask;
-import com.async_tasks.PopulateUrlsAsyncTask.PostPopulateListener;
-import com.data_objects.Constants;
+import com.async.tasks.PopulateUrlsAsyncTask;
+import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -39,6 +39,7 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.utils.UI_Utils;
 import com.validate.media.ValidateImageFormatBehavior;
 
 import java.util.List;

@@ -16,8 +16,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.data_objects.Constants;
-import com.data_objects.PermissionBlockListLevel;
+import com.data.objects.Constants;
+import com.data.objects.PermissionBlockListLevel;
 import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.ContactsUtils;
@@ -32,9 +32,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
-import DataObjects.SpecialMediaType;
-import FilesManager.FileManager;
-import utils.PhoneNumberUtils;
+import com.data.objects.SpecialMediaType;
+import com.files.media.MediaFile;
+import com.utils.PhoneNumberUtils;
 import wei.mark.standout.StandOutWindow;
 
 import static com.crashlytics.android.Crashlytics.log;
@@ -106,10 +106,10 @@ public class IncomingService extends AbstractStandOutService {
     }
 
     @Override
-    protected void prepareViewForSpecialCall(FileManager.FileType fileType, String mediaFilePath) {
+    protected void prepareViewForSpecialCall(MediaFile.FileType fileType, String mediaFilePath) {
         super.prepareViewForSpecialCall(fileType, mediaFilePath);
 
-        if (fileType == FileManager.FileType.VIDEO) {
+        if (fileType == MediaFile.FileType.VIDEO) {
 
             try {
                 disableRingStream();

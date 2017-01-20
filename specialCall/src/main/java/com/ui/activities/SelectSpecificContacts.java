@@ -24,7 +24,7 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.data_objects.Contact;
+import com.data.objects.Contact;
 import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
@@ -36,7 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import utils.PhoneNumberUtils;
+import com.utils.PhoneNumberUtils;
 
 import static com.crashlytics.android.Crashlytics.log;
 

@@ -23,8 +23,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.data_objects.ActivityRequestCodes;
-import com.data_objects.Constants;
+import com.data.objects.ActivityRequestCodes;
+import com.data.objects.Constants;
 import com.fragment.ImageGIFGridFragment;
 import com.fragment.ImageGridFragment;
 import com.fragment.ImageMusicListFragment;
@@ -33,7 +33,7 @@ import com.mediacallz.app.R;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.utils.InitUtils;
 
-import FilesManager.FileManager;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -109,7 +109,7 @@ public class HomeActivity extends Activity {
 
                 String resultFilePath = data.getStringExtra(GalleryLauncherFragmentActivity.RESULT_FILE_PATH);
 
-                FileManager resultFile = createManagedFile(resultFilePath);
+                MediaFile resultFile = createManagedFile(resultFilePath);
                 if(resultFile == null)
                     finish();
 
@@ -125,10 +125,10 @@ public class HomeActivity extends Activity {
         }
     }
 
-    private FileManager createManagedFile(String resultFilePath) {
-        FileManager managedFile = null;
+    private MediaFile createManagedFile(String resultFilePath) {
+        MediaFile managedFile = null;
         try {
-            managedFile = new FileManager(resultFilePath);
+            managedFile = new MediaFile(resultFilePath);
         } catch(Exception e) {
             e.printStackTrace();
             log(Log.ERROR, TAG, "Failed to create result managed file");

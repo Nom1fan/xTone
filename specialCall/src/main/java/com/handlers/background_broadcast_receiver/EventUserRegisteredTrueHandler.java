@@ -11,7 +11,7 @@ import com.utils.CacheUtils;
 import com.utils.ContactsUtils;
 import com.utils.UI_Utils;
 
-import EventObjects.EventReport;
+import com.event.EventReport;
 
 /**
  * Created by Mor on 16/07/2016.
@@ -27,12 +27,11 @@ public class EventUserRegisteredTrueHandler implements Handler {
         AppStateManager.setAppState(ctx, TAG, AppStateManager.STATE_READY);
 
         String destNumber = (String) eventReport.data();
-        if(destNumber!=null) {
-            String msg = String.format(ctx.getResources().getString(R.string.user_is_registered),
-                    ContactsUtils.getContactNameHtml(ctx, destNumber));
-            CacheUtils.setPhone(ctx, destNumber);
+        String msg = String.format(ctx.getResources().getString(R.string.user_is_registered),
+                ContactsUtils.getContactNameHtml(ctx, destNumber));
+        CacheUtils.setPhone(ctx, destNumber);
 
-            UI_Utils.showSnackBar(msg, Color.GREEN, Snackbar.LENGTH_LONG, false, ctx);
-        }
+        UI_Utils.showSnackBar(msg, Color.GREEN, Snackbar.LENGTH_LONG, false, ctx);
+
     }
 }

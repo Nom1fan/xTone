@@ -32,7 +32,7 @@ import org.florescu.android.rangeseekbar.RangeSeekBar;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import FilesManager.FileManager;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -46,14 +46,14 @@ public class PreviewMediaActivity extends AppCompatActivity {
     private final static int POOLING_INTERVAL_MS = 100;
 
     private static final String TAG = PreviewMediaActivity.class.getSimpleName();
-    private FileManager _managedFile;
+    private MediaFile _managedFile;
     private float _oldPosition =0;
     private int _moveLength = 0;
     private boolean isPreviewDisplaying = false;
     private ImageButton previewThumbnail;
     private ImageButton _previewVideoTrimFile;
     private ImageButton _imageButton;
-    private FileManager.FileType fType;
+    private MediaFile.FileType fType;
     private final int MIN_MILISECS_FOR_AUDIO_EDIT = 3000;
     protected int startInMili;
     protected int endInMili;
@@ -67,7 +67,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         log(Log.INFO,TAG, "onCreate()");
         Intent intent = getIntent();
-        _managedFile = (FileManager) intent.getSerializableExtra(MANAGED_MEDIA_FILE);
+        _managedFile = (MediaFile) intent.getSerializableExtra(MANAGED_MEDIA_FILE);
         initializePreviewMediaUI();
 
     }
@@ -80,7 +80,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
 
         TextView fileType = (TextView) findViewById(R.id.upload_file_type);
         TextView fileName = (TextView) findViewById(R.id.upload_file_name);
-        fileName.setText(FileManager.getFileNameWithExtension(_managedFile.getFileFullPath()));
+        fileName.setText(MediaFilesUtils.getFileNameWithExtension(_managedFile.getFileFullPath()));
         fType = _managedFile.getFileType();
 
         prepareUploadBtn();
@@ -403,12 +403,12 @@ public class PreviewMediaActivity extends AppCompatActivity {
     //endregion
 
     //region Assisting methods (ReturnFile(), startPreviewStandoutWindow(), ...)
-    private void returnFile(FileManager managedFile) {
+    private void returnFile(MediaFile managedFile) {
 
         Intent resultIntent = new Intent();
         log(Log.INFO,TAG,"returnFile");
 
-        log(Log.INFO,TAG, "[File selected]: " + managedFile.getFileFullPath() + ". [File Size]: " + FileManager.getFileSizeFormat(managedFile.getFileSize()));
+        log(Log.INFO,TAG, "[File selected]: " + managedFile.getFileFullPath() + ". [File Size]: " + MediaFilesUtils.getFileSizeFormat(managedFile.getFileSize()));
 
         resultIntent.putExtra(RESULT_FILE, managedFile);
 
@@ -423,7 +423,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
         finish();
     }
 
-    private void startPreviewStandoutWindow(String filepath , FileManager.FileType fType) {
+    private void startPreviewStandoutWindow(String filepath , MediaFile.FileType fType) {
 
         AudioManager am = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, am.getStreamVolume(AudioManager.STREAM_MUSIC));

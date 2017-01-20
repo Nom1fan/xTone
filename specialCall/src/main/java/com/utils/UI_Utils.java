@@ -21,7 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.daimajia.androidanimations.library.Techniques;
-import com.data_objects.SnackbarData;
+import com.data.objects.SnackbarData;
 import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
@@ -32,8 +32,8 @@ import com.services.PreviewService;
 import java.lang.reflect.Field;
 import java.util.Random;
 
-import EventObjects.EventReport;
-import EventObjects.EventType;
+import com.event.EventReport;
+import com.event.EventType;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -276,11 +276,13 @@ public abstract class UI_Utils {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                if (whoRequest == "ClearMediaDialog")
+                if (whoRequest.equals("ClearMediaDialog")) {
                     SharedPrefUtils.setBoolean(applicationContext, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG, isChecked);
+                }
 
-                if (whoRequest == "MainActivity")
+                if (whoRequest.equals("MainActivity")) {
                     SharedPrefUtils.setBoolean(applicationContext, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_UPLOAD_DIALOG, isChecked);
+                }
             }
         });
         checkBox.setText(applicationContext.getResources().getString(R.string.dont_show_again));
@@ -302,8 +304,6 @@ public abstract class UI_Utils {
         _waitingForTransferSuccessDialog = builder.create();
         _waitingForTransferSuccessDialog.show();
 
-
-
         new CountDownTimer(20000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -316,14 +316,10 @@ public abstract class UI_Utils {
             }
         }.start();
 
-
-
         log(Log.INFO,TAG , "waitingForTransferSuccessDialog.show();");
-
     }
 
     public static void dismissTransferSuccessDialog() {
-
         if (_waitingForTransferSuccessDialog!=null) {
             _waitingForTransferSuccessDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
             log(Log.INFO,TAG, "waitingForTransferSuccessDialog.performClick();");

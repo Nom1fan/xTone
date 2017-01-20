@@ -17,9 +17,9 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.data_objects.ActivityRequestCodes;
-import com.data_objects.Contact;
-import com.data_objects.PermissionBlockListLevel;
+import com.data.objects.ActivityRequestCodes;
+import com.data.objects.Contact;
+import com.data.objects.PermissionBlockListLevel;
 import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;

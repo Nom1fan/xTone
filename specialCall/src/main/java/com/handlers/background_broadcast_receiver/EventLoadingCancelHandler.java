@@ -9,7 +9,7 @@ import com.handlers.Handler;
 import com.mediacallz.app.R;
 import com.utils.UI_Utils;
 
-import EventObjects.EventType;
+import com.event.EventType;
 
 /**
  * Created by Mor on 16/07/2016.

@@ -17,9 +17,9 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.MediaController;
 
-import com.async_tasks.PopulateUrlsAsyncTask;
-import com.async_tasks.PopulateUrlsAsyncTask.PostPopulateListener;
-import com.data_objects.Constants;
+import com.async.tasks.PopulateUrlsAsyncTask;
+import com.async.tasks.PopulateUrlsAsyncTask.PostPopulateListener;
+import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.validate.media.ValidateVideoFormatBehavior;
 

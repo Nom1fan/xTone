@@ -24,21 +24,20 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import com.async_tasks.DownloadFileAsyncTask.PostDownloadCallBackListener;
-import com.data_objects.ActivityRequestCodes;
+import com.async.tasks.DownloadFileAsyncTask.PostDownloadCallBackListener;
+import com.data.objects.ActivityRequestCodes;
 import com.flows.DownloadFileFlow;
 import com.mediacallz.app.R;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.ui.activities.PreviewMediaActivity;
-import com.utils.MediaFilesUtils;
-import com.utils.NetworkingUtils;
-import com.utils.UI_Utils;
 
 import java.io.File;
 
-import FilesManager.FileManager;
+import com.files.media.MediaFile;
+import com.utils.MediaFilesUtils;
+import com.utils.NetworkingUtils;
+import com.utils.UI_Utils;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -116,8 +115,7 @@ public abstract class BaseFragment extends Fragment implements PostDownloadCallB
     @Override
     public void doCallBack(File file) {
         try {
-            FileManager managedFile = new FileManager(file);
-
+            MediaFile managedFile = new MediaFile(file);
             if (MediaFilesUtils.canMediaBePrepared(getActivity(), managedFile)) {
                 Intent i = new Intent(getActivity(), PreviewMediaActivity.class);
                 i.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);

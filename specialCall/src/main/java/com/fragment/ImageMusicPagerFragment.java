@@ -20,8 +20,8 @@ import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.async_tasks.PopulateMultipleUrlsListsAsyncTask;
-import com.data_objects.Constants;
+import com.async.tasks.PopulateMultipleUrlsListsAsyncTask;
+import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;

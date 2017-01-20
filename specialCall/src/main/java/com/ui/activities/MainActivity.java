@@ -46,27 +46,34 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.app.AppStateManager;
-import com.async_tasks.AutoCompletePopulateListAsyncTask;
-import com.async_tasks.IsRegisteredTask;
-import com.async_tasks.SendBugEmailAsyncTask;
+import com.async.tasks.AutoCompletePopulateListAsyncTask;
+import com.async.tasks.IsRegisteredTask;
+import com.async.tasks.SendBugEmailAsyncTask;
 import com.batch.android.Batch;
 import com.crashlytics.android.Crashlytics;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
-import com.data_objects.ActivityRequestCodes;
-import com.data_objects.Constants;
-import com.data_objects.Contact;
-import com.data_objects.KeysForBundle;
-import com.data_objects.SnackbarData;
+import com.data.objects.ActivityRequestCodes;
+import com.data.objects.Constants;
+import com.data.objects.Contact;
+import com.data.objects.KeysForBundle;
+import com.data.objects.SnackbarData;
+import com.data.objects.SpecialMediaType;
+import com.event.Event;
+import com.event.EventReport;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
 import com.flows.UploadFileFlow;
 import com.interfaces.ICallbackListener;
 import com.mediacallz.app.R;
 import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.services.AbstractStandOutService;
 import com.services.IncomingService;
-import com.services.LogicServerProxyService;
 import com.services.OutgoingService;
 import com.services.PreviewService;
+import com.services.ServerProxyService;
 import com.ui.dialogs.ClearMediaDialog;
 import com.ui.dialogs.InviteDialog;
 import com.ui.dialogs.MandatoryUpdateDialog;
@@ -74,23 +81,15 @@ import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
+import com.utils.MediaFilesUtils;
+import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-
-import DataObjects.DataKeys;
-import DataObjects.SpecialMediaType;
-import EventObjects.Event;
-import EventObjects.EventReport;
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
-import FilesManager.FileManager;
-import utils.PhoneNumberUtils;
+import java.util.Random;
 
 import static com.crashlytics.android.Crashlytics.log;
 import static com.crashlytics.android.Crashlytics.setUserIdentifier;
@@ -310,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         writeInfoSnackBar(snackbarData);
                     } else {
                         SpecialMediaType specialMediaType = (SpecialMediaType) data.getSerializableExtra(SelectMediaActivity.RESULT_SPECIAL_MEDIA_TYPE);
-                        FileManager fm = (FileManager) data.getSerializableExtra(SelectMediaActivity.RESULT_FILE);
+                        MediaFile fm = (MediaFile) data.getSerializableExtra(SelectMediaActivity.RESULT_FILE);
 
                         Bundle bundle = new Bundle();
                         bundle.putSerializable(KeysForBundle.FILE_FOR_UPLOAD, fm);
@@ -511,7 +510,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, true);
             AutoCompleteTextView textViewToClear = (AutoCompleteTextView) findViewById(R.id.CallNumber);
-            textViewToClear.setText("");
+            if (textViewToClear != null) {
+                textViewToClear.setText("");
+            }
 
         }else if (id == R.id.tutorial_btn) {
                 openMCTutorialMenu();
@@ -525,9 +526,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         switch (report.status()) {
 
             case APP_RECORD_RECEIVED: {
-                HashMap<DataKeys, Object> data = (HashMap) report.data();
+                double lastSupportedVersion = (double) report.data();
 
-                if (Constants.APP_VERSION() < (double) data.get(DataKeys.MIN_SUPPORTED_VERSION))
+                if (Constants.APP_VERSION() < lastSupportedVersion)
                     showMandatoryUpdateDialog();
             }
             break;
@@ -535,6 +536,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             case USER_REGISTERED_FALSE:
                 InviteDialog inviteDialog = new InviteDialog();
                 inviteDialog.show(getFragmentManager(), TAG);
+                break;
+
+            case CLEAR_SENT:
+                if (!SharedPrefUtils.getBoolean(MainActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {
+                    UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this, "ClearMediaDialog", getResources().getString(R.string.sending_clear_contact)
+                            , getResources().getString(R.string.waiting_for_clear_transfer_success_dialog_msg));
+                }
                 break;
 
             case REFRESH_UI:
@@ -552,23 +560,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //TODO change this to campaign API push for all users in case of last supported version change
     private void getAppRecord() {
 
-        Intent i = new Intent(this, LogicServerProxyService.class);
-        i.setAction(LogicServerProxyService.ACTION_GET_APP_RECORD);
+        Intent i = new Intent(this, ServerProxyService.class);
+        i.setAction(ServerProxyService.ACTION_GET_APP_RECORD);
         startService(i);
     }
 
     private void syncAndroidVersionWithServer() {
-
         if (!Constants.MY_ANDROID_VERSION(this).equals(Build.VERSION.RELEASE)) {
-
-            Intent i = new Intent(this, LogicServerProxyService.class);
-            i.setAction(LogicServerProxyService.ACTION_UPDATE_USER_RECORD);
-
-            HashMap<DataKeys, Object> data = new HashMap<>();
-            //data.put(DataKeys.ANDROID_VERSION, Build.VERSION.RELEASE);
-            data.put(DataKeys.ANDROID_VERSION, Build.VERSION.RELEASE);
-
-            i.putExtra(LogicServerProxyService.USER_RECORD, data);
+            Intent i = new Intent(this, ServerProxyService.class);
+            i.setAction(ServerProxyService.ACTION_UPDATE_USER_RECORD);
             startService(i);
         }
     }
@@ -710,8 +710,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before,
                                           int count) {
-
-
                     if (0 == s.length())
                         clearText.setImageResource(0);
                     else
@@ -1473,13 +1471,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.CALLER_MEDIA);
         try {
-            FileManager.FileType fType;
+            MediaFile.FileType fType;
 
             if (enabled){
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
-                    fType = FileManager.getFileType(lastUploadedMediaPath);
+                    fType = MediaFilesUtils.getFileType(lastUploadedMediaPath);
 
                     BitmapUtils.execBitMapWorkerTask(selectMediaBtn, fType, lastUploadedMediaPath, true);
 
@@ -1521,7 +1519,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
-                    FileManager.FileType fType = FileManager.getFileType(lastUploadedMediaPath);
+                    MediaFile.FileType fType = MediaFilesUtils.getFileType(lastUploadedMediaPath);
 
                     BitmapUtils.execBitMapWorkerTask(defaultpic_enabled, fType, lastUploadedMediaPath, true);
                     profileHasMedia = true;
@@ -1549,7 +1547,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                ringToneNameTextView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameTextView.setText(MediaFilesUtils.getFileNameWithExtension(ringToneFilePath));
                 ringToneNameTextView.setVisibility(View.VISIBLE);
                 callerHasRingtone = true;
                 enableRingToneStatusArrived();
@@ -1572,7 +1570,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                ringToneNameForProfileTextView.setText(FileManager.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameForProfileTextView.setText(MediaFilesUtils.getFileNameWithExtension(ringToneFilePath));
                 ringToneNameForProfileTextView.setVisibility(View.VISIBLE);
                 profileHasRingtone = true;
                 UI_Utils.showCaseViewAfterUploadAndCall(this, MainActivity.this);

@@ -4,17 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.services.LogicServerProxyService;
-
 import java.io.File;
 
-import DataObjects.CallRecord;
-import DataObjects.SpecialMediaType;
-import Exceptions.FileDoesNotExistException;
-import Exceptions.FileExceedsMaxSizeException;
-import Exceptions.FileInvalidFormatException;
-import Exceptions.FileMissingExtensionException;
-import FilesManager.FileManager;
+import com.data.objects.CallRecord;
+import com.data.objects.SpecialMediaType;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileExceedsMaxSizeException;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
+import com.services.ServerProxyService;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -48,17 +47,17 @@ public abstract class MCHistoryUtils {
                 CallRecord callRecord = new CallRecord(
                         src,
                         dest,
-                        visualExists ? new FileManager(visualMediaPath) : null,
+                        visualExists ? new MediaFile(visualMediaPath) : null,
                         SharedPrefUtils.getString(context, SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5),
-                        audioExists ? new FileManager(audioMediaPath) : null,
+                        audioExists ? new MediaFile(audioMediaPath) : null,
                         SharedPrefUtils.getString(context, SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_AUDIOMD5),
                         specialMediaType);
 
                 log(Log.INFO,TAG, "Reporting MC:" + callRecord);
 
-                Intent i = new Intent(context, LogicServerProxyService.class);
-                i.setAction(LogicServerProxyService.ACTION_INSERT_CALL_RECORD);
-                i.putExtra(LogicServerProxyService.CALL_RECORD, callRecord);
+                Intent i = new Intent(context, ServerProxyService.class);
+                i.setAction(ServerProxyService.ACTION_INSERT_CALL_RECORD);
+                i.putExtra(ServerProxyService.CALL_RECORD, callRecord);
                 context.startService(i);
             }
 

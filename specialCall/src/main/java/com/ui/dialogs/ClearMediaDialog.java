@@ -11,12 +11,13 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
 import android.widget.TextView;
 
+import com.app.AppStateManager;
 import com.mediacallz.app.R;
-import com.services.StorageServerProxyService;
+import com.services.ServerProxyService;
+
+import com.data.objects.SpecialMediaType;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
-
-import DataObjects.SpecialMediaType;
 
 
 public class ClearMediaDialog extends android.app.DialogFragment {
@@ -24,7 +25,7 @@ public class ClearMediaDialog extends android.app.DialogFragment {
     private static final String TAG  = ClearMediaDialog.class.getSimpleName();
     private String _destPhoneNumber  = "";
     private SpecialMediaType spMediaType;
-    private Context mcontext;
+    private Context mcontext; //TODO 20/1 Merge - check if this does not create memory leaks
 
     public ClearMediaDialog(SpecialMediaType MediaType , String destphoneNumber ,Context context ){
 
@@ -49,10 +50,10 @@ public class ClearMediaDialog extends android.app.DialogFragment {
                 .setPositiveButton(R.string.clear_btn, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
-                        Intent i = new Intent(getActivity().getApplicationContext(), StorageServerProxyService.class);
-                        i.setAction(StorageServerProxyService.ACTION_CLEAR_MEDIA);
-                        i.putExtra(StorageServerProxyService.DESTINATION_ID, _destPhoneNumber);
-                        i.putExtra(StorageServerProxyService.SPECIAL_MEDIA_TYPE, spMediaType);
+                        Intent i = new Intent(getActivity().getApplicationContext(), ServerProxyService.class);
+                        i.setAction(ServerProxyService.ACTION_CLEAR_MEDIA);
+                        i.putExtra(ServerProxyService.DESTINATION_ID, _destPhoneNumber);
+                        i.putExtra(ServerProxyService.SPECIAL_MEDIA_TYPE, spMediaType);
                         getActivity().getApplicationContext().startService(i);
 
                         if (!SharedPrefUtils.getBoolean(mcontext, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {

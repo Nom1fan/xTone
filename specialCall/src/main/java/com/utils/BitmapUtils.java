@@ -14,10 +14,10 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
 
-import com.async_tasks.BitMapWorkerTask;
+import com.async.tasks.BitMapWorkerTask;
 import com.crashlytics.android.Crashlytics;
 
-import FilesManager.FileManager;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -62,7 +62,7 @@ public abstract class BitmapUtils {
         task.execute();
     }
 
-    public static void execBitMapWorkerTask(ImageView imageView, FileManager.FileType fType, String filePath, boolean makeRound) {
+    public static void execBitMapWorkerTask(ImageView imageView, MediaFile.FileType fType, String filePath, boolean makeRound) {
 
         BitMapWorkerTask task = new BitMapWorkerTask(imageView);
         task.set_width(imageView.getWidth());

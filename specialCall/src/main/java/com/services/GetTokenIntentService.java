@@ -6,11 +6,11 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.batch.android.Batch;
-import com.data_objects.Constants;
+import com.data.objects.Constants;
 import com.utils.BroadcastUtils;
 
-import EventObjects.EventReport;
-import EventObjects.EventType;
+import com.event.EventReport;
+import com.event.EventType;
 
 import static com.crashlytics.android.Crashlytics.log;
 

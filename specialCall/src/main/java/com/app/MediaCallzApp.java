@@ -12,13 +12,12 @@ import android.util.Log;
 import com.batch.android.Batch;
 import com.batch.android.Config;
 import com.crashlytics.android.Crashlytics;
-import com.data_objects.Constants;
+import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.utils.BitmapUtils;
 import com.utils.InitUtils;
 import com.utils.UI_Utils;
 
-import DataObjects.SharedConstants;
 import io.fabric.sdk.android.Fabric;
 
 import static com.crashlytics.android.Crashlytics.log;
@@ -45,7 +44,7 @@ public class MediaCallzApp extends Application {
         // Initializing Batch for push notifications
         Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
         Batch.Push.setManualDisplay(true);
-        Batch.setConfig(new Config(SharedConstants.LIVE_API_KEY));
+        Batch.setConfig(new Config(Constants.LIVE_API_KEY));
 
         Drawable d = getResources().getDrawable(R.drawable.color_mc);
         int h = d.getIntrinsicHeight();
@@ -60,6 +59,7 @@ public class MediaCallzApp extends Application {
             if (AppStateManager.getAppState(context).equals("")) {
 
                 AppStateManager.setIsLoggedIn(this, false);
+                AppStateManager.setAppState(context, TAG, AppStateManager.STATE_IDLE);
 
                 //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
                 UI_Utils.makeActionOverflowMenuShown(context);

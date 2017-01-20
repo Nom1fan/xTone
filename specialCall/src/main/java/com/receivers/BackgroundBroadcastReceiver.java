@@ -8,8 +8,8 @@ import android.util.Log;
 import com.handlers.Handler;
 import com.handlers.HandlerFactory;
 
-import EventObjects.Event;
-import EventObjects.EventReport;
+import com.event.Event;
+import com.event.EventReport;
 
 import static com.crashlytics.android.Crashlytics.log;
 

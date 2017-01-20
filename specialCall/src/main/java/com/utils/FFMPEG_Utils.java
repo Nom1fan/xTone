@@ -8,7 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.data_objects.Constants;
+import com.data.objects.Constants;
 import com.netcompss.loader.LoadJNI;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
@@ -16,7 +16,7 @@ import org.apache.commons.lang.time.DurationFormatUtils;
 import java.io.File;
 import java.util.HashMap;
 
-import FilesManager.FileManager;
+import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -59,7 +59,7 @@ public class FFMPEG_Utils {
      * @param context Application context
      * @return The compressed file, if possible. Otherwise, null.
      */
-    public FileManager compressVideoFile(FileManager baseFile, String compressedFilePath, double width, double height, Context context) {
+    public MediaFile compressVideoFile(MediaFile baseFile, String compressedFilePath, double width, double height, Context context) {
 
         try {
             String vCodec = extension2vCodec.get(baseFile.getFileExtension());
@@ -93,7 +93,7 @@ public class FFMPEG_Utils {
                 _vk.run(complexCommand, workFolder, context);
             }
 
-            return new FileManager(compressedFile);
+            return new MediaFile(compressedFile);
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -113,7 +113,7 @@ public class FFMPEG_Utils {
      * @param context Application context
      * @return The compressed file, if possible. Otherwise, null.
      */
-    public FileManager compressImageFile(FileManager baseFile, String compressedFilePath, double width, Context context) {
+    public MediaFile compressImageFile(MediaFile baseFile, String compressedFilePath, double width, Context context) {
 
         try {
             File compressedFile = new File(compressedFilePath);
@@ -126,7 +126,7 @@ public class FFMPEG_Utils {
                     {"ffmpeg", "-i", baseFile.getCompFileFullPath(), "-vf", "scale=" + (int) width + ":-1", compressedFilePath};
 
             _vk.run(complexCommand, workFolder, context);
-            return new FileManager(compressedFile);
+            return new MediaFile(compressedFile);
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -137,14 +137,14 @@ public class FFMPEG_Utils {
         return null;
     }
 
-    public FileManager compressGifImageFile(FileManager baseFile, String compressedFilePath, Integer hz, Context context) {
+    public MediaFile compressGifImageFile(MediaFile baseFile, String compressedFilePath, Integer hz, Context context) {
 
         try {
             File compressedFile = new File(compressedFilePath);
 
             String[] complexCommand = new String[]{"ffmpeg", "-f", "gif", "-i", baseFile.getFile().getAbsolutePath(), "-strict", "experimental", "-r", hz.toString(), compressedFilePath};
             _vk.run(complexCommand, workFolder, context);
-            return new FileManager(compressedFile);
+            return new MediaFile(compressedFile);
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -165,7 +165,7 @@ public class FFMPEG_Utils {
      * @param context
      * @return The trimmed video file, if possible. Otherwise, null.
      */
-    public FileManager trimVideo(FileManager baseFile, String trimmedFilepath, Long startTime, Long endTime, Context context) {
+    public MediaFile trimVideo(MediaFile baseFile, String trimmedFilepath, Long startTime, Long endTime, Context context) {
 
         File trimmedFile = new File(trimmedFilepath);
 
@@ -190,7 +190,7 @@ public class FFMPEG_Utils {
 //                            "copy", trimmedFilepath};
 
             _vk.run(complexCommand, workFolder, context);
-            return new FileManager(trimmedFile);
+            return new MediaFile(trimmedFile);
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -211,7 +211,7 @@ public class FFMPEG_Utils {
      * @param context
      * @return The trimmed audio file, if possible. Otherwise, null.
      */
-    public FileManager trimAudio(FileManager baseFile, String trimmedFilepath, Long startTime, Long endTime, Context context) {
+    public MediaFile trimAudio(MediaFile baseFile, String trimmedFilepath, Long startTime, Long endTime, Context context) {
 
         File trimmedFile = new File(trimmedFilepath);
 
@@ -231,7 +231,7 @@ public class FFMPEG_Utils {
                             trimmedFilepath};
 
             _vk.run(complexCommand, workFolder, context);
-            return new FileManager(trimmedFile);
+            return new MediaFile(trimmedFile);
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -253,7 +253,7 @@ public class FFMPEG_Utils {
      * @return The image resolution
      * @see MediaMetadataRetriever
      */
-    public int[] getVideoResolution(FileManager managedFile) {
+    public int[] getVideoResolution(MediaFile managedFile) {
 
         MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
         metaRetriever.setDataSource(managedFile.getFile().getAbsolutePath());
@@ -270,7 +270,7 @@ public class FFMPEG_Utils {
      * @return The image resolution
      * @see BitmapFactory
      */
-    public int[] getImageResolution(FileManager managedFile) {
+    public int[] getImageResolution(MediaFile managedFile) {
 
         Bitmap bitmap = BitmapUtils.decodeSampledBitmapFromImageFile(managedFile.getFileFullPath());
         int height = bitmap.getHeight();

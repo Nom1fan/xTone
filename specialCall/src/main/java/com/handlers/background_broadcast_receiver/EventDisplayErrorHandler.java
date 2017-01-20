@@ -7,7 +7,7 @@ import android.support.design.widget.Snackbar;
 import com.handlers.Handler;
 import com.utils.UI_Utils;
 
-import EventObjects.EventReport;
+import com.event.EventReport;
 
 /**
  * Created by Mor on 16/07/2016.
