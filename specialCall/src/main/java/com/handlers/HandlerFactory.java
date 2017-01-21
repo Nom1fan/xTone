@@ -31,7 +31,7 @@ import com.handlers.logic_server_proxy_service.ClearMediaActionHandler;
 import com.handlers.logic_server_proxy_service.DownloadFileActionHandler;
 import com.handlers.logic_server_proxy_service.GetAppRecordActionHandler;
 import com.handlers.logic_server_proxy_service.GetSmsActionHandler;
-import com.handlers.logic_server_proxy_service.InsertCallRecordActionHandler;
+import com.handlers.logic_server_proxy_service.InsertMediaCallRecordActionHandler;
 import com.handlers.logic_server_proxy_service.IsRegisteredActionHandler;
 import com.handlers.logic_server_proxy_service.NotifyMediaClearedActionHandler;
 import com.handlers.logic_server_proxy_service.RegisterActionHandler;
@@ -112,7 +112,7 @@ public class HandlerFactory {
         put(ServerProxyService.ACTION_GET_SMS_CODE, GetSmsActionHandler.class);
         put(ServerProxyService.ACTION_GET_APP_RECORD, GetAppRecordActionHandler.class);
         put(ServerProxyService.ACTION_ISREGISTERED, IsRegisteredActionHandler.class);
-        put(ServerProxyService.ACTION_INSERT_CALL_RECORD, InsertCallRecordActionHandler.class);
+        put(ServerProxyService.ACTION_INSERT_CALL_RECORD, InsertMediaCallRecordActionHandler.class);
         put(ServerProxyService.ACTION_UPDATE_USER_RECORD, UpdateUserRecordActionHandler.class);
         put(ServerProxyService.ACTION_UNREGISTER, UnregisterActionHandler.class);
         put(ServerProxyService.ACTION_DOWNLOAD, DownloadFileActionHandler.class);
