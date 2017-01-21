@@ -36,7 +36,7 @@ public abstract class PendingDownloadsUtils {
                 Log.d(TAG, "Enqueuing pending download:" + pendingDlData);
 
                 String sourceId = pendingDlData.getSourceId();
-                String extension = pendingDlData.getMediaFileDTO().getExtension();
+                String extension = pendingDlData.getMediaFile().getExtension();
                 String specialMediaType = pendingDlData.getSpecialMediaType().toString();
 
                 deletePendingDLrecordsIfNecessary(context, sourceId, extension, specialMediaType);
@@ -48,9 +48,9 @@ public abstract class PendingDownloadsUtils {
                 values.put(IDAL.COL_EXTENSION, extension);
                 values.put(IDAL.COL_SOURCE_WITH_EXT, pendingDlData.getSourceId() + "." + extension);
                 values.put(IDAL.COL_FILEPATH_ON_SRC_SD, pendingDlData.getFilePathOnSrcSd());
-                values.put(IDAL.COL_FILETYPE, pendingDlData.getMediaFileDTO().getFileType().toString());
-                values.put(IDAL.COL_FILESIZE, pendingDlData.getMediaFileDTO().getFileSize());
-                values.put(IDAL.COL_MD5, pendingDlData.getMediaFileDTO().getFileSize());
+                values.put(IDAL.COL_FILETYPE, pendingDlData.getMediaFile().getFileType().toString());
+                values.put(IDAL.COL_FILESIZE, pendingDlData.getMediaFile().getFileSize());
+                values.put(IDAL.COL_MD5, pendingDlData.getMediaFile().getFileSize());
                 values.put(IDAL.COL_COMMID, pendingDlData.getCommId());
                 values.put(IDAL.COL_FILEPATH_ON_SERVER, pendingDlData.getFilePathOnServer());
                 values.put(IDAL.COL_SOURCE_LOCALE, pendingDlData.getSourceLocale());
@@ -98,7 +98,7 @@ public abstract class PendingDownloadsUtils {
                         pendingDownloadData.setSourceLocale(cursor.getString(cursor.getColumnIndex(IDAL.COL_SOURCE_LOCALE)));
                         pendingDownloadData.setSpecialMediaType(SpecialMediaType.valueOf(cursor.getString(cursor.getColumnIndex(IDAL.COL_SPECIAL_MEDIA_TYPE))));
 
-                        pendingDownloadData.setMediaFileDTO(mediaFile);
+                        pendingDownloadData.setMediaFile(mediaFile);
 
                         log(Log.INFO,TAG, "Sending pending download:" + pendingDownloadData);
 

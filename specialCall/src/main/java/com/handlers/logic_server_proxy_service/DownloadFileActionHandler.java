@@ -59,8 +59,8 @@ public class DownloadFileActionHandler implements ActionHandler {
         request.setFilePathOnSrcSd(pendingDownloadData.getFilePathOnSrcSd());
         request.setSpecialMediaType(pendingDownloadData.getSpecialMediaType());
 
-        String fileName = pendingDownloadData.getSourceId() + "." + pendingDownloadData.getMediaFileDTO().getExtension();
-        long fileSize = pendingDownloadData.getMediaFileDTO().getFileSize();
+        String fileName = pendingDownloadData.getSourceId() + "." + pendingDownloadData.getMediaFile().getExtension();
+        long fileSize = pendingDownloadData.getMediaFile().getFileSize();
         String pathToDownload = resolvePathBySpecialMediaType(pendingDownloadData.getSpecialMediaType(), pendingDownloadData.getSourceId(), fileName);
         return connectionToServer.download(URL_DOWNLOAD, pathToDownload, fileSize, request);
     }

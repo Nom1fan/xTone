@@ -53,10 +53,10 @@ public class EventDownloadReceivedHandler implements Handler {
         if (isAuthorizedToLeaveMedia(ctx, downloadData.getSourceId()))
             copyToHistoryForGalleryShow(ctx, downloadData);
 
-        MediaFile.FileType fType = downloadData.getMediaFileDTO().getFileType();
-        String fFullName = downloadData.getSourceId() + "." + downloadData.getMediaFileDTO().getExtension();
+        MediaFile.FileType fType = downloadData.getMediaFile().getFileType();
+        String fFullName = downloadData.getSourceId() + "." + downloadData.getMediaFile().getExtension();
         String source = downloadData.getSourceId();
-        String md5 = downloadData.getMediaFileDTO().getMd5();
+        String md5 = downloadData.getMediaFile().getMd5();
 
         switch (fType) {
             case AUDIO:
@@ -200,7 +200,7 @@ public class EventDownloadReceivedHandler implements Handler {
 
         SpecialMediaType specialMediaType = downloadData.getSpecialMediaType();
         String srcId = downloadData.getSourceId();
-        String srcWithExtension = downloadData.getSourceId() + "." + downloadData.getMediaFileDTO().getExtension();
+        String srcWithExtension = downloadData.getSourceId() + "." + downloadData.getMediaFile().getExtension();
 
         // Preparing for appropriate special media type
         switch (specialMediaType) {
@@ -227,9 +227,9 @@ public class EventDownloadReceivedHandler implements Handler {
         try {
 
             File downloadedFile = new File(newFileFullPath);
-            String extension = downloadData.getMediaFileDTO().getExtension();
-            String md5 = downloadData.getMediaFileDTO().getMd5();
-            MediaFile.FileType fileType = downloadData.getMediaFileDTO().getFileType();
+            String extension = downloadData.getMediaFile().getExtension();
+            String md5 = downloadData.getMediaFile().getMd5();
+            MediaFile.FileType fileType = downloadData.getMediaFile().getFileType();
 
             if (MediaFilesUtils.doesFileExistInHistoryFolderByMD5(md5, Constants.HISTORY_FOLDER) || MediaFilesUtils.doesFileExistInHistoryFolderByMD5(md5, Constants.AUDIO_HISTORY_FOLDER))
                 return;

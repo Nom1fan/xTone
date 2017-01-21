@@ -15,7 +15,7 @@ public class PendingDownloadData extends AbstractPushData {
     private SpecialMediaType specialMediaType;
     private String filePathOnServer;
     private String filePathOnSrcSd;
-    private MediaFile mediaFileDTO;
+    private MediaFile mediaFile;
     private int commId;
 
     public String getSourceId() {
@@ -74,12 +74,12 @@ public class PendingDownloadData extends AbstractPushData {
         this.filePathOnSrcSd = filePathOnSrcSd;
     }
 
-    public MediaFile getMediaFileDTO() {
-        return mediaFileDTO;
+    public MediaFile getMediaFile() {
+        return mediaFile;
     }
 
-    public void setMediaFileDTO(MediaFile mediaFileDTO) {
-        this.mediaFileDTO = mediaFileDTO;
+    public void setMediaFile(MediaFile mediaFile) {
+        this.mediaFile = mediaFile;
     }
 
     public int getCommId() {
@@ -100,7 +100,7 @@ public class PendingDownloadData extends AbstractPushData {
                 ", specialMediaType=" + specialMediaType +
                 ", filePathOnServer='" + filePathOnServer + '\'' +
                 ", filePathOnSrcSd='" + filePathOnSrcSd + '\'' +
-                ", mediaFileDTO=" + mediaFileDTO +
+                ", mediaFile=" + mediaFile +
                 ", commId=" + commId +
                 '}';
     }
