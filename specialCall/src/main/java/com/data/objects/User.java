@@ -1,11 +1,11 @@
-package com.model.response;
+package com.data.objects;
 
 import com.data.objects.UserStatus;
 
 /**
  * Created by Mor on 21/12/2016.
  */
-public class UserDTO {
+public class User {
 
     private String uid;
     private UserStatus userStatus;

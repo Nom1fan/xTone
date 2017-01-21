@@ -7,7 +7,7 @@ import com.data.objects.ClearMediaData;
 import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
 import com.model.request.NotifyMediaClearedRequest;
-import com.model.response.AppMetaDTO;
+import com.data.objects.AppMeta;
 import com.model.response.Response;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class NotifyMediaClearedActionHandler implements ActionHandler {
 
     private static final String URL_NOTIFY_MEDIA_CLEARED = ROOT_URL + "/v1/NotifyMediaCleared";
     private static final String TAG = NotifyMediaClearedActionHandler.class.getSimpleName();
-    private static final Type responseType = new TypeToken<Response<AppMetaDTO>>() {
+    private static final Type responseType = new TypeToken<Response<AppMeta>>() {
     }.getType();
 
     @Override

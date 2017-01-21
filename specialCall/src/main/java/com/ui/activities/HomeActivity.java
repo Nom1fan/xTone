@@ -25,6 +25,7 @@ import android.view.View;
 
 import com.data.objects.ActivityRequestCodes;
 import com.data.objects.Constants;
+import com.fragment.AbsListViewBaseFragment;
 import com.fragment.ImageGIFGridFragment;
 import com.fragment.ImageGridFragment;
 import com.fragment.ImageMusicListFragment;
@@ -54,25 +55,25 @@ public class HomeActivity extends Activity {
 
     public void onImageGridClick(View view) {
         Intent intent = new Intent(this, GalleryLauncherFragmentActivity.class);
-        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImageGridFragment.INDEX);
+        intent.putExtra(AbsListViewBaseFragment.FRAGMENT_INDEX, ImageGridFragment.INDEX);
         startActivityForResult(intent, ActivityRequestCodes.PREVIEW_MEDIA);
     }
 
     public void onImageGIFGridClick(View view) {
         Intent intent = new Intent(this, GalleryLauncherFragmentActivity.class);
-        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImageGIFGridFragment.INDEX);
+        intent.putExtra(AbsListViewBaseFragment.FRAGMENT_INDEX, ImageGIFGridFragment.INDEX);
         startActivityForResult(intent, ActivityRequestCodes.PREVIEW_MEDIA);
     }
 
     public void onVideoGalleryClick(View view) {
         Intent intent = new Intent(this, GalleryLauncherFragmentActivity.class);
-        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, VideoGalleryFragment.INDEX);
+        intent.putExtra(AbsListViewBaseFragment.FRAGMENT_INDEX, VideoGalleryFragment.INDEX);
         startActivityForResult(intent, ActivityRequestCodes.PREVIEW_MEDIA);
     }
 
     public void onMusicListClick(View view) {
         Intent intent = new Intent(this, GalleryLauncherFragmentActivity.class);
-        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImageMusicListFragment.INDEX);
+        intent.putExtra(AbsListViewBaseFragment.FRAGMENT_INDEX, ImageMusicListFragment.INDEX);
         startActivityForResult(intent, ActivityRequestCodes.PREVIEW_MEDIA);
     }
 

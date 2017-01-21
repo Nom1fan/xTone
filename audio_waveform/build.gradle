@@ -32,7 +32,7 @@ dependencies {
 }
 
 retrolambda {
-    jdk System.getenv("JAVA_HOME")
-    oldJdk System.getenv("JAVA_HOME")
-    javaVersion JavaVersion.VERSION_1_7
+//    jdk System.getenv("JAVA_HOME")
+//    oldJdk System.getenv("JAVA_HOME")
+//    javaVersion JavaVersion.VERSION_1_7
 }

@@ -24,9 +24,6 @@ import static com.crashlytics.android.Crashlytics.log;
 public class ServerProxyService extends Service implements Runnable {
 
     private static final String TAG = ServerProxyService.class.getSimpleName();
-    protected static final String HOST = Constants.SERVER_HOST;
-    protected static final int PORT = Constants.SERVER_PORT;
-    protected static final String ROOT_URL = "http://" + HOST + ":" + PORT;
 
     //region Service actions
     public static final String ACTION_REGISTER = "com.services.ServerProxyService.REGISTER";
@@ -43,7 +40,7 @@ public class ServerProxyService extends Service implements Runnable {
 
     //region Service intent keys
     public static final String DESTINATION_ID = "DESTINATION_ID";
-    public static final String CALL_RECORD = "CALL_RECORD";
+    public static final String MEDIA_CALL = "MEDIA_CALL";
     public static final String SMS_CODE = "SMS_CODE";
     public static final String INTERNATIONAL_PHONE = "INTERNATIONAL_PHONE";
     public static final String SPECIAL_MEDIA_TYPE = "SPECIAL_MEDIA_TYPE";
@@ -58,7 +55,7 @@ public class ServerProxyService extends Service implements Runnable {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        log(Log.INFO, TAG, "LogicServerProxyService started");
+        log(Log.INFO, TAG, "ServerProxyService started");
 
         this.intent = intent;
         this.flags = flags;

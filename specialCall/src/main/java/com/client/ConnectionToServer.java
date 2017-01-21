@@ -75,7 +75,6 @@ public class ConnectionToServer {
     }
 
     public int sendMultipartToServer(String url, ProgressiveEntity progressiveEntity) {
-
         HttpPost post = null;
         int responseCode = -1;
         try {
@@ -83,9 +82,6 @@ public class ConnectionToServer {
             post = new HttpPost(url);
             post.setEntity(progressiveEntity);
             HttpResponse httpResponse = client.execute(post);
-            //  BufferedReader br = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()));
-            //  String responseMessage = br.readLine();
-            //  Response response = extractResponse(responseMessage);
             responseCode = httpResponse.getStatusLine().getStatusCode();
         } catch (IOException e) {
             e.printStackTrace();

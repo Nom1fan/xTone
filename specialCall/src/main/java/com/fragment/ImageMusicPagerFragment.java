@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.fragment.AbsListViewBaseFragment.MEDIA_POSITION;
+
 /**
  * Created by maitray on 9/8/16.
  */
@@ -171,7 +173,7 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
     private void preparePager() {
         pager.setAdapter(new ViewAdapter(getActivity()));
         pager.setVisibility(View.VISIBLE);
-        pager.setCurrentItem(getArguments().getInt(Constants.Extra.MEDIA_POSITION, 0));
+        pager.setCurrentItem(getArguments().getInt(MEDIA_POSITION, 0));
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {

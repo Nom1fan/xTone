@@ -111,6 +111,9 @@ public class EventDownloadReceivedHandler implements Handler {
 
         File[] files = new File(newFileDir).listFiles();
 
+        if(files == null)
+            return;
+
         try {
             switch (newDownloadedFileType) {
                 case AUDIO:

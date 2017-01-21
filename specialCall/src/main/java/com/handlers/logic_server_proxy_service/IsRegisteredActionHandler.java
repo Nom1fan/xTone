@@ -10,7 +10,7 @@ import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
 import com.model.request.IsRegisteredRequest;
 import com.model.response.Response;
-import com.model.response.UserDTO;
+import com.data.objects.User;
 import com.utils.BroadcastUtils;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class IsRegisteredActionHandler implements ActionHandler {
 
     protected static final String URL_ISREGISTERED = ROOT_URL + "/v1/IsRegistered";
     private static final String TAG = IsRegisteredActionHandler.class.getSimpleName();
-    private static final Type responseType = new TypeToken<Response<UserDTO>>() {
+    private static final Type responseType = new TypeToken<Response<User>>() {
     }.getType();
 
     @Override
@@ -46,15 +46,15 @@ public class IsRegisteredActionHandler implements ActionHandler {
         EventReport eventReport;
         String desc;
         if (responseCode == HttpStatus.SC_OK) {
-            Response<UserDTO> response = connectionToServer.readResponse();
-            UserDTO userDTO = response.getResult();
-            String uid = userDTO.getUid();
-            if (userDTO.getUserStatus().equals(UserStatus.REGISTERED)) {
+            Response<User> response = connectionToServer.readResponse();
+            User user = response.getResult();
+            String uid = user.getUid();
+            if (user.getUserStatus().equals(UserStatus.REGISTERED)) {
                 desc = "User " + uid + " is registered";
                 eventReport = new EventReport(EventType.USER_REGISTERED_TRUE, desc, uid);
             }
             else {
-                desc = "User " + uid + "is " + userDTO.getUserStatus().toString().toLowerCase();
+                desc = "User " + uid + "is " + user.getUserStatus().toString().toLowerCase();
                 eventReport = new EventReport(EventType.USER_REGISTERED_FALSE, desc, uid);
             }
             BroadcastUtils.sendEventReportBroadcast(actionBundle.getCtx(), TAG, eventReport);

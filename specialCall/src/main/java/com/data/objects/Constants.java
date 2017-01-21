@@ -49,8 +49,8 @@ public abstract class Constants {
     //endregion
 
     //region Connection to server
-    public static final String SERVER_HOST = "epicall.no-ip.biz";
-    public static final int SERVER_PORT = 8888;
+    public static final String SERVER_HOST = "staging.mediacallz.com";
+    public static final int SERVER_PORT = 8080;
     //endregion
 
     //region Batch
@@ -139,12 +139,6 @@ public abstract class Constants {
         File rootFolder = new File(path);
         rootFolder.mkdirs();
         return path;
-    }
-    //endregion
-
-    //region Perhaps unnecessary shit
-    public static class Extra {
-        public static final String MEDIA_POSITION = "MEDIA_POSITION";
     }
     //endregion
 

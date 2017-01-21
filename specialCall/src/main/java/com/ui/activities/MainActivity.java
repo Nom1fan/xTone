@@ -1181,7 +1181,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                         break;
                     case R.id.clearcallermedia:
-                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.CALLER_MEDIA, destPhoneNumber,MainActivity.this);
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.CALLER_MEDIA, destPhoneNumber);
                         clearDialog.show(getFragmentManager(), TAG);
                         break;
 
@@ -1246,7 +1246,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         break;
                     case R.id.clearprofilemedia:
 
-                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.PROFILE_MEDIA, destPhoneNumber,MainActivity.this);
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.PROFILE_MEDIA, destPhoneNumber);
                         clearDialog.show(getFragmentManager(), TAG);
 
                         break;

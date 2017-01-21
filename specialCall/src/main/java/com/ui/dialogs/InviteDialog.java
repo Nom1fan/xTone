@@ -1,6 +1,7 @@
 package com.ui.dialogs;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -23,13 +24,14 @@ public class InviteDialog extends android.app.DialogFragment {
 
     private static final String TAG  = InviteDialog.class.getSimpleName();
 
-    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.AlertDialogCustom));
 
-        final TextView content = new TextView(getActivity());
+        final Context context = getActivity().getApplicationContext();
+
+        final TextView content = new TextView(context);
         content.setText(R.string.invite_dialog_summary);
         content.setTextColor(Color.WHITE);
         builder.setTitle(R.string.invite_dialog_title)
@@ -40,15 +42,15 @@ public class InviteDialog extends android.app.DialogFragment {
                         try {
 
                             Intent intent = new Intent(Intent.ACTION_SENDTO,
-                                    Uri.fromParts("sms", SharedPrefUtils.getString(getActivity().getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.DESTINATION_NUMBER), null));
+                                    Uri.fromParts("sms", SharedPrefUtils.getString(context,SharedPrefUtils.GENERAL,SharedPrefUtils.DESTINATION_NUMBER), null));
                             intent.putExtra("sms_body", getResources().getString(R.string.invite));
                             startActivity(intent);
 
                             ImageButton clearButton = (ImageButton) getActivity().findViewById(R.id.clear);
                             clearButton.performClick();
 
-                            SharedPrefUtils.setString(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER,"");
-                            SharedPrefUtils.setString(getActivity().getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.DESTINATION_NAME,"");
+                            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER,"");
+                            SharedPrefUtils.setString(context,SharedPrefUtils.GENERAL,SharedPrefUtils.DESTINATION_NAME,"");
                             getDialog().dismiss();
 
                         } catch (Exception ex) {

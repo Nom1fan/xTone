@@ -1,6 +1,6 @@
 package com.exceptions;
 
-public class InvalidDestinationNumberException extends Exception {
+public class InvalidDestinationNumberException extends FileException {
 
 	/**
 	 * 

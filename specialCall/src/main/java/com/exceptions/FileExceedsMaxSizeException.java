@@ -1,6 +1,6 @@
 package com.exceptions;
 
-public class FileExceedsMaxSizeException extends Exception {
+public class FileExceedsMaxSizeException extends FileException {
 
 	/**
 	 * 

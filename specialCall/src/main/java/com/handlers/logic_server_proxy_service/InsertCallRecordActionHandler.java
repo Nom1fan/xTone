@@ -3,20 +3,17 @@ package com.handlers.logic_server_proxy_service;
 import android.util.Log;
 
 import com.client.ConnectionToServer;
-import com.data.objects.CallRecord;
-import com.google.gson.reflect.TypeToken;
+import com.data.objects.MediaCall;
 import com.handlers.ActionHandler;
 import com.model.request.InsertMediaCallRecordRequest;
-import com.model.response.Response;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.Locale;
 
 import cz.msebera.android.httpclient.HttpStatus;
 
 import static com.crashlytics.android.Crashlytics.log;
-import static com.services.ServerProxyService.CALL_RECORD;
+import static com.services.ServerProxyService.MEDIA_CALL;
 
 /**
  * Created by Mor on 20/12/2016.
@@ -28,9 +25,9 @@ public class InsertCallRecordActionHandler implements ActionHandler {
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
-        CallRecord callRecord = (CallRecord) actionBundle.getIntent().getSerializableExtra(CALL_RECORD);
+        MediaCall mediaCall = (MediaCall) actionBundle.getIntent().getSerializableExtra(MEDIA_CALL);
         InsertMediaCallRecordRequest request = new InsertMediaCallRecordRequest(actionBundle.getRequest());
-        request.setCallRecord(callRecord);
+        request.setMediaCall(mediaCall);
         request.setSourceLocale(Locale.getDefault().getLanguage());
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
 

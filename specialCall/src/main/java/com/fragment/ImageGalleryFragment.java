@@ -38,6 +38,9 @@ import com.validate.media.ValidateImageFormatBehavior;
 
 import java.util.List;
 
+import static com.fragment.AbsListViewBaseFragment.FRAGMENT_INDEX;
+import static com.fragment.AbsListViewBaseFragment.MEDIA_POSITION;
+
 
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
@@ -60,8 +63,8 @@ public class ImageGalleryFragment extends BaseFragment implements PopulateUrlsAs
 
 	private void startImagePagerActivity(int position) {
 		Intent intent = new Intent(getActivity(), GalleryLauncherFragmentActivity.class);
-		intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
-		intent.putExtra(Constants.Extra.MEDIA_POSITION, position);
+		intent.putExtra(FRAGMENT_INDEX, ImagePagerFragment.INDEX);
+		intent.putExtra(MEDIA_POSITION, position);
 		startActivity(intent);
 	}
 

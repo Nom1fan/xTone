@@ -12,7 +12,7 @@ import com.event.EventType;
 import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
 import com.model.request.ClearMediaRequest;
-import com.model.response.AppMetaDTO;
+import com.data.objects.AppMeta;
 import com.model.response.Response;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
@@ -34,7 +34,7 @@ public class ClearMediaActionHandler implements ActionHandler {
 
     private static final String URL_CLEAR_MEDIA = ROOT_URL + "/v1/ClearMedia";
     private static final String TAG = ClearMediaActionHandler.class.getSimpleName();
-    private static final Type responseType = new TypeToken<Response<AppMetaDTO>>() {
+    private static final Type responseType = new TypeToken<Response<AppMeta>>() {
     }.getType();
 
     @Override

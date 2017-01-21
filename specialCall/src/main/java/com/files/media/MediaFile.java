@@ -262,6 +262,10 @@ public class MediaFile implements Serializable {
     //endregion
 
 
+    public void setFile(File file) {
+        this.file = file;
+    }
+
     @Override
     public String toString() {
 

@@ -182,7 +182,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements Progre
         uploadFileRequest.setSourceLocale(Locale.getDefault().getLanguage());
         uploadFileRequest.setDestinationId(bundle.get(DEST_ID).toString());
         uploadFileRequest.setDestinationContactName(bundle.get(DEST_NAME).toString());
-        uploadFileRequest.setMediaFileDTO(fileForUpload);
+        uploadFileRequest.setMediaFile(fileForUpload);
         uploadFileRequest.setFilePathOnSrcSd(fileForUpload.getFile().getAbsolutePath());
         uploadFileRequest.setSpecialMediaType((SpecialMediaType) bundle.get(SPEC_MEDIA_TYPE));
         return new Gson().toJson(uploadFileRequest);

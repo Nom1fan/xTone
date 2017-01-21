@@ -24,6 +24,7 @@ import android.util.Log;
 
 import com.data.objects.ActivityRequestCodes;
 import com.data.objects.Constants;
+import com.fragment.AbsListViewBaseFragment;
 import com.fragment.ImageGIFGridFragment;
 import com.fragment.ImageGIFPagerFragment;
 import com.fragment.ImageGalleryFragment;
@@ -55,7 +56,7 @@ public class GalleryLauncherFragmentActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
         log(Log.INFO, TAG, "onCreate");
 
-        int frIndex = getIntent().getIntExtra(Constants.Extra.FRAGMENT_INDEX, 0);
+        int frIndex = getIntent().getIntExtra(AbsListViewBaseFragment.FRAGMENT_INDEX, 0);
 		Fragment fr;
 		String tag;
 		int titleRes;

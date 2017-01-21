@@ -23,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.exceptions.FileException;
 import com.mediacallz.app.R;
 import com.utils.MediaFilesUtils;
 import com.utils.UI_Utils;
@@ -53,12 +54,13 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
     private MediaPlayer mMediaPlayer;
     private String mChosenAudioFile = "";
     private boolean oneTimeCheckBox;
-    private ImageButton UploadBtn;
-    private ImageButton DeleteBtn;
-    private ImageButton CancelBtn;
-    private ImageButton PlayPauseBtn;
+    private ImageButton uploadBtn;
+    private ImageButton deleteBtn;
+    private ImageButton cancelBtn;
+    private ImageButton playPauseBtn;
     private boolean isPreviewDisplaying = false;
-    private HashMap<String,String> paths_to_titles;
+    private HashMap<String, String> paths_to_titles;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,8 +81,8 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
     }
 
     private void prepareChooseButton() {
-        UploadBtn = (ImageButton) findViewById(R.id.audio_upload_btn);
-        UploadBtn.setOnClickListener(new View.OnClickListener() {
+        uploadBtn = (ImageButton) findViewById(R.id.audio_upload_btn);
+        uploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 log(Log.INFO, TAG, "choose Button Pressed");
@@ -89,18 +91,18 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
             }
         });
 
-        CancelBtn = (ImageButton) findViewById(R.id.audio_cancel_btn);
-        CancelBtn.setOnClickListener(new View.OnClickListener() {
+        cancelBtn = (ImageButton) findViewById(R.id.audio_cancel_btn);
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                log(Log.INFO, TAG, "choose CancelBtn Pressed");
+                log(Log.INFO, TAG, "choose cancelBtn Pressed");
                 finish();
 
             }
         });
 
-        PlayPauseBtn = (ImageButton) findViewById(R.id.audio_play_pause_btn);
-        PlayPauseBtn.setOnClickListener(new View.OnClickListener() {
+        playPauseBtn = (ImageButton) findViewById(R.id.audio_play_pause_btn);
+        playPauseBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
                 if (isPreviewDisplaying) {
@@ -111,8 +113,8 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
             }
         });
 
-        DeleteBtn = (ImageButton) findViewById(R.id.DeleteBtn);
-        DeleteBtn.setOnClickListener(new View.OnClickListener() {
+        deleteBtn = (ImageButton) findViewById(R.id.DeleteBtn);
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 log(Log.INFO, TAG, "choose Delete Pressed");
@@ -121,7 +123,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
                 if (mChosenAudioFile.isEmpty()) {
                     UI_Utils.callToast(getResources().getString(R.string.choose_audio_file), Color.WHITE, getApplicationContext());
                     return;
-                }else {
+                } else {
 
 
                     final AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(AudioFilesHistoryActivity.this, R.style.AppTheme));
@@ -143,51 +145,37 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
                                     prepareListView();
                                     displayListViewWithNewData();
 
-                                    mChosenAudioFile="";
-                                    log(Log.INFO,TAG , "delete audio file");
+                                    mChosenAudioFile = "";
+                                    log(Log.INFO, TAG, "delete audio file");
                                 }
                             });
 
-                  AlertDialog DeleteDialog = builder.create();
-                  DeleteDialog.show();
+                    AlertDialog DeleteDialog = builder.create();
+                    DeleteDialog.show();
 
                 }
             }
         });
 
 
-
-
     }
 
     private void deleteAudioFile() {
-
-
-
-        FileManager.FileType type = null;
-        FileManager audioFileSelected= null;
+        MediaFile.FileType type = null;
+        MediaFile audioFileSelected = null;
         try {
-            audioFileSelected = new FileManager(mChosenAudioFile);
+            audioFileSelected = new MediaFile(mChosenAudioFile);
             type = audioFileSelected.getFileType();
-        } catch (FileInvalidFormatException e) {
-            e.printStackTrace();
-        } catch (FileExceedsMaxSizeException e) {
-            e.printStackTrace();
-        } catch (FileDoesNotExistException e) {
-            e.printStackTrace();
-        } catch (FileMissingExtensionException e) {
+        } catch (FileException e) {
             e.printStackTrace();
         }
 
-        if (type != FileManager.FileType.AUDIO) {
+        if (type != MediaFile.FileType.AUDIO) {
             return;
         }
 
-          log(Log.INFO, TAG, "Audio File that will be deleted: " + mChosenAudioFile);
-          audioFileSelected.delete();
-
-
-
+        log(Log.INFO, TAG, "Audio File that will be deleted: " + mChosenAudioFile);
+        audioFileSelected.delete();
     }
 
     private void stopAudioFile() {
@@ -195,17 +183,16 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
         if (mMediaPlayer == null)
             mMediaPlayer = new MediaPlayer();
 
-        if (mMediaPlayer.isPlaying())
-        {
-            Log.i(TAG," STOP HISTORY AUDIO FILE");
+        if (mMediaPlayer.isPlaying()) {
+            Log.i(TAG, " STOP HISTORY AUDIO FILE");
             try {
                 mMediaPlayer.stop();
 
                 isPreviewDisplaying = true;
-                PlayPauseBtn.setImageResource(R.drawable.play_preview_anim);
-                PlayPauseBtn.invalidate();
+                playPauseBtn.setImageResource(R.drawable.play_preview_anim);
+                playPauseBtn.invalidate();
 
-                //UploadBtn.setText(getResources().getString(R.string.back));
+                //uploadBtn.setText(getResources().getString(R.string.back));
             } catch (Exception e) {
                 e.printStackTrace();
                 UI_Utils.callToast(getResources().getString(R.string.choose_audio_file), Color.WHITE, getApplicationContext());
@@ -214,9 +201,8 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
         }
 
         isPreviewDisplaying = true;
-        PlayPauseBtn.setImageResource(R.drawable.play_preview_anim);
-        PlayPauseBtn.invalidate();
-
+        playPauseBtn.setImageResource(R.drawable.play_preview_anim);
+        playPauseBtn.invalidate();
 
 
     }
@@ -256,17 +242,16 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
 
             } catch (Exception e) {
                 mMediaPlayer.reset();
-                mMediaPlayer.setDataSource(getApplicationContext(),Uri.parse(mChosenAudioFile));
+                mMediaPlayer.setDataSource(getApplicationContext(), Uri.parse(mChosenAudioFile));
             }
 
             mMediaPlayer.prepare();
             mMediaPlayer.setLooping(true);
             mMediaPlayer.start();
-            Log.i(TAG," START HISTORY AUDIO FILE");
+            Log.i(TAG, " START HISTORY AUDIO FILE");
 
 
-
-            //UploadBtn.setText(getResources().getString(R.string.upload));
+            //uploadBtn.setText(getResources().getString(R.string.upload));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -275,9 +260,9 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
 
         }
 
-        PlayPauseBtn.setImageResource(R.drawable.stop_preview_anim);
+        playPauseBtn.setImageResource(R.drawable.stop_preview_anim);
         isPreviewDisplaying = false;
-        PlayPauseBtn.invalidate();
+        playPauseBtn.invalidate();
 
     }
 
@@ -343,7 +328,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
         }
 
         MediaFile resultFile = createManagedFile(mChosenAudioFile);
-        if(resultFile == null)
+        if (resultFile == null)
             finish();
 
 
@@ -361,7 +346,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
         MediaFile managedFile = null;
         try {
             managedFile = new MediaFile(resultFilePath);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             log(Log.ERROR, TAG, "Failed to create result managed file");
         }
@@ -389,9 +374,8 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
 
             String fileName = FilenameUtils.getName(name);
 
-            if (!fileName.contains(".nomedia"))
-            {
-                String Title= "";
+            if (!fileName.contains(".nomedia")) {
+                String Title = "";
                 try {
 
                     if (!fileName.contains("MyAudioRecording_")) {
@@ -406,12 +390,11 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
                     } else
                         Title = fileName;
 
-                }catch(Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                     Title = fileName;
                 }
-                paths_to_titles.put(Title,name);
+                paths_to_titles.put(Title, name);
                 _namesInListView.add(Title);
 
             }
@@ -458,8 +441,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
                 tv.setText(_namesInListView.get(position));
 
 
-
-                tv.setTextColor(Color.WHITE);
+            tv.setTextColor(Color.WHITE);
 
             if (tv.getText().equals(chosenTitle))
                 tv.setTextColor(Color.YELLOW);
@@ -468,17 +450,17 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
                 @Override
                 public void onClick(View v) {
 
-                    if (old_tv!=null)
+                    if (old_tv != null)
                         old_tv.setTextColor(Color.WHITE);
 
-                    old_tv =(TextView)v;
+                    old_tv = (TextView) v;
 
-                    ((TextView)v).setTextColor(Color.YELLOW);
-                    chosenTitle = ((TextView)v).getText().toString();
+                    ((TextView) v).setTextColor(Color.YELLOW);
+                    chosenTitle = ((TextView) v).getText().toString();
                     mChosenAudioFile = paths_to_titles.get(chosenTitle);
                     _ma.notifyDataSetChanged();
 
-                   stopAudioFile();
+                    stopAudioFile();
 
                 }
             });

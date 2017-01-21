@@ -5,13 +5,12 @@ import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 
 import com.app.AppStateManager;
+import com.event.EventReport;
+import com.event.EventType;
 import com.handlers.Handler;
 import com.mediacallz.app.R;
 import com.utils.BroadcastUtils;
 import com.utils.UI_Utils;
-
-import EventObjects.EventReport;
-import EventObjects.EventType;
 
 /**
  * Created by Mor on 16/09/2016.

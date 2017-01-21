@@ -4,14 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import java.io.File;
-
-import com.data.objects.CallRecord;
+import com.data.objects.MediaCall;
 import com.data.objects.SpecialMediaType;
-import com.exceptions.FileDoesNotExistException;
-import com.exceptions.FileExceedsMaxSizeException;
-import com.exceptions.FileInvalidFormatException;
-import com.exceptions.FileMissingExtensionException;
+import com.exceptions.FileException;
 import com.files.media.MediaFile;
 import com.services.ServerProxyService;
 
@@ -24,48 +19,40 @@ public abstract class MCHistoryUtils {
 
     private static final String TAG = MCHistoryUtils.class.getSimpleName();
 
-    public static void reportMC(Context context, String src, String dest, String visualMediaPath, String audioMediaPath ,SpecialMediaType specialMediaType) {
-
-        boolean visualExists = false;
-        boolean audioExists = false;
-
-        if(visualMediaPath!=null) {
-            File visualFile = new File(visualMediaPath);
-            if(visualFile.exists())
-                visualExists = true;
-        }
-
-        if(audioMediaPath!=null) {
-            File audioFile = new File(audioMediaPath);
-            if(audioFile.exists())
-                audioExists = true;
-        }
+    public static void reportMC(Context context, String src, String dest, String visualMediaPath, String audioMediaPath, SpecialMediaType specialMediaType) {
 
         try {
-            if(visualExists || audioExists) {
 
-                CallRecord callRecord = new CallRecord(
-                        src,
-                        dest,
-                        visualExists ? new MediaFile(visualMediaPath) : null,
-                        SharedPrefUtils.getString(context, SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5),
-                        audioExists ? new MediaFile(audioMediaPath) : null,
-                        SharedPrefUtils.getString(context, SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_AUDIOMD5),
-                        specialMediaType);
+            MediaFile visualMediaFile = null;
+            MediaFile audioMediaFile = null;
 
-                log(Log.INFO,TAG, "Reporting MC:" + callRecord);
+            if (visualMediaPath != null) {
+                visualMediaFile = prepareMediaFile(context, visualMediaPath, SharedPrefUtils.TEMP_VISUALMD5);
+            }
+            if (audioMediaPath != null) {
+                audioMediaFile = prepareMediaFile(context, audioMediaPath, SharedPrefUtils.TEMP_AUDIOMD5);
+            }
 
+            if (visualMediaFile != null || audioMediaFile != null) {
+
+                MediaCall mediaCall = new MediaCall(src, dest, visualMediaFile, audioMediaFile, specialMediaType);
+
+                log(Log.INFO, TAG, "Reporting MC:" + mediaCall);
                 Intent i = new Intent(context, ServerProxyService.class);
                 i.setAction(ServerProxyService.ACTION_INSERT_CALL_RECORD);
-                i.putExtra(ServerProxyService.CALL_RECORD, callRecord);
+                i.putExtra(ServerProxyService.MEDIA_CALL, mediaCall);
                 context.startService(i);
             }
 
-        } catch (FileInvalidFormatException  |
-                 FileExceedsMaxSizeException |
-                 FileDoesNotExistException   |
-                 FileMissingExtensionException e) {
+        } catch (FileException e) {
             e.printStackTrace();
         }
+    }
+
+    private static MediaFile prepareMediaFile(Context context, String mediaPath, String sharedPrefsTempMd5Key) throws FileException {
+        String md5 = SharedPrefUtils.getString(context, SharedPrefUtils.SERVICES, sharedPrefsTempMd5Key);
+        MediaFile mediaFile = new MediaFile(mediaPath);
+        mediaFile.setMd5(md5);
+        return mediaFile;
     }
 }

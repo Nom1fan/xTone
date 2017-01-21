@@ -39,6 +39,7 @@ import com.validate.media.ValidateImageFormatBehavior;
 
 import java.util.List;
 
+import static com.fragment.AbsListViewBaseFragment.MEDIA_POSITION;
 import static com.fragment.GifDataDownloader.PostGifDataDownloadListener;
 
 /**
@@ -71,7 +72,7 @@ public class ImageGIFPagerFragment extends BaseFragment implements PostPopulateL
         }
         else {
             pager.setAdapter(new ImageAdapter(getActivity()));
-            pager.setCurrentItem(getArguments().getInt(Constants.Extra.MEDIA_POSITION, 0));
+            pager.setCurrentItem(getArguments().getInt(MEDIA_POSITION, 0));
         }
     }
 

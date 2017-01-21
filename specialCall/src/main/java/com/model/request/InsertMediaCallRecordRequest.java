@@ -1,25 +1,25 @@
 package com.model.request;
 
 
-import com.data.objects.CallRecord;
+import com.data.objects.MediaCall;
 
 /**
  * Created by Mor on 17/12/2016.
  */
 public class InsertMediaCallRecordRequest extends Request {
 
-    private CallRecord callRecord;
+    private MediaCall mediaCall;
 
     public InsertMediaCallRecordRequest(Request request) {
         request.copy(this);
     }
 
-    public CallRecord getCallRecord() {
-        return callRecord;
+    public MediaCall getMediaCall() {
+        return mediaCall;
     }
 
-    public void setCallRecord(CallRecord callRecord) {
-        this.callRecord = callRecord;
+    public void setMediaCall(MediaCall mediaCall) {
+        this.mediaCall = mediaCall;
     }
 }
 

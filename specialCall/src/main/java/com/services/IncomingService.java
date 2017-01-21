@@ -198,9 +198,9 @@ public class IncomingService extends AbstractStandOutService {
                             if (visualMediaExists)
                             {
                                 try {
-                                    FileManager managedFile = new FileManager(mediaFilePath);
-                                    FileManager.FileType fType = managedFile.getFileType();
-                                    if (fType.equals(FileManager.FileType.VIDEO))
+                                    MediaFile managedFile = new MediaFile(mediaFilePath);
+                                    MediaFile.FileType fType = managedFile.getFileType();
+                                    if (fType.equals(MediaFile.FileType.VIDEO))
                                         willMuteRing = true;
                                 }catch (Exception e)
                                 {

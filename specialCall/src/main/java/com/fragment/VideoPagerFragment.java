@@ -25,6 +25,8 @@ import com.validate.media.ValidateVideoFormatBehavior;
 
 import java.util.List;
 
+import static com.fragment.AbsListViewBaseFragment.MEDIA_POSITION;
+
 /**
  * Created by Mor on 9/8/16.
  */
@@ -88,7 +90,7 @@ public class VideoPagerFragment extends BaseFragment implements PostPopulateList
     private void preparePager() {
         pager.setAdapter(new ViewAdapter(getActivity()));
         pager.setVisibility(View.VISIBLE);
-        pager.setCurrentItem(getArguments().getInt(Constants.Extra.MEDIA_POSITION));
+        pager.setCurrentItem(getArguments().getInt(MEDIA_POSITION));
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {

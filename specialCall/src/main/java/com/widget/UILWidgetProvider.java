@@ -29,7 +29,6 @@ import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.utils.InitUtils;
 
-import static com.data.objects.Constants.IMAGES;
 
 /**
  * Example widget provider
@@ -59,21 +58,21 @@ public class UILWidgetProvider extends AppWidgetProvider {
 		final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
 
 		ImageSize minImageSize = new ImageSize(70, 70); // 70 - approximate size of ImageView in widget
-		ImageLoader.getInstance()
-				.loadImage(IMAGES[0], minImageSize, displayOptions, new SimpleImageLoadingListener() {
-			@Override
-			public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-				views.setImageViewBitmap(R.id.image_left, loadedImage);
-				appWidgetManager.updateAppWidget(appWidgetId, views);
-			}
-		});
-		ImageLoader.getInstance()
-				.loadImage(IMAGES[1], minImageSize, displayOptions, new SimpleImageLoadingListener() {
-			@Override
-			public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-				views.setImageViewBitmap(R.id.image_right, loadedImage);
-				appWidgetManager.updateAppWidget(appWidgetId, views);
-			}
-		});
+//		ImageLoader.getInstance()
+//				.loadImage(IMAGES[0], minImageSize, displayOptions, new SimpleImageLoadingListener() {
+//			@Override
+//			public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+//				views.setImageViewBitmap(R.id.image_left, loadedImage);
+//				appWidgetManager.updateAppWidget(appWidgetId, views);
+//			}
+//		});
+//		ImageLoader.getInstance()
+//				.loadImage(IMAGES[1], minImageSize, displayOptions, new SimpleImageLoadingListener() {
+//			@Override
+//			public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+//				views.setImageViewBitmap(R.id.image_right, loadedImage);
+//				appWidgetManager.updateAppWidget(appWidgetId, views);
+//			}
+//		});
 	}
 }

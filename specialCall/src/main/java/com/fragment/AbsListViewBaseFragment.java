@@ -31,8 +31,8 @@ import com.ui.activities.GalleryLauncherFragmentActivity;
  */
 public abstract class AbsListViewBaseFragment extends BaseFragment {
 
-    protected static final String STATE_PAUSE_ON_SCROLL = "STATE_PAUSE_ON_SCROLL";
-    protected static final String STATE_PAUSE_ON_FLING = "STATE_PAUSE_ON_FLING";
+    public static final String FRAGMENT_INDEX = "FRAGMENT_INDEX";
+    public static final String MEDIA_POSITION = "MEDIA_POSITION";
 
     protected AbsListView listView;
 
@@ -74,31 +74,31 @@ public abstract class AbsListViewBaseFragment extends BaseFragment {
 
     protected void startImagePagerActivity(int position) {
         Intent intent = new Intent(getActivity(), GalleryLauncherFragmentActivity.class);
-        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImagePagerFragment.INDEX);
-        intent.putExtra(Constants.Extra.MEDIA_POSITION, position);
+        intent.putExtra(FRAGMENT_INDEX, ImagePagerFragment.INDEX);
+        intent.putExtra(MEDIA_POSITION, position);
         startActivity(intent);
     }
 
     protected void startGIFImagePagerActivity(int position) {
         Intent intent = new Intent(getActivity(), GalleryLauncherFragmentActivity.class);
-        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImageGIFPagerFragment.INDEX);
-        intent.putExtra(Constants.Extra.MEDIA_POSITION, position);
+        intent.putExtra(FRAGMENT_INDEX, ImageGIFPagerFragment.INDEX);
+        intent.putExtra(MEDIA_POSITION, position);
         startActivity(intent);
     }
 
 
     protected void startVideoPagerActivity(int position) {
         Intent intent = new Intent(getActivity(), GalleryLauncherFragmentActivity.class);
-        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, VideoPagerFragment.INDEX);
-        intent.putExtra(Constants.Extra.MEDIA_POSITION, position);
+        intent.putExtra(FRAGMENT_INDEX, VideoPagerFragment.INDEX);
+        intent.putExtra(MEDIA_POSITION, position);
         startActivity(intent);
     }
 
 
     protected void startAudioPagerActivity(int position) {
         Intent intent = new Intent(getActivity(), GalleryLauncherFragmentActivity.class);
-        intent.putExtra(Constants.Extra.FRAGMENT_INDEX, ImageMusicPagerFragment.INDEX);
-        intent.putExtra(Constants.Extra.MEDIA_POSITION, position);
+        intent.putExtra(FRAGMENT_INDEX, ImageMusicPagerFragment.INDEX);
+        intent.putExtra(MEDIA_POSITION, position);
         startActivity(intent);
     }
 

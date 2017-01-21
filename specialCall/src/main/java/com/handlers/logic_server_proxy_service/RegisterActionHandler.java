@@ -35,10 +35,7 @@ public class RegisterActionHandler implements ActionHandler {
         int smsCode = actionBundle.getIntent().getIntExtra(SMS_CODE, 0);
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         RegisterRequest registerRequest = new RegisterRequest(actionBundle.getRequest());
-        registerRequest.setSourceLocale(Locale.getDefault().getLanguage());
         log(Log.INFO, TAG, "Initiating actionRegister sequence...");
-        registerRequest.setDeviceModel(SpecialDevicesUtils.getDeviceName());
-        registerRequest.setAndroidVersion(Build.VERSION.RELEASE);
         registerRequest.setSmsCode(smsCode);
         int responseCode = connectionToServer.sendRequest(URL_REGISTER, registerRequest);
 

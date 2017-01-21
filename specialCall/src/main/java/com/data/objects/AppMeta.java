@@ -1,9 +1,9 @@
-package com.model.response;
+package com.data.objects;
 
 /**
  * Created by Mor on 19/12/2016.
  */
-public class AppMetaDTO {
+public class AppMeta {
 
     private Double lastSupportedAppVersion;
 

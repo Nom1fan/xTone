@@ -1,6 +1,7 @@
 package com.ui.dialogs;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -29,7 +30,9 @@ public class DeleteAccountDialog extends android.app.DialogFragment {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.AlertDialogCustom));
 
-        final TextView content = new TextView(getActivity());
+        final Context context = getActivity().getApplicationContext();
+
+        final TextView content = new TextView(context);
         content.setText(R.string.delete_account_are_you_sure_text);
         content.setTextColor(Color.WHITE);
         builder.setTitle(R.string.delete_account_title)
@@ -37,21 +40,17 @@ public class DeleteAccountDialog extends android.app.DialogFragment {
                 .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
 
-                        Intent i = new Intent(getActivity(), ServerProxyService.class);
+                        Intent i = new Intent(context, ServerProxyService.class);
                         i.setAction(ServerProxyService.ACTION_UNREGISTER);
-                        getActivity().startService(i);
+                        context.startService(i);
 
                         // Preparing loading state with timeout in case unregister fails
                         String unregisterFailedMsg = getActivity().getResources().getString(R.string.delete_account_failed);
                         String unregisteringMsg = getResources().getString(R.string.deleting_account_msg);
-                        EventReport unregisterFailed = new EventReport(
-                                EventType.UNREGISTER_FAILURE,
-                                unregisterFailedMsg,
-                                null);
-                        AppStateManager.setLoadingState(getActivity(), TAG, unregisteringMsg, unregisterFailedMsg);
+                        AppStateManager.setLoadingState(context, TAG, unregisteringMsg, unregisterFailedMsg);
 
                         // Returning from settings to MainActivity
-                        Intent ii = new Intent(getActivity(), MainActivity.class);
+                        Intent ii = new Intent(context, MainActivity.class);
                         startActivity(ii);
 
                     }

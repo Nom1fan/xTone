@@ -1,6 +1,7 @@
 package com.ui.dialogs;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -22,7 +23,9 @@ public class MandatoryUpdateDialog extends DialogFragment {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.AlertDialogCustom));
 
-        TextView content = new TextView(getContext());
+        final Context context = getActivity().getApplicationContext();
+
+        TextView content = new TextView(context);
         content.setText(R.string.mandatory_update_content);
         content.setTextColor(Color.WHITE);
 

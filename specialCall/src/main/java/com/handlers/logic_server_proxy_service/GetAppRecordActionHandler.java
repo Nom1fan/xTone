@@ -7,7 +7,7 @@ import com.event.EventReport;
 import com.event.EventType;
 import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
-import com.model.response.AppMetaDTO;
+import com.data.objects.AppMeta;
 import com.model.response.Response;
 import com.utils.BroadcastUtils;
 
@@ -26,7 +26,7 @@ public class GetAppRecordActionHandler implements ActionHandler {
 
     private static final String URL_GET_APP_RECORD = ROOT_URL + "/v1/GetAppMeta";
     private static final String TAG = GetAppRecordActionHandler.class.getSimpleName();
-    private static final Type responseType = new TypeToken<Response<AppMetaDTO>>() {
+    private static final Type responseType = new TypeToken<Response<AppMeta>>() {
     }.getType();
 
     @Override
@@ -37,7 +37,7 @@ public class GetAppRecordActionHandler implements ActionHandler {
         int responseCode = connectionToServer.sendRequest(URL_GET_APP_RECORD, actionBundle.getRequest());
 
         if (responseCode == HttpStatus.SC_OK) {
-            Response<AppMetaDTO> response = connectionToServer.readResponse();
+            Response<AppMeta> response = connectionToServer.readResponse();
             EventReport eventReport = new EventReport(EventType.APP_RECORD_RECEIVED, response.getResult().getLastSupportedAppVersion());
             BroadcastUtils.sendEventReportBroadcast(actionBundle.getCtx(), TAG, eventReport);
         } else {

@@ -44,10 +44,12 @@ import com.validate.media.ValidateImageFormatBehavior;
 
 import java.util.List;
 
+import static com.fragment.AbsListViewBaseFragment.MEDIA_POSITION;
+
 /**
  * @author Sergey Tarasevich (nostra13[at]gmail[dot]com)
  */
-public class ImagePagerFragment extends BaseFragment implements PostPopulateListener {
+public class ImagePagerFragment extends BaseFragment implements PopulateUrlsAsyncTask.PostPopulateListener {
 
     private static final String TAG = ImagePagerFragment.class.getSimpleName();
     public static final int INDEX = 2;
@@ -74,7 +76,7 @@ public class ImagePagerFragment extends BaseFragment implements PostPopulateList
         }
         else {
             pager.setAdapter(new ImageAdapter(getActivity()));
-            pager.setCurrentItem(getArguments().getInt(Constants.Extra.MEDIA_POSITION, 0));
+            pager.setCurrentItem(getArguments().getInt(MEDIA_POSITION, 0));
         }
     }
 
