@@ -193,7 +193,7 @@ public class ConnectionToServer {
 
     private void logErrors() {
         if(conn.getErrorStream()!=null)
-            log(Log.INFO, TAG, "Response errors:" + readStream(conn.getErrorStream()));
+            log(Log.ERROR, TAG, "Response errors:" + readStream(conn.getErrorStream()));
     }
 
     private String readStream(InputStream stream)  {

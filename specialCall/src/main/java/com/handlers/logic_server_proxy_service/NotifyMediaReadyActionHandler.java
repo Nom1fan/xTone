@@ -37,6 +37,8 @@ public class NotifyMediaReadyActionHandler implements ActionHandler {
         request.setSpecialMediaType(pendingDownloadData.getSpecialMediaType());
         request.setDestinationContactName(pendingDownloadData.getDestinationContactName());
         request.setFilePathOnSrcSd(pendingDownloadData.getFilePathOnSrcSd());
+        request.setDestinationId(pendingDownloadData.getDestinationId());
+        request.setCommId(pendingDownloadData.getCommId());
 
         int responseCode = connectionToServer.sendRequest(URL_NOTIFY_MEDIA_READY, request);
         if (responseCode != HttpStatus.SC_OK) {
