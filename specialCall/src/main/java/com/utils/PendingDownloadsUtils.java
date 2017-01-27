@@ -20,6 +20,7 @@ import com.exceptions.FileInvalidFormatException;
 import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static com.services.ServerProxyService.sendActionDownload;
 
 /**
  * Created by Mor on 02/05/2016.
@@ -61,13 +62,6 @@ public abstract class PendingDownloadsUtils {
         }.start();
 
         //Log.d(TAG, "Download queue:" + _downloadQueue);
-    }
-
-    public static void sendActionDownload(Context context, PendingDownloadData pendingDownloadData) {
-        Intent i = new Intent(context, ServerProxyService.class);
-        i.setAction(ServerProxyService.ACTION_DOWNLOAD);
-        i.putExtra(PushEventKeys.PUSH_DATA, pendingDownloadData);
-        context.startService(i);
     }
 
     public static void handlePendingDownloads(final Context context) {

@@ -25,13 +25,10 @@ public class NotifyMediaClearedActionHandler implements ActionHandler {
 
     private static final String URL_NOTIFY_MEDIA_CLEARED = ROOT_URL + "/v1/NotifyMediaCleared";
     private static final String TAG = NotifyMediaClearedActionHandler.class.getSimpleName();
-    private static final Type responseType = new TypeToken<Response<AppMeta>>() {
-    }.getType();
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
-        connectionToServer.setResponseType(responseType);
 
         ClearMediaData clearMediaData = (ClearMediaData) actionBundle.getIntent().getSerializableExtra(CLEAR_MEDIA_DATA);
         NotifyMediaClearedRequest request = new NotifyMediaClearedRequest(actionBundle.getRequest());

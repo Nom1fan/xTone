@@ -39,7 +39,7 @@ public class DownloadFileActionHandler implements ActionHandler {
         PendingDownloadData pendingDownloadData = (PendingDownloadData) actionBundle.getIntent().getSerializableExtra(PushEventKeys.PUSH_DATA);
 
         try {
-            boolean success = requestDownloadFromServer(actionBundle.getCtx(), connectionToServer, pendingDownloadData, request);
+            boolean success = requestDownloadFromServer(connectionToServer, pendingDownloadData, request);
             if(success) {
                 BroadcastUtils.sendEventReportBroadcast(actionBundle.getCtx(), TAG, new EventReport(EventType.DOWNLOAD_SUCCESS, pendingDownloadData));
             }
@@ -50,7 +50,7 @@ public class DownloadFileActionHandler implements ActionHandler {
         }
     }
 
-    private boolean requestDownloadFromServer(Context ctx, ConnectionToServer connectionToServer, PendingDownloadData pendingDownloadData, DownloadFileRequest request) {
+    private boolean requestDownloadFromServer(ConnectionToServer connectionToServer, PendingDownloadData pendingDownloadData, DownloadFileRequest request) {
         request.setDestinationContactName(pendingDownloadData.getDestinationContactName());
         request.setSourceId(pendingDownloadData.getSourceId());
         request.setCommId(pendingDownloadData.getCommId());

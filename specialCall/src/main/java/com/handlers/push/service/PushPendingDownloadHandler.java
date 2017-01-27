@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.data.objects.PendingDownloadData;
 import com.handlers.AbstractPushHandler;
+import com.services.ServerProxyService;
 import com.utils.MCBlockListUtils;
 import com.utils.NetworkingUtils;
 import com.utils.PendingDownloadsUtils;
@@ -35,7 +36,7 @@ public class PushPendingDownloadHandler extends AbstractPushHandler {
         if(isDownloadOnWifiOnly)
         {
             if(NetworkingUtils.isWifiConnected(ctx)) {
-                PendingDownloadsUtils.sendActionDownload(ctx, pendingDownloadData);
+                ServerProxyService.sendActionDownload(ctx, pendingDownloadData);
             }
             else // Enqueuing pending download for later
             {
@@ -43,7 +44,7 @@ public class PushPendingDownloadHandler extends AbstractPushHandler {
             }
         }
         else {
-            PendingDownloadsUtils.sendActionDownload(ctx, pendingDownloadData);
+            ServerProxyService.sendActionDownload(ctx, pendingDownloadData);
         }
     }
 }

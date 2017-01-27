@@ -1,12 +1,15 @@
 package com.services;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
 import com.client.ConnectionToServer;
 import com.data.objects.Constants;
+import com.data.objects.PendingDownloadData;
+import com.data.objects.PushEventKeys;
 import com.event.EventReport;
 import com.event.EventType;
 import com.handlers.ActionHandler;
@@ -35,6 +38,7 @@ public class ServerProxyService extends Service implements Runnable {
     public static final String ACTION_UPDATE_USER_RECORD = "com.services.ServerProxyService.UPDATE_USER_RECORD";
     public static final String ACTION_DOWNLOAD = "com.services.ServerProxyService.DOWNLOAD";
     public static final String ACTION_NOTIFY_MEDIA_CLEARED = "com.services.ServerProxyService.NOTIFY_MEDIA_CLEARED";
+    public static final String ACTION_NOTIFY_MEDIA_READY = "com.services.ServerProxyService.NOTIFY_MEDIA_READY";
     public static final String ACTION_CLEAR_MEDIA = "com.services.ServerProxyService.CLEAR_MEDIA";
     //endregion
 
@@ -45,6 +49,7 @@ public class ServerProxyService extends Service implements Runnable {
     public static final String INTERNATIONAL_PHONE = "INTERNATIONAL_PHONE";
     public static final String SPECIAL_MEDIA_TYPE = "SPECIAL_MEDIA_TYPE";
     public static final String CLEAR_MEDIA_DATA = "CLEAR_MEDIA_DATA";
+    public static final String PENDING_DOWNLOAD_DATA = "PENDING_DOWNLOAD_DATA";
     //endregion
 
     private Intent intent;
@@ -121,6 +126,7 @@ public class ServerProxyService extends Service implements Runnable {
         markCrashedServiceHandlingComplete(flags, startId);
     }
 
+    //region Internal handling methods
     private void setMidAction(boolean bool) {
         log(Log.INFO, TAG, "Setting midAction=" + bool);
         SharedPrefUtils.setBoolean(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_MID_ACTION, bool);
@@ -157,6 +163,22 @@ public class ServerProxyService extends Service implements Runnable {
 
     private void handleActionFailure() {
         BroadcastUtils.sendEventReportBroadcast(this, TAG, new EventReport(EventType.LOADING_TIMEOUT));
+    }
+    //endregion
+
+    // region service APIs
+    public static void notifyMediaReady(Context context, PendingDownloadData pendingDownloadData) {
+        Intent i = new Intent(context, ServerProxyService.class);
+        i.setAction(ACTION_NOTIFY_MEDIA_READY);
+        i.putExtra(PENDING_DOWNLOAD_DATA, pendingDownloadData);
+        context.startService(i);
+    }
+
+    public static void sendActionDownload(Context context, PendingDownloadData pendingDownloadData) {
+        Intent i = new Intent(context, ServerProxyService.class);
+        i.setAction(ServerProxyService.ACTION_DOWNLOAD);
+        i.putExtra(PushEventKeys.PUSH_DATA, pendingDownloadData);
+        context.startService(i);
     }
     //endregion
 }

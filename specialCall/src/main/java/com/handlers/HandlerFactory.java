@@ -34,6 +34,7 @@ import com.handlers.logic_server_proxy_service.GetSmsActionHandler;
 import com.handlers.logic_server_proxy_service.InsertMediaCallRecordActionHandler;
 import com.handlers.logic_server_proxy_service.IsRegisteredActionHandler;
 import com.handlers.logic_server_proxy_service.NotifyMediaClearedActionHandler;
+import com.handlers.logic_server_proxy_service.NotifyMediaReadyActionHandler;
 import com.handlers.logic_server_proxy_service.RegisterActionHandler;
 import com.handlers.logic_server_proxy_service.UnregisterActionHandler;
 import com.handlers.logic_server_proxy_service.UpdateUserRecordActionHandler;
@@ -118,6 +119,7 @@ public class HandlerFactory {
         put(ServerProxyService.ACTION_DOWNLOAD, DownloadFileActionHandler.class);
         put(ServerProxyService.ACTION_CLEAR_MEDIA, ClearMediaActionHandler.class);
         put(ServerProxyService.ACTION_NOTIFY_MEDIA_CLEARED, NotifyMediaClearedActionHandler.class);
+        put(ServerProxyService.ACTION_NOTIFY_MEDIA_READY, NotifyMediaReadyActionHandler.class);
     }};
 
     private Map<String, Class<PushHandler>> class2PushHandlerMap = new HashMap() {{

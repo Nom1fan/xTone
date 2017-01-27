@@ -201,7 +201,6 @@ public abstract class MediaFilesUtils {
 
     public static MediaFile.FileType getFileType(File file) throws FileInvalidFormatException, FileDoesNotExistException, FileMissingExtensionException {
 
-
         if(file.exists()) {
             String extension = extractExtension(file.getAbsolutePath());
             if (Arrays.asList(imageFormats).contains(extension))
@@ -218,8 +217,6 @@ public abstract class MediaFilesUtils {
         }
         else
             throw new FileDoesNotExistException("File does not exist:"+file.getAbsolutePath());
-
-
     }
 
     public static MediaFile.FileType getFileTypeByExtension(String extension) throws FileInvalidFormatException {

@@ -129,8 +129,10 @@ public class ConnectionToServer {
                     throw new IOException("download was stopped abruptly. " + fileSize + " bytes left.");
 
                 success = true;
-            } else
+            } else {
                 log(Log.ERROR, TAG, "Download failed. Response code:" + responseCode);
+                logErrors();
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

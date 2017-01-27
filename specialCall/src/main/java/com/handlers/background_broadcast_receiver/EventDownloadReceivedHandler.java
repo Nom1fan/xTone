@@ -9,11 +9,13 @@ import com.data.objects.Contact;
 import com.data.objects.PendingDownloadData;
 import com.data.objects.SpecialMediaType;
 import com.event.EventReport;
+import com.exceptions.FailedToSetNewMediaException;
 import com.exceptions.FileDoesNotExistException;
 import com.exceptions.FileInvalidFormatException;
 import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
 import com.handlers.Handler;
+import com.services.ServerProxyService;
 import com.utils.ContactsUtils;
 import com.utils.MediaFilesUtils;
 import com.utils.PhoneNumberUtils;
@@ -44,7 +46,7 @@ public class EventDownloadReceivedHandler implements Handler {
     public void handle(Context ctx, Object... params) {
         EventReport eventReport = (EventReport) params[0];
 
-        Crashlytics.log(Log.INFO, TAG, "In: DOWNLOAD_SUCCESS");
+        Crashlytics.log(Log.INFO, TAG, "In: Download complete");
 
         PendingDownloadData downloadData = (PendingDownloadData) eventReport.data();
         preparePathsAndDirs(downloadData);
@@ -58,24 +60,30 @@ public class EventDownloadReceivedHandler implements Handler {
         String source = downloadData.getSourceId();
         String md5 = downloadData.getMediaFile().getMd5();
 
-        switch (fType) {
-            case AUDIO:
-                setNewRingTone(ctx, source, md5);
-                deleteFilesIfNecessary(ctx, fFullName, fType, source);
-                break;
+        try {
 
-            case VIDEO:
-            case IMAGE:
-                setNewVisualMedia(ctx, source, md5);
-                deleteFilesIfNecessary(ctx, fFullName, fType, source);
-                break;
+            switch (fType) {
+                case AUDIO:
+                    setNewRingTone(ctx, source, md5);
+                    deleteFilesIfNecessary(ctx, fFullName, fType, source);
+                    break;
+
+                case VIDEO:
+                case IMAGE:
+                    setNewVisualMedia(ctx, source, md5);
+                    deleteFilesIfNecessary(ctx, fFullName, fType, source);
+                    break;
+            }
+
+            ServerProxyService.notifyMediaReady(ctx, downloadData);
+
+        } catch(FailedToSetNewMediaException e) {
+            //TODO Inform source of failure
         }
     }
 
 
     private boolean isAuthorizedToLeaveMedia(Context context, String incomingNumber) {
-
-
         if (SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION) == 0) // Save Always
             return true;
         else if (SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION) == 1) // Contacts Only Save
@@ -166,7 +174,7 @@ public class EventDownloadReceivedHandler implements Handler {
 
     }
 
-    private void setNewRingTone(Context context, String source, String md5) {
+    private void setNewRingTone(Context context, String source, String md5) throws FailedToSetNewMediaException {
 
         Crashlytics.log(Log.INFO, TAG, "setNewRingTone with sharedPrefs: " + newFileFullPath);
 
@@ -178,11 +186,13 @@ public class EventDownloadReceivedHandler implements Handler {
             SharedPrefUtils.setString(context,
                     sharedPrefKeyForAudioMedia, newFileFullPath, md5);
         } else {
+
             Crashlytics.log(Log.ERROR, TAG, "CORRUPTED FILE : setNewRingTone with sharedPrefs: " + newFileFullPath);
+            throw new FailedToSetNewMediaException();
         }
     }
 
-    private void setNewVisualMedia(Context context, String source, String md5) {
+    private void setNewVisualMedia(Context context, String source, String md5) throws FailedToSetNewMediaException {
 
         Crashlytics.log(Log.INFO, TAG, "setNewVisualMedia with sharedPrefs: " + newFileFullPath);
         if (!MediaFilesUtils.isVideoFileCorrupted(newFileFullPath, context)) {
@@ -193,6 +203,7 @@ public class EventDownloadReceivedHandler implements Handler {
             SharedPrefUtils.setString(context, sharedPrefKeyForVisualMedia, newFileFullPath, md5);
         } else {
             Crashlytics.log(Log.ERROR, TAG, "CORRUPTED FILE : setNewVisualMedia with sharedPrefs: " + newFileFullPath);
+            throw new FailedToSetNewMediaException();
         }
     }
 
