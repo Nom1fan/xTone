@@ -29,12 +29,18 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.crashlytics.android.Crashlytics;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileExceedsMaxSizeException;
+import com.exceptions.FileInvalidFormatException;
+import com.exceptions.FileMissingExtensionException;
+import com.files.media.MediaFile;
 import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.MediaFilesUtils;
+import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -45,19 +51,13 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-import com.exceptions.FileDoesNotExistException;
-import com.exceptions.FileExceedsMaxSizeException;
-import com.exceptions.FileInvalidFormatException;
-import com.exceptions.FileMissingExtensionException;
-import com.files.media.MediaFile;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
-import com.utils.PhoneNumberUtils;
 import wei.mark.standout.StandOutWindow;
 import wei.mark.standout.constants.StandOutFlags;
 import wei.mark.standout.ui.Window;
 
-import static com.crashlytics.android.Crashlytics.*;
+import static com.crashlytics.android.Crashlytics.log;
 
 public abstract class AbstractStandOutService extends StandOutWindow {
 
@@ -1187,8 +1187,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     public void stopVibrator()
     {
         try {
-            if (vibrator!=null && mAudioManager.getRingerMode() != 0) {
-                vibrator.cancel();
+            if (vibrator!=null) {
+               vibrator.cancel();
                vibrator = null;
             }
         } catch (Exception e) {
