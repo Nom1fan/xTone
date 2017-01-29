@@ -1,7 +1,6 @@
 package com.model.request;
 
-import com.data.objects.SpecialMediaType;
-import com.files.media.MediaFile;
+import com.enums.SpecialMediaType;
 
 /**
  * Created by Mor on 17/12/2016.

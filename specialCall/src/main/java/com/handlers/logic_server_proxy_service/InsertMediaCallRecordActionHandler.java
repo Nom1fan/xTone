@@ -35,7 +35,7 @@ public class InsertMediaCallRecordActionHandler implements ActionHandler {
         MediaCall mediaCall = (MediaCall) actionBundle.getIntent().getSerializableExtra(MEDIA_CALL);
         InsertMediaCallRecordRequest request = new InsertMediaCallRecordRequest(actionBundle.getRequest());
         request.setMediaCall(mediaCall);
-        request.setSourceLocale(Locale.getDefault().getLanguage());
+        request.setLocale(Locale.getDefault().getLanguage());
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
 

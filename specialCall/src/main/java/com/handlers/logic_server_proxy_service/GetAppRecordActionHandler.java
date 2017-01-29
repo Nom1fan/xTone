@@ -33,7 +33,7 @@ public class GetAppRecordActionHandler implements ActionHandler {
     public void handleAction(ActionBundle actionBundle) throws IOException {
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
-        actionBundle.getRequest().setSourceLocale(Locale.getDefault().getLanguage());
+        actionBundle.getRequest().setLocale(Locale.getDefault().getLanguage());
         int responseCode = connectionToServer.sendRequest(URL_GET_APP_RECORD, actionBundle.getRequest());
 
         if (responseCode == HttpStatus.SC_OK) {

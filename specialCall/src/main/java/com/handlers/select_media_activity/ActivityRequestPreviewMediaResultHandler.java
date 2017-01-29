@@ -8,7 +8,7 @@ import com.handlers.Handler;
 import com.ui.activities.PreviewMediaActivity;
 import com.ui.activities.SelectMediaActivity;
 
-import com.data.objects.SpecialMediaType;
+import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
 
 /**

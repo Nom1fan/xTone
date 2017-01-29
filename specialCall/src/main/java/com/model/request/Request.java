@@ -1,82 +1,32 @@
 package com.model.request;
 
+import com.data.objects.User;
+
 /**
  * Created by Mor on 17/12/2016.
  */
 public class Request {
 
-    private String messageInitiaterId;
-    private String pushToken;
-    private String androidVersion;
-    private String iosVersion;
-    private String appVersion;
-    private String sourceLocale;
-    private String deviceModel;
+    private User user;
+    private String locale;
 
     public void copy(Request request) {
-        request.setMessageInitiaterId(getMessageInitiaterId());
-        request.setSourceLocale(getSourceLocale());
-        request.setAppVersion(getAppVersion());
-        request.setIosVersion(getIosVersion());
-        request.setAndroidVersion(getAndroidVersion());
-        request.setPushToken(getPushToken());
-        request.setDeviceModel(getDeviceModel());
+        request.setUser(user);
     }
 
-
-    public String getMessageInitiaterId() {
-        return messageInitiaterId;
+    public User getUser() {
+        return user;
     }
 
-    public void setMessageInitiaterId(String messageInitiaterId) {
-        this.messageInitiaterId = messageInitiaterId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public String getPushToken() {
-        return pushToken;
+    public String getLocale() {
+        return locale;
     }
 
-    public void setPushToken(String pushToken) {
-        this.pushToken = pushToken;
-    }
-
-    public String getAndroidVersion() {
-        return androidVersion;
-    }
-
-    public void setAndroidVersion(String androidVersion) {
-        this.androidVersion = androidVersion;
-    }
-
-    public String getIosVersion() {
-        return iosVersion;
-    }
-
-    public void setIosVersion(String iosVersion) {
-        this.iosVersion = iosVersion;
-    }
-
-    public String getAppVersion() {
-        return appVersion;
-    }
-
-    public void setAppVersion(String appVersion) {
-        this.appVersion = appVersion;
-    }
-
-    public String getSourceLocale() {
-        return sourceLocale;
-    }
-
-    public void setSourceLocale(String sourceLocale) {
-        this.sourceLocale = sourceLocale;
-    }
-
-    public String getDeviceModel() {
-        return deviceModel;
-    }
-
-    public void setDeviceModel(String deviceModel) {
-        this.deviceModel = deviceModel;
+    public void setLocale(String locale) {
+        this.locale = locale;
     }
 }

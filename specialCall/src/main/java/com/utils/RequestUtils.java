@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Build;
 
 import com.data.objects.Constants;
+import com.data.objects.User;
 import com.model.request.Request;
 
 /**
@@ -12,10 +13,13 @@ import com.model.request.Request;
 
 public abstract class RequestUtils {
     public static void prepareDefaultRequest(Context context, Request request) {
-        request.setMessageInitiaterId(Constants.MY_ID(context));
-        request.setAppVersion(String.valueOf(Constants.APP_VERSION()));
-        request.setPushToken(Constants.MY_BATCH_TOKEN(context));
-        request.setAndroidVersion(Build.VERSION.RELEASE);
-        request.setDeviceModel(Constants.MY_DEVICE_MODEL());
+        User user = new User();
+        user.setUid(Constants.MY_ID(context));
+        user.setAppVersion(String.valueOf(Constants.APP_VERSION()));
+        user.setToken(Constants.MY_BATCH_TOKEN(context));
+        user.setOs("ANDROID");
+        user.setOsVersion(Build.VERSION.RELEASE);
+        user.setDeviceModel(Constants.MY_DEVICE_MODEL());
+        request.setUser(user);
     }
 }

@@ -1,4 +1,4 @@
-package com.data.objects;
+package com.enums;
 
 /**
  * Created by Mor on 09/01/2016.

@@ -14,7 +14,7 @@ import android.widget.TextView;
 import com.mediacallz.app.R;
 import com.services.ServerProxyService;
 
-import com.data.objects.SpecialMediaType;
+import com.enums.SpecialMediaType;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 

@@ -32,7 +32,7 @@ public class NotifyMediaClearedActionHandler implements ActionHandler {
 
         ClearMediaData clearMediaData = (ClearMediaData) actionBundle.getIntent().getSerializableExtra(CLEAR_MEDIA_DATA);
         NotifyMediaClearedRequest request = new NotifyMediaClearedRequest(actionBundle.getRequest());
-        request.setSourceLocale(clearMediaData.getSourceLocale());
+        request.setLocale(clearMediaData.getSourceLocale());
         request.setSourceId(clearMediaData.getSourceId());
         request.setSpecialMediaType(clearMediaData.getSpecialMediaType());
 

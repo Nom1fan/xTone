@@ -2,20 +2,17 @@ package com.utils;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.util.Log;
 
 import com.dal.objects.DAL_Access;
 import com.dal.objects.IDAL;
 import com.data.objects.PendingDownloadData;
-import com.data.objects.SpecialMediaType;
-import com.services.ServerProxyService;
+import com.enums.SpecialMediaType;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import com.data.objects.PushEventKeys;
 import com.exceptions.FileInvalidFormatException;
 import com.files.media.MediaFile;
 

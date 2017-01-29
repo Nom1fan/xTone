@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.data.objects.SpecialMediaType;
+import com.enums.SpecialMediaType;
 import com.exceptions.FileInvalidFormatException;
 import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;

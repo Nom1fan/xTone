@@ -3,7 +3,7 @@ package com.utils;
 import android.content.Context;
 import android.util.Log;
 
-import com.data.objects.SpecialMediaType;
+import com.enums.SpecialMediaType;
 import com.exceptions.FileDoesNotExistException;
 import com.exceptions.FileExceedsMaxSizeException;
 import com.exceptions.FileInvalidFormatException;

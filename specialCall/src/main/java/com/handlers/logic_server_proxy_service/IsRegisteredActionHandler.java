@@ -3,7 +3,7 @@ package com.handlers.logic_server_proxy_service;
 import android.util.Log;
 
 import com.client.ConnectionToServer;
-import com.data.objects.UserStatus;
+import com.enums.UserStatus;
 import com.event.EventReport;
 import com.event.EventType;
 import com.google.gson.reflect.TypeToken;
@@ -39,7 +39,7 @@ public class IsRegisteredActionHandler implements ActionHandler {
         connectionToServer.setResponseType(responseType);
         IsRegisteredRequest isRegisteredRequest = new IsRegisteredRequest(actionBundle.getRequest());
         isRegisteredRequest.setDestinationId(destinationId);
-        isRegisteredRequest.setSourceLocale(Locale.getDefault().getLanguage());
+        isRegisteredRequest.setLocale(Locale.getDefault().getLanguage());
         log(Log.INFO, TAG, "Initiating IsRegistered sequence...");
         int responseCode = connectionToServer.sendRequest(URL_ISREGISTERED, isRegisteredRequest);
 

@@ -48,7 +48,7 @@ public class AutoCompletePopulateListAsyncTask extends AsyncTask<Context, Intege
         List<Contact> allContacts = ContactsUtils.getAllContacts(context);
 
         for (Contact contact : allContacts)
-            mPeopleList.add(contact.get_name() + "\n" + contact.get_phoneNumber());
+            mPeopleList.add(contact.getName() + "\n" + contact.getPhoneNumber());
 
     }
 

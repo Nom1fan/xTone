@@ -12,7 +12,7 @@ import com.utils.SharedPrefUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import com.data.objects.SpecialMediaType;
+import com.enums.SpecialMediaType;
 
 import static com.crashlytics.android.Crashlytics.log;
 

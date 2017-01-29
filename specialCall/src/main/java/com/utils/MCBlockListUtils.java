@@ -55,7 +55,7 @@ public abstract class MCBlockListUtils {
                     List<String> contactPhonenumbers = new ArrayList<>();
 
                     for (int i=0; i<contactsList.size(); i++) {
-                        contactPhonenumbers.add(contactsList.get(i).get_phoneNumber());
+                        contactPhonenumbers.add(contactsList.get(i).getPhoneNumber());
                     }
 
                     Set<String> blockedSet2 = SharedPrefUtils.getStringSet(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);

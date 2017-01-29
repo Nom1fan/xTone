@@ -2,6 +2,7 @@ package com.data.objects;
 
 import android.util.Log;
 
+import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
 
 import java.io.Serializable;

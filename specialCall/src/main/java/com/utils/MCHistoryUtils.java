@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.data.objects.MediaCall;
-import com.data.objects.SpecialMediaType;
+import com.enums.SpecialMediaType;
 import com.exceptions.FileException;
 import com.files.media.MediaFile;
 import com.services.ServerProxyService;

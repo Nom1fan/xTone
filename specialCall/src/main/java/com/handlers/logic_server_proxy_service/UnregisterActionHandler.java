@@ -30,7 +30,7 @@ public class UnregisterActionHandler implements ActionHandler {
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
         UnRegisterRequest unRegisterRequest = new UnRegisterRequest();
-        unRegisterRequest.setSourceLocale(Locale.getDefault().getLanguage());
+        unRegisterRequest.setLocale(Locale.getDefault().getLanguage());
 
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
 

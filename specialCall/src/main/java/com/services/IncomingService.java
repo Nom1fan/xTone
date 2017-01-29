@@ -32,7 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
-import com.data.objects.SpecialMediaType;
+import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
 import com.utils.PhoneNumberUtils;
 import wei.mark.standout.StandOutWindow;

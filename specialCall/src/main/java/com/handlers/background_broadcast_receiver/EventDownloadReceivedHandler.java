@@ -7,7 +7,7 @@ import com.crashlytics.android.Crashlytics;
 import com.data.objects.Constants;
 import com.data.objects.Contact;
 import com.data.objects.PendingDownloadData;
-import com.data.objects.SpecialMediaType;
+import com.enums.SpecialMediaType;
 import com.event.EventReport;
 import com.exceptions.FailedToSetNewMediaException;
 import com.exceptions.FileDoesNotExistException;
@@ -92,7 +92,7 @@ public class EventDownloadReceivedHandler implements Handler {
             List<String> contactPhonenumbers = new ArrayList<>();
 
             for (int i = 0; i < contactsList.size(); i++) {
-                contactPhonenumbers.add(contactsList.get(i).get_phoneNumber());
+                contactPhonenumbers.add(contactsList.get(i).getPhoneNumber());
             }
 
             if (contactPhonenumbers.contains(PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber)))

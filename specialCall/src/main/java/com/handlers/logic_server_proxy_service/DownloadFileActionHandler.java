@@ -1,13 +1,12 @@
 package com.handlers.logic_server_proxy_service;
 
-import android.content.Context;
 import android.os.PowerManager;
 
 import com.client.ConnectionToServer;
 import com.data.objects.Constants;
 import com.data.objects.PendingDownloadData;
 import com.data.objects.PushEventKeys;
-import com.data.objects.SpecialMediaType;
+import com.enums.SpecialMediaType;
 import com.event.EventReport;
 import com.event.EventType;
 import com.handlers.ActionHandler;
@@ -32,7 +31,7 @@ public class DownloadFileActionHandler implements ActionHandler {
     public void handleAction(ActionBundle actionBundle) throws IOException {
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         DownloadFileRequest request = new DownloadFileRequest(actionBundle.getRequest());
-        request.setDestinationId(request.getMessageInitiaterId());
+        request.setDestinationId(request.getUser().getUid());
         PowerManager powerManager = (PowerManager) actionBundle.getCtx().getSystemService(POWER_SERVICE);
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
         wakeLock.acquire();
@@ -54,7 +53,7 @@ public class DownloadFileActionHandler implements ActionHandler {
         request.setDestinationContactName(pendingDownloadData.getDestinationContactName());
         request.setSourceId(pendingDownloadData.getSourceId());
         request.setCommId(pendingDownloadData.getCommId());
-        request.setSourceLocale(pendingDownloadData.getSourceLocale());
+        request.setLocale(pendingDownloadData.getSourceLocale());
         request.setFilePathOnServer(pendingDownloadData.getFilePathOnServer());
         request.setFilePathOnSrcSd(pendingDownloadData.getFilePathOnSrcSd());
         request.setSpecialMediaType(pendingDownloadData.getSpecialMediaType());

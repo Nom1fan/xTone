@@ -5,21 +5,21 @@ package com.data.objects;
  */
 public class Contact {
 
-    private String _name;
-    private String _phoneNumber;
+    private String name;
+    private String phoneNumber;
 
 
-    public Contact(String _name, String _phoneNumber) {
-        this._name = _name;
-        this._phoneNumber = _phoneNumber;
+    public Contact(String name, String phoneNumber) {
+        this.name = name;
+        this.phoneNumber = phoneNumber;
     }
 
 
-    public String get_name() {
-        return _name;
+    public String getName() {
+        return name;
     }
 
-    public String get_phoneNumber() {
-        return _phoneNumber;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 }

@@ -1,5 +1,6 @@
 package com.data.objects;
 
+import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
 import com.model.push.AbstractPushData;
 

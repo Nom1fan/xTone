@@ -6,7 +6,7 @@ import android.util.Log;
 import com.app.AppStateManager;
 import com.client.ConnectionToServer;
 import com.data.objects.Constants;
-import com.data.objects.SpecialMediaType;
+import com.enums.SpecialMediaType;
 import com.event.EventReport;
 import com.event.EventType;
 import com.google.gson.reflect.TypeToken;
@@ -47,7 +47,7 @@ public class ClearMediaActionHandler implements ActionHandler {
         SpecialMediaType specialMediaType = (SpecialMediaType) actionBundle.getIntent().getSerializableExtra(SPECIAL_MEDIA_TYPE);
 
         ClearMediaRequest request = new ClearMediaRequest(actionBundle.getRequest());
-        request.setSourceLocale(Locale.getDefault().getLanguage());
+        request.setLocale(Locale.getDefault().getLanguage());
         request.setDestinationId(destId);
         request.setSourceId(Constants.MY_ID(ctx));
         request.setSpecialMediaType(specialMediaType);

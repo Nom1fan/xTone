@@ -58,7 +58,7 @@ import com.data.objects.Constants;
 import com.data.objects.Contact;
 import com.data.objects.KeysForBundle;
 import com.data.objects.SnackbarData;
-import com.data.objects.SpecialMediaType;
+import com.enums.SpecialMediaType;
 import com.event.Event;
 import com.event.EventReport;
 import com.exceptions.FileDoesNotExistException;
@@ -89,7 +89,6 @@ import com.utils.UI_Utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import static com.crashlytics.android.Crashlytics.log;
 import static com.crashlytics.android.Crashlytics.setUserIdentifier;
@@ -326,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     if (data != null) {
                         Uri uri = data.getData();
                         Contact contact = ContactsUtils.getContact(uri, this);
-                        saveInstanceState(contact.get_name(), PhoneNumberUtils.toValidLocalPhoneNumber(contact.get_phoneNumber()));
+                        saveInstanceState(contact.getName(), PhoneNumberUtils.toValidLocalPhoneNumber(contact.getPhoneNumber()));
                     }
 
                 } catch (Exception e) {

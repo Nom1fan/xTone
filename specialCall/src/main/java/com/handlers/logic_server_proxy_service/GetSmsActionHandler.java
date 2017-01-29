@@ -33,7 +33,7 @@ public class GetSmsActionHandler implements ActionHandler {
         String interPhoneNumber = actionBundle.getIntent().getStringExtra(INTERNATIONAL_PHONE);
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         GetSmsRequest getSmsRequest = new GetSmsRequest(actionBundle.getRequest());
-        getSmsRequest.setSourceLocale(Locale.getDefault().getLanguage());
+        getSmsRequest.setLocale(Locale.getDefault().getLanguage());
         getSmsRequest.setInternationalPhoneNumber(interPhoneNumber);
         int responseCode = connectionToServer.sendRequest(URL_GET_SMS_AUTH, getSmsRequest);
 

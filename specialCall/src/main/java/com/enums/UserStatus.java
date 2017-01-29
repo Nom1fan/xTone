@@ -1,4 +1,4 @@
-package com.data.objects;
+package com.enums;
 
 public enum UserStatus {
 

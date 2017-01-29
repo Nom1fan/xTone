@@ -88,6 +88,7 @@ public class ConnectionToServer {
         } finally {
             if (post != null)
                 post.releaseConnection();
+            logErrors();
         }
         return responseCode;
     }
@@ -192,11 +193,12 @@ public class ConnectionToServer {
     }
 
     private void logErrors() {
-        if(conn.getErrorStream()!=null)
+        if (conn.getErrorStream() != null) {
             log(Log.ERROR, TAG, "Response errors:" + readStream(conn.getErrorStream()));
+        }
     }
 
-    private String readStream(InputStream stream)  {
+    private String readStream(InputStream stream) {
         StringBuilder builder = new StringBuilder();
         try (BufferedReader in = new BufferedReader(new InputStreamReader(stream))) {
             String line;
@@ -204,7 +206,7 @@ public class ConnectionToServer {
                 builder.append(line); // + "\r\n"(no need, json has no line breaks!)
             }
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return builder.toString();

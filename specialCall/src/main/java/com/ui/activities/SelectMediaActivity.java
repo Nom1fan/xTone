@@ -38,7 +38,7 @@ import com.utils.UI_Utils;
 import java.io.File;
 import java.util.List;
 
-import com.data.objects.SpecialMediaType;
+import com.enums.SpecialMediaType;
 import com.exceptions.FileDoesNotExistException;
 import com.exceptions.FileExceedsMaxSizeException;
 import com.exceptions.FileInvalidFormatException;

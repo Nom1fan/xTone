@@ -26,7 +26,7 @@ public class UpdateUserRecordActionHandler implements ActionHandler {
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
-        actionBundle.getRequest().setSourceLocale(Locale.getDefault().getLanguage());
+        actionBundle.getRequest().setLocale(Locale.getDefault().getLanguage());
 
         log(Log.INFO, TAG, "Initiating update user record sequence...");
         int responseCode = connectionToServer.sendRequest(URL_UPDATE_USER_RECORD, actionBundle.getRequest());

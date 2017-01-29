@@ -16,7 +16,7 @@ import com.client.ConnectionToServer;
 import com.client.ProgressListener;
 import com.client.ProgressiveEntity;
 import com.data.objects.Constants;
-import com.data.objects.SpecialMediaType;
+import com.enums.SpecialMediaType;
 import com.event.EventReport;
 import com.event.EventType;
 import com.files.media.MediaFile;
@@ -179,7 +179,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements Progre
         UploadFileRequest uploadFileRequest = new UploadFileRequest();
         RequestUtils.prepareDefaultRequest(context, uploadFileRequest);
         uploadFileRequest.setSourceId(myId);
-        uploadFileRequest.setSourceLocale(Locale.getDefault().getLanguage());
+        uploadFileRequest.setLocale(Locale.getDefault().getLanguage());
         uploadFileRequest.setDestinationId(bundle.get(DEST_ID).toString());
         uploadFileRequest.setDestinationContactName(bundle.get(DEST_NAME).toString());
         uploadFileRequest.setMediaFile(fileForUpload);

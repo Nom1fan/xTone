@@ -32,7 +32,7 @@ public class NotifyMediaReadyActionHandler implements ActionHandler {
 
         PendingDownloadData pendingDownloadData = (PendingDownloadData) actionBundle.getIntent().getSerializableExtra(PENDING_DOWNLOAD_DATA);
         NotifyMediaReadyRequest request = new NotifyMediaReadyRequest(actionBundle.getRequest());
-        request.setSourceLocale(pendingDownloadData.getSourceLocale());
+        request.setLocale(pendingDownloadData.getSourceLocale());
         request.setSourceId(pendingDownloadData.getSourceId());
         request.setSpecialMediaType(pendingDownloadData.getSpecialMediaType());
         request.setDestinationContactName(pendingDownloadData.getDestinationContactName());
