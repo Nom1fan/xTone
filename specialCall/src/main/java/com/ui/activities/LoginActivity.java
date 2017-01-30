@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -483,8 +484,14 @@ public class LoginActivity extends AppCompatActivity {
 
                     if (pdusObj != null) {
                         for (Object aPdusObj : pdusObj) {
+                            SmsMessage currentMessage;
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                String format = bundle.getString("format");
+                                currentMessage = SmsMessage.createFromPdu((byte[]) aPdusObj, format);
+                            } else {
+                                currentMessage = SmsMessage.createFromPdu((byte[]) aPdusObj);
+                            }
 
-                            SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) aPdusObj);
                             String phoneNumber = currentMessage.getDisplayOriginatingAddress();
 
                             String message = currentMessage.getDisplayMessageBody();
