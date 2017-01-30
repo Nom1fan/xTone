@@ -26,6 +26,7 @@ import java.text.DecimalFormat;
 
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.HttpStatus;
+import cz.msebera.android.httpclient.StatusLine;
 import cz.msebera.android.httpclient.client.HttpClient;
 import cz.msebera.android.httpclient.client.methods.HttpPost;
 import cz.msebera.android.httpclient.impl.client.HttpClientBuilder;
@@ -37,7 +38,7 @@ public class ConnectionToServer {
     private static final String TAG = ConnectionToServer.class.getSimpleName();
 
     private static final int READ_TIMEOUT = 10000;
-    private static final int CONNECT_TIMEOUT = 15000;
+    private static final int CONNECT_TIMEOUT = 6*1000;
     private static final String REQUEST_METHOD_POST = "POST";
     private static final String ENCODING = "UTF-8";
 
@@ -77,18 +78,19 @@ public class ConnectionToServer {
     public int sendMultipartToServer(String url, ProgressiveEntity progressiveEntity) {
         HttpPost post = null;
         int responseCode = -1;
+        HttpResponse httpResponse = null;
         try {
             HttpClient client = HttpClientBuilder.create().build();
             post = new HttpPost(url);
             post.setEntity(progressiveEntity);
-            HttpResponse httpResponse = client.execute(post);
+            httpResponse = client.execute(post);
             responseCode = httpResponse.getStatusLine().getStatusCode();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             if (post != null)
                 post.releaseConnection();
-            logErrors();
+            logErrors(httpResponse);
         }
         return responseCode;
     }
@@ -190,6 +192,16 @@ public class ConnectionToServer {
 
     private double calcProgressPercentage(long fileSize, long fileSizeConst) {
         return ((fileSizeConst - fileSize) / (double) fileSizeConst) * 100;
+    }
+
+    private void logErrors(HttpResponse httpResponse) {
+        if(httpResponse != null) {
+            StatusLine statusLine = httpResponse.getStatusLine();
+            int statusCode = statusLine.getStatusCode();
+            if(statusCode != HttpStatus.SC_OK) {
+                log(Log.ERROR, TAG, "Response errors: [Status Code]:" + statusCode + ", [Reason]:" + statusLine.getReasonPhrase());
+            }
+        }
     }
 
     private void logErrors() {

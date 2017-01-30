@@ -45,28 +45,28 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
-    private BroadcastReceiver _eventReceiver;
-    private static final IntentFilter _eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
+    private BroadcastReceiver eventReceiver;
+    private static final IntentFilter eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
 
     //region UI elements
-    private EditText _loginNumberEditText;
-    private EditText _smsCodeVerEditText;
-    private ImageButton _loginBtn;
-    private ImageButton _getSmsCodeBtn;
-    private ImageView _loginlogo;
-    private ProgressBar _initProgressBar;
-    private TextView _initTextView;
-    private GetSmsCodeTask _getSmsCodeTask;
-    private  static boolean  _sentFromReceiver=false;
-    private ImageButton _clearLoginPhoneText;
-    private ImageButton _clearLoginSmsText;
+    private EditText loginNumberEditText;
+    private EditText smsCodeVerEditText;
+    private ImageButton loginBtn;
+    private ImageButton getSmsCodeBtn;
+    private ImageView loginlogo;
+    private ProgressBar initProgressBar;
+    private TextView initTextView;
+    private GetSmsCodeTask getSmsCodeTask;
+    private static boolean sentFromReceiver = false;
+    private ImageButton clearLoginPhoneText;
+    private ImageButton clearLoginSmsText;
     //endregion
 
     //region Activity methods (onCreate(), onPause(), ...)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        log(Log.INFO,TAG, "onCreate()");
+        log(Log.INFO, TAG, "onCreate()");
 
         initializeLoginUI();
     }
@@ -75,23 +75,21 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        log(Log.INFO,TAG, "OnStart()");
+        log(Log.INFO, TAG, "OnStart()");
 
         Batch.onStart(this);
-
-
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        log(Log.INFO,TAG, "onPause()");
+        log(Log.INFO, TAG, "onPause()");
 
-        if (_eventReceiver != null) {
+        if (eventReceiver != null) {
             try {
-                unregisterReceiver(_eventReceiver);
+                unregisterReceiver(eventReceiver);
             } catch (Exception ex) {
-                log(Log.ERROR,TAG, ex.getMessage());
+                log(Log.ERROR, TAG, ex.getMessage());
             }
         }
         saveInstanceState();
@@ -101,33 +99,23 @@ public class LoginActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        log(Log.INFO,TAG, "OnResume()");
+        log(Log.INFO, TAG, "OnResume()");
 
         restoreInstanceState();
-
         prepareEventReceiver();
 
-        if(Constants.MY_BATCH_TOKEN(this).equals("")) {
-
+        if (Constants.MY_BATCH_TOKEN(this).equals("")) {
             Intent i = new Intent(this, GetTokenIntentService.class);
             i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
             startService(i);
         }
 
         syncUIwithAppState();
-
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if(resultCode == RESULT_OK) {
-            String timeoutMsg = getResources().getString(R.string.register_failure);
-            String registering = getResources().getString(R.string.registering);
-            AppStateManager.setLoadingState(this, TAG, registering, timeoutMsg);
-        }
-
         syncUIwithAppState();
     }
     //endregion
@@ -145,63 +133,55 @@ public class LoginActivity extends AppCompatActivity {
         prepareInitProgressBar();
         prepareGetSmsCodeButton();
 
-        if (10 == SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER).length())
-        {
-           visibleSmsButtons();
+        if (10 == SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER).length()) {
+            visibleSmsButtons();
         }
 
     }
 
     private void visibleSmsButtons() {
-        _loginBtn.setVisibility(View.VISIBLE);
-        _smsCodeVerEditText.setVisibility(View.VISIBLE);
-        _clearLoginSmsText.setVisibility(View.VISIBLE);
+        loginBtn.setVisibility(View.VISIBLE);
+        smsCodeVerEditText.setVisibility(View.VISIBLE);
+        clearLoginSmsText.setVisibility(View.VISIBLE);
     }
 
     private void prepareLoginLogo() {
+        loginlogo = (ImageView) findViewById(R.id.loginlogo);
+        loginlogo.setEnabled(true);
 
-        _loginlogo = (ImageView) findViewById(R.id.loginlogo);
-        _loginlogo.setEnabled(true);
-
-        _loginlogo.setOnClickListener(new View.OnClickListener() {
+        loginlogo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-               visibleSmsButtons();
+                visibleSmsButtons();
 
             }
         });
-
-
     }
 
     private void prepareInitProgressBar() {
-
-        _initProgressBar = (ProgressBar)findViewById(R.id.initProgressBar);
-        _initProgressBar.setVisibility(ProgressBar.GONE);
+        initProgressBar = (ProgressBar) findViewById(R.id.initProgressBar);
+        initProgressBar.setVisibility(ProgressBar.GONE);
     }
 
     private void prepareInitTextView() {
-
-        _initTextView = (TextView)findViewById(R.id.initTextView);
+        initTextView = (TextView) findViewById(R.id.initTextView);
     }
 
     private void prepareLoginNumberEditText() {
-
-        _loginNumberEditText = (EditText) findViewById(R.id.LoginNumber);
-        _clearLoginPhoneText = (ImageButton) findViewById(R.id.login_phone_clear);
-        _clearLoginPhoneText.setOnClickListener(new View.OnClickListener() {
+        loginNumberEditText = (EditText) findViewById(R.id.LoginNumber);
+        clearLoginPhoneText = (ImageButton) findViewById(R.id.login_phone_clear);
+        clearLoginPhoneText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                _loginNumberEditText.setText("");
+                loginNumberEditText.setText("");
 
-              invisibleSmsButtons();
+                invisibleSmsButtons();
 
             }
         });
 
-
-        _loginNumberEditText.addTextChangedListener(new TextWatcher() {
+        loginNumberEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -211,9 +191,9 @@ public class LoginActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
                 if (0 == s.length())
-                    _clearLoginPhoneText.setImageResource(0);
+                    clearLoginPhoneText.setImageResource(0);
                 else
-                    _clearLoginPhoneText.setImageResource(R.drawable.clear_btn_anim);
+                    clearLoginPhoneText.setImageResource(R.drawable.clear_btn_anim);
 
                 if (10 == s.length()) {
 
@@ -224,10 +204,9 @@ public class LoginActivity extends AppCompatActivity {
                             enableGetSmsCodeButton();
                             enableSmsCodeEditText();
 
-                            if (4 == _smsCodeVerEditText.getText().toString().length())
-                            {
+                            if (4 == smsCodeVerEditText.getText().toString().length()) {
                                 enableLoginButton();
-                               visibleSmsButtons();
+                                visibleSmsButtons();
 
                             }
                         }
@@ -248,71 +227,74 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void invisibleSmsButtons() {
-        _loginBtn.setVisibility(View.INVISIBLE);
-        _smsCodeVerEditText.setVisibility(View.INVISIBLE);
-        _clearLoginSmsText.setVisibility(View.INVISIBLE);
+        loginBtn.setVisibility(View.INVISIBLE);
+        smsCodeVerEditText.setVisibility(View.INVISIBLE);
+        clearLoginSmsText.setVisibility(View.INVISIBLE);
     }
 
     private void prepareLoginButton() {
 
-        _loginBtn = (ImageButton) findViewById(R.id.login_btn);
-        _loginBtn.setEnabled(false);
-        _loginBtn.setImageResource(R.drawable.login_btn_anim);
-        _loginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        loginBtn = (ImageButton) findViewById(R.id.login_btn);
+        if (loginBtn != null) {
+            loginBtn.setEnabled(false);
+            loginBtn.setImageResource(R.drawable.login_btn_anim);
+            loginBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-                String smsVerificationCode = _smsCodeVerEditText.getText().toString();
-                String loginNumber = _loginNumberEditText.getText().toString();
+                    String smsVerificationCode = smsCodeVerEditText.getText().toString();
+                    String loginNumber = loginNumberEditText.getText().toString();
 
-                Intent intent = new Intent(LoginActivity.this,LoginWithTermsAndServiceActivity.class);
-                intent.putExtra(LoginWithTermsAndServiceActivity.SmsCode,smsVerificationCode);
-                intent.putExtra(LoginWithTermsAndServiceActivity.LoginNumber,loginNumber);
-                startActivityForResult(intent, ActivityRequestCodes.TERMS_OF_SERVICE);
+                    Intent intent = new Intent(LoginActivity.this, LoginWithTermsAndServiceActivity.class);
+                    intent.putExtra(LoginWithTermsAndServiceActivity.SMS_CODE, smsVerificationCode);
+                    intent.putExtra(LoginWithTermsAndServiceActivity.LOGIN_NUMBER, loginNumber);
+                    startActivityForResult(intent, ActivityRequestCodes.TERMS_OF_SERVICE);
 
-                if(_getSmsCodeTask!=null)
-                    _getSmsCodeTask.cancel(true);
-            }
-        });
+                    if (getSmsCodeTask != null)
+                        getSmsCodeTask.cancel(true);
+                }
+            });
+        }
         disableLoginButton();
     }
 
     private void prepareGetSmsCodeButton() {
 
-        _getSmsCodeBtn = (ImageButton) findViewById(R.id.getSmsCode_btn);
-        _getSmsCodeBtn.setEnabled(false);
-        _getSmsCodeBtn.setImageResource(R.drawable.send_sms_icon_disabled);
-        _getSmsCodeBtn.setOnClickListener(new View.OnClickListener() {
+        getSmsCodeBtn = (ImageButton) findViewById(R.id.getSmsCode_btn);
+        if (getSmsCodeBtn != null) {
+            getSmsCodeBtn.setEnabled(false);
+            getSmsCodeBtn.setImageResource(R.drawable.send_sms_icon_disabled);
+            getSmsCodeBtn.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
+                @Override
+                public void onClick(View v) {
 
-                String timeoutMsg = getResources().getString(R.string.sms_code_failed);
-                String loadingMsg = getResources().getString(R.string.please_wait);
-                AppStateManager.setLoadingState(LoginActivity.this, TAG, loadingMsg, timeoutMsg);
-                syncUIwithAppState();
+                    String timeoutMsg = getResources().getString(R.string.sms_code_failed);
+                    String loadingMsg = getResources().getString(R.string.please_wait);
+                    AppStateManager.setLoadingState(LoginActivity.this, TAG, loadingMsg, timeoutMsg);
+                    syncUIwithAppState();
 
-                String phoneNumber = _loginNumberEditText.getText().toString();
-                getSms(phoneNumber);
+                    String phoneNumber = loginNumberEditText.getText().toString();
+                    getSms(phoneNumber);
 
-               visibleSmsButtons();
-            }
-        });
+                    visibleSmsButtons();
+                }
+            });
+        }
         disableGetSmsCodeButton();
     }
 
     private void prepareSmsCodeVerificationEditText() {
-
-        _smsCodeVerEditText = (EditText) findViewById(R.id.SMSCodeEditText);
-        _clearLoginSmsText = (ImageButton) findViewById(R.id.sms_phone_clear);
-        _clearLoginSmsText.setOnClickListener(new View.OnClickListener() {
+        smsCodeVerEditText = (EditText) findViewById(R.id.SMSCodeEditText);
+        clearLoginSmsText = (ImageButton) findViewById(R.id.sms_phone_clear);
+        clearLoginSmsText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                _smsCodeVerEditText.setText("");
+                smsCodeVerEditText.setText("");
             }
         });
 
-        _smsCodeVerEditText.addTextChangedListener(new TextWatcher() {
+        smsCodeVerEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -322,9 +304,9 @@ public class LoginActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
                 if (0 == s.length())
-                    _clearLoginSmsText.setImageResource(0);
+                    clearLoginSmsText.setImageResource(0);
                 else
-                    _clearLoginSmsText.setImageResource(R.drawable.clear_btn_anim);
+                    clearLoginSmsText.setImageResource(R.drawable.clear_btn_anim);
 
                 if (4 == s.length()) {
                     enableLoginButton();
@@ -342,36 +324,33 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void enableProgressBar() {
-
-        _initProgressBar.setVisibility(ProgressBar.VISIBLE);
-        _loginlogo.setVisibility(View.INVISIBLE);
+        initProgressBar.setVisibility(ProgressBar.VISIBLE);
+        loginlogo.setVisibility(View.INVISIBLE);
     }
 
     private void disableProgressBar() {
-
-        _initProgressBar.setVisibility(ProgressBar.GONE);
-        _loginlogo.setVisibility(View.VISIBLE);
+        initProgressBar.setVisibility(ProgressBar.GONE);
+        loginlogo.setVisibility(View.VISIBLE);
     }
 
     private void setInitTextView(String str) {
-        if(str!=null) {
+        if (str != null) {
             log(Log.INFO, TAG, "SetInitTextView:" + str);
-            _initTextView.setVisibility(View.VISIBLE);
-            _initTextView.setText(str);
+            initTextView.setVisibility(View.VISIBLE);
+            initTextView.setText(str);
         }
     }
 
     private void disableInitTextView() {
-
-        _initTextView.setVisibility(View.INVISIBLE);
+        initTextView.setVisibility(View.INVISIBLE);
     }
 
     private void enableLoginButton() {
 
         Log.d(TAG, "Enabling LoginButton");
 
-        _loginBtn.setEnabled(true);
-        _loginBtn.setImageResource(R.drawable.login_btn_anim);
+        loginBtn.setEnabled(true);
+        loginBtn.setImageResource(R.drawable.login_btn_anim);
 
     }
 
@@ -379,95 +358,84 @@ public class LoginActivity extends AppCompatActivity {
 
         Log.d(TAG, "Disabling LoginButton");
 
-        _loginBtn.setEnabled(false);
-        _loginBtn.setImageResource(R.drawable.login_icon_disabled);
+        loginBtn.setEnabled(false);
+        loginBtn.setImageResource(R.drawable.login_icon_disabled);
     }
 
     private void enableLoginEditText() {
 
         Log.d(TAG, "Enabling LoginEditText");
 
-        _loginNumberEditText.setEnabled(true);
-        _loginNumberEditText.setTextColor(ContextCompat.getColor(this, R.color.white));
-        _clearLoginPhoneText.setEnabled(true);
+        loginNumberEditText.setEnabled(true);
+        loginNumberEditText.setTextColor(ContextCompat.getColor(this, R.color.white));
+        clearLoginPhoneText.setEnabled(true);
     }
 
     private void disableLoginEditText() {
-
         Log.d(TAG, "Disabling LoginEditText");
 
-        _loginNumberEditText.setEnabled(false);
-        _clearLoginPhoneText.setEnabled(false);
+        loginNumberEditText.setEnabled(false);
+        clearLoginPhoneText.setEnabled(false);
     }
 
     private void enableSmsCodeEditText() {
-
         Log.d(TAG, "Enabling SmsCodeEditText");
 
-        _smsCodeVerEditText.setEnabled(true);
-        _smsCodeVerEditText.setTextColor(ContextCompat.getColor(this, R.color.white));
-        _clearLoginSmsText.setEnabled(true);
+        smsCodeVerEditText.setEnabled(true);
+        smsCodeVerEditText.setTextColor(ContextCompat.getColor(this, R.color.white));
+        clearLoginSmsText.setEnabled(true);
     }
 
     private void disableSmsCodeEditText() {
-
         Log.d(TAG, "Disabling SmsCodeEditText");
 
-        _smsCodeVerEditText.setEnabled(false);
-        _clearLoginSmsText.setEnabled(false);
+        smsCodeVerEditText.setEnabled(false);
+        clearLoginSmsText.setEnabled(false);
     }
 
     private void enableGetSmsCodeButton() {
-
         Log.d(TAG, "Enabling getSmsButton");
 
         boolean shouldEnable = true;
 
-        if(_getSmsCodeTask!=null && _getSmsCodeTask.getStatus().equals(AsyncTask.Status.RUNNING))
+        if (getSmsCodeTask != null && getSmsCodeTask.getStatus().equals(AsyncTask.Status.RUNNING))
             shouldEnable = false;
 
-        if(shouldEnable)
-        {
-            _getSmsCodeBtn.setEnabled(true);
-            _getSmsCodeBtn.setImageResource(R.drawable.send_sms_anim);
+        if (shouldEnable) {
+            getSmsCodeBtn.setEnabled(true);
+            getSmsCodeBtn.setImageResource(R.drawable.send_sms_anim);
         }
     }
 
     private void disableGetSmsCodeButton() {
-
         Log.d(TAG, "Disabling getSmsButton");
 
-        _getSmsCodeBtn.setEnabled(false);
-        _getSmsCodeBtn.setImageResource(R.drawable.send_sms_icon_disabled);
-
+        getSmsCodeBtn.setEnabled(false);
+        getSmsCodeBtn.setImageResource(R.drawable.send_sms_icon_disabled);
     }
 
     private void continueToMainActivity() {
-
         int millisToWait = 1500;
-        log(Log.INFO,TAG, String.format("Waiting %d milliseconds before continuing to MainActivity", millisToWait));
+        log(Log.INFO, TAG, String.format("Waiting %d milliseconds before continuing to MainActivity", millisToWait));
 
         try {
             Thread.sleep(millisToWait);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        log(Log.INFO,TAG, "Continuing to MainActivity");
+        log(Log.INFO, TAG, "Continuing to MainActivity");
         AppStateManager.setIsLoggedIn(this, true);
         final Intent i = new Intent(this, MainActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(i);
         finish();
-
     }
     //endregion
 
     //region Assisting methods (eventReceived(), ...)
-
     public void eventReceived(Event event) {
-
         final EventReport report = event.report();
-        log(Log.INFO,TAG, "Receiving event:" + report.status());
+        log(Log.INFO, TAG, "Receiving event:" + report.status());
 
         switch (report.status()) {
 
@@ -480,21 +448,19 @@ public class LoginActivity extends AppCompatActivity {
             case GET_SMS_CODE_SUCCESS:
                 AppStateManager.setAppState(this, TAG, AppStateManager.STATE_IDLE);
                 syncUIwithAppState();
-                _getSmsCodeTask = new GetSmsCodeTask(this, _initTextView, _getSmsCodeBtn);
-                _getSmsCodeTask.execute();
+                getSmsCodeTask = new GetSmsCodeTask(this, initTextView, getSmsCodeBtn);
+                getSmsCodeTask.execute();
                 break;
 
             case REFRESH_UI:
-
                 setInitTextView(report.desc());
                 syncUIwithAppState();
                 saveInstanceState();
                 restoreInstanceState();
-                if(10 == _loginNumberEditText.getText().length() && 4 == _smsCodeVerEditText.getText().length() && _sentFromReceiver) {
+                if (10 == loginNumberEditText.getText().length() && 4 == smsCodeVerEditText.getText().length() && sentFromReceiver) {
                     visibleSmsButtons();
-                    _loginBtn.performClick();
-                    _sentFromReceiver=false;
-
+                    loginBtn.performClick();
+                    sentFromReceiver = false;
                 }
                 break;
 
@@ -515,26 +481,26 @@ public class LoginActivity extends AppCompatActivity {
 
                     final Object[] pdusObj = (Object[]) bundle.get("pdus");
 
-                    for (Object aPdusObj : pdusObj) {
+                    if (pdusObj != null) {
+                        for (Object aPdusObj : pdusObj) {
 
-                        SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) aPdusObj);
-                        String phoneNumber = currentMessage.getDisplayOriginatingAddress();
+                            SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) aPdusObj);
+                            String phoneNumber = currentMessage.getDisplayOriginatingAddress();
 
-                        String message = currentMessage.getDisplayMessageBody();
+                            String message = currentMessage.getDisplayMessageBody();
 
-
-                        if (phoneNumber.toLowerCase().contains("mediacallz")) {
-                            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE, PhoneNumberUtils.toNumeric(message));
-                            SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE_RECEIVED, true);
-                            _sentFromReceiver=true;
-                            BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, null, null));
-                        }
-                    } // end for loop
+                            if (phoneNumber.toLowerCase().contains("mediacallz")) {
+                                SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE, PhoneNumberUtils.toNumeric(message));
+                                SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE_RECEIVED, true);
+                                sentFromReceiver = true;
+                                BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI));
+                            }
+                        } // end for loop
+                    }
                 } // bundle is null
 
             } catch (Exception e) {
-                log(Log.ERROR,"SmsReceiver", "Exception smsReceiver" +e);
-
+                log(Log.ERROR, "SmsReceiver", "Exception smsReceiver" + e);
             }
         }
     }
@@ -544,43 +510,38 @@ public class LoginActivity extends AppCompatActivity {
      * Saving the instance state - to be used from onPause()
      */
     private void saveInstanceState() {
-
         // Saving login number
-        String loginNumber = _loginNumberEditText.getText().toString();
+        String loginNumber = loginNumberEditText.getText().toString();
         SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER, loginNumber);
 
         // Saving sms code
         String smsCode;
-        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE_RECEIVED))
-        {
+        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE_RECEIVED)) {
             smsCode = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE);
-            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE_RECEIVED,false);
-        }
-        else
-            smsCode = _smsCodeVerEditText.getText().toString();
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUTO_SMS_CODE_RECEIVED, false);
+        } else
+            smsCode = smsCodeVerEditText.getText().toString();
 
         SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SMS_CODE, smsCode);
     }
 
     private void restoreInstanceState() {
-
-        log(Log.INFO,TAG, "Restoring instance state");
+        log(Log.INFO, TAG, "Restoring instance state");
 
         // Restoring login number
         String loginNumber = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER);
-        if (_loginNumberEditText != null && loginNumber != null)
-            _loginNumberEditText.setText(loginNumber);
+        if (loginNumberEditText != null && loginNumber != null)
+            loginNumberEditText.setText(loginNumber);
 
         // Restoring sms code
         String smsCode = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SMS_CODE);
-        if(_smsCodeVerEditText!=null && smsCode!=null)
-            _smsCodeVerEditText.setText(smsCode);
+        if (smsCodeVerEditText != null && smsCode != null)
+            smsCodeVerEditText.setText(smsCode);
     }
 
     private void prepareEventReceiver() {
-
-        if (_eventReceiver == null) {
-            _eventReceiver = new BroadcastReceiver() {
+        if (eventReceiver == null) {
+            eventReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
 
@@ -590,11 +551,10 @@ public class LoginActivity extends AppCompatActivity {
             };
         }
 
-        registerReceiver(_eventReceiver, _eventIntentFilter);
+        registerReceiver(eventReceiver, eventIntentFilter);
     }
 
     private void getSms(String phoneNumber) {
-
         String interPhoneNumber = PhoneNumberUtils.toValidInternationalPhoneNumber(
                 phoneNumber,
                 PhoneNumberUtils.Country.IL);
@@ -608,10 +568,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void syncUIwithAppState() {
-
         String appState = getState();
 
-        log(Log.INFO,TAG, "Syncing UI with appState:" + appState);
+        log(Log.INFO, TAG, "Syncing UI with appState:" + appState);
 
         switch (appState) {
 
@@ -627,22 +586,20 @@ public class LoginActivity extends AppCompatActivity {
 
     //region UI States
     public void stateIdle() {
-
         disableProgressBar();
         enableLoginEditText();
 
-        if(10 == _loginNumberEditText.getText().length()) {
+        if (10 == loginNumberEditText.getText().length()) {
             enableSmsCodeEditText();
             enableGetSmsCodeButton();
 
-            if(4 == _smsCodeVerEditText.getText().length()) {
+            if (4 == smsCodeVerEditText.getText().length()) {
                 enableLoginButton();
             }
         }
     }
 
     public void stateDisabled() {
-
         String noInternet = getResources().getString(R.string.disconnected);
         setInitTextView(noInternet);
         disableProgressBar();
@@ -653,7 +610,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void stateLoading() {
-
         String loadingMsg = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.LOADING_MESSAGE);
 
         setInitTextView(loadingMsg);
@@ -665,7 +621,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private String getState() {
-
         return AppStateManager.getAppState(getApplicationContext());
     }
     //endregion

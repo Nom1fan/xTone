@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.app.AppStateManager;
 import com.client.ConnectionToServer;
 import com.data.objects.Constants;
 import com.data.objects.PendingDownloadData;
@@ -14,6 +15,7 @@ import com.event.EventReport;
 import com.event.EventType;
 import com.handlers.ActionHandler;
 import com.handlers.HandlerFactory;
+import com.mediacallz.app.R;
 import com.model.request.Request;
 import com.utils.BroadcastUtils;
 import com.utils.RequestUtils;
@@ -179,6 +181,17 @@ public class ServerProxyService extends Service implements Runnable {
         i.setAction(ServerProxyService.ACTION_DOWNLOAD);
         i.putExtra(PushEventKeys.PUSH_DATA, pendingDownloadData);
         context.startService(i);
+    }
+
+    public static void register(Context context, int smsVerificationCode) {
+        Intent i = new Intent(context, ServerProxyService.class);
+        i.setAction(ServerProxyService.ACTION_REGISTER);
+        i.putExtra(ServerProxyService.SMS_CODE, smsVerificationCode);
+        context.startService(i);
+
+        String timeoutMsg = context.getResources().getString(R.string.register_failure);
+        String registering = context.getResources().getString(R.string.registering);
+        AppStateManager.setLoadingState(context, TAG, registering, timeoutMsg);
     }
     //endregion
 }

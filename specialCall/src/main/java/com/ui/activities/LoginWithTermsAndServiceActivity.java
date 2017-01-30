@@ -25,12 +25,12 @@ import static com.crashlytics.android.Crashlytics.log;
  */
 public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
 
-    public static final String SmsCode = "SMS_CODE";
-    public static final String LoginNumber = "LOGIN_NUMBER";
+    public static final String SMS_CODE = "SMS_CODE";
+    public static final String LOGIN_NUMBER = "LOGIN_NUMBER";
 
     private static final String TAG = LoginWithTermsAndServiceActivity.class.getSimpleName();
-    private String _loginNumber;
-    private String _smsVerificationCode;
+    private String loginNumber;
+    private String smsVerificationCode;
 
     //region Activity methods (onCreate(), onPause(), ...)
     @Override
@@ -40,9 +40,8 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
 
         initializeTermsOfserviceUI();
         Intent intent = getIntent();
-        _smsVerificationCode = intent.getStringExtra(SmsCode);
-        _loginNumber = intent.getStringExtra(LoginNumber);
-
+        smsVerificationCode = intent.getStringExtra(SMS_CODE);
+        loginNumber = intent.getStringExtra(LOGIN_NUMBER);
     }
 
     @Override
@@ -74,63 +73,63 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
     }
 
     private void prepareCancelButton() {
-
         Button cancel = (Button) findViewById(R.id.cancel_login);
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        if (cancel != null) {
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-                setResult(Activity.RESULT_CANCELED);
-                finish();
-            }
-        });
+                    setResult(Activity.RESULT_CANCELED);
+                    finish();
+                }
+            });
+        }
     }
 
     private void prepareLoginButton() {
-
         Button login = (Button) findViewById(R.id.login_continue);
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        if (login != null) {
+            login.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Constants.MY_ID(getApplicationContext(), loginNumber);
+                    ServerProxyService.register(getApplicationContext(), Integer.parseInt(smsVerificationCode));
 
-                Constants.MY_ID(getApplicationContext(), _loginNumber);
-
-                Intent i = new Intent(getApplicationContext(), ServerProxyService.class);
-                i.setAction(ServerProxyService.ACTION_REGISTER);
-                i.putExtra(ServerProxyService.SMS_CODE, Integer.parseInt(_smsVerificationCode));
-                getApplicationContext().startService(i);
-
-                setResult(Activity.RESULT_OK);
-                finish();
-            }
-        });
+                    setResult(Activity.RESULT_OK);
+                    finish();
+                }
+            });
+        }
     }
 
     private void prepareReadMorebutton() {
-
         TextView read_more = (TextView) findViewById(R.id.login_read_more);
-        read_more.setEnabled(true);
-        read_more.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        if (read_more != null) {
+            read_more.setEnabled(true);
+            read_more.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-                String url = Constants.TERMS_AND_PRIVACY_URL;
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(url));
-                startActivity(i);
-            }
-        });
+                    String url = Constants.TERMS_AND_PRIVACY_URL;
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(url));
+                    startActivity(i);
+                }
+            });
+        }
     }
 
     private void prepareArrowView() {
-
         ImageView arrow = (ImageView) findViewById(R.id.arrow);
 
-        if (!Locale.getDefault().getLanguage().contains("en"))
-             arrow.setScaleX(-1f);
+        if(arrow != null) {
+            if (!Locale.getDefault().getLanguage().contains("en")) {
+                arrow.setScaleX(-1f);
+            }
 
-        arrow.bringToFront();
-        arrow.setVisibility(View.VISIBLE);
+            arrow.bringToFront();
+            arrow.setVisibility(View.VISIBLE);
+        }
     }
 
     //endregion
