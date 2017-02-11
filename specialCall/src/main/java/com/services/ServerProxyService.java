@@ -8,9 +8,9 @@ import android.util.Log;
 
 import com.app.AppStateManager;
 import com.client.ConnectionToServer;
-import com.data.objects.Constants;
 import com.data.objects.PendingDownloadData;
 import com.data.objects.PushEventKeys;
+import com.enums.SpecialMediaType;
 import com.event.EventReport;
 import com.event.EventType;
 import com.handlers.ActionHandler;
@@ -193,5 +193,19 @@ public class ServerProxyService extends Service implements Runnable {
         String registering = context.getResources().getString(R.string.registering);
         AppStateManager.setLoadingState(context, TAG, registering, timeoutMsg);
     }
+
+    public static void clearMedia(Context context, String destPhoneNumber , SpecialMediaType spMediaType) {
+        Intent i = new Intent(context, ServerProxyService.class);
+        i.setAction(ServerProxyService.ACTION_CLEAR_MEDIA);
+        i.putExtra(ServerProxyService.DESTINATION_ID, destPhoneNumber);
+        i.putExtra(ServerProxyService.SPECIAL_MEDIA_TYPE, spMediaType);
+        context.startService(i);
+
+        String timeoutMsg = context.getResources().getString(R.string.clearing_failed);
+        String clearing = context.getResources().getString(R.string.clearing);
+        AppStateManager.setLoadingState(context, TAG, clearing, timeoutMsg);
+    }
+
+
     //endregion
 }

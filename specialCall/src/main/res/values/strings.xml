@@ -91,6 +91,8 @@
     <string name="finished_waiting_msg"> Destination device is not available right now\n You will be notified when action is finished</string>
     <string name="dont_show_again"> Do not show again</string>
     <string name="just_notify"> Just notify me</string>
+    <string name="clearing"> Clearing...</string>
+    <string name="clearing_failed">Oops! Clearing failed. Please Try again.</string>
 
 
     <!--  Tips  -->

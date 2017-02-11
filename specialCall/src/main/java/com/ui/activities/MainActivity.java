@@ -539,8 +539,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             case CLEAR_SENT:
                 if (!SharedPrefUtils.getBoolean(MainActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {
-                    UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this, "ClearMediaDialog", getResources().getString(R.string.sending_clear_contact)
-                            , getResources().getString(R.string.waiting_for_clear_transfer_success_dialog_msg));
+                    UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this, "ClearMediaDialog", getResources().getString(R.string.sending_clear_contact) , getResources().getString(R.string.waiting_for_clear_transfer_success_dialog_msg));
                 }
                 break;
 

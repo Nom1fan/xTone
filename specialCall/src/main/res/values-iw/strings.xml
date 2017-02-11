@@ -49,6 +49,8 @@
     <string name="delete_file">מחק קובץ</string>
     <string name="delete_file_are_u_sure">האם אתה בטוח שאתה רוצה למחוק את הקובץ?</string>
     <string name="delete">מחק</string>
+    <string name="clearing"> מחזיר לצלצול רגיל...</string>
+    <string name="clearing_failed">אופס, חזרה לצלצול רגיל נכשלה. נסה שוב</string>
 
     <!--  Tips  -->
     <string name="set_window"> שחק עם חלון המדיה שלך</string>

@@ -124,7 +124,8 @@
     <string name="share_via">שתף דרך</string>
     <string name="user_is_unregistered">המשתמש %1$s אינו רשום לשירות</string>
     <string name="action_cancelled">הפעולה בוטלה</string>
-
+    <string name="clearing"> מחזיר לצלצול רגיל...</string>
+    <string name="clearing_failed">אופס, חזרה לצלצול רגיל נכשלה. נסה שוב</string>
 
     <!--  SnackBar  -->
     <string name="snack_close">סגור</string>
