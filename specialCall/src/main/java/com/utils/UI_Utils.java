@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.data.objects.SnackbarData;
+import com.event.EventReport;
+import com.event.EventType;
 import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
@@ -32,9 +34,6 @@ import com.services.PreviewService;
 import java.lang.reflect.Field;
 import java.util.Random;
 
-import com.event.EventReport;
-import com.event.EventType;
-
 import static com.crashlytics.android.Crashlytics.log;
 
 /**
@@ -44,6 +43,7 @@ public abstract class UI_Utils {
 
     private static final String TAG = UI_Utils.class.getSimpleName();
     private static AlertDialog _waitingForTransferSuccessDialog;
+    private static CountDownTimer ct;
     private static final Techniques[] inTechniques = { Techniques.Landing ,Techniques.StandUp,Techniques.RollIn,Techniques.BounceIn,Techniques.FadeIn
             ,Techniques.FlipInX,Techniques.RotateIn,Techniques.RotateInUpRight,Techniques.ZoomInDown  };
 
@@ -304,7 +304,7 @@ public abstract class UI_Utils {
         _waitingForTransferSuccessDialog = builder.create();
         _waitingForTransferSuccessDialog.show();
 
-        new CountDownTimer(20000, 1000) {
+        ct = new CountDownTimer(20000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 _waitingForTransferSuccessDialog.setMessage(String.format(msg, millisUntilFinished/1000));
@@ -321,6 +321,7 @@ public abstract class UI_Utils {
 
     public static void dismissTransferSuccessDialog() {
         if (_waitingForTransferSuccessDialog!=null) {
+            ct.cancel();
             _waitingForTransferSuccessDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
             log(Log.INFO,TAG, "waitingForTransferSuccessDialog.performClick();");
         }
