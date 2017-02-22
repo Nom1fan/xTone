@@ -194,7 +194,7 @@ public class ServerProxyService extends Service implements Runnable {
         AppStateManager.setLoadingState(context, TAG, registering, timeoutMsg);
     }
 
-    public static void clearMedia(Context context, String destPhoneNumber , SpecialMediaType spMediaType) {
+    public static void clearMedia(Context context, String destPhoneNumber, SpecialMediaType spMediaType) {
         Intent i = new Intent(context, ServerProxyService.class);
         i.setAction(ServerProxyService.ACTION_CLEAR_MEDIA);
         i.putExtra(ServerProxyService.DESTINATION_ID, destPhoneNumber);

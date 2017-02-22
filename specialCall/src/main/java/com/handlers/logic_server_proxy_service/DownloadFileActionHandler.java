@@ -42,6 +42,9 @@ public class DownloadFileActionHandler implements ActionHandler {
             if(success) {
                 BroadcastUtils.sendEventReportBroadcast(actionBundle.getCtx(), TAG, new EventReport(EventType.DOWNLOAD_SUCCESS, pendingDownloadData));
             }
+            else {
+                //TODO send NotifyDownloadFailed
+            }
         } finally {
             if (wakeLock.isHeld()) {
                 wakeLock.release();

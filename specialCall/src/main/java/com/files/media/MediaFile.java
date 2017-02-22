@@ -268,19 +268,14 @@ public class MediaFile implements Serializable {
 
     @Override
     public String toString() {
-
-        StringBuilder builder = new StringBuilder();
-
-        builder.
-                append("Filename:").append(getFileNameWithExtension(getFileFullPath())).append(", ").
-                append("FileSize:").append(size).append(", ").
-                append("FileType:").append(fileType).append(", ").
-                append("IsCompressed:").append(isCompressed);
-
-        return builder.toString();
+        return "MediaFile{" +
+                "md5='" + md5 + '\'' +
+                ", file=" + file +
+                ", extension='" + extension + '\'' +
+                ", size=" + size +
+                ", fileType=" + fileType +
+                ", uncompdFileFullPath='" + uncompdFileFullPath + '\'' +
+                ", isCompressed=" + isCompressed +
+                '}';
     }
-
-
-
-
 }
