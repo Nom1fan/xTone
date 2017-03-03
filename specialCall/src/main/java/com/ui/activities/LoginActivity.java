@@ -48,6 +48,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private BroadcastReceiver eventReceiver;
     private static final IntentFilter eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
+    private static final int MIN_SMS_CODE = 1000;
+    private static final int MAX_SMS_CODE = 9999;
 
     //region UI elements
     private EditText loginNumberEditText;
@@ -309,7 +311,7 @@ public class LoginActivity extends AppCompatActivity {
                 else
                     clearLoginSmsText.setImageResource(R.drawable.clear_btn_anim);
 
-                if (4 == s.length()) {
+                if (isSmsCodeValid()) {
                     enableLoginButton();
                 } else
                     disableLoginButton();
@@ -458,7 +460,7 @@ public class LoginActivity extends AppCompatActivity {
                 syncUIwithAppState();
                 saveInstanceState();
                 restoreInstanceState();
-                if (10 == loginNumberEditText.getText().length() && 4 == smsCodeVerEditText.getText().length() && sentFromReceiver) {
+                if (isLoginNumberValid() && isSmsCodeValid() && sentFromReceiver) {
                     visibleSmsButtons();
                     loginBtn.performClick();
                     sentFromReceiver = false;
@@ -510,6 +512,20 @@ public class LoginActivity extends AppCompatActivity {
                 log(Log.ERROR, "SmsReceiver", "Exception smsReceiver" + e);
             }
         }
+    }
+
+    private boolean isSmsCodeValid() {
+        String sSmsCode = smsCodeVerEditText.getText().toString();
+        if(sSmsCode.isEmpty()) {
+            return false;
+        }
+
+        Integer smsCode = Integer.valueOf(sSmsCode);
+        return 4 == smsCodeVerEditText.getText().length() && smsCode >= MIN_SMS_CODE && smsCode <= MAX_SMS_CODE;
+    }
+
+    private boolean isLoginNumberValid() {
+        return 10 == loginNumberEditText.getText().length();
     }
 
 
@@ -596,11 +612,11 @@ public class LoginActivity extends AppCompatActivity {
         disableProgressBar();
         enableLoginEditText();
 
-        if (10 == loginNumberEditText.getText().length()) {
+        if (isLoginNumberValid()) {
             enableSmsCodeEditText();
             enableGetSmsCodeButton();
 
-            if (4 == smsCodeVerEditText.getText().length()) {
+            if (isSmsCodeValid()) {
                 enableLoginButton();
             }
         }

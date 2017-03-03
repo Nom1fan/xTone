@@ -30,6 +30,9 @@ public class EventRegisterFailureHandler implements Handler {
 
         int resCode = (int) eventReport.data();
         String msg = resCode2String.get(resCode);
+        if(msg == null) {
+            msg = ctx.getResources().getString(R.string.register_failure);
+        }
         BroadcastUtils.sendEventReportBroadcast(ctx, TAG, new EventReport(EventType.REFRESH_UI, msg));
     }
 
