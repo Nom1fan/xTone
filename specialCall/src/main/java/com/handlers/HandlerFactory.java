@@ -27,17 +27,18 @@ import com.handlers.background_broadcast_receiver.EventUnregisterSuccessHandler;
 import com.handlers.background_broadcast_receiver.EventUpdateUserRecordSuccessHandler;
 import com.handlers.background_broadcast_receiver.EventUserRegisteredFalseHandler;
 import com.handlers.background_broadcast_receiver.EventUserRegisteredTrueHandler;
-import com.handlers.logic_server_proxy_service.ClearMediaActionHandler;
-import com.handlers.logic_server_proxy_service.DownloadFileActionHandler;
-import com.handlers.logic_server_proxy_service.GetAppRecordActionHandler;
-import com.handlers.logic_server_proxy_service.GetSmsActionHandler;
-import com.handlers.logic_server_proxy_service.InsertMediaCallRecordActionHandler;
-import com.handlers.logic_server_proxy_service.IsRegisteredActionHandler;
-import com.handlers.logic_server_proxy_service.NotifyMediaClearedActionHandler;
-import com.handlers.logic_server_proxy_service.NotifyMediaReadyActionHandler;
-import com.handlers.logic_server_proxy_service.RegisterActionHandler;
-import com.handlers.logic_server_proxy_service.UnregisterActionHandler;
-import com.handlers.logic_server_proxy_service.UpdateUserRecordActionHandler;
+import com.handlers.server_proxy_service.ClearMediaActionHandler;
+import com.handlers.server_proxy_service.DownloadFileActionHandler;
+import com.handlers.server_proxy_service.GetAppRecordActionHandler;
+import com.handlers.server_proxy_service.GetRegisteredContactsHandler;
+import com.handlers.server_proxy_service.GetSmsActionHandler;
+import com.handlers.server_proxy_service.InsertMediaCallRecordActionHandler;
+import com.handlers.server_proxy_service.IsRegisteredActionHandler;
+import com.handlers.server_proxy_service.NotifyMediaClearedActionHandler;
+import com.handlers.server_proxy_service.NotifyMediaReadyActionHandler;
+import com.handlers.server_proxy_service.RegisterActionHandler;
+import com.handlers.server_proxy_service.UnregisterActionHandler;
+import com.handlers.server_proxy_service.UpdateUserRecordActionHandler;
 import com.handlers.push.service.PushClearMediaHandler;
 import com.handlers.push.service.PushClearSuccessHandler;
 import com.handlers.push.service.PushPendingDownloadHandler;
@@ -120,6 +121,7 @@ public class HandlerFactory {
         put(ServerProxyService.ACTION_CLEAR_MEDIA, ClearMediaActionHandler.class);
         put(ServerProxyService.ACTION_NOTIFY_MEDIA_CLEARED, NotifyMediaClearedActionHandler.class);
         put(ServerProxyService.ACTION_NOTIFY_MEDIA_READY, NotifyMediaReadyActionHandler.class);
+        put(ServerProxyService.ACTION_GET_REGISTERED_CONTACTS, GetRegisteredContactsHandler.class);
     }};
 
     private Map<String, Class<PushHandler>> class2PushHandlerMap = new HashMap() {{

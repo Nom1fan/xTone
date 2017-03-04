@@ -1,11 +1,9 @@
-package com.handlers.logic_server_proxy_service;
+package com.handlers.server_proxy_service;
 
 import android.util.Log;
 
 import com.client.ConnectionToServer;
-import com.data.objects.AppMeta;
 import com.data.objects.MediaCall;
-import com.event.EventReport;
 import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
 import com.model.request.InsertMediaCallRecordRequest;

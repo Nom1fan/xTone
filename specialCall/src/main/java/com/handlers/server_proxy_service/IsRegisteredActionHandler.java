@@ -1,4 +1,4 @@
-package com.handlers.logic_server_proxy_service;
+package com.handlers.server_proxy_service;
 
 import android.util.Log;
 
@@ -27,7 +27,7 @@ import static com.services.ServerProxyService.DESTINATION_ID;
  */
 public class IsRegisteredActionHandler implements ActionHandler {
 
-    protected static final String URL_ISREGISTERED = ROOT_URL + "/v1/IsRegistered";
+    private static final String URL_ISREGISTERED = ROOT_URL + "/v1/IsRegistered";
     private static final String TAG = IsRegisteredActionHandler.class.getSimpleName();
     private static final Type responseType = new TypeToken<Response<User>>() {
     }.getType();

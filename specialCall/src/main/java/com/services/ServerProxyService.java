@@ -21,6 +21,9 @@ import com.utils.BroadcastUtils;
 import com.utils.RequestUtils;
 import com.utils.SharedPrefUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.crashlytics.android.Crashlytics.log;
 
 /**
@@ -42,6 +45,7 @@ public class ServerProxyService extends Service implements Runnable {
     public static final String ACTION_NOTIFY_MEDIA_CLEARED = "com.services.ServerProxyService.NOTIFY_MEDIA_CLEARED";
     public static final String ACTION_NOTIFY_MEDIA_READY = "com.services.ServerProxyService.NOTIFY_MEDIA_READY";
     public static final String ACTION_CLEAR_MEDIA = "com.services.ServerProxyService.CLEAR_MEDIA";
+    public static final String ACTION_GET_REGISTERED_CONTACTS = "com.services.ServerProxyService.ACTION_GET_REGISTERED_CONTACTS";
     //endregion
 
     //region Service intent keys
@@ -52,6 +56,7 @@ public class ServerProxyService extends Service implements Runnable {
     public static final String SPECIAL_MEDIA_TYPE = "SPECIAL_MEDIA_TYPE";
     public static final String CLEAR_MEDIA_DATA = "CLEAR_MEDIA_DATA";
     public static final String PENDING_DOWNLOAD_DATA = "PENDING_DOWNLOAD_DATA";
+    public static final String CONTACTS_UIDS = "CONTACTS_UIDS";
     //endregion
 
     private Intent intent;
@@ -206,6 +211,15 @@ public class ServerProxyService extends Service implements Runnable {
         AppStateManager.setLoadingState(context, TAG, clearing, timeoutMsg);
     }
 
+    public static void getRegisteredContacts(Context context, ArrayList<String> contactsUids) {
+        Intent i = new Intent(context, ServerProxyService.class);
+        i.setAction(ServerProxyService.ACTION_GET_REGISTERED_CONTACTS);
+        i.putStringArrayListExtra(ServerProxyService.CONTACTS_UIDS, contactsUids);
+        context.startService(i);
 
+        String timeoutMsg = context.getResources().getString(R.string.fetch_registered_contacts_failure);
+        String fetching = context.getResources().getString(R.string.fetching_registered_contacts);
+        AppStateManager.setLoadingState(context, TAG, fetching, timeoutMsg);
+    }
     //endregion
 }

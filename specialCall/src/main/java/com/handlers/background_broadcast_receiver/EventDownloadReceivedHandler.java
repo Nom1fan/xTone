@@ -77,7 +77,7 @@ public class EventDownloadReceivedHandler implements Handler {
 
             ServerProxyService.notifyMediaReady(ctx, downloadData);
 
-        } catch(FailedToSetNewMediaException e) {
+        } catch (FailedToSetNewMediaException e) {
             //TODO Inform source of failure
         }
     }
@@ -119,7 +119,7 @@ public class EventDownloadReceivedHandler implements Handler {
 
         File[] files = new File(newFileDir).listFiles();
 
-        if(files == null)
+        if (files == null)
             return;
 
         try {
@@ -247,12 +247,12 @@ public class EventDownloadReceivedHandler implements Handler {
 
             String contactName = ContactsUtils.getContactName(context, downloadData.getSourceId());
 
-            if (contactName.isEmpty())
+            if (contactName != null && contactName.isEmpty())
                 contactName = downloadData.getSourceId();
 
             String currentDateTimeString = new SimpleDateFormat("dd_MM_yy_HHmmss").format(new Date());
 
-            String historyFileName = "";
+            String historyFileName;
             if (fileType == MediaFile.FileType.AUDIO) {
                 historyFileName = Constants.AUDIO_HISTORY_FOLDER + currentDateTimeString + "_" + contactName + "_" + md5 + "." + extension; //give a unique name to the file and make sure there won't be any duplicates
                 SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_HISTORY_EXIST, true);

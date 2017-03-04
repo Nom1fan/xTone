@@ -44,11 +44,11 @@ public abstract class UI_Utils {
     private static final String TAG = UI_Utils.class.getSimpleName();
     private static AlertDialog _waitingForTransferSuccessDialog;
     private static CountDownTimer ct;
-    private static final Techniques[] inTechniques = { Techniques.Landing ,Techniques.StandUp,Techniques.RollIn,Techniques.BounceIn,Techniques.FadeIn
-            ,Techniques.FlipInX,Techniques.RotateIn,Techniques.RotateInUpRight,Techniques.ZoomInDown  };
+    private static final Techniques[] inTechniques = {Techniques.Landing, Techniques.StandUp, Techniques.RollIn, Techniques.BounceIn, Techniques.FadeIn
+            , Techniques.FlipInX, Techniques.RotateIn, Techniques.RotateInUpRight, Techniques.ZoomInDown};
 
-    private static final Techniques[] outTechniques = { Techniques.Hinge,Techniques.TakingOff,Techniques.RollOut,Techniques.FadeOut
-            ,Techniques.FlipOutX,Techniques.RotateOut,Techniques.SlideOutRight,Techniques.ZoomOutUp  };
+    private static final Techniques[] outTechniques = {Techniques.Hinge, Techniques.TakingOff, Techniques.RollOut, Techniques.FadeOut
+            , Techniques.FlipOutX, Techniques.RotateOut, Techniques.SlideOutRight, Techniques.ZoomOutUp};
 
     public static void callToast(final String text, final int color, final Context context) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -66,7 +66,7 @@ public abstract class UI_Utils {
 
     }
 
-    public static void callToast(final String text, final int color, final int length ,final Context context) {
+    public static void callToast(final String text, final int color, final int length, final Context context) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
 
             @Override
@@ -110,48 +110,41 @@ public abstract class UI_Utils {
         }
     }
 
-    public static void showSnackBar(String msg, int color, int sBarDuration, boolean isLoading ,Context context) {
+    public static void showSnackBar(String msg, int color, int sBarDuration, boolean isLoading, Context context) {
 
         SnackbarData snackbarData = new SnackbarData(SnackbarData.SnackbarStatus.SHOW, color, sBarDuration, msg, isLoading);
         BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, null, snackbarData));
     }
 
-    public static Techniques getRandomInTechniques()
-    {
-     return inTechniques[new Random().nextInt(inTechniques.length)];
+    public static Techniques getRandomInTechniques() {
+        return inTechniques[new Random().nextInt(inTechniques.length)];
     }
 
-    public static Techniques getRandomOutTechniques()
-    {
+    public static Techniques getRandomOutTechniques() {
         return outTechniques[new Random().nextInt(outTechniques.length)];
     }
 
     //region ShowCaseView methods
     public static void showCaseView(Activity activity, ViewTarget target, String title, String details) {
+        log(Log.INFO, TAG, "Title: " + title + " details: " + details);
+        try {
 
-        log(Log.INFO,TAG, "Title: " + title + " details: " + details);
-     try{
+            new ShowcaseView.Builder(activity)
+                    .setTarget(target)
+                    .setContentTitle(title)
+                    .setContentText(details)
+                    .hideOnTouchOutside().withNewStyleShowcase()
+                    .build().setButtonPosition(centerlizeParams());
 
-
-        new ShowcaseView.Builder(activity)
-                .setTarget(target)
-                .setContentTitle(title)
-                .setContentText(details)
-                .hideOnTouchOutside().withNewStyleShowcase()
-                .build().setButtonPosition(centerlizeParams());
-
-    }
-    catch (NullPointerException | OutOfMemoryError e) {
-        e.printStackTrace();
-    }
-
-
+        } catch (NullPointerException | OutOfMemoryError e) {
+            e.printStackTrace();
+        }
     }
 
     private static RelativeLayout.LayoutParams centerlizeParams() {
 
         RelativeLayout.LayoutParams rel_btn = new RelativeLayout.LayoutParams(
-             0,0);
+                0, 0);
 
         rel_btn.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
         rel_btn.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
@@ -160,13 +153,13 @@ public abstract class UI_Utils {
         return rel_btn;
     }
 
-    public static void showCaseViewSelectProfile(Context context,Activity activity) {
+    public static void showCaseViewSelectProfile(Context context, Activity activity) {
 
         ViewTarget targetProfileView = new ViewTarget(R.id.showcase_profilemedia, activity);
         UI_Utils.showCaseView(activity, targetProfileView, context.getResources().getString(R.string.profile_sv_title), context.getResources().getString(R.string.profile_sv_details));
     }
 
-    public static void showCaseViewCall(Context context,Activity activity) {
+    public static void showCaseViewCall(Context context, Activity activity) {
 
         ViewTarget targetCallView = new ViewTarget(R.id.CallNow, activity);
         UI_Utils.showCaseView(activity, targetCallView, context.getResources().getString(R.string.call_sv_title), context.getResources().getString(R.string.call_sv_details));
@@ -174,91 +167,90 @@ public abstract class UI_Utils {
 
     public static void showCaseViewAfterUploadAndCall(final Context context, final Activity activity) {
 
-        if (!(SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW)) && SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))
-        {
+        if (!(SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW)) && SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW)) {
             SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.UPLOAD_BEFORE_CALL_VIEW, true);
 
 
-          try {
-              ViewTarget targetSelectMediaView = new ViewTarget(R.id.showcase_callermedia, activity);
-              ShowcaseView sv = new ShowcaseView.Builder(activity)
-                      .setTarget(targetSelectMediaView)
-                      .setContentTitle(context.getResources().getString(R.string.callermedia_sv_title))
-                      .setContentText(context.getResources().getString(R.string.callermedia_sv_details_image_ringtone))
-                      .hideOnTouchOutside().
-                              withNewStyleShowcase().build();
+            try {
+                ViewTarget targetSelectMediaView = new ViewTarget(R.id.showcase_callermedia, activity);
+                ShowcaseView sv = new ShowcaseView.Builder(activity)
+                        .setTarget(targetSelectMediaView)
+                        .setContentTitle(context.getResources().getString(R.string.callermedia_sv_title))
+                        .setContentText(context.getResources().getString(R.string.callermedia_sv_details_image_ringtone))
+                        .hideOnTouchOutside().
+                                withNewStyleShowcase().build();
 
-              sv.setButtonPosition(centerlizeParams());
-              sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
-                  @Override
-                  public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                sv.setButtonPosition(centerlizeParams());
+                sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
+                    @Override
+                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
 
-                      showCaseViewCall(context, activity);
-                  }
+                        showCaseViewCall(context, activity);
+                    }
 
-                  @Override
-                  public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+                    @Override
+                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
 
-                  }
+                    }
 
-                  @Override
-                  public void onShowcaseViewShow(ShowcaseView showcaseView) {
+                    @Override
+                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
 
-                  }
+                    }
 
-                  @Override
-                  public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
+                    @Override
+                    public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
 
-                  }
-              });
-          } catch (NullPointerException | OutOfMemoryError e) {
-                  e.printStackTrace();
-              }
+                    }
+                });
+            } catch (NullPointerException | OutOfMemoryError e) {
+                e.printStackTrace();
+            }
 
         }
 
     }
 
-    public static void showCaseViewSelectMedia(final Context context, final Activity activity){
+    public static void showCaseViewSelectMedia(final Context context, final Activity activity) {
         if (!SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW)) {
-      try{
-          SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, true);
-            ViewTarget targetSelectMediaView = new ViewTarget(R.id.showcase_callermedia, activity);
-            ShowcaseView sv = new ShowcaseView.Builder(activity)
-                    .setTarget(targetSelectMediaView)
-                    .setContentTitle(context.getResources().getString(R.string.callermedia_sv_title))
-                    .setContentText(context.getResources().getString(R.string.callermedia_sv_details))
-                    .hideOnTouchOutside().
-                            withNewStyleShowcase().build();
-            sv.setButtonPosition(centerlizeParams());
+            try {
+                SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW, true);
+                ViewTarget targetSelectMediaView = new ViewTarget(R.id.showcase_callermedia, activity);
+                ShowcaseView sv = new ShowcaseView.Builder(activity)
+                        .setTarget(targetSelectMediaView)
+                        .setContentTitle(context.getResources().getString(R.string.callermedia_sv_title))
+                        .setContentText(context.getResources().getString(R.string.callermedia_sv_details))
+                        .hideOnTouchOutside().
+                                withNewStyleShowcase().build();
+                sv.setButtonPosition(centerlizeParams());
 
-            sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
-                @Override
-                public void onShowcaseViewHide(ShowcaseView showcaseView) {
+                sv.setOnShowcaseEventListener(new OnShowcaseEventListener() {
+                    @Override
+                    public void onShowcaseViewHide(ShowcaseView showcaseView) {
 
-                    showCaseViewSelectProfile(context, activity);
-                }
+                        showCaseViewSelectProfile(context, activity);
+                    }
 
-                @Override
-                public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
-                }
+                    @Override
+                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+                    }
 
-                @Override
-                public void onShowcaseViewShow(ShowcaseView showcaseView) {
-                }
+                    @Override
+                    public void onShowcaseViewShow(ShowcaseView showcaseView) {
+                    }
 
-                @Override
-                public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
-                }
-            });
-        } catch (NullPointerException | OutOfMemoryError e) {
-            e.printStackTrace();
-        }
+                    @Override
+                    public void onShowcaseViewTouchBlocked(MotionEvent motionEvent) {
+                    }
+                });
+            } catch (NullPointerException | OutOfMemoryError e) {
+                e.printStackTrace();
+            }
 
         }
     }
 
-    public static void showCaseViewCallNumber(Context context,Activity activity) {
+    public static void showCaseViewCallNumber(Context context, Activity activity) {
         if (!(SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))) {
             ViewTarget targetCallNumber = new ViewTarget(R.id.selectContactBtn, activity);
             UI_Utils.showCaseView(activity, targetCallNumber, context.getResources().getString(R.string.callnumber_sv_title), context.getResources().getString(R.string.callnumber_sv_details));
@@ -267,7 +259,7 @@ public abstract class UI_Utils {
     }
 
     //endregion
-    public static void showWaitingForTranferSuccussDialog(final Context applicationContext,final String whoRequest,final String title,final String msg) {
+    public static void showWaitingForTranferSuccussDialog(final Context applicationContext, final String whoRequest, final String title, final String msg) {
 
         View checkBoxView = View.inflate(applicationContext, R.layout.checkbox_dont_show_again, null);
         CheckBox checkBox = (CheckBox) checkBoxView.findViewById(R.id.checkbox_dont_show_again);
@@ -297,7 +289,7 @@ public abstract class UI_Utils {
                     public void onClick(DialogInterface dialog, int id) {
 
                         dialog.cancel();
-                        log(Log.INFO,TAG , "dialog.cancel();");
+                        log(Log.INFO, TAG, "dialog.cancel();");
                     }
                 });
 
@@ -307,7 +299,7 @@ public abstract class UI_Utils {
         ct = new CountDownTimer(20000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                _waitingForTransferSuccessDialog.setMessage(String.format(msg, millisUntilFinished/1000));
+                _waitingForTransferSuccessDialog.setMessage(String.format(msg, millisUntilFinished / 1000));
             }
 
             @Override
@@ -316,14 +308,14 @@ public abstract class UI_Utils {
             }
         }.start();
 
-        log(Log.INFO,TAG , "waitingForTransferSuccessDialog.show();");
+        log(Log.INFO, TAG, "waitingForTransferSuccessDialog.show();");
     }
 
     public static void dismissTransferSuccessDialog() {
-        if (_waitingForTransferSuccessDialog!=null) {
+        if (_waitingForTransferSuccessDialog != null) {
             ct.cancel();
             _waitingForTransferSuccessDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
-            log(Log.INFO,TAG, "waitingForTransferSuccessDialog.performClick();");
+            log(Log.INFO, TAG, "waitingForTransferSuccessDialog.performClick();");
         }
     }
 

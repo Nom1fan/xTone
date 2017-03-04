@@ -12,7 +12,7 @@ import static com.crashlytics.android.Crashlytics.log;
 /**
  * Created by Mor on 10/03/2016.
  */
-public class MediaCall implements Serializable {
+public class MediaCall extends AbstractDataObject {
 
     private static final long serialVersionUID = 7408472793374531808L;
     private static final String TAG = MediaCall.class.getSimpleName();

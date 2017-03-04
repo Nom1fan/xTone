@@ -1,21 +1,15 @@
-package com.handlers.logic_server_proxy_service;
+package com.handlers.server_proxy_service;
 
-import android.os.Build;
 import android.util.Log;
 
 import com.client.ConnectionToServer;
 import com.event.EventReport;
 import com.event.EventType;
-import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
 import com.model.request.RegisterRequest;
-import com.model.response.Response;
 import com.utils.BroadcastUtils;
-import com.utils.SpecialDevicesUtils;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.Locale;
 
 import cz.msebera.android.httpclient.HttpStatus;
 

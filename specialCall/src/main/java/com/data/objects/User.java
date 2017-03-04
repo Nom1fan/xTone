@@ -2,10 +2,12 @@ package com.data.objects;
 
 import com.enums.UserStatus;
 
+import java.io.Serializable;
+
 /**
  * Created by Mor on 21/12/2016.
  */
-public class User {
+public class User extends AbstractDataObject {
 
     private String uid;
     private String token;

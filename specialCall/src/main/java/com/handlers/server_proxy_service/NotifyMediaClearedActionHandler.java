@@ -1,17 +1,13 @@
-package com.handlers.logic_server_proxy_service;
+package com.handlers.server_proxy_service;
 
 import android.util.Log;
 
 import com.client.ConnectionToServer;
 import com.data.objects.ClearMediaData;
-import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
 import com.model.request.NotifyMediaClearedRequest;
-import com.data.objects.AppMeta;
-import com.model.response.Response;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import cz.msebera.android.httpclient.HttpStatus;
 

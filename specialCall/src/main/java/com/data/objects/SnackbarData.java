@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Created by Mor on 23/01/2016.
  */
-public class SnackbarData implements Serializable {
+public class SnackbarData extends AbstractDataObject {
 
     private SnackbarStatus mStatus;
     private int mColor;

@@ -3,7 +3,7 @@ package com.data.objects;
 /**
  * Created by Mor on 18/02/2016.
  */
-public class Contact {
+public class Contact extends AbstractDataObject{
 
     private String name;
     private String phoneNumber;

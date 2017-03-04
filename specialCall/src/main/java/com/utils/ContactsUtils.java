@@ -1,5 +1,6 @@
 package com.utils;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -11,6 +12,9 @@ import com.data.objects.Contact;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.provider.ContactsContract.*;
+import static android.provider.ContactsContract.PhoneLookup.*;
+
 /**
  * Created by Mor on 18/02/2016.
  */
@@ -18,7 +22,7 @@ public abstract class ContactsUtils {
 
     private static final String[] PROJECTION = new String[]{
             ContactsContract.Contacts.DISPLAY_NAME,
-            ContactsContract.CommonDataKinds.Phone.NUMBER
+            CommonDataKinds.Phone.NUMBER
     };
 
     public static Contact getContact(Uri uri, Context context) throws Exception {
@@ -31,8 +35,8 @@ public abstract class ContactsUtils {
                 c = context.getContentResolver()
                         .query(uri,
                                 new String[]{
-                                        ContactsContract.CommonDataKinds.Phone.NUMBER,
-                                        ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,},
+                                        CommonDataKinds.Phone.NUMBER,
+                                        CommonDataKinds.Phone.DISPLAY_NAME,},
                                 null, null, null);
 
                 if (c != null && c.moveToFirst()) {
@@ -51,32 +55,21 @@ public abstract class ContactsUtils {
         return new Contact(name, number);
     }
 
-    //TODO Is there a way to do this without reflection?
-    public static String getContactName(final Context context, final String phoneNumber) {
-        Uri uri;
-        String[] projection;
-        Uri mBaseUri = Contacts.Phones.CONTENT_FILTER_URL;
-        projection = new String[]{android.provider.Contacts.People.NAME};
-        try {
-            Class<?> c = Class.forName("android.provider.ContactsContract$PhoneLookup");
-            mBaseUri = (Uri) c.getField("CONTENT_FILTER_URI").get(mBaseUri);
-            projection = new String[]{"display_name"};
-        } catch (Exception e) {
-            e.printStackTrace();
+    public static String getContactName(Context context, String phoneNumber) {
+        ContentResolver cr = context.getContentResolver();
+        Uri uri = Uri.withAppendedPath(CONTENT_FILTER_URI, Uri.encode(phoneNumber));
+        Cursor cursor = cr.query(uri, new String[]{DISPLAY_NAME}, null, null, null);
+        if (cursor == null) {
+            return null;
+        }
+        String contactName = null;
+        if(cursor.moveToFirst()) {
+            contactName = cursor.getString(cursor.getColumnIndex(DISPLAY_NAME));
         }
 
-        uri = Uri.withAppendedPath(mBaseUri, Uri.encode(phoneNumber));
-        Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
-
-        String contactName = "";
-
-        if (cursor != null && cursor.moveToFirst()) {
-            contactName = cursor.getString(0);
+        if(!cursor.isClosed()) {
             cursor.close();
         }
-
-        if(contactName == null || contactName.equals(""))
-            return phoneNumber;
 
         return contactName;
     }
@@ -89,12 +82,12 @@ public abstract class ContactsUtils {
     public static List<Contact> getAllContacts(Context context) {
 
         List<Contact> allContacts = new ArrayList<>();
-        Cursor people = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, PROJECTION, null, null, null);
+        Cursor people = context.getContentResolver().query(CommonDataKinds.Phone.CONTENT_URI, PROJECTION, null, null, null);
 
         if (people != null) {
             try {
                 final int displayNameIndex = people.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-                final int phonesIndex = people.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+                final int phonesIndex = people.getColumnIndex(CommonDataKinds.Phone.NUMBER);
 
                 String contactName, phoneNumber;
 
@@ -112,5 +105,14 @@ public abstract class ContactsUtils {
             }
         }
         return allContacts;
+    }
+
+    public static List<String> getAllContactsNumbers(Context context) {
+        List<Contact> allContacts = getAllContacts(context);
+        List<String> contactNumbers = new ArrayList<>();
+        for (Contact contact : allContacts) {
+            contactNumbers.add(contact.getPhoneNumber());
+        }
+        return contactNumbers;
     }
 }

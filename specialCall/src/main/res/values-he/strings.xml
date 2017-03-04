@@ -71,6 +71,9 @@
     <string name="oops_try_again">אופס! אנא נסה שוב</string>
 
     <string name="fetching_user_data">מושך נתוני משתמש...</string>
+    <string name="fetch_registered_contacts_failure">כשלון במשיכת נתוני אנשי קשר!</string>
+    <string name="fetching_registered_contacts">מושך נתוני אנשי קשר...</string>
+
 
     <string name="compression_took_too_long">אופס! דחיסה ערכה זמן רב מדי</string>
 

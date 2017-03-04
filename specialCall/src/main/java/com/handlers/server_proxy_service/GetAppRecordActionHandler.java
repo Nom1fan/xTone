@@ -1,4 +1,4 @@
-package com.handlers.logic_server_proxy_service;
+package com.handlers.server_proxy_service;
 
 import android.util.Log;
 
