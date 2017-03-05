@@ -275,6 +275,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                 @Override
                 protected FilterResults performFiltering(CharSequence constraint) {
+
+
                     constraint = constraint.toString().toLowerCase();
                     FilterResults result = new FilterResults();
                     if (constraint != null && constraint.toString().length() > 0) {
@@ -346,6 +348,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             @Override
             public boolean onQueryTextChange(String s) {
+
+                String ifOnlyPhoneNumber = PhoneNumberUtils.toNumeric(s.toString());
+                if (PhoneNumberUtils.isValidPhoneNumber(ifOnlyPhoneNumber))
+                {
+                    autoCompleteTextViewDestPhone.setText(ifOnlyPhoneNumber);
+                    return false;
+                }
                 adapter.getFilter().filter(searchView.getQuery());
                 return false;
             }
