@@ -42,6 +42,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -144,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private Dialog windowVideoDialog = null;
     private UploadFileFlow uploadFileFlow = new UploadFileFlow();
     ArrayList<Contact> arrayOfUsers;
+    ArrayList<Contact> arrayOfUsers_copy;
     OnlineContactAdapter adapter;
     SearchView searchView;
     //endregion
@@ -238,6 +240,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             // Construct the data source
             arrayOfUsers = new ArrayList<Contact>(ContactsUtils.getAllContacts(getApplicationContext()));
+            arrayOfUsers_copy = new ArrayList<Contact>(arrayOfUsers);
             // Create the adapter to convert the array to views
             adapter = new OnlineContactAdapter(this, arrayOfUsers);
             // Attach the adapter to a ListView
@@ -245,7 +248,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             onlineContacts.setOnItemClickListener(new AdapterView.OnItemClickListener(){
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
                     autoCompleteTextViewDestPhone.setText(((TextView) view.findViewById(R.id.contact_phone)).getText().toString());
                 }
             });
@@ -260,8 +262,46 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
 
     public class OnlineContactAdapter extends ArrayAdapter<Contact> implements Filterable {
+        List<Contact> contacts;
+
         OnlineContactAdapter(Context context, ArrayList<Contact> users) {
             super(context, 0, users);
+            this.contacts = users;
+        }
+
+        @Override
+        public Filter getFilter(){
+            return new Filter(){
+
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    constraint = constraint.toString().toLowerCase();
+                    FilterResults result = new FilterResults();
+                    if (constraint != null && constraint.toString().length() > 0) {
+                        List<Contact> founded = new ArrayList<Contact>();
+                        contacts = new ArrayList<>(arrayOfUsers_copy);
+                        for(Contact item: contacts){
+                            if(item.getName().toLowerCase().contains(constraint) || item.getPhoneNumber().contains(constraint)){
+                                founded.add(item);
+                            }
+                        }
+                        result.values = founded;
+                        result.count = founded.size();
+                    }else {
+                        result.values = contacts;
+                        result.count = contacts.size();
+                    }
+                    return result;
+                }
+                @Override
+                protected void publishResults(CharSequence constraint, FilterResults results) {
+                    clear();
+                    for (Contact item : (List<Contact>) results.values) {
+                        add(item);
+                    }
+                    notifyDataSetChanged();
+                }
+            };
         }
 
         @Override
@@ -296,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             return true;
         }
 
-    // Search to get to the location of the contact
+    // pass the search keyword to filter from the adapter
     private SearchView.OnQueryTextListener onQueryTextListener() {
         return new SearchView.OnQueryTextListener() {
             @Override
@@ -306,16 +346,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             @Override
             public boolean onQueryTextChange(String s) {
-                int position = 0;
-                while (position < arrayOfUsers.size() - 1) {
-                    if (arrayOfUsers.get(position).getName().toUpperCase().contains(s.toUpperCase()) || arrayOfUsers.get(position).getPhoneNumber().contains(s.toUpperCase())) {
-                        onlineContacts.smoothScrollToPositionFromTop(position, 0, 200);
-                        break;
-                    } else {
-                        position++;
-                    }
-                }
-
+                adapter.getFilter().filter(searchView.getQuery());
                 return false;
             }
         };
