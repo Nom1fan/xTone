@@ -17,24 +17,6 @@
     android:focusableInTouchMode="true"
     android:padding="15dip" >
 
-    <ImageButton
-        android:id="@+id/selectContactBtn"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:contentDescription="contacts"
-        android:src="@drawable/select_contact_anim"
-        android:textSize="18sp"
-        android:background="#00ffffff"
-        android:scaleType="fitCenter"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentRight="false"
-        android:layout_marginTop="2dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginBottom="15dp" />
-
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -136,10 +118,10 @@
         android:textColor="#ffffff"
         android:singleLine="true"
         android:gravity="center_horizontal"
-        android:layout_alignRight="@+id/destName"
+        android:layout_alignRight="@+id/CallNumber"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentEnd="false"
-        android:layout_above="@+id/caller_textview2" />
+        android:layout_above="@+id/caller_textview2"
+        android:layout_alignParentEnd="false" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -181,7 +163,7 @@
         android:layout_marginTop="30dp"
         android:layout_marginBottom="30dp" />
 
-    <AutoCompleteTextView
+    <EditText
         android:id="@+id/CallNumber"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
@@ -208,7 +190,7 @@
         android:textAlignment="center"
         android:layout_marginTop="11dp">
         <requestFocus />
-    </AutoCompleteTextView>
+    </EditText>
 
     <ImageButton
         android:id="@+id/CallNow"
@@ -396,12 +378,11 @@
         android:layout_centerHorizontal="true"
         android:scaleType="fitCenter" />
 
-    <TextView
+    <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/choose_contact_to_change_ring"
-        android:id="@+id/enter_contact_person_to_change_ring"
+        android:id="@+id/online_contacts"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentLeft="true"
@@ -410,17 +391,6 @@
         android:textColor="#ffffff"
         android:textSize="50dp"
         android:textAlignment="center"
-        android:layout_alignTop="@+id/selectProfileMediaBtn"
-        android:visibility="invisible" />
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/up_arrow_img"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@+id/enter_contact_person_to_change_ring"
-        android:layout_below="@+id/CallNumber"
-        android:src="@drawable/up_arrow"
         android:visibility="invisible" />
 
 </RelativeLayout>

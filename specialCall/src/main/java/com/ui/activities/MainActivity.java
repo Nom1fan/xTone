@@ -1,6 +1,7 @@
 package com.ui.activities;
 
 import android.app.Dialog;
+import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,32 +12,37 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -46,7 +52,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.app.AppStateManager;
-import com.async.tasks.AutoCompletePopulateListAsyncTask;
 import com.async.tasks.IsRegisteredTask;
 import com.async.tasks.SendBugEmailAsyncTask;
 import com.batch.android.Batch;
@@ -102,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private WebView displayYoutubeVideo;
 
     //region UI elements
-    private ImageButton selectContactBtn;
     private ImageButton selectMediaBtn;
     private TextView selectMediaBtn_textview;
     private TextView selectMediaBtn_textview2;
@@ -111,8 +115,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ProgressBar fetchUserPbar;
     private BroadcastReceiver eventReceiver;
     private IntentFilter eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
-    private AutoCompleteTextView autoCompleteTextViewDestPhone;
+    private EditText autoCompleteTextViewDestPhone;
     private ListView DrawerList;
+    private ListView onlineContacts;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
     private ImageView mediaStatus;
@@ -124,13 +129,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private TextView profile_textview2;
     private ImageView profile_arrow;
     private ImageView caller_arrow;
-    private ImageView starting_up_arrow;
-    private TextView starting_textview;
     private View divider1;
     private View divider2;
     private RelativeLayout mainActivityLayout;
     private ImageView ringtoneStatus;
-    private AutoCompleteTextView destinationEditText;
+    private EditText destinationEditText;
     private TextView destTextView;
     private boolean profileHasMedia = false;
     private boolean callerHasMedia = false;
@@ -140,6 +143,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private Snackbar snackBar;
     private Dialog windowVideoDialog = null;
     private UploadFileFlow uploadFileFlow = new UploadFileFlow();
+    ArrayList<Contact> arrayOfUsers;
+    OnlineContactAdapter adapter;
+    SearchView searchView;
     //endregion
 
     //region Activity methods (onCreate(), onPause(), onActivityResult()...)
@@ -219,9 +225,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             prepareEventReceiver();
 
-            // ASYNC TASK To Populate all contacts , it can take long time and it delays the UI
-            new AutoCompletePopulateListAsyncTask(autoCompleteTextViewDestPhone).execute(getApplicationContext());
-
             if (!appState.equals(AppStateManager.STATE_LOADING))
                 handleSnackBar(new SnackbarData(SnackbarData.SnackbarStatus.CLOSE, 0, 0, null));
 
@@ -232,8 +235,90 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             syncAndroidVersionWithServer();
 
             UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
+
+            // Construct the data source
+            arrayOfUsers = new ArrayList<Contact>(ContactsUtils.getAllContacts(getApplicationContext()));
+            // Create the adapter to convert the array to views
+            adapter = new OnlineContactAdapter(this, arrayOfUsers);
+            // Attach the adapter to a ListView
+            onlineContacts.setAdapter(adapter);
+            onlineContacts.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    autoCompleteTextViewDestPhone.setText(((TextView) view.findViewById(R.id.contact_phone)).getText().toString());
+                }
+            });
+        }
+    }
+
+        @Override
+        public void onBackPressed() {
+            Log.d("CDA", "onBackPressed Called");
+            clearText.performClick();
+
         }
 
+    public class OnlineContactAdapter extends ArrayAdapter<Contact> implements Filterable {
+        OnlineContactAdapter(Context context, ArrayList<Contact> users) {
+            super(context, 0, users);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            // Get the data item for this position
+            Contact user = getItem(position);
+            // Check if an existing view is being reused, otherwise inflate the view
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.online_contact_row, parent, false);
+            }
+            // Lookup view for data population
+            TextView tvName = (TextView) convertView.findViewById(R.id.contact_name);
+            TextView tvHome = (TextView) convertView.findViewById(R.id.contact_phone);
+            // Populate the data into the template view using the data object
+            tvName.setText(user.getName());
+            tvHome.setText(user.getPhoneNumber());
+            // Return the completed view to render on screen
+            return convertView;
+        }
+    }
+
+        @Override // add search functionality
+        public boolean onCreateOptionsMenu(Menu menu) {
+            MenuInflater inflater = getMenuInflater();
+            // Inflate menu to add items to action bar if it is present.
+            inflater.inflate(R.menu.select_contact_menu, menu);
+            // Associate searchable configuration with the SearchView
+            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+            searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+            searchView.setOnQueryTextListener(onQueryTextListener());
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            return true;
+        }
+
+    // Search to get to the location of the contact
+    private SearchView.OnQueryTextListener onQueryTextListener() {
+        return new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                int position = 0;
+                while (position < arrayOfUsers.size() - 1) {
+                    if (arrayOfUsers.get(position).getName().toUpperCase().contains(s.toUpperCase()) || arrayOfUsers.get(position).getPhoneNumber().contains(s.toUpperCase())) {
+                        onlineContacts.smoothScrollToPositionFromTop(position, 0, 200);
+                        break;
+                    } else {
+                        position++;
+                    }
+                }
+
+                return false;
+            }
+        };
     }
 
     @Override
@@ -348,6 +433,23 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             }
             return true;
         }
+        if (Integer.parseInt(android.os.Build.VERSION.SDK) > 5
+                && keyCode == KeyEvent.KEYCODE_BACK
+                && e.getRepeatCount() == 0) {
+            Log.d("CDA", "onKeyDown Called");
+
+            if (mDrawerLayout != null) {
+                if (mDrawerLayout.isDrawerOpen(GravityCompat.START))
+                {
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
+                    return true;
+                }
+            }
+
+            onBackPressed();
+            return true;
+        }
+
         return super.onKeyDown(keyCode, e);
     }
 
@@ -499,16 +601,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             else
                 selectMedia(SpecialMediaType.PROFILE_MEDIA);
 
-        } else if (id == R.id.selectContactBtn) {
-
-            Intent intent = new Intent(Intent.ACTION_PICK);
-            intent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
-            startActivityForResult(intent, ActivityRequestCodes.SELECT_CONTACT);
-
-        } else if (id == R.id.clear) {
+        }  else if (id == R.id.clear) {
 
             SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, true);
-            AutoCompleteTextView textViewToClear = (AutoCompleteTextView) findViewById(R.id.CallNumber);
+            EditText textViewToClear = (EditText) findViewById(R.id.CallNumber);
             if (textViewToClear != null) {
                 textViewToClear.setText("");
             }
@@ -665,39 +761,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         registerReceiver(eventReceiver, eventIntentFilter);
     }
-
     private void prepareAutoCompleteTextViewDestPhoneNumber() {
 
         final MainActivity instance = this;
 
-        autoCompleteTextViewDestPhone = (AutoCompleteTextView) findViewById(R.id.CallNumber);
+        autoCompleteTextViewDestPhone = (EditText) findViewById(R.id.CallNumber);
         if (autoCompleteTextViewDestPhone != null) {
             autoCompleteTextViewDestPhone.setRawInputType(InputType.TYPE_CLASS_TEXT);
-            autoCompleteTextViewDestPhone.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> av, View arg1, int index, long arg3) {
-
-                    String[] nameAndPhone = ((String) av.getItemAtPosition(index)).split("\\n");
-                    String name = nameAndPhone[0];
-                    String number = nameAndPhone[1];
-                    String NumericNumber = PhoneNumberUtils.toValidLocalPhoneNumber(number);
-
-                    autoCompleteTextViewDestPhone.setText(NumericNumber);
-                    destName = name;
-                    setDestNameTextView();
-                }
-            });
-
-            autoCompleteTextViewDestPhone.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-
-                    v.setFocusable(true);
-                    v.setFocusableInTouchMode(true);
-                    v.performClick();
-                    return false;
-                }
-            });
 
             autoCompleteTextViewDestPhone.addTextChangedListener(new TextWatcher() {
 
@@ -756,7 +826,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 }
             });
 
-            new AutoCompletePopulateListAsyncTask(autoCompleteTextViewDestPhone).execute(getApplicationContext());
         }
     }
 
@@ -797,7 +866,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         prepareMediaStatusImageView();
         prepareCallNowButton();
         prepareSelectMediaButton();
-        prepareSelectContactButton();
         prepareSelectProfileMediaButton();
         prepareDividers();
         prepareClearTextButton();
@@ -807,8 +875,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void prepareStartingView() {
 
-        starting_textview = (TextView) findViewById(R.id.enter_contact_person_to_change_ring);
-        starting_up_arrow = (ImageView) findViewById(R.id.up_arrow_img);
+        onlineContacts = (ListView) findViewById(R.id.online_contacts);
+
     }
 
     private void prepareMCTutorialButton() {
@@ -822,7 +890,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //region UI States
     public void stateIdle() {
 
-        enableSelectContactButton();
         enableDestinationEditText();
         disableUserFetchProgressBar();
         disableSelectProfileMediaButton();
@@ -848,7 +915,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         enableSelectProfileMediaButton();
         enableDividers();
         enableDestinationEditText();
-        enableSelectContactButton();
         enableCallButton();
         enableSelectMediaButton();
         disableStartingViews();
@@ -860,25 +926,30 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void disableStartingViews() {
 
-        starting_textview.setVisibility(View.INVISIBLE);
-        starting_up_arrow.setVisibility(View.INVISIBLE);
+        onlineContacts.setVisibility(View.INVISIBLE);
+
+        if (searchView!=null) {
+            searchView.setVisibility(View.GONE);
+        }
+
+        autoCompleteTextViewDestPhone.setVisibility(View.VISIBLE);
+        clearText.setVisibility(View.VISIBLE);
+
     }
 
     private void enableStartingViews() {
 
-     //   if ((autoCompleteTextViewDestPhone.getText().toString().isEmpty())) {
+            onlineContacts.setVisibility(View.VISIBLE);
 
-            starting_textview.setVisibility(View.VISIBLE);
-            starting_up_arrow.setVisibility(View.VISIBLE);
-            YoYo.with(Techniques.FadeIn)
-                    .duration(2000)
-                    .playOn(findViewById(R.id.enter_contact_person_to_change_ring));
+            if (searchView!=null) {
+                searchView.setVisibility(View.VISIBLE);
+            }
 
             YoYo.with(Techniques.FadeIn)
                     .duration(2000)
-                    .playOn(findViewById(R.id.up_arrow_img));
-    //    }
-
+                    .playOn(findViewById(R.id.online_contacts));
+            autoCompleteTextViewDestPhone.setVisibility(View.INVISIBLE);
+            clearText.setVisibility(View.INVISIBLE);
     }
 
     public void stateLoading() {
@@ -886,7 +957,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         disableSelectCallerMediaButton();
         disableSelectProfileMediaButton();
         disableDividers();
-        disableSelectContactButton();
         disableDestinationEditText();
         disableCallButton();
         disableStartingViews();
@@ -935,7 +1005,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //region UI elements controls
     private void prepareDestinationEditText() {
 
-        destinationEditText = (AutoCompleteTextView) findViewById(R.id.CallNumber);
+        destinationEditText = (EditText) findViewById(R.id.CallNumber);
     }
 
     private void prepareDestNameTextView() {
@@ -1016,13 +1086,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     }
 
-    private void prepareSelectContactButton() {
 
-        selectContactBtn = (ImageButton) findViewById(R.id.selectContactBtn);
-        if (selectContactBtn != null) {
-            selectContactBtn.setOnClickListener(this);
-        }
-    }
 
     private void prepareSelectProfileMediaButton() {
 
@@ -1397,18 +1461,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         divider2.setVisibility(View.VISIBLE);
     }
 
-    private void disableSelectContactButton() {
-
-        selectContactBtn.setEnabled(false);
-        drawSelectContactButton(false);
-    }
-
-    private void enableSelectContactButton() {
-
-        selectContactBtn.setEnabled(true);
-        drawSelectContactButton(true);
-    }
-
     private void enableMediaStatusArrived() {
 
         mediaStatus.setVisibility(View.VISIBLE);
@@ -1593,13 +1645,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     }
 
-    private void drawSelectContactButton(boolean enabled) {
-
-        if (enabled)
-            selectContactBtn.setImageResource(R.drawable.select_contact_anim);
-        else
-            selectContactBtn.setImageResource(R.drawable.select_contact_disabled);
-    }
 
     private void writeInfoSnackBar(final SnackbarData snackBarData) {
 
