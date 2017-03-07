@@ -56,7 +56,6 @@ public class ServerProxyService extends Service implements Runnable {
     public static final String SPECIAL_MEDIA_TYPE = "SPECIAL_MEDIA_TYPE";
     public static final String CLEAR_MEDIA_DATA = "CLEAR_MEDIA_DATA";
     public static final String PENDING_DOWNLOAD_DATA = "PENDING_DOWNLOAD_DATA";
-    public static final String CONTACTS_UIDS = "CONTACTS_UIDS";
     //endregion
 
     private Intent intent;
@@ -211,10 +210,9 @@ public class ServerProxyService extends Service implements Runnable {
         AppStateManager.setLoadingState(context, TAG, clearing, timeoutMsg);
     }
 
-    public static void getRegisteredContacts(Context context, ArrayList<String> contactsUids) {
+    public static void getRegisteredContacts(Context context) {
         Intent i = new Intent(context, ServerProxyService.class);
         i.setAction(ServerProxyService.ACTION_GET_REGISTERED_CONTACTS);
-        i.putStringArrayListExtra(ServerProxyService.CONTACTS_UIDS, contactsUids);
         context.startService(i);
 
         String timeoutMsg = context.getResources().getString(R.string.fetch_registered_contacts_failure);

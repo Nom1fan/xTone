@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
 apply plugin: 'io.fabric'
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 19
+        minSdkVersion 16
+        targetSdkVersion 25
     }
 
     buildTypes {
@@ -36,4 +36,8 @@ android {
         androidNdkLibsOut 'src/specialCall/libs'
     }
 
+}
+
+dependencies {
+    compile 'com.android.support:appcompat-v7:23.4.0'
 }

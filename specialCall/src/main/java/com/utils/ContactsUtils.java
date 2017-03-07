@@ -97,8 +97,10 @@ public abstract class ContactsUtils {
                     phoneNumber = people.getString(phonesIndex);
                     phoneNumber = PhoneNumberUtils.toValidLocalPhoneNumber(phoneNumber);
 
-                    if(PhoneNumberUtils.isValidPhoneNumber(phoneNumber))
-                        allContacts.add(new Contact(contactName, phoneNumber));
+                    Contact contact = new Contact(contactName, phoneNumber);
+                    if(PhoneNumberUtils.isValidPhoneNumber(phoneNumber) && !allContacts.contains(contact)) {
+                        allContacts.add(contact);
+                    }
                 }
             } finally {
                 people.close();

@@ -1,22 +1,22 @@
 package com.handlers.server_proxy_service;
 
-import android.os.Build;
+import android.content.Context;
 import android.util.Log;
 
 import com.client.ConnectionToServer;
-import com.data.objects.Constants;
+import com.data.objects.Contact;
+import com.data.objects.ContactWrapper;
 import com.data.objects.User;
+import com.enums.UserStatus;
 import com.event.EventReport;
 import com.event.EventType;
 import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
 import com.handlers.background_broadcast_receiver.EventLoadingTimeoutHandler;
 import com.model.request.GetRegisteredContactsRequest;
-import com.model.request.IsRegisteredRequest;
-import com.model.request.Request;
 import com.model.response.Response;
 import com.utils.BroadcastUtils;
-import com.utils.RequestUtils;
+import com.utils.ContactsUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -27,8 +27,6 @@ import java.util.Locale;
 import cz.msebera.android.httpclient.HttpStatus;
 
 import static com.crashlytics.android.Crashlytics.log;
-import static com.services.ServerProxyService.CONTACTS_UIDS;
-import static com.services.ServerProxyService.DESTINATION_ID;
 
 /**
  * Created by Mor on 04/03/2017.
@@ -41,7 +39,8 @@ public class GetRegisteredContactsHandler implements ActionHandler {
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
-        ArrayList<String> contactsUids = actionBundle.getIntent().getStringArrayListExtra(CONTACTS_UIDS);
+        List<Contact> allContacts = ContactsUtils.getAllContacts(actionBundle.getCtx());
+        List<String> contactsUids = convertToUids(allContacts);
         ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
         GetRegisteredContactsRequest getRegisteredContactsRequest = new GetRegisteredContactsRequest(actionBundle.getRequest());
@@ -52,8 +51,10 @@ public class GetRegisteredContactsHandler implements ActionHandler {
 
         if(responseCode == HttpStatus.SC_OK) {
             Response<List<User>> response = connectionToServer.readResponse();
-            List<User> registeredContacts = response.getResult();
-            log(Log.DEBUG, TAG, "Retrieved registered contacts:" + convertUsersToUidsString(registeredContacts));
+            List<User> registeredUsers = response.getResult();
+            log(Log.DEBUG, TAG, "Retrieved registered contacts:" + convertUsersToUidsString(registeredUsers));
+
+            List<ContactWrapper> registeredContacts = wrapAndSort(actionBundle.getCtx(), allContacts, registeredUsers);
             BroadcastUtils.sendEventReportBroadcast(actionBundle.getCtx(), TAG, new EventReport(EventType.GET_REGISTERED_CONTACTS_SUCCESS, registeredContacts));
         }
         else {
@@ -61,6 +62,45 @@ public class GetRegisteredContactsHandler implements ActionHandler {
             EventLoadingTimeoutHandler timeoutHandler = new EventLoadingTimeoutHandler();
             timeoutHandler.handle(actionBundle.getCtx());
         }
+    }
+
+    private List<String> convertToUids(List<Contact> allContacts) {
+        List<String> uids = new ArrayList<>();
+        for (Contact contact : allContacts) {
+            uids.add(contact.getPhoneNumber());
+        }
+        return uids;
+    }
+
+    private List<ContactWrapper> wrapAndSort(Context ctx, List<Contact> allContacts, List<User> registeredUsers) {
+        List<ContactWrapper> contactWrappers = new ArrayList<>();
+        List<Contact> registeredContacts = convertToContacts(registeredUsers);
+        addRegisteredContacts(contactWrappers, registeredContacts, allContacts);
+        allContacts.removeAll(registeredContacts);
+        addUnregisteredContacts(contactWrappers, allContacts);
+        return contactWrappers;
+    }
+
+    private void addUnregisteredContacts(List<ContactWrapper> contactWrappers, List<Contact> allContacts) {
+        for (Contact contact : allContacts) {
+            contactWrappers.add(new ContactWrapper(contact, UserStatus.UNREGISTERED));
+        }
+    }
+
+    private void addRegisteredContacts(List<ContactWrapper> contactWrappers, List<Contact> registeredContacts, List<Contact> allContacts) {
+        for (Contact contact : allContacts) {
+            if(registeredContacts.contains(contact)) {
+                contactWrappers.add(new ContactWrapper(contact, UserStatus.REGISTERED));
+            }
+        }
+    }
+
+    private List<Contact> convertToContacts(List<User> registeredUsers) {
+        List<Contact> registeredContacts = new ArrayList<>();
+        for (User registeredUser : registeredUsers) {
+            registeredContacts.add(new Contact("", registeredUser.getUid()));
+        }
+        return registeredContacts;
     }
 
     private String convertUsersToUidsString(List<User> users) {

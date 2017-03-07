@@ -12,6 +12,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -62,9 +63,11 @@ import com.daimajia.androidanimations.library.YoYo;
 import com.data.objects.ActivityRequestCodes;
 import com.data.objects.Constants;
 import com.data.objects.Contact;
+import com.data.objects.ContactWrapper;
 import com.data.objects.KeysForBundle;
 import com.data.objects.SnackbarData;
 import com.enums.SpecialMediaType;
+import com.enums.UserStatus;
 import com.event.Event;
 import com.event.EventReport;
 import com.exceptions.FileDoesNotExistException;
@@ -117,8 +120,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private BroadcastReceiver eventReceiver;
     private IntentFilter eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
     private EditText autoCompleteTextViewDestPhone;
-    private ListView DrawerList;
-    private ListView onlineContacts;
+    private ListView drawerList;
+    private ListView contactsListView;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
     private ImageView mediaStatus;
@@ -144,10 +147,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private Snackbar snackBar;
     private Dialog windowVideoDialog = null;
     private UploadFileFlow uploadFileFlow = new UploadFileFlow();
-    ArrayList<Contact> arrayOfUsers;
-    ArrayList<Contact> arrayOfUsers_copy;
-    OnlineContactAdapter adapter;
-    SearchView searchView;
+    private ArrayList<Contact> arrayOfUsers;
+    private OnlineContactAdapter adapter;
+    private SearchView searchView;
     //endregion
 
     //region Activity methods (onCreate(), onPause(), onActivityResult()...)
@@ -236,107 +238,102 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             syncAndroidVersionWithServer();
 
-            UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
+            ServerProxyService.getRegisteredContacts(this);
 
-            // Construct the data source
-            arrayOfUsers = new ArrayList<Contact>(ContactsUtils.getAllContacts(getApplicationContext()));
-            arrayOfUsers_copy = new ArrayList<Contact>(arrayOfUsers);
-            // Create the adapter to convert the array to views
-            adapter = new OnlineContactAdapter(this, arrayOfUsers);
-            // Attach the adapter to a ListView
-            onlineContacts.setAdapter(adapter);
-            onlineContacts.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    autoCompleteTextViewDestPhone.setText(((TextView) view.findViewById(R.id.contact_phone)).getText().toString());
-                }
-            });
+            UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
         }
     }
 
-        @Override
-        public void onBackPressed() {
-            Log.d("CDA", "onBackPressed Called");
-            clearText.performClick();
+    @Override
+    public void onBackPressed() {
+        Log.d("CDA", "onBackPressed Called");
+        clearText.performClick();
 
+    }
+
+    public class OnlineContactAdapter extends ArrayAdapter<ContactWrapper> implements Filterable {
+        private List<ContactWrapper> allContacts;
+
+        private List<ContactWrapper> dynamicContacts;
+
+
+        OnlineContactAdapter(Context context, List<ContactWrapper> allContacts) {
+            super(context, 0, allContacts);
+            this.allContacts = allContacts;
         }
 
-    public class OnlineContactAdapter extends ArrayAdapter<Contact> implements Filterable {
-        List<Contact> contacts;
-
-        OnlineContactAdapter(Context context, ArrayList<Contact> users) {
-            super(context, 0, users);
-            this.contacts = users;
-        }
-
+        @NonNull
         @Override
-        public Filter getFilter(){
-            return new Filter(){
+        public Filter getFilter() {
+            return new Filter() {
 
                 @Override
                 protected FilterResults performFiltering(CharSequence constraint) {
-
-
                     constraint = constraint.toString().toLowerCase();
                     FilterResults result = new FilterResults();
-                    if (constraint != null && constraint.toString().length() > 0) {
-                        List<Contact> founded = new ArrayList<Contact>();
-                        contacts = new ArrayList<>(arrayOfUsers_copy);
-                        for(Contact item: contacts){
-                            if(item.getName().toLowerCase().contains(constraint) || item.getPhoneNumber().contains(constraint)){
-                                founded.add(item);
+                    if (constraint.toString().length() > 0) {
+                        List<ContactWrapper> founded = new ArrayList<>();
+                        dynamicContacts = new ArrayList<>(allContacts);
+                        for (ContactWrapper contactWrapper : dynamicContacts) {
+                            if (contactWrapper.getContact().getName().toLowerCase().contains(constraint) || contactWrapper.getContact().getPhoneNumber().contains(constraint)) {
+                                founded.add(contactWrapper);
                             }
                         }
                         result.values = founded;
                         result.count = founded.size();
-                    }else {
-                        result.values = contacts;
-                        result.count = contacts.size();
+                    } else {
+                        result.values = dynamicContacts;
+                        result.count = dynamicContacts.size();
                     }
                     return result;
                 }
+
                 @Override
                 protected void publishResults(CharSequence constraint, FilterResults results) {
                     clear();
-                    for (Contact item : (List<Contact>) results.values) {
-                        add(item);
+                    for (ContactWrapper contactWrapper : (List<ContactWrapper>) results.values) {
+                        add(contactWrapper);
                     }
                     notifyDataSetChanged();
                 }
             };
         }
 
+        @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             // Get the data item for this position
-            Contact user = getItem(position);
+            ContactWrapper contactWrapper = getItem(position);
             // Check if an existing view is being reused, otherwise inflate the view
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.online_contact_row, parent, false);
             }
             // Lookup view for data population
             TextView tvName = (TextView) convertView.findViewById(R.id.contact_name);
-            TextView tvHome = (TextView) convertView.findViewById(R.id.contact_phone);
+            TextView tvPhone = (TextView) convertView.findViewById(R.id.contact_phone);
+            ImageView contactStatusImage = (ImageView) convertView.findViewById(R.id.contact_status);
             // Populate the data into the template view using the data object
-            tvName.setText(user.getName());
-            tvHome.setText(user.getPhoneNumber());
+            tvName.setText(contactWrapper != null ? contactWrapper.getContact().getName() : null);
+            tvPhone.setText(contactWrapper != null ? contactWrapper.getContact().getPhoneNumber() : null);
+
+            if (contactWrapper != null && contactWrapper.getUserStatus().equals(UserStatus.REGISTERED)) {
+                contactStatusImage.setImageResource(android.R.drawable.presence_online);
+            } else {
+                contactStatusImage.setImageResource(android.R.drawable.presence_invisible);
+            }
             // Return the completed view to render on screen
             return convertView;
         }
     }
 
-        @Override // add search functionality
-        public boolean onCreateOptionsMenu(Menu menu) {
-            MenuInflater inflater = getMenuInflater();
-            // Inflate menu to add items to action bar if it is present.
-            inflater.inflate(R.menu.select_contact_menu, menu);
-            // Associate searchable configuration with the SearchView
-            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-            searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-            searchView.setOnQueryTextListener(onQueryTextListener());
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-            return true;
-        }
+    @Override // add search functionality
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        // Inflate menu to add items to action bar if it is present.
+        inflater.inflate(R.menu.select_contact_menu, menu);
+        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        return true;
+    }
 
     // pass the search keyword to filter from the adapter
     private SearchView.OnQueryTextListener onQueryTextListener() {
@@ -349,9 +346,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             @Override
             public boolean onQueryTextChange(String s) {
 
-                String ifOnlyPhoneNumber = PhoneNumberUtils.toNumeric(s.toString());
-                if (PhoneNumberUtils.isValidPhoneNumber(ifOnlyPhoneNumber))
-                {
+                String ifOnlyPhoneNumber = PhoneNumberUtils.toNumeric(s);
+                if (PhoneNumberUtils.isValidPhoneNumber(ifOnlyPhoneNumber)) {
                     autoCompleteTextViewDestPhone.setText(ifOnlyPhoneNumber);
                     return false;
                 }
@@ -382,9 +378,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             /* Apply our splash exit (fade out) and main
             entry (fade in) animation transitions. */
-       if (openDrawer)
+        if (openDrawer)
             overridePendingTransition(R.anim.slide_in_up, R.anim.no_animation); // open drawer animation
-
 
 
 //        UI_Utils.unbindDrawables(findViewById(R.id.mainActivity));
@@ -479,8 +474,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             Log.d("CDA", "onKeyDown Called");
 
             if (mDrawerLayout != null) {
-                if (mDrawerLayout.isDrawerOpen(GravityCompat.START))
-                {
+                if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
                     mDrawerLayout.closeDrawer(GravityCompat.START);
                     return true;
                 }
@@ -508,7 +502,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //region Assisting methods (onClick(), eventReceived(), ...)
     private void startingTipDialog() {
         if (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_TIP)) {
-            Intent tip = new Intent(getApplicationContext(),TipActivityDialog.class);
+            Intent tip = new Intent(getApplicationContext(), TipActivityDialog.class);
             startActivity(tip);
         }
     }
@@ -641,7 +635,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             else
                 selectMedia(SpecialMediaType.PROFILE_MEDIA);
 
-        }  else if (id == R.id.clear) {
+        } else if (id == R.id.clear) {
 
             SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, true);
             EditText textViewToClear = (EditText) findViewById(R.id.CallNumber);
@@ -649,8 +643,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 textViewToClear.setText("");
             }
 
-        }else if (id == R.id.tutorial_btn) {
-                openMCTutorialMenu();
+        } else if (id == R.id.tutorial_btn) {
+            openMCTutorialMenu();
         }
     }
 
@@ -666,7 +660,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 if (Constants.APP_VERSION() < lastSupportedVersion)
                     showMandatoryUpdateDialog();
             }
-            break;
+                break;
 
             case USER_REGISTERED_FALSE:
                 InviteDialog inviteDialog = new InviteDialog();
@@ -675,8 +669,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             case CLEAR_SENT:
                 if (!SharedPrefUtils.getBoolean(MainActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {
-                    UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this, "ClearMediaDialog", getResources().getString(R.string.sending_clear_contact) , getResources().getString(R.string.waiting_for_clear_transfer_success_dialog_msg));
+                    UI_Utils.showWaitingForTranferSuccussDialog(MainActivity.this, "ClearMediaDialog", getResources().getString(R.string.sending_clear_contact), getResources().getString(R.string.waiting_for_clear_transfer_success_dialog_msg));
                 }
+
                 break;
 
             case REFRESH_UI:
@@ -685,6 +680,26 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                 if (data != null)
                     handleSnackBar(data);
+                break;
+
+            case GET_REGISTERED_CONTACTS_SUCCESS:
+                // Construct the data source
+
+                // Create the adapter to convert the array to views
+                adapter = new OnlineContactAdapter(this, (List<ContactWrapper>) event.report().data());
+                // Attach the adapter to a ListView
+                contactsListView.setAdapter(adapter);
+                contactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        autoCompleteTextViewDestPhone.setText(((TextView) view.findViewById(R.id.contact_phone)).getText().toString());
+                    }
+                });
+                // Associate searchable configuration with the SearchView
+                SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+                searchView.setOnQueryTextListener(onQueryTextListener());
+                searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+                adapter.notifyDataSetChanged();
                 break;
 
             default: // Event not meant for MainActivity receiver
@@ -801,6 +816,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         registerReceiver(eventReceiver, eventIntentFilter);
     }
+
     private void prepareAutoCompleteTextViewDestPhoneNumber() {
 
         final MainActivity instance = this;
@@ -915,7 +931,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void prepareStartingView() {
 
-        onlineContacts = (ListView) findViewById(R.id.online_contacts);
+        contactsListView = (ListView) findViewById(R.id.online_contacts);
 
     }
 
@@ -966,9 +982,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void disableStartingViews() {
 
-        onlineContacts.setVisibility(View.INVISIBLE);
+        contactsListView.setVisibility(View.INVISIBLE);
 
-        if (searchView!=null) {
+        if (searchView != null) {
             searchView.setVisibility(View.GONE);
         }
 
@@ -979,17 +995,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void enableStartingViews() {
 
-            onlineContacts.setVisibility(View.VISIBLE);
+        contactsListView.setVisibility(View.VISIBLE);
 
-            if (searchView!=null) {
-                searchView.setVisibility(View.VISIBLE);
-            }
+        if (searchView != null) {
+            searchView.setVisibility(View.VISIBLE);
+        }
 
-            YoYo.with(Techniques.FadeIn)
-                    .duration(2000)
-                    .playOn(findViewById(R.id.online_contacts));
-            autoCompleteTextViewDestPhone.setVisibility(View.INVISIBLE);
-            clearText.setVisibility(View.INVISIBLE);
+        YoYo.with(Techniques.FadeIn)
+                .duration(2000)
+                .playOn(findViewById(R.id.online_contacts));
+        autoCompleteTextViewDestPhone.setVisibility(View.INVISIBLE);
+        clearText.setVisibility(View.INVISIBLE);
     }
 
     public void stateLoading() {
@@ -1120,12 +1136,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         selectMediaBtn_textview = (TextView) findViewById(R.id.media_textview);
         selectMediaBtn_textview2 = (TextView) findViewById(R.id.caller_textview2);
 
-        caller_arrow = (ImageView)findViewById(R.id.callerArrow);
+        caller_arrow = (ImageView) findViewById(R.id.callerArrow);
         if (caller_arrow != null)
             caller_arrow.setOnClickListener(this);
 
     }
-
 
 
     private void prepareSelectProfileMediaButton() {
@@ -1166,9 +1181,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (mDrawerLayout != null) {
-            DrawerList = (ListView) findViewById(R.id.left_drawer);
+            drawerList = (ListView) findViewById(R.id.left_drawer);
             addDrawerItems();
-            DrawerList.setOnItemClickListener(new DrawerItemClickListener());
+            drawerList.setOnItemClickListener(new DrawerItemClickListener());
             mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
 
                 /**
@@ -1203,7 +1218,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         //   dataList.add(new DrawerItem(getResources().getString(R.string.media_management), R.drawable.mediaicon));
         dataList.add(new DrawerItem("", R.drawable.color_mc));
-     //   dataList.add(new DrawerItem(getResources().getString(R.string.default_profile_media), R.drawable.default_profile_media));
+        //   dataList.add(new DrawerItem(getResources().getString(R.string.default_profile_media), R.drawable.default_profile_media));
         dataList.add(new DrawerItem(getResources().getString(R.string.who_can_mc_me), R.drawable.blackwhitelist));
 //        dataList.add(new DrawerItem("How To ?", R.drawable.questionmark));
 //        dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
@@ -1216,7 +1231,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 dataList);
 
         //   mAdapter = new ArrayAdapter<String>(this, R.layout.custome_drawer_item, osArray);
-        DrawerList.setAdapter(mAdapter);
+        drawerList.setAdapter(mAdapter);
     }
 
     private void selectNavigationItem(int position) {
@@ -1243,7 +1258,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 break;
         }
 
-        mDrawerLayout.closeDrawer(DrawerList);
+        mDrawerLayout.closeDrawer(drawerList);
     }
 
     private void appSettings() {
@@ -1417,7 +1432,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     .duration(1000)
                     .playOn(findViewById(R.id.ringtoneName));
 
-          selectMediaBtn.setClickable(false);
+            selectMediaBtn.setClickable(false);
             caller_arrow.setClickable(false);
         } else {
             selectMediaBtn.setVisibility(View.INVISIBLE);
@@ -1563,7 +1578,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
             MediaFile.FileType fType;
 
-            if (enabled){
+            if (enabled) {
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
@@ -1573,7 +1588,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                     enableMediaStatusArrived();
                     // stretch the uploaded image as it won't stretch because we use a drawable instead that we don't want to stretch
-                   // selectMediaBtn.setPadding(0, 0, 0, 0);
+                    // selectMediaBtn.setPadding(0, 0, 0, 0);
                     selectMediaBtn.setScaleType(ImageView.ScaleType.FIT_CENTER);
                     callerHasMedia = true;
                     UI_Utils.showCaseViewAfterUploadAndCall(this, MainActivity.this);
@@ -1605,7 +1620,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         try {
 
-            if (enabled){
+            if (enabled) {
 
                 String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
                 if (!lastUploadedMediaPath.equals("")) {
@@ -1615,7 +1630,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     profileHasMedia = true;
                 } else // enabled but no uploaded media
                 {
-                   // BitmapUtils.execBitmapWorkerTask(defaultpic_enabled, this, getResources(), R.drawable.select_profile_media_enabled, true);
+                    // BitmapUtils.execBitmapWorkerTask(defaultpic_enabled, this, getResources(), R.drawable.select_profile_media_enabled, true);
                     defaultpic_enabled.setImageResource(R.drawable.mc_caller_media_anim); // make the imageview pressed for PROFILE MEDIA BTN
                     profileHasMedia = false;
                 }
