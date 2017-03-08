@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private Snackbar snackBar;
     private Dialog windowVideoDialog = null;
     private UploadFileFlow uploadFileFlow = new UploadFileFlow();
-    private ArrayList<Contact> arrayOfUsers;
+    private List<ContactWrapper> arrayOfUsers;
     private OnlineContactAdapter adapter;
     private SearchView searchView;
     //endregion
@@ -273,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     FilterResults result = new FilterResults();
                     if (constraint.toString().length() > 0) {
                         List<ContactWrapper> founded = new ArrayList<>();
-                        dynamicContacts = new ArrayList<>(allContacts);
+                        dynamicContacts = new ArrayList<>(arrayOfUsers);
                         for (ContactWrapper contactWrapper : dynamicContacts) {
                             if (contactWrapper.getContact().getName().toLowerCase().contains(constraint) || contactWrapper.getContact().getPhoneNumber().contains(constraint)) {
                                 founded.add(contactWrapper);
@@ -686,6 +686,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 // Construct the data source
 
                 // Create the adapter to convert the array to views
+                arrayOfUsers = new ArrayList<>((List<ContactWrapper>)event.report().data());
                 adapter = new OnlineContactAdapter(this, (List<ContactWrapper>) event.report().data());
                 // Attach the adapter to a ListView
                 contactsListView.setAdapter(adapter);
