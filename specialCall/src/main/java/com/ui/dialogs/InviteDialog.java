@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
@@ -23,18 +22,27 @@ import static com.crashlytics.android.Crashlytics.log;
 public class InviteDialog extends android.app.DialogFragment {
 
     private static final String TAG  = InviteDialog.class.getSimpleName();
+    private String name = "";
+
+    public InviteDialog(String name){
+        this.name = name;
+
+    }
+
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public Dialog onCreateDialog(Bundle savedInstanceState ) {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.AlertDialogCustom));
 
         final Context context = getActivity().getApplicationContext();
 
+        String msg =  String.format(context.getResources().getString(R.string.user_is_unregistered), name);
+
         final TextView content = new TextView(context);
         content.setText(R.string.invite_dialog_summary);
         content.setTextColor(Color.WHITE);
-        builder.setTitle(R.string.invite_dialog_title)
+        builder.setTitle(msg)
                 .setView(content)
                 .setPositiveButton(R.string.invite_btn, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {

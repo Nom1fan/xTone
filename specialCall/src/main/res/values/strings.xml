@@ -80,7 +80,7 @@
     <string name="delete_account_failed">Failed to delete account! Please contact MediaCallz support</string>
     <string name="deleting_account_msg">Deleting account…</string>
     <string name="action_cancelled">Action cancelled</string>
-    <string name="invite_dialog_title">Unregistered</string>
+    <string name="invite_dialog_title">%1$s Unregistered</string>
     <string name="invite_dialog_summary"> Invite him now to get MediaCallz, and surprise him with video ringtones and more</string>
     <string name="invite_btn">Invite</string>
     <string name="clear_dialog_title">Return to normal ringing (without media)</string>

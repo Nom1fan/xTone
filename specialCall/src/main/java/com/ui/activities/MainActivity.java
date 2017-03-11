@@ -62,7 +62,6 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.data.objects.ActivityRequestCodes;
 import com.data.objects.Constants;
-import com.data.objects.Contact;
 import com.data.objects.ContactWrapper;
 import com.data.objects.KeysForBundle;
 import com.data.objects.SnackbarData;
@@ -87,6 +86,7 @@ import com.ui.dialogs.ClearMediaDialog;
 import com.ui.dialogs.InviteDialog;
 import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
+import com.utils.CacheUtils;
 import com.utils.ContactsUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
@@ -163,6 +163,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         // so we can know who device was crashed, and get it's phone number.
         Crashlytics.setUserIdentifier(Constants.MY_ID(getApplicationContext()));
 
+        if(AppStateManager.isLoggedIn(this)) // should always start from idle and registeredContactLV
+            AppStateManager.setAppState(getApplicationContext(),TAG,AppStateManager.STATE_IDLE);
+
+
+
         if (AppStateManager.didAppCrash(this)) {
             Log.w(TAG, "Detected app previously crashed. Handling...");
             AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
@@ -238,7 +243,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             syncAndroidVersionWithServer();
 
-            ServerProxyService.getRegisteredContacts(this);
+            if (autoCompleteTextViewDestPhone.getText().toString().isEmpty())
+            {
+                ServerProxyService.getRegisteredContacts(getApplicationContext());
+                AppStateManager.setAppState(getApplicationContext(),TAG,AppStateManager.STATE_IDLE);
+                syncUIwithAppState();
+            }
 
             UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
         }
@@ -283,7 +293,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         result.count = founded.size();
                     } else {
                         result.values = dynamicContacts;
-                        result.count = dynamicContacts.size();
+                        if (dynamicContacts!=null)
+                            result.count = dynamicContacts.size();
                     }
                     return result;
                 }
@@ -291,9 +302,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 @Override
                 protected void publishResults(CharSequence constraint, FilterResults results) {
                     clear();
-                    for (ContactWrapper contactWrapper : (List<ContactWrapper>) results.values) {
-                        add(contactWrapper);
-                    }
+                    if (results.values!=null)
+                        for (ContactWrapper contactWrapper : (List<ContactWrapper>) results.values) {
+                            add(contactWrapper);
+                        }
                     notifyDataSetChanged();
                 }
             };
@@ -437,19 +449,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         bundle.putSerializable(KeysForBundle.SPEC_MEDIA_TYPE, specialMediaType);
 
                         uploadFileFlow.executeUploadFileFlow(MainActivity.this, bundle);
-                    }
-                }
 
-            } else if (requestCode == ActivityRequestCodes.SELECT_CONTACT) {
-                try {
-                    if (data != null) {
-                        Uri uri = data.getData();
-                        Contact contact = ContactsUtils.getContact(uri, this);
-                        saveInstanceState(contact.getName(), PhoneNumberUtils.toValidLocalPhoneNumber(contact.getPhoneNumber()));
                     }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
 
             }
@@ -638,10 +639,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         } else if (id == R.id.clear) {
 
             SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, true);
-            EditText textViewToClear = (EditText) findViewById(R.id.CallNumber);
-            if (textViewToClear != null) {
-                textViewToClear.setText("");
+            if (autoCompleteTextViewDestPhone != null) {
+                autoCompleteTextViewDestPhone.setText("");
+                if (destTextView != null)
+                        destTextView.setText("");
             }
+
+            ServerProxyService.getRegisteredContacts(this);
+            AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
+            syncUIwithAppState();
 
         } else if (id == R.id.tutorial_btn) {
             openMCTutorialMenu();
@@ -663,8 +669,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 break;
 
             case USER_REGISTERED_FALSE:
-                InviteDialog inviteDialog = new InviteDialog();
-                inviteDialog.show(getFragmentManager(), TAG);
+                enableInviteForUnregisteredUserFunctionality("");
+                break;
+
+            case USER_REGISTERED_TRUE:
+                enableUserRegisterFunctionality();
                 break;
 
             case CLEAR_SENT:
@@ -707,6 +716,22 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
+    private void enableUserRegisterFunctionality() {
+        AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_READY);
+        syncUIwithAppState();
+        String msg = String.format(getApplicationContext().getResources().getString(R.string.user_is_registered),
+                ContactsUtils.getContactNameHtml(getApplicationContext(), destPhoneNumber));
+        CacheUtils.setPhone(getApplicationContext(), destPhoneNumber);
+
+        UI_Utils.showSnackBar(msg, Color.GREEN, Snackbar.LENGTH_LONG, false, getApplicationContext());
+
+    }
+
+    private void enableInviteForUnregisteredUserFunctionality(String name) {
+        InviteDialog inviteDialog = new InviteDialog(name);
+        inviteDialog.show(getFragmentManager(), TAG);
+    }
+
     //TODO change this to campaign API push for all users in case of last supported version change
     private void getAppRecord() {
 
@@ -735,29 +760,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
 
         // Saving destination name
-        if (destTextView != null && (!destTextView.getText().toString().isEmpty())) {
-            destName = destTextView.getText().toString();
+        String textview_name=destTextView.getText().toString();
+        if (destTextView != null && (!textview_name.isEmpty())) {
+            destName = textview_name;
             SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, destName);
         }
     }
 
-    /**
-     * Saving the instance state - Should be used from onActivityResult.SELECT_CONTACT
-     *
-     * @param destName   The destination name to be saved
-     * @param destNumber The destination number to be saved
-     */
-    private void saveInstanceState(String destName, String destNumber) {
-
-        // Saving destination number
-        destPhoneNumber = destNumber;
-        SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, destPhoneNumber);
-
-
-        // Saving destination name
-        this.destName = destName;
-        SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, this.destName);
-    }
 
     private void restoreInstanceState() {
 
@@ -765,12 +774,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         // Restoring destination number
         String destNumber = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
-        if (autoCompleteTextViewDestPhone != null && destNumber != null)
+        if (autoCompleteTextViewDestPhone != null && destNumber != null) {
             autoCompleteTextViewDestPhone.setText(destNumber);
 
-        // Restoring destination name
-        destName = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
-        setDestNameTextView();
+            // Restoring destination name
+            destName = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
+
+            setDestNameTextView();
+        }
     }
 
     private void setDestNameTextView() {
@@ -782,17 +793,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         }
 
-        if (destPhoneNumber != null && !destPhoneNumber.equals(""))
-            destName = ContactsUtils.getContactName(this, destPhoneNumber);
-        else
-            destName = "";
-
         if (destTextView != null) {
 
-            if (destName != null && !destName.equals(""))
+            if (destName != null && !destName.equals("") && !autoCompleteTextViewDestPhone.getText().equals(""))
                 destTextView.setText(destName);
-            else if (destPhoneNumber != null && !destPhoneNumber.equals(""))
-                destTextView.setText(destPhoneNumber);
             else {
                 disableDestinationTextView();
                 return;
@@ -856,7 +860,29 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         } else {
                             destPhoneNumber = destPhone;
                             SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, true);
-                            new IsRegisteredTask(destPhone, instance).execute(getApplicationContext());
+                            Boolean isInContactsListView = false;
+
+                            if (arrayOfUsers !=null)
+                            for (ContactWrapper arrayOfUser : arrayOfUsers) {
+
+                                if (arrayOfUser.getContact().getPhoneNumber().equals(destPhone))
+                                    if (arrayOfUser.getUserStatus() == UserStatus.REGISTERED )
+                                    {
+                                        enableUserRegisterFunctionality();
+                                        destName = arrayOfUser.getContact().getName();
+                                        setDestNameTextView();
+                                        isInContactsListView = true;
+                                        break;
+                                    }else {
+                                        enableInviteForUnregisteredUserFunctionality(arrayOfUser.getContact().getName());
+                                        isInContactsListView = true;
+                                        break;
+                                    }
+                            }
+
+                            if (!isInContactsListView)
+                                new IsRegisteredTask(destPhone, instance).execute(getApplicationContext());
+
 
                             hideSoftKeyboardForView(autoCompleteTextViewDestPhone); // hide keyboard so it won't bother
 
@@ -874,7 +900,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         }
                     }
 
-                    setDestNameTextView();
+
                     saveInstanceState();
                 }
 
@@ -1003,7 +1029,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
 
         YoYo.with(Techniques.FadeIn)
-                .duration(2000)
+                .duration(1000)
                 .playOn(findViewById(R.id.online_contacts));
         autoCompleteTextViewDestPhone.setVisibility(View.INVISIBLE);
         clearText.setVisibility(View.INVISIBLE);
