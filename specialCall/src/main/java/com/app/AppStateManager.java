@@ -1,10 +1,16 @@
 package com.app;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.event.EventReport;
+import com.event.EventType;
+import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
+import com.utils.UI_Utils;
 
 /**
  * Created by mor on 01/10/2015.
@@ -51,6 +57,7 @@ public class AppStateManager {
         Crashlytics.log(Log.INFO,TAG, tag + " changes state from [" + curState + "] to: [" + STATE_LOADING + "]");
 
         SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE, STATE_LOADING);
+        UI_Utils.showSnackBar(loadingMsg, Color.GREEN, Snackbar.LENGTH_INDEFINITE, true, context);
     }
 
     public static String getAppState(Context context) {
@@ -62,8 +69,8 @@ public class AppStateManager {
     }
 
     public synchronized static void setAppPrevState(Context context, String tag) {
-
         setAppState(context, tag, getAppPrevState(context));
+        UI_Utils.closeSnackBar(context);
     }
 
     public static boolean isNonBlockingState(Context context) {

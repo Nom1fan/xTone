@@ -16,6 +16,7 @@ import com.data.objects.AppMeta;
 import com.model.response.Response;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
+import com.utils.UI_Utils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -55,7 +56,7 @@ public class ClearMediaActionHandler implements ActionHandler {
 
         int responseCode = connectionToServer.sendRequest(URL_CLEAR_MEDIA, request);
         if(responseCode == HttpStatus.SC_OK) {
-            AppStateManager.setAppState(ctx, TAG, AppStateManager.getAppPrevState(ctx));
+            AppStateManager.setAppPrevState(ctx, TAG);
             BroadcastUtils.sendEventReportBroadcast(ctx, TAG, new EventReport(EventType.CLEAR_SENT));
         }
         else {

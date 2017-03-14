@@ -21,6 +21,5 @@ public class EventFetchingUserDataHandler implements Handler {
         String timeoutMsg = ctx.getResources().getString(R.string.oops_try_again);
         String loadingMsg = ctx.getResources().getString(R.string.fetching_user_data);
         AppStateManager.setLoadingState(ctx, TAG + " FETCHING_USER_DATA", loadingMsg, timeoutMsg);
-        UI_Utils.showSnackBar(loadingMsg, Color.GREEN, Snackbar.LENGTH_INDEFINITE, true, ctx);
     }
 }

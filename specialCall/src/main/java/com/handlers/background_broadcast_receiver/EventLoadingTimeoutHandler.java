@@ -21,7 +21,7 @@ public class EventLoadingTimeoutHandler implements Handler {
 
     @Override
     public void handle(Context ctx, Object... params) {
-        AppStateManager.setAppState(ctx, TAG, AppStateManager.getAppPrevState(ctx));
+        AppStateManager.setAppPrevState(ctx, TAG);
         String timeoutMsg = AppStateManager.getTimeoutMsg(ctx);
 
         if (AppStateManager.isLoggedIn(ctx)) {

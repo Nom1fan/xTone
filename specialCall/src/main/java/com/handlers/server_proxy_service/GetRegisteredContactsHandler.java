@@ -3,9 +3,11 @@ package com.handlers.server_proxy_service;
 import android.content.Context;
 import android.util.Log;
 
+import com.app.AppStateManager;
 import com.client.ConnectionToServer;
 import com.data.objects.Contact;
 import com.data.objects.ContactWrapper;
+import com.data.objects.SnackbarData;
 import com.data.objects.User;
 import com.enums.UserStatus;
 import com.event.EventReport;
@@ -17,6 +19,7 @@ import com.model.request.GetRegisteredContactsRequest;
 import com.model.response.Response;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
+import com.utils.UI_Utils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -27,6 +30,7 @@ import java.util.Locale;
 import cz.msebera.android.httpclient.HttpStatus;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static com.data.objects.SnackbarData.*;
 
 /**
  * Created by Mor on 04/03/2017.
@@ -55,6 +59,7 @@ public class GetRegisteredContactsHandler implements ActionHandler {
             log(Log.DEBUG, TAG, "Retrieved registered contacts:" + convertUsersToUidsString(registeredUsers));
 
             List<ContactWrapper> registeredContacts = wrapAndSort(actionBundle.getCtx(), allContacts, registeredUsers);
+            AppStateManager.setAppPrevState(actionBundle.getCtx(), TAG);
             BroadcastUtils.sendEventReportBroadcast(actionBundle.getCtx(), TAG, new EventReport(EventType.GET_REGISTERED_CONTACTS_SUCCESS, registeredContacts));
         }
         else {

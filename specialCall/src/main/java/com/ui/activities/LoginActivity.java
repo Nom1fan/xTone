@@ -275,7 +275,6 @@ public class LoginActivity extends AppCompatActivity {
                     String timeoutMsg = getResources().getString(R.string.sms_code_failed);
                     String loadingMsg = getResources().getString(R.string.please_wait);
                     AppStateManager.setLoadingState(LoginActivity.this, TAG, loadingMsg, timeoutMsg);
-                    syncUIwithAppState();
 
                     String phoneNumber = loginNumberEditText.getText().toString();
                     getSms(phoneNumber);

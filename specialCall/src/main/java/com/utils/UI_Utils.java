@@ -35,6 +35,7 @@ import java.lang.reflect.Field;
 import java.util.Random;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static com.data.objects.SnackbarData.*;
 
 /**
  * Created by Mor on 12/02/2016.
@@ -112,8 +113,12 @@ public abstract class UI_Utils {
 
     public static void showSnackBar(String msg, int color, int sBarDuration, boolean isLoading, Context context) {
 
-        SnackbarData snackbarData = new SnackbarData(SnackbarData.SnackbarStatus.SHOW, color, sBarDuration, msg, isLoading);
+        SnackbarData snackbarData = new SnackbarData(SnackbarStatus.SHOW, color, sBarDuration, msg, isLoading);
         BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.REFRESH_UI, null, snackbarData));
+    }
+
+    public static void closeSnackBar(Context ctx) {
+        BroadcastUtils.sendEventReportBroadcast(ctx, TAG, new EventReport(EventType.REFRESH_UI, null, new SnackbarData(SnackbarStatus.CLOSE)));
     }
 
     public static Techniques getRandomInTechniques() {

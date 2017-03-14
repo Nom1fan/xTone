@@ -13,6 +13,11 @@ public class SnackbarData extends AbstractDataObject {
     private String mText;
     private boolean mIsLoading = false;
 
+    public SnackbarData(SnackbarStatus status) {
+
+        mStatus = status;
+    }
+
     public SnackbarData(SnackbarStatus status, int color, int duration, String text) {
 
         mStatus = status;

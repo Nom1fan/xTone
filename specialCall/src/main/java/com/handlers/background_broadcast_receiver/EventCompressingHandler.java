@@ -21,6 +21,5 @@ public class EventCompressingHandler implements Handler {
         String timeoutMsg = ctx.getResources().getString(R.string.compression_took_too_long);
         String loadingMsg = ctx.getResources().getString(R.string.compressing_file);
         AppStateManager.setLoadingState(ctx, TAG, loadingMsg, timeoutMsg);
-        UI_Utils.showSnackBar(loadingMsg, Color.GREEN, Snackbar.LENGTH_INDEFINITE, true, ctx);
     }
 }

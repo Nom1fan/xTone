@@ -101,6 +101,7 @@ import java.util.List;
 
 import static com.crashlytics.android.Crashlytics.log;
 import static com.crashlytics.android.Crashlytics.setUserIdentifier;
+import static com.data.objects.SnackbarData.*;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
 
@@ -235,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             prepareEventReceiver();
 
             if (!appState.equals(AppStateManager.STATE_LOADING))
-                handleSnackBar(new SnackbarData(SnackbarData.SnackbarStatus.CLOSE, 0, 0, null));
+                handleSnackBar(new SnackbarData(SnackbarStatus.CLOSE, 0, 0, null));
 
             restoreInstanceState();
 
@@ -257,8 +258,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     public void onBackPressed() {
         Log.d("CDA", "onBackPressed Called");
-        clearText.performClick();
-
+//        clearText.performClick();
+        AppStateManager.setAppPrevState(this, TAG);
     }
 
     public class OnlineContactAdapter extends ArrayAdapter<ContactWrapper> implements Filterable {
@@ -433,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 if (data != null) {
                     String msg = data.getStringExtra(SelectMediaActivity.RESULT_ERR_MSG);
                     if (msg != null) {
-                        SnackbarData snackbarData = new SnackbarData(SnackbarData.SnackbarStatus.SHOW,
+                        SnackbarData snackbarData = new SnackbarData(SnackbarStatus.SHOW,
                                 Color.RED,
                                 Snackbar.LENGTH_INDEFINITE,
                                 msg);
@@ -710,6 +711,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 searchView.setOnQueryTextListener(onQueryTextListener());
                 searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
                 adapter.notifyDataSetChanged();
+                syncUIwithAppState();
                 break;
 
             default: // Event not meant for MainActivity receiver
@@ -851,7 +853,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         if (destPhone.equals(Constants.MY_ID(getApplicationContext()))) {
 
                             SnackbarData snackbarData = new SnackbarData(
-                                    SnackbarData.SnackbarStatus.SHOW,
+                                    SnackbarStatus.SHOW,
                                     Color.YELLOW,
                                     Snackbar.LENGTH_LONG,
                                     getResources().getString(R.string.cant_send_to_self));
@@ -1058,7 +1060,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         return AppStateManager.getAppState(this);
     }
-    //endregion
 
     private void syncUIwithAppState() {
 
@@ -1169,7 +1170,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     }
 
-
     private void prepareSelectProfileMediaButton() {
 
         defaultpic_enabled = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
@@ -1184,10 +1184,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     }
 
+
     private void prepareDividers() {
         divider1 = (View) findViewById(R.id.divider1);
         divider2 = (View) findViewById(R.id.divider2);
     }
+
+    //endregion
+
 
     private void setCustomActionBar() {
 
@@ -1773,6 +1777,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     writeInfoSnackBar(snackbarData);
                 break;
         }
+    }
+
+    private void disableSnackbar() {
+        handleSnackBar(new SnackbarData(SnackbarStatus.CLOSE));
     }
 
     private void showMandatoryUpdateDialog() {
