@@ -59,7 +59,7 @@ public class GetRegisteredContactsHandler implements ActionHandler {
             log(Log.DEBUG, TAG, "Retrieved registered contacts:" + convertUsersToUidsString(registeredUsers));
 
             List<ContactWrapper> registeredContacts = wrapAndSort(actionBundle.getCtx(), allContacts, registeredUsers);
-            AppStateManager.setAppPrevState(actionBundle.getCtx(), TAG);
+            AppStateManager.setAppState(actionBundle.getCtx(), TAG, AppStateManager.STATE_IDLE);
             BroadcastUtils.sendEventReportBroadcast(actionBundle.getCtx(), TAG, new EventReport(EventType.GET_REGISTERED_CONTACTS_SUCCESS, registeredContacts));
         }
         else {

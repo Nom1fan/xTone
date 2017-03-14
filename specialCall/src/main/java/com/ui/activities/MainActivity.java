@@ -47,6 +47,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
@@ -164,9 +165,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         // so we can know who device was crashed, and get it's phone number.
         Crashlytics.setUserIdentifier(Constants.MY_ID(getApplicationContext()));
 
-        if(AppStateManager.isLoggedIn(this)) // should always start from idle and registeredContactLV
-            AppStateManager.setAppState(getApplicationContext(),TAG,AppStateManager.STATE_IDLE);
-
+        if (AppStateManager.isLoggedIn(this)) // should always start from idle and registeredContactLV
+            AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
 
 
         if (AppStateManager.didAppCrash(this)) {
@@ -244,10 +244,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             syncAndroidVersionWithServer();
 
-            if (autoCompleteTextViewDestPhone.getText().toString().isEmpty())
-            {
+            if (autoCompleteTextViewDestPhone.getText().toString().isEmpty()) {
                 ServerProxyService.getRegisteredContacts(getApplicationContext());
-                AppStateManager.setAppState(getApplicationContext(),TAG,AppStateManager.STATE_IDLE);
+                AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
                 syncUIwithAppState();
             }
 
@@ -259,7 +258,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     public void onBackPressed() {
         Log.d("CDA", "onBackPressed Called");
 //        clearText.performClick();
-        AppStateManager.setAppPrevState(this, TAG);
+        AppStateManager.setAppState(this, TAG, AppStateManager.STATE_IDLE);
+        UI_Utils.refreshUI(this, new SnackbarData(SnackbarStatus.CLOSE));
     }
 
     public class OnlineContactAdapter extends ArrayAdapter<ContactWrapper> implements Filterable {
@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         result.count = founded.size();
                     } else {
                         result.values = dynamicContacts;
-                        if (dynamicContacts!=null)
+                        if (dynamicContacts != null)
                             result.count = dynamicContacts.size();
                     }
                     return result;
@@ -303,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 @Override
                 protected void publishResults(CharSequence constraint, FilterResults results) {
                     clear();
-                    if (results.values!=null)
+                    if (results.values != null)
                         for (ContactWrapper contactWrapper : (List<ContactWrapper>) results.values) {
                             add(contactWrapper);
                         }
@@ -643,7 +643,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             if (autoCompleteTextViewDestPhone != null) {
                 autoCompleteTextViewDestPhone.setText("");
                 if (destTextView != null)
-                        destTextView.setText("");
+                    destTextView.setText("");
             }
 
             ServerProxyService.getRegisteredContacts(this);
@@ -667,7 +667,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 if (Constants.APP_VERSION() < lastSupportedVersion)
                     showMandatoryUpdateDialog();
             }
-                break;
+            break;
 
             case USER_REGISTERED_FALSE:
                 enableInviteForUnregisteredUserFunctionality("");
@@ -696,7 +696,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 // Construct the data source
 
                 // Create the adapter to convert the array to views
-                arrayOfUsers = new ArrayList<>((List<ContactWrapper>)event.report().data());
+                arrayOfUsers = new ArrayList<>((List<ContactWrapper>) event.report().data());
                 adapter = new OnlineContactAdapter(this, (List<ContactWrapper>) event.report().data());
                 // Attach the adapter to a ListView
                 contactsListView.setAdapter(adapter);
@@ -762,7 +762,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
 
         // Saving destination name
-        String textview_name=destTextView.getText().toString();
+        String textview_name = destTextView.getText().toString();
         if (destTextView != null && (!textview_name.isEmpty())) {
             destName = textview_name;
             SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME, destName);
@@ -864,23 +864,22 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                             SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, true);
                             Boolean isInContactsListView = false;
 
-                            if (arrayOfUsers !=null)
-                            for (ContactWrapper arrayOfUser : arrayOfUsers) {
+                            if (arrayOfUsers != null)
+                                for (ContactWrapper arrayOfUser : arrayOfUsers) {
 
-                                if (arrayOfUser.getContact().getPhoneNumber().equals(destPhone))
-                                    if (arrayOfUser.getUserStatus() == UserStatus.REGISTERED )
-                                    {
-                                        enableUserRegisterFunctionality();
-                                        destName = arrayOfUser.getContact().getName();
-                                        setDestNameTextView();
-                                        isInContactsListView = true;
-                                        break;
-                                    }else {
-                                        enableInviteForUnregisteredUserFunctionality(arrayOfUser.getContact().getName());
-                                        isInContactsListView = true;
-                                        break;
-                                    }
-                            }
+                                    if (arrayOfUser.getContact().getPhoneNumber().equals(destPhone))
+                                        if (arrayOfUser.getUserStatus() == UserStatus.REGISTERED) {
+                                            enableUserRegisterFunctionality();
+                                            destName = arrayOfUser.getContact().getName();
+                                            setDestNameTextView();
+                                            isInContactsListView = true;
+                                            break;
+                                        } else {
+                                            enableInviteForUnregisteredUserFunctionality(arrayOfUser.getContact().getName());
+                                            isInContactsListView = true;
+                                            break;
+                                        }
+                                }
 
                             if (!isInContactsListView)
                                 new IsRegisteredTask(destPhone, instance).execute(getApplicationContext());
@@ -972,6 +971,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     }
 
+    private void enableContactsListView() {
+        if (contactsListView != null) {
+            ListAdapter adapter = contactsListView.getAdapter();
+            if (adapter != null && adapter.getCount() > 0) {
+                contactsListView.setVisibility(View.VISIBLE);
+            }
+        } else {
+            ServerProxyService.getRegisteredContacts(this);
+        }
+    }
+
     //region UI States
     public void stateIdle() {
 
@@ -1024,7 +1034,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void enableStartingViews() {
 
-        contactsListView.setVisibility(View.VISIBLE);
+        enableContactsListView();
 
         if (searchView != null) {
             searchView.setVisibility(View.VISIBLE);
@@ -1169,6 +1179,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             caller_arrow.setOnClickListener(this);
 
     }
+
+
 
     private void prepareSelectProfileMediaButton() {
 
@@ -1824,7 +1836,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     //endregion
-
 
     //region Private classes
     private class DrawerItemClickListener implements

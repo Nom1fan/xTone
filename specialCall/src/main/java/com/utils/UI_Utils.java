@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.daimajia.androidanimations.library.Techniques;
+import com.data.objects.Contact;
 import com.data.objects.SnackbarData;
 import com.event.EventReport;
 import com.event.EventType;
@@ -119,6 +120,10 @@ public abstract class UI_Utils {
 
     public static void closeSnackBar(Context ctx) {
         BroadcastUtils.sendEventReportBroadcast(ctx, TAG, new EventReport(EventType.REFRESH_UI, null, new SnackbarData(SnackbarStatus.CLOSE)));
+    }
+
+    public static void refreshUI(Context ctx, SnackbarData snackbarData) {
+        BroadcastUtils.sendEventReportBroadcast(ctx, TAG, new EventReport(EventType.REFRESH_UI, null, snackbarData));
     }
 
     public static Techniques getRandomInTechniques() {

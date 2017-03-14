@@ -12,6 +12,8 @@ import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by mor on 01/10/2015.
  */
@@ -37,7 +39,11 @@ public class AppStateManager {
     public synchronized static void setAppState(Context context, String tag, String state) {
 
         String curState = SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE);
-        Crashlytics.log(Log.INFO,TAG, tag + " changes state from [" + curState + "] to: [" + state + "]");
+        if(curState.equals(STATE_LOADING)) {
+            UI_Utils.closeSnackBar(context);
+        }
+
+        log(Log.INFO,TAG, tag + " changes state from [" + curState + "] to: [" + state + "]");
         saveCurrAppState(context, curState);
         SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE, state);
     }
@@ -54,7 +60,7 @@ public class AppStateManager {
         setTimeoutMsg(context , timeoutMsg);
 
         String curState = getAppState(context);
-        Crashlytics.log(Log.INFO,TAG, tag + " changes state from [" + curState + "] to: [" + STATE_LOADING + "]");
+        log(Log.INFO,TAG, tag + " changes state from [" + curState + "] to: [" + STATE_LOADING + "]");
 
         SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.APP_STATE, STATE_LOADING);
         UI_Utils.showSnackBar(loadingMsg, Color.GREEN, Snackbar.LENGTH_INDEFINITE, true, context);

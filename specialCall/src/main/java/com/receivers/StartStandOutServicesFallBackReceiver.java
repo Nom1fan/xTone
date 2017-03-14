@@ -15,6 +15,8 @@ import com.utils.SharedPrefUtils;
 
 import com.utils.PhoneNumberUtils;
 
+import static com.crashlytics.android.Crashlytics.log;
+
 /**
  * Created by rony on 01/03/2016.
  */
@@ -33,18 +35,18 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
     public void onReceive(Context context, Intent intent) {
         if (AppStateManager.isLoggedIn(context)) {  // make sure the services won't start on Login
         String action = intent.getAction();
-        Crashlytics.log(Log.INFO,TAG, "onReceive ACTION INTENT : " + action);
+        log(Log.DEBUG ,TAG, "onReceive ACTION INTENT : " + action);
 
             if (action != null) {
                 String state1 = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-                Log.d(TAG, " PhoneStateReceiver**Call State=" + state1);
+                log(Log.DEBUG, TAG, " PhoneStateReceiver**Call State=" + state1);
 
             }
             // Sending an incoming phone number for incoming service
             if (action != null && !IncomingService.isLive) // TODO check if Alarm sends action as null or intent. and make general if
                 if (intent.getAction().equals("android.intent.action.PHONE_STATE")) {
                     String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
-                    Log.d(TAG, "IncomingServiceFallBack PhoneStateReceiver**Call State=" + state);
+                    log(Log.DEBUG, TAG, "IncomingServiceFallBack PhoneStateReceiver**Call State=" + state);
 
                     if (state.equals(TelephonyManager.EXTRA_STATE_RINGING) && !SharedPrefUtils.getBoolean(context, SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_RINGING_SESSION)) {
                         try {
@@ -59,17 +61,17 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
                         incomingServiceIntent.setAction(IncomingService.ACTION_START);
 
                         if (incomingNumber != null) // unidentified caller
-                            Crashlytics.log(Log.INFO,TAG, "IncomingServiceFallBack  EXTRA_INCOMING_NUMBER : " + incomingNumber);
+                            log(Log.DEBUG ,TAG, "IncomingServiceFallBack  EXTRA_INCOMING_NUMBER : " + incomingNumber);
 
                         //if it's incoming call
                         if (incomingNumber != null)
                             if (!incomingNumber.isEmpty()) {
-                                Crashlytics.log(Log.INFO,TAG, "IncomingServiceFallBack putExtra Incoming with number: " + incomingNumber);
+                                log(Log.DEBUG ,TAG, "IncomingServiceFallBack putExtra Incoming with number: " + incomingNumber);
                                 incomingServiceIntent.putExtra(INCOMING_PHONE_NUMBER_KEY, incomingNumber);
                             } else
                                 incomingServiceIntent.putExtra(INCOMING_PHONE_NUMBER_KEY, "");
 
-                        Crashlytics.log(Log.INFO,TAG, " Starting Incoming Service");
+                        log(Log.DEBUG ,TAG, " Starting Incoming Service");
                         incomingServiceIntent.putExtra(WAKEFUL_INTENT, true);
                         startWakefulService(context, incomingServiceIntent);
 
@@ -78,12 +80,12 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
                 }
 
         // Starting service responsible for incoming media callz
-        Crashlytics.log(Log.INFO,TAG, "IncomingService  is Live : " + String.valueOf(IncomingService.isLive));
+        log(Log.DEBUG,TAG, "IncomingService  is Live : " + String.valueOf(IncomingService.isLive));
         if (!IncomingService.isLive) {
 
             Intent incomingServiceIntent = new Intent(context, IncomingService.class);
             incomingServiceIntent.setAction(IncomingService.ACTION_START);
-            Crashlytics.log(Log.INFO,TAG, " Starting Incoming Service");
+            log(Log.DEBUG,TAG, " Starting Incoming Service");
             incomingServiceIntent.putExtra(WAKEFUL_INTENT, true);
             startWakefulService(context, incomingServiceIntent);
 
@@ -91,13 +93,13 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
 
         //region outgoing service
         // Starting service responsible for outgoing media callz
-        Crashlytics.log(Log.INFO,TAG, "OutgoingService  is Live : " + String.valueOf(OutgoingService.isLive));
+        log(Log.DEBUG,TAG, "OutgoingService  is Live : " + String.valueOf(OutgoingService.isLive));
         if (!OutgoingService.isLive) {
 
             Intent outgoingServiceIntent = new Intent(context, OutgoingService.class);
             outgoingServiceIntent.setAction(OutgoingService.ACTION_START);
             outgoingServiceIntent.putExtra(WAKEFUL_INTENT, true);
-            Crashlytics.log(Log.INFO,TAG, " Starting Outgoing Service");
+            log(Log.DEBUG,TAG, " Starting Outgoing Service");
             startWakefulService(context, outgoingServiceIntent);
 
             //if it's outgoing call
@@ -110,14 +112,14 @@ public class StartStandOutServicesFallBackReceiver extends WakefulBroadcastRecei
                     new Thread(new Runnable() {
                         public void run() {
 
-                            Crashlytics.log(Log.INFO,TAG, "sleep:" + String.valueOf(WAIT_FOR_SERVICES_TO_START_IN_MILLI));
+                            log(Log.DEBUG,TAG, "sleep:" + String.valueOf(WAIT_FOR_SERVICES_TO_START_IN_MILLI));
                             try {
                                 Thread.sleep(WAIT_FOR_SERVICES_TO_START_IN_MILLI);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
 
-                            Crashlytics.log(Log.INFO,TAG, "is service live to send broadcast: " + String.valueOf(OutgoingService.isLive));
+                            log(Log.DEBUG,TAG, "is service live to send broadcast: " + String.valueOf(OutgoingService.isLive));
                             //sending service the outgoing call intent again
                             if (OutgoingService.isLive && PhoneNumberUtils.isValidPhoneNumber(outgoingPhoneNumber)) {
                                 Intent newIntent = new Intent();
