@@ -6,11 +6,13 @@ import android.util.Log;
 import com.app.AppStateManager;
 import com.client.ConnectionToServer;
 import com.data.objects.Constants;
+import com.data.objects.SnackbarData;
 import com.enums.SpecialMediaType;
 import com.event.EventReport;
 import com.event.EventType;
 import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
+import com.mediacallz.app.R;
 import com.model.request.ClearMediaRequest;
 import com.data.objects.AppMeta;
 import com.model.response.Response;
@@ -25,6 +27,7 @@ import java.util.Locale;
 import cz.msebera.android.httpclient.HttpStatus;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static com.data.objects.SnackbarData.*;
 import static com.services.ServerProxyService.DESTINATION_ID;
 import static com.services.ServerProxyService.SPECIAL_MEDIA_TYPE;
 
@@ -56,8 +59,8 @@ public class ClearMediaActionHandler implements ActionHandler {
 
         int responseCode = connectionToServer.sendRequest(URL_CLEAR_MEDIA, request);
         if(responseCode == HttpStatus.SC_OK) {
-            AppStateManager.setAppPrevState(ctx, TAG);
-            BroadcastUtils.sendEventReportBroadcast(ctx, TAG, new EventReport(EventType.CLEAR_SENT));
+            AppStateManager.setAppState(ctx, TAG, AppStateManager.STATE_READY);
+            UI_Utils.refreshUI(ctx, new SnackbarData(SnackbarStatus.CLOSE));
         }
         else {
             log(Log.ERROR, TAG, "Clear media failed. [Response code]:" + responseCode);
