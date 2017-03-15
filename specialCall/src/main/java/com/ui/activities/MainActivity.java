@@ -977,6 +977,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             if (adapter != null && adapter.getCount() > 0) {
                 contactsListView.setVisibility(View.VISIBLE);
             }
+            else {
+                ServerProxyService.getRegisteredContacts(this);
+            }
         } else {
             ServerProxyService.getRegisteredContacts(this);
         }
