@@ -19,10 +19,6 @@ import java.util.Random;
  */
 public class TipActivityDialog extends Activity{
 
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

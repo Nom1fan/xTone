@@ -42,7 +42,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
@@ -121,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ProgressBar fetchUserPbar;
     private BroadcastReceiver eventReceiver;
     private IntentFilter eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
-    private EditText autoCompleteTextViewDestPhone;
+    private TextView autoCompleteTextViewDestPhone;
     private ListView drawerList;
     private ListView contactsListView;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -139,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private View divider2;
     private RelativeLayout mainActivityLayout;
     private ImageView ringtoneStatus;
-    private EditText destinationEditText;
+    private TextView destinationTextView;
     private TextView destTextView;
     private boolean profileHasMedia = false;
     private boolean callerHasMedia = false;
@@ -178,8 +177,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         initializeUI();
         wentThroughOnCreate = true;
 
-        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))
-            startingTipDialog();
+
     }
 
     @Override
@@ -251,6 +249,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             }
 
             UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
+
+            if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW) && wentThroughOnCreate)
+                startingTipDialog();
+
         }
     }
 
@@ -258,6 +260,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     public void onBackPressed() {
         Log.d("CDA", "onBackPressed Called");
 //        clearText.performClick();
+
+        if (autoCompleteTextViewDestPhone != null) {
+            autoCompleteTextViewDestPhone.setText("");
+            if (destTextView != null)
+                destTextView.setText("");
+        }
+
         AppStateManager.setAppState(this, TAG, AppStateManager.STATE_IDLE);
         UI_Utils.refreshUI(this, new SnackbarData(SnackbarStatus.CLOSE));
     }
@@ -394,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if (openDrawer)
             overridePendingTransition(R.anim.slide_in_up, R.anim.no_animation); // open drawer animation
 
-
+        wentThroughOnCreate=false;
 //        UI_Utils.unbindDrawables(findViewById(R.id.mainActivity));
 //        System.gc();
     }
@@ -828,7 +837,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         final MainActivity instance = this;
 
-        autoCompleteTextViewDestPhone = (EditText) findViewById(R.id.CallNumber);
+        autoCompleteTextViewDestPhone = (TextView) findViewById(R.id.CallNumber);
         if (autoCompleteTextViewDestPhone != null) {
             autoCompleteTextViewDestPhone.setRawInputType(InputType.TYPE_CLASS_TEXT);
 
@@ -1102,7 +1111,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //region UI elements controls
     private void prepareDestinationEditText() {
 
-        destinationEditText = (EditText) findViewById(R.id.CallNumber);
+        destinationTextView = (TextView) findViewById(R.id.CallNumber);
     }
 
     private void prepareDestNameTextView() {
@@ -1586,13 +1595,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void disableDestinationEditText() {
 
-        destinationEditText.setEnabled(false);
+        destinationTextView.setEnabled(false);
         clearText.setEnabled(false);
     }
 
     private void enableDestinationEditText() {
 
-        destinationEditText.setEnabled(true);
+        destinationTextView.setEnabled(true);
         clearText.setEnabled(true);
     }
 
