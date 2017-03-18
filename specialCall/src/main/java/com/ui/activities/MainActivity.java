@@ -423,8 +423,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if (AppStateManager.getAppState(this).equals(AppStateManager.STATE_LOADING))
             AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
 
+        clearText.performClick();
         Batch.onDestroy(this);
         super.onDestroy();
+
     }
 
     @Override
