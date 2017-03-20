@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             syncAndroidVersionWithServer();
 
-            if (autoCompleteTextViewDestPhone.getText().toString().isEmpty()) {
+            if (autoCompleteTextViewDestPhone.getText().toString().isEmpty() && AppStateManager.isLoggedIn(this)) {
                 ServerProxyService.getRegisteredContacts(getApplicationContext());
                 AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
                 syncUIwithAppState();
@@ -657,7 +657,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     destTextView.setText("");
             }
 
-            ServerProxyService.getRegisteredContacts(this);
+            if (AppStateManager.isLoggedIn(this))
+                ServerProxyService.getRegisteredContacts(this);
             AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
             syncUIwithAppState();
 
@@ -983,16 +984,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     private void enableContactsListView() {
-        if (contactsListView != null) {
-            ListAdapter adapter = contactsListView.getAdapter();
-            if (adapter != null && adapter.getCount() > 0) {
-                contactsListView.setVisibility(View.VISIBLE);
-            }
-            else {
+        if (AppStateManager.isLoggedIn(this)) {
+            if (contactsListView != null) {
+                ListAdapter adapter = contactsListView.getAdapter();
+                if (adapter != null && adapter.getCount() > 0) {
+                    contactsListView.setVisibility(View.VISIBLE);
+                } else {
+                    ServerProxyService.getRegisteredContacts(this);
+                }
+            } else {
                 ServerProxyService.getRegisteredContacts(this);
             }
-        } else {
-            ServerProxyService.getRegisteredContacts(this);
         }
     }
 
