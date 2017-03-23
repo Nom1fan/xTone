@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ProgressBar fetchUserPbar;
     private BroadcastReceiver eventReceiver;
     private IntentFilter eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
-    private TextView autoCompleteTextViewDestPhone;
+    private TextView TVDestinationPhone;
     private ListView drawerList;
     private ListView contactsListView;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             syncAndroidVersionWithServer();
 
-            if (autoCompleteTextViewDestPhone.getText().toString().isEmpty() && AppStateManager.isLoggedIn(this)) {
+            if (TVDestinationPhone.getText().toString().isEmpty() && AppStateManager.isLoggedIn(this)) {
                 ServerProxyService.getRegisteredContacts(getApplicationContext());
                 AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
                 syncUIwithAppState();
@@ -261,8 +261,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         Log.d("CDA", "onBackPressed Called");
 //        clearText.performClick();
 
-        if (autoCompleteTextViewDestPhone != null) {
-            autoCompleteTextViewDestPhone.setText("");
+        if (TVDestinationPhone != null) {
+            TVDestinationPhone.setText("");
             if (destTextView != null)
                 destTextView.setText("");
         }
@@ -340,8 +340,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             if (contactWrapper != null && contactWrapper.getUserStatus().equals(UserStatus.REGISTERED)) {
                 contactStatusImage.setImageResource(android.R.drawable.presence_online);
+                contactStatusImage.setTag("on");
             } else {
                 contactStatusImage.setImageResource(android.R.drawable.presence_invisible);
+                contactStatusImage.setTag("off");
             }
             // Return the completed view to render on screen
             return convertView;
@@ -367,10 +369,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             @Override
             public boolean onQueryTextChange(String s) {
-
                 String ifOnlyPhoneNumber = PhoneNumberUtils.toNumeric(s);
                 if (PhoneNumberUtils.isValidPhoneNumber(ifOnlyPhoneNumber)) {
-                    autoCompleteTextViewDestPhone.setText(ifOnlyPhoneNumber);
+                    TVDestinationPhone.setText(ifOnlyPhoneNumber);
+                    destTextView.setText(ifOnlyPhoneNumber);
+
+                    new IsRegisteredTask(ifOnlyPhoneNumber, MainActivity.this).execute(getApplicationContext());
+
                     return false;
                 }
                 adapter.getFilter().filter(searchView.getQuery());
@@ -651,14 +656,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         } else if (id == R.id.clear) {
 
             SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, true);
-            if (autoCompleteTextViewDestPhone != null) {
-                autoCompleteTextViewDestPhone.setText("");
+            if (TVDestinationPhone != null) {
+                TVDestinationPhone.setText("");
                 if (destTextView != null)
                     destTextView.setText("");
             }
 
-            if (AppStateManager.isLoggedIn(this))
-                ServerProxyService.getRegisteredContacts(this);
             AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
             syncUIwithAppState();
 
@@ -715,7 +718,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 contactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        autoCompleteTextViewDestPhone.setText(((TextView) view.findViewById(R.id.contact_phone)).getText().toString());
+                        destPhoneNumber = ((TextView) view.findViewById(R.id.contact_phone)).getText().toString();
+                        String status_tag =  String.valueOf(((ImageView) view.findViewById(R.id.contact_status)).getTag());
+                        destName = ((TextView) view.findViewById(R.id.contact_name)).getText().toString();
+
+                        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, true);
+
+                        if (status_tag.equals("on")){
+                                enableUserRegisterFunctionality();
+                                TVDestinationPhone.setText(destPhoneNumber);
+                                destTextView.setText(destName);
+                                setDestNameTextView();
+                            } else {
+                                enableInviteForUnregisteredUserFunctionality(destName);
+                            }
+
                     }
                 });
                 // Associate searchable configuration with the SearchView
@@ -768,8 +785,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void saveInstanceState() {
 
         // Saving destination number
-        if (autoCompleteTextViewDestPhone != null) {
-            destPhoneNumber = autoCompleteTextViewDestPhone.getText().toString();
+        if (TVDestinationPhone != null) {
+            destPhoneNumber = TVDestinationPhone.getText().toString();
             SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, destPhoneNumber);
         }
 
@@ -788,8 +805,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         // Restoring destination number
         String destNumber = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
-        if (autoCompleteTextViewDestPhone != null && destNumber != null) {
-            autoCompleteTextViewDestPhone.setText(destNumber);
+        if (TVDestinationPhone != null && destNumber != null) {
+            TVDestinationPhone.setText(destNumber);
 
             // Restoring destination name
             destName = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
@@ -809,7 +826,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         if (destTextView != null) {
 
-            if (destName != null && !destName.equals("") && !autoCompleteTextViewDestPhone.getText().equals(""))
+            if (destName != null && !destName.equals("") && !TVDestinationPhone.getText().equals(""))
                 destTextView.setText(destName);
             else {
                 disableDestinationTextView();
@@ -836,93 +853,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         registerReceiver(eventReceiver, eventIntentFilter);
     }
 
-    private void prepareAutoCompleteTextViewDestPhoneNumber() {
+    private void prepareTVDestinationPhoneNumber() {
 
-        final MainActivity instance = this;
+        TVDestinationPhone = (TextView) findViewById(R.id.CallNumber);
 
-        autoCompleteTextViewDestPhone = (TextView) findViewById(R.id.CallNumber);
-        if (autoCompleteTextViewDestPhone != null) {
-            autoCompleteTextViewDestPhone.setRawInputType(InputType.TYPE_CLASS_TEXT);
-
-            autoCompleteTextViewDestPhone.addTextChangedListener(new TextWatcher() {
-
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before,
-                                          int count) {
-                    if (0 == s.length())
-                        clearText.setImageResource(0);
-                    else
-                        clearText.setImageResource(R.drawable.clear_btn_anim);
-
-                    String destPhone = s.toString();
-
-                    if (PhoneNumberUtils.isValidPhoneNumber(destPhone)) {
-
-                        if (destPhone.equals(Constants.MY_ID(getApplicationContext()))) {
-
-                            SnackbarData snackbarData = new SnackbarData(
-                                    SnackbarStatus.SHOW,
-                                    Color.YELLOW,
-                                    Snackbar.LENGTH_LONG,
-                                    getResources().getString(R.string.cant_send_to_self));
-
-                            writeInfoSnackBar(snackbarData);
-                        } else {
-                            destPhoneNumber = destPhone;
-                            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, true);
-                            Boolean isInContactsListView = false;
-
-                            if (arrayOfUsers != null)
-                                for (ContactWrapper arrayOfUser : arrayOfUsers) {
-
-                                    if (arrayOfUser.getContact().getPhoneNumber().equals(destPhone))
-                                        if (arrayOfUser.getUserStatus() == UserStatus.REGISTERED) {
-                                            enableUserRegisterFunctionality();
-                                            destName = arrayOfUser.getContact().getName();
-                                            setDestNameTextView();
-                                            isInContactsListView = true;
-                                            break;
-                                        } else {
-                                            enableInviteForUnregisteredUserFunctionality(arrayOfUser.getContact().getName());
-                                            isInContactsListView = true;
-                                            break;
-                                        }
-                                }
-
-                            if (!isInContactsListView)
-                                new IsRegisteredTask(destPhone, instance).execute(getApplicationContext());
-
-
-                            hideSoftKeyboardForView(autoCompleteTextViewDestPhone); // hide keyboard so it won't bother
-
-                        }
-
-                    } else { // Invalid destination number
-
-                        destPhoneNumber = "";
-                        destName = "";
-
-
-                        if (getState().equals(AppStateManager.STATE_READY)) {
-                            AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
-                            syncUIwithAppState();
-                        }
-                    }
-
-
-                    saveInstanceState();
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                }
-            });
-
-        }
     }
 
     private void BlockMCContacts() {
@@ -953,7 +887,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         setCustomActionBar();
         enableHamburgerIconWithSlideMenu();
-        prepareAutoCompleteTextViewDestPhoneNumber();
+        prepareTVDestinationPhoneNumber();
         prepareDestNameTextView();
         prepareDestinationEditText();
         prepareRingtoneStatus();
@@ -1043,7 +977,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             searchView.setVisibility(View.GONE);
         }
 
-        autoCompleteTextViewDestPhone.setVisibility(View.VISIBLE);
+        TVDestinationPhone.setVisibility(View.VISIBLE);
         clearText.setVisibility(View.VISIBLE);
 
     }
@@ -1059,7 +993,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         YoYo.with(Techniques.FadeIn)
                 .duration(1000)
                 .playOn(findViewById(R.id.online_contacts));
-        autoCompleteTextViewDestPhone.setVisibility(View.INVISIBLE);
+        TVDestinationPhone.setVisibility(View.INVISIBLE);
         clearText.setVisibility(View.INVISIBLE);
     }
 
