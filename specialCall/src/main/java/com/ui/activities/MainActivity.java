@@ -20,10 +20,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.text.Editable;
 import android.text.Html;
-import android.text.InputType;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -33,7 +30,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -101,7 +97,7 @@ import java.util.List;
 
 import static com.crashlytics.android.Crashlytics.log;
 import static com.crashlytics.android.Crashlytics.setUserIdentifier;
-import static com.data.objects.SnackbarData.*;
+import static com.data.objects.SnackbarData.SnackbarStatus;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
 
@@ -138,7 +134,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private View divider2;
     private RelativeLayout mainActivityLayout;
     private ImageView ringtoneStatus;
-    private TextView destinationTextView;
     private TextView destTextView;
     private boolean profileHasMedia = false;
     private boolean callerHasMedia = false;
@@ -655,7 +650,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         } else if (id == R.id.clear) {
 
-            SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DISABLE_UI_ELEMENTS_ANIMATION, true);
             if (TVDestinationPhone != null) {
                 TVDestinationPhone.setText("");
                 if (destTextView != null)
@@ -833,7 +827,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 return;
             }
 
-            enableDestinationTextView();
         }
     }
 
@@ -856,7 +849,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void prepareTVDestinationPhoneNumber() {
 
         TVDestinationPhone = (TextView) findViewById(R.id.CallNumber);
-
+        destTextView = (TextView) findViewById(R.id.destName);
     }
 
     private void BlockMCContacts() {
@@ -868,16 +861,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //endregion
 
     //region UI methods
-    //region UI initializers
-    private void hideSoftKeyboardForView(View view) {
-
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-
-    }
-    //endregion
 
     private void initializeUI() {
 
@@ -888,8 +871,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         setCustomActionBar();
         enableHamburgerIconWithSlideMenu();
         prepareTVDestinationPhoneNumber();
-        prepareDestNameTextView();
-        prepareDestinationEditText();
         prepareRingtoneStatus();
         prepareFetchUserProgressBar();
         prepareRingtoneNameTextView();
@@ -935,7 +916,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     //region UI States
     public void stateIdle() {
 
-        enableDestinationEditText();
         disableUserFetchProgressBar();
         disableSelectProfileMediaButton();
         disableDividers();
@@ -959,7 +939,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         disableUserFetchProgressBar();
         enableSelectProfileMediaButton();
         enableDividers();
-        enableDestinationEditText();
         enableCallButton();
         enableSelectMediaButton();
         disableStartingViews();
@@ -977,8 +956,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             searchView.setVisibility(View.GONE);
         }
 
-        TVDestinationPhone.setVisibility(View.VISIBLE);
-        clearText.setVisibility(View.VISIBLE);
+
 
     }
 
@@ -993,8 +971,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         YoYo.with(Techniques.FadeIn)
                 .duration(1000)
                 .playOn(findViewById(R.id.online_contacts));
-        TVDestinationPhone.setVisibility(View.INVISIBLE);
-        clearText.setVisibility(View.INVISIBLE);
+
     }
 
     public void stateLoading() {
@@ -1002,7 +979,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         disableSelectCallerMediaButton();
         disableSelectProfileMediaButton();
         disableDividers();
-        disableDestinationEditText();
         disableCallButton();
         disableStartingViews();
     }
@@ -1047,15 +1023,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     //region UI elements controls
-    private void prepareDestinationEditText() {
-
-        destinationTextView = (TextView) findViewById(R.id.CallNumber);
-    }
-
-    private void prepareDestNameTextView() {
-
-        destTextView = (TextView) findViewById(R.id.destName);
-    }
 
     private void prepareRingtoneStatus() {
 
@@ -1434,6 +1401,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             defaultpic_enabled.setVisibility(View.INVISIBLE);
             ringToneNameTextView.setVisibility(View.INVISIBLE);
             ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
+            TVDestinationPhone.setVisibility(View.INVISIBLE);
+            clearText.setVisibility(View.INVISIBLE);
+            destTextView.setVisibility(View.INVISIBLE);
         }
         selectMediaBtn_textview.setVisibility(View.INVISIBLE);
         selectMediaBtn_textview2.setVisibility(View.INVISIBLE);
@@ -1466,6 +1436,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         selectMediaBtn_textview.setVisibility(View.VISIBLE);
         selectMediaBtn_textview2.setVisibility(View.VISIBLE);
         caller_arrow.setVisibility(View.VISIBLE);
+
+        TVDestinationPhone.setVisibility(View.VISIBLE);
+        destTextView.setVisibility(View.VISIBLE);
+        clearText.setVisibility(View.VISIBLE);
+        TVDestinationPhone.setEnabled(true);
+        clearText.setEnabled(true);
 
         YoYo.with(Techniques.SlideInLeft)
                 .duration(1000)
@@ -1526,22 +1502,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         destTextView.setVisibility(TextView.INVISIBLE);
     }
 
-    private void enableDestinationTextView() {
 
-        destTextView.setVisibility(TextView.VISIBLE);
-    }
-
-    private void disableDestinationEditText() {
-
-        destinationTextView.setEnabled(false);
-        clearText.setEnabled(false);
-    }
-
-    private void enableDestinationEditText() {
-
-        destinationTextView.setEnabled(true);
-        clearText.setEnabled(true);
-    }
 
     private void disableUserFetchProgressBar() {
 
