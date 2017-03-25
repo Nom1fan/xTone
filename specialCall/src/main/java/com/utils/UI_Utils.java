@@ -20,8 +20,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.app.AppStateManager;
 import com.daimajia.androidanimations.library.Techniques;
-import com.data.objects.Contact;
 import com.data.objects.SnackbarData;
 import com.event.EventReport;
 import com.event.EventType;
@@ -36,7 +36,7 @@ import java.lang.reflect.Field;
 import java.util.Random;
 
 import static com.crashlytics.android.Crashlytics.log;
-import static com.data.objects.SnackbarData.*;
+import static com.data.objects.SnackbarData.SnackbarStatus;
 
 /**
  * Created by Mor on 12/02/2016.
@@ -261,7 +261,7 @@ public abstract class UI_Utils {
     }
 
     public static void showCaseViewCallNumber(Context context, Activity activity) {
-        if (!(SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW))) {
+        if (!(SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW)) && (AppStateManager.isLoggedIn(context))) {
             ViewTarget targetCallNumber = new ViewTarget(R.id.CallNumber, activity);
             UI_Utils.showCaseView(activity, targetCallNumber, context.getResources().getString(R.string.callnumber_sv_title), context.getResources().getString(R.string.callnumber_sv_details));
             SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW, true);

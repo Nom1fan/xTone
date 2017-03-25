@@ -142,7 +142,7 @@
     <string name="about_FAQ">אודות ועזרה</string>
     <!--  ShowCases  -->
     <string name="callnumber_sv_title">איש קשר או טלפון שעבורו אתה מגדיר מדיה</string>
-    <string name="callnumber_sv_details">הכנס שם או טלפון של יעד שיש לו MediaCallz</string>
+    <string name="callnumber_sv_details">בחר איש קשר עם סטטוס ירוק שיש לו גם MediaCallz או הזמן חבר</string>
     <string name="profile_sv_title">העלה "מדיית פרופיל" (שיחה נכנסת)</string>
     <string name="profile_sv_details">בחר את המדיה שברצונך שתופעל כאשר איש הקשר הזה מתקשר *אלייך*</string>
     <string name="callermedia_sv_title">העלה "מדיית מתקשר" (שיחה יוצאת)</string>

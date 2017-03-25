@@ -186,7 +186,7 @@
 
     <!--  ShowCases  -->
     <string name="callnumber_sv_title">Who do you want to MC?</string>
-    <string name="callnumber_sv_details">Select a contact or type a name/phone number of a person that also has MediaCallz</string>
+    <string name="callnumber_sv_details">Select a contact with green status that also has MediaCallz or invite a friend</string>
     <string name="profile_sv_title">Your Profile Media (Incoming Call)</string>
     <string name="profile_sv_details">Choose the media you want to be played for the destination you selected when HE calls YOU</string>
     <string name="callermedia_sv_title">Your Caller Media (Outgoing Call)</string>

@@ -243,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 syncUIwithAppState();
             }
 
-            UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
+
 
             if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW) && wentThroughOnCreate)
                 startingTipDialog();
@@ -735,6 +735,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
                 adapter.notifyDataSetChanged();
                 syncUIwithAppState();
+
                 break;
 
             default: // Event not meant for MainActivity receiver
@@ -971,6 +972,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         YoYo.with(Techniques.FadeIn)
                 .duration(1000)
                 .playOn(findViewById(R.id.online_contacts));
+
+        UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
 
     }
 
