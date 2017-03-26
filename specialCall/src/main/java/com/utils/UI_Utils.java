@@ -262,7 +262,7 @@ public abstract class UI_Utils {
 
     public static void showCaseViewCallNumber(Context context, Activity activity) {
         if (!(SharedPrefUtils.getBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW)) && (AppStateManager.isLoggedIn(context))) {
-            ViewTarget targetCallNumber = new ViewTarget(R.id.CallNumber, activity);
+            ViewTarget targetCallNumber = new ViewTarget(R.id.destName, activity);
             UI_Utils.showCaseView(activity, targetCallNumber, context.getResources().getString(R.string.callnumber_sv_title), context.getResources().getString(R.string.callnumber_sv_details));
             SharedPrefUtils.setBoolean(context, SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW, true);
         }

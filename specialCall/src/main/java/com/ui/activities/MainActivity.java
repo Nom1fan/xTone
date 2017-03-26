@@ -116,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ProgressBar fetchUserPbar;
     private BroadcastReceiver eventReceiver;
     private IntentFilter eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
-    private TextView TVDestinationPhone;
     private ListView drawerList;
     private ListView contactsListView;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -237,13 +236,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             syncAndroidVersionWithServer();
 
-            if (TVDestinationPhone.getText().toString().isEmpty() && AppStateManager.isLoggedIn(this)) {
-                ServerProxyService.getRegisteredContacts(getApplicationContext());
-                AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
-                syncUIwithAppState();
-            }
-
-
+            if (destTextView!=null)
+                if (!destTextView.getText().toString().isEmpty() && AppStateManager.isLoggedIn(this) && wentThroughOnCreate) {
+                    ServerProxyService.getRegisteredContacts(getApplicationContext());
+                    AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
+                    syncUIwithAppState();
+                }
 
             if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW) && wentThroughOnCreate)
                 startingTipDialog();
@@ -254,13 +252,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     public void onBackPressed() {
         Log.d("CDA", "onBackPressed Called");
-//        clearText.performClick();
 
-        if (TVDestinationPhone != null) {
-            TVDestinationPhone.setText("");
-            if (destTextView != null)
-                destTextView.setText("");
-        }
+        if (destTextView!=null)
+            destTextView.setText("");
 
         AppStateManager.setAppState(this, TAG, AppStateManager.STATE_IDLE);
         UI_Utils.refreshUI(this, new SnackbarData(SnackbarStatus.CLOSE));
@@ -366,7 +360,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             public boolean onQueryTextChange(String s) {
                 String ifOnlyPhoneNumber = PhoneNumberUtils.toNumeric(s);
                 if (PhoneNumberUtils.isValidPhoneNumber(ifOnlyPhoneNumber)) {
-                    TVDestinationPhone.setText(ifOnlyPhoneNumber);
                     destTextView.setText(ifOnlyPhoneNumber);
 
                     new IsRegisteredTask(ifOnlyPhoneNumber, MainActivity.this).execute(getApplicationContext());
@@ -650,12 +643,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         } else if (id == R.id.clear) {
 
-            if (TVDestinationPhone != null) {
-                TVDestinationPhone.setText("");
-                if (destTextView != null)
-                    destTextView.setText("");
-            }
-
+            if (destTextView!=null)
+                destTextView.setText("");
             AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
             syncUIwithAppState();
 
@@ -720,7 +709,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                         if (status_tag.equals("on")){
                                 enableUserRegisterFunctionality();
-                                TVDestinationPhone.setText(destPhoneNumber);
                                 destTextView.setText(destName);
                                 setDestNameTextView();
                             } else {
@@ -779,12 +767,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
      */
     private void saveInstanceState() {
 
-        // Saving destination number
-        if (TVDestinationPhone != null) {
-            destPhoneNumber = TVDestinationPhone.getText().toString();
-            SharedPrefUtils.setString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER, destPhoneNumber);
-        }
-
         // Saving destination name
         String textview_name = destTextView.getText().toString();
         if (destTextView != null && (!textview_name.isEmpty())) {
@@ -799,9 +781,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         log(Log.INFO, TAG, "Restoring instance state");
 
         // Restoring destination number
-        String destNumber = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER);
-        if (TVDestinationPhone != null && destNumber != null) {
-            TVDestinationPhone.setText(destNumber);
+        String name = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
+        if (!name.isEmpty()) {
 
             // Restoring destination name
             destName = SharedPrefUtils.getString(this, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NAME);
@@ -821,7 +802,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         if (destTextView != null) {
 
-            if (destName != null && !destName.equals("") && !TVDestinationPhone.getText().equals(""))
+            if (destName != null && !destName.isEmpty())
                 destTextView.setText(destName);
             else {
                 disableDestinationTextView();
@@ -847,9 +828,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         registerReceiver(eventReceiver, eventIntentFilter);
     }
 
-    private void prepareTVDestinationPhoneNumber() {
+    private void prepareTVDestinationName() {
 
-        TVDestinationPhone = (TextView) findViewById(R.id.CallNumber);
         destTextView = (TextView) findViewById(R.id.destName);
     }
 
@@ -871,7 +851,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         setCustomActionBar();
         enableHamburgerIconWithSlideMenu();
-        prepareTVDestinationPhoneNumber();
+        prepareTVDestinationName();
         prepareRingtoneStatus();
         prepareFetchUserProgressBar();
         prepareRingtoneNameTextView();
@@ -1404,7 +1384,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             defaultpic_enabled.setVisibility(View.INVISIBLE);
             ringToneNameTextView.setVisibility(View.INVISIBLE);
             ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
-            TVDestinationPhone.setVisibility(View.INVISIBLE);
             clearText.setVisibility(View.INVISIBLE);
             destTextView.setVisibility(View.INVISIBLE);
         }
@@ -1440,10 +1419,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         selectMediaBtn_textview2.setVisibility(View.VISIBLE);
         caller_arrow.setVisibility(View.VISIBLE);
 
-        TVDestinationPhone.setVisibility(View.VISIBLE);
         destTextView.setVisibility(View.VISIBLE);
         clearText.setVisibility(View.VISIBLE);
-        TVDestinationPhone.setEnabled(true);
         clearText.setEnabled(true);
 
         YoYo.with(Techniques.SlideInLeft)
