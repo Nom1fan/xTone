@@ -1,10 +1,8 @@
 package com.ui.activities;
 
-import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
@@ -31,14 +29,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
@@ -106,7 +98,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private String destPhoneNumber = "";
     private String destName = "";
     private boolean wentThroughOnCreate = false;
-    private WebView displayYoutubeVideo;
 
     //region UI elements
     private ImageButton selectMediaBtn;
@@ -122,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private DrawerLayout mDrawerLayout;
     private ImageView mediaStatus;
     private ImageButton defaultpic_enabled;
-    private ImageButton tutorial_imageButton;
     private TextView ringToneNameTextView;
     private TextView ringToneNameForProfileTextView;
     private TextView profile_textview;
@@ -140,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private boolean callerHasRingtone = false;
     private boolean openDrawer = false;
     private Snackbar snackBar;
-    private Dialog windowVideoDialog = null;
     private UploadFileFlow uploadFileFlow = new UploadFileFlow();
     private List<ContactWrapper> arrayOfUsers;
     private OnlineContactAdapter adapter;
@@ -239,6 +228,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             if (destTextView!=null)
                 if (!destTextView.getText().toString().isEmpty() && AppStateManager.isLoggedIn(this) && wentThroughOnCreate) {
+                    destTextView.setText("");
+
                     ServerProxyService.getRegisteredContacts(getApplicationContext());
                     AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
                     syncUIwithAppState();
@@ -259,6 +250,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         AppStateManager.setAppState(this, TAG, AppStateManager.STATE_IDLE);
         UI_Utils.refreshUI(this, new SnackbarData(SnackbarStatus.CLOSE));
+        searchView.setVisibility(View.VISIBLE);
+
     }
 
     public class OnlineContactAdapter extends ArrayAdapter<ContactWrapper> implements Filterable {
@@ -342,23 +335,23 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     @Override // add search functionality
     public boolean onCreateOptionsMenu(Menu menu) {
-            MenuInflater inflater = getMenuInflater();
-            // Inflate menu to add items to action bar if it is present.
-            inflater.inflate(R.menu.select_contact_menu, menu);
+        MenuInflater inflater = getMenuInflater();
+        // Inflate menu to add items to action bar if it is present.
+        inflater.inflate(R.menu.select_contact_menu, menu);
 
             backBtn = (MenuItem) menu.findItem(R.id.action_back_btn);
-
             if (backBtn != null)
                 backBtn.setOnMenuItemClickListener((new MenuItem.OnMenuItemClickListener() {
                     public boolean onMenuItemClick(MenuItem item) {
                         log(Log.INFO, TAG, String.valueOf(item.getItemId()));
                         switch (item.getItemId()) {
                             case R.id.action_back_btn:
-                                if (destTextView!=null)
+                                if (destTextView != null)
                                     destTextView.setText("");
 
                                 AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
                                 UI_Utils.refreshUI(getApplicationContext(), new SnackbarData(SnackbarStatus.CLOSE));
+                                searchView.setVisibility(View.VISIBLE);
                                 break;
                         }
 
@@ -367,11 +360,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                 }));
 
-                searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-                SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-                searchView.setOnQueryTextListener(onQueryTextListener());
-                searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-
+            searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+            searchView.setOnQueryTextListener(onQueryTextListener());
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         return true;
     }
 
@@ -666,6 +658,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, true);
 
                         if (status_tag.equals("on")){
+                                searchView.setVisibility(View.GONE);
+
+                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                                imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
                                 enableUserRegisterFunctionality();
                                 destTextView.setText(destName);
                                 setDestNameTextView();
@@ -818,21 +814,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         prepareSelectMediaButton();
         prepareSelectProfileMediaButton();
         prepareDividers();
-        prepareMCTutorialButton();
         prepareStartingView();
     }
 
     private void prepareStartingView() {
 
         contactsListView = (ListView) findViewById(R.id.online_contacts);
-
-    }
-
-    private void prepareMCTutorialButton() {
-
-        tutorial_imageButton = (ImageButton) findViewById(R.id.tutorial_btn);
-        if (tutorial_imageButton != null)
-            tutorial_imageButton.setOnClickListener(this);
 
     }
 
@@ -888,14 +875,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void disableStartingViews() {
         Log.i(TAG,"disableStartingViews");
-        contactsListView.setVisibility(View.INVISIBLE);
-
-        if (searchView != null) {
+        if (searchView!=null)
             searchView.setVisibility(View.GONE);
 
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
-            }
+        contactsListView.setVisibility(View.INVISIBLE);
 
         if (backBtn!=null)
             backBtn.setVisible(true);
@@ -907,11 +890,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         Log.i(TAG,"enableStartingViews");
         enableContactsListView();
 
-        if (searchView != null) {
-            searchView.setVisibility(View.VISIBLE);
-        }
         if (backBtn!=null)
             backBtn.setVisible(false);
+
+
 
         YoYo.with(Techniques.FadeIn)
                 .duration(1000)
@@ -1091,8 +1073,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                  */
                 public void onDrawerOpened(View drawerView) {
                     super.onDrawerOpened(drawerView);
-                    //  getSupportActionBar().setTitle("Navigation!");
-                    invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                 //   invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+
                 }
 
                 /**
@@ -1100,8 +1082,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                  */
                 public void onDrawerClosed(View view) {
                     super.onDrawerClosed(view);
-                    //   getSupportActionBar().setTitle(mActivityTitle);
-                    invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                  //  invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
                 }
 
             };
