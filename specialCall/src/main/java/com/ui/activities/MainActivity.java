@@ -30,6 +30,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -112,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private TextView selectMediaBtn_textview;
     private TextView selectMediaBtn_textview2;
     private ImageButton callBtn;
-    private ImageButton clearText;
     private ProgressBar fetchUserPbar;
     private BroadcastReceiver eventReceiver;
     private IntentFilter eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private List<ContactWrapper> arrayOfUsers;
     private OnlineContactAdapter adapter;
     private SearchView searchView;
+    private MenuItem backBtn;
     //endregion
 
     //region Activity methods (onCreate(), onPause(), onActivityResult()...)
@@ -341,10 +342,36 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     @Override // add search functionality
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        // Inflate menu to add items to action bar if it is present.
-        inflater.inflate(R.menu.select_contact_menu, menu);
-        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+            MenuInflater inflater = getMenuInflater();
+            // Inflate menu to add items to action bar if it is present.
+            inflater.inflate(R.menu.select_contact_menu, menu);
+
+            backBtn = (MenuItem) menu.findItem(R.id.action_back_btn);
+
+            if (backBtn != null)
+                backBtn.setOnMenuItemClickListener((new MenuItem.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        log(Log.INFO, TAG, String.valueOf(item.getItemId()));
+                        switch (item.getItemId()) {
+                            case R.id.action_back_btn:
+                                if (destTextView!=null)
+                                    destTextView.setText("");
+
+                                AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
+                                UI_Utils.refreshUI(getApplicationContext(), new SnackbarData(SnackbarStatus.CLOSE));
+                                break;
+                        }
+
+                        return true;
+                    }
+
+                }));
+
+                searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+                SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+                searchView.setOnQueryTextListener(onQueryTextListener());
+                searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
         return true;
     }
 
@@ -416,7 +443,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if (AppStateManager.getAppState(this).equals(AppStateManager.STATE_LOADING))
             AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
 
-        clearText.performClick();
         Batch.onDestroy(this);
         super.onDestroy();
 
@@ -513,67 +539,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
-    private void startingSetWindowVideoDialog() {
-
-        Log.i(TAG, "before video dialog");
-        if (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_WINDOW_VIDEO) && wentThroughOnCreate) {
-            Log.i(TAG, "inside video dialog");
-            wentThroughOnCreate = false;
-            if (windowVideoDialog == null) {
-                windowVideoDialog = new Dialog(MainActivity.this);
-
-                // custom dialog
-                windowVideoDialog.setContentView(R.layout.video_dialog);
-
-                windowVideoDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(final DialogInterface arg0) {
-                        windowVideoDialog = null;
-                        displayYoutubeVideo.stopLoading();
-                        displayYoutubeVideo.destroy();
-                        Log.i(TAG, "before showcase");
-                        UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
-                    }
-                });
-
-                Button skipBtn = (Button) windowVideoDialog.findViewById(R.id.video_ok);
-                // if button is clicked, close the custom dialog
-                skipBtn.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        windowVideoDialog.dismiss();
-                    }
-                });
-
-                CheckBox checkBox = (CheckBox) windowVideoDialog.findViewById(R.id.video_dont_show_tips);
-                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        SharedPrefUtils.setBoolean(MainActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_WINDOW_VIDEO, isChecked);
-                    }
-                });
-
-                windowVideoDialog.show();
-
-                displayYoutubeVideo = (WebView) windowVideoDialog.findViewById(R.id.set_window_video);
-                displayYoutubeVideo.setVisibility(View.VISIBLE);
-                String frameVideo = "<html><body>Video From YouTube<br><iframe width=\"280\" height=\"315\" src=\"https://www.youtube.com/embed/vkZE37dHErE\" frameborder=\"0\" allowfullscreen></iframe></body></html>";
-                Log.i(TAG, frameVideo);
-                displayYoutubeVideo.setWebViewClient(new WebViewClient() {
-                    @Override
-                    public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                        return false;
-                    }
-                });
-                WebSettings webSettings = displayYoutubeVideo.getSettings();
-                webSettings.setJavaScriptEnabled(true);
-                displayYoutubeVideo.loadData(frameVideo, "text/html", "utf-8");
-
-            }
-        }
-    }
-
     private void startLoginActivityIfLoggedOut() {
 
         if (!AppStateManager.isLoggedIn(this)) {
@@ -640,13 +605,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 openProfileMediaMenu();
             else
                 selectMedia(SpecialMediaType.PROFILE_MEDIA);
-
-        } else if (id == R.id.clear) {
-
-            if (destTextView!=null)
-                destTextView.setText("");
-            AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
-            syncUIwithAppState();
 
         } else if (id == R.id.tutorial_btn) {
             openMCTutorialMenu();
@@ -860,7 +818,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         prepareSelectMediaButton();
         prepareSelectProfileMediaButton();
         prepareDividers();
-        prepareClearTextButton();
         prepareMCTutorialButton();
         prepareStartingView();
     }
@@ -930,24 +887,31 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     private void disableStartingViews() {
-
+        Log.i(TAG,"disableStartingViews");
         contactsListView.setVisibility(View.INVISIBLE);
 
         if (searchView != null) {
             searchView.setVisibility(View.GONE);
-        }
 
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+            }
+
+        if (backBtn!=null)
+            backBtn.setVisible(true);
 
 
     }
 
     private void enableStartingViews() {
-
+        Log.i(TAG,"enableStartingViews");
         enableContactsListView();
 
         if (searchView != null) {
             searchView.setVisibility(View.VISIBLE);
         }
+        if (backBtn!=null)
+            backBtn.setVisible(false);
 
         YoYo.with(Techniques.FadeIn)
                 .duration(1000)
@@ -1031,13 +995,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         ringToneNameTextView = (TextView) findViewById(R.id.ringtoneName);
         ringToneNameForProfileTextView = (TextView) findViewById(R.id.ringtoneNameForProfile);
-    }
-
-    private void prepareClearTextButton() {
-
-        clearText = (ImageButton) findViewById(R.id.clear);
-        if (clearText != null)
-            clearText.setOnClickListener(this);
     }
 
     //endregion
@@ -1384,7 +1341,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             defaultpic_enabled.setVisibility(View.INVISIBLE);
             ringToneNameTextView.setVisibility(View.INVISIBLE);
             ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
-            clearText.setVisibility(View.INVISIBLE);
             destTextView.setVisibility(View.INVISIBLE);
         }
         selectMediaBtn_textview.setVisibility(View.INVISIBLE);
@@ -1420,8 +1376,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         caller_arrow.setVisibility(View.VISIBLE);
 
         destTextView.setVisibility(View.VISIBLE);
-        clearText.setVisibility(View.VISIBLE);
-        clearText.setEnabled(true);
 
         YoYo.with(Techniques.SlideInLeft)
                 .duration(1000)
@@ -1742,11 +1696,3 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     //endregion
 }
-
-
-      /*  @Override     //  the menu with the 3 dots on the right, on the top action bar, to enable it uncomment this.
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }*/

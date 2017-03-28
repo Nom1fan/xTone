@@ -64,19 +64,19 @@
         android:scaleType="fitCenter" />
 
     <TextView
+        android:id="@+id/profile_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/media_the_contact_will_see"
-        android:id="@+id/profile_textview"
-        android:fontFamily="sans-serif-light"
-        android:textSize="10dp"
-        android:textColor="#ffffff"
-        android:gravity="center_horizontal"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/CallNumber"
         android:layout_alignParentRight="true"
+        android:layout_alignRight="@+id/destName"
+        android:layout_below="@+id/selectProfileMediaBtn"
         android:layout_marginTop="5dp"
-        android:layout_below="@+id/selectProfileMediaBtn" />
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_horizontal"
+        android:text="@string/media_the_contact_will_see"
+        android:textColor="#ffffff"
+        android:textSize="16dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -109,19 +109,19 @@
         android:layout_alignLeft="@+id/caller_textview2" />
 
     <TextView
+        android:id="@+id/media_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/media_the_contact_will_see"
-        android:fontFamily="sans-serif-light"
-        android:id="@+id/media_textview"
-        android:textSize="16dp"
-        android:textColor="#ffffff"
-        android:singleLine="true"
-        android:gravity="center_horizontal"
-        android:layout_alignRight="@+id/destName"
-        android:layout_alignParentLeft="true"
         android:layout_above="@+id/caller_textview2"
-        android:layout_alignParentEnd="false" />
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/destName"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_horizontal"
+        android:singleLine="true"
+        android:text="@string/media_the_contact_will_see"
+        android:textColor="#ffffff"
+        android:textSize="16dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -176,20 +176,6 @@
         android:layout_alignParentEnd="true" />
 
 
-    <ImageButton
-        android:layout_width="40dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/clear"
-        android:clickable="true"
-        android:src="@drawable/clear_btn_anim"
-        android:scaleType="fitXY"
-        android:background="#01789b"
-        android:padding="5dp"
-        android:layout_alignTop="@+id/destName"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignBottom="@+id/destName" />
-
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -227,14 +213,9 @@
     <TextView
         android:id="@+id/destName"
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="50dp"
         android:layout_alignParentStart="false"
         android:layout_marginTop="11dp"
-        android:layout_toEndOf="@+id/selectContactBtn"
-        android:layout_toLeftOf="@+id/clear"
-        android:layout_toRightOf="@+id/clear"
-        android:layout_toStartOf="@+id/clear"
-        android:background="#01789b"
         android:completionThreshold="1"
         android:ems="10"
         android:enabled="true"
@@ -243,7 +224,7 @@
         android:textAlignment="center"
         android:textColor="#ffffff"
         android:textColorHint="#ffffff"
-        android:textSize="30sp"></TextView>
+        android:textSize="40sp"></TextView>
 
     <TextView
         android:layout_width="wrap_content"

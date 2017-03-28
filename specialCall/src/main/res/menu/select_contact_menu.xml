@@ -5,7 +5,17 @@
     <item
         android:id="@+id/action_search"
         android:icon="@android:drawable/ic_menu_search"
-        app:showAsAction="always"
+        android:title="search ..."
         app:actionViewClass="android.support.v7.widget.SearchView"
-        android:title="search ..."/>
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_back_btn"
+        android:enabled="true"
+        android:icon="@drawable/up_arrow"
+        android:title="back ..."
+        android:visible="true"
+        app:actionViewClass="android.support.v7.widget.ImageView"
+        app:showAsAction="always" />
+
 </menu>

@@ -54,9 +54,6 @@ public class InviteDialog extends android.app.DialogFragment {
                             intent.putExtra("sms_body", getResources().getString(R.string.invite));
                             startActivity(intent);
 
-                            ImageButton clearButton = (ImageButton) getActivity().findViewById(R.id.clear);
-                            clearButton.performClick();
-
                             SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER,"");
                             SharedPrefUtils.setString(context,SharedPrefUtils.GENERAL,SharedPrefUtils.DESTINATION_NAME,"");
                             getDialog().dismiss();
@@ -70,9 +67,6 @@ public class InviteDialog extends android.app.DialogFragment {
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-
-                        ImageButton clearButton = (ImageButton) getActivity().findViewById(R.id.clear);
-                        clearButton.performClick();
 
                         getDialog().dismiss();
 
