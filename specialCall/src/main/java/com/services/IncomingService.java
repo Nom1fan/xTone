@@ -219,11 +219,15 @@ public class IncomingService extends AbstractStandOutService {
 
                             if (ringtoneExists || visualMediaExists){
                                 log(Log.INFO,TAG, "MEDIA EXIST for incoming number RingtoneExists: " + ringtoneExists + " VisualMediaExists: " + visualMediaExists );
-                                if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW)
-                                        && !SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)) {
-                                    runAskBeforeShowMedia(incomingNumber,ringtoneExists,visualMediaExists);
+                                if (
+                                        (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW)
+                                                && !SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT))
+                                                || !SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DONT_SHOW_RESIZE_WINDOW_FOR_STANDOUT)
+
+                                        ) {
+                                    runAskBeforeShowMedia(incomingNumber, ringtoneExists, visualMediaExists);
                                 } else {
-                                    runIncomingMCMedia(incomingNumber,ringtoneExists,visualMediaExists);
+                                    runIncomingMCMedia(incomingNumber, ringtoneExists, visualMediaExists);
                                 }
                             }else
                             {
@@ -307,11 +311,15 @@ public class IncomingService extends AbstractStandOutService {
         //     ((ImageView)mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_XY); STRECTH IMAGE ON FULL SCREEN <<< NOT SURE IT's GOOD !!!!!
         ((ImageView) mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_CENTER); // <<  just place the image Center of Window and fit it with ratio
 
-        ((ImageView) mSpecialCallView).setImageResource(R.drawable.profile_media_anim);
+        if(!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DONT_SHOW_RESIZE_WINDOW_FOR_STANDOUT))
+        {((ImageView) mSpecialCallView).setImageResource(R.drawable.first_show_window);
+
+        }else
+            ((ImageView) mSpecialCallView).setImageResource(R.drawable.profile_media_anim);
 
         mSpecialCallView.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
+                SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DONT_SHOW_RESIZE_WINDOW_FOR_STANDOUT,true);
                 log(Log.INFO,TAG, "Asked to show media ! and he Said YES !! ");
                // close(randomWindowId);
                 closeAll();
