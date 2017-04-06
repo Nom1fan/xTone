@@ -491,6 +491,7 @@ public class Window extends FrameLayout {
 				}
 			}
 		});
+        maximize.setVisibility(View.GONE);
 
 		// close
 		View close = decorations.findViewById(R.id.close);
