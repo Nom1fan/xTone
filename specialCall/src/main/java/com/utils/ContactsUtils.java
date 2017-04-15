@@ -4,7 +4,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.Contacts;
 import android.provider.ContactsContract;
 
 import com.data.objects.Contact;
@@ -12,8 +11,9 @@ import com.data.objects.Contact;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.provider.ContactsContract.*;
-import static android.provider.ContactsContract.PhoneLookup.*;
+import static android.provider.ContactsContract.CommonDataKinds;
+import static android.provider.ContactsContract.PhoneLookup.CONTENT_FILTER_URI;
+import static android.provider.ContactsContract.PhoneLookup.DISPLAY_NAME;
 
 /**
  * Created by Mor on 18/02/2016.
@@ -62,7 +62,7 @@ public abstract class ContactsUtils {
         if (cursor == null) {
             return null;
         }
-        String contactName = null;
+        String contactName = "";
         if(cursor.moveToFirst()) {
             contactName = cursor.getString(cursor.getColumnIndex(DISPLAY_NAME));
         }
