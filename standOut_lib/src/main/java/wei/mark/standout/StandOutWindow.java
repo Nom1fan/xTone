@@ -1362,8 +1362,7 @@ public abstract class StandOutWindow extends Service {
         // check if that window is focusable
         final Window window = getWindow(id);
         if (window == null) {
-            throw new IllegalArgumentException("Tried to focus(" + id
-                    + ") a null window.");
+            return false;
         }
 
         if (!Utils.isSet(window.flags,
