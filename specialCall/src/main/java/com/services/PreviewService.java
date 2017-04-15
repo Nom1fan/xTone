@@ -119,6 +119,8 @@ public class PreviewService extends AbstractStandOutService {
         boolean funtoneExists = new File(audioMediafilePath).exists() && !MediaFilesUtils.isAudioFileCorrupted(audioMediafilePath,getApplicationContext());
         boolean visualMediaExists = new File(visualMediaFilePath).exists() && !MediaFilesUtils.isVideoFileCorrupted(visualMediaFilePath,getApplicationContext());
 
+        log(Log.INFO,TAG, "startPreviewWindow  audioMediafilePath: "+ audioMediafilePath +" visualMediaFilePath: " +visualMediaFilePath+ " standoutWindowUserTitle: " + standoutWindowUserTitle
+                + " funtoneExists: " +funtoneExists+ " visualMediaExists: " +visualMediaExists);
         startAudioMediaMC(audioMediafilePath);
         startVisualMediaMC(visualMediaFilePath, standoutWindowUserTitle, funtoneExists, visualMediaExists);
     }
