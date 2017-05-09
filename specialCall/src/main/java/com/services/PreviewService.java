@@ -130,7 +130,7 @@ public class PreviewService extends AbstractStandOutService {
         log(Log.INFO,TAG, "setVolumeOnForPreview");
 
         try {
-            mPreviewAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+            mPreviewAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_UNMUTE, 0);
             mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
         } catch (Exception e) {
             log(Log.ERROR,TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));

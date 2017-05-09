@@ -1,21 +1,36 @@
 package com.ui.activities;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.*;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.services.ServerProxyService;
+import com.utils.InitUtils;
+import com.utils.UI_Utils;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -31,6 +46,14 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
     private static final String TAG = LoginWithTermsAndServiceActivity.class.getSimpleName();
     private String loginNumber;
     private String smsVerificationCode;
+    private  String[] initialPermissions = {Manifest.permission.READ_CONTACTS, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE,Manifest.permission.GET_ACCOUNTS,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.PROCESS_OUTGOING_CALLS
+
+            //, Manifest.permission.WRITE_SETTINGS, Manifest.permission.MODIFY_PHONE_STATE,Manifest.permission.CHANGE_CONFIGURATION
+
+    };
+    private Map<String,Boolean> permissionMap = new HashMap<>();
+
 
     //region Activity methods (onCreate(), onPause(), ...)
     @Override
@@ -92,14 +115,140 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
             login.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Constants.MY_ID(getApplicationContext(), loginNumber);
-                    ServerProxyService.register(getApplicationContext(), Integer.parseInt(smsVerificationCode));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
 
-                    setResult(Activity.RESULT_OK);
-                    finish();
+                        for (String permission: initialPermissions)
+                        {
+                            if (ContextCompat.checkSelfPermission(LoginWithTermsAndServiceActivity.this, permission) == -1)
+                            {
+                                ActivityCompat.requestPermissions(LoginWithTermsAndServiceActivity.this, initialPermissions, Constants.MY_PERMISSIONS_INITAL_PERMISSION);
+                                return;
+                            }
+                        }
+
+                        registering();
+
+                    }
+                    else
+                        registering();
                 }
             });
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case Constants.MY_PERMISSIONS_INITAL_PERMISSION: {
+                boolean isPermissionsApproved= true;
+
+                for (String permission: initialPermissions)
+                {
+                    if (ContextCompat.checkSelfPermission(LoginWithTermsAndServiceActivity.this, permission) == -1)
+                    {
+                        permissionMap.put(permission,false);
+                        isPermissionsApproved=false;
+                    }else
+                        permissionMap.put(permission,true);
+                }
+
+                if (isPermissionsApproved)
+                    registering();
+                else
+                    showRationale();
+
+
+                break;
+            }
+        }
+    }
+
+    private void showRationale() {
+        boolean neverAskButtonCheckBoxNotTicked = true;
+
+        for (Map.Entry<String, Boolean> entry : permissionMap.entrySet()) {
+            if (!entry.getValue())
+                if(!shouldShowRequestPermissionRationale(entry.getKey()))
+                    neverAskButtonCheckBoxNotTicked = false;
+        }
+
+            if (!neverAskButtonCheckBoxNotTicked) {
+                // user also CHECKED "never ask again"
+                // you can either enable some fall back,
+                // disable features of your app
+                // or open another dialog explaining
+                // again the permission and directing to
+                // the app setting
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+                TextView content = new TextView(this);
+                content.setText(R.string.permission_a_must);
+
+                builder.setTitle(R.string.permission_denied)
+                        .setView(content)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                Uri uri = Uri.fromParts("package", getPackageName(), null);
+                                intent.setData(uri);
+                                startActivityForResult(intent, 1985);
+                            }
+                        });
+                builder.create().show();
+            } else {
+                // user did NOT check "never ask again"
+                // this is a good place to explain the user
+                // why you need the permission and ask if he wants
+                // to accept it (the rationale)
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+                TextView content = new TextView(this);
+                content.setText(R.string.permission_a_must);
+
+                builder.setTitle(R.string.permission_denied)
+                        .setView(content)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                ActivityCompat.requestPermissions(LoginWithTermsAndServiceActivity.this, initialPermissions, Constants.MY_PERMISSIONS_INITAL_PERMISSION);
+                            }
+                        });
+                builder.create().show();
+
+            }
+
+    }
+
+    private void registering() {
+
+        InitializeAppConfigurations();
+
+
+
+
+        Constants.MY_ID(getApplicationContext(), loginNumber);
+        ServerProxyService.register(getApplicationContext(), Integer.parseInt(smsVerificationCode));
+
+        setResult(Activity.RESULT_OK);
+        finish();
+    }
+
+    private void InitializeAppConfigurations() {
+
+        //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
+        UI_Utils.makeActionOverflowMenuShown(getApplicationContext());
+
+        // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
+        InitUtils.hideMediaFromGalleryScanner();
+
+        //Initialize Default Settings Values
+        InitUtils.initializeSettingsDefaultValues(getApplicationContext());
+
+        //Populate SharedprefMEdia in case it's not the first time the app is installed, and you have saved media in the MediaCallz Outgoing/Incoming
+        InitUtils.populateSavedMcFromDiskToSharedPrefs(getApplicationContext());
+
+        InitUtils.saveAndroidVersion(getApplicationContext());
+
+        InitUtils.initImageLoader(getApplicationContext());
     }
 
     private void prepareReadMorebutton() {

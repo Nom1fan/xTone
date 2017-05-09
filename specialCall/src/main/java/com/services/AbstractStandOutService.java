@@ -690,7 +690,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     volumeChangeByMCButtons = true;
 
                     verifyAudioManager();
-                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+
+                    mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_UNMUTE, 0);
 
                    if (mVolumeBeforeMute!=0)
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
@@ -710,7 +711,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
                     log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
-                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                    mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_MUTE, 0);
                     mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                     isMuted = true;
 
@@ -827,7 +828,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     volumeChangeByMCButtons = true;
 
                     verifyPreviewAudioManager();
-                    mPreviewAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+                    mPreviewAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_UNMUTE, 0);
                     mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
                     mSpecialCallVolumeValueTextView.setText(Integer.toString(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                     log(Log.INFO,TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
@@ -844,7 +845,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     mVolumeBeforeMute = mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
                     log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
                     mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
-                    mPreviewAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                    mPreviewAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_MUTE, 0);
                     mSpecialCallVolumeValueTextView.setText(Integer.toString(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                     isMuted = true;
 
@@ -1210,7 +1211,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
 
         verifyAudioManager();
-        mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+        mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_UNMUTE, 0);
 
         try {
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);

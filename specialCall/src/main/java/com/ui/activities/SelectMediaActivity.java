@@ -1,5 +1,6 @@
 package com.ui.activities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -12,8 +13,11 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.util.Log;
 import android.view.MenuItem;
@@ -36,6 +40,7 @@ import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
+import java.security.Permission;
 import java.util.List;
 
 import com.enums.SpecialMediaType;
@@ -249,34 +254,52 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             takePicture();
         } else if (id == R.id.recordAudio || id == R.id.record_audio_textview) {
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-            final TextView content = new TextView(this);
-            content.setText(R.string.record_audio_desc);
-
-            builder.setTitle(R.string.record_audio_title)
-                    .setView(content)
-                    .setPositiveButton(R.string.start, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-
-                            recordAudio();
-
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-
-
-                        }
-                    });
-
-            builder.create().show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                ActivityCompat.requestPermissions(SelectMediaActivity.this,  new String[]{Manifest.permission.RECORD_AUDIO}, Constants.MY_PERMISSIONS_AUDIO_RECORDING);
+            else
+                initialRecordAudioProcess();
 
         } else if (id == R.id.mc_contentstore_btn || id == R.id.mc_gallery_textview) {
 
             startContentStore();
         }
 
+    }
+
+    private void initialRecordAudioProcess() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        final TextView content = new TextView(this);
+        content.setText(R.string.record_audio_desc);
+
+        builder.setTitle(R.string.record_audio_title)
+                .setView(content)
+                .setPositiveButton(R.string.start, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                            recordAudio();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+
+                    }
+                });
+
+        builder.create().show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case Constants.MY_PERMISSIONS_AUDIO_RECORDING: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    initialRecordAudioProcess();
+                else
+                    Toast.makeText(getApplicationContext(),"APP MUST HAVE THESE PERMISSIONS",Toast.LENGTH_LONG);
+            break;
+            }
+        }
     }
 
     private void startContentStore() {

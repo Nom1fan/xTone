@@ -115,10 +115,14 @@
     <string name="login_terms_press">לחץ </string>
     <string name="login_terms_press_continue"> לראות את התנאים.</string>
     <string name="login_read_more"><b><u>קרא עוד</u></b></string>
+    <string name="permission_a_must"> ללא ההרשאות האלו האפליקציה לא תוכל לתפקד כראוי, אנא אשרו את כולן</string>
+    <string name="permission_denied"> הרשאה נדחתה</string>
+
     <!--  NotificationUtils   -->
     <string name="notification_title">MC</string>
     <string name="notification_text">פעיל</string>
     <string name="notification_ticker_text">MC פעיל</string>
+
 
     <!--  MainActivity   -->
     <string name="sent_invitation">הזמנה נשלחה ל:</string>

@@ -136,8 +136,7 @@ public class OutgoingService extends AbstractStandOutService {
             verifyAudioManager();
             mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
             log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
-            mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
-
+            mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_MUTE, 0);
             mMediaPlayer.start();
 
         } catch (IOException e) {
@@ -193,8 +192,7 @@ public class OutgoingService extends AbstractStandOutService {
                     verifyAudioManager();
                     mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
                     log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
-                    mAudioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
-
+                    mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_MUTE, 0);
                     mMediaPlayer.start();
                     log(Log.INFO,TAG, "prepareVideoListener MUSIC_VOLUME Original" + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                 }

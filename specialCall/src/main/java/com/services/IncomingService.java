@@ -156,7 +156,7 @@ public class IncomingService extends AbstractStandOutService {
 
         incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
         log(Log.INFO,TAG,"Inside syncOnCallStateChange, incoming phone number : " + incomingNumber);
-        mIncomingOutgoingNumber = incomingNumber;
+        mIncomingOutgoingNumber = incomingNumber="0542384176";
         // Checking if number is in black list
         log(Log.INFO,TAG, " mInRingingSession: " + isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION));
         boolean isBlocked = MCBlockListUtils.IsMCBlocked(incomingNumber, getApplicationContext());
@@ -539,7 +539,7 @@ public class IncomingService extends AbstractStandOutService {
         try {
             verifyAudioManager();
            if (SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE) == AudioManager.RINGER_MODE_NORMAL)
-            mAudioManager.setStreamMute(AudioManager.STREAM_RING, false);
+            mAudioManager.adjustStreamVolume(AudioManager.STREAM_RING,  AudioManager.ADJUST_UNMUTE, 0);
             log(Log.INFO,TAG, "mAudioManager.setStreamMute(AudioManager.STREAM_RING, false);");
         } catch (Exception e) {
             e.printStackTrace();
@@ -569,7 +569,7 @@ public class IncomingService extends AbstractStandOutService {
         try {
             verifyAudioManager();
             if (SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE) == AudioManager.RINGER_MODE_NORMAL)
-            mAudioManager.setStreamMute(AudioManager.STREAM_RING, true);
+            mAudioManager.adjustStreamVolume(AudioManager.STREAM_RING,  AudioManager.ADJUST_MUTE, 0);
             log(Log.INFO,TAG, "mAudioManager.setStreamMute(AudioManager.STREAM_RING, true);");
         } catch (Exception e) {
             e.printStackTrace();

@@ -43,6 +43,8 @@
     <string name="login_terms_press">Press </string>
     <string name="login_terms_press_continue"> to view the full terms.</string>
     <string name="login_read_more"><b><u>read more</u></b></string>
+    <string name="permission_a_must"> Without these permissions the app is unable to work properly, please enable all permissions</string>
+    <string name="permission_denied"> Permission denied</string>
 
     <!--  NotificationUtils   -->
     <string name="notification_title">MC</string>

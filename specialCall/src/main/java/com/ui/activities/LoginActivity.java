@@ -1,12 +1,16 @@
 package com.ui.activities;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsMessage;
@@ -19,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.app.AppStateManager;
 import com.async.tasks.GetSmsCodeTask;
@@ -63,6 +68,7 @@ public class LoginActivity extends AppCompatActivity {
     private static boolean sentFromReceiver = false;
     private ImageButton clearLoginPhoneText;
     private ImageButton clearLoginSmsText;
+    private  String[] smsPermissions = {Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS };
     //endregion
 
     //region Activity methods (onCreate(), onPause(), ...)
@@ -244,21 +250,47 @@ public class LoginActivity extends AppCompatActivity {
             loginBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    String smsVerificationCode = smsCodeVerEditText.getText().toString();
-                    String loginNumber = loginNumberEditText.getText().toString();
-
-                    Intent intent = new Intent(LoginActivity.this, LoginWithTermsAndServiceActivity.class);
-                    intent.putExtra(LoginWithTermsAndServiceActivity.SMS_CODE, smsVerificationCode);
-                    intent.putExtra(LoginWithTermsAndServiceActivity.LOGIN_NUMBER, loginNumber);
-                    startActivityForResult(intent, ActivityRequestCodes.TERMS_OF_SERVICE);
-
-                    if (getSmsCodeTask != null)
-                        getSmsCodeTask.cancel(true);
+                        confirmLogin();
                 }
             });
         }
         disableLoginButton();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case Constants.MY_PERMISSIONS_SMS_PERMISSION: {
+                    sendSMSConfirm();
+            break;
+            }
+        }
+    }
+
+    private void confirmLogin(){
+        String smsVerificationCode = smsCodeVerEditText.getText().toString();
+        String loginNumber = loginNumberEditText.getText().toString();
+
+        Intent intent = new Intent(LoginActivity.this, LoginWithTermsAndServiceActivity.class);
+        intent.putExtra(LoginWithTermsAndServiceActivity.SMS_CODE, smsVerificationCode);
+        intent.putExtra(LoginWithTermsAndServiceActivity.LOGIN_NUMBER, loginNumber);
+        startActivityForResult(intent, ActivityRequestCodes.TERMS_OF_SERVICE);
+
+        if (getSmsCodeTask != null)
+            getSmsCodeTask.cancel(true);
+
+    }
+    private void sendSMSConfirm(){
+
+        String timeoutMsg = getResources().getString(R.string.sms_code_failed);
+        String loadingMsg = getResources().getString(R.string.please_wait);
+        AppStateManager.setLoadingState(LoginActivity.this, TAG, loadingMsg, timeoutMsg);
+
+        String phoneNumber = loginNumberEditText.getText().toString();
+        getSms(phoneNumber);
+
+        visibleSmsButtons();
+
     }
 
     private void prepareGetSmsCodeButton() {
@@ -271,15 +303,10 @@ public class LoginActivity extends AppCompatActivity {
 
                 @Override
                 public void onClick(View v) {
-
-                    String timeoutMsg = getResources().getString(R.string.sms_code_failed);
-                    String loadingMsg = getResources().getString(R.string.please_wait);
-                    AppStateManager.setLoadingState(LoginActivity.this, TAG, loadingMsg, timeoutMsg);
-
-                    String phoneNumber = loginNumberEditText.getText().toString();
-                    getSms(phoneNumber);
-
-                    visibleSmsButtons();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                        ActivityCompat.requestPermissions(LoginActivity.this, smsPermissions, Constants.MY_PERMISSIONS_SMS_PERMISSION);
+                    else
+                        sendSMSConfirm();
                 }
             });
         }

@@ -61,22 +61,6 @@ public class MediaCallzApp extends Application {
                 AppStateManager.setIsLoggedIn(this, false);
                 AppStateManager.setAppState(context, TAG, AppStateManager.STATE_IDLE);
 
-                //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
-                UI_Utils.makeActionOverflowMenuShown(context);
-
-                // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
-                InitUtils.hideMediaFromGalleryScanner();
-
-                //Initialize Default Settings Values
-                InitUtils.initializeSettingsDefaultValues(context);
-
-                //Populate SharedprefMEdia in case it's not the first time the app is installed, and you have saved media in the MediaCallz Outgoing/Incoming
-                InitUtils.populateSavedMcFromDiskToSharedPrefs(context);
-
-                InitUtils.saveAndroidVersion(context);
-
-                InitUtils.initImageLoader(context);
-
             }
         } catch (Exception e) {
             String errMsg = "Failed to initialize. Please try to install again. Error:" + (e.getMessage()!=null ? e.getMessage() : e);
