@@ -186,6 +186,13 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
 
                 builder.setTitle(R.string.permission_denied)
                         .setView(content)
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                                dialog.cancel();
+
+                            }
+                        })
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -207,6 +214,13 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
 
                 builder.setTitle(R.string.permission_denied)
                         .setView(content)
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                                dialog.cancel();
+
+                            }
+                        })
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 ActivityCompat.requestPermissions(LoginWithTermsAndServiceActivity.this, initialPermissions, Constants.MY_PERMISSIONS_INITAL_PERMISSION);
@@ -221,9 +235,6 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
     private void registering() {
 
         InitializeAppConfigurations();
-
-
-
 
         Constants.MY_ID(getApplicationContext(), loginNumber);
         ServerProxyService.register(getApplicationContext(), Integer.parseInt(smsVerificationCode));

@@ -15,7 +15,7 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.provider.*;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MotionEventCompat;
@@ -42,6 +42,7 @@ import com.utils.UI_Utils;
 import java.io.File;
 import java.security.Permission;
 import java.util.List;
+import java.util.Map;
 
 import com.enums.SpecialMediaType;
 import com.exceptions.FileDoesNotExistException;
@@ -280,11 +281,12 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
+            public void onClick(DialogInterface dialog, int id) {
 
+                dialog.cancel();
 
-                    }
-                });
+            }
+        });
 
         builder.create().show();
     }
@@ -296,10 +298,73 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     initialRecordAudioProcess();
                 else
-                    Toast.makeText(getApplicationContext(),"APP MUST HAVE THESE PERMISSIONS",Toast.LENGTH_LONG);
+                    showRationale();
             break;
             }
         }
+    }
+
+    private void showRationale() {
+
+
+        if(!shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
+            // user also CHECKED "never ask again"
+            // you can either enable some fall back,
+            // disable features of your app
+            // or open another dialog explaining
+            // again the permission and directing to
+            // the app setting
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            TextView content = new TextView(this);
+            content.setText(R.string.permission_a_must);
+
+            builder.setTitle(R.string.permission_denied)
+                    .setView(content)
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                            dialog.cancel();
+
+                        }
+                    })
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            Uri uri = Uri.fromParts("package", getPackageName(), null);
+                            intent.setData(uri);
+                            startActivityForResult(intent, 1985);
+                        }
+                    });
+            builder.create().show();
+        } else {
+            // user did NOT check "never ask again"
+            // this is a good place to explain the user
+            // why you need the permission and ask if he wants
+            // to accept it (the rationale)
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            TextView content = new TextView(this);
+            content.setText(R.string.permission_a_must);
+
+            builder.setTitle(R.string.permission_denied)
+                    .setView(content)
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                            dialog.cancel();
+
+                        }
+                    })
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            ActivityCompat.requestPermissions(SelectMediaActivity.this,  new String[]{Manifest.permission.RECORD_AUDIO}, Constants.MY_PERMISSIONS_AUDIO_RECORDING);
+                        }
+                    });
+            builder.create().show();
+
+        }
+
     }
 
     private void startContentStore() {
