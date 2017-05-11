@@ -49,14 +49,14 @@ public class PreviewMediaActivity extends AppCompatActivity {
     private MediaFile _managedFile;
     private float _oldPosition =0;
     private int _moveLength = 0;
-    private boolean isPreviewDisplaying = false;
+    private static boolean isPreviewDisplaying = false;
     private ImageButton previewThumbnail;
-    private ImageButton _previewVideoTrimFile;
+    private static ImageButton _previewVideoTrimFile;
     private ImageButton _imageButton;
     private MediaFile.FileType fType;
     private final int MIN_MILISECS_FOR_AUDIO_EDIT = 3000;
-    protected int startInMili;
-    protected int endInMili;
+    protected static int startInMili;
+    protected static int endInMili;
     private Timer timer;
     private boolean isActive;
     private VideoView trimVideoView;
@@ -463,7 +463,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
         startService(closePrevious);
     }
 
-    public class CustomWaveformFragment extends WaveformFragment {
+    public static class CustomWaveformFragment extends WaveformFragment {
         String _filePath;
         Context _Context;
 
