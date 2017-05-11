@@ -757,8 +757,8 @@ public class Window extends FrameLayout {
 
 				if (Utils.isSet(flags,
 						StandOutFlags.FLAG_WINDOW_EDGE_LIMITS_ENABLE)) {
-					maxWidth = (int) Math.min(maxWidth, displayWidth);
-					maxHeight = (int) Math.min(maxHeight, displayHeight);
+					maxWidth = Math.min(maxWidth, displayWidth);
+					maxHeight = Math.min(maxHeight, displayHeight);
 				}
 
 				// keep window between min and max

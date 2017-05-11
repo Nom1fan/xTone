@@ -93,7 +93,7 @@ public class CheapAMR extends CheapSoundFile {
     }
 
     public void ReadFile(File inputFile)
-            throws java.io.FileNotFoundException,
+            throws
             java.io.IOException {
         super.ReadFile(inputFile);
         mNumFrames = 0;

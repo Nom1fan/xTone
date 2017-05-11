@@ -45,7 +45,7 @@ public class CheapAAC extends CheapSoundFile {
         public int start;
         public int len;  // including header
         public byte[] data;
-    };
+    }
 
     public static final int kDINF = 0x64696e66;
     public static final int kFTYP = 0x66747970;
@@ -159,8 +159,8 @@ public class CheapAAC extends CheapSoundFile {
     }
 
     public void ReadFile(File inputFile)
-        throws java.io.FileNotFoundException,
-               java.io.IOException {
+        throws
+            java.io.IOException {
         super.ReadFile(inputFile);
         mChannels = 0;
         mSampleRate = 0;

@@ -53,13 +53,13 @@ public class WaveformView extends View {
     public static final String TAG = "WaveformView";
 
     public interface WaveformListener {
-        public void waveformTouchStart(float x);
-        public void waveformTouchMove(float x);
-        public void waveformTouchEnd();
-        public void waveformFling(float x);
-        public void waveformDraw();
-        public void waveformZoomIn();
-        public void waveformZoomOut();
+        void waveformTouchStart(float x);
+        void waveformTouchMove(float x);
+        void waveformTouchEnd();
+        void waveformFling(float x);
+        void waveformDraw();
+        void waveformZoomIn();
+        void waveformZoomOut();
     }
 
     // Colors

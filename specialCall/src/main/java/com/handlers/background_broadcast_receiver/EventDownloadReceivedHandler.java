@@ -95,10 +95,9 @@ public class EventDownloadReceivedHandler implements Handler {
                 contactPhonenumbers.add(contactsList.get(i).getPhoneNumber());
             }
 
-            if (contactPhonenumbers.contains(PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber)))
-                return true; // authorized to save media
-            else
-                return false; // not authorized
+            // authorized to save media
+// not authorized
+            return contactPhonenumbers.contains(PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber));
         } else // 2 - never save
             return false;
 

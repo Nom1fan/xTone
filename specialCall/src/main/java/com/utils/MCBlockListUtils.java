@@ -61,10 +61,7 @@ public abstract class MCBlockListUtils {
                     Set<String> blockedSet2 = SharedPrefUtils.getStringSet(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
                     incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
 
-                    if(contactPhonenumbers.contains(incomingNumber) && !blockedSet2.contains(incomingNumber))
-                        return false;
-                    else
-                        return true;
+                    return !(contactPhonenumbers.contains(incomingNumber) && !blockedSet2.contains(incomingNumber));
 
                 case PermissionBlockListLevel.NO_ONE:
                     return true;

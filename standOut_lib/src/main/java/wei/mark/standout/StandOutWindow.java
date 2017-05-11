@@ -1589,7 +1589,7 @@ public abstract class StandOutWindow extends Service {
      */
     public boolean onTouchHandleResize(int id, Window window, View view,
                                        MotionEvent event) {
-        StandOutLayoutParams params = (StandOutLayoutParams) window
+        StandOutLayoutParams params = window
                 .getLayoutParams();
         Crashlytics.log(Log.INFO, TAG, "onTouchHandleResize");
 

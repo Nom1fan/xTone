@@ -358,7 +358,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
             ((VideoViewCustom) mSpecialCallView).setDimensions(window.getHeight(), window.getWidth());
             ((VideoViewCustom) mSpecialCallView).getHolder().setFixedSize(window.getHeight(), window.getWidth());
-            ((VideoViewCustom) mSpecialCallView).postInvalidate(); // TODO Rony maybe not needed invalidate
+            mSpecialCallView.postInvalidate(); // TODO Rony maybe not needed invalidate
         } catch (Exception e) {
         //    Crashlytics.log(Log.INFO,TAG, "can't onUpdate mSpecialCallView video, i guess it's not a video");
         }
@@ -510,10 +510,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             e.printStackTrace();
         }
 
-        if (ext.equals("gif"))
-            gifEnabled =true;
-        else
-            gifEnabled=false;
+        gifEnabled = ext.equals("gif");
 
 
         if (gifEnabled)
@@ -544,7 +541,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
             mGifDrawable.start();
 
-            ((GifImageView)mSpecialCallView).setLayoutParams(params);
+            mSpecialCallView.setLayoutParams(params);
 
         }
             else {
@@ -602,7 +599,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         // ((VideoView)mSpecialCallView).setMediaController(mediaController);
         // mRelativeLayout.addView(mediaController);
         ((VideoViewCustom) mSpecialCallView).setVideoURI(uri);
-        ((VideoViewCustom) mSpecialCallView).requestFocus();
+        mSpecialCallView.requestFocus();
 
         // Once the VideoView is prepared, the prepared listener will activate
         ((VideoViewCustom) mSpecialCallView).setOnPreparedListener(mVideoPreparedListener);

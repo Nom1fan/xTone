@@ -133,16 +133,10 @@ public class GeneralUtils {
 		int endIndex = fileName.lastIndexOf(".");
 		String ext = fileName.substring(endIndex + 1);
 		ext = ext.toLowerCase();
-		if (    (ext.toLowerCase().equals("jpg") ) ||
-				(ext.toLowerCase().equals("bmp") ) ||
-				(ext.toLowerCase().equals("png") ) ||
-				(ext.toLowerCase().equals("jpeg") ) 
-				) {
-			return true;
-		}
-		else {
-			return false;
-		}
+        return (ext.toLowerCase().equals("jpg")) ||
+                (ext.toLowerCase().equals("bmp")) ||
+                (ext.toLowerCase().equals("png")) ||
+                (ext.toLowerCase().equals("jpeg"));
 
 	}
 
@@ -159,11 +153,7 @@ public class GeneralUtils {
 		File f = new File(fullFileName);
 		long lengthInBytes = f.length();
 		Log.d(Prefs.TAG, fullFileName + " length in bytes: " + lengthInBytes);
-		if (lengthInBytes > 100)
-			return true;
-		else {
-			return false;
-		}
+        return lengthInBytes > 100;
 
 	}
 	
@@ -380,13 +370,8 @@ public class GeneralUtils {
 	public static boolean checkIfFolderExists(String fullFileName) {
 		File f = new File(fullFileName);
 		//Log.d(Prefs.TAG,"Checking if : " +  fullFileName + " exists" );
-		if (f.exists() && f.isDirectory()) {
-			//Log.d(Prefs.TAG,"Direcory: " +  fullFileName + " exists" );
-			return true;
-		}
-		else {
-			return false;
-		}
+        //Log.d(Prefs.TAG,"Direcory: " +  fullFileName + " exists" );
+        return f.exists() && f.isDirectory();
 	}
 	
 	public static boolean createFolder(String folderPath) {

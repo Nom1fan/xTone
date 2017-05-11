@@ -339,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         // Inflate menu to add items to action bar if it is present.
         inflater.inflate(R.menu.select_contact_menu, menu);
 
-            backBtn = (MenuItem) menu.findItem(R.id.action_back_btn);
+            backBtn = menu.findItem(R.id.action_back_btn);
             if (backBtn != null)
                 backBtn.setOnMenuItemClickListener((new MenuItem.OnMenuItemClickListener() {
                     public boolean onMenuItemClick(MenuItem item) {
@@ -652,7 +652,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         destPhoneNumber = ((TextView) view.findViewById(R.id.contact_phone)).getText().toString();
-                        String status_tag =  String.valueOf(((ImageView) view.findViewById(R.id.contact_status)).getTag());
+                        String status_tag =  String.valueOf(view.findViewById(R.id.contact_status).getTag());
                         destName = ((TextView) view.findViewById(R.id.contact_name)).getText().toString();
 
                         SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, true);
@@ -1037,8 +1037,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
 
     private void prepareDividers() {
-        divider1 = (View) findViewById(R.id.divider1);
-        divider2 = (View) findViewById(R.id.divider2);
+        divider1 = findViewById(R.id.divider1);
+        divider2 = findViewById(R.id.divider2);
     }
 
     //endregion
