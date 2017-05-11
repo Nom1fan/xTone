@@ -89,7 +89,7 @@ public class CheapMP3 extends CheapSoundFile {
     }
 
     public void ReadFile(File inputFile)
-            throws
+            throws java.io.FileNotFoundException,
             java.io.IOException {
         super.ReadFile(inputFile);
         mNumFrames = 0;
@@ -255,4 +255,4 @@ public class CheapMP3 extends CheapSoundFile {
         44100, 48000, 32000, 0 };
     static private int SAMPLERATES_MPEG2_L3[] = {
         22050, 24000, 16000, 0 };
-}
+};

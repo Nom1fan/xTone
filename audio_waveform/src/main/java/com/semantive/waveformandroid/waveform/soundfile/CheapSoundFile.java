@@ -48,8 +48,8 @@ public class CheapSoundFile {
     }
 
     public interface Factory {
-        CheapSoundFile create();
-        String[] getSupportedExtensions();
+        public CheapSoundFile create();
+        public String[] getSupportedExtensions();
     }
 
     static Factory[] sSubclassFactories = new Factory[] {
@@ -80,8 +80,8 @@ public class CheapSoundFile {
 	 */
     public static CheapSoundFile create(String fileName,
                                         ProgressListener progressListener)
-        throws
-            java.io.IOException {
+        throws java.io.FileNotFoundException,
+               java.io.IOException {
         File f = new File(fileName);
         if (!f.exists()) {
             throw new java.io.FileNotFoundException(fileName);
@@ -125,8 +125,8 @@ public class CheapSoundFile {
     }
 
     public void ReadFile(File inputFile)
-        throws
-            java.io.IOException {
+        throws java.io.FileNotFoundException,
+               java.io.IOException {
         mInputFile = inputFile;
     }
 
