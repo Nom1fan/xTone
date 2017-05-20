@@ -35,7 +35,6 @@ public abstract class Constants {
     public final static int MY_PERMISSIONS_INITAL_PERMISSION = 10001;
     public final static int MY_PERMISSIONS_SMS_PERMISSION = 10002;
     public final static int MY_PERMISSIONS_AUDIO_RECORDING = 10003;
-    public final static int MY_PERMISSIONS_DOWNLOAD_MANAGER = 10004;
     //endregion
 
     //region Device Hardware

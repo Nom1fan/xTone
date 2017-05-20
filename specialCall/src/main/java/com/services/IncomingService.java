@@ -1,5 +1,6 @@
 package com.services;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +19,8 @@ import android.widget.Toast;
 
 import com.data.objects.Constants;
 import com.data.objects.PermissionBlockListLevel;
+import com.enums.SpecialMediaType;
+import com.files.media.MediaFile;
 import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.ContactsUtils;
@@ -25,6 +28,7 @@ import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
 import com.utils.MediaFilesUtils;
 import com.utils.NotificationUtils;
+import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -32,9 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
-import com.enums.SpecialMediaType;
-import com.files.media.MediaFile;
-import com.utils.PhoneNumberUtils;
 import wei.mark.standout.StandOutWindow;
 
 import static com.crashlytics.android.Crashlytics.log;
@@ -560,8 +561,11 @@ public class IncomingService extends AbstractStandOutService {
 
     private void disableRingStream() {
 
+        NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
         // check if the Device has Strict Ringing Capabilities that hard to be silent like in LG G4
-        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES)) {
+        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES) &&
+            mNotificationManager.isNotificationPolicyAccessGranted()) {
             unlockMusicStreamDuringRinging();
             correlateVibrateSettings();
         }
@@ -600,15 +604,27 @@ public class IncomingService extends AbstractStandOutService {
             }
 
             log(Log.INFO,TAG, "unlockMusicStreamDuringRinging , Setting To Silent");
+
+        try {
             mAudioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);  // SOLUTION For LG G4 that needs another motivation to be silent (if removed the audio isn't heared in LG G4 you need to press the volume hard keys to silent manually , this fixes it)
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
             log(Log.INFO,TAG, "unlockMusicStreamDuringRinging , getRingerMode: " +mAudioManager.getRingerMode());
             try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
             }
             log(Log.INFO,TAG, "unlockMusicStreamDuringRinging , Setting Back To Normal");
+
+        try {
             mAudioManager.setRingerMode(SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.RINGER_MODE));  // SOLUTION For LG G4 that needs another motivation to be silent (if removed the audio isn't heared in LG G4 you need to press the volume hard keys to silent manually , this fixes it)
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
             log(Log.INFO,TAG, "unlockMusicStreamDuringRinging , getRingerMode: " +mAudioManager.getRingerMode());
     }
 

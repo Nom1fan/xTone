@@ -1,10 +1,15 @@
 package com.ui.activities;
 
+import android.app.NotificationManager;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -16,7 +21,9 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.SearchView;
 import android.text.Html;
 import android.util.Log;
@@ -31,6 +38,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageButton;
@@ -84,6 +92,9 @@ import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -148,9 +159,22 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         // so we can know who device was crashed, and get it's phone number.
         Crashlytics.setUserIdentifier(Constants.MY_ID(getApplicationContext()));
 
-        if (AppStateManager.isLoggedIn(this)) // should always start from idle and registeredContactLV
-            AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
+        if (AppStateManager.isLoggedIn(this)) { // should always start from idle and registeredContactLV
 
+            NotificationManager notificationManager =   (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                    && !notificationManager.isNotificationPolicyAccessGranted()) {
+
+                Intent intent = new Intent(
+                        android.provider.Settings
+                                .ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+
+                getApplicationContext().startActivity(intent);
+            }
+           // ifHuaweiAlert();
+            AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
+        }
 
         if (AppStateManager.didAppCrash(this)) {
             Log.w(TAG, "Detected app previously crashed. Handling...");
@@ -163,6 +187,143 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
 
     }
+
+
+
+    //region tryout
+    private void ifHuaweiAlert() {
+        final SharedPreferences settings = getSharedPreferences("ProtectedApps", MODE_PRIVATE);
+        final String saveIfSkip = "skipProtectedAppsMessage";
+        boolean skipMessage = settings.getBoolean(saveIfSkip, false);
+        if (!skipMessage) {
+            final SharedPreferences.Editor editor = settings.edit();
+            Intent intent = new Intent();
+            intent.setClassName("com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity");
+            if (isCallable(intent)) {
+                final AppCompatCheckBox dontShowAgain = new AppCompatCheckBox(this);
+                dontShowAgain.setText("Do not show again");
+                dontShowAgain.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        editor.putBoolean(saveIfSkip, isChecked);
+                        editor.apply();
+                    }
+                });
+
+                new AlertDialog.Builder(this)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle("Huawei Protected Apps")
+                        .setMessage(String.format("%s requires to be enabled in 'Protected Apps' to function properly.%n", getString(R.string.app_name)))
+                        .setView(dontShowAgain)
+                        .setPositiveButton("Protected Apps", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                huaweiProtectedApps();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+            } else {
+                editor.putBoolean(saveIfSkip, true);
+                editor.apply();
+            }
+        }
+    }
+
+    private boolean isCallable(Intent intent) {
+        List<ResolveInfo> list = getPackageManager().queryIntentActivities(intent,
+                PackageManager.MATCH_DEFAULT_ONLY);
+        return list.size() > 0;
+    }
+
+    private void huaweiProtectedApps() {
+        try {
+            String cmd = "am start -n com.huawei.systemmanager/.optimize.process.ProtectActivity";
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                cmd += " --user " + getUserSerial();
+            }
+            Runtime.getRuntime().exec(cmd);
+        } catch (IOException ignored) {
+        }
+    }
+
+    private String getUserSerial() {
+        //noinspection ResourceType
+        Object userManager = getSystemService("user");
+        if (null == userManager) return "";
+
+        try {
+            Method myUserHandleMethod = android.os.Process.class.getMethod("myUserHandle", (Class<?>[]) null);
+            Object myUserHandle = myUserHandleMethod.invoke(android.os.Process.class, (Object[]) null);
+            Method getSerialNumberForUser = userManager.getClass().getMethod("getSerialNumberForUser", myUserHandle.getClass());
+            Long userSerial = (Long) getSerialNumberForUser.invoke(userManager, myUserHandle);
+            if (userSerial != null) {
+                return String.valueOf(userSerial);
+            } else {
+                return "";
+            }
+        } catch (NoSuchMethodException | IllegalArgumentException | InvocationTargetException | IllegalAccessException ignored) {
+        }
+        return "";
+    }
+    //endregion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
