@@ -161,19 +161,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         if (AppStateManager.isLoggedIn(this)) { // should always start from idle and registeredContactLV
 
-            NotificationManager notificationManager =   (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                    && !notificationManager.isNotificationPolicyAccessGranted()) {
-
-                Intent intent = new Intent(
-                        android.provider.Settings
-                                .ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
-
-                Log.w(TAG, "need to allow DND mode by user action");
-                getApplicationContext().startActivity(intent);
-            }
-           // ifHuaweiAlert();
             AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
         }
 
@@ -399,6 +387,24 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.SELECT_MEDIA_VIEW) && SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SHOWCASE, SharedPrefUtils.CALL_NUMBER_VIEW) && wentThroughOnCreate)
                 startingTipDialog();
+
+            NotificationManager notificationManager =   (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            boolean DNDGranted = notificationManager.isNotificationPolicyAccessGranted();
+            Log.w(TAG, " DND mode GRANTED :" + DNDGranted);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                    && !DNDGranted) {
+
+                Intent intent = new Intent(
+                        android.provider.Settings
+                                .ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+
+                Log.w(TAG, "need to allow DND mode by user action");
+                getApplicationContext().startActivity(intent);
+            }
+
+            // ifHuaweiAlert();
+
 
         }
     }
