@@ -566,6 +566,7 @@ public class IncomingService extends AbstractStandOutService {
         // check if the Device has Strict Ringing Capabilities that hard to be silent like in LG G4
         if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES) &&
             mNotificationManager.isNotificationPolicyAccessGranted()) {
+            Log.w(TAG, "DND Allowed moving forward for slienting device. also String ringing enabled");
             unlockMusicStreamDuringRinging();
             correlateVibrateSettings();
         }

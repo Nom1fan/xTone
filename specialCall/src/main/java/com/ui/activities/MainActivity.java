@@ -170,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         android.provider.Settings
                                 .ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
 
+                Log.w(TAG, "need to allow DND mode by user action");
                 getApplicationContext().startActivity(intent);
             }
            // ifHuaweiAlert();
