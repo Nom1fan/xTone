@@ -39,7 +39,7 @@ public class AboutAndHelp extends PreferenceFragment {
                 SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG, false);
                 SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_UPLOAD_DIALOG, false);
                 SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_WINDOW_VIDEO, false);
-                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DONT_SHOW_RESIZE_WINDOW_FOR_STANDOUT,false);
+                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.HIDE_RESIZE_WINDOW_FOR_STANDOUT,false);
 
                 final Intent i = new Intent(getActivity() , MainActivity.class);
                 startActivity(i);

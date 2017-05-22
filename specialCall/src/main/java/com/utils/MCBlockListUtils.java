@@ -22,11 +22,11 @@ public abstract class MCBlockListUtils {
     public static boolean IsMCBlocked(String incomingNumber, Context context) {
         log(Log.INFO,TAG, "check if number blocked: " + incomingNumber);
         //MC Permissions: ALL , Only contacts , Specific Black List Contacts
-        String permissionLevel = SharedPrefUtils.getString(context, SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
+        String permissionLevel = SharedPrefUtils.getString(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
 
         if (permissionLevel.isEmpty())
         {
-            SharedPrefUtils.setString(context, SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.ALL_VALID);
+            SharedPrefUtils.setString(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.ALL_VALID);
         }
         else
         {
@@ -92,7 +92,7 @@ public abstract class MCBlockListUtils {
     public static void setBlockListFromShared(Context context,Set<String> blockList){
         SharedPrefUtils.remove(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
         SharedPrefUtils.setStringSet(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, blockList);
-        SharedPrefUtils.setString(context, SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.BLACK_LIST_SPECIFIC);
+        SharedPrefUtils.setString(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.BLACK_LIST_SPECIFIC);
     }
 
 }

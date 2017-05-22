@@ -1,12 +1,14 @@
 package com.services;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 import com.data.objects.ClearMediaData;
 import com.data.objects.Constants;
 import com.utils.MediaFilesUtils;
+import com.utils.Phone2MediaMapperUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
@@ -33,13 +35,16 @@ public class ClearMediaIntentService extends IntentService {
         super(name);
     }
 
-    public ClearMediaIntentService() { super("ClearMediaIntentService"); }
+    public ClearMediaIntentService() {
+        super("ClearMediaIntentService");
+    }
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        log(Log.INFO, TAG, "Handling intent");
+        Context context = getApplicationContext();
 
-        log(Log.INFO,TAG, "Handling intent");
-        if(intent!=null) {
+        if (intent != null) {
 
             ClearMediaData data = (ClearMediaData) intent.getSerializableExtra(CLEAR_MEDIA_DATA);
             SpecialMediaType specialMediaType = data.getSpecialMediaType();
@@ -50,16 +55,16 @@ public class ClearMediaIntentService extends IntentService {
                 switch (specialMediaType) {
 
                     case CALLER_MEDIA:
-                        log(Log.INFO,TAG, "Clearing CALLER_MEDIA");
-                        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.CALLER_MEDIA_FILEPATH, phoneNumber);
-                        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.RINGTONE_FILEPATH, phoneNumber);
+                        log(Log.INFO, TAG, "Clearing CALLER_MEDIA");
+                        Phone2MediaMapperUtils.removeCallerVisualMedia(context, phoneNumber);
+                        Phone2MediaMapperUtils.removeCallerAudioMedia(context, phoneNumber);
                         folderPath = Constants.INCOMING_FOLDER + phoneNumber;
                         MediaFilesUtils.deleteDirectory(new File(folderPath));
                         break;
                     case PROFILE_MEDIA:
-                        log(Log.INFO,TAG, "Clearing PROFILE_MEDIA");
-                        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, phoneNumber);
-                        SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, phoneNumber);
+                        log(Log.INFO, TAG, "Clearing PROFILE_MEDIA");
+                        Phone2MediaMapperUtils.removeProfileVisualMedia(context, phoneNumber);
+                        Phone2MediaMapperUtils.removeProfileAudioMedia(context, phoneNumber);
                         folderPath = Constants.OUTGOING_FOLDER + phoneNumber;
                         MediaFilesUtils.deleteDirectory(new File(folderPath));
                         break;
@@ -75,7 +80,7 @@ public class ClearMediaIntentService extends IntentService {
                 }
 
                 // Notifying clear requester that media was successfully cleared
-                Intent i = new Intent(getApplicationContext(), ServerProxyService.class);
+                Intent i = new Intent(context, ServerProxyService.class);
                 i.setAction(ServerProxyService.ACTION_NOTIFY_MEDIA_CLEARED);
                 i.putExtra(ServerProxyService.CLEAR_MEDIA_DATA, data);
                 startService(i);
@@ -85,7 +90,7 @@ public class ClearMediaIntentService extends IntentService {
             } catch (Exception e) {
 
                 //TODO Mor: Inform clear requester that clear may have failed
-                log(Log.ERROR,TAG, "Unable to clear media from user:"+phoneNumber+". [Exception]:" + (e.getMessage()!=null ? e.getMessage() : e));
+                log(Log.ERROR, TAG, "Unable to clear media from user:" + phoneNumber + ". [Exception]:" + (e.getMessage() != null ? e.getMessage() : e));
             }
         }
 

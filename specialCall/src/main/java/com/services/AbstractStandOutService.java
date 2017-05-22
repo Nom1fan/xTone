@@ -1,7 +1,5 @@
 package com.services;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -13,6 +11,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.AttributeSet;
@@ -29,16 +28,17 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.crashlytics.android.Crashlytics;
+import com.data.objects.MediaCallData;
 import com.exceptions.FileDoesNotExistException;
 import com.exceptions.FileExceedsMaxSizeException;
 import com.exceptions.FileInvalidFormatException;
 import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
 import com.mediacallz.app.R;
-import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
+import com.utils.MediaCallSessionUtils;
 import com.utils.MediaFilesUtils;
 import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
@@ -46,7 +46,6 @@ import com.utils.UI_Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -81,7 +80,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected RelativeLayout mRelativeLayout;
     protected View mcButtonsOverlay;
     protected boolean isMuted = false;
-    protected MediaPlayer mMediaPlayer;
+    protected MediaPlayer mediaPlayer;
     protected boolean windowCloseActionWasMade = true;
     protected View mSpecialCallView;
     protected GifDrawable mGifDrawable;
@@ -93,12 +92,11 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected int mVolumeBeforeMute = 0;
     protected String mIncomingOutgoingNumber = "";
     protected String mContactTitleOnWindow = "";
-    private static final long REPEAT_TIME = 60000;
-    private static final String alarmActionIntent = "com.android.mediacallz.ALARM_ACTION";
     protected boolean mPreviewStart = false;
     protected boolean showFirstTime = false;
     protected Vibrator vibrator;
-    protected String _contactName = "";
+    protected String contactName = "";
+
     public AbstractStandOutService(String TAG) {
         this.TAG = TAG;
     }
@@ -122,24 +120,24 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         statusBarHeighet = getStatusBarHeight();
 
-        log(Log.INFO,TAG, "Service onCreate");
+        log(Log.INFO, TAG, "Service onCreate");
     }
 
     @Override
     public void onDestroy() {
-        Crashlytics.log(Log.ERROR,TAG, "Service onDestroy");
+        Crashlytics.log(Log.ERROR, TAG, "Service onDestroy");
         super.onDestroy();
 
     }
 
     @Override
     public void onLowMemory() {
-        Crashlytics.log(Log.ERROR,TAG, "Service onLowMemory");
+        Crashlytics.log(Log.ERROR, TAG, "Service onLowMemory");
     }
 
     @Override
     public void onTrimMemory(int level) {
-        Crashlytics.log(Log.ERROR,TAG, "Service onTrimMemory Level: " + String.valueOf(level));
+        Crashlytics.log(Log.ERROR, TAG, "Service onTrimMemory Level: " + String.valueOf(level));
     }
 
     @Override
@@ -151,7 +149,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     //region Standout Window methods
     @Override
     public String getAppName() {
-        log(Log.INFO,TAG, "getAppName");
+        log(Log.INFO, TAG, "getAppName");
         return mContactTitleOnWindow;
     }
 
@@ -163,7 +161,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     @Override
     public void createAndAttachView(int id, FrameLayout frame) {
 
-        log(Log.INFO,TAG, "In createAndAttachView()");
+        log(Log.INFO, TAG, "In createAndAttachView()");
 
         if (mRelativeLayout != null)
             frame.addView(mRelativeLayout);
@@ -180,7 +178,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             volume_bkg.setBackgroundColor(Color.TRANSPARENT);
         }
 
-            frame.addView(mcButtonsOverlay);
+        frame.addView(mcButtonsOverlay);
 
         mRelativeLayout.setBackgroundColor(Color.TRANSPARENT);
         windowCloseActionWasMade = false;
@@ -190,19 +188,17 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         if (!SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS)) {
 
-            if (!mPreviewStart)
-            {   log(Log.INFO,TAG, "set Volume Buttons ");
+            if (!mPreviewStart) {
+                log(Log.INFO, TAG, "set Volume Buttons ");
                 prepareMuteBtn();
-                prepareVolumeBtn();}
-            else
-            {
-                log(Log.INFO,TAG, "set Preview Volume Buttons ");
+                prepareVolumeBtn();
+            } else {
+                log(Log.INFO, TAG, "set Preview Volume Buttons ");
                 previewPrepareMuteBtn();
                 previewPrepareVolumeBtn();
             }
 
-        }
-        else
+        } else
             disableVolumeButtons();
 
         if (!mPreviewStart)
@@ -211,13 +207,12 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     @Override
     public StandOutLayoutParams getParams(int id, Window window) {
-        log(Log.INFO,TAG, "In StandOutLayoutParams()");
+        log(Log.INFO, TAG, "In StandOutLayoutParams()");
 
         if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_WIDTH_BY_USER) > 0 && mPreviewStart)
-            mWidth = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_WIDTH_BY_USER);
+            mWidth = SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_WIDTH_BY_USER);
         if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_HEIGHET_BY_USER) > 0 && mPreviewStart)
-            mHeight = SharedPrefUtils.getInt(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_HEIGHET_BY_USER);
-
+            mHeight = SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_HEIGHET_BY_USER);
 
 
         if (TAG.contains("OutgoingService")) { // we can't use the shared pref boolean because it's been used and is false becuase of the syncWithBuggyIdleState
@@ -227,7 +222,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
             if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_HEIGHET_BY_USER) > 0)
                 mHeight = SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_HEIGHET_BY_USER);
-            log(Log.INFO, TAG, "Outgoing Call getParams Heighet: " + mHeight + "Width: " + mWidth);
+            log(Log.INFO, TAG, "Outgoing Call getParams Height: " + mHeight + "Width: " + mWidth);
         }
 
         if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_RINGING_SESSION)) {
@@ -238,7 +233,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             if (SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_HEIGHET_BY_USER) > 0)
                 mHeight = SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_HEIGHET_BY_USER);
 
-            log(Log.INFO, TAG, "Incoming Call getParams Heighet: " + mHeight + "Width: " + mWidth);
+            log(Log.INFO, TAG, "Incoming Call getParams Height: " + mHeight + "Width: " + mWidth);
         }
 
         return new StandOutLayoutParams(id, mWidth, mHeight, 0, 0);
@@ -246,59 +241,59 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     @Override
     public boolean onShow(int id, Window window) {
-        log(Log.INFO,TAG, "abstract : onShow");
+        log(Log.INFO, TAG, "abstract : onShow");
         try {
 
             if (!mPreviewStart)
-                log(Log.INFO,TAG, "abstract MUSIC_VOLUME Original" + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+                log(Log.INFO, TAG, "abstract MUSIC_VOLUME Original" + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
             else
-                log(Log.INFO,TAG, "abstract Preview MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+                log(Log.INFO, TAG, "abstract Preview MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
 
         } catch (Exception e) {
-            log(Log.INFO,TAG, "audiomanager confusion " + e.getMessage());
+            log(Log.INFO, TAG, "audiomanager confusion " + e.getMessage());
         }
 
         if (isHidden) {
 
             try {
-            if (!mPreviewStart) {
-                verifyAudioManager();
-                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
-            }else {
-                verifyPreviewAudioManager();
-                mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
-            }
+                if (!mPreviewStart) {
+                    verifyAudioManager();
+                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
+                } else {
+                    verifyPreviewAudioManager();
+                    mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
+                }
             } catch (Exception e) {
-                log(Log.INFO,TAG, "audiomanager confusion " + e.getMessage());
+                log(Log.INFO, TAG, "audiomanager confusion " + e.getMessage());
             }
 
-            log(Log.INFO,TAG, "OnHide Mute Volume Now : " + String.valueOf(mVolumeBeforeMute));
+            log(Log.INFO, TAG, "OnHide Mute Volume Now : " + String.valueOf(mVolumeBeforeMute));
             isHidden = false;
         }
 
         if (showFirstTime) {
 
-          if (mPreviewStart) {
-              window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_X_LOCATION_BY_USER),
-                      SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_Y_LOCATION_BY_USER)).commit();
-          }
+            if (mPreviewStart) {
+                window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_X_LOCATION_BY_USER),
+                        SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_Y_LOCATION_BY_USER)).commit();
+            }
 
-          if ((SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION))) {
-              window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_X_LOCATION_BY_USER),
-                      SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_Y_LOCATION_BY_USER)).commit();
-          }
+            if ((SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_DISPLAYED))) {
+                window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_X_LOCATION_BY_USER),
+                        SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_Y_LOCATION_BY_USER)).commit();
+            }
 
-          if ((SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION))) {
-              window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_X_LOCATION_BY_USER),
-                      SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_Y_LOCATION_BY_USER)).commit();
-          }
+            if ((SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_DISPLAYED))) {
+                window.edit().setPosition(SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_X_LOCATION_BY_USER),
+                        SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_Y_LOCATION_BY_USER)).commit();
+            }
 
             verifyAudioManager();
             mSpecialCallVolumeValueTextView = (TextView) mcButtonsOverlay.findViewById(R.id.volume_value);
             mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
 
 
-            log(Log.INFO,TAG, "showFirstTime");
+            log(Log.INFO, TAG, "showFirstTime");
             showFirstTime = false;
         }
 
@@ -307,7 +302,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     @Override
     public boolean onHide(int id, Window window) {
-        log(Log.INFO,TAG, "onHide");
+        log(Log.INFO, TAG, "onHide");
         stopVibrator();
         verifyAudioManager();
         mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
@@ -318,17 +313,17 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     @Override
     public int getFlags(int id) {
-        log(Log.INFO,TAG, "getFlags");
+        log(Log.INFO, TAG, "getFlags");
 
 
-        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)){
-                return StandOutFlags.FLAG_DECORATION_SYSTEM
-                        | StandOutFlags.FLAG_BODY_MOVE_ENABLE
+        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)) {
+            return StandOutFlags.FLAG_DECORATION_SYSTEM
+                    | StandOutFlags.FLAG_BODY_MOVE_ENABLE
 //                        | StandOutFlags.FLAG_DECORATION_RESIZE_DISABLE
-                        | StandOutFlags.FLAG_WINDOW_PINCH_RESIZE_ENABLE
-                        | StandOutFlags.FLAG_DECORATION_MAXIMIZE_DISABLE;
+                    | StandOutFlags.FLAG_WINDOW_PINCH_RESIZE_ENABLE
+                    | StandOutFlags.FLAG_DECORATION_MAXIMIZE_DISABLE;
 
-            }
+        }
 
         // These flags enable:
         // The system window decorations, to drag the window,
@@ -337,13 +332,13 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 | StandOutFlags.FLAG_BODY_MOVE_ENABLE
                 //| StandOutFlags.FLAG_WINDOW_HIDE_ENABLE
                 // | StandOutFlags.FLAG_WINDOW_BRING_TO_FRONT_ON_TAP
-               //| StandOutFlags.FLAG_WINDOW_EDGE_LIMITS_ENABLE // fixing issue when orientation somehow becomes landscape when incoming call and moving back to portrait limits the window from landscape params and can't be moved because of the edge limits...
+                //| StandOutFlags.FLAG_WINDOW_EDGE_LIMITS_ENABLE // fixing issue when orientation somehow becomes landscape when incoming call and moving back to portrait limits the window from landscape params and can't be moved because of the edge limits...
                 | StandOutFlags.FLAG_WINDOW_PINCH_RESIZE_ENABLE;
     }
 
     @Override
     public Intent getHiddenNotificationIntent(int id) {
-        log(Log.INFO,TAG, "getHiddenNotificationIntent");
+        log(Log.INFO, TAG, "getHiddenNotificationIntent");
         // Return an Intent that restores the MultiWindow
         return StandOutWindow.getShowIntent(this, getClass(), id);
     }
@@ -355,19 +350,18 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         try {
 
 
-
             ((VideoViewCustom) mSpecialCallView).setDimensions(window.getHeight(), window.getWidth());
             ((VideoViewCustom) mSpecialCallView).getHolder().setFixedSize(window.getHeight(), window.getWidth());
             mSpecialCallView.postInvalidate(); // TODO Rony maybe not needed invalidate
         } catch (Exception e) {
-        //    Crashlytics.log(Log.INFO,TAG, "can't onUpdate mSpecialCallView video, i guess it's not a video");
+            //    Crashlytics.log(Log.INFO,TAG, "can't onUpdate mSpecialCallView video, i guess it's not a video");
         }
         return false;
     }
 
     @Override
     public boolean onCloseAll() {
-        log(Log.INFO,TAG, "onCloseAll");
+        log(Log.INFO, TAG, "onCloseAll");
        /* if (mPreviewStart) {
             Crashlytics.log(Log.INFO,TAG,"Incase outgoing call is made return volume music to 0");
             verifyAudioManager();
@@ -375,7 +369,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         }*/
         stopSound();
         stopVibrator();
-      //  releaseResources();
+        //  releaseResources();
         return false;
     }
 
@@ -386,9 +380,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         int coordinates[] = new int[2];
         window.getLocationOnScreen(coordinates);
 
-        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION)
-                && !SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)) // ignore when it's the AskBeforeShowView
-            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.DONT_BOTHER_INC_CALL_POPUP,true);
+        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_DISPLAYED)
+                && !SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)) // ignore when it's the AskBeforeShowView
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DONT_BOTHER_INC_CALL_POPUP, true);
 
         int CurrentWindowHeighet = window.getHeight();
         int CurrentWindowWidth = window.getWidth();
@@ -399,10 +393,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         log(Log.INFO, TAG, "what we receive onClose: Heighet: " + String.valueOf(CurrentWindowHeighet) + "Width: " + String.valueOf(CurrentWindowWidth) + "X: " + String.valueOf(CurrentXCoordinate) + "Y: " + String.valueOf(CurrentYCoordinate));
 
-        if (CurrentYCoordinate <0 || CurrentYCoordinate > CurrentWindowHeighet)
-                CurrentYCoordinate = 0;
+        if (CurrentYCoordinate < 0 || CurrentYCoordinate > CurrentWindowHeighet)
+            CurrentYCoordinate = 0;
         if (CurrentXCoordinate < 0 || CurrentXCoordinate > CurrentWindowWidth)
-                CurrentXCoordinate = 0;
+            CurrentXCoordinate = 0;
 
 
         //check that the window wasn't stretched larger than the screen params , because next time it will crash trying to fill the whole window
@@ -415,54 +409,54 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         }
 
 
-            Crashlytics.log(Log.INFO,TAG," Original Device heighet: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET) + " new height: "+ CurrentWindowHeighet
-                    + " Original Device width: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH) + " new width: "+ CurrentWindowWidth);
+        Crashlytics.log(Log.INFO, TAG, " Original Device heighet: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET) + " new height: " + CurrentWindowHeighet
+                + " Original Device width: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH) + " new width: " + CurrentWindowWidth);
 
 
-            if (mPreviewStart) {
-                // get size of window set last by user
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_HEIGHET_BY_USER, CurrentWindowHeighet);
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_WIDTH_BY_USER, CurrentWindowWidth);
+        if (mPreviewStart) {
+            // get size of window set last by user
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_HEIGHET_BY_USER, CurrentWindowHeighet);
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_WIDTH_BY_USER, CurrentWindowWidth);
 
-                // get location of window on screen set last by user
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_X_LOCATION_BY_USER, CurrentXCoordinate);
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_Y_LOCATION_BY_USER, CurrentYCoordinate);
-            }
+            // get location of window on screen set last by user
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_X_LOCATION_BY_USER, CurrentXCoordinate);
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.PREVIEW_MC_WINDOW_Y_LOCATION_BY_USER, CurrentYCoordinate);
+        }
 
-            if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION)) {
+        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_DISPLAYED)) {
 
-                // get size of window set last by user
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_HEIGHET_BY_USER, CurrentWindowHeighet);
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_WIDTH_BY_USER, CurrentWindowWidth);
+            // get size of window set last by user
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_HEIGHET_BY_USER, CurrentWindowHeighet);
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_WIDTH_BY_USER, CurrentWindowWidth);
 
-                // get location of window on screen set last by user
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_X_LOCATION_BY_USER, CurrentXCoordinate);
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_Y_LOCATION_BY_USER, CurrentYCoordinate);
-                SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION, false);
-                SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION, false);
+            // get location of window on screen set last by user
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_X_LOCATION_BY_USER, CurrentXCoordinate);
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_MC_WINDOW_Y_LOCATION_BY_USER, CurrentYCoordinate);
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_DISPLAYED, false);
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_DISPLAYED, false);
 
-                log(Log.INFO, TAG, "Outgoing Call Heighet: " + String.valueOf(CurrentWindowHeighet) + "Width: " + String.valueOf(CurrentWindowWidth) + "X: " + String.valueOf(CurrentXCoordinate) + "Y: " + CurrentYCoordinate);
-            }
+            log(Log.INFO, TAG, "Outgoing Call Heighet: " + String.valueOf(CurrentWindowHeighet) + "Width: " + String.valueOf(CurrentWindowWidth) + "X: " + String.valueOf(CurrentXCoordinate) + "Y: " + CurrentYCoordinate);
+        }
 
-            if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION) /*&&
+        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_DISPLAYED) /*&&
                !SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT)*/) { // don't save the size and location of AskBeforeShowView
 
-                // get size of window set last by user
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_HEIGHET_BY_USER, CurrentWindowHeighet);
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_WIDTH_BY_USER, CurrentWindowWidth);
+            // get size of window set last by user
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_HEIGHET_BY_USER, CurrentWindowHeighet);
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_WIDTH_BY_USER, CurrentWindowWidth);
 
-                // get location of window on screen set last by user
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_X_LOCATION_BY_USER, CurrentXCoordinate);
-                SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_Y_LOCATION_BY_USER, CurrentYCoordinate);
-                SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_SESSION, false);
-                SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_SESSION, false);
+            // get location of window on screen set last by user
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_X_LOCATION_BY_USER, CurrentXCoordinate);
+            SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_MC_WINDOW_Y_LOCATION_BY_USER, CurrentYCoordinate);
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_DISPLAYED, false);
+            SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_DISPLAYED, false);
 
-                log(Log.INFO, TAG, "Incoming Call Heighet: " + String.valueOf(CurrentWindowHeighet) + " Width: " + String.valueOf(CurrentWindowWidth) + " X: " + String.valueOf(CurrentXCoordinate) + " Y: " + String.valueOf(CurrentYCoordinate));
-            }
+            log(Log.INFO, TAG, "Incoming Call Heighet: " + String.valueOf(CurrentWindowHeighet) + " Width: " + String.valueOf(CurrentWindowWidth) + " X: " + String.valueOf(CurrentXCoordinate) + " Y: " + String.valueOf(CurrentYCoordinate));
+        }
 
 
         log(Log.INFO, TAG, "Heighet: " + String.valueOf(CurrentWindowHeighet) + "Width: " + String.valueOf(CurrentWindowWidth) + "X: " + String.valueOf(CurrentXCoordinate) + "Y: " + String.valueOf(CurrentYCoordinate));
-        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT , false);
+        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT, false);
         stopSound();
         stopVibrator();
 
@@ -483,7 +477,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     protected void prepareRelativeLayout() {
-        log(Log.INFO,TAG, "Preparing RelativeLayout");
+        log(Log.INFO, TAG, "Preparing RelativeLayout");
 
         // Creating a new RelativeLayout
         mRelativeLayout = new RelativeLayout(this);
@@ -499,10 +493,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     private void prepareImageView(String mediaFilePath) {
-        log(Log.INFO,TAG, "Preparing ImageView");
+        log(Log.INFO, TAG, "Preparing ImageView");
 
-        boolean gifEnabled=false;
-        String ext="";
+        boolean gifEnabled = false;
+        String ext = "";
 
         try {
             ext = MediaFilesUtils.extractExtension(mediaFilePath);
@@ -513,9 +507,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         gifEnabled = ext.equals("gif");
 
 
-        if (gifEnabled)
-        {
-            log(Log.INFO,TAG, "GIF Found");
+        if (gifEnabled) {
+            log(Log.INFO, TAG, "GIF Found");
             mSpecialCallView = new GifImageView(this);
 
             mSpecialCallView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -534,8 +527,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 e.printStackTrace();
             }
 
-            ((GifImageView)mSpecialCallView).setImageURI(Uri.fromFile(new File(mediaFilePath)));
-            final MediaController mc = new MediaController( this );
+            ((GifImageView) mSpecialCallView).setImageURI(Uri.fromFile(new File(mediaFilePath)));
+            final MediaController mc = new MediaController(this);
             mc.setMediaPlayer(mGifDrawable);
             mc.setAnchorView((mSpecialCallView));
 
@@ -543,8 +536,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
             mSpecialCallView.setLayoutParams(params);
 
-        }
-            else {
+        } else {
             mSpecialCallView = new ImageView(this);
 
             mSpecialCallView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
@@ -572,12 +564,12 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     private void prepareVideoView(String mediaFilePath) {
-        log(Log.INFO,TAG, "Preparing VideoView");
+        log(Log.INFO, TAG, "Preparing VideoView");
         // VideoView on Relative Layout
         final File root = new File(mediaFilePath);
-        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
+        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, false);
         Uri uri = Uri.fromFile(root);
-        log(Log.INFO,TAG, "Video uri=" + uri);
+        log(Log.INFO, TAG, "Video uri=" + uri);
 
         mSpecialCallView = new VideoViewCustom(this);
         mSpecialCallView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -607,7 +599,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     // Default view for outgoing call when there is no image or video
     protected void prepareDefaultViewForSpecialCall(String callNumber) {
-        log(Log.INFO,TAG, "Preparing SpecialCall view");
+        log(Log.INFO, TAG, "Preparing SpecialCall view");
 
         // Attempting to induce garbage collection
         System.gc();
@@ -626,7 +618,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     protected void prepareViewForSpecialCall(MediaFile.FileType fileType, String mediaFilePath) {
-        log(Log.INFO,TAG, "Preparing SpecialCall view");
+        log(Log.INFO, TAG, "Preparing SpecialCall view");
 
         // Attempting to induce garbage collection
         System.gc();
@@ -639,7 +631,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             try {
                 prepareImageView(mediaFilePath);
             } catch (NullPointerException | OutOfMemoryError e) {
-                Crashlytics.log(Log.ERROR,TAG, "Failed decoding image:" + e.getMessage());
+                Crashlytics.log(Log.ERROR, TAG, "Failed decoding image:" + e.getMessage());
             }
         }
         // Displaying video during call
@@ -648,8 +640,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         mRelativeLayout.addView(mSpecialCallView);
     }
+
     private void disableVolumeButtons() {
-        log(Log.INFO,TAG, "Preparing disableVolumeButtons");
+        log(Log.INFO, TAG, "Preparing disableVolumeButtons");
 
         mSpecialCallMutUnMuteBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.mc_mute_unmute);
         mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
@@ -665,7 +658,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     private void prepareMuteBtn() {
-        log(Log.INFO,TAG, "Preparing Mute Button");
+        log(Log.INFO, TAG, "Preparing Mute Button");
 
         //TODO check if Togglebutton for imageView good also?
         mSpecialCallMutUnMuteBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.mc_mute_unmute);
@@ -683,17 +676,17 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             public void onClick(View v) {
 
                 if (isMuted) {  // in versions of KITKAT and lower , we start in muted mode on the music stream , because we don't know when answering happens and we should stop it.
-                    log(Log.INFO,TAG, "UNMUTE by button");
+                    log(Log.INFO, TAG, "UNMUTE by button");
                     volumeChangeByMCButtons = true;
 
                     verifyAudioManager();
 
-                    mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_UNMUTE, 0);
+                    mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
 
-                   if (mVolumeBeforeMute!=0)
-                    mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
+                    if (mVolumeBeforeMute != 0)
+                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
                     mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
-                    log(Log.INFO,TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
+                    log(Log.INFO, TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
                     isMuted = false;
 
                     mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
@@ -701,14 +694,14 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                     stopVibrator();
 
                 } else {
-                    log(Log.INFO,TAG, "MUTE by button");
+                    log(Log.INFO, TAG, "MUTE by button");
                     volumeChangeByMCButtons = true;
                     verifyAudioManager();
 
                     mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                    log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
+                    log(Log.INFO, TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
                     mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
-                    mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_MUTE, 0);
+                    mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
                     mSpecialCallVolumeValueTextView.setText(Integer.toString(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                     isMuted = true;
 
@@ -723,7 +716,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     private void prepareVolumeBtn() {
-        log(Log.INFO,TAG, "Preparing Volume Button");
+        log(Log.INFO, TAG, "Preparing Volume Button");
 
         mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
         mSpecialCallVolumeUpBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_up);
@@ -734,10 +727,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mSpecialCallResetPlayerBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
-                if (mMediaPlayer !=null)
-                {
-                    if (mMediaPlayer.isPlaying())
-                        mMediaPlayer.seekTo(0);
+                if (mediaPlayer != null) {
+                    if (mediaPlayer.isPlaying())
+                        mediaPlayer.seekTo(0);
                 }
                 stopVibrator();
 
@@ -801,9 +793,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     }
 
-
     private void previewPrepareMuteBtn() {
-        log(Log.INFO,TAG, "Preparing Mute Button");
+        log(Log.INFO, TAG, "Preparing Mute Button");
 
         //TODO check if Togglebutton for imageView good also?
         mSpecialCallMutUnMuteBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.mc_mute_unmute);
@@ -821,28 +812,28 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             public void onClick(View v) {
 
                 if (isMuted) {  // in versions of KITKAT and lower , we start in muted mode on the music stream , because we don't know when answering happens and we should stop it.
-                    log(Log.INFO,TAG, "UNMUTE by button");
+                    log(Log.INFO, TAG, "UNMUTE by button");
                     volumeChangeByMCButtons = true;
 
                     verifyPreviewAudioManager();
-                    mPreviewAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_UNMUTE, 0);
+                    mPreviewAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
                     mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mVolumeBeforeMute, 0);
                     mSpecialCallVolumeValueTextView.setText(Integer.toString(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
-                    log(Log.INFO,TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
+                    log(Log.INFO, TAG, "UNMUTE by button Volume Return to: " + String.valueOf(mVolumeBeforeMute));
                     isMuted = false;
 
                     mSpecialCallMutUnMuteBtn.setImageResource(R.drawable.unmute_speaker_anim);//TODO : setImageResource need to be replaced ? memory issue ?
                     mSpecialCallMutUnMuteBtn.bringToFront();
                     stopVibrator();
                 } else {
-                    log(Log.INFO,TAG, "MUTE by button");
+                    log(Log.INFO, TAG, "MUTE by button");
                     volumeChangeByMCButtons = true;
                     verifyPreviewAudioManager();
 
                     mVolumeBeforeMute = mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                    log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
+                    log(Log.INFO, TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
                     mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
-                    mPreviewAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_MUTE, 0);
+                    mPreviewAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
                     mSpecialCallVolumeValueTextView.setText(Integer.toString(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                     isMuted = true;
 
@@ -857,7 +848,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     }
 
     private void previewPrepareVolumeBtn() {
-        log(Log.INFO,TAG, "Preparing Volume Button");
+        log(Log.INFO, TAG, "Preparing Volume Button");
 
         mSpecialCallVolumeDownBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_down);
         mSpecialCallVolumeUpBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.volume_up);
@@ -916,11 +907,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
     }
 
-
-
-
     private void prepareBlockButton() {
-        log(Log.INFO,TAG, "Preparing Block Button");
+        log(Log.INFO, TAG, "Preparing Block Button");
         mSpecialCallBlockBtn = (ImageView) mcButtonsOverlay.findViewById(R.id.block_mc);
         //ImageView for Closing Special Incoming Call
         mSpecialCallBlockBtn.setOnClickListener(new View.OnClickListener() {
@@ -932,10 +920,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
                 MCBlockListUtils.setBlockListFromShared(getApplicationContext(), blockedNumbers);
 
-                if(_contactName.isEmpty())
+                if (contactName.isEmpty())
                     UI_Utils.callToast(mIncomingOutgoingNumber + " Is Now MC BLOCKED !!! ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
                 else
-                    UI_Utils.callToast(_contactName + " Is Now MC BLOCKED !!! ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+                    UI_Utils.callToast(contactName + " Is Now MC BLOCKED !!! ", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
 
                 closeSpecialCallWindowWithoutRingtone();
             }
@@ -944,6 +932,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     //endregion
 
     //region Hooks for subclasses
+
     /**
      * Subclasses should implement this method and decide what to do according to call state
      *
@@ -970,23 +959,12 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         }
     }
 
-    protected boolean isRingingSession(String directionOfSession) {
-
-        return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, directionOfSession);
-
-    }
-
-    protected void setRingingSession(String directionOfSession, boolean inSession) {
-
-        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, directionOfSession, inSession);
-
-    }
-
     protected void backupMusicVolume() {
 
         verifyAudioManager();
-        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
-        log(Log.INFO,TAG, "backupMusicVolume MUSIC_VOLUME Original: " + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        int musicVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        setMusicVolume(musicVolume);
+        log(Log.INFO, TAG, "backupMusicVolume MUSIC_VOLUME Original: " + musicVolume);
     }
 
     protected void backupRingSettings(boolean willMuteRing) {
@@ -995,13 +973,13 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         int ringerMode = mAudioManager.getRingerMode();
 
         log(Log.INFO, TAG, "RINGER_MODE Original: " + ringerMode);
-        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RINGER_MODE, ringerMode);
+        setRingerMode(ringerMode);
 
-        //in case volume is low 1 or 2 , check for 3 seconds if it's not start low and than get stronger
+        //in case volume is low 1 or 2 , check for 3 seconds if it's not started low and then gets stronger
         int timeout = 0;
         int ringVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_RING);
 
-        if (willMuteRing)
+        if (willMuteRing) {
             while (ringVolume == 1 && timeout < 3000) //3sec
             {
                 try {
@@ -1014,54 +992,56 @@ public abstract class AbstractStandOutService extends StandOutWindow {
                 log(Log.INFO, TAG, "WHILE time: " + timeout + " ringVolume Original: " + ringVolume);
                 timeout += 100;
             }
+        }
 
-        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME, ringVolume);
+        setRingVolume(ringVolume);
         log(Log.INFO, TAG, "mRingVolume Original: " + ringVolume);
     }
 
     protected void verifyAudioManager() {
 
-        if (mAudioManager == null)
-        {
-            log(Log.INFO,TAG , "Audio manager was null , re-instantiated");
+        if (mAudioManager == null) {
+            log(Log.INFO, TAG, "Audio manager was null , re-instantiated");
             mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         }
     }
 
     protected void verifyPreviewAudioManager() {
 
-        if (mPreviewAudioManager == null)
-        {
-            log(Log.INFO,TAG , "Audio manager was null , re-instantiated");
+        if (mPreviewAudioManager == null) {
+            log(Log.INFO, TAG, "Audio manager was null , re-instantiated");
             mPreviewAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         }
     }
     //endregion
 
     //region MC actions methods
+
     /**
      * Starts standout window for MC, showing visual media (video/image) or default in case of audio only
      *
-     * @param visualMediaFilePath The file path to the media
-     * @param callNumber          The incoming/outgoing number the MC is triggered for
-     * @return true if visual MC was started, false otherwise
+     * @param mediaCallData The data of the media call to start
      */
-    protected void startVisualMediaMC(String visualMediaFilePath, String callNumber, boolean attachDefaultView ,boolean VisualMediaExists) {
+    protected void startVisualMediaMC(MediaCallData mediaCallData) {
+        log(Log.INFO, TAG, "startVisualMediaMC visualMediaFilePath:" + mediaCallData.getVisualMediaFilePath());
+        Context context = getApplicationContext();
+        String callNumber = mediaCallData.getPhoneNumber();
+        boolean attachDefaultView = mediaCallData.doesAudioMediaExist();
 
-        log(Log.INFO,TAG, "startVisualMediaMC SharedPrefUtils visualMediaFilePath:" + visualMediaFilePath);
-        if (attachDefaultView)
-            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, false);
-        else
-            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, true);
+        if (attachDefaultView) {
+            SharedPrefUtils.setBoolean(context, SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, false);
+        } else {
+            SharedPrefUtils.setBoolean(context, SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, true);
+        }
 
-        _contactName = ContactsUtils.getContactName(getApplicationContext(), callNumber);
-        mContactTitleOnWindow = (!_contactName.equals("") ? _contactName + " " + callNumber : callNumber);
+        contactName = ContactsUtils.getContactName(context, callNumber);
+        mContactTitleOnWindow = (contactName != null && !contactName.equals("") ? contactName + " " + callNumber : callNumber);
         Random r = new Random();
         int randomWindowId = r.nextInt(Integer.MAX_VALUE);  // fixing a bug: when the same ID the window isn't released good enough so we need to make a different window in the mean time
 
-        if (VisualMediaExists) {
+        if (mediaCallData.doesVisualFileExist()) {
             try {
-                MediaFile fm = new MediaFile(visualMediaFilePath);
+                MediaFile fm = new MediaFile(mediaCallData.getVisualMediaFilePath());
                 prepareViewForSpecialCall(fm.getFileType(), fm.getFileFullPath());
                 Intent i = new Intent(this, this.getClass());
                 i.putExtra("id", randomWindowId);
@@ -1085,52 +1065,54 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             startService(i);
 
         } else {
-            Crashlytics.log(Log.ERROR,TAG, "Empty media file path! Cannot start special call media");
+            Crashlytics.log(Log.ERROR, TAG, "Empty media file path! Cannot start special call media");
         }
     }
 
     protected void closeSpecialCallWindowWithoutRingtone() {
+        log(Log.INFO, TAG, "closeSpecialCallWindowWithoutRingtone():");
+        Context context = getApplicationContext();
 
-        log(Log.INFO,TAG, "closeSpecialCallWindowWithoutRingtone():");
-        if (isRingingSession(SharedPrefUtils.OUTGOING_RINGING_SESSION) || isRingingSession(SharedPrefUtils.INCOMING_RINGING_SESSION)) {
+        boolean isIncomingRingingInSession = MediaCallSessionUtils.isIncomingRingingInSession(context);
+        boolean isOutgoingRingingInSession = MediaCallSessionUtils.isOutgoingRingingInSession(context);
+
+        if (isOutgoingRingingInSession || isIncomingRingingInSession) {
             stopSound();
             stopVibrator();
             Intent i = new Intent(this, this.getClass());
             i.setAction(StandOutWindow.ACTION_CLOSE_ALL);
-            log(Log.INFO,TAG, "StandOutWindow.ACTION_CLOSE_ALL");
+            log(Log.INFO, TAG, "StandOutWindow.ACTION_CLOSE_ALL");
             startService(i);
         }
     }
 
     protected void startAudioMediaMC(String audioFilePath) {
-
-        if(new File(audioFilePath).exists()) {
-
-            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
-            log(Log.INFO,TAG, "Ringtone before playing sound. audioFilePath: " + audioFilePath + " URI: " + Uri.parse(audioFilePath).toString());
-            playSound(getApplicationContext(), Uri.parse(audioFilePath));
-        } else
-        {
-            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,true);
+        Context context = getApplicationContext();
+        if (new File(audioFilePath).exists()) {
+            setDisableVolButtons(context, false);
+            log(Log.INFO, TAG, "Ringtone before playing sound. audioFilePath: " + audioFilePath + " URI: " + Uri.parse(audioFilePath).toString());
+            playSound(context, Uri.parse(audioFilePath));
+        } else {
+            setDisableVolButtons(context, true);
         }
     }
 
     protected void stopSound() {
 
-        log(Log.INFO,TAG, "Stop ringtone sound");
+        log(Log.INFO, TAG, "Stop ringtone sound");
 
         try {
-            if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-                log(Log.INFO,TAG, "mMediaPlayer=" + mMediaPlayer);
-                mMediaPlayer.setVolume(0, 0);
-                mMediaPlayer.stop();
-                //   mMediaPlayer.reset();
-                //   mMediaPlayer.release();
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                log(Log.INFO, TAG, "mediaPlayer=" + mediaPlayer);
+                mediaPlayer.setVolume(0, 0);
+                mediaPlayer.stop();
+                //   mediaPlayer.reset();
+                //   mediaPlayer.release();
             } else
-                log(Log.INFO,TAG, "mMediaPlayer is null or isn't playing");
+                log(Log.INFO, TAG, "mediaPlayer is null or isn't playing");
         } catch (Exception e) {
             e.printStackTrace();
-            Crashlytics.log(Log.ERROR,TAG, "Failed to Stop sound. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+            Crashlytics.log(Log.ERROR, TAG, "Failed to Stop sound. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
         }
     }
     //endregion
@@ -1151,56 +1133,83 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         SharedPrefUtils.remove(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_AUDIOMD5);
     }
 
-    protected void setTempMd5ForCallRecord(String visualFilePath, String audioFilePath) {
+    protected void setDisableVolButtons(Context context, boolean b) {
+        SharedPrefUtils.setBoolean(context, SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, b);
+    }
 
-        if(new File(audioFilePath).exists())
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES ,SharedPrefUtils.TEMP_AUDIOMD5, MediaFilesUtils.getMD5(audioFilePath));
+    protected void setTempMd5ForCallRecord(MediaCallData mediaCallData) {
 
-        if(new File(visualFilePath).exists())
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5, MediaFilesUtils.getMD5(visualFilePath));
+        if (mediaCallData.doesAudioMediaExist())
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_AUDIOMD5, MediaFilesUtils.getMD5(mediaCallData.getAudioMediaFilePath()));
+
+        if (mediaCallData.doesVisualFileExist())
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5, MediaFilesUtils.getMD5(mediaCallData.getVisualMediaFilePath()));
 
     }
 
-
-    public void setAlarm(Context context)
-    {
-        AlarmManager service = (AlarmManager) context
-                .getSystemService(Context.ALARM_SERVICE);
-        Intent i = new Intent(context, StartStandOutServicesFallBackReceiver.class);
-        i.setAction(alarmActionIntent);
-        PendingIntent pending = PendingIntent.getBroadcast(context, 0, i,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-
-
-        Calendar cal = Calendar.getInstance();
-        // Start 30 seconds after boot completed
-        cal.add(Calendar.SECOND, 30);
-        //
-        // Fetch every 30 seconds
-        // InexactRepeating allows Android to optimize the energy consumption
-        service.setInexactRepeating(AlarmManager.RTC_WAKEUP,
-                cal.getTimeInMillis(), REPEAT_TIME, pending);
+    protected void setIncomingWindowDisplayed(boolean b) {
+        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_DISPLAYED, b);
     }
 
-    public void stopVibrator()
-    {
+    protected boolean isIncomingWindowDisplayed() {
+        return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.INCOMING_WINDOW_DISPLAYED);
+    }
+
+    protected void setOutgoingWindowDisplayed(boolean b) {
+        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_DISPLAYED, b);
+    }
+
+    protected boolean isOutgoingWindowDisplayed() {
+        return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.OUTGOING_WINDOW_DISPLAYED);
+    }
+
+    protected void setAskBeforeMediaShowStandout(boolean b) {
+        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT, b);
+    }
+
+    protected boolean isAskBeforeMediaShowStandOut() {
+        return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT);
+    }
+
+    @NonNull
+    protected Boolean isHideResizeWindowForStandOut() {
+        return SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.HIDE_RESIZE_WINDOW_FOR_STANDOUT);
+    }
+
+    protected void setMusicVolume(int musicVolume) {
+        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, musicVolume);
+    }
+
+    protected int getMusicVolume() {
+        return SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME);
+    }
+
+    protected void setRingVolume(int ringVolume) {
+        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME, ringVolume);
+    }
+
+    protected int getRingVolume() {
+        return SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RING_VOLUME);
+    }
+
+    protected void setRingerMode(int ringerMode) {
+        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RINGER_MODE, ringerMode);
+    }
+
+    protected int getRingerMode() {
+        return SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.RINGER_MODE);
+    }
+
+    protected void stopVibrator() {
         try {
-            if (vibrator!=null) {
-               vibrator.cancel();
-               vibrator = null;
+            if (vibrator != null) {
+                vibrator.cancel();
+                vibrator = null;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-/*    public void CancelAlarm(Context context)
-    {
-        Intent intent = new Intent(context, Alarm.class);
-        PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, 0);
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(sender);
-    }*/
     //endregion
 
     //region Private classes and listeners
@@ -1208,35 +1217,35 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
 
         verifyAudioManager();
-        mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_UNMUTE, 0);
+        mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
 
         try {
             mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
-            log(Log.INFO,TAG, "releaseResources restore MUSIC_VOLUME to Original: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME));
+            log(Log.INFO, TAG, "releaseResources restore MUSIC_VOLUME to Original: " + SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME));
         } catch (Exception e) {
-            Crashlytics.log(Log.ERROR,TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+            Crashlytics.log(Log.ERROR, TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
         }
 
         try {
-            if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-                mMediaPlayer.setVolume(0, 0);
-                mMediaPlayer.stop();
-                mMediaPlayer = null;
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                mediaPlayer.setVolume(0, 0);
+                mediaPlayer.stop();
+                mediaPlayer = null;
             } else
-                log(Log.INFO,TAG, "mMediaPlayer is null or isn't playing");
+                log(Log.INFO, TAG, "mediaPlayer is null or isn't playing");
         } catch (Exception e) {
             e.printStackTrace();
-            Crashlytics.log(Log.ERROR,TAG, "Failed to Stop sound. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+            Crashlytics.log(Log.ERROR, TAG, "Failed to Stop sound. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
         }
 
         try {
-        mGifDrawable.recycle();
+            mGifDrawable.recycle();
         } catch (Exception e) {
-            Crashlytics.log(Log.ERROR,TAG, "trying to recycle Gif Image. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+            Crashlytics.log(Log.ERROR, TAG, "trying to recycle Gif Image. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
         }
         mGifDrawable = null;
-        vibrator=null;
-        mMediaPlayer = null;
+        vibrator = null;
+        mediaPlayer = null;
         mAudioManager = null;
         mPreviewAudioManager = null;
         isMuted = false;
@@ -1246,8 +1255,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         volumeChangeByMCButtons = false;
         mVolumeBeforeMute = 0;
         isHidden = false;
-        _contactName="";
-        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.DISABLE_VOLUME_BUTTONS,false);
+        contactName = "";
+        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, false);
         //mPhoneListener = null;
         // TODO Release more Resources
 
@@ -1265,7 +1274,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             try {
                 syncOnCallStateChange(state, incomingNumber);
             } catch (Exception e) {
-                Crashlytics.log(Log.ERROR,TAG, "Closing" + TAG + " MC StandooutWindow failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+                Crashlytics.log(Log.ERROR, TAG, "Closing" + TAG + " MC StandooutWindow failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
             }
         }
     }
@@ -1307,7 +1316,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
 
         @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-          //  Crashlytics.log(Log.INFO,TAG, "onMeasure");
+            //  Crashlytics.log(Log.INFO,TAG, "onMeasure");
 
             setMeasuredDimension(mForceWidth, mForceHeight);
         }

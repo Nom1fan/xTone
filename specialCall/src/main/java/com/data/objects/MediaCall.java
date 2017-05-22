@@ -27,6 +27,8 @@ public class MediaCall extends AbstractDataObject {
 
     private SpecialMediaType specialMediaType;
 
+    public MediaCall() {}
+
     public MediaCall(String sourceId,
                      String destinationId,
                      MediaFile visualMediaFile,
@@ -39,6 +41,27 @@ public class MediaCall extends AbstractDataObject {
         this.specialMediaType = specialMediaType;
 
         log(Log.INFO, TAG, "MediaCall:" + this.toString());
+    }
+
+
+    public void setSourceId(String sourceId) {
+        this.sourceId = sourceId;
+    }
+
+    public void setDestinationId(String destinationId) {
+        this.destinationId = destinationId;
+    }
+
+    public void setVisualMediaFile(MediaFile visualMediaFile) {
+        this.visualMediaFile = visualMediaFile;
+    }
+
+    public void setAudioMediaFile(MediaFile audioMediaFile) {
+        this.audioMediaFile = audioMediaFile;
+    }
+
+    public void setSpecialMediaType(SpecialMediaType specialMediaType) {
+        this.specialMediaType = specialMediaType;
     }
 
     public SpecialMediaType getSpecialMediaType() {

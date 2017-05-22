@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.data.objects.Constants;
+import com.data.objects.MediaCallData;
 import com.mediacallz.app.R;
 import com.utils.MediaFilesUtils;
 import com.utils.SharedPrefUtils;
@@ -50,10 +51,9 @@ public class PreviewService extends AbstractStandOutService {
 
         if (intent != null) {
             String action = intent.getAction();
-            switch (action)
-            {
+            switch (action) {
                 case ACTION_PREVIEW: {
-                    log(Log.INFO,TAG, "ActionPreview Received");
+                    log(Log.INFO, TAG, "ActionPreview Received");
                     mPreviewStart = true;
                     startPreviewWindow(intent);
                 }
@@ -68,7 +68,7 @@ public class PreviewService extends AbstractStandOutService {
     public boolean onShow(int id, Window window) {
         super.onShow(id, window);  // at last so the volume will return to the previous(since when it was showed) , to make the volume always mute after Unhide move it to the Start of the method.
 
-        log(Log.INFO,TAG, "mPreviewStart should mute : " + String.valueOf(mPreviewStart));
+        log(Log.INFO, TAG, "mPreviewStart should mute : " + String.valueOf(mPreviewStart));
         setVolumeOnForPreview();
         return false;
     }
@@ -84,56 +84,65 @@ public class PreviewService extends AbstractStandOutService {
     @Override
     protected void playSound(Context context, Uri alert) {
 
-        log(Log.INFO,TAG, "Playing funtone sound");
-        mMediaPlayer = new MediaPlayer();
+        log(Log.INFO, TAG, "Playing funtone sound");
+        mediaPlayer = new MediaPlayer();
         try {
-            mMediaPlayer.setDataSource(context, alert);
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.prepare();
-            mMediaPlayer.setLooping(true);
-            mMediaPlayer.start();
+            mediaPlayer.setDataSource(context, alert);
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.prepare();
+            mediaPlayer.setLooping(true);
+            mediaPlayer.start();
 
 
         } catch (IOException e) {
             e.printStackTrace();
-            log(Log.ERROR,TAG, "Failed to play sound. Exception:" + e.getMessage());
+            log(Log.ERROR, TAG, "Failed to play sound. Exception:" + e.getMessage());
         }
     }
     //endregion
 
     //region Internal helper methods
     protected void startPreviewWindow(Intent intent) {
+        log(Log.INFO, TAG, "startPreviewWindow");
+        Context context = getApplicationContext();
 
-        log(Log.INFO,TAG, "startPreviewWindow");
+
         if (mPreviewAudioManager == null) {
-            log(Log.INFO,TAG, "Audio manager was null , re-instantiated");
-            mPreviewAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+            log(Log.INFO, TAG, "Audio manager was null , re-instantiated");
+            mPreviewAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         }
-        SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
-        log(Log.INFO,TAG, "Preview MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+
+        int musicVolume = mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        setMusicVolume(musicVolume);
+        log(Log.INFO, TAG, "Preview MUSIC_VOLUME Original" + musicVolume);
 
         String visualMediaFilePath = intent.getStringExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA);
-        String audioMediafilePath = intent.getStringExtra(AbstractStandOutService.PREVIEW_AUDIO);
-        String standoutWindowUserTitle = Constants.MY_ID(getApplicationContext());
+        String audioMediaFilePath = intent.getStringExtra(AbstractStandOutService.PREVIEW_AUDIO);
+        String myPhoneNumber = Constants.MY_ID(context);
 
-        boolean funtoneExists = new File(audioMediafilePath).exists() && !MediaFilesUtils.isAudioFileCorrupted(audioMediafilePath,getApplicationContext());
-        boolean visualMediaExists = new File(visualMediaFilePath).exists() && !MediaFilesUtils.isVideoFileCorrupted(visualMediaFilePath,getApplicationContext());
+        boolean funToneExists = new File(audioMediaFilePath).exists() && !MediaFilesUtils.isAudioFileCorrupted(audioMediaFilePath, context);
+        boolean visualMediaExists = new File(visualMediaFilePath).exists() && !MediaFilesUtils.isVideoFileCorrupted(visualMediaFilePath, context);
 
-        log(Log.INFO,TAG, "startPreviewWindow  audioMediafilePath: "+ audioMediafilePath +" visualMediaFilePath: " +visualMediaFilePath+ " standoutWindowUserTitle: " + standoutWindowUserTitle
-                + " funtoneExists: " +funtoneExists+ " visualMediaExists: " +visualMediaExists);
-        startAudioMediaMC(audioMediafilePath);
-        startVisualMediaMC(visualMediaFilePath, standoutWindowUserTitle, funtoneExists, visualMediaExists);
+        MediaCallData mediaCallData = new MediaCallData();
+        log(Log.INFO, TAG, "startPreviewWindow:" + mediaCallData);
+        startAudioMediaMC(audioMediaFilePath);
+        mediaCallData.setVisualMediaFilePath(visualMediaFilePath);
+        mediaCallData.setAudioMediaFilePath(audioMediaFilePath);
+        mediaCallData.setDoesVisualMediaExist(visualMediaExists);
+        mediaCallData.setDoesAudioMediaExist(funToneExists);
+        mediaCallData.setPhoneNumber(myPhoneNumber);
+        startVisualMediaMC(mediaCallData);
     }
 
     private void setVolumeOnForPreview() {
 
-        log(Log.INFO,TAG, "setVolumeOnForPreview");
+        log(Log.INFO, TAG, "setVolumeOnForPreview");
 
         try {
-            mPreviewAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_UNMUTE, 0);
-            mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, SharedPrefUtils.getInt(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME), 0);
+            mPreviewAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0);
+            mPreviewAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, getMusicVolume(), 0);
         } catch (Exception e) {
-            log(Log.ERROR,TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
+            log(Log.ERROR, TAG, "setStreamVolume  STREAM_MUSIC failed. Exception:" + (e.getMessage() != null ? e.getMessage() : e));
         }
 
         volumeChangeByMCButtons = true;
@@ -143,18 +152,19 @@ public class PreviewService extends AbstractStandOutService {
 
     }
 
-
     private void checkIntent(Intent intent) {
         String action = null;
         if (intent != null)
             action = intent.getAction();
         if (action != null)
-            log(Log.INFO,TAG, "Action:" + action);
+            log(Log.INFO, TAG, "Action:" + action);
     }
 
 
     private void prepareVideoListener() {
+        final int musicVolume = mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         if (mVideoPreparedListener == null)
+            mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
             mVideoPreparedListener = new OnVideoPreparedListener() {
 
                 @Override
@@ -162,7 +172,7 @@ public class PreviewService extends AbstractStandOutService {
                     mp.setLooping(true);
                     mp.setVolume(1.0f, 1.0f);
                     mp.start();
-                    log(Log.INFO,TAG, "prepareVideoListener MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+                    log(Log.INFO, TAG, "prepareVideoListener MUSIC_VOLUME Original" + musicVolume);
                 }
             };
     }

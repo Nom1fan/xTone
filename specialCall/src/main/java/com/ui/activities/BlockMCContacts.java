@@ -94,9 +94,9 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
 
         blackListTitle = (TextView) findViewById(R.id.blacklist_title);
 
-        String oldConfig = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
+        String oldConfig = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
         if (oldConfig.isEmpty()) {
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.ALL_VALID);
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.ALL_VALID);
             all_valid.setChecked(true);
         } else {
             switch (oldConfig) {
@@ -126,16 +126,16 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         int id = v.getId();
         if (id == R.id.all_valid) {
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.ALL_VALID);
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.ALL_VALID);
         }
         if (id == R.id.contacts_only) {
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.CONTACTS_ONLY);
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.CONTACTS_ONLY);
         }
         if (id == R.id.no_one) {
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.NO_ONE);
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.NO_ONE);
         }
         if (id == R.id.blacklist_specific) {
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.BLACK_LIST_SPECIFIC);
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.BLACK_LIST_SPECIFIC);
 
             Intent mainIntent = new Intent(BlockMCContacts.this,
                     SelectSpecificContacts.class);

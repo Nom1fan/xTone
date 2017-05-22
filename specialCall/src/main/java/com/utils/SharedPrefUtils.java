@@ -13,7 +13,6 @@ public abstract class SharedPrefUtils {
     public static final String GENERAL                          =   "General";
     public static final String SETTINGS                         =   "Settings";
     public static final String SERVICES                         =   "Services";
-    public static final String RADIO_BUTTON_SETTINGS            =   "RadioButtonsSettings";
     public static final String SERVER_PROXY                     =   "AbstractServerProxy";
     public static final String UPLOADED_CALLER_MEDIA_THUMBNAIL  =   "UploadedCallerMediaThumbnail";
     public static final String UPLOADED_RINGTONE_PATH           =   "UploadedRingTonePath";
@@ -33,7 +32,6 @@ public abstract class SharedPrefUtils {
             GENERAL,
             SETTINGS,
             SERVICES,
-            RADIO_BUTTON_SETTINGS,
             SERVER_PROXY,
             UPLOADED_CALLER_MEDIA_THUMBNAIL,
             UPLOADED_RINGTONE_PATH,
@@ -60,10 +58,6 @@ public abstract class SharedPrefUtils {
     public static final String LOADING_MESSAGE                      =   "LoadingMessage";
     public static final String MY_DEVICE_BATCH_TOKEN                =   "MyDeviceBatchToken";
     public static final String LAST_CHECKED_NUMBER_CACHE            =   "LastCheckedNumberCache";
-    public static final String STRICT_MEMORY_MANAGER_DEVICES        =   "StrictMemoryManagerDevices";
-    public static final String STRICT_RINGING_CAPABILITIES_DEVICES  =   "StrictRingingCapabilitiesDevices";
-    public static final String ASK_BEFORE_MEDIA_SHOW                =   "AskBeforeMediaShow";
-    public static final String ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT   =   "AskBeforeMediaShowForStandOut";
     public static final String ENABLE_UI_ELEMENTS_ANIMATION         =   "EnableUIElementsAnimation";
     public static final String DISABLE_UI_ELEMENTS_ANIMATION        =   "DisableUIElementsAnimation";
     public static final String DONT_SHOW_AGAIN_UPLOAD_DIALOG        =   "DontShowAgainUploadDialog";
@@ -78,7 +72,7 @@ public abstract class SharedPrefUtils {
     public static final String AUDIO_VIDEO_START_TRIM_IN_MILISEC    =   "AudioVideoStartTrimInMiliSec";
     public static final String AUDIO_VIDEO_END_TRIM_IN_MILISEC      =   "AudioVideoEndTrimInMiliSec";
     public static final String AUDIO_HISTORY_EXIST                  =   "AUDIO_HISTORY_EXIST";
-    public static final String DONT_SHOW_RESIZE_WINDOW_FOR_STANDOUT =   "dontShowfirstresizeWindow";
+    public static final String HIDE_RESIZE_WINDOW_FOR_STANDOUT =   "dontShowfirstresizeWindow";
     //endregion
 
     //region Shared pref keys under CONTENT_STORE
@@ -104,9 +98,11 @@ public abstract class SharedPrefUtils {
     public static final String TEMP_VISUALMD5                           =   "TempVisualMd5";
     public static final String TEMP_AUDIOMD5                            =   "TempAudioMd5";
     public static final String DISABLE_VOLUME_BUTTONS                   =   "DisableVolumeButtons";
-
-    public static final String OUTGOING_WINDOW_SESSION                  =   "OutgoingWindowSession";
-    public static final String INCOMING_WINDOW_SESSION                  =   "IncomingWindowSession";
+    public static final String STRICT_MEMORY_MANAGER_DEVICES            =   "StrictMemoryManagerDevices";
+    public static final String STRICT_RINGING_CAPABILITIES_DEVICES      =   "StrictRingingCapabilitiesDevices";
+    public static final String ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT       =   "AskBeforeMediaShowForStandOut";
+    public static final String OUTGOING_WINDOW_DISPLAYED =   "OutgoingWindowSession";
+    public static final String INCOMING_WINDOW_DISPLAYED =   "IncomingWindowSession";
     public static final String INCOMING_MC_WINDOW_WIDTH_BY_USER         =   "IncomingMCWindowWidthByUser";
     public static final String INCOMING_MC_WINDOW_HEIGHET_BY_USER       =   "IncomingMCWindowHeighetByUser";
     public static final String OUTGOING_MC_WINDOW_WIDTH_BY_USER         =   "OutgoingMCWindowWidthByUser";
@@ -130,6 +126,7 @@ public abstract class SharedPrefUtils {
     public static final String BLOCK_LIST                       =   "BlockList";
     public static final String SAVE_MEDIA_OPTION                =   "SaveMediaOption";
     public static final String DOWNLOAD_ONLY_ON_WIFI            =   "DownloadOnlyOnWifi";
+    public static final String ASK_BEFORE_MEDIA_SHOW            =   "AskBeforeMediaShow";
     //endregion
 
     //region Shared prefs action methods

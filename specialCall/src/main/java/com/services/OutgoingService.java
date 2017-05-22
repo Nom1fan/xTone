@@ -126,18 +126,18 @@ public class OutgoingService extends AbstractStandOutService {
     protected void playSound(Context context, Uri alert) {
 
         log(Log.INFO,TAG, "Playing funtone sound");
-        mMediaPlayer = new MediaPlayer();
+        mediaPlayer = new MediaPlayer();
         try {
-            mMediaPlayer.setDataSource(context, alert);
-            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.prepare();
-            mMediaPlayer.setLooping(true);
+            mediaPlayer.setDataSource(context, alert);
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.prepare();
+            mediaPlayer.setLooping(true);
 
             verifyAudioManager();
             mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
             log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
             mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_MUTE, 0);
-            mMediaPlayer.start();
+            mediaPlayer.start();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -184,16 +184,16 @@ public class OutgoingService extends AbstractStandOutService {
 
                 @Override
                 public void onPrepared(MediaPlayer mp) {
-                    mMediaPlayer = new MediaPlayer();
-                    mMediaPlayer = mp;
-                    mMediaPlayer.setLooping(true);
-                    mMediaPlayer.setVolume(1.0f, 1.0f);
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer = mp;
+                    mediaPlayer.setLooping(true);
+                    mediaPlayer.setVolume(1.0f, 1.0f);
 
                     verifyAudioManager();
                     mVolumeBeforeMute = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
                     log(Log.INFO,TAG, "MUTE by button , Previous volume: " + String.valueOf(mVolumeBeforeMute));
                     mAudioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC,  AudioManager.ADJUST_MUTE, 0);
-                    mMediaPlayer.start();
+                    mediaPlayer.start();
                     log(Log.INFO,TAG, "prepareVideoListener MUSIC_VOLUME Original" + String.valueOf(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                 }
             };
@@ -227,15 +227,15 @@ public class OutgoingService extends AbstractStandOutService {
 
                 boolean isBlocked = MCBlockListUtils.IsMCBlocked(outgoingCallNumber, getApplicationContext());
                 if (isBlocked) {
-                    _contactName = ContactsUtils.getContactName(getApplicationContext(), outgoingCallNumber);
+                    contactName = ContactsUtils.getContactName(getApplicationContext(), outgoingCallNumber);
 
                     String permissionLevel = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.RADIO_BUTTON_SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
                     if (!Objects.equals(permissionLevel, PermissionBlockListLevel.CONTACTS_ONLY) && !Objects.equals(permissionLevel, PermissionBlockListLevel.NO_ONE)) {
                         {
-                            if (_contactName.isEmpty())
+                            if (contactName.isEmpty())
                                 UI_Utils.callToast("MediaCallz: " + outgoingCallNumber + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
                             else
-                                UI_Utils.callToast("MediaCallz: " + _contactName + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+                                UI_Utils.callToast("MediaCallz: " + contactName + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
 
                         }
                     }
@@ -252,7 +252,7 @@ public class OutgoingService extends AbstractStandOutService {
                             }catch (Exception e){
                                 e.printStackTrace();
                             }
-                            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.OUTGOING_WINDOW_SESSION,true);
+                            SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.SERVICES,SharedPrefUtils.OUTGOING_WINDOW_DISPLAYED,true);
 
                             String visualMediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, outgoingCallNumber);
                             String audioMediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, outgoingCallNumber);

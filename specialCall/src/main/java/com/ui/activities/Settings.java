@@ -83,7 +83,7 @@ public class Settings extends PreferenceFragment {
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean checked = Boolean.valueOf(newValue.toString());
 
-                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW, checked);
+                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW, checked);
 
                 return true;
             }

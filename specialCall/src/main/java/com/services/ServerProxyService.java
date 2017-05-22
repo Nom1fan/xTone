@@ -219,5 +219,6 @@ public class ServerProxyService extends Service implements Runnable {
         String fetching = context.getResources().getString(R.string.fetching_registered_contacts);
         AppStateManager.setLoadingState(context, TAG, fetching, timeoutMsg);
     }
+
     //endregion
 }
