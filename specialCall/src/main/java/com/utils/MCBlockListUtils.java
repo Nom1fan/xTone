@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Set;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static com.data.objects.PermissionBlockListLevel.ALL_VALID;
+import static com.data.objects.PermissionBlockListLevel.BLACK_LIST_SPECIFIC;
+import static com.data.objects.PermissionBlockListLevel.EMPTY;
 
 /**
  * Created by rony on 27/02/2016.
@@ -22,17 +25,15 @@ public abstract class MCBlockListUtils {
     public static boolean IsMCBlocked(String incomingNumber, Context context) {
         log(Log.INFO,TAG, "check if number blocked: " + incomingNumber);
         //MC Permissions: ALL , Only contacts , Specific Black List Contacts
-        String permissionLevel = SharedPrefUtils.getString(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
+        PermissionBlockListLevel permissionLevel = SettingsUtils.getWhoCanMCMe(context);
 
-        if (permissionLevel.isEmpty())
-        {
-            SharedPrefUtils.setString(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.ALL_VALID);
+        if (permissionLevel.equals(EMPTY)) {
+            SettingsUtils.setWhoCanMCMe(context, ALL_VALID);
         }
-        else
-        {
+        else {
             switch (permissionLevel) {
 
-                case PermissionBlockListLevel.ALL_VALID:
+                case ALL_VALID:
                     Set<String> blockedSet1 = SharedPrefUtils.getStringSet(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
                     if (!blockedSet1.isEmpty()) {
                         incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
@@ -49,7 +50,7 @@ public abstract class MCBlockListUtils {
 
                     return false;
 
-                case PermissionBlockListLevel.CONTACTS_ONLY:
+                case CONTACTS_ONLY:
                     // GET ALL CONTACTS
                     List<Contact> contactsList = ContactsUtils.getAllContacts(context);
                     List<String> contactPhonenumbers = new ArrayList<>();
@@ -63,10 +64,10 @@ public abstract class MCBlockListUtils {
 
                     return !(contactPhonenumbers.contains(incomingNumber) && !blockedSet2.contains(incomingNumber));
 
-                case PermissionBlockListLevel.NO_ONE:
+                case NO_ONE:
                     return true;
 
-                case PermissionBlockListLevel.BLACK_LIST_SPECIFIC:
+                case BLACK_LIST_SPECIFIC:
                     Set<String> blockedSet = SharedPrefUtils.getStringSet(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
                     if (!blockedSet.isEmpty()) {
                         incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
@@ -92,7 +93,7 @@ public abstract class MCBlockListUtils {
     public static void setBlockListFromShared(Context context,Set<String> blockList){
         SharedPrefUtils.remove(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST);
         SharedPrefUtils.setStringSet(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.BLOCK_LIST, blockList);
-        SharedPrefUtils.setString(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.BLACK_LIST_SPECIFIC);
+        SettingsUtils.setWhoCanMCMe(context, BLACK_LIST_SPECIFIC);
     }
 
 }

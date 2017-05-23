@@ -9,6 +9,7 @@ import android.view.WindowManager;
 
 import com.crashlytics.android.Crashlytics;
 import com.data.objects.Constants;
+import com.data.objects.SaveMediaOption;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -23,6 +24,7 @@ import com.enums.SpecialMediaType;
 import com.exceptions.FileInvalidFormatException;
 import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
+import com.ui.activities.Settings;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -42,9 +44,9 @@ public abstract class InitUtils {
 
     public static void initializeSettingsDefaultValues(Context context) {
 
-        SharedPrefUtils.setBoolean(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.DOWNLOAD_ONLY_ON_WIFI, false);
-        SharedPrefUtils.setInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION, 0);
-        SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES, true);
+        SettingsUtils.setDownloadOnlyOnWifi(context, false);
+        SettingsUtils.setSaveMediaOption(context, SaveMediaOption.ALWAYS);
+        SettingsUtils.setStrictRingingCapabilitiesDevice(context, true);
 
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();

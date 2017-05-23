@@ -7,6 +7,7 @@ import com.crashlytics.android.Crashlytics;
 import com.data.objects.Constants;
 import com.data.objects.Contact;
 import com.data.objects.PendingDownloadData;
+import com.data.objects.SaveMediaOption;
 import com.enums.SpecialMediaType;
 import com.event.EventReport;
 import com.exceptions.FailedToSetNewMediaException;
@@ -16,9 +17,11 @@ import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
 import com.handlers.Handler;
 import com.services.ServerProxyService;
+import com.ui.activities.Settings;
 import com.utils.ContactsUtils;
 import com.utils.MediaFilesUtils;
 import com.utils.PhoneNumberUtils;
+import com.utils.SettingsUtils;
 import com.utils.SharedPrefUtils;
 
 import org.apache.commons.io.FileUtils;
@@ -84,23 +87,20 @@ public class EventDownloadReceivedHandler implements Handler {
 
 
     private boolean isAuthorizedToLeaveMedia(Context context, String incomingNumber) {
-        if (SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION) == 0) // Save Always
+        SaveMediaOption saveMediaOption = SettingsUtils.getSaveMediaOption(context);
+        if (saveMediaOption.equals(SaveMediaOption.ALWAYS)) {
             return true;
-        else if (SharedPrefUtils.getInt(context, SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION) == 1) // Contacts Only Save
-        {            // GET ALL CONTACTS
+        } else if (saveMediaOption.equals(SaveMediaOption.CONTACTS_ONLY)) {
             List<Contact> contactsList = ContactsUtils.getAllContacts(context);
-            List<String> contactPhonenumbers = new ArrayList<>();
+            List<String> contactPhoneNumbers = new ArrayList<>();
 
             for (int i = 0; i < contactsList.size(); i++) {
-                contactPhonenumbers.add(contactsList.get(i).getPhoneNumber());
+                contactPhoneNumbers.add(contactsList.get(i).getPhoneNumber());
             }
 
-            // authorized to save media
-// not authorized
-            return contactPhonenumbers.contains(PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber));
-        } else // 2 - never save
+            return contactPhoneNumbers.contains(PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber));
+        } else // Never save
             return false;
-
     }
 
     /**

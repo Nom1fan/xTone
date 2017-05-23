@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 import com.data.objects.Constants;
 import com.data.objects.MediaCallData;
-import com.data.objects.PermissionBlockListLevelEnum;
+import com.data.objects.PermissionBlockListLevel;
 import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
 import com.mediacallz.app.R;
@@ -34,6 +34,7 @@ import com.utils.MediaFilesUtils;
 import com.utils.NotificationUtils;
 import com.utils.Phone2MediaMapperUtils;
 import com.utils.PhoneNumberUtils;
+import com.utils.SettingsUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -44,6 +45,8 @@ import java.util.Random;
 import wei.mark.standout.StandOutWindow;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static com.data.objects.PermissionBlockListLevel.CONTACTS_ONLY;
+import static com.data.objects.PermissionBlockListLevel.NO_ONE;
 
 
 public class IncomingService extends AbstractStandOutService {
@@ -281,12 +284,8 @@ public class IncomingService extends AbstractStandOutService {
         Context context = getApplicationContext();
         if (mediaCallData.hasMedia()) {
             log(Log.INFO, TAG, "MEDIA EXIST for incoming number:" + mediaCallData);
-            if (
-                    (SharedPrefUtils.getBoolean(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW)
-                            && !isAskBeforeMediaShowStandOut())
-                            || !isHideResizeWindowForStandOut()
-
-                    ) {
+            if ((SettingsUtils.getAskBeforeShowingMedia(context) && !isAskBeforeMediaShowStandOut()) ||
+                    !isHideResizeWindowForStandOut()) {
                 runAskBeforeShowMedia(mediaCallData);
             } else {
                 runIncomingMCMedia(mediaCallData);
@@ -325,10 +324,10 @@ public class IncomingService extends AbstractStandOutService {
                 UI_Utils.dismissAllStandOutWindows(context);
                 contactName = ContactsUtils.getContactName(context, incomingNumber);
 
-                String permissionLevel = SharedPrefUtils.getString(context, SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
+                PermissionBlockListLevel permissionLevel = SettingsUtils.getWhoCanMCMe(context);
 
                 // Specific number or contact was blocked
-                if (!permissionLevel.equals(PermissionBlockListLevelEnum.CONTACTS_ONLY.getValue()) && !permissionLevel.equals(PermissionBlockListLevelEnum.NO_ONE.getValue())) {
+                if (!permissionLevel.equals(CONTACTS_ONLY) && !permissionLevel.equals(NO_ONE)) {
                     if (contactName.isEmpty()) {
                         UI_Utils.callToast("MediaCallz: " + incomingNumber + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, context);
                     } else {
@@ -609,22 +608,23 @@ public class IncomingService extends AbstractStandOutService {
     }
 
     private void disableRingStream() {
-
-        NotificationManager mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        Context context = getApplicationContext();
+        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         // check if the Device has Strict Ringing Capabilities that hard to be silent like in LG G4
-        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES) &&
-                mNotificationManager.isNotificationPolicyAccessGranted()) {
-            Log.w(TAG, "DND Allowed moving forward for slienting device. also String ringing enabled");
+        boolean strictRingingCapabilitiesDevice = SettingsUtils.isStrictRingingCapabilitiesDevice(context);
+        if (strictRingingCapabilitiesDevice && mNotificationManager.isNotificationPolicyAccessGranted()) {
+            log(Log.WARN, TAG, "DND Allowed moving forward for silencing device. also String ringing enabled");
             unlockMusicStreamDuringRinging();
             correlateVibrateSettings();
         }
 
         try {
             verifyAudioManager();
-            if (getRingerMode() == AudioManager.RINGER_MODE_NORMAL)
+            if (getRingerMode() == AudioManager.RINGER_MODE_NORMAL) {
                 mAudioManager.adjustStreamVolume(AudioManager.STREAM_RING, AudioManager.ADJUST_MUTE, 0);
-            log(Log.INFO, TAG, "mAudioManager.setStreamMute(AudioManager.STREAM_RING, true);");
+                log(Log.INFO, TAG, "mAudioManager.setStreamMute(AudioManager.STREAM_RING, true);");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             log(Log.ERROR, TAG, "Failed mAudioManager.setStreamMute(AudioManager.STREAM_RING, true); error:" + e.getMessage());

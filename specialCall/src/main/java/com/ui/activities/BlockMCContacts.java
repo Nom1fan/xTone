@@ -23,13 +23,18 @@ import com.data.objects.PermissionBlockListLevel;
 import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
-import com.utils.SharedPrefUtils;
+import com.utils.SettingsUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static com.data.objects.PermissionBlockListLevel.ALL_VALID;
+import static com.data.objects.PermissionBlockListLevel.BLACK_LIST_SPECIFIC;
+import static com.data.objects.PermissionBlockListLevel.CONTACTS_ONLY;
+import static com.data.objects.PermissionBlockListLevel.EMPTY;
+import static com.data.objects.PermissionBlockListLevel.NO_ONE;
 
 /**
  * Created by rony on 10/02/2016.
@@ -80,7 +85,7 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
     protected void onResume() {
         super.onResume();
         log(Log.INFO,TAG, "onResume()");
-
+        Context context = getApplicationContext();
         prepareListViewData();
 
         RadioButton all_valid = (RadioButton) findViewById(R.id.all_valid);
@@ -94,26 +99,26 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
 
         blackListTitle = (TextView) findViewById(R.id.blacklist_title);
 
-        String oldConfig = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME);
-        if (oldConfig.isEmpty()) {
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.ALL_VALID);
+        PermissionBlockListLevel oldConfig = SettingsUtils.getWhoCanMCMe(context);
+        if (oldConfig.equals(EMPTY)) {
+            SettingsUtils.setWhoCanMCMe(context, ALL_VALID);
             all_valid.setChecked(true);
         } else {
             switch (oldConfig) {
 
-                case PermissionBlockListLevel.ALL_VALID:
+                case ALL_VALID:
                     all_valid.setChecked(true);
                     break;
 
-                case PermissionBlockListLevel.CONTACTS_ONLY:
+                case CONTACTS_ONLY:
                     contacts_only.setChecked(true);
                     break;
 
-                case PermissionBlockListLevel.NO_ONE:
+                case NO_ONE:
                     no_one.setChecked(true);
                     break;
 
-                case PermissionBlockListLevel.BLACK_LIST_SPECIFIC:
+                case BLACK_LIST_SPECIFIC:
                     blacklist_specific.setChecked(true);
                     break;
             }
@@ -125,17 +130,18 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
         int id = v.getId();
+        Context context = getApplicationContext();
         if (id == R.id.all_valid) {
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.ALL_VALID);
+            SettingsUtils.setWhoCanMCMe(context, ALL_VALID);
         }
         if (id == R.id.contacts_only) {
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.CONTACTS_ONLY);
+            SettingsUtils.setWhoCanMCMe(context, CONTACTS_ONLY);
         }
         if (id == R.id.no_one) {
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.NO_ONE);
+            SettingsUtils.setWhoCanMCMe(context, NO_ONE);
         }
         if (id == R.id.blacklist_specific) {
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.WHO_CAN_MC_ME, PermissionBlockListLevel.BLACK_LIST_SPECIFIC);
+            SettingsUtils.setWhoCanMCMe(context, BLACK_LIST_SPECIFIC);
 
             Intent mainIntent = new Intent(BlockMCContacts.this,
                     SelectSpecificContacts.class);

@@ -1,5 +1,6 @@
 package com.ui.activities;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -7,8 +8,10 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.util.Log;
 
+import com.data.objects.SaveMediaOption;
 import com.mediacallz.app.R;
 import com.ui.dialogs.DeleteAccountDialog;
+import com.utils.SettingsUtils;
 import com.utils.SharedPrefUtils;
 
 import static com.crashlytics.android.Crashlytics.log;
@@ -20,21 +23,19 @@ public class Settings extends PreferenceFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        final Context context = getActivity().getApplicationContext();
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.settings);
 
         CheckBoxPreference wifi_download_only = (CheckBoxPreference) findPreference("wifi_download_only");
 
-        wifi_download_only.setChecked(SharedPrefUtils.getBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.DOWNLOAD_ONLY_ON_WIFI));
+        wifi_download_only.setChecked(SettingsUtils.isDownloadOnlyOnWifi(context));
         wifi_download_only.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean checked = Boolean.valueOf(newValue.toString());
-
-                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.DOWNLOAD_ONLY_ON_WIFI, checked);
-
+                SettingsUtils.setDownloadOnlyOnWifi(context, checked);
                 return true;
             }
         });
@@ -42,55 +43,45 @@ public class Settings extends PreferenceFragment {
 
         // SAVE MEDIA : 0 - always , 1 - contacts only , 2 - never save
         ListPreference save_media_listPreference = (ListPreference) findPreference("save_media");
-        save_media_listPreference.setValueIndex(SharedPrefUtils.getInt(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION, 0));
+        SaveMediaOption saveMediaOption = SettingsUtils.getSaveMediaOption(context);
+        save_media_listPreference.setValueIndex(saveMediaOption.getValue());
         save_media_listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-
                 int checked = Integer.parseInt(newValue.toString());
-
-                SharedPrefUtils.setInt(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SAVE_MEDIA_OPTION, checked);
-                log(Log.INFO,TAG,"save Media Option: " + String.valueOf(checked) );
-
-
+                SettingsUtils.setSaveMediaOption(context, SaveMediaOption.fromValue(checked));
+                log(Log.INFO,TAG,"save Media Option:" + checked);
                 return true;
             }
         });
 
-
         CheckBoxPreference ringing_override_checkbox = (CheckBoxPreference) findPreference("ringing_override_checkbox");
 
-        ringing_override_checkbox.setChecked(SharedPrefUtils.getBoolean(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES));
+        boolean strictRingingCapabilitiesDevice = SettingsUtils.isStrictRingingCapabilitiesDevice(context);
+        ringing_override_checkbox.setChecked(strictRingingCapabilitiesDevice);
         ringing_override_checkbox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean checked = Boolean.valueOf(newValue.toString());
-
-                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES, checked);
-
+                SettingsUtils.setStrictRingingCapabilitiesDevice(context, checked);
                 return true;
             }
         });
 
         CheckBoxPreference ask_before_show_checkbox = (CheckBoxPreference) findPreference("ask_before_show");
 
-        ask_before_show_checkbox.setChecked(SharedPrefUtils.getBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW));
+        ask_before_show_checkbox.setChecked(SettingsUtils.getAskBeforeShowingMedia(context));
         ask_before_show_checkbox.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
 
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean checked = Boolean.valueOf(newValue.toString());
-
-                SharedPrefUtils.setBoolean(getActivity().getApplicationContext(), SharedPrefUtils.SETTINGS, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW, checked);
-
+                SettingsUtils.setAskBeforeShowingMedia(context, checked);
                 return true;
             }
         });
-
-
-
 
         Preference button = findPreference("Delete Account");
         button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

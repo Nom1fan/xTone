@@ -58,12 +58,12 @@ public abstract class SpecialDevicesUtils {
         if (deviceName.contains(StrictRingingCapabilitiesLGDevice) && !deviceName.contains(LG_G2_StrictRingingDisable) )  // all LG devices except LG G2
         {
             log(Log.INFO,TAG,"Device has strict Ringing Capabilities : " + deviceName);
-            SharedPrefUtils.setBoolean(context , SharedPrefUtils.GENERAL , SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES , true);
+            SettingsUtils.setStrictRingingCapabilitiesDevice(context, true);
         }
         else
         {
             log(Log.INFO,TAG,"Device doesn't have strict Ringing Capabilities : " + deviceName);
-            SharedPrefUtils.setBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.STRICT_RINGING_CAPABILITIES_DEVICES , false);
+            SettingsUtils.setStrictRingingCapabilitiesDevice(context, false);
         }
     }
 

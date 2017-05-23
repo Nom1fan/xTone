@@ -9,6 +9,7 @@ import com.services.ServerProxyService;
 import com.utils.MCBlockListUtils;
 import com.utils.NetworkingUtils;
 import com.utils.PendingDownloadsUtils;
+import com.utils.SettingsUtils;
 import com.utils.SharedPrefUtils;
 
 import static com.crashlytics.android.Crashlytics.log;
@@ -22,29 +23,29 @@ public class PushPendingDownloadHandler extends AbstractPushHandler {
     public static final String TAG = PushPendingDownloadHandler.class.getSimpleName();
 
     @Override
-    public void handlePush(Context ctx, String pushData, Object ... extraParams) {
+    public void handlePush(Context context, String pushData, Object ... extraParams) {
         PendingDownloadData pendingDownloadData = gson.fromJson(pushData, PendingDownloadData.class);
         String sourceId = pendingDownloadData.getSourceId();
 
-        if (MCBlockListUtils.IsMCBlocked(sourceId, ctx)) // Don't download if the number is blocked , just break and don't continue with the download flow
+        if (MCBlockListUtils.IsMCBlocked(sourceId, context)) // Don't download if the number is blocked , just break and don't continue with the download flow
         {
             log(Log.WARN,TAG, "Number blocked for download:" + sourceId);
             return;
         }
 
-        boolean isDownloadOnWifiOnly = SharedPrefUtils.getBoolean(ctx, SharedPrefUtils.SETTINGS, SharedPrefUtils.DOWNLOAD_ONLY_ON_WIFI);
+        boolean isDownloadOnWifiOnly = SettingsUtils.isDownloadOnlyOnWifi(context);
         if(isDownloadOnWifiOnly)
         {
-            if(NetworkingUtils.isWifiConnected(ctx)) {
-                ServerProxyService.sendActionDownload(ctx, pendingDownloadData);
+            if(NetworkingUtils.isWifiConnected(context)) {
+                ServerProxyService.sendActionDownload(context, pendingDownloadData);
             }
             else // Enqueuing pending download for later
             {
-                PendingDownloadsUtils.enqueuePendingDownload(ctx, pendingDownloadData);
+                PendingDownloadsUtils.enqueuePendingDownload(context, pendingDownloadData);
             }
         }
         else {
-            ServerProxyService.sendActionDownload(ctx, pendingDownloadData);
+            ServerProxyService.sendActionDownload(context, pendingDownloadData);
         }
     }
 }

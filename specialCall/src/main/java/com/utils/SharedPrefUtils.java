@@ -122,11 +122,10 @@ public abstract class SharedPrefUtils {
     //endregion
 
     //region Shared pref keys under SETTINGS
-    public static final String WHO_CAN_MC_ME                    =   "WhoCanMCMe";
     public static final String BLOCK_LIST                       =   "BlockList";
     public static final String SAVE_MEDIA_OPTION                =   "SaveMediaOption";
     public static final String DOWNLOAD_ONLY_ON_WIFI            =   "DownloadOnlyOnWifi";
-    public static final String ASK_BEFORE_MEDIA_SHOW            =   "AskBeforeMediaShow";
+    public static final String ASK_BEFORE_SHOWING_MEDIA =   "AskBeforeMediaShow";
     //endregion
 
     //region Shared prefs action methods

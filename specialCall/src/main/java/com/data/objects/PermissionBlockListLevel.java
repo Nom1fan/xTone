@@ -3,12 +3,21 @@ package com.data.objects;
 /**
  * Created by rony on 27/02/2016.
  */
-public class PermissionBlockListLevel {
+public enum PermissionBlockListLevel {
 
-    public static final String ALL_VALID = "ALL" ;
-    public static final String CONTACTS_ONLY = "CONTACTS" ;
-    public static final String NO_ONE = "NO_ONE" ;
-    public static final String BLACK_LIST_SPECIFIC = "black_list" ;
+    EMPTY(""),
+    ALL_VALID("ALL_VALID"),
+    CONTACTS_ONLY("CONTACTS_ONLY"),
+    NO_ONE("NO_ONE"),
+    BLACK_LIST_SPECIFIC("BLACK_LIST_SPECIFIC");
 
+    String value;
 
+    PermissionBlockListLevel(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }

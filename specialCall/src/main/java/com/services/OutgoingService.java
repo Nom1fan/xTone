@@ -17,7 +17,6 @@ import android.widget.Toast;
 import com.data.objects.Constants;
 import com.data.objects.MediaCallData;
 import com.data.objects.PermissionBlockListLevel;
-import com.data.objects.PermissionBlockListLevelEnum;
 import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.ContactsUtils;
@@ -31,7 +30,6 @@ import com.utils.UI_Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
 
 import com.enums.SpecialMediaType;
 import com.utils.PhoneNumberUtils;
@@ -236,8 +234,8 @@ public class OutgoingService extends AbstractStandOutService {
                 if (isBlocked) {
                     contactName = ContactsUtils.getContactName(getApplicationContext(), outgoingCallNumber);
 
-                    PermissionBlockListLevelEnum permissionLevel = SettingsUtils.getWhoCanMCMe(context);
-                    if (!permissionLevel.equals(PermissionBlockListLevelEnum.CONTACTS_ONLY) && permissionLevel.equals(PermissionBlockListLevelEnum.NO_ONE)) {
+                    PermissionBlockListLevel permissionLevel = SettingsUtils.getWhoCanMCMe(context);
+                    if (!permissionLevel.equals(PermissionBlockListLevel.CONTACTS_ONLY) && permissionLevel.equals(PermissionBlockListLevel.NO_ONE)) {
                         if (contactName.isEmpty()) {
                             UI_Utils.callToast("MediaCallz: " + outgoingCallNumber + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
                         } else {
