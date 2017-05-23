@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.data.objects.Constants;
 import com.data.objects.MediaCallData;
 import com.data.objects.PermissionBlockListLevel;
+import com.enums.SpecialMediaType;
 import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.ContactsUtils;
@@ -24,15 +25,13 @@ import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
 import com.utils.MediaCallSessionUtils;
 import com.utils.MediaFilesUtils;
+import com.utils.PhoneNumberUtils;
 import com.utils.SettingsUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
 import java.io.IOException;
-
-import com.enums.SpecialMediaType;
-import com.utils.PhoneNumberUtils;
 
 import wei.mark.standout.ui.Window;
 
@@ -104,7 +103,6 @@ public class OutgoingService extends AbstractStandOutService {
     @Override
     protected void syncOnCallStateChange(int state, String incomingNumber) {
         Context context = getApplicationContext();
-        if (!MCBlockListUtils.IsMCBlocked(incomingNumber, context)) {
             log(Log.INFO, TAG, "TelephonyManager IDLE=0, OFFHOOK=2. STATE WAS:" + state);
             switch (state) {
 
@@ -122,7 +120,7 @@ public class OutgoingService extends AbstractStandOutService {
                     }
 
             }
-        }
+
     }
 
     @Override

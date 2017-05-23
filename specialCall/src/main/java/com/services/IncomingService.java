@@ -414,8 +414,7 @@ public class IncomingService extends AbstractStandOutService {
         if (mediaCallData.doesAudioMediaExist()) {
 
             disableRingStream();
-            boolean disableVolBtns = false;
-            setDisableVolButtons(context, disableVolBtns);
+            setDisableVolButtons(context, false);
             Runnable r = new Runnable() {
                 public void run() {
                     Log.d(TAG, "startRingtoneSpecialCall Thread");
