@@ -162,9 +162,7 @@ public class PreviewService extends AbstractStandOutService {
 
 
     private void prepareVideoListener() {
-        final int musicVolume = mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         if (mVideoPreparedListener == null)
-            mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
             mVideoPreparedListener = new OnVideoPreparedListener() {
 
                 @Override
@@ -172,7 +170,7 @@ public class PreviewService extends AbstractStandOutService {
                     mp.setLooping(true);
                     mp.setVolume(1.0f, 1.0f);
                     mp.start();
-                    log(Log.INFO, TAG, "prepareVideoListener MUSIC_VOLUME Original" + musicVolume);
+                    log(Log.INFO,TAG, "prepareVideoListener MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
                 }
             };
     }
