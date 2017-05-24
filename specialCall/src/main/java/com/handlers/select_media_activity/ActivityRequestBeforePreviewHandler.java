@@ -45,13 +45,12 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
             MediaFile managedFile;
 
             managedFile = new MediaFile(filepath);
-            if(canMediaBePrepared(ctx, managedFile)) {
+            if (canMediaBePrepared(ctx, managedFile)) {
                 startPreviewActivity(managedFile.getFileFullPath());
-            }
-            else
+            } else
                 showInvalidFileOrPathToast(selectMediaActivity);
 
-        } catch(FileExceedsMaxSizeException e) {
+        } catch (FileExceedsMaxSizeException e) {
             e.printStackTrace();
             String errMsg = String.format(ctx.getResources().getString(R.string.file_over_max_size),
                     MediaFilesUtils.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
@@ -92,9 +91,9 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
     }
 
-    protected void checkIfWeCanPrepareSound(Context ctx ,Uri audioUri) throws IOException {
+    protected void checkIfWeCanPrepareSound(Context ctx, Uri audioUri) throws IOException {
 
-        Crashlytics.log(Log.INFO,TAG, "Checking if Sound Can Be Prepared and work");
+        Crashlytics.log(Log.INFO, TAG, "Checking if Sound Can Be Prepared and work");
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setDataSource(ctx, audioUri);
         mMediaPlayer.prepare();
@@ -103,7 +102,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
     protected void checkIfWeCanPrepareVideo(Context ctx, Uri videoUri) throws Exception {
 
-        Crashlytics.log(Log.INFO,TAG, "Checking if Video Can Be Prepared and work");
+        Crashlytics.log(Log.INFO, TAG, "Checking if Video Can Be Prepared and work");
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setDataSource(ctx, videoUri);
         mMediaPlayer.prepare();
@@ -127,7 +126,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
 
         if (isCamera) {
-            uri = Uri.parse(SharedPrefUtils.getString(ctx ,SharedPrefUtils.GENERAL,SharedPrefUtils.SELF_VIDEO_IMAGE_URI));
+            uri = Uri.parse(SharedPrefUtils.getString(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.SELF_VIDEO_IMAGE_URI));
         } else {
             uri = intent.getData();
         }
@@ -147,12 +146,9 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
             if (isCamera) {
                 File file = new File(resultPath);
-
-                try {
-                    String extension = MediaFilesUtils.extractExtension(resultPath);
-                    Crashlytics.log(Log.INFO, TAG, "isCamera True, Extension saved in camera: " + extension);
-                } catch (FileMissingExtensionException e) {
-
+                String extension = MediaFilesUtils.extractExtension(resultPath);
+                Crashlytics.log(Log.INFO, TAG, "isCamera True, Extension saved in camera: " + extension);
+                if (extension == null) {
                     Crashlytics.log(Log.WARN, TAG, "Missing Extension! Adding .jpeg as it is likely to be image file from camera");
                     file.renameTo(new File(resultPath += ".jpeg"));
                 }
@@ -172,7 +168,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
             previewIntentActivity.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
             selectMediaActivity.startActivityForResult(previewIntentActivity, ActivityRequestCodes.PREVIEW_MEDIA);
 
-        } catch(FileExceedsMaxSizeException e) {
+        } catch (FileExceedsMaxSizeException e) {
             e.printStackTrace();
             String errMsg = String.format(selectMediaActivity.getResources().getString(R.string.file_over_max_size),
                     MediaFilesUtils.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));

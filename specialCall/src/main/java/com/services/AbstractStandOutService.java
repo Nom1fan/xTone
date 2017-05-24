@@ -496,16 +496,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         log(Log.INFO, TAG, "Preparing ImageView");
 
         boolean gifEnabled = false;
-        String ext = "";
-
-        try {
-            ext = MediaFilesUtils.extractExtension(mediaFilePath);
-        } catch (FileMissingExtensionException e) {
-            e.printStackTrace();
-        }
-
-        gifEnabled = ext.equals("gif");
-
+        String ext = MediaFilesUtils.extractExtension(mediaFilePath);
+        gifEnabled = ext != null && ext.equals("gif");
 
         if (gifEnabled) {
             log(Log.INFO, TAG, "GIF Found");
