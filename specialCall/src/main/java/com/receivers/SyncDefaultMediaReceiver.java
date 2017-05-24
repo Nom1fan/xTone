@@ -60,9 +60,14 @@ public class SyncDefaultMediaReceiver extends WakefulBroadcastReceiver {
     }
 
     protected void syncFiles(Context context, List<DefaultMediaData> defaultMediaDataList, File[] files) {
-        if(files != null) {
-            for (File file : files) {
-                syncFile(context, defaultMediaDataList, file);
+        if(defaultMediaDataList != null && !defaultMediaDataList.isEmpty()) {
+            if (files != null) {
+                for (File file : files) {
+                    syncFile(context, defaultMediaDataList, file);
+                }
+            }
+            else { // Initial download for contact defaults
+                performInitialDownloadForDefault(context, defaultMediaDataList);
             }
         }
     }
@@ -89,6 +94,13 @@ public class SyncDefaultMediaReceiver extends WakefulBroadcastReceiver {
         pendingDownloadData.setSpecialMediaType(SpecialMediaType.DEFAULT_CALLER_MEDIA);
         pendingDownloadData.setFilePathOnServer(defaultMediaData.getFilePathOnServer());
         return pendingDownloadData;
+    }
+
+    private void performInitialDownloadForDefault(Context context, List<DefaultMediaData> defaultMediaDataList) {
+        for (DefaultMediaData defaultMediaData : defaultMediaDataList) {
+            PendingDownloadData pendingDownloadData = getPendingDownloadData(defaultMediaData);
+            ServerProxyService.sendActionDownload(context, pendingDownloadData);
+        }
     }
 
 }
