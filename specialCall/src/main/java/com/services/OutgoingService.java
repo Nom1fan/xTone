@@ -220,24 +220,24 @@ public class OutgoingService extends AbstractStandOutService {
                 String outgoingCallNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
                 outgoingCallNumber = PhoneNumberUtils.toValidLocalPhoneNumber(outgoingCallNumber);
 
-                if (arrivedFromFallBack)
+                if (arrivedFromFallBack) {
                     StartStandOutServicesFallBackReceiver.completeWakefulIntent(intent);
-
+                }
 
                 mIncomingOutgoingNumber = outgoingCallNumber;
                 boolean isOutgoingRingingInSession = MediaCallSessionUtils.isOutgoingRingingInSession(context);
                 log(Log.INFO, TAG, "mInRingingSession=" + isOutgoingRingingInSession + " outgoingCallNumber=" + outgoingCallNumber);
 
-                boolean isBlocked = MCBlockListUtils.IsMCBlocked(outgoingCallNumber, getApplicationContext());
+                boolean isBlocked = MCBlockListUtils.IsMCBlocked(outgoingCallNumber, context);
                 if (isBlocked) {
-                    contactName = ContactsUtils.getContactName(getApplicationContext(), outgoingCallNumber);
+                    contactName = ContactsUtils.getContactName(context, outgoingCallNumber);
 
                     PermissionBlockListLevel permissionLevel = SettingsUtils.getWhoCanMCMe(context);
                     if (!permissionLevel.equals(PermissionBlockListLevel.CONTACTS_ONLY) && permissionLevel.equals(PermissionBlockListLevel.NO_ONE)) {
                         if (contactName.isEmpty()) {
-                            UI_Utils.callToast("MediaCallz: " + outgoingCallNumber + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+                            UI_Utils.callToast("MediaCallz: " + outgoingCallNumber + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, context);
                         } else {
-                            UI_Utils.callToast("MediaCallz: " + contactName + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, getApplicationContext());
+                            UI_Utils.callToast("MediaCallz: " + contactName + " Media Blocked", Color.RED, Toast.LENGTH_SHORT, context);
                         }
                     }
                 }
@@ -270,7 +270,7 @@ public class OutgoingService extends AbstractStandOutService {
                             startVisualMediaMC(mediaCallData);
 
                             MCHistoryUtils.reportMC(
-                                    getApplicationContext(),
+                                    context,
                                     Constants.MY_ID(context),
                                     outgoingCallNumber,
                                     mediaCallData.getVisualMediaFilePath(),

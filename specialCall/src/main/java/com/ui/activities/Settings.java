@@ -40,8 +40,6 @@ public class Settings extends PreferenceFragment {
             }
         });
 
-
-        // SAVE MEDIA : 0 - always , 1 - contacts only , 2 - never save
         ListPreference save_media_listPreference = (ListPreference) findPreference("save_media");
         SaveMediaOption saveMediaOption = SettingsUtils.getSaveMediaOption(context);
         save_media_listPreference.setValueIndex(saveMediaOption.getValue());

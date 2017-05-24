@@ -17,7 +17,6 @@ import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
 import com.handlers.Handler;
 import com.services.ServerProxyService;
-import com.ui.activities.Settings;
 import com.utils.ContactsUtils;
 import com.utils.MediaFilesUtils;
 import com.utils.PhoneNumberUtils;
@@ -55,8 +54,9 @@ public class EventDownloadReceivedHandler implements Handler {
         preparePathsAndDirs(downloadData);
 
         // Copy new downloaded file to History Folder so it will show up in Gallery and don't make any duplicates with MD5 signature
-        if (isAuthorizedToLeaveMedia(ctx, downloadData.getSourceId()))
+        if (isAuthorizedToLeaveMedia(ctx, downloadData.getSourceId())) {
             copyToHistoryForGalleryShow(ctx, downloadData);
+        }
 
         MediaFile.FileType fType = downloadData.getMediaFile().getFileType();
         String fFullName = downloadData.getSourceId() + "." + downloadData.getMediaFile().getExtension();
@@ -223,6 +223,11 @@ public class EventDownloadReceivedHandler implements Handler {
                 newFileDir = Constants.OUTGOING_FOLDER + srcId;
                 sharedPrefKeyForVisualMedia = SharedPrefUtils.PROFILE_MEDIA_FILEPATH;
                 sharedPrefKeyForAudioMedia = SharedPrefUtils.FUNTONE_FILEPATH;
+                break;
+            case DEFAULT_CALLER_MEDIA:
+                newFileDir = Constants.DEFAULT_INCOMING_FOLDER + srcId;
+                sharedPrefKeyForVisualMedia = SharedPrefUtils.DEFAULT_CALLER_MEDIA_FILEPATH;
+                sharedPrefKeyForAudioMedia = SharedPrefUtils.DEFAULT_RINGTONE_MEDIA_FILEPATH;
                 break;
 
             default:

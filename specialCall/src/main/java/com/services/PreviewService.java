@@ -167,10 +167,11 @@ public class PreviewService extends AbstractStandOutService {
 
                 @Override
                 public void onPrepared(MediaPlayer mp) {
+                    int streamVolume = mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
                     mp.setLooping(true);
                     mp.setVolume(1.0f, 1.0f);
                     mp.start();
-                    log(Log.INFO,TAG, "prepareVideoListener MUSIC_VOLUME Original" + String.valueOf(mPreviewAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+                    log(Log.INFO,TAG, "prepareVideoListener MUSIC_VOLUME Original" + streamVolume);
                 }
             };
     }

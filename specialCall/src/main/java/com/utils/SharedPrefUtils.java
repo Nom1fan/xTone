@@ -19,7 +19,9 @@ public abstract class SharedPrefUtils {
     public static final String UPLOADED_PROFILE_MEDIA_THUMBNAIL =   "UploadedProfileMediaThumbnail";
     public static final String UPLOADED_FUNTONE_PATH            =   "UploadedFunTonePath";
     public static final String CALLER_MEDIA_FILEPATH            =   "CallerMediaFilePath";
+    public static final String DEFAULT_CALLER_MEDIA_FILEPATH    =   "DEFAULT_CALLER_MEDIA_FILEPATH";
     public static final String RINGTONE_FILEPATH                =   "RingToneFilePath";
+    public static final String DEFAULT_RINGTONE_MEDIA_FILEPATH  =   "DEFAULT_RINGTONE_MEDIA_FILEPATH";
     public static final String PROFILE_MEDIA_FILEPATH           =   "ProfileMediaFilePath";
     public static final String FUNTONE_FILEPATH                 =   "FunToneFilePath";
     public static final String SHOWCASE                         =   "Showcase";
@@ -125,7 +127,7 @@ public abstract class SharedPrefUtils {
     public static final String BLOCK_LIST                       =   "BlockList";
     public static final String SAVE_MEDIA_OPTION                =   "SaveMediaOption";
     public static final String DOWNLOAD_ONLY_ON_WIFI            =   "DownloadOnlyOnWifi";
-    public static final String ASK_BEFORE_SHOWING_MEDIA =   "AskBeforeMediaShow";
+    public static final String ASK_BEFORE_SHOWING_MEDIA         =   "AskBeforeMediaShow";
     //endregion
 
     //region Shared prefs action methods

@@ -9,7 +9,6 @@ import com.data.objects.ClearMediaData;
 import com.data.objects.Constants;
 import com.utils.MediaFilesUtils;
 import com.utils.Phone2MediaMapperUtils;
-import com.utils.SharedPrefUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -69,11 +68,11 @@ public class ClearMediaIntentService extends IntentService {
                         MediaFilesUtils.deleteDirectory(new File(folderPath));
                         break;
 
-                    case MY_DEFAULT_PROFILE_MEDIA:
+                    case DEFAULT_PROFILE_MEDIA:
                         //TODO Not yet implemented
                         break;
 
-                    case MY_DEFAULT_CALLER_MEDIA:
+                    case DEFAULT_CALLER_MEDIA:
                         //TODO Not yet implemented
                         break;
 

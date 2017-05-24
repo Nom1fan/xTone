@@ -23,12 +23,22 @@ public abstract class Constants {
         return Double.valueOf(BuildConfig.VERSION_NAME);
     }
 
-    public static String MY_ID(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER); }
-    public static void MY_ID(Context context, String number) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, number); }
+    public static String MY_ID(Context context) {
+        return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER);
+    }
+
+    public static void MY_ID(Context context, String number) {
+        SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_NUMBER, number);
+    }
 
     // Android version upon register, and then used to sync with server after every upgrade
-    public static String MY_ANDROID_VERSION(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ANDROID_VERSION); }
-    public static void MY_ANDROID_VERSION(Context context, String androidVersion) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ANDROID_VERSION, androidVersion); }
+    public static String MY_ANDROID_VERSION(Context context) {
+        return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ANDROID_VERSION);
+    }
+
+    public static void MY_ANDROID_VERSION(Context context, String androidVersion) {
+        SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.ANDROID_VERSION, androidVersion);
+    }
     //endregion
 
     //region permissions
@@ -41,7 +51,7 @@ public abstract class Constants {
     private static String MY_DEVICE_MODEL;
 
     public static String MY_DEVICE_MODEL() {
-        if(MY_DEVICE_MODEL == null) {
+        if (MY_DEVICE_MODEL == null) {
             String manufacturer = Build.MANUFACTURER;
             String model = Build.MODEL;
             if (model.startsWith(manufacturer)) {
@@ -64,8 +74,13 @@ public abstract class Constants {
     public static final String LIVE_API_KEY = "56B47A2D7AF8834E6D36C9CBC3F32E";
     public static final String DEV_API_KEY = "DEV56B47A2D7D7E553A410B64C489D";
 
-    public static String MY_BATCH_TOKEN(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN); }
-    public static void MY_BATCH_TOKEN(Context context, String token) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN, token); }
+    public static String MY_BATCH_TOKEN(Context context) {
+        return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN);
+    }
+
+    public static void MY_BATCH_TOKEN(Context context, String token) {
+        SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN, token);
+    }
     //endregion
 
     //region Website
@@ -75,8 +90,9 @@ public abstract class Constants {
     //region Folder names
     private static final String INCOMING_FOLDER_NAME = "Incoming_" + APP_NAME;
     private static final String OUTGOING_FOLDER_NAME = "Outgoing_" + APP_NAME;
+    private static final String DEFAULT_INCOMING_FOLDER_NAME = "Default_Incoming_" + APP_NAME;
     private static final String COMP_FOLDER_NAME = APP_NAME + "_Compressed";
-    private static final String HISTORY_FOLDER_NAME = APP_NAME +"_History";
+    private static final String HISTORY_FOLDER_NAME = APP_NAME + "_History";
     private static final String AUDIO_FOLDER_NAME = "AudioHistory";
     //endregion
 
@@ -84,6 +100,7 @@ public abstract class Constants {
     public static final String ROOT_FOLDER = getRootFolder();
     public static final String INCOMING_FOLDER = getIncomingFolder();
     public static final String OUTGOING_FOLDER = getOutgoingFolder();
+    public static final String DEFAULT_INCOMING_FOLDER = getDefaultIncomingFolder();
     public static final String AUDIO_HISTORY_FOLDER = getAudioHistoryFolder();
     public static final String COMPRESSED_FOLDER = getFolderForCompression();
     public static final String HISTORY_FOLDER = getHistoryFolderForCompression();
@@ -108,6 +125,13 @@ public abstract class Constants {
         return path;
     }
 
+    private static String getDefaultIncomingFolder() {
+        String path = ROOT_FOLDER + DEFAULT_INCOMING_FOLDER + "/";
+        File defaultIncomingFolder = new File(path);
+        defaultIncomingFolder.mkdirs();
+        return path;
+    }
+
     private static String getOutgoingFolder() {
 
         String path = ROOT_FOLDER + OUTGOING_FOLDER_NAME + "/";
@@ -118,7 +142,7 @@ public abstract class Constants {
 
     private static String getAudioHistoryFolder() {
 
-        String path = ROOT_FOLDER + HISTORY_FOLDER_NAME +  "/" + AUDIO_FOLDER_NAME + "/" ;
+        String path = ROOT_FOLDER + HISTORY_FOLDER_NAME + "/" + AUDIO_FOLDER_NAME + "/";
         File AudioHistoryFolder = new File(path);
         AudioHistoryFolder.mkdirs();
         return path;
