@@ -4,16 +4,16 @@ import android.content.Context;
 import android.util.Log;
 
 import com.data.objects.Contact;
-import com.data.objects.PermissionBlockListLevel;
+import com.enums.PermissionBlockListLevel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import static com.crashlytics.android.Crashlytics.log;
-import static com.data.objects.PermissionBlockListLevel.ALL_VALID;
-import static com.data.objects.PermissionBlockListLevel.BLACK_LIST_SPECIFIC;
-import static com.data.objects.PermissionBlockListLevel.EMPTY;
+import static com.enums.PermissionBlockListLevel.ALL_VALID;
+import static com.enums.PermissionBlockListLevel.BLACK_LIST_SPECIFIC;
+import static com.enums.PermissionBlockListLevel.EMPTY;
 
 /**
  * Created by rony on 27/02/2016.

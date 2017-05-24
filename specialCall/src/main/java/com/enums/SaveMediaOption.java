@@ -1,4 +1,4 @@
-package com.data.objects;
+package com.enums;
 
 import java.util.HashMap;
 import java.util.Map;

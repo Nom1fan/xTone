@@ -7,7 +7,7 @@ import com.crashlytics.android.Crashlytics;
 import com.data.objects.Constants;
 import com.data.objects.Contact;
 import com.data.objects.PendingDownloadData;
-import com.data.objects.SaveMediaOption;
+import com.enums.SaveMediaOption;
 import com.enums.SpecialMediaType;
 import com.event.EventReport;
 import com.exceptions.FailedToSetNewMediaException;
@@ -121,56 +121,46 @@ public class EventDownloadReceivedHandler implements Handler {
         if (files == null)
             return;
 
-        try {
-            switch (newDownloadedFileType) {
-                case AUDIO:
+        switch (newDownloadedFileType) {
+            case AUDIO:
 
-                    for (File file : files) {
-                        String fileName = file.getName(); // This includes extension
-                        MediaFile.FileType fileType = MediaFilesUtils.getFileType(file);
+                for (File file : files) {
+                    String fileName = file.getName(); // This includes extension
+                    MediaFile.FileType fileType = MediaFilesUtils.getFileType(file);
 
-                        if (!fileName.equals(addedFileName) &&
-                                (fileType == MediaFile.FileType.VIDEO ||
-                                        fileType == MediaFile.FileType.AUDIO)) {
-                            MediaFilesUtils.delete(file);
-                            SharedPrefUtils.remove(context, sharedPrefKeyForVisualMedia, source);
-                        }
+                    if (!fileName.equals(addedFileName) &&
+                            (fileType == MediaFile.FileType.VIDEO ||
+                                    fileType == MediaFile.FileType.AUDIO)) {
+                        MediaFilesUtils.delete(file);
+                        SharedPrefUtils.remove(context, sharedPrefKeyForVisualMedia, source);
                     }
-                    break;
-                case IMAGE:
+                }
+                break;
+            case IMAGE:
 
-                    for (File file : files) {
-                        String fileName = file.getName(); // This includes extension
-                        MediaFile.FileType fileType = MediaFilesUtils.getFileType(file);
+                for (File file : files) {
+                    String fileName = file.getName(); // This includes extension
+                    MediaFile.FileType fileType = MediaFilesUtils.getFileType(file);
 
-                        if (!fileName.equals(addedFileName) &&
-                                (fileType == MediaFile.FileType.VIDEO ||
-                                        fileType == MediaFile.FileType.IMAGE)) {
-                            MediaFilesUtils.delete(file);
-                        }
+                    if (!fileName.equals(addedFileName) &&
+                            (fileType == MediaFile.FileType.VIDEO ||
+                                    fileType == MediaFile.FileType.IMAGE)) {
+                        MediaFilesUtils.delete(file);
                     }
-                    break;
+                }
+                break;
 
-                case VIDEO:
+            case VIDEO:
 
-                    for (File file : files) {
-                        String fileName = file.getName(); // This includes extension
-                        if (!fileName.equals(addedFileName)) {
-                            MediaFilesUtils.delete(file);
-                            SharedPrefUtils.remove(context, sharedPrefKeyForAudioMedia, source);
-                        }
+                for (File file : files) {
+                    String fileName = file.getName(); // This includes extension
+                    if (!fileName.equals(addedFileName)) {
+                        MediaFilesUtils.delete(file);
+                        SharedPrefUtils.remove(context, sharedPrefKeyForAudioMedia, source);
                     }
-                    break;
-            }
-
-        } catch (FileInvalidFormatException e) {
-            e.printStackTrace();
-            Crashlytics.log(Log.ERROR, TAG, "Invalid file type:" + e.getMessage() + " in SpecialCall directory of source:" + source);
-        } catch (FileDoesNotExistException | FileMissingExtensionException e) {
-            e.printStackTrace();
-            Crashlytics.log(Log.ERROR, TAG, e.getMessage());
+                }
+                break;
         }
-
     }
 
     private void setNewRingTone(Context context, String source, String md5) throws FailedToSetNewMediaException {

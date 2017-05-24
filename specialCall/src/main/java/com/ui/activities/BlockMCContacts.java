@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.data.objects.ActivityRequestCodes;
 import com.data.objects.Contact;
-import com.data.objects.PermissionBlockListLevel;
+import com.enums.PermissionBlockListLevel;
 import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
@@ -30,11 +30,11 @@ import java.util.List;
 import java.util.Set;
 
 import static com.crashlytics.android.Crashlytics.log;
-import static com.data.objects.PermissionBlockListLevel.ALL_VALID;
-import static com.data.objects.PermissionBlockListLevel.BLACK_LIST_SPECIFIC;
-import static com.data.objects.PermissionBlockListLevel.CONTACTS_ONLY;
-import static com.data.objects.PermissionBlockListLevel.EMPTY;
-import static com.data.objects.PermissionBlockListLevel.NO_ONE;
+import static com.enums.PermissionBlockListLevel.ALL_VALID;
+import static com.enums.PermissionBlockListLevel.BLACK_LIST_SPECIFIC;
+import static com.enums.PermissionBlockListLevel.CONTACTS_ONLY;
+import static com.enums.PermissionBlockListLevel.EMPTY;
+import static com.enums.PermissionBlockListLevel.NO_ONE;
 
 /**
  * Created by rony on 10/02/2016.

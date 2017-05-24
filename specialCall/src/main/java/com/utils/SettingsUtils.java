@@ -2,11 +2,11 @@ package com.utils;
 
 import android.content.Context;
 
-import com.data.objects.PermissionBlockListLevel;
-import com.data.objects.SaveMediaOption;
+import com.enums.PermissionBlockListLevel;
+import com.enums.SaveMediaOption;
 
-import static com.data.objects.PermissionBlockListLevel.EMPTY;
-import static com.data.objects.PermissionBlockListLevel.valueOf;
+import static com.enums.PermissionBlockListLevel.EMPTY;
+import static com.enums.PermissionBlockListLevel.valueOf;
 
 /**
  * Created by Mor on 22/05/2017.

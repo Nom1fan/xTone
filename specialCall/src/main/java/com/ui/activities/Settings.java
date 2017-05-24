@@ -8,11 +8,10 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.util.Log;
 
-import com.data.objects.SaveMediaOption;
+import com.enums.SaveMediaOption;
 import com.mediacallz.app.R;
 import com.ui.dialogs.DeleteAccountDialog;
 import com.utils.SettingsUtils;
-import com.utils.SharedPrefUtils;
 
 import static com.crashlytics.android.Crashlytics.log;
 

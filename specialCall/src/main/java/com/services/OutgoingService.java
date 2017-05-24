@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 import com.data.objects.Constants;
 import com.data.objects.MediaCallData;
-import com.data.objects.PermissionBlockListLevel;
+import com.enums.PermissionBlockListLevel;
 import com.enums.SpecialMediaType;
 import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;

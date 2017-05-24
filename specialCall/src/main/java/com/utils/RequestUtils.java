@@ -22,4 +22,10 @@ public abstract class RequestUtils {
         user.setDeviceModel(Constants.MY_DEVICE_MODEL());
         request.setUser(user);
     }
+
+    public static Request getDefaultRequest(Context context) {
+        Request request = new Request();
+        prepareDefaultRequest(context, request);
+        return request;
+    }
 }

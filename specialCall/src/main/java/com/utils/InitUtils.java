@@ -9,7 +9,7 @@ import android.view.WindowManager;
 
 import com.crashlytics.android.Crashlytics;
 import com.data.objects.Constants;
-import com.data.objects.SaveMediaOption;
+import com.enums.SaveMediaOption;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -24,7 +24,7 @@ import com.enums.SpecialMediaType;
 import com.exceptions.FileInvalidFormatException;
 import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
-import com.ui.activities.Settings;
+import com.receivers.SyncDefaultMediaReceiver;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -190,5 +190,10 @@ public abstract class InitUtils {
             e.printStackTrace();
         }
 
+    }
+
+    public static void initSyncDefaultMediaReceiver(Context context) {
+        int HourInMilli = 3600*1000;
+        AlarmUtils.setAlarm(context, SyncDefaultMediaReceiver.class, HourInMilli, SyncDefaultMediaReceiver.SYNC_ACTION);
     }
 }

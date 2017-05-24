@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 import com.data.objects.Constants;
 import com.data.objects.MediaCallData;
-import com.data.objects.PermissionBlockListLevel;
+import com.enums.PermissionBlockListLevel;
 import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
 import com.mediacallz.app.R;
@@ -45,8 +45,8 @@ import java.util.Random;
 import wei.mark.standout.StandOutWindow;
 
 import static com.crashlytics.android.Crashlytics.log;
-import static com.data.objects.PermissionBlockListLevel.CONTACTS_ONLY;
-import static com.data.objects.PermissionBlockListLevel.NO_ONE;
+import static com.enums.PermissionBlockListLevel.CONTACTS_ONLY;
+import static com.enums.PermissionBlockListLevel.NO_ONE;
 
 
 public class IncomingService extends AbstractStandOutService {
@@ -173,7 +173,7 @@ public class IncomingService extends AbstractStandOutService {
 
         handleBlockedNumber(state, incomingNumber, isBlocked);
 
-        if (!isBlocked || inRingingSession)
+        if (!isBlocked || inRingingSession) {
             switch (state) {
                 case TelephonyManager.CALL_STATE_RINGING:
                     handleCallStateRinging(incomingNumber);
@@ -185,6 +185,7 @@ public class IncomingService extends AbstractStandOutService {
                     handleCallStateIdle();
                     break;
             }
+        }
     }
 
     private void handleCallStateIdle() {
@@ -479,7 +480,7 @@ public class IncomingService extends AbstractStandOutService {
 
             startForegroundService();
 
-            AlarmUtils.setAlarm(this, StartStandOutServicesFallBackReceiver.class);
+            AlarmUtils.setAlarm(this, StartStandOutServicesFallBackReceiver.class, 30);
         }
     }
 

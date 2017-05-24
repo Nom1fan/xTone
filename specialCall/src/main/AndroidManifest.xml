@@ -250,6 +250,12 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="com.receivers.SyncDefaultMediaReceiver">
+            <intent-filter>
+                <action android:name="com.android.mediacallz.SYNC_DEFULAT_MEDIA_ACTION" />
+            </intent-filter>
+        </receiver>
+
         <receiver android:name="com.receivers.StartStandOutServicesFallBackReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />

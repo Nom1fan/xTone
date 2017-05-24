@@ -3,6 +3,7 @@ package com.ui.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -244,22 +245,25 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
     }
 
     private void InitializeAppConfigurations() {
+        Context context = getApplicationContext();
 
         //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
-        UI_Utils.makeActionOverflowMenuShown(getApplicationContext());
+        UI_Utils.makeActionOverflowMenuShown(context);
 
         // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
         InitUtils.hideMediaFromGalleryScanner();
 
         //Initialize Default Settings Values
-        InitUtils.initializeSettingsDefaultValues(getApplicationContext());
+        InitUtils.initializeSettingsDefaultValues(context);
 
         //Populate SharedprefMEdia in case it's not the first time the app is installed, and you have saved media in the MediaCallz Outgoing/Incoming
-        InitUtils.populateSavedMcFromDiskToSharedPrefs(getApplicationContext());
+        InitUtils.populateSavedMcFromDiskToSharedPrefs(context);
 
-        InitUtils.saveAndroidVersion(getApplicationContext());
+        InitUtils.saveAndroidVersion(context);
 
-        InitUtils.initImageLoader(getApplicationContext());
+        InitUtils.initImageLoader(context);
+
+        InitUtils.initSyncDefaultMediaReceiver(context);
     }
 
     private void prepareReadMorebutton() {

@@ -15,15 +15,32 @@ import java.util.Calendar;
 
 public abstract class AlarmUtils {
 
-    private static final long REPEAT_TIME = 60000;
-
     private static final String ALARM_INTENT_ACTION = "com.android.mediacallz.ALARM_ACTION";
 
-    public static void setAlarm(Context context, Class aClass) {
+    /**
+     * Sets an alarm for sending the intent action repeatedly
+     *
+     * @param context    application context
+     * @param aClass     specific component to create the intent for
+     * @param repeatTime repeat time in milliseconds
+     */
+    public static void setAlarm(Context context, Class aClass, long repeatTime) {
+        setAlarm(context, aClass, repeatTime, ALARM_INTENT_ACTION);
+    }
+
+    /**
+     * Sets an alarm for sending the intent action repeatedly
+     *
+     * @param context    application context
+     * @param aClass     specific component to create the intent for
+     * @param repeatTime repeat time in milliseconds
+     * @param action     the intent action to create
+     */
+    public static void setAlarm(Context context, Class aClass, long repeatTime, String action) {
         AlarmManager service = (AlarmManager) context
                 .getSystemService(Context.ALARM_SERVICE);
         Intent i = new Intent(context, aClass);
-        i.setAction(ALARM_INTENT_ACTION);
+        i.setAction(action);
         PendingIntent pending = PendingIntent.getBroadcast(context, 0, i,
                 PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -35,6 +52,6 @@ public abstract class AlarmUtils {
         // Fetch every 30 seconds
         // InexactRepeating allows Android to optimize the energy consumption
         service.setInexactRepeating(AlarmManager.RTC_WAKEUP,
-                cal.getTimeInMillis(), REPEAT_TIME, pending);
+                cal.getTimeInMillis(), repeatTime, pending);
     }
 }
