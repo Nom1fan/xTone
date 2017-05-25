@@ -107,19 +107,9 @@ public abstract class InitUtils {
             for (int x = 0; x < DirFiles.size(); x++) {
                 MediaFile.FileType fType = null;
 
-                try {
-                    String extension = MediaFilesUtils.extractExtension(DirFiles.get(x).getAbsolutePath());
-                    fType = MediaFilesUtils.getFileTypeByExtension(extension);
-                } catch (FileMissingExtensionException e) {
-                    log(Log.INFO, TAG, "FileMissingExtensionException in populateSavedMcFromDiskToSharedPrefs in" + specialMediaType.toString());
-                    e.printStackTrace();
-                } catch (FileInvalidFormatException e) {
-                    log(Log.INFO, TAG, "FileInvalidFormatException in populateSavedMcFromDiskToSharedPrefs in" + specialMediaType.toString());
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    log(Log.INFO, TAG, "populateSharedPrefMedia bad file  in populateSavedMcFromDiskToSharedPrefs in" + specialMediaType.toString());
-                    e.printStackTrace();
-                }
+
+                String extension = MediaFilesUtils.extractExtension(DirFiles.get(x).getAbsolutePath());
+                fType = MediaFilesUtils.getFileTypeByExtension(extension);
 
                 if (fType != null)
                     switch (fType) {
@@ -193,7 +183,7 @@ public abstract class InitUtils {
     }
 
     public static void initSyncDefaultMediaReceiver(Context context) {
-        int HourInMilli = 3600*1000;
+        int HourInMilli = 3600 * 1000;
         AlarmUtils.setAlarm(context, SyncDefaultMediaReceiver.class, HourInMilli, SyncDefaultMediaReceiver.SYNC_ACTION);
     }
 }

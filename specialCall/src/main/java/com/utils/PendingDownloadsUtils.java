@@ -66,14 +66,13 @@ public abstract class PendingDownloadsUtils {
         new Thread() {
             @Override
             public void run() {
-                log(Log.INFO,TAG, "Handling pending downloads");
+                log(Log.INFO, TAG, "Handling pending downloads");
                 Cursor cursor = null;
                 try {
                     cursor = DAL_Access.getInstance(context).getAllValues(IDAL.TABLE_DOWNLOADS);
 
                     PendingDownloadData pendingDownloadData = new PendingDownloadData();
-                    while (cursor.moveToNext())
-                    {
+                    while (cursor.moveToNext()) {
                         MediaFile mediaFile = new MediaFile();
                         mediaFile.setExtension(cursor.getString(cursor.getColumnIndex(IDAL.COL_EXTENSION)));
                         mediaFile.setFileType(MediaFile.FileType.valueOf(cursor.getString(cursor.getColumnIndex(IDAL.COL_FILETYPE))));
@@ -91,7 +90,7 @@ public abstract class PendingDownloadsUtils {
 
                         pendingDownloadData.setMediaFile(mediaFile);
 
-                        log(Log.INFO,TAG, "Sending pending download:" + pendingDownloadData);
+                        log(Log.INFO, TAG, "Sending pending download:" + pendingDownloadData);
 
                         sendActionDownload(context, pendingDownloadData);
 
@@ -100,9 +99,8 @@ public abstract class PendingDownloadsUtils {
                                 IDAL.COL_DOWNLOAD_ID,
                                 ((Integer) cursor.getInt(cursor.getColumnIndex(IDAL.COL_DOWNLOAD_ID))).toString());
                     }
-                }
-                finally {
-                    if(cursor!=null)
+                } finally {
+                    if (cursor != null)
                         cursor.close();
                 }
             }
@@ -119,24 +117,25 @@ public abstract class PendingDownloadsUtils {
      * nDFT = VIDEO --> deletes all
      *
      * @param newDownloadedExtension The extension of the pending download file just arrived and should be created in the db
-     * @param sourceId                The sourceId number of the sender of the file
+     * @param sourceId               The sourceId number of the sender of the file
      */
     private static void deletePendingDLrecordsIfNecessary(Context context, String sourceId, String newDownloadedExtension, String specialMediaType) {
 
-        String[] whereCols = new String[] { IDAL.COL_SOURCE_ID, IDAL.COL_SPECIAL_MEDIA_TYPE };
-        String[] operators = new String[] { IDAL.AND };
-        String[] whereVals = new String[] { sourceId, specialMediaType };
+        String[] whereCols = new String[]{IDAL.COL_SOURCE_ID, IDAL.COL_SPECIAL_MEDIA_TYPE};
+        String[] operators = new String[]{IDAL.AND};
+        String[] whereVals = new String[]{sourceId, specialMediaType};
 
         Cursor pendingDlsFromSrc = DAL_Access.getInstance(context).getValues(IDAL.TABLE_DOWNLOADS, whereCols, operators, whereVals);
 
         List<String> extensions = new LinkedList<>();
-        while(pendingDlsFromSrc.moveToNext()) {
+        while (pendingDlsFromSrc.moveToNext()) {
             String extension = pendingDlsFromSrc.getString(pendingDlsFromSrc.getColumnIndex(IDAL.COL_EXTENSION));
             extensions.add(extension);
         }
 
-        try {
-            MediaFile.FileType newDownloadedFileType = MediaFilesUtils.getFileTypeByExtension(newDownloadedExtension);
+
+        MediaFile.FileType newDownloadedFileType = MediaFilesUtils.getFileTypeByExtension(newDownloadedExtension);
+        if (newDownloadedFileType != null){
             switch (newDownloadedFileType) {
                 case AUDIO:
 
@@ -144,11 +143,11 @@ public abstract class PendingDownloadsUtils {
                         MediaFile.FileType fileType = MediaFilesUtils.getFileTypeByExtension(extension);
 
                         if ((fileType == MediaFile.FileType.VIDEO ||
-                                        fileType == MediaFile.FileType.AUDIO)) {
+                                fileType == MediaFile.FileType.AUDIO)) {
 
-                            whereCols = new String[] { IDAL.COL_SOURCE_ID, IDAL.COL_EXTENSION, IDAL.COL_SPECIAL_MEDIA_TYPE };
-                            operators = new String[] { IDAL.AND, IDAL.AND };
-                            whereVals = new String[] { sourceId, extension, specialMediaType };
+                            whereCols = new String[]{IDAL.COL_SOURCE_ID, IDAL.COL_EXTENSION, IDAL.COL_SPECIAL_MEDIA_TYPE};
+                            operators = new String[]{IDAL.AND, IDAL.AND};
+                            whereVals = new String[]{sourceId, extension, specialMediaType};
 
                             DAL_Access.getInstance(context).deleteRow(IDAL.TABLE_DOWNLOADS, whereCols, operators, whereVals);
                         }
@@ -160,11 +159,11 @@ public abstract class PendingDownloadsUtils {
                         MediaFile.FileType fileType = MediaFilesUtils.getFileTypeByExtension(extension);
 
                         if ((fileType == MediaFile.FileType.VIDEO ||
-                                        fileType == MediaFile.FileType.IMAGE)) {
+                                fileType == MediaFile.FileType.IMAGE)) {
 
-                            whereCols = new String[] { IDAL.COL_SOURCE_ID, IDAL.COL_EXTENSION, IDAL.COL_SPECIAL_MEDIA_TYPE };
-                            operators = new String[] { IDAL.AND, IDAL.AND };
-                            whereVals = new String[] { sourceId, extension, specialMediaType };
+                            whereCols = new String[]{IDAL.COL_SOURCE_ID, IDAL.COL_EXTENSION, IDAL.COL_SPECIAL_MEDIA_TYPE};
+                            operators = new String[]{IDAL.AND, IDAL.AND};
+                            whereVals = new String[]{sourceId, extension, specialMediaType};
 
                             DAL_Access.getInstance(context).deleteRow(IDAL.TABLE_DOWNLOADS, whereCols, operators, whereVals);
                         }
@@ -175,17 +174,14 @@ public abstract class PendingDownloadsUtils {
 
                     for (String extension : extensions) {
 
-                        whereCols = new String[] { IDAL.COL_SOURCE_ID, IDAL.COL_EXTENSION, IDAL.COL_SPECIAL_MEDIA_TYPE };
-                        operators = new String[] { IDAL.AND, IDAL.AND };
-                        whereVals = new String[] { sourceId, extension, specialMediaType };
+                        whereCols = new String[]{IDAL.COL_SOURCE_ID, IDAL.COL_EXTENSION, IDAL.COL_SPECIAL_MEDIA_TYPE};
+                        operators = new String[]{IDAL.AND, IDAL.AND};
+                        whereVals = new String[]{sourceId, extension, specialMediaType};
 
                         DAL_Access.getInstance(context).deleteRow(IDAL.TABLE_DOWNLOADS, whereCols, operators, whereVals);
                     }
                     break;
             }
-
-        } catch (FileInvalidFormatException e) {
-            e.printStackTrace();
         }
 
     }
