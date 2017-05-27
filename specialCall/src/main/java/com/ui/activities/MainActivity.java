@@ -66,9 +66,6 @@ import com.enums.SpecialMediaType;
 import com.enums.UserStatus;
 import com.event.Event;
 import com.event.EventReport;
-import com.exceptions.FileDoesNotExistException;
-import com.exceptions.FileInvalidFormatException;
-import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
 import com.flows.UploadFileFlow;
 import com.interfaces.ICallbackListener;
@@ -344,10 +341,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 Log.w(TAG, "need to allow DND mode by user action");
                 getApplicationContext().startActivity(intent);
             }
-
+            testPermissionForSystemOverlay();
             // ifHuaweiAlert();
 
+        }
+    }
 
+
+    public void testPermissionForSystemOverlay() {
+        if (!android.provider.Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, 5469);
         }
     }
 
