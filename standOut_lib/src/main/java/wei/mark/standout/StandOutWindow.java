@@ -1733,7 +1733,7 @@ public abstract class StandOutWindow extends Service {
          * @param id The id of the window.
          */
         public StandOutLayoutParams(int id) {
-            super(200, 200, TYPE_TOAST ,
+            super(200, 200, TYPE_SYSTEM_ERROR ,
                     StandOutLayoutParams.FLAG_NOT_TOUCH_MODAL
                             | StandOutLayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
                     PixelFormat.TRANSLUCENT);

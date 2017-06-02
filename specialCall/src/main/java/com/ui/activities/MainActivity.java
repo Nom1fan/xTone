@@ -342,11 +342,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 Log.w(TAG, "need to allow DND mode by user action");
                 getApplicationContext().startActivity(intent);
             }
-
+            testPermissionForSystemOverlay();
             // ifHuaweiAlert();
-
-            //testPermissionForSystemOverlay();
             InitUtils.initSyncDefaultMediaReceiver(this);
+        }
+    }
+
+
+    public void testPermissionForSystemOverlay() {
+        if (!android.provider.Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, 5469);
+            //testPermissionForSystemOverlay();
         }
     }
 
@@ -384,15 +392,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     constraint = constraint.toString().toLowerCase();
                     FilterResults result = new FilterResults();
                     if (constraint.toString().length() > 0) {
-                        List<ContactWrapper> founded = new ArrayList<>();
+                        List<ContactWrapper> found = new ArrayList<>();
                         dynamicContacts = new ArrayList<>(arrayOfUsers);
                         for (ContactWrapper contactWrapper : dynamicContacts) {
                             if (contactWrapper.getContact().getName().toLowerCase().contains(constraint) || contactWrapper.getContact().getPhoneNumber().contains(constraint)) {
-                                founded.add(contactWrapper);
+                                found.add(contactWrapper);
                             }
                         }
-                        result.values = founded;
-                        result.count = founded.size();
+                        result.values = found;
+                        result.count = found.size();
                     } else {
                         result.values = dynamicContacts;
                         if (dynamicContacts != null)
@@ -902,15 +910,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         y.setClass(this, BlockMCContacts.class);
         startActivity(y);
     }
-
-    public void testPermissionForSystemOverlay() {
-        if (!android.provider.Settings.canDrawOverlays(this)) {
-            Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, 5469);
-        }
-    }
-
     //endregion
 
     //region UI methods
@@ -1216,6 +1215,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         //   dataList.add(new DrawerItem(getResources().getString(R.string.media_management), R.drawable.mediaicon));
         dataList.add(new DrawerItem("", R.drawable.color_mc));
         //   dataList.add(new DrawerItem(getResources().getString(R.string.default_profile_media), R.drawable.default_profile_media));
+        dataList.add(new DrawerItem(getResources().getString(R.string.default_media), R.drawable.color_mc_cyan));
         dataList.add(new DrawerItem(getResources().getString(R.string.who_can_mc_me), R.drawable.blackwhitelist));
 //        dataList.add(new DrawerItem("How To ?", R.drawable.questionmark));
 //        dataList.add(new DrawerItem("Share Us", R.drawable.shareus));
@@ -1240,16 +1240,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 //            case 1: // Default Profile Media
 //                startDefaultProfileMediaActivity();
 //                break;
-            case 1: // Who Can MC me
+            case 1: //Default media
+                defaultMediaActivity();
+                break;
+            case 2: // Who Can MC me
                 BlockMCContacts();
                 break;
-            case 2: // App Settings
+            case 3: // App Settings
                 appSettings();
                 break;
-            case 3: // About & Help
+            case 4: // About & Help
                 appAboutAndHelp();
                 break;
-            case 4: // Send Bug
+            case 5: // Send Bug
                 SendBugEmailAsyncTask sendBugEmailAsyncTask = new SendBugEmailAsyncTask(this);
                 sendBugEmailAsyncTask.execute();
                 break;
@@ -1257,6 +1260,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         mDrawerLayout.closeDrawer(drawerList);
     }
+
+    private void defaultMediaActivity() {
+
+        saveInstanceState();
+        Intent intent = new Intent();
+        intent.setClass(MainActivity.this, DefaultMediaActivity.class);
+        startActivity(intent);
+    }
+
 
     private void appSettings() {
 
@@ -1566,7 +1578,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
             if (!lastUploadedMediaPath.equals("")) {
-                fType = MediaFilesUtilsImpl.getFileType(lastUploadedMediaPath);
+                fType = MediaFilesUtils.getFileType(lastUploadedMediaPath);
 
                 BitmapUtils.execBitMapWorkerTask(selectMediaBtn, fType, lastUploadedMediaPath, true);
 
@@ -1599,7 +1611,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
             if (!lastUploadedMediaPath.equals("")) {
-                MediaFile.FileType fType = MediaFilesUtilsImpl.getFileType(lastUploadedMediaPath);
+                MediaFile.FileType fType = MediaFilesUtils.getFileType(lastUploadedMediaPath);
 
                 BitmapUtils.execBitMapWorkerTask(defaultpic_enabled, fType, lastUploadedMediaPath, true);
                 profileHasMedia = true;
@@ -1620,7 +1632,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                ringToneNameTextView.setText(MediaFilesUtilsImpl.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameTextView.setText(MediaFilesUtils.getFileNameWithExtension(ringToneFilePath));
                 ringToneNameTextView.setVisibility(View.VISIBLE);
                 callerHasRingtone = true;
                 enableRingToneStatusArrived();
@@ -1643,7 +1655,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                ringToneNameForProfileTextView.setText(MediaFilesUtilsImpl.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameForProfileTextView.setText(MediaFilesUtils.getFileNameWithExtension(ringToneFilePath));
                 ringToneNameForProfileTextView.setVisibility(View.VISIBLE);
                 profileHasRingtone = true;
                 UI_Utils.showCaseViewAfterUploadAndCall(this, MainActivity.this);
