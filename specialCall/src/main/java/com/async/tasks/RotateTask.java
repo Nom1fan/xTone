@@ -13,7 +13,7 @@ import com.mediacallz.app.R;
 import java.io.File;
 
 import com.files.media.MediaFile;
-import com.utils.MediaFilesUtils;
+import com.utils.MediaFilesUtilsImpl;
 
 /**
  * Created by Mor on 11/08/2016.
@@ -61,7 +61,7 @@ public class RotateTask extends MediaProcessingAsyncTask {
     @Override
     protected void onCancelled() {
         progressDialog.dismiss();
-        MediaFilesUtils.delete(new File(processedFilePath));
+        MediaFilesUtilsImpl.delete(new File(processedFilePath));
         sendLoadingCancelled(context, TAG);
     }
 

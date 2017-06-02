@@ -27,6 +27,7 @@
     <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
     <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!--<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />-->
 
     <!--<uses-permission android:name="android.permission.PROCESS_INCOMING_CALLS" /> -->
     <!--<uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />-->
@@ -231,6 +232,10 @@
         <service
             android:name="com.services.ClearMediaIntentService"
             android:exported="false"/>
+
+        <service
+            android:name="com.services.SyncOnDefaultMediaIntentService"
+            android:exported="false" />
 
         <!-- Batch Service -->
 

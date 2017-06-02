@@ -30,7 +30,7 @@ import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
 import com.utils.MediaCallSessionUtils;
-import com.utils.MediaFilesUtils;
+import com.utils.MediaFilesUtilsImpl;
 import com.utils.NotificationUtils;
 import com.utils.Phone2MediaMapperUtils;
 import com.utils.PhoneNumberUtils;
@@ -267,8 +267,8 @@ public class IncomingService extends AbstractStandOutService {
         String mediaFilePath = Phone2MediaMapperUtils.getCallerVisualMedia(context, incomingNumber);
         String ringtonePath = Phone2MediaMapperUtils.getCallerAudioMedia(context, incomingNumber);
 
-        boolean ringtoneExists = new File(ringtonePath).exists() && !MediaFilesUtils.isAudioFileCorrupted(ringtonePath, context);
-        boolean visualMediaExists = new File(mediaFilePath).exists() && !MediaFilesUtils.isVideoFileCorrupted(mediaFilePath, context);
+        boolean ringtoneExists = new File(ringtonePath).exists() && !MediaFilesUtilsImpl.isAudioFileCorrupted(ringtonePath, context);
+        boolean visualMediaExists = new File(mediaFilePath).exists() && !MediaFilesUtilsImpl.isVideoFileCorrupted(mediaFilePath, context);
         boolean shouldMuteRing = shouldMuteRing(mediaFilePath, ringtoneExists, visualMediaExists);
 
         MediaCallData mediaCallData = new MediaCallData();
@@ -302,7 +302,7 @@ public class IncomingService extends AbstractStandOutService {
         boolean willMuteRing = false;
         if (visualMediaExists) {
             try {
-                MediaFile managedFile = new MediaFile(mediaFilePath);
+                MediaFile managedFile = new MediaFile(new File(mediaFilePath));
                 MediaFile.FileType fType = managedFile.getFileType();
                 if (fType.equals(MediaFile.FileType.VIDEO)) {
                     willMuteRing = true;

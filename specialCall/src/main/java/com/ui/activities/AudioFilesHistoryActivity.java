@@ -23,23 +23,19 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.exceptions.FileException;
 import com.mediacallz.app.R;
-import com.utils.MediaFilesUtils;
+import com.utils.MediaFilesUtilsImpl;
 import com.utils.UI_Utils;
 
 import org.apache.commons.io.FilenameUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.exceptions.FileDoesNotExistException;
-import com.exceptions.FileExceedsMaxSizeException;
-import com.exceptions.FileInvalidFormatException;
-import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
@@ -163,19 +159,16 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
     private void deleteAudioFile() {
         MediaFile.FileType type = null;
         MediaFile audioFileSelected = null;
-        try {
-            audioFileSelected = new MediaFile(mChosenAudioFile);
-            type = audioFileSelected.getFileType();
-        } catch (FileException e) {
-            e.printStackTrace();
-        }
+
+        audioFileSelected = new MediaFile(new File(mChosenAudioFile));
+        type = audioFileSelected.getFileType();
 
         if (type != MediaFile.FileType.AUDIO) {
             return;
         }
 
         log(Log.INFO, TAG, "Audio File that will be deleted: " + mChosenAudioFile);
-        audioFileSelected.delete();
+        MediaFilesUtilsImpl.delete(audioFileSelected);
     }
 
     private void stopAudioFile() {
@@ -217,18 +210,9 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
             return;
         }
         MediaFile.FileType type = null;
-        try {
-            MediaFile audioFileSelected = new MediaFile(mChosenAudioFile);
-            type = audioFileSelected.getFileType();
-        } catch (FileInvalidFormatException e) {
-            e.printStackTrace();
-        } catch (FileExceedsMaxSizeException e) {
-            e.printStackTrace();
-        } catch (FileDoesNotExistException e) {
-            e.printStackTrace();
-        } catch (FileMissingExtensionException e) {
-            e.printStackTrace();
-        }
+
+        MediaFile audioFileSelected = new MediaFile(new File(mChosenAudioFile));
+        type = audioFileSelected.getFileType();
 
         if (type != MediaFile.FileType.AUDIO) {
             return;
@@ -267,7 +251,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
     }
 
     private void prepareListViewData() {
-        _audioFilesSet = MediaFilesUtils.getAllAudioHistoryFiles();
+        _audioFilesSet = MediaFilesUtilsImpl.getAllAudioHistoryFiles();
         populateContactsToDisplayFromBlockedList(); // populate all contacts to view with checkboxes
     }
 
@@ -345,7 +329,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
     private MediaFile createManagedFile(String resultFilePath) {
         MediaFile managedFile = null;
         try {
-            managedFile = new MediaFile(resultFilePath);
+            managedFile = new MediaFile(new File(resultFilePath));
         } catch (Exception e) {
             e.printStackTrace();
             log(Log.ERROR, TAG, "Failed to create result managed file");

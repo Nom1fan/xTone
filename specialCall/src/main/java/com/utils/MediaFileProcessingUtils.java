@@ -40,7 +40,9 @@ public class MediaFileProcessingUtils {
     public static final int MIN_RESOLUTION = 320;     // MIN width resolution
     public static final int FINISHED_TRANSCODING_MSG = 0;
     public static final int COMPRESSION_PHASE_2 = 1;
+    private static final MediaFileUtils mediaFileUtils = UtilityFactory.getUtility(MediaFileUtils.class);
     private static final String TAG = MediaFileProcessingUtils.class.getSimpleName();
+     
     //endregion
 
     //region Constants for handler messages
@@ -87,7 +89,7 @@ public class MediaFileProcessingUtils {
         if (trimmedFile != null) {
             markFilePathAsTrimmed(context, trimmedFile.getFile().getAbsolutePath());
 
-            MediaFilesUtils.triggerMediaScanOnFile(context, trimmedFile.getFile());
+            mediaFileUtils.triggerMediaScanOnFile(context, trimmedFile.getFile());
             return trimmedFile;
         }
 
@@ -137,10 +139,10 @@ public class MediaFileProcessingUtils {
             if (isFileTrimmed(context, baseFile)) {
                 String trimmedFilePath = baseFile.getFile().getAbsolutePath();
                 SharedPrefUtils.remove(context, SharedPrefUtils.TRIMMED_FILES, trimmedFilePath);
-                MediaFilesUtils.delete(baseFile.getFile());
+                mediaFileUtils.delete(baseFile.getFile());
             }
 
-            MediaFilesUtils.triggerMediaScanOnFile(context, compressedFile.getFile());
+            mediaFileUtils.triggerMediaScanOnFile(context, compressedFile.getFile());
             return compressedFile;
         }
 
@@ -159,7 +161,7 @@ public class MediaFileProcessingUtils {
         releaseWakeLock(wakeLock);
 
         if (rotatedFile != null) {
-            MediaFilesUtils.triggerMediaScanOnFile(context, rotatedFile.getFile());
+            mediaFileUtils.triggerMediaScanOnFile(context, rotatedFile.getFile());
             return rotatedFile;
         }
 
@@ -171,7 +173,7 @@ public class MediaFileProcessingUtils {
     @Nullable
     private MediaFile rotateImage(MediaFile baseFile, String rotatedImageFilepath, int degrees) {
         File rotatedFile = null;
-        String imagePath = baseFile.getFileFullPath();
+        String imagePath = baseFile.getFile().getAbsolutePath();
         Bitmap bmp = BitmapUtils.decodeSampledBitmapFromImageFile(imagePath);
 
         Matrix matrix = new Matrix();
@@ -221,7 +223,7 @@ public class MediaFileProcessingUtils {
 
         MediaFile modifiedFile;
 
-        if (baseFile.getFileExtension().equals("gif")) {
+        if (baseFile.getExtension().equals("gif")) {
 
             int hz = 10;
             modifiedFile = _ffmpeg_utils.compressGifImageFile(baseFile, compressedFilePath, hz, context);
@@ -254,7 +256,7 @@ public class MediaFileProcessingUtils {
     @Nullable
     private MediaFile trimAudio(MediaFile baseFile, String trimmedFilePath, Context context) {
 
-        MediaFile modifiedFile = null;
+        MediaFile modifiedFile;
         TrimData trimData = new TrimData().getTrimData(context, "audio");
         long startTime = trimData.getStartTime();
         long endTime = trimData.getEndTime();
@@ -268,7 +270,7 @@ public class MediaFileProcessingUtils {
     public boolean isCompressionNeeded(Context context, MediaFile managedfile) {
 
         // Trim reduced file size enough - No need for compression
-        if (isFileTrimmed(context, managedfile) && managedfile.getFileSize() < AFTER_TRIM_SIZE_COMPRESS_NEEDED)
+        if (isFileTrimmed(context, managedfile) && managedfile.getSize() < AFTER_TRIM_SIZE_COMPRESS_NEEDED)
             return false;
 
         if (isFileCompressed(context, managedfile))
@@ -277,15 +279,15 @@ public class MediaFileProcessingUtils {
         switch (managedfile.getFileType()) {
 
             case VIDEO:
-                if (managedfile.getFileSize() <= VIDEO_SIZE_COMPRESS_NEEDED)
+                if (managedfile.getSize() <= VIDEO_SIZE_COMPRESS_NEEDED)
                     return false;
                 break;
             case AUDIO:
-                if (managedfile.getFileSize() <= AUDIO_SIZE_COMPRESS_NEEDED)
+                if (managedfile.getSize() <= AUDIO_SIZE_COMPRESS_NEEDED)
                     return false;
                 break;
             case IMAGE:
-                if (managedfile.getFileSize() <= IMAGE_SIZE_COMPRESS_NEEDED)
+                if (managedfile.getSize() <= IMAGE_SIZE_COMPRESS_NEEDED)
                     return false;
         }
 
@@ -295,7 +297,7 @@ public class MediaFileProcessingUtils {
     public boolean isTrimNeeded(Context ctx, MediaFile baseFile) {
         boolean isManualTrimNeeded = SharedPrefUtils.getInt(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC) > 0;
         boolean isAutoTrimNeeded = !baseFile.getFileType().equals(MediaFile.FileType.IMAGE) &&
-                (MediaFilesUtils.getFileDurationInMilliSeconds(ctx, baseFile) > MediaFileProcessingUtils.MAX_DURATION)
+                (mediaFileUtils.getFileDurationInMilliSeconds(ctx, baseFile) > MediaFileProcessingUtils.MAX_DURATION)
                 && (isCompressionNeeded(ctx, baseFile));
 
         return (isAutoTrimNeeded || isManualTrimNeeded);
@@ -330,11 +332,11 @@ public class MediaFileProcessingUtils {
         MediaFile compressedFile = null;
 
         try {
-            File potentialCompFile = MediaFilesUtils.getFileByMD5(baseFile.getMd5(), Constants.COMPRESSED_FOLDER);
+            File potentialCompFile = mediaFileUtils.getFileByMD5(baseFile.getMd5(), Constants.COMPRESSED_FOLDER);
 
             // File already has a previously compressed file in compressed folder
             if (potentialCompFile != null) {
-                compressedFile = MediaFilesUtils.createMediaFile(potentialCompFile);
+                compressedFile = mediaFileUtils.createMediaFile(potentialCompFile);
             }
         } catch (Exception e) {
             log(Log.WARN, TAG, "Failed to retrieve previously compressed file. Exception:" + e.getMessage());

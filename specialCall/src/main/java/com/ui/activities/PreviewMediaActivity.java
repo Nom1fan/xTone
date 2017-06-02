@@ -24,7 +24,7 @@ import com.semantive.waveformandroid.waveform.WaveformFragment;
 import com.services.AbstractStandOutService;
 import com.services.PreviewService;
 import com.utils.BitmapUtils;
-import com.utils.MediaFilesUtils;
+import com.utils.MediaFilesUtilsImpl;
 import com.utils.SharedPrefUtils;
 
 import org.florescu.android.rangeseekbar.RangeSeekBar;
@@ -80,7 +80,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
 
         TextView fileType = (TextView) findViewById(R.id.upload_file_type);
         TextView fileName = (TextView) findViewById(R.id.upload_file_name);
-        fileName.setText(MediaFilesUtils.getFileNameWithExtension(_managedFile.getFileFullPath()));
+        fileName.setText(MediaFilesUtilsImpl.getFileNameWithExtension(_managedFile.getFile().getAbsolutePath()));
         fType = _managedFile.getFileType();
 
         prepareUploadBtn();
@@ -116,7 +116,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
                     isPreviewDisplaying = false;
                     previewThumbnail.setImageResource(R.drawable.play_preview_anim);
                 } else {
-                    startPreviewStandoutWindow(_managedFile.getFileFullPath() , fType);
+                    startPreviewStandoutWindow(_managedFile.getFile().getAbsolutePath() , fType);
                     isPreviewDisplaying = true;
                     previewThumbnail.setImageResource(R.drawable.stop_preview_anim);
                 }
@@ -156,7 +156,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
     private void handlePreviewImage(TextView fileType) {
         fileType.setText(getResources().getString(R.string.fileType_image));
 
-        if (!_managedFile.getFileExtension().toLowerCase().contains("gif")) {
+        if (!_managedFile.getExtension().toLowerCase().contains("gif")) {
             ImageButton rotate = (ImageButton) findViewById(R.id.rotate_button);
             SharedPrefUtils.setInt(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.IMAGE_ROTATION_DEGREE,0);
             rotate.setClickable(true);
@@ -192,7 +192,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
 
                 trimVideoView = (VideoView) findViewById(R.id.trimvideo_view);
 
-                trimVideoView.setVideoURI(Uri.parse(_managedFile.getFileFullPath()));
+                trimVideoView.setVideoURI(Uri.parse(_managedFile.getFile().getAbsolutePath()));
                 trimVideoView.requestFocus();
                 trimVideoView.setVisibility(View.VISIBLE);
                 trimVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -204,7 +204,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
                 RangeSeekBar videoSeekBar = (RangeSeekBar) findViewById(R.id.seekbar);
                 videoSeekBar.setVisibility(View.VISIBLE);
 
-                long durationInMili = MediaFilesUtils.getFileDurationInMilliSeconds(getApplicationContext(), _managedFile);
+                long durationInMili = MediaFilesUtilsImpl.getFileDurationInMilliSeconds(getApplicationContext(), _managedFile);
                 endInMili =  Integer.parseInt(String.valueOf(durationInMili));
                 SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC,endInMili);
 
@@ -258,7 +258,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
     private void handlePreviewAudio(TextView fileType) {
         fileType.setText(getResources().getString(R.string.fileType_audio));
 
-        MediaPlayer mp = MediaPlayer.create(PreviewMediaActivity.this, Uri.parse(_managedFile.getFileFullPath()));
+        MediaPlayer mp = MediaPlayer.create(PreviewMediaActivity.this, Uri.parse(_managedFile.getFile().getAbsolutePath()));
         if (mp!=null)
             if  (mp.getDuration() <= MIN_MILISECS_FOR_AUDIO_EDIT) {
                 return;
@@ -286,7 +286,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
 
 
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new CustomWaveformFragment(_managedFile.getFileFullPath(),getApplicationContext()))
+                        .add(R.id.container, new CustomWaveformFragment(_managedFile.getFile().getAbsolutePath(),getApplicationContext()))
                         .commit();
 
                 edit_audio.setVisibility(View.INVISIBLE);
@@ -332,7 +332,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
         super.onWindowFocusChanged(hasFocus);
 
         _imageButton = (ImageButton) findViewById(R.id.preview_thumbnail);
-        log(Log.INFO,TAG, "type and path " + fType + "  " + _managedFile.getFileFullPath());
+        log(Log.INFO,TAG, "type and path " + fType + "  " + _managedFile.getFile().getAbsolutePath());
 
 
         switch (fType) {
@@ -343,7 +343,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
             case VIDEO:
             case IMAGE:
 
-                BitmapUtils.execBitMapWorkerTask(_imageButton, fType, _managedFile.getFileFullPath(), false);
+                BitmapUtils.execBitMapWorkerTask(_imageButton, fType, _managedFile.getFile().getAbsolutePath(), false);
                 // stretch the uploaded image as it won't stretch because we use a drawable instead that we don't want to stretch
                 _imageButton.setPadding(0, 0, 0, 0);
                 _imageButton.setScaleType(ImageView.ScaleType.FIT_XY);
@@ -408,7 +408,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
         Intent resultIntent = new Intent();
         log(Log.INFO,TAG,"returnFile");
 
-        log(Log.INFO,TAG, "[File selected]: " + managedFile.getFileFullPath() + ". [File Size]: " + MediaFilesUtils.getFileSizeFormat(managedFile.getFileSize()));
+        log(Log.INFO,TAG, "[File selected]: " + managedFile.getFile().getAbsolutePath() + ". [File Size]: " + MediaFilesUtilsImpl.getFileSizeFormat(managedFile.getSize()));
 
         resultIntent.putExtra(RESULT_FILE, managedFile);
 

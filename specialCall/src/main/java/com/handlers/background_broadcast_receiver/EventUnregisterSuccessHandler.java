@@ -7,7 +7,7 @@ import com.app.AppStateManager;
 import com.data.objects.Constants;
 import com.handlers.Handler;
 import com.utils.BroadcastUtils;
-import com.utils.MediaFilesUtils;
+import com.utils.MediaFilesUtilsImpl;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
@@ -15,7 +15,6 @@ import java.io.IOException;
 
 import com.event.EventReport;
 import com.event.EventType;
-import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -31,8 +30,8 @@ public class EventUnregisterSuccessHandler implements Handler {
 
         try {
             //TODO Decide if we should delete MEDIA_CALLZ_HISTORY folder contents too or not
-            MediaFilesUtils.deleteDirectoryContents(new File(Constants.INCOMING_FOLDER));
-            MediaFilesUtils.deleteDirectoryContents(new File(Constants.OUTGOING_FOLDER));
+            MediaFilesUtilsImpl.deleteDirectoryContents(new File(Constants.INCOMING_FOLDER));
+            MediaFilesUtilsImpl.deleteDirectoryContents(new File(Constants.OUTGOING_FOLDER));
 
             //TODO Make sure this doesn't create issues since it delete all app states and such
             SharedPrefUtils.removeAll(ctx);

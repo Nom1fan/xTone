@@ -1,4 +1,4 @@
-package com.dal.objects;
+package com.dao;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,17 +9,17 @@ import android.database.sqlite.SQLiteOpenHelper;
 /**
  * Created by mor on 29/09/2015.
  */
-public class SQLiteManager extends SQLiteOpenHelper implements IDAL {
+public class SQLiteDAOImpl extends SQLiteOpenHelper implements SQLiteDAO {
 
-    private static final String TAG = SQLiteManager.class.getSimpleName();
-    private static SQLiteManager _instance;
+    private static final String TAG = SQLiteDAOImpl.class.getSimpleName();
+    private static SQLiteDAOImpl _instance;
     private static final String DB_NAME = "GENERAL";
 
     //endregion
     //endregion
 
 
-    private SQLiteManager(Context context) {
+    private SQLiteDAOImpl(Context context) {
         super(context, DB_NAME, null, 1);
     }
 
@@ -73,10 +73,10 @@ public class SQLiteManager extends SQLiteOpenHelper implements IDAL {
 
     //region Manager methods
 
-    public static IDAL getInstance(Context context) {
+    public static SQLiteDAO getInstance(Context context) {
 
         if(_instance==null)
-            _instance = new SQLiteManager(context);
+            _instance = new SQLiteDAOImpl(context);
         return _instance;
     }
 
@@ -109,7 +109,7 @@ public class SQLiteManager extends SQLiteOpenHelper implements IDAL {
     }
     //endregion
 
-    //region IDAL methods
+    //region SQLiteDAO methods
     @Override
     public void insertValues(String table, ContentValues values) {
         SQLiteDatabase db = getWritableDatabase();

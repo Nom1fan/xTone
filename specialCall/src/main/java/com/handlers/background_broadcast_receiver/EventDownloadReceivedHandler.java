@@ -6,19 +6,17 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.data.objects.Constants;
 import com.data.objects.Contact;
+import com.data.objects.DownloadData;
 import com.data.objects.PendingDownloadData;
 import com.enums.SaveMediaOption;
 import com.enums.SpecialMediaType;
 import com.event.EventReport;
 import com.exceptions.FailedToSetNewMediaException;
-import com.exceptions.FileDoesNotExistException;
-import com.exceptions.FileInvalidFormatException;
-import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
 import com.handlers.Handler;
 import com.services.ServerProxyService;
 import com.utils.ContactsUtils;
-import com.utils.MediaFilesUtils;
+import com.utils.MediaFilesUtilsImpl;
 import com.utils.PhoneNumberUtils;
 import com.utils.SettingsUtils;
 import com.utils.SharedPrefUtils;
@@ -50,35 +48,37 @@ public class EventDownloadReceivedHandler implements Handler {
 
         Crashlytics.log(Log.INFO, TAG, "In: Download complete");
 
-        PendingDownloadData downloadData = (PendingDownloadData) eventReport.data();
+        DownloadData downloadData = (DownloadData) eventReport.data();
         preparePathsAndDirs(downloadData);
+        PendingDownloadData pendingDownloadData = downloadData.getPendingDownloadData();
+
 
         // Copy new downloaded file to History Folder so it will show up in Gallery and don't make any duplicates with MD5 signature
-        if (isAuthorizedToLeaveMedia(ctx, downloadData.getSourceId())) {
-            copyToHistoryForGalleryShow(ctx, downloadData);
+        if (isAuthorizedToLeaveMedia(ctx, pendingDownloadData.getSourceId())) {
+            copyToHistoryForGalleryShow(ctx, pendingDownloadData);
         }
 
-        MediaFile.FileType fType = downloadData.getMediaFile().getFileType();
-        String fFullName = downloadData.getSourceId() + "." + downloadData.getMediaFile().getExtension();
-        String source = downloadData.getSourceId();
-        String md5 = downloadData.getMediaFile().getMd5();
+        MediaFile.FileType fType = pendingDownloadData.getMediaFile().getFileType();
+        String fFullName = pendingDownloadData.getSourceId() + "." + pendingDownloadData.getMediaFile().getExtension();
+        String source = pendingDownloadData.getSourceId();
+        String md5 = pendingDownloadData.getMediaFile().getMd5();
 
         try {
 
             switch (fType) {
                 case AUDIO:
                     setNewRingTone(ctx, source, md5);
-                    deleteFilesIfNecessary(ctx, fFullName, fType, source);
+                    MediaFilesUtilsImpl.deleteFilesIfNecessary(ctx, sharedPrefKeyForAudioMedia, newFileDir, fFullName, fType, source);
                     break;
 
                 case VIDEO:
                 case IMAGE:
                     setNewVisualMedia(ctx, source, md5);
-                    deleteFilesIfNecessary(ctx, fFullName, fType, source);
+                    MediaFilesUtilsImpl.deleteFilesIfNecessary(ctx, sharedPrefKeyForVisualMedia, newFileDir, fFullName, fType, source);
                     break;
             }
 
-            ServerProxyService.notifyMediaReady(ctx, downloadData);
+            ServerProxyService.notifyMediaReady(ctx, pendingDownloadData);
 
         } catch (FailedToSetNewMediaException e) {
             //TODO Inform source of failure
@@ -103,71 +103,11 @@ public class EventDownloadReceivedHandler implements Handler {
             return false;
     }
 
-    /**
-     * Deletes files in the source's designated directory by an algorithm based on the new downloaded file type:
-     * This method does not delete the new downloaded file.
-     * lets mark newDownloadedFileType as nDFT.
-     * nDFT = IMAGE --> deletes images and videos
-     * nDFT = AUDIO --> deletes ringtones and videos
-     * nDFT = VIDEO --> deletes all
-     *
-     * @param newDownloadedFileType The type of the files just downloaded and should be created in the source designated folder
-     * @param source                The source number of the sender of the file
-     */
-    private void deleteFilesIfNecessary(Context context, String addedFileName, MediaFile.FileType newDownloadedFileType, String source) {
-
-        File[] files = new File(newFileDir).listFiles();
-
-        if (files == null)
-            return;
-
-        switch (newDownloadedFileType) {
-            case AUDIO:
-
-                for (File file : files) {
-                    String fileName = file.getName(); // This includes extension
-                    MediaFile.FileType fileType = MediaFilesUtils.getFileType(file);
-
-                    if (!fileName.equals(addedFileName) &&
-                            (fileType == MediaFile.FileType.VIDEO ||
-                                    fileType == MediaFile.FileType.AUDIO)) {
-                        MediaFilesUtils.delete(file);
-                        SharedPrefUtils.remove(context, sharedPrefKeyForVisualMedia, source);
-                    }
-                }
-                break;
-            case IMAGE:
-
-                for (File file : files) {
-                    String fileName = file.getName(); // This includes extension
-                    MediaFile.FileType fileType = MediaFilesUtils.getFileType(file);
-
-                    if (!fileName.equals(addedFileName) &&
-                            (fileType == MediaFile.FileType.VIDEO ||
-                                    fileType == MediaFile.FileType.IMAGE)) {
-                        MediaFilesUtils.delete(file);
-                    }
-                }
-                break;
-
-            case VIDEO:
-
-                for (File file : files) {
-                    String fileName = file.getName(); // This includes extension
-                    if (!fileName.equals(addedFileName)) {
-                        MediaFilesUtils.delete(file);
-                        SharedPrefUtils.remove(context, sharedPrefKeyForAudioMedia, source);
-                    }
-                }
-                break;
-        }
-    }
-
     private void setNewRingTone(Context context, String source, String md5) throws FailedToSetNewMediaException {
 
         Crashlytics.log(Log.INFO, TAG, "setNewRingTone with sharedPrefs: " + newFileFullPath);
 
-        if (!MediaFilesUtils.isAudioFileCorrupted(newFileFullPath, context)) {
+        if (!MediaFilesUtilsImpl.isAudioFileCorrupted(newFileFullPath, context)) {
             SharedPrefUtils.setString(context,
                     sharedPrefKeyForAudioMedia, source, newFileFullPath);
 
@@ -184,7 +124,7 @@ public class EventDownloadReceivedHandler implements Handler {
     private void setNewVisualMedia(Context context, String source, String md5) throws FailedToSetNewMediaException {
 
         Crashlytics.log(Log.INFO, TAG, "setNewVisualMedia with sharedPrefs: " + newFileFullPath);
-        if (!MediaFilesUtils.isVideoFileCorrupted(newFileFullPath, context)) {
+        if (!MediaFilesUtilsImpl.isVideoFileCorrupted(newFileFullPath, context)) {
             SharedPrefUtils.setString(context,
                     sharedPrefKeyForVisualMedia, source, newFileFullPath);
 
@@ -196,11 +136,11 @@ public class EventDownloadReceivedHandler implements Handler {
         }
     }
 
-    private void preparePathsAndDirs(PendingDownloadData downloadData) {
+    private void preparePathsAndDirs(DownloadData downloadData) {
+        PendingDownloadData pendingDownloadData = downloadData.getPendingDownloadData();
 
-        SpecialMediaType specialMediaType = downloadData.getSpecialMediaType();
-        String srcId = downloadData.getSourceId();
-        String srcWithExtension = downloadData.getSourceId() + "." + downloadData.getMediaFile().getExtension();
+        SpecialMediaType specialMediaType = pendingDownloadData.getSpecialMediaType();
+        String srcId = pendingDownloadData.getSourceId();
 
         // Preparing for appropriate special media type
         switch (specialMediaType) {
@@ -219,12 +159,15 @@ public class EventDownloadReceivedHandler implements Handler {
                 sharedPrefKeyForVisualMedia = SharedPrefUtils.DEFAULT_CALLER_MEDIA_FILEPATH;
                 sharedPrefKeyForAudioMedia = SharedPrefUtils.DEFAULT_RINGTONE_MEDIA_FILEPATH;
                 break;
+            case DEFAULT_PROFILE_MEDIA:
+                //TODO Implement
+                break;
 
             default:
                 throw new UnsupportedOperationException("Invalid SpecialMediaType received");
         }
 
-        newFileFullPath = newFileDir + "/" + srcWithExtension;
+        newFileFullPath = MediaFilesUtilsImpl.resolvePathBySpecialMediaType(pendingDownloadData, downloadData.getDefaultMediaData());
     }
 
     private void copyToHistoryForGalleryShow(Context context, PendingDownloadData downloadData) {
@@ -236,7 +179,7 @@ public class EventDownloadReceivedHandler implements Handler {
             String md5 = downloadData.getMediaFile().getMd5();
             MediaFile.FileType fileType = downloadData.getMediaFile().getFileType();
 
-            if (MediaFilesUtils.doesFileExistInHistoryFolderByMD5(md5, Constants.HISTORY_FOLDER) || MediaFilesUtils.doesFileExistInHistoryFolderByMD5(md5, Constants.AUDIO_HISTORY_FOLDER))
+            if (MediaFilesUtilsImpl.doesFileExistInHistoryFolderByMD5(md5, Constants.HISTORY_FOLDER) || MediaFilesUtilsImpl.doesFileExistInHistoryFolderByMD5(md5, Constants.AUDIO_HISTORY_FOLDER))
                 return;
 
             String contactName = ContactsUtils.getContactName(context, downloadData.getSourceId());
@@ -263,7 +206,7 @@ public class EventDownloadReceivedHandler implements Handler {
                     return;
                 }
 
-                MediaFilesUtils.triggerMediaScanOnFile(context, copyToHistoryFile);
+                MediaFilesUtilsImpl.triggerMediaScanOnFile(context, copyToHistoryFile);
             } else {
                 Crashlytics.log(Log.ERROR, TAG, "File already exist: " + historyFileName);
             }

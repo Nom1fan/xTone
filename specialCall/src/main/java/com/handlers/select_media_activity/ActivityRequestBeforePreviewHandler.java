@@ -15,7 +15,7 @@ import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
 import com.ui.activities.PreviewMediaActivity;
 import com.ui.activities.SelectMediaActivity;
-import com.utils.MediaFilesUtils;
+import com.utils.MediaFilesUtilsImpl;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -24,9 +24,9 @@ import java.io.IOException;
 
 import com.exceptions.FileDoesNotExistException;
 import com.exceptions.FileExceedsMaxSizeException;
-import com.exceptions.FileInvalidFormatException;
-import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
+
+import static com.utils.MediaFileUtils.MAX_FILE_SIZE;
 
 /**
  * Created by Mor on 16/07/2016.
@@ -44,16 +44,16 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
             MediaFile managedFile;
 
-            managedFile = new MediaFile(filepath);
+            managedFile = new MediaFile(new File(filepath));
             if (canMediaBePrepared(ctx, managedFile)) {
-                startPreviewActivity(managedFile.getFileFullPath());
+                startPreviewActivity(managedFile.getFile().getAbsolutePath());
             } else
                 showInvalidFileOrPathToast(selectMediaActivity);
 
         } catch (FileExceedsMaxSizeException e) {
             e.printStackTrace();
             String errMsg = String.format(ctx.getResources().getString(R.string.file_over_max_size),
-                    MediaFilesUtils.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
+                    MediaFilesUtilsImpl.getFileSizeFormat(MAX_FILE_SIZE));
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, ctx);
 
@@ -68,7 +68,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         boolean result = true;
         try {
             MediaFile.FileType fType = managedFile.getFileType();
-            String filepath = managedFile.getFileFullPath();
+            String filepath = managedFile.getFile().getAbsolutePath();
             final File root = new File(filepath);
             Uri uri = Uri.fromFile(root);
 
@@ -146,7 +146,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
             if (isCamera) {
                 File file = new File(resultPath);
-                String extension = MediaFilesUtils.extractExtension(resultPath);
+                String extension = MediaFilesUtilsImpl.extractExtension(resultPath);
                 Crashlytics.log(Log.INFO, TAG, "isCamera True, Extension saved in camera: " + extension);
                 if (extension == null) {
                     Crashlytics.log(Log.WARN, TAG, "Missing Extension! Adding .jpeg as it is likely to be image file from camera");
@@ -160,27 +160,28 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
     private void startPreviewActivity(String filepath) {
 
-        MediaFile managedFile;
-        try {
-            managedFile = new MediaFile(filepath);
+        File file = new File(filepath);
 
-            Intent previewIntentActivity = new Intent(selectMediaActivity, PreviewMediaActivity.class);
-            previewIntentActivity.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
-            selectMediaActivity.startActivityForResult(previewIntentActivity, ActivityRequestCodes.PREVIEW_MEDIA);
+        if (!file.exists()) {
+            showInvalidFileOrPathToast(selectMediaActivity);
+            selectMediaActivity.finish();
+            return;
+        }
 
-        } catch (FileExceedsMaxSizeException e) {
-            e.printStackTrace();
+        MediaFile mediaFile = new MediaFile(new File(filepath));
+
+        if (mediaFile.getSize() > MAX_FILE_SIZE) {
             String errMsg = String.format(selectMediaActivity.getResources().getString(R.string.file_over_max_size),
-                    MediaFilesUtils.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
+                    MediaFilesUtilsImpl.getFileSizeFormat(MAX_FILE_SIZE));
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, selectMediaActivity);
             selectMediaActivity.finish();
-
-        } catch (FileMissingExtensionException | FileDoesNotExistException | FileInvalidFormatException e) {
-            e.printStackTrace();
-            showInvalidFileOrPathToast(selectMediaActivity);
-            selectMediaActivity.finish();
+            return;
         }
+
+        Intent previewIntentActivity = new Intent(selectMediaActivity, PreviewMediaActivity.class);
+        previewIntentActivity.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, mediaFile);
+        selectMediaActivity.startActivityForResult(previewIntentActivity, ActivityRequestCodes.PREVIEW_MEDIA);
     }
 
 

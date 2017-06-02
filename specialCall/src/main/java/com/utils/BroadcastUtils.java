@@ -7,6 +7,8 @@ import android.util.Log;
 import com.event.Event;
 import com.event.EventReport;
 
+import java.util.Arrays;
+
 import static com.crashlytics.android.Crashlytics.log;
 
 /**
@@ -14,9 +16,20 @@ import static com.crashlytics.android.Crashlytics.log;
  */
 public abstract class BroadcastUtils {
 
+    public static void sendEventMultiReportBroadcast(Context context, String tag, EventReport... reports) {
+        log(Log.INFO, tag, "Broadcasting event:" + Arrays.toString(reports));
+        Intent broadcastEvent = new Intent(Event.EVENT_ACTION);
+
+        for (int i = 0; i < reports.length; i++) {
+            broadcastEvent.putExtra(String.valueOf(i), reports[i]);
+        }
+
+        context.sendBroadcast(broadcastEvent);
+    }
+
     public static void sendEventReportBroadcast(Context context, String tag, EventReport report) {
 
-        log(Log.INFO,tag, "Broadcasting event:" + report.status().toString());
+        log(Log.INFO, tag, "Broadcasting event:" + report.status().toString());
         Intent broadcastEvent = new Intent(Event.EVENT_ACTION);
         broadcastEvent.putExtra(Event.EVENT_REPORT, report);
         context.sendBroadcast(broadcastEvent);
@@ -24,7 +37,7 @@ public abstract class BroadcastUtils {
 
     public static void sendCustomBroadcast(Context context, String tag, Intent i) {
 
-        log(Log.INFO,tag, "Sending custom broadcast:" + i.getAction());
+        log(Log.INFO, tag, "Sending custom broadcast:" + i.getAction());
         context.sendBroadcast(i);
     }
 }

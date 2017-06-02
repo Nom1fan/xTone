@@ -4,11 +4,9 @@ import android.content.Context;
 import android.util.Log;
 
 import com.enums.SpecialMediaType;
-import com.exceptions.FileDoesNotExistException;
-import com.exceptions.FileExceedsMaxSizeException;
-import com.exceptions.FileInvalidFormatException;
-import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
+
+import java.io.File;
 
 /**
  * Last Uploads Thumbnails Utilities. Manages the last upload that was made per user for each special media type using SharedPreferences
@@ -77,36 +75,32 @@ public class LUT_Utils {
 
     public void saveUploadedPerNumber(Context context, String destPhoneNumber, String mediaPath) {
 
-        try {
-            MediaFile mediaFile = new MediaFile(mediaPath);
+        MediaFile mediaFile = new MediaFile(new File(mediaPath));
 
-            Log.d(TAG, "saveUploadedPerNumber(): destPhoneNumber=" +
-                    destPhoneNumber + ", fileType=" + mediaFile.getFileType() + ", mediaPath=" + mediaPath);
+        Log.d(TAG, "saveUploadedPerNumber(): destPhoneNumber=" +
+                destPhoneNumber + ", fileType=" + mediaFile.getFileType() + ", mediaPath=" + mediaPath);
 
-            switch (mediaFile.getFileType()) {
-                case IMAGE:
-                    saveUploadedMediaPerNumber(context, destPhoneNumber, mediaPath);
-                    break;
-                case VIDEO:
-                    saveUploadedMediaPerNumber(context, destPhoneNumber, mediaPath);
-                    removeUploadedTonePerNumber(context, destPhoneNumber);
-                    break;
-                case AUDIO:
-                    saveUploadedTonePerNumber(context, destPhoneNumber, mediaPath);
+        switch (mediaFile.getFileType()) {
+            case IMAGE:
+                saveUploadedMediaPerNumber(context, destPhoneNumber, mediaPath);
+                break;
+            case VIDEO:
+                saveUploadedMediaPerNumber(context, destPhoneNumber, mediaPath);
+                removeUploadedTonePerNumber(context, destPhoneNumber);
+                break;
+            case AUDIO:
+                saveUploadedTonePerNumber(context, destPhoneNumber, mediaPath);
 
-                    // Checking if video was marked as last uploaded, if so need to delete (ringtone cannot co-exist with video)
-                    String thumbPath = getUploadedMediaPerNumber(context, destPhoneNumber);
-                    if (!thumbPath.equals("")) {
+                // Checking if video was marked as last uploaded, if so need to delete (ringtone cannot co-exist with video)
+                String thumbPath = getUploadedMediaPerNumber(context, destPhoneNumber);
+                if (!thumbPath.equals("")) {
 
-                        MediaFile.FileType prevType = MediaFilesUtils.getFileType(thumbPath);
-                        if (prevType == MediaFile.FileType.VIDEO) {
-                            removeUploadedMediaPerNumber(context, destPhoneNumber);
-                        }
+                    MediaFile.FileType prevType = MediaFilesUtilsImpl.getFileType(thumbPath);
+                    if (prevType == MediaFile.FileType.VIDEO) {
+                        removeUploadedMediaPerNumber(context, destPhoneNumber);
                     }
-                    break;
-            }
-        } catch (FileInvalidFormatException | FileDoesNotExistException | FileMissingExtensionException | FileExceedsMaxSizeException e) {
-            e.printStackTrace();
+                }
+                break;
         }
     }
 }

@@ -35,23 +35,18 @@ import com.handlers.Handler;
 import com.handlers.HandlerFactory;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
-import com.utils.MediaFilesUtils;
+import com.utils.MediaFilesUtilsImpl;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
-import java.security.Permission;
 import java.util.List;
-import java.util.Map;
 
 import com.enums.SpecialMediaType;
-import com.exceptions.FileDoesNotExistException;
-import com.exceptions.FileExceedsMaxSizeException;
-import com.exceptions.FileInvalidFormatException;
-import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static com.utils.MediaFileUtils.MAX_FILE_SIZE;
 
 /**
  * Created by rony on 29/01/2016.
@@ -164,28 +159,27 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     private void startPreviewActivity(String filepath) {
 
-        MediaFile managedFile;
-        try {
-            managedFile = new MediaFile(filepath);
+        File file = new File(filepath);
 
-            Intent previewIntentActivity = new Intent(this, PreviewMediaActivity.class);
-            previewIntentActivity.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
-            previewIntentActivity.putExtra(SPECIAL_MEDIA_TYPE, specialMediaType);
-            startActivityForResult(previewIntentActivity, ActivityRequestCodes.PREVIEW_MEDIA);
-
-        } catch (FileExceedsMaxSizeException e) {
-            e.printStackTrace();
-            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
-                    MediaFilesUtils.getFileSizeFormat(MediaFile.MAX_FILE_SIZE));
-
-            UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
-            finish();
-
-        } catch (FileMissingExtensionException | FileDoesNotExistException | FileInvalidFormatException e) {
-            e.printStackTrace();
+        if (!file.exists()) {
             showInvalidFileOrPathToast();
             finish();
         }
+
+        MediaFile mediaFile = new MediaFile(file);
+
+        if (mediaFile.getSize() > MAX_FILE_SIZE) {
+            String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
+                    MediaFilesUtilsImpl.getFileSizeFormat(MAX_FILE_SIZE));
+
+            UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
+            finish();
+        }
+
+        Intent previewIntentActivity = new Intent(this, PreviewMediaActivity.class);
+        previewIntentActivity.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, mediaFile);
+        previewIntentActivity.putExtra(SPECIAL_MEDIA_TYPE, specialMediaType);
+        startActivityForResult(previewIntentActivity, ActivityRequestCodes.PREVIEW_MEDIA);
     }
 
     @Override
@@ -256,7 +250,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         } else if (id == R.id.recordAudio || id == R.id.record_audio_textview) {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                ActivityCompat.requestPermissions(SelectMediaActivity.this,  new String[]{Manifest.permission.RECORD_AUDIO}, Constants.MY_PERMISSIONS_AUDIO_RECORDING);
+                ActivityCompat.requestPermissions(SelectMediaActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, Constants.MY_PERMISSIONS_AUDIO_RECORDING);
             else
                 initialRecordAudioProcess();
 
@@ -277,16 +271,16 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                 .setView(content)
                 .setPositiveButton(R.string.start, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                            recordAudio();
+                        recordAudio();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
+                    public void onClick(DialogInterface dialog, int id) {
 
-                dialog.cancel();
+                        dialog.cancel();
 
-            }
-        });
+                    }
+                });
 
         builder.create().show();
     }
@@ -299,7 +293,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                     initialRecordAudioProcess();
                 else
                     showRationale();
-            break;
+                break;
             }
         }
     }
@@ -307,7 +301,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private void showRationale() {
 
 
-        if(!shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
+        if (!shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
             // user also CHECKED "never ask again"
             // you can either enable some fall back,
             // disable features of your app
@@ -358,7 +352,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
                     })
                     .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            ActivityCompat.requestPermissions(SelectMediaActivity.this,  new String[]{Manifest.permission.RECORD_AUDIO}, Constants.MY_PERMISSIONS_AUDIO_RECORDING);
+                            ActivityCompat.requestPermissions(SelectMediaActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, Constants.MY_PERMISSIONS_AUDIO_RECORDING);
                         }
                     });
             builder.create().show();
@@ -385,10 +379,9 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
     private void openAudioMediaPath() {
 
-        if (SharedPrefUtils.getBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_HISTORY_EXIST))
+        if (SharedPrefUtils.getBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_HISTORY_EXIST))
             openAudioMenu();
-        else
-        {
+        else {
             final Intent intent = FileUtils.createGetContentIntent("audio/*");
             Intent chooserIntent = Intent.createChooser(intent, "Select Audio File");
             startActivityForResult(chooserIntent, ActivityRequestCodes.FIlE_CHOOSER);
@@ -429,7 +422,6 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         popup.show();
     }
-
 
 
     private void recordVideo() {
@@ -483,7 +475,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         String fname = "MyAudioRecording_" + System.currentTimeMillis() + ".m4a";
         File sdAudioFile = new File(Constants.AUDIO_HISTORY_FOLDER, fname);
-        SharedPrefUtils.setBoolean(getApplicationContext(),SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_HISTORY_EXIST,true);
+        SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.AUDIO_HISTORY_EXIST, true);
 
         sdAudioFile.delete();
         _recordedAudioFilePath = sdAudioFile.getAbsolutePath();

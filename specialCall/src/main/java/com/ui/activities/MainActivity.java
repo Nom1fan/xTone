@@ -66,9 +66,6 @@ import com.enums.SpecialMediaType;
 import com.enums.UserStatus;
 import com.event.Event;
 import com.event.EventReport;
-import com.exceptions.FileDoesNotExistException;
-import com.exceptions.FileInvalidFormatException;
-import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
 import com.flows.UploadFileFlow;
 import com.interfaces.ICallbackListener;
@@ -85,9 +82,10 @@ import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.CacheUtils;
 import com.utils.ContactsUtils;
+import com.utils.InitUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
-import com.utils.MediaFilesUtils;
+import com.utils.MediaFilesUtilsImpl;
 import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
@@ -347,7 +345,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             // ifHuaweiAlert();
 
-
+            //testPermissionForSystemOverlay();
+            InitUtils.initSyncDefaultMediaReceiver(this);
         }
     }
 
@@ -903,6 +902,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         y.setClass(this, BlockMCContacts.class);
         startActivity(y);
     }
+
+    public void testPermissionForSystemOverlay() {
+        if (!android.provider.Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, 5469);
+        }
+    }
+
     //endregion
 
     //region UI methods
@@ -1558,7 +1566,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
             if (!lastUploadedMediaPath.equals("")) {
-                fType = MediaFilesUtils.getFileType(lastUploadedMediaPath);
+                fType = MediaFilesUtilsImpl.getFileType(lastUploadedMediaPath);
 
                 BitmapUtils.execBitMapWorkerTask(selectMediaBtn, fType, lastUploadedMediaPath, true);
 
@@ -1591,7 +1599,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
             if (!lastUploadedMediaPath.equals("")) {
-                MediaFile.FileType fType = MediaFilesUtils.getFileType(lastUploadedMediaPath);
+                MediaFile.FileType fType = MediaFilesUtilsImpl.getFileType(lastUploadedMediaPath);
 
                 BitmapUtils.execBitMapWorkerTask(defaultpic_enabled, fType, lastUploadedMediaPath, true);
                 profileHasMedia = true;
@@ -1612,7 +1620,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                ringToneNameTextView.setText(MediaFilesUtils.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameTextView.setText(MediaFilesUtilsImpl.getFileNameWithExtension(ringToneFilePath));
                 ringToneNameTextView.setVisibility(View.VISIBLE);
                 callerHasRingtone = true;
                 enableRingToneStatusArrived();
@@ -1635,7 +1643,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                ringToneNameForProfileTextView.setText(MediaFilesUtils.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameForProfileTextView.setText(MediaFilesUtilsImpl.getFileNameWithExtension(ringToneFilePath));
                 ringToneNameForProfileTextView.setVisibility(View.VISIBLE);
                 profileHasRingtone = true;
                 UI_Utils.showCaseViewAfterUploadAndCall(this, MainActivity.this);

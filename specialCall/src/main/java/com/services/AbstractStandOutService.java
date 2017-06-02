@@ -29,24 +29,19 @@ import android.widget.VideoView;
 
 import com.crashlytics.android.Crashlytics;
 import com.data.objects.MediaCallData;
-import com.exceptions.FileDoesNotExistException;
-import com.exceptions.FileExceedsMaxSizeException;
-import com.exceptions.FileInvalidFormatException;
-import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
 import com.mediacallz.app.R;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.MediaCallSessionUtils;
-import com.utils.MediaFilesUtils;
+import com.utils.MediaFilesUtilsImpl;
 import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
@@ -496,7 +491,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         log(Log.INFO, TAG, "Preparing ImageView");
 
         boolean gifEnabled = false;
-        String ext = MediaFilesUtils.extractExtension(mediaFilePath);
+        String ext = MediaFilesUtilsImpl.extractExtension(mediaFilePath);
         gifEnabled = ext != null && ext.equals("gif");
 
         if (gifEnabled) {
@@ -906,7 +901,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         mSpecialCallBlockBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
-                Set<String> blockedNumbers = new HashSet<String>();
+                Set<String> blockedNumbers;
                 blockedNumbers = MCBlockListUtils.getBlockListFromShared(getApplicationContext());
                 blockedNumbers.add(PhoneNumberUtils.toValidLocalPhoneNumber(mIncomingOutgoingNumber));
 
@@ -1032,22 +1027,19 @@ public abstract class AbstractStandOutService extends StandOutWindow {
         int randomWindowId = r.nextInt(Integer.MAX_VALUE);  // fixing a bug: when the same ID the window isn't released good enough so we need to make a different window in the mean time
 
         if (mediaCallData.doesVisualFileExist()) {
-            try {
-                MediaFile fm = new MediaFile(mediaCallData.getVisualMediaFilePath());
-                prepareViewForSpecialCall(fm.getFileType(), fm.getFileFullPath());
-                Intent i = new Intent(this, this.getClass());
-                i.putExtra("id", randomWindowId);
-                i.setAction(StandOutWindow.ACTION_SHOW);
 
-                startService(i);
-            } catch (FileInvalidFormatException |
-                    FileExceedsMaxSizeException |
-                    FileDoesNotExistException |
-                    FileMissingExtensionException e) {
-                e.printStackTrace();
-            }
+            MediaFile mediaFile = new MediaFile(new File(mediaCallData.getVisualMediaFilePath()));
+            prepareViewForSpecialCall(mediaFile.getFileType(), mediaFile.getFile().getAbsolutePath());
+            Intent i = new Intent(this, this.getClass());
+            i.putExtra("id", randomWindowId);
+            i.setAction(StandOutWindow.ACTION_SHOW);
+
+            startService(i);
+
             // Only audio MC - Using default mc view
-        } else if (attachDefaultView) { // // TODO: 19/02/2016  Rony Remove Default View for the first few months :)
+        } else if (attachDefaultView)
+
+        { // // TODO: 19/02/2016  Rony Remove Default View for the first few months :)
 
             prepareDefaultViewForSpecialCall(callNumber);
 
@@ -1056,7 +1048,9 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             i.setAction(StandOutWindow.ACTION_SHOW);
             startService(i);
 
-        } else {
+        } else
+
+        {
             Crashlytics.log(Log.ERROR, TAG, "Empty media file path! Cannot start special call media");
         }
     }
@@ -1132,10 +1126,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected void setTempMd5ForCallRecord(MediaCallData mediaCallData) {
 
         if (mediaCallData.doesAudioMediaExist())
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_AUDIOMD5, MediaFilesUtils.getMD5(mediaCallData.getAudioMediaFilePath()));
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_AUDIOMD5, MediaFilesUtilsImpl.getMD5(mediaCallData.getAudioMediaFilePath()));
 
         if (mediaCallData.doesVisualFileExist())
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5, MediaFilesUtils.getMD5(mediaCallData.getVisualMediaFilePath()));
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5, MediaFilesUtilsImpl.getMD5(mediaCallData.getVisualMediaFilePath()));
 
     }
 
@@ -1313,5 +1307,5 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             setMeasuredDimension(mForceWidth, mForceHeight);
         }
     }
-    //endregion
+//endregion
 }

@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.app.AppStateManager;
 import com.client.ConnectionToServer;
+import com.data.objects.DefaultMediaData;
 import com.data.objects.PendingDownloadData;
 import com.data.objects.PushEventKeys;
 import com.enums.SpecialMediaType;
@@ -56,6 +57,7 @@ public class ServerProxyService extends Service implements Runnable {
     public static final String SPECIAL_MEDIA_TYPE = "SPECIAL_MEDIA_TYPE";
     public static final String CLEAR_MEDIA_DATA = "CLEAR_MEDIA_DATA";
     public static final String PENDING_DOWNLOAD_DATA = "PENDING_DOWNLOAD_DATA";
+    public static final String DEFAULT_MEDIA_DATA = "DEFAULT_MEDIA_DATA";
     //endregion
 
     private Intent intent;
@@ -184,6 +186,14 @@ public class ServerProxyService extends Service implements Runnable {
         Intent i = new Intent(context, ServerProxyService.class);
         i.setAction(ServerProxyService.ACTION_DOWNLOAD);
         i.putExtra(PushEventKeys.PUSH_DATA, pendingDownloadData);
+        context.startService(i);
+    }
+
+    public static void sendActionDownload(Context context, PendingDownloadData pendingDownloadData, DefaultMediaData defaultMediaData) {
+        Intent i = new Intent(context, ServerProxyService.class);
+        i.setAction(ServerProxyService.ACTION_DOWNLOAD);
+        i.putExtra(PushEventKeys.PUSH_DATA, pendingDownloadData);
+        i.putExtra(DEFAULT_MEDIA_DATA, defaultMediaData);
         context.startService(i);
     }
 

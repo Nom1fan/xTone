@@ -19,6 +19,8 @@ import com.utils.MediaFileProcessingUtils;
 import com.event.EventReport;
 import com.event.EventType;
 import com.files.media.MediaFile;
+import com.utils.MediaFileUtils;
+import com.utils.UtilityFactory;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -47,6 +49,7 @@ public abstract class MediaProcessingAsyncTask extends AsyncTask<Bundle, Integer
     protected volatile boolean contCalcProgress = false;
     protected volatile boolean updateThreadNextIterStarted = false;
     protected MediaFileProcessingUtils mediaFileProcessingUtils = new MediaFileProcessingUtils(vk);
+    protected MediaFileUtils mediaFileUtils = UtilityFactory.getUtility(MediaFileUtils.class);
 
     public MediaProcessingAsyncTask(int order,
                                     UploadFileFlowListener uploadFileFlow,
@@ -68,7 +71,8 @@ public abstract class MediaProcessingAsyncTask extends AsyncTask<Bundle, Integer
     }
 
     protected String getProcessedFileName(MediaFile baseFile, String action) {
-        String procFilePath = baseFile.getMd5() + "_" + baseFile.getNameWithoutExtension() + "_" + action + "." + baseFile.getFileExtension();
+        String nameWithoutExtension = mediaFileUtils.getNameWithoutExtension(baseFile);
+        String procFilePath = baseFile.getMd5() + "_" + nameWithoutExtension + "_" + action + "." + baseFile.getExtension();
         return procFilePath;
     }
 

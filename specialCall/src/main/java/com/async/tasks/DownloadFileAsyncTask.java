@@ -13,7 +13,7 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.mediacallz.app.R;
-import com.utils.MediaFilesUtils;
+import com.utils.MediaFilesUtilsImpl;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -74,7 +74,7 @@ public class DownloadFileAsyncTask extends AsyncTask<Void, Integer, File> {
 
     @Override
     protected File doInBackground(Void... voids) {
-        String filename = MediaFilesUtils.getFileNameByUrl(url);
+        String filename = MediaFilesUtilsImpl.getFileNameByUrl(url);
         return downloadFile(filename);
     }
 

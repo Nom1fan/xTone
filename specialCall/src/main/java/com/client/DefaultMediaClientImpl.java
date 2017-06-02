@@ -4,12 +4,10 @@ import android.content.Context;
 import android.util.Log;
 
 import com.data.objects.DefaultMediaData;
-import com.data.objects.User;
 import com.enums.SpecialMediaType;
 import com.google.gson.reflect.TypeToken;
 import com.handlers.background_broadcast_receiver.EventLoadingTimeoutHandler;
 import com.model.request.GetDefaultMediaDataRequest;
-import com.model.request.Request;
 import com.model.response.Response;
 import com.utils.RequestUtils;
 
@@ -25,20 +23,16 @@ import static com.crashlytics.android.Crashlytics.log;
  * Created by Mor on 24/05/2017.
  */
 
-class MediaClientImpl extends BaseClient implements MediaClient {
+class DefaultMediaClientImpl implements DefaultMediaClient {
 
-    private static final String TAG = MediaClientImpl.class.getSimpleName();
+    private static final String TAG = DefaultMediaClientImpl.class.getSimpleName();
 
     private static final String requestUrl = ROOT_URL + "/v1/GetDefaultMediaData";
 
     private static final Type responseType = new TypeToken<Response<List<DefaultMediaData>>>() {}.getType();
 
-    public MediaClientImpl(Context context) {
-        super(context);
-    }
-
     @Override
-    public List<DefaultMediaData> getDefaultMediaData(String phoneNumber, SpecialMediaType specialMediaType) {
+    public List<DefaultMediaData> getDefaultMediaData(Context context, String phoneNumber, SpecialMediaType specialMediaType) {
         Response<List<DefaultMediaData>> response = null;
         GetDefaultMediaDataRequest request = new GetDefaultMediaDataRequest(RequestUtils.getDefaultRequest(context));
         request.setPhoneNumber(phoneNumber);

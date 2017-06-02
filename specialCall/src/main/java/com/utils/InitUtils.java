@@ -21,12 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.enums.SpecialMediaType;
-import com.exceptions.FileInvalidFormatException;
-import com.exceptions.FileMissingExtensionException;
 import com.files.media.MediaFile;
 import com.receivers.SyncDefaultMediaReceiver;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static com.receivers.SyncDefaultMediaReceiver.SYNC_REPEAT_INTERVAL;
 
 /**
  * Created by Mor on 27/02/2016.
@@ -105,11 +104,11 @@ public abstract class InitUtils {
             List<File> DirFiles = getSpecificFolderFiles(new File(Directories.get(i).getAbsolutePath()));
 
             for (int x = 0; x < DirFiles.size(); x++) {
-                MediaFile.FileType fType = null;
+                MediaFile.FileType fType;
 
 
-                String extension = MediaFilesUtils.extractExtension(DirFiles.get(x).getAbsolutePath());
-                fType = MediaFilesUtils.getFileTypeByExtension(extension);
+                String extension = MediaFilesUtilsImpl.extractExtension(DirFiles.get(x).getAbsolutePath());
+                fType = MediaFilesUtilsImpl.getFileTypeByExtension(extension);
 
                 if (fType != null)
                     switch (fType) {
@@ -183,7 +182,6 @@ public abstract class InitUtils {
     }
 
     public static void initSyncDefaultMediaReceiver(Context context) {
-        int HourInMilli = 3600 * 1000;
-        AlarmUtils.setAlarm(context, SyncDefaultMediaReceiver.class, HourInMilli, SyncDefaultMediaReceiver.SYNC_ACTION);
+        AlarmUtils.setAlarm(context, SyncDefaultMediaReceiver.class, SYNC_REPEAT_INTERVAL, SyncDefaultMediaReceiver.SYNC_ACTION);
     }
 }

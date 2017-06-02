@@ -62,10 +62,10 @@ public class FFMPEG_Utils {
     public MediaFile compressVideoFile(MediaFile baseFile, String compressedFilePath, double width, double height, Context context) {
 
         try {
-            String vCodec = extension2vCodec.get(baseFile.getFileExtension());
+            String vCodec = extension2vCodec.get(baseFile.getExtension());
             File compressedFile = new File(compressedFilePath);
 
-            long duration = MediaFilesUtils.getFileDurationInSeconds(context, baseFile); // In seconds
+            long duration = MediaFilesUtilsImpl.getFileDurationInSeconds(context, baseFile); // In seconds
             String bitrate = String.valueOf(MediaFileProcessingUtils.VIDEO_SIZE_COMPRESS_NEEDED * 8 / duration); // Units are bits/second
 
             // Command to reduce video bitrate
@@ -86,7 +86,7 @@ public class FFMPEG_Utils {
                 height = height * percent;
 
                 complexCommand = new String[]
-                        {"ffmpeg", "-y", "-i", baseFile.getCompFileFullPath(), "-strict", "experimental", "-s", (int) width + "x" + (int) height,
+                        {"ffmpeg", "-y", "-i", baseFile.getFile().getAbsolutePath(), "-strict", "experimental", "-s", (int) width + "x" + (int) height,
                                 "-r", "25", "-vcodec", vCodec, "-b", bitrate, "-ab", "48000", "-ac", "2", "-ar", "22050",
                                 compressedFilePath};
 
@@ -123,7 +123,7 @@ public class FFMPEG_Utils {
             double percent = REDUCE_IMAGE_RES_MULTIPLIER;
             width = width * percent;
             complexCommand = new String[]
-                    {"ffmpeg", "-i", baseFile.getCompFileFullPath(), "-vf", "scale=" + (int) width + ":-1", compressedFilePath};
+                    {"ffmpeg", "-i", baseFile.getFile().getAbsolutePath(), "-vf", "scale=" + (int) width + ":-1", compressedFilePath};
 
             _vk.run(complexCommand, workFolder, context);
             return new MediaFile(compressedFile);
@@ -272,7 +272,7 @@ public class FFMPEG_Utils {
      */
     public int[] getImageResolution(MediaFile managedFile) {
 
-        Bitmap bitmap = BitmapUtils.decodeSampledBitmapFromImageFile(managedFile.getFileFullPath());
+        Bitmap bitmap = BitmapUtils.decodeSampledBitmapFromImageFile(managedFile.getFile().getAbsolutePath());
         int height = bitmap.getHeight();
         int width = bitmap.getWidth();
         bitmap.recycle();

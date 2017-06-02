@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.data.objects.ClearMediaData;
 import com.data.objects.Constants;
-import com.utils.MediaFilesUtils;
+import com.utils.MediaFilesUtilsImpl;
 import com.utils.Phone2MediaMapperUtils;
 
 import java.io.File;
@@ -58,14 +58,14 @@ public class ClearMediaIntentService extends IntentService {
                         Phone2MediaMapperUtils.removeCallerVisualMedia(context, phoneNumber);
                         Phone2MediaMapperUtils.removeCallerAudioMedia(context, phoneNumber);
                         folderPath = Constants.INCOMING_FOLDER + phoneNumber;
-                        MediaFilesUtils.deleteDirectory(new File(folderPath));
+                        MediaFilesUtilsImpl.deleteDirectory(new File(folderPath));
                         break;
                     case PROFILE_MEDIA:
                         log(Log.INFO, TAG, "Clearing PROFILE_MEDIA");
                         Phone2MediaMapperUtils.removeProfileVisualMedia(context, phoneNumber);
                         Phone2MediaMapperUtils.removeProfileAudioMedia(context, phoneNumber);
                         folderPath = Constants.OUTGOING_FOLDER + phoneNumber;
-                        MediaFilesUtils.deleteDirectory(new File(folderPath));
+                        MediaFilesUtilsImpl.deleteDirectory(new File(folderPath));
                         break;
 
                     case DEFAULT_PROFILE_MEDIA:

@@ -79,7 +79,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements Progre
         progDialog.setTitle(context.getResources().getString(R.string.uploading));
         progDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progDialog.setProgress(0);
-        progDialog.setMax((int) fileForUpload.getFileSize());
+        progDialog.setMax((int) fileForUpload.getSize());
         progDialog.setButton(DialogInterface.BUTTON_NEGATIVE, cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

@@ -13,7 +13,7 @@ import java.util.List;
  * Created by Mor on 24/05/2017.
  */
 
-public interface MediaClient extends Client {
+public interface DefaultMediaClient extends Client {
 
-    List<DefaultMediaData> getDefaultMediaData(String phoneNumber, SpecialMediaType specialMediaType);
+    List<DefaultMediaData> getDefaultMediaData(Context context, String phoneNumber, SpecialMediaType specialMediaType);
 }

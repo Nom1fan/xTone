@@ -26,7 +26,7 @@ import com.mediacallz.app.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.CircleBitmapDisplayer;
-import com.utils.MediaFilesUtils;
+import com.utils.MediaFilesUtilsImpl;
 import com.validate.media.ValidateAudioFormatBehavior;
 import com.validate.media.ValidateImageFormatBehavior;
 import com.validate.media.ValidateMediaFormatBehavior;
@@ -128,7 +128,7 @@ public class ImageMusicPagerFragment extends BaseFragment implements PopulateMul
     private void prepareFileNames() {
         fileNames = new ArrayList<>();
         for (String thumbUrl : audioThumbsUrls) {
-            String fileName = MediaFilesUtils.getFileNameWithoutExtensionByUrl(thumbUrl);
+            String fileName = MediaFilesUtilsImpl.getFileNameWithoutExtensionByUrl(thumbUrl);
             fileNames.add(fileName);
         }
     }

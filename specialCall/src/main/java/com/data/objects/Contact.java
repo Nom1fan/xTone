@@ -36,4 +36,12 @@ public class Contact extends AbstractDataObject{
     public int hashCode() {
         return phoneNumber.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "Contact{" +
+                "name='" + name + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                '}';
+    }
 }

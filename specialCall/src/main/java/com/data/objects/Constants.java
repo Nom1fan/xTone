@@ -66,7 +66,7 @@ public abstract class Constants {
 
     //region Connection to server
     public static final String SERVER_HOST = "server.mediacallz.com";
-    public static final int SERVER_PORT = 8080;
+    public static final int SERVER_PORT = 8888;
     //endregion
 
     //region Batch
@@ -91,6 +91,7 @@ public abstract class Constants {
     private static final String INCOMING_FOLDER_NAME = "Incoming_" + APP_NAME;
     private static final String OUTGOING_FOLDER_NAME = "Outgoing_" + APP_NAME;
     private static final String DEFAULT_INCOMING_FOLDER_NAME = "Default_Incoming_" + APP_NAME;
+    private static final String DEFAULT_OUTGOING_FOLDER_NAME = "Default_Outgoing_" + APP_NAME;
     private static final String COMP_FOLDER_NAME = APP_NAME + "_Compressed";
     private static final String HISTORY_FOLDER_NAME = APP_NAME + "_History";
     private static final String AUDIO_FOLDER_NAME = "AudioHistory";
@@ -101,6 +102,7 @@ public abstract class Constants {
     public static final String INCOMING_FOLDER = getIncomingFolder();
     public static final String OUTGOING_FOLDER = getOutgoingFolder();
     public static final String DEFAULT_INCOMING_FOLDER = getDefaultIncomingFolder();
+    public static final String DEFAULT_OUTGOING_FOLDER = getDefaultOutgoingFolder();
     public static final String AUDIO_HISTORY_FOLDER = getAudioHistoryFolder();
     public static final String COMPRESSED_FOLDER = getFolderForCompression();
     public static final String HISTORY_FOLDER = getHistoryFolderForCompression();
@@ -137,6 +139,13 @@ public abstract class Constants {
         String path = ROOT_FOLDER + OUTGOING_FOLDER_NAME + "/";
         File outgoingFolder = new File(path);
         outgoingFolder.mkdirs();
+        return path;
+    }
+
+    private static String getDefaultOutgoingFolder() {
+        String path = ROOT_FOLDER + DEFAULT_INCOMING_FOLDER_NAME + "/";
+        File defaultIncomingFolder = new File(path);
+        defaultIncomingFolder.mkdirs();
         return path;
     }
 

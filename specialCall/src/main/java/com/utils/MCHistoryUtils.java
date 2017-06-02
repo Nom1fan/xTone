@@ -21,35 +21,29 @@ public abstract class MCHistoryUtils {
 
     public static void reportMC(Context context, String src, String dest, String visualMediaPath, String audioMediaPath, SpecialMediaType specialMediaType) {
 
-        try {
+        MediaFile visualMediaFile = null;
+        MediaFile audioMediaFile = null;
 
-            MediaFile visualMediaFile = null;
-            MediaFile audioMediaFile = null;
+        if (visualMediaPath != null) {
+            visualMediaFile = prepareMediaFile(context, visualMediaPath, SharedPrefUtils.TEMP_VISUALMD5);
+        }
+        if (audioMediaPath != null) {
+            audioMediaFile = prepareMediaFile(context, audioMediaPath, SharedPrefUtils.TEMP_AUDIOMD5);
+        }
 
-            if (visualMediaPath != null) {
-                visualMediaFile = prepareMediaFile(context, visualMediaPath, SharedPrefUtils.TEMP_VISUALMD5);
-            }
-            if (audioMediaPath != null) {
-                audioMediaFile = prepareMediaFile(context, audioMediaPath, SharedPrefUtils.TEMP_AUDIOMD5);
-            }
+        if (visualMediaFile != null || audioMediaFile != null) {
 
-            if (visualMediaFile != null || audioMediaFile != null) {
+            MediaCall mediaCall = new MediaCall(src, dest, visualMediaFile, audioMediaFile, specialMediaType);
 
-                MediaCall mediaCall = new MediaCall(src, dest, visualMediaFile, audioMediaFile, specialMediaType);
-
-                log(Log.INFO, TAG, "Reporting MC:" + mediaCall);
-                Intent i = new Intent(context, ServerProxyService.class);
-                i.setAction(ServerProxyService.ACTION_INSERT_CALL_RECORD);
-                i.putExtra(ServerProxyService.MEDIA_CALL, mediaCall);
-                context.startService(i);
-            }
-
-        } catch (FileException e) {
-            e.printStackTrace();
+            log(Log.INFO, TAG, "Reporting MC:" + mediaCall);
+            Intent i = new Intent(context, ServerProxyService.class);
+            i.setAction(ServerProxyService.ACTION_INSERT_CALL_RECORD);
+            i.putExtra(ServerProxyService.MEDIA_CALL, mediaCall);
+            context.startService(i);
         }
     }
 
-    private static MediaFile prepareMediaFile(Context context, String mediaPath, String sharedPrefsTempMd5Key) throws FileException {
+    private static MediaFile prepareMediaFile(Context context, String mediaPath, String sharedPrefsTempMd5Key) {
         String md5 = SharedPrefUtils.getString(context, SharedPrefUtils.SERVICES, sharedPrefsTempMd5Key);
         MediaFile mediaFile = new MediaFile(mediaPath);
         mediaFile.setMd5(md5);
