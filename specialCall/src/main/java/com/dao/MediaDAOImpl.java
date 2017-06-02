@@ -2,7 +2,9 @@ package com.dao;
 
 import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
+import com.utils.Utility;
+import com.utils.UtilityFactory;
 
 import org.apache.commons.io.FileUtils;
 
@@ -35,6 +37,8 @@ public class MediaDAOImpl implements MediaDAO {
         put(DEFAULT_PROFILE_MEDIA, DEFAULT_OUTGOING_FOLDER);
     }};
 
+    private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
+
 
     @Override
     public Void addMedia(SpecialMediaType specialMediaType, String phoneNumber, MediaFile mediaFile) {
@@ -54,7 +58,7 @@ public class MediaDAOImpl implements MediaDAO {
 
     @Override
     public void removeMedia(MediaFile mediaFile) {
-        MediaFilesUtilsImpl.delete(mediaFile.getFile());
+        mediaFileUtils.delete(mediaFile.getFile());
     }
 
     @Override
@@ -96,7 +100,7 @@ public class MediaDAOImpl implements MediaDAO {
                 for (File file : files) {
                     MediaFile mediaFile = new MediaFile(file);
                     if (mediaFile.getFileType().equals(fileType)) {
-                        MediaFilesUtilsImpl.delete(mediaFile);
+                        mediaFileUtils.delete(mediaFile);
                     }
                 }
             }

@@ -13,7 +13,8 @@ import com.event.EventType;
 import com.handlers.ActionHandler;
 import com.model.request.DownloadFileRequest;
 import com.utils.BroadcastUtils;
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
+import com.utils.UtilityFactory;
 
 import java.io.IOException;
 
@@ -27,6 +28,9 @@ import static com.services.ServerProxyService.*;
 public class DownloadFileActionHandler implements ActionHandler {
 
     private static final String TAG = DownloadFileActionHandler.class.getSimpleName();
+
+    private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
+
     private static final String URL_DOWNLOAD = ROOT_URL + "/v1/DownloadFile";
 
 
@@ -63,7 +67,7 @@ public class DownloadFileActionHandler implements ActionHandler {
         DownloadFileRequest request = prepareRequest(pendingDownloadData, actionBundle);
 
         long fileSize = pendingDownloadData.getMediaFile().getSize();
-        String pathToDownload = MediaFilesUtilsImpl.resolvePathBySpecialMediaType(pendingDownloadData, defaultMediaData);
+        String pathToDownload = mediaFileUtils.resolvePathBySpecialMediaType(pendingDownloadData, defaultMediaData);
         return connectionToServer.download(URL_DOWNLOAD, pathToDownload, fileSize, request);
     }
 

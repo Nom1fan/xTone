@@ -9,10 +9,10 @@ import android.widget.ImageView;
 
 import com.crashlytics.android.Crashlytics;
 import com.utils.BitmapUtils;
-
 import java.lang.ref.WeakReference;
 
 import com.files.media.MediaFile;
+import com.utils.UtilityFactory;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -31,6 +31,8 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
     private Resources _resources;
     private String _filePath;
     private boolean _makeRound = false;
+    private BitmapUtils bitmapUtils = UtilityFactory.instance().getUtility(BitmapUtils.class);
+    
 
     public BitMapWorkerTask(ImageView imageComponent) {
         // Use a WeakReference to ensure the ImageView can be garbage collected
@@ -47,14 +49,14 @@ public class BitMapWorkerTask extends AsyncTask<Void, Void, Bitmap> {
                 log(Log.INFO,TAG, "[File Type]:"+_fileType + ", [File Path]:"+_filePath);
                 switch (_fileType) {
                     case IMAGE:
-                        return BitmapUtils.getImageBitmap(_filePath, _width, _height, _makeRound);
+                        return bitmapUtils.getImageBitmap(_filePath, _width, _height, _makeRound);
                     case VIDEO:
-                        return BitmapUtils.getVideoBitmap(_filePath, _width, _height, _makeRound);
+                        return bitmapUtils.getVideoBitmap(_filePath, _width, _height, _makeRound);
                 }
             }
             else if(validateMembersForResource()) {
                 log(Log.INFO,TAG, "Decoding image from resource");
-                return BitmapUtils.convertResourceToBitmap(_resources, _resourceId, _width, _height, _makeRound);
+                return bitmapUtils.convertResourceToBitmap(_resources, _resourceId, _width, _height, _makeRound);
             }
             else {
                 Crashlytics.log(Log.ERROR,TAG, "Invalid parameter configuration. Current configuration does not fit either file nor resource.");

@@ -7,7 +7,7 @@ import com.app.AppStateManager;
 import com.data.objects.Constants;
 import com.handlers.Handler;
 import com.utils.BroadcastUtils;
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
 import com.utils.SharedPrefUtils;
 
 import java.io.File;
@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import com.event.EventReport;
 import com.event.EventType;
+import com.utils.UtilityFactory;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -25,13 +26,16 @@ public class EventUnregisterSuccessHandler implements Handler {
 
     private static final String TAG = EventUnregisterSuccessHandler.class.getSimpleName();
 
+    private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
+
+
     @Override
     public void handle(Context ctx, Object... params) {
 
         try {
             //TODO Decide if we should delete MEDIA_CALLZ_HISTORY folder contents too or not
-            MediaFilesUtilsImpl.deleteDirectoryContents(new File(Constants.INCOMING_FOLDER));
-            MediaFilesUtilsImpl.deleteDirectoryContents(new File(Constants.OUTGOING_FOLDER));
+            mediaFileUtils.deleteDirectoryContents(new File(Constants.INCOMING_FOLDER));
+            mediaFileUtils.deleteDirectoryContents(new File(Constants.OUTGOING_FOLDER));
 
             //TODO Make sure this doesn't create issues since it delete all app states and such
             SharedPrefUtils.removeAll(ctx);
@@ -42,7 +46,7 @@ public class EventUnregisterSuccessHandler implements Handler {
 
         } catch (IOException e) {
             e.printStackTrace();
-            log(Log.ERROR,TAG, "Failed during unregister procedure. [Exception]:"
+            log(Log.ERROR, TAG, "Failed during unregister procedure. [Exception]:"
                     + (e.getMessage() != null ? e.getMessage() : e));
         }
 

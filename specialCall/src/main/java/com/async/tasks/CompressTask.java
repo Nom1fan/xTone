@@ -16,7 +16,6 @@ import com.utils.MediaFileProcessingUtils;
 import java.io.File;
 
 import com.files.media.MediaFile;
-import com.utils.MediaFilesUtilsImpl;
 
 import static com.crashlytics.android.Crashlytics.log;
 

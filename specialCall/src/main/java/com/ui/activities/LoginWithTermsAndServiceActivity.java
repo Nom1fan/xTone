@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.*;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -20,16 +19,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.services.ServerProxyService;
 import com.utils.InitUtils;
 import com.utils.UI_Utils;
+import com.utils.UtilityFactory;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -54,6 +52,8 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
 
     };
     private Map<String,Boolean> permissionMap = new HashMap<>();
+    private InitUtils initUtils = UtilityFactory.instance().getUtility(InitUtils.class);
+
 
 
     //region Activity methods (onCreate(), onPause(), ...)
@@ -251,19 +251,19 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
         UI_Utils.makeActionOverflowMenuShown(context);
 
         // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
-        InitUtils.hideMediaFromGalleryScanner();
+        initUtils.hideMediaFromGalleryScanner();
 
         //Initialize Default Settings Values
-        InitUtils.initializeSettingsDefaultValues(context);
+        initUtils.initializeSettingsDefaultValues(context);
 
         //Populate SharedprefMEdia in case it's not the first time the app is installed, and you have saved media in the MediaCallz Outgoing/Incoming
-        InitUtils.populateSavedMcFromDiskToSharedPrefs(context);
+        initUtils.populateSavedMcFromDiskToSharedPrefs(context);
 
-        InitUtils.saveAndroidVersion(context);
+        initUtils.saveAndroidVersion(context);
 
-        InitUtils.initImageLoader(context);
+        initUtils.initImageLoader(context);
 
-        InitUtils.initSyncDefaultMediaReceiver(context);
+        initUtils.initSyncDefaultMediaReceiver(context);
     }
 
     private void prepareReadMorebutton() {

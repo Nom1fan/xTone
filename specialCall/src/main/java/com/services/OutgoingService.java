@@ -24,7 +24,6 @@ import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
 import com.utils.MediaCallSessionUtils;
-import com.utils.MediaFilesUtilsImpl;
 import com.utils.PhoneNumberUtils;
 import com.utils.SettingsUtils;
 import com.utils.SharedPrefUtils;
@@ -295,8 +294,8 @@ public class OutgoingService extends AbstractStandOutService {
     protected MediaCallData prepareMediaCallData(String outgoingCallNumber) {
         String visualMediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.PROFILE_MEDIA_FILEPATH, outgoingCallNumber);
         String audioMediaFilePath = SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.FUNTONE_FILEPATH, outgoingCallNumber);
-        boolean visualMediaExists = new File(visualMediaFilePath).exists() && !MediaFilesUtilsImpl.isVideoFileCorrupted(visualMediaFilePath, getApplicationContext());
-        boolean funToneExists = new File(audioMediaFilePath).exists() && !MediaFilesUtilsImpl.isAudioFileCorrupted(audioMediaFilePath, getApplicationContext());
+        boolean visualMediaExists = new File(visualMediaFilePath).exists() && !mediaFileUtils.isVideoFileCorrupted(visualMediaFilePath, getApplicationContext());
+        boolean funToneExists = new File(audioMediaFilePath).exists() && !mediaFileUtils.isAudioFileCorrupted(audioMediaFilePath, getApplicationContext());
 
         MediaCallData mediaCallData = new MediaCallData();
         mediaCallData.setPhoneNumber(outgoingCallNumber);

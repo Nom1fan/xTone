@@ -35,7 +35,7 @@ import com.handlers.Handler;
 import com.handlers.HandlerFactory;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -44,6 +44,7 @@ import java.util.List;
 
 import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
+import com.utils.UtilityFactory;
 
 import static com.crashlytics.android.Crashlytics.log;
 import static com.utils.MediaFileUtils.MAX_FILE_SIZE;
@@ -65,6 +66,8 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
     private SpecialMediaType specialMediaType;
     private float oldPosition = 0;
     private int moveLength = 0;
+    protected MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
+
 
     //region Activity methods (onCreate(), onPause()...)
     @Override
@@ -170,7 +173,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         if (mediaFile.getSize() > MAX_FILE_SIZE) {
             String errMsg = String.format(getResources().getString(R.string.file_over_max_size),
-                    MediaFilesUtilsImpl.getFileSizeFormat(MAX_FILE_SIZE));
+                    mediaFileUtils.getFileSizeFormat(MAX_FILE_SIZE));
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, getApplicationContext());
             finish();

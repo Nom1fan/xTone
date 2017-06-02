@@ -1,14 +1,16 @@
 package com.validate.media;
 
 
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
+import com.utils.UtilityFactory;
 
 /**
  * Created by Mor on 26/08/2016.
  */
-public class ValidateAudioFormatBehavior implements ValidateMediaFormatBehavior {
+public class ValidateAudioFormatBehavior extends BaseValidateFormatBehavior {
+
     @Override
     public boolean isValidFormatByLink(String link) {
-        return MediaFilesUtilsImpl.isValidAudioFormat(link);
+        return mediaFileUtils.isValidAudioFormat(link);
     }
 }

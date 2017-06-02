@@ -15,9 +15,11 @@ import java.io.File;
  */
 public class LUT_Utils {
 
+    private static String TAG = LUT_Utils.class.getSimpleName();
+
     private String _SharedPrefKeyForVisualMedia;
     private String _SharedPrefKeyForAudioMedia;
-    private static String TAG = LUT_Utils.class.getSimpleName();
+    private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
     public LUT_Utils(SpecialMediaType specialMediaType) {
 
@@ -95,7 +97,7 @@ public class LUT_Utils {
                 String thumbPath = getUploadedMediaPerNumber(context, destPhoneNumber);
                 if (!thumbPath.equals("")) {
 
-                    MediaFile.FileType prevType = MediaFilesUtilsImpl.getFileType(thumbPath);
+                    MediaFile.FileType prevType = mediaFileUtils.getFileType(thumbPath);
                     if (prevType == MediaFile.FileType.VIDEO) {
                         removeUploadedMediaPerNumber(context, destPhoneNumber);
                     }

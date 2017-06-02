@@ -18,16 +18,14 @@ package com.widget;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.view.View;
 import android.widget.RemoteViews;
 
 import com.mediacallz.app.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.utils.InitUtils;
+import com.utils.InitUtilsImpl;
+import com.utils.UtilityFactory;
 
 
 /**
@@ -39,13 +37,15 @@ public class UILWidgetProvider extends AppWidgetProvider {
 
 	private static DisplayImageOptions displayOptions;
 
+	private InitUtils initUtils = UtilityFactory.instance().getUtility(InitUtils.class);
+
 	static {
 		displayOptions = DisplayImageOptions.createSimple();
 	}
 
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-		InitUtils.initImageLoader(context);
+		initUtils.initImageLoader(context);
 
 		final int widgetCount = appWidgetIds.length;
 		for (int i = 0; i < widgetCount; i++) {

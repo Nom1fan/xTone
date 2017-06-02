@@ -16,10 +16,11 @@ import com.files.media.MediaFile;
 import com.handlers.Handler;
 import com.services.ServerProxyService;
 import com.utils.ContactsUtils;
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
 import com.utils.PhoneNumberUtils;
 import com.utils.SettingsUtils;
 import com.utils.SharedPrefUtils;
+import com.utils.UtilityFactory;
 
 import org.apache.commons.io.FileUtils;
 
@@ -41,6 +42,7 @@ public class EventDownloadReceivedHandler implements Handler {
     private String newFileDir;
     private String sharedPrefKeyForVisualMedia;
     private String sharedPrefKeyForAudioMedia;
+    private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
     @Override
     public void handle(Context ctx, Object... params) {
@@ -68,13 +70,13 @@ public class EventDownloadReceivedHandler implements Handler {
             switch (fType) {
                 case AUDIO:
                     setNewRingTone(ctx, source, md5);
-                    MediaFilesUtilsImpl.deleteFilesIfNecessary(ctx, sharedPrefKeyForAudioMedia, newFileDir, fFullName, fType, source);
+                    mediaFileUtils.deleteFilesIfNecessary(ctx, sharedPrefKeyForAudioMedia, newFileDir, fFullName, fType, source);
                     break;
 
                 case VIDEO:
                 case IMAGE:
                     setNewVisualMedia(ctx, source, md5);
-                    MediaFilesUtilsImpl.deleteFilesIfNecessary(ctx, sharedPrefKeyForVisualMedia, newFileDir, fFullName, fType, source);
+                    mediaFileUtils.deleteFilesIfNecessary(ctx, sharedPrefKeyForVisualMedia, newFileDir, fFullName, fType, source);
                     break;
             }
 
@@ -107,7 +109,7 @@ public class EventDownloadReceivedHandler implements Handler {
 
         Crashlytics.log(Log.INFO, TAG, "setNewRingTone with sharedPrefs: " + newFileFullPath);
 
-        if (!MediaFilesUtilsImpl.isAudioFileCorrupted(newFileFullPath, context)) {
+        if (!mediaFileUtils.isAudioFileCorrupted(newFileFullPath, context)) {
             SharedPrefUtils.setString(context,
                     sharedPrefKeyForAudioMedia, source, newFileFullPath);
 
@@ -124,7 +126,7 @@ public class EventDownloadReceivedHandler implements Handler {
     private void setNewVisualMedia(Context context, String source, String md5) throws FailedToSetNewMediaException {
 
         Crashlytics.log(Log.INFO, TAG, "setNewVisualMedia with sharedPrefs: " + newFileFullPath);
-        if (!MediaFilesUtilsImpl.isVideoFileCorrupted(newFileFullPath, context)) {
+        if (!mediaFileUtils.isVideoFileCorrupted(newFileFullPath, context)) {
             SharedPrefUtils.setString(context,
                     sharedPrefKeyForVisualMedia, source, newFileFullPath);
 
@@ -167,7 +169,7 @@ public class EventDownloadReceivedHandler implements Handler {
                 throw new UnsupportedOperationException("Invalid SpecialMediaType received");
         }
 
-        newFileFullPath = MediaFilesUtilsImpl.resolvePathBySpecialMediaType(pendingDownloadData, downloadData.getDefaultMediaData());
+        newFileFullPath = mediaFileUtils.resolvePathBySpecialMediaType(pendingDownloadData, downloadData.getDefaultMediaData());
     }
 
     private void copyToHistoryForGalleryShow(Context context, PendingDownloadData downloadData) {
@@ -179,7 +181,7 @@ public class EventDownloadReceivedHandler implements Handler {
             String md5 = downloadData.getMediaFile().getMd5();
             MediaFile.FileType fileType = downloadData.getMediaFile().getFileType();
 
-            if (MediaFilesUtilsImpl.doesFileExistInHistoryFolderByMD5(md5, Constants.HISTORY_FOLDER) || MediaFilesUtilsImpl.doesFileExistInHistoryFolderByMD5(md5, Constants.AUDIO_HISTORY_FOLDER))
+            if (mediaFileUtils.doesFileExistInHistoryFolderByMD5(md5, Constants.HISTORY_FOLDER) || mediaFileUtils.doesFileExistInHistoryFolderByMD5(md5, Constants.AUDIO_HISTORY_FOLDER))
                 return;
 
             String contactName = ContactsUtils.getContactName(context, downloadData.getSourceId());
@@ -206,7 +208,7 @@ public class EventDownloadReceivedHandler implements Handler {
                     return;
                 }
 
-                MediaFilesUtilsImpl.triggerMediaScanOnFile(context, copyToHistoryFile);
+                mediaFileUtils.triggerMediaScanOnFile(context, copyToHistoryFile);
             } else {
                 Crashlytics.log(Log.ERROR, TAG, "File already exist: " + historyFileName);
             }

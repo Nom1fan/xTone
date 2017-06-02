@@ -1,7 +1,6 @@
 package com.files.media;
 
 import com.utils.MediaFileUtils;
-import com.utils.MediaFilesUtilsImpl;
 import com.utils.UtilityFactory;
 
 import java.io.File;
@@ -39,7 +38,7 @@ public class MediaFile implements Serializable {
     }
 
     public MediaFile(File file) {
-        MediaFileUtils mediaFileUtils = UtilityFactory.getUtility(MediaFileUtils.class);
+        MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
         this.file = file;
         extension = mediaFileUtils.extractExtension(this.file.getAbsolutePath());

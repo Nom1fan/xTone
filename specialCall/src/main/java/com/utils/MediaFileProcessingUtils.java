@@ -40,9 +40,11 @@ public class MediaFileProcessingUtils {
     public static final int MIN_RESOLUTION = 320;     // MIN width resolution
     public static final int FINISHED_TRANSCODING_MSG = 0;
     public static final int COMPRESSION_PHASE_2 = 1;
-    private static final MediaFileUtils mediaFileUtils = UtilityFactory.getUtility(MediaFileUtils.class);
+    private static final MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
     private static final String TAG = MediaFileProcessingUtils.class.getSimpleName();
-     
+    private BitmapUtils bitmapUtils = UtilityFactory.instance().getUtility(BitmapUtils.class);
+
+
     //endregion
 
     //region Constants for handler messages
@@ -172,9 +174,9 @@ public class MediaFileProcessingUtils {
     //region Sub media file proecessing methods
     @Nullable
     private MediaFile rotateImage(MediaFile baseFile, String rotatedImageFilepath, int degrees) {
-        File rotatedFile = null;
+        File rotatedFile;
         String imagePath = baseFile.getFile().getAbsolutePath();
-        Bitmap bmp = BitmapUtils.decodeSampledBitmapFromImageFile(imagePath);
+        Bitmap bmp = bitmapUtils.decodeSampledBitmapFromImageFile(imagePath);
 
         Matrix matrix = new Matrix();
         matrix.postRotate(degrees);

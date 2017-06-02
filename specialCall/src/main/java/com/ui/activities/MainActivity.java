@@ -85,10 +85,11 @@ import com.utils.ContactsUtils;
 import com.utils.InitUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
 import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
+import com.utils.UtilityFactory;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -144,6 +145,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private OnlineContactAdapter adapter;
     private SearchView searchView;
     private MenuItem backBtn;
+    private BitmapUtils bitmapUtils = UtilityFactory.instance().getUtility(BitmapUtils.class);
+    private InitUtils initUtils = UtilityFactory.instance().getUtility(InitUtils.class);
+    private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
+
+
     //endregion
 
     //region Activity methods (onCreate(), onPause(), onActivityResult()...)
@@ -344,7 +350,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             }
             testPermissionForSystemOverlay();
             // ifHuaweiAlert();
-            InitUtils.initSyncDefaultMediaReceiver(this);
+            initUtils.initSyncDefaultMediaReceiver(this);
         }
     }
 
@@ -1578,9 +1584,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
             if (!lastUploadedMediaPath.equals("")) {
-                fType = MediaFilesUtils.getFileType(lastUploadedMediaPath);
+                fType = mediaFileUtils.getFileType(lastUploadedMediaPath);
 
-                BitmapUtils.execBitMapWorkerTask(selectMediaBtn, fType, lastUploadedMediaPath, true);
+                bitmapUtils.execBitMapWorkerTask(selectMediaBtn, fType, lastUploadedMediaPath, true);
 
                 enableMediaStatusArrived();
                 // stretch the uploaded image as it won't stretch because we use a drawable instead that we don't want to stretch
@@ -1611,13 +1617,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
             if (!lastUploadedMediaPath.equals("")) {
-                MediaFile.FileType fType = MediaFilesUtils.getFileType(lastUploadedMediaPath);
+                MediaFile.FileType fType = mediaFileUtils.getFileType(lastUploadedMediaPath);
 
-                BitmapUtils.execBitMapWorkerTask(defaultpic_enabled, fType, lastUploadedMediaPath, true);
+                bitmapUtils.execBitMapWorkerTask(defaultpic_enabled, fType, lastUploadedMediaPath, true);
                 profileHasMedia = true;
             } else // enabled but no uploaded media
             {
-                // BitmapUtils.execBitmapWorkerTask(defaultpic_enabled, this, getResources(), R.drawable.select_profile_media_enabled, true);
+                // BitmapUtilsImpl.execBitmapWorkerTask(defaultpic_enabled, this, getResources(), R.drawable.select_profile_media_enabled, true);
                 defaultpic_enabled.setImageResource(R.drawable.mc_caller_media_anim); // make the imageview pressed for PROFILE MEDIA BTN
                 profileHasMedia = false;
             }
@@ -1632,7 +1638,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                ringToneNameTextView.setText(MediaFilesUtils.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameTextView.setText(mediaFileUtils.getFileNameWithExtension(ringToneFilePath));
                 ringToneNameTextView.setVisibility(View.VISIBLE);
                 callerHasRingtone = true;
                 enableRingToneStatusArrived();
@@ -1655,7 +1661,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         try {
 
             if (!ringToneFilePath.isEmpty()) {
-                ringToneNameForProfileTextView.setText(MediaFilesUtils.getFileNameWithExtension(ringToneFilePath));
+                ringToneNameForProfileTextView.setText(mediaFileUtils.getFileNameWithExtension(ringToneFilePath));
                 ringToneNameForProfileTextView.setVisibility(View.VISIBLE);
                 profileHasRingtone = true;
                 UI_Utils.showCaseViewAfterUploadAndCall(this, MainActivity.this);

@@ -37,6 +37,8 @@ public class FFMPEG_Utils {
     }};
     private LoadJNI _vk;
     private Handler _compressHandler;
+    private BitmapUtils bitmapUtils = UtilityFactory.instance().getUtility(BitmapUtils.class);
+    private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
     public FFMPEG_Utils(LoadJNI vk) {
 
@@ -65,7 +67,7 @@ public class FFMPEG_Utils {
             String vCodec = extension2vCodec.get(baseFile.getExtension());
             File compressedFile = new File(compressedFilePath);
 
-            long duration = MediaFilesUtilsImpl.getFileDurationInSeconds(context, baseFile); // In seconds
+            long duration = mediaFileUtils.getFileDurationInSeconds(context, baseFile); // In seconds
             String bitrate = String.valueOf(MediaFileProcessingUtils.VIDEO_SIZE_COMPRESS_NEEDED * 8 / duration); // Units are bits/second
 
             // Command to reduce video bitrate
@@ -272,7 +274,7 @@ public class FFMPEG_Utils {
      */
     public int[] getImageResolution(MediaFile managedFile) {
 
-        Bitmap bitmap = BitmapUtils.decodeSampledBitmapFromImageFile(managedFile.getFile().getAbsolutePath());
+        Bitmap bitmap = bitmapUtils.decodeSampledBitmapFromImageFile(managedFile.getFile().getAbsolutePath());
         int height = bitmap.getHeight();
         int width = bitmap.getWidth();
         bitmap.recycle();

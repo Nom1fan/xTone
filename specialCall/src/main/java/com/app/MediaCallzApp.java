@@ -15,8 +15,11 @@ import com.crashlytics.android.Crashlytics;
 import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.utils.BitmapUtils;
-import com.utils.InitUtils;
+import com.utils.BitmapUtilsImpl;
 import com.utils.UI_Utils;
+import com.utils.UtilityFactory;
+
+import org.florescu.android.util.BitmapUtil;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -29,9 +32,13 @@ public class MediaCallzApp extends Application {
 
     private static final String TAG = MediaCallzApp.class.getSimpleName();
 
+    private BitmapUtils bitmapUtils;
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        bitmapUtils = new BitmapUtilsImpl();
 
         android.os.Process.setThreadPriority(-20);
         Context context = getApplicationContext();
@@ -50,7 +57,7 @@ public class MediaCallzApp extends Application {
         int h = d.getIntrinsicHeight();
         int w = d.getIntrinsicWidth();
 
-        Bitmap largeIcon = BitmapUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.color_mc,w,h);
+        Bitmap largeIcon = bitmapUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.color_mc,w,h);
         Batch.Push.setLargeIcon(largeIcon);
 
         try {

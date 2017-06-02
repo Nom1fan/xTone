@@ -2,12 +2,6 @@ package com.dao;
 
 import android.content.Context;
 
-import com.converters.MediaDataConverter;
-import com.converters.MediaDataConverterImpl;
-import com.utils.MediaFileUtils;
-import com.utils.MediaFilesUtilsImpl;
-import com.utils.Utility;
-
 import java.util.HashMap;
 import java.util.Map;
 

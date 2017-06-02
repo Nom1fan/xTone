@@ -30,13 +30,13 @@ import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
 import com.utils.MediaCallSessionUtils;
-import com.utils.MediaFilesUtilsImpl;
 import com.utils.NotificationUtils;
 import com.utils.Phone2MediaMapperUtils;
 import com.utils.PhoneNumberUtils;
 import com.utils.SettingsUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
+import com.utils.UtilityFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +57,8 @@ public class IncomingService extends AbstractStandOutService {
     private boolean wasAnswered = false;
     public static final String ACTION_START_FOREGROUND = "com.services.IncomingService.ACTION_START_FOREGROUND";
     public static final String ACTION_STOP_FOREGROUND = "com.services.IncomingService.ACTION_STOP_FOREGROUND";
+    private AlarmUtils alarmUtils = UtilityFactory.instance().getUtility(AlarmUtils.class);
+
 
 
     public IncomingService() {
@@ -267,8 +269,8 @@ public class IncomingService extends AbstractStandOutService {
         String mediaFilePath = Phone2MediaMapperUtils.getCallerVisualMedia(context, incomingNumber);
         String ringtonePath = Phone2MediaMapperUtils.getCallerAudioMedia(context, incomingNumber);
 
-        boolean ringtoneExists = new File(ringtonePath).exists() && !MediaFilesUtilsImpl.isAudioFileCorrupted(ringtonePath, context);
-        boolean visualMediaExists = new File(mediaFilePath).exists() && !MediaFilesUtilsImpl.isVideoFileCorrupted(mediaFilePath, context);
+        boolean ringtoneExists = new File(ringtonePath).exists() && !mediaFileUtils.isAudioFileCorrupted(ringtonePath, context);
+        boolean visualMediaExists = new File(mediaFilePath).exists() && !mediaFileUtils.isVideoFileCorrupted(mediaFilePath, context);
         boolean shouldMuteRing = shouldMuteRing(mediaFilePath, ringtoneExists, visualMediaExists);
 
         MediaCallData mediaCallData = new MediaCallData();
@@ -480,7 +482,7 @@ public class IncomingService extends AbstractStandOutService {
 
             startForegroundService();
 
-            AlarmUtils.setAlarm(this, StartStandOutServicesFallBackReceiver.class, 30);
+            alarmUtils.setAlarm(this, StartStandOutServicesFallBackReceiver.class, 30);
         }
     }
 

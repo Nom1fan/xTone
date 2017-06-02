@@ -25,6 +25,8 @@ public abstract class PendingDownloadsUtils {
 
     private static final String TAG = PendingDownloadsUtils.class.getSimpleName();
 
+    private static MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
+
     public static void enqueuePendingDownload(final Context context, final PendingDownloadData pendingDlData) {
         final SQLiteDAO dao = DAOFactory.getSQLiteDAO(context);
 
@@ -137,13 +139,13 @@ public abstract class PendingDownloadsUtils {
         }
 
 
-        MediaFile.FileType newDownloadedFileType = MediaFilesUtilsImpl.getFileTypeByExtension(newDownloadedExtension);
+        MediaFile.FileType newDownloadedFileType = mediaFileUtils.getFileTypeByExtension(newDownloadedExtension);
         if (newDownloadedFileType != null){
             switch (newDownloadedFileType) {
                 case AUDIO:
 
                     for (String extension : extensions) {
-                        MediaFile.FileType fileType = MediaFilesUtilsImpl.getFileTypeByExtension(extension);
+                        MediaFile.FileType fileType = mediaFileUtils.getFileTypeByExtension(extension);
 
                         if ((fileType == MediaFile.FileType.VIDEO ||
                                 fileType == MediaFile.FileType.AUDIO)) {
@@ -159,7 +161,7 @@ public abstract class PendingDownloadsUtils {
                 case IMAGE:
 
                     for (String extension : extensions) {
-                        MediaFile.FileType fileType = MediaFilesUtilsImpl.getFileTypeByExtension(extension);
+                        MediaFile.FileType fileType = mediaFileUtils.getFileTypeByExtension(extension);
 
                         if ((fileType == MediaFile.FileType.VIDEO ||
                                 fileType == MediaFile.FileType.IMAGE)) {

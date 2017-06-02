@@ -2,8 +2,9 @@ package com.utils;
 
 import com.converters.MediaDataConverter;
 import com.converters.MediaDataConverterImpl;
+import com.logger.Logger;
+import com.logger.LoggerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,15 +12,47 @@ import java.util.Map;
  * Created by Mor on 02/06/2017.
  */
 
-public abstract class UtilityFactory {
+public class UtilityFactory {
 
-    private static Map<Class<? extends Utility>, Utility> class2ObjectMap = new HashMap<Class<? extends Utility>, Utility>() {{
-        put(MediaFileUtils.class, new MediaFilesUtilsInstance());
-        put(MediaDataConverter.class, new MediaDataConverterImpl());
+    private static final String TAG = UtilityFactory.class.getSimpleName();
 
-    }};
+    private Map<Class<? extends Utility>, Class<? extends Utility>> class2ObjectMap;
 
-    public static <T extends Utility> T getUtility(Class aClass) {
-        return (T) class2ObjectMap.get(aClass);
+    private static Logger logger = LoggerFactory.getLogger();
+
+    private static UtilityFactory instance;
+
+    private UtilityFactory() {
+        class2ObjectMap = new HashMap<Class<? extends Utility>, Class<? extends Utility>>() {{
+            put(MediaFileUtils.class, MediaFilesUtilsImpl.class);
+            put(MediaDataConverter.class, MediaDataConverterImpl.class);
+            put(AlarmUtils.class, AlarmUtilsImpl.class);
+            put(BitmapUtils.class, BitmapUtilsImpl.class);
+            put(InitUtils.class, InitUtilsImpl.class);
+        }};
+    }
+
+    public static UtilityFactory instance() {
+        if(instance == null) {
+            instance = new UtilityFactory();
+        }
+        return instance;
+    }
+
+    public <T extends Utility> T getUtility(Class<? extends Utility> interfaceClass) {
+        T result = null;
+        try {
+            Class<? extends Utility> utilityClass = class2ObjectMap.get(interfaceClass);
+            if(utilityClass == null) {
+                logger.warn(TAG, "Unable to find utility for of interface:" + interfaceClass);
+                return null;
+            }
+            result = (T) utilityClass.newInstance();
+
+
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }

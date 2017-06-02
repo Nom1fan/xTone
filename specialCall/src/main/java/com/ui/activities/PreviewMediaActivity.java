@@ -24,7 +24,7 @@ import com.semantive.waveformandroid.waveform.WaveformFragment;
 import com.services.AbstractStandOutService;
 import com.services.PreviewService;
 import com.utils.BitmapUtils;
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
 import com.utils.SharedPrefUtils;
 
 import org.florescu.android.rangeseekbar.RangeSeekBar;
@@ -33,6 +33,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.files.media.MediaFile;
+import com.utils.UtilityFactory;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -60,6 +61,10 @@ public class PreviewMediaActivity extends AppCompatActivity {
     private Timer timer;
     private boolean isActive;
     private VideoView trimVideoView;
+    private BitmapUtils bitmapUtils = UtilityFactory.instance().getUtility(BitmapUtils.class);
+    private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
+
+
 
     //region Activity methods (onCreate(), onPause()...)
     @Override
@@ -80,7 +85,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
 
         TextView fileType = (TextView) findViewById(R.id.upload_file_type);
         TextView fileName = (TextView) findViewById(R.id.upload_file_name);
-        fileName.setText(MediaFilesUtilsImpl.getFileNameWithExtension(_managedFile.getFile().getAbsolutePath()));
+        fileName.setText(mediaFileUtils.getFileNameWithExtension(_managedFile.getFile().getAbsolutePath()));
         fType = _managedFile.getFileType();
 
         prepareUploadBtn();
@@ -204,7 +209,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
                 RangeSeekBar videoSeekBar = (RangeSeekBar) findViewById(R.id.seekbar);
                 videoSeekBar.setVisibility(View.VISIBLE);
 
-                long durationInMili = MediaFilesUtilsImpl.getFileDurationInMilliSeconds(getApplicationContext(), _managedFile);
+                long durationInMili = mediaFileUtils.getFileDurationInMilliSeconds(getApplicationContext(), _managedFile);
                 endInMili =  Integer.parseInt(String.valueOf(durationInMili));
                 SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC,endInMili);
 
@@ -343,7 +348,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
             case VIDEO:
             case IMAGE:
 
-                BitmapUtils.execBitMapWorkerTask(_imageButton, fType, _managedFile.getFile().getAbsolutePath(), false);
+                bitmapUtils.execBitMapWorkerTask(_imageButton, fType, _managedFile.getFile().getAbsolutePath(), false);
                 // stretch the uploaded image as it won't stretch because we use a drawable instead that we don't want to stretch
                 _imageButton.setPadding(0, 0, 0, 0);
                 _imageButton.setScaleType(ImageView.ScaleType.FIT_XY);
@@ -408,7 +413,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
         Intent resultIntent = new Intent();
         log(Log.INFO,TAG,"returnFile");
 
-        log(Log.INFO,TAG, "[File selected]: " + managedFile.getFile().getAbsolutePath() + ". [File Size]: " + MediaFilesUtilsImpl.getFileSizeFormat(managedFile.getSize()));
+        log(Log.INFO,TAG, "[File selected]: " + managedFile.getFile().getAbsolutePath() + ". [File Size]: " + mediaFileUtils.getFileSizeFormat(managedFile.getSize()));
 
         resultIntent.putExtra(RESULT_FILE, managedFile);
 

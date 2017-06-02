@@ -35,10 +35,11 @@ import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.MediaCallSessionUtils;
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
 import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
+import com.utils.UtilityFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -91,6 +92,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected boolean showFirstTime = false;
     protected Vibrator vibrator;
     protected String contactName = "";
+    protected BitmapUtils bitmapUtils = UtilityFactory.instance().getUtility(BitmapUtils.class);
+    protected MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
+    
+
 
     public AbstractStandOutService(String TAG) {
         this.TAG = TAG;
@@ -490,8 +495,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     private void prepareImageView(String mediaFilePath) {
         log(Log.INFO, TAG, "Preparing ImageView");
 
-        boolean gifEnabled = false;
-        String ext = MediaFilesUtilsImpl.extractExtension(mediaFilePath);
+        boolean gifEnabled;
+        String ext = mediaFileUtils.extractExtension(mediaFilePath);
         gifEnabled = ext != null && ext.equals("gif");
 
         if (gifEnabled) {
@@ -533,7 +538,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             final BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(mediaFilePath, options);
-            options.inSampleSize = BitmapUtils.calculateInSampleSize(options, mWidth, mHeight);
+            options.inSampleSize = bitmapUtils.calculateInSampleSize(options, mWidth, mHeight);
 
             options.inJustDecodeBounds = false;
             Bitmap spCallBitmap = BitmapFactory.decodeFile(mediaFilePath, options);
@@ -1126,10 +1131,10 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected void setTempMd5ForCallRecord(MediaCallData mediaCallData) {
 
         if (mediaCallData.doesAudioMediaExist())
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_AUDIOMD5, MediaFilesUtilsImpl.getMD5(mediaCallData.getAudioMediaFilePath()));
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_AUDIOMD5, mediaFileUtils.getMD5(mediaCallData.getAudioMediaFilePath()));
 
         if (mediaCallData.doesVisualFileExist())
-            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5, MediaFilesUtilsImpl.getMD5(mediaCallData.getVisualMediaFilePath()));
+            SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.TEMP_VISUALMD5, mediaFileUtils.getMD5(mediaCallData.getVisualMediaFilePath()));
 
     }
 

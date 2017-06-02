@@ -24,7 +24,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.mediacallz.app.R;
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
 import com.utils.UI_Utils;
 
 import org.apache.commons.io.FilenameUtils;
@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.files.media.MediaFile;
+import com.utils.UtilityFactory;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -56,6 +57,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
     private ImageButton playPauseBtn;
     private boolean isPreviewDisplaying = false;
     private HashMap<String, String> paths_to_titles;
+    private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,8 +159,8 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
     }
 
     private void deleteAudioFile() {
-        MediaFile.FileType type = null;
-        MediaFile audioFileSelected = null;
+        MediaFile.FileType type;
+        MediaFile audioFileSelected;
 
         audioFileSelected = new MediaFile(new File(mChosenAudioFile));
         type = audioFileSelected.getFileType();
@@ -168,7 +170,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
         }
 
         log(Log.INFO, TAG, "Audio File that will be deleted: " + mChosenAudioFile);
-        MediaFilesUtilsImpl.delete(audioFileSelected);
+        mediaFileUtils.delete(audioFileSelected);
     }
 
     private void stopAudioFile() {
@@ -251,7 +253,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
     }
 
     private void prepareListViewData() {
-        _audioFilesSet = MediaFilesUtilsImpl.getAllAudioHistoryFiles();
+        _audioFilesSet = mediaFileUtils.getAllAudioHistoryFiles();
         populateContactsToDisplayFromBlockedList(); // populate all contacts to view with checkboxes
     }
 

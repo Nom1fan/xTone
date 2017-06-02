@@ -35,7 +35,8 @@ import com.mediacallz.app.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.CircleBitmapDisplayer;
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
+import com.utils.UtilityFactory;
 import com.validate.media.ValidateImageFormatBehavior;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ public class ImageMusicListFragment extends AbsListViewBaseFragment implements P
 	private static final String TAG = ImageMusicListFragment.class.getSimpleName();
 	private List<String> audioThumbsUrls;
 	private List<String> fileNames;
+	private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -89,7 +91,7 @@ public class ImageMusicListFragment extends AbsListViewBaseFragment implements P
 	private void prepareFileNames() {
 		fileNames = new ArrayList<>();
 		for (String thumbUrl : audioThumbsUrls) {
-			String fileName = MediaFilesUtilsImpl.getFileNameWithoutExtensionByUrl(thumbUrl);
+			String fileName = mediaFileUtils.getFileNameWithoutExtensionByUrl(thumbUrl);
 			fileNames.add(fileName);
 		}
 	}

@@ -10,7 +10,6 @@ import android.util.Log;
 import com.data.objects.Constants;
 import com.data.objects.MediaCallData;
 import com.mediacallz.app.R;
-import com.utils.MediaFilesUtilsImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -119,8 +118,8 @@ public class PreviewService extends AbstractStandOutService {
         String audioMediaFilePath = intent.getStringExtra(AbstractStandOutService.PREVIEW_AUDIO);
         String myPhoneNumber = Constants.MY_ID(context);
 
-        boolean funToneExists = new File(audioMediaFilePath).exists() && !MediaFilesUtilsImpl.isAudioFileCorrupted(audioMediaFilePath, context);
-        boolean visualMediaExists = new File(visualMediaFilePath).exists() && !MediaFilesUtilsImpl.isVideoFileCorrupted(visualMediaFilePath, context);
+        boolean funToneExists = new File(audioMediaFilePath).exists() && !mediaFileUtils.isAudioFileCorrupted(audioMediaFilePath, context);
+        boolean visualMediaExists = new File(visualMediaFilePath).exists() && !mediaFileUtils.isVideoFileCorrupted(visualMediaFilePath, context);
 
         MediaCallData mediaCallData = new MediaCallData();
         log(Log.INFO, TAG, "startPreviewWindow:" + mediaCallData);

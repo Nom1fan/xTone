@@ -15,7 +15,6 @@ import com.files.media.MediaFile;
 import com.logger.Logger;
 import com.logger.LoggerFactory;
 import com.utils.MediaFileUtils;
-import com.utils.MediaFilesUtilsImpl;
 import com.utils.UtilityFactory;
 
 import java.io.IOException;
@@ -58,8 +57,8 @@ public class SyncOnDefaultMediaIntentServiceLogic {
         this.serverProxy = serverProxy;
         this.mediaDAO = DAOFactory.getDAO(MediaDAO.class);
         this.defaultMediaClient = ClientFactory.getClient(DefaultMediaClient.class);
-        this.mediaDataConverter = UtilityFactory.getUtility(MediaDataConverter.class);
-        this.mediaFileUtils = UtilityFactory.getUtility(MediaFileUtils.class);
+        this.mediaDataConverter = UtilityFactory.instance().getUtility(MediaDataConverter.class);
+        this.mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
     }
 
     public void performSyncOnDefaultMedia() {

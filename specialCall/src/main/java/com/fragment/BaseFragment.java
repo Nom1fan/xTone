@@ -36,9 +36,10 @@ import com.ui.activities.PreviewMediaActivity;
 import java.io.File;
 
 import com.files.media.MediaFile;
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
 import com.utils.NetworkingUtils;
 import com.utils.UI_Utils;
+import com.utils.UtilityFactory;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -48,6 +49,8 @@ import static com.crashlytics.android.Crashlytics.log;
 public abstract class BaseFragment extends Fragment implements PostDownloadCallBackListener {
 
     private ProgressDialog progressDialog;
+
+    protected MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -117,7 +120,7 @@ public abstract class BaseFragment extends Fragment implements PostDownloadCallB
     public void doCallBack(File file) {
         try {
             MediaFile managedFile = new MediaFile(file);
-            if (MediaFilesUtilsImpl.canMediaBePrepared(getActivity(), managedFile)) {
+            if (mediaFileUtils.canMediaBePrepared(getActivity(), managedFile)) {
                 Intent i = new Intent(getActivity(), PreviewMediaActivity.class);
                 i.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);
                 getActivity().startActivityForResult(i, ActivityRequestCodes.PREVIEW_MEDIA);

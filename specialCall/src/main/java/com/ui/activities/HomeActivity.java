@@ -24,7 +24,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.data.objects.ActivityRequestCodes;
-import com.data.objects.Constants;
 import com.fragment.AbsListViewBaseFragment;
 import com.fragment.ImageGIFGridFragment;
 import com.fragment.ImageGridFragment;
@@ -33,8 +32,10 @@ import com.fragment.VideoGalleryFragment;
 import com.mediacallz.app.R;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.utils.InitUtils;
+import com.utils.InitUtilsImpl;
 
 import com.files.media.MediaFile;
+import com.utils.UtilityFactory;
 
 import java.io.File;
 
@@ -48,10 +49,12 @@ public class HomeActivity extends Activity {
 
     private static final String TAG = HomeActivity.class.getSimpleName();
 
+    private InitUtils initUtils = UtilityFactory.instance().getUtility(InitUtils.class);
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        InitUtils.initImageLoader(this);
+        initUtils.initImageLoader(this);
         setContentView(R.layout.ac_home);
     }
 

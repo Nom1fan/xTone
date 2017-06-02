@@ -15,7 +15,7 @@ import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.mediacallz.app.R;
 import com.ui.activities.PreviewMediaActivity;
 import com.ui.activities.SelectMediaActivity;
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 
@@ -25,6 +25,7 @@ import java.io.IOException;
 import com.exceptions.FileDoesNotExistException;
 import com.exceptions.FileExceedsMaxSizeException;
 import com.files.media.MediaFile;
+import com.utils.UtilityFactory;
 
 import static com.utils.MediaFileUtils.MAX_FILE_SIZE;
 
@@ -36,6 +37,8 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
     protected String TAG;
     protected MediaPlayer mMediaPlayer = new MediaPlayer();
     protected SelectMediaActivity selectMediaActivity;
+    protected MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
+
 
     protected void startPreviewActivity(Context ctx, Intent data, boolean isCamera) {
 
@@ -53,7 +56,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         } catch (FileExceedsMaxSizeException e) {
             e.printStackTrace();
             String errMsg = String.format(ctx.getResources().getString(R.string.file_over_max_size),
-                    MediaFilesUtilsImpl.getFileSizeFormat(MAX_FILE_SIZE));
+                    mediaFileUtils.getFileSizeFormat(MAX_FILE_SIZE));
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, ctx);
 
@@ -146,7 +149,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
             if (isCamera) {
                 File file = new File(resultPath);
-                String extension = MediaFilesUtilsImpl.extractExtension(resultPath);
+                String extension = mediaFileUtils.extractExtension(resultPath);
                 Crashlytics.log(Log.INFO, TAG, "isCamera True, Extension saved in camera: " + extension);
                 if (extension == null) {
                     Crashlytics.log(Log.WARN, TAG, "Missing Extension! Adding .jpeg as it is likely to be image file from camera");
@@ -172,7 +175,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
         if (mediaFile.getSize() > MAX_FILE_SIZE) {
             String errMsg = String.format(selectMediaActivity.getResources().getString(R.string.file_over_max_size),
-                    MediaFilesUtilsImpl.getFileSizeFormat(MAX_FILE_SIZE));
+                    mediaFileUtils.getFileSizeFormat(MAX_FILE_SIZE));
 
             UI_Utils.callToast(errMsg, Color.RED, Toast.LENGTH_LONG, selectMediaActivity);
             selectMediaActivity.finish();

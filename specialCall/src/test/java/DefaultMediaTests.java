@@ -13,7 +13,6 @@ import com.files.media.MediaFile;
 import com.services.ServerProxy;
 import com.services.SyncOnDefaultMediaIntentServiceLogic;
 import com.utils.MediaFileUtils;
-import com.utils.MediaFilesUtilsImpl;
 import com.utils.UtilityFactory;
 
 import static org.mockito.Mockito.*;
@@ -346,7 +345,7 @@ public class DefaultMediaTests {
 
     @NonNull
     protected List<DefaultMediaData> prepareDefaultMediaData(String phoneNumber, SpecialMediaType specialMediaType, String fileName, final DefaultMediaData defaultMediaData, long unixTime) {
-        MediaFileUtils mediaFileUtils = UtilityFactory.getUtility(MediaFileUtils.class);
+        MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
         List<DefaultMediaData> defaultMediaDataList;
         defaultMediaData.setFilePathOnServer("C:\\git\\mediacallz_server\\uploads\\" + phoneNumber + "\\my_default_caller_media\\" + fileName);
         MediaFile mediaFile = new MediaFile();

@@ -1,0 +1,198 @@
+package com.utils;
+
+import android.content.Context;
+import android.graphics.Point;
+import android.os.Build;
+import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
+
+import com.crashlytics.android.Crashlytics;
+import com.data.objects.Constants;
+import com.enums.SaveMediaOption;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.enums.SpecialMediaType;
+import com.files.media.MediaFile;
+import com.receivers.SyncDefaultMediaReceiver;
+
+import static com.crashlytics.android.Crashlytics.log;
+import static com.receivers.SyncDefaultMediaReceiver.SYNC_REPEAT_INTERVAL;
+
+/**
+ * Created by Mor on 27/02/2016.
+ */
+public class InitUtilsImpl implements InitUtils {
+
+    private static final String TAG = InitUtilsImpl.class.getSimpleName();
+
+    private AlarmUtils alarmUtils = UtilityFactory.instance().getUtility(AlarmUtils.class);
+
+    private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
+
+
+    @Override
+    public void hideMediaFromGalleryScanner() {
+
+        hideMediaFromGalleryScanner(Constants.INCOMING_FOLDER);
+        hideMediaFromGalleryScanner(Constants.OUTGOING_FOLDER);
+        hideMediaFromGalleryScanner(Constants.AUDIO_HISTORY_FOLDER);
+    }
+
+    @Override
+    public void initializeSettingsDefaultValues(Context context) {
+
+        SettingsUtils.setDownloadOnlyOnWifi(context, false);
+        SettingsUtils.setSaveMediaOption(context, SaveMediaOption.ALWAYS);
+        SettingsUtils.setStrictRingingCapabilitiesDevice(context, true);
+
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        SharedPrefUtils.setInt(context, SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_HEIGHET, size.y);
+        SharedPrefUtils.setInt(context, SharedPrefUtils.SERVICES, SharedPrefUtils.DEVICE_SCREEN_WIDTH, size.x);
+
+        Crashlytics.log(Log.INFO, TAG, "DEVICE_SCREEN_HEIGHET: " + size.y + "DEVICE_SCREEN_WIDTH: " + size.x);
+
+    }
+
+    @Override
+    public void populateSavedMcFromDiskToSharedPrefs(Context context) {
+
+        try {
+            List<File> outgoingDirectories = getDirectories(new File(Constants.OUTGOING_FOLDER));
+            List<File> incomingDirectories = getDirectories(new File(Constants.INCOMING_FOLDER));
+
+            //populating Outgoing SharedPref with existing media files
+            populateSharedPrefMedia(context, outgoingDirectories, SpecialMediaType.PROFILE_MEDIA);
+
+            //populating Incoming SharedPref with existing media files
+            populateSharedPrefMedia(context, incomingDirectories, SpecialMediaType.CALLER_MEDIA);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void saveAndroidVersion(Context context) {
+
+        Constants.MY_ANDROID_VERSION(context, Build.VERSION.RELEASE);
+    }
+
+    @Override
+    public void initImageLoader(Context context) {
+        // This configuration tuning is custom. You can tune every option, you may tune some of them,
+        // or you can create default configuration by
+        //  ImageLoaderConfiguration.createDefault(this);
+        // method.
+        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(context);
+        config.threadPriority(Thread.NORM_PRIORITY - 2);
+        config.denyCacheImageMultipleSizesInMemory();
+        config.diskCacheFileNameGenerator(new Md5FileNameGenerator());
+        config.diskCacheSize(50 * 1024 * 1024); // 50 MiB
+        config.tasksProcessingOrder(QueueProcessingType.LIFO);
+        config.writeDebugLogs(); // Remove for release app
+
+        // Initialize ImageLoader with configuration.
+        ImageLoader.getInstance().init(config.build());
+    }
+
+    @Override
+    public void initSyncDefaultMediaReceiver(Context context) {
+        alarmUtils.setAlarm(context, SyncDefaultMediaReceiver.class, SYNC_REPEAT_INTERVAL, SyncDefaultMediaReceiver.SYNC_ACTION);
+    }
+
+    private void populateSharedPrefMedia(Context context, List<File> Directories, SpecialMediaType specialMediaType) {
+
+        for (int i = 0; i < Directories.size(); i++) {
+
+            List<File> DirFiles = getSpecificFolderFiles(new File(Directories.get(i).getAbsolutePath()));
+
+            for (int x = 0; x < DirFiles.size(); x++) {
+                MediaFile.FileType fType;
+
+
+                String extension = mediaFileUtils.extractExtension(DirFiles.get(x).getAbsolutePath());
+                fType = mediaFileUtils.getFileTypeByExtension(extension);
+
+                if (fType != null)
+                    switch (fType) {
+                        case AUDIO:
+
+                            if (specialMediaType == SpecialMediaType.PROFILE_MEDIA) {
+                                SharedPrefUtils.setString(context, SharedPrefUtils.FUNTONE_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
+                                log(Log.INFO, TAG, "populateSharedPrefMedia FUNTONE_FILEPATH: " + specialMediaType.toString() + " for: " + DirFiles.get(x).getName().split("\\.")[0] + " file: " + DirFiles.get(x).getAbsolutePath());
+                            } else {
+                                SharedPrefUtils.setString(context, SharedPrefUtils.RINGTONE_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
+                                log(Log.INFO, TAG, "populateSharedPrefMedia RINGTONE_FILEPATH: " + specialMediaType.toString() + " for: " + DirFiles.get(x).getName().split("\\.")[0] + " file: " + DirFiles.get(x).getAbsolutePath());
+                            }
+                            break;
+
+                        case VIDEO:
+                        case IMAGE:
+
+                            if (specialMediaType == SpecialMediaType.PROFILE_MEDIA) {
+                                SharedPrefUtils.setString(context, SharedPrefUtils.PROFILE_MEDIA_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
+                                log(Log.INFO, TAG, "populateSharedPrefMedia PROFILE_MEDIA_FILEPATH: " + specialMediaType.toString() + " for: " + DirFiles.get(x).getName().split("\\.")[0] + " file: " + DirFiles.get(x).getAbsolutePath());
+                            } else {
+                                SharedPrefUtils.setString(context, SharedPrefUtils.CALLER_MEDIA_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
+                                log(Log.INFO, TAG, "populateSharedPrefMedia CALLER_MEDIA_FILEPATH: " + specialMediaType.toString() + " for: " + DirFiles.get(x).getName().split("\\.")[0] + " file: " + DirFiles.get(x).getAbsolutePath());
+                            }
+                            break;
+                    }
+            }
+        }
+    }
+
+    private List<File> getDirectories(File parentDir) {
+        ArrayList<File> inFiles = new ArrayList<>();
+        File[] files = parentDir.listFiles();
+        for (File file : files) {
+            if (file.isDirectory())
+                inFiles.add(file);
+        }
+        return inFiles;
+    }
+
+    private List<File> getSpecificFolderFiles(File parentDir) {
+        ArrayList<File> inFiles = new ArrayList<File>();
+        File[] files = parentDir.listFiles();
+        for (File file : files) {
+            if (!file.isDirectory()) {
+                inFiles.add(file);
+            }
+        }
+        return inFiles;
+    }
+
+    /**
+     * Prevents Android's media scanner from reading media files and including them in apps like Gallery or Music.
+     *
+     * @param path The path to set the media scanner to ignore
+     */
+    private void hideMediaFromGalleryScanner(String path) {
+
+        log(Log.INFO, TAG, "create file : " + path + "/" + ".nomedia");
+
+        File new_file = new File(path + "/" + ".nomedia");
+        try {
+            if (new_file.createNewFile())
+                log(Log.INFO, TAG, ".nomedia Created !");
+            else
+                log(Log.INFO, TAG, ".nomedia Already Exists !");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+}

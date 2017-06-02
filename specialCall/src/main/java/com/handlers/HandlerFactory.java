@@ -66,6 +66,10 @@ public class HandlerFactory {
 
     private static HandlerFactory ourInstance;
 
+    private HandlerFactory() {
+
+    }
+
     private Map<EventType, Class<Handler>> mainActivityHandlers = new HashMap() {{
         //put(EventType.APP_RECORD_RECEIVED, new EventAppRecordReceivedHandler()); //TODO Mor: Add this instead of the code in MainActivity
     }};

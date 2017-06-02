@@ -34,18 +34,16 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.utils.MediaFileUtils.*;
-
 /**
  * Created by Mor on 01/07/2016.
  */
-public abstract class MediaFilesUtilsImpl {
+public class MediaFilesUtilsImpl implements MediaFileUtils {
 
-    private static final String TAG = MediaFilesUtilsImpl.class.getSimpleName();
+    private  final String TAG = MediaFilesUtilsImpl.class.getSimpleName();
 
-    private static Logger logger = LoggerFactory.getLogger();
+    private Logger logger = LoggerFactory.getLogger();
 
-    public static boolean isVideoFileCorrupted(String mediaFilePath, Context context) {
+    public boolean isVideoFileCorrupted(String mediaFilePath, Context context) {
 
         boolean fileIsCorrupted;
 
@@ -60,7 +58,7 @@ public abstract class MediaFilesUtilsImpl {
         return fileIsCorrupted;
     }
 
-    public static boolean isAudioFileCorrupted(String mediaFilePath, Context context) {
+    public  boolean isAudioFileCorrupted(String mediaFilePath, Context context) {
 
         boolean fileIsCorrupted;
 
@@ -76,7 +74,7 @@ public abstract class MediaFilesUtilsImpl {
         return fileIsCorrupted;
     }
 
-    public static boolean canMediaBePrepared(Context ctx, MediaFile managedFile) {
+    public  boolean canMediaBePrepared(Context ctx, MediaFile managedFile) {
 
         boolean result = true;
         try {
@@ -104,22 +102,22 @@ public abstract class MediaFilesUtilsImpl {
 
     }
 
-    public static boolean isValidImageFormat(String pathOrUrl) {
+    public  boolean isValidImageFormat(String pathOrUrl) {
         String extension = pathOrUrl.substring(pathOrUrl.lastIndexOf(".") + 1);
         return imageFormatsList.contains(extension.toLowerCase());
     }
 
-    public static boolean isValidAudioFormat(String pathOrUrl) {
+    public  boolean isValidAudioFormat(String pathOrUrl) {
         String extension = pathOrUrl.substring(pathOrUrl.lastIndexOf(".") + 1);
         return audioFormatsList.contains(extension.toLowerCase());
     }
 
-    public static boolean isValidVideoFormat(String pathOrUrl) {
+    public  boolean isValidVideoFormat(String pathOrUrl) {
         String extension = pathOrUrl.substring(pathOrUrl.lastIndexOf(".") + 1);
         return videoFormatsList.contains(extension.toLowerCase());
     }
 
-    public static boolean doesFileExistInHistoryFolderByMD5(String md5, String folder) {
+    public  boolean doesFileExistInHistoryFolderByMD5(String md5, String folder) {
         boolean result = false;
         File yourDir = new File(folder);
         for (File f : yourDir.listFiles()) {
@@ -136,7 +134,7 @@ public abstract class MediaFilesUtilsImpl {
 
     }
 
-    public static File getFileByMD5(String md5, String folderPath) {
+    public  File getFileByMD5(String md5, String folderPath) {
         File result = null;
         File yourDir = new File(folderPath);
         for (File f : yourDir.listFiles()) {
@@ -152,7 +150,7 @@ public abstract class MediaFilesUtilsImpl {
         return result;
     }
 
-    public static long getFileCreationDateInUnixTime(MediaFile mediaFile) {
+    public  long getFileCreationDateInUnixTime(MediaFile mediaFile) {
         long creationDateInUnixTime = 0;
         File file = mediaFile.getFile();
         if (file.exists()) {
@@ -165,15 +163,15 @@ public abstract class MediaFilesUtilsImpl {
         return creationDateInUnixTime;
     }
 
-    public static MediaFile.FileType getFileType(String filePath) {
+    public  MediaFile.FileType getFileType(String filePath) {
         return getFileType(new File(filePath));
     }
 
-    public static MediaFile.FileType getFileType(File file) {
+    public  MediaFile.FileType getFileType(File file) {
         return getFileTypeByExtension(extractExtension(file.getAbsolutePath()));
     }
 
-    public static MediaFile.FileType getFileTypeByExtension(String extension) {
+    public  MediaFile.FileType getFileTypeByExtension(String extension) {
         MediaFile.FileType fileType = null;
         if (Arrays.asList(imageFormats).contains(extension)) {
             fileType = MediaFile.FileType.IMAGE;
@@ -185,7 +183,7 @@ public abstract class MediaFilesUtilsImpl {
         return fileType;
     }
 
-    public static String extractExtension(String filePath) {
+    public  String extractExtension(String filePath) {
         String ext = null;
         String tmp_str[] = filePath.split("\\.(?=[^\\.]+$)"); // getting last
         if (tmp_str.length >= 2) {
@@ -199,7 +197,7 @@ public abstract class MediaFilesUtilsImpl {
      *
      * @param file - The file to delete
      */
-    public static void delete(File file) {
+    public  void delete(File file) {
 
         final File to = new File(file.getAbsolutePath() + System.currentTimeMillis());
         file.renameTo(to);
@@ -211,18 +209,18 @@ public abstract class MediaFilesUtilsImpl {
      *
      * @param mediaFile - The file to delete
      */
-    public static void delete(MediaFile mediaFile) {
+    public  void delete(MediaFile mediaFile) {
 
         final File to = new File(mediaFile.getFile().getAbsolutePath() + System.currentTimeMillis());
         mediaFile.getFile().renameTo(to);
         to.delete();
     }
 
-    public static void triggerMediaScanOnFile(Context context, File file) {
+    public  void triggerMediaScanOnFile(Context context, File file) {
         context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
     }
 
-    public static Set<String> getAllAudioHistoryFiles() {
+    public  Set<String> getAllAudioHistoryFiles() {
         File parentDir = new File(Constants.AUDIO_HISTORY_FOLDER);
 
         Set<String> inFiles = new HashSet<String>();
@@ -240,7 +238,7 @@ public abstract class MediaFilesUtilsImpl {
      * @param _fileSize - The size of the file in bytes
      * @return - The size of the files in common unit format (KB/MB)
      */
-    public static String getFileSizeFormat(double _fileSize) {
+    public  String getFileSizeFormat(double _fileSize) {
 
         double MB = (int) Math.pow(2, 20);
         double KB = (int) Math.pow(2, 10);
@@ -266,7 +264,7 @@ public abstract class MediaFilesUtilsImpl {
      * @param fileData
      * @throws IOException
      */
-    public static void createNewFile(String filePath, byte[] fileData) throws IOException {
+    public  void createNewFile(String filePath, byte[] fileData) throws IOException {
 
         FileOutputStream fos;
         BufferedOutputStream bos;
@@ -284,7 +282,7 @@ public abstract class MediaFilesUtilsImpl {
         bos.close();
     }
 
-    public static String getFileNameWithExtension(String filePath) {
+    public  String getFileNameWithExtension(String filePath) {
 
         String tmp_str[] = filePath.split("\\/");
 
@@ -301,7 +299,7 @@ public abstract class MediaFilesUtilsImpl {
      * @return md5 string
      * @throws Exception
      */
-    public static String getMD5(String filepath) {
+    public  String getMD5(String filepath) {
 
         try {
 
@@ -349,7 +347,7 @@ public abstract class MediaFilesUtilsImpl {
      * @throws FileNotFoundException Deprecated - Should probably use FileUtils by apache
      */
     @Deprecated
-    public static boolean deleteDirectory(File directory) throws NullPointerException, FileNotFoundException {
+    public  boolean deleteDirectory(File directory) throws NullPointerException, FileNotFoundException {
 
         if (directory == null)
             throw new NullPointerException("The file parameter cannot be null");
@@ -381,12 +379,12 @@ public abstract class MediaFilesUtilsImpl {
      * @throws NullPointerException
      * @throws FileNotFoundException
      */
-    public static void deleteDirectoryContents(File directory) throws NullPointerException, IOException {
+    public  void deleteDirectoryContents(File directory) throws NullPointerException, IOException {
 
         FileUtils.cleanDirectory(directory);
     }
 
-    public static boolean isExtensionValid(String extension) {
+    public  boolean isExtensionValid(String extension) {
         return Arrays.asList(imageFormats).contains(extension) ||
                 Arrays.asList(videoFormats).contains(extension) ||
                 Arrays.asList(audioFormats).contains(extension);
@@ -400,7 +398,7 @@ public abstract class MediaFilesUtilsImpl {
      * @return The file duration in seconds
      * @see MediaMetadataRetriever
      */
-    public static long getFileDurationInSeconds(Context context, MediaFile managedFile) {
+    public  long getFileDurationInSeconds(Context context, MediaFile managedFile) {
         return getFileDurationInMilliSeconds(context, managedFile) / 1000;
     }
 
@@ -411,7 +409,7 @@ public abstract class MediaFilesUtilsImpl {
      * @return The file duration in milliseconds
      * @see MediaMetadataRetriever
      */
-    public static long getFileDurationInMilliSeconds(Context context, MediaFile managedFile) {
+    public  long getFileDurationInMilliSeconds(Context context, MediaFile managedFile) {
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(context, Uri.fromFile(managedFile.getFile()));
@@ -420,7 +418,7 @@ public abstract class MediaFilesUtilsImpl {
         return timeInMilli;
     }
 
-    public static MediaFile createMediaFile(File file) {
+    public  MediaFile createMediaFile(File file) {
         MediaFile result = null;
         try {
             result = new MediaFile(file);
@@ -431,15 +429,15 @@ public abstract class MediaFilesUtilsImpl {
         return result;
     }
 
-    public static String getFileNameByUrl(String url) {
+    public  String getFileNameByUrl(String url) {
         return FilenameUtils.getName(url).replaceAll("%20", " ");
     }
 
-    public static String getFileNameWithoutExtensionByUrl(String url) {
+    public  String getFileNameWithoutExtensionByUrl(String url) {
         return FilenameUtils.getBaseName(url).replaceAll("%20", " ");
     }
 
-    public static String resolvePathBySpecialMediaType(PendingDownloadData pendingDownloadData, DefaultMediaData defaultMediaData) {
+    public  String resolvePathBySpecialMediaType(PendingDownloadData pendingDownloadData, DefaultMediaData defaultMediaData) {
         String filePath;
         String sourceId = pendingDownloadData.getSourceId();
         String extension = pendingDownloadData.getMediaFile().getExtension();
@@ -477,7 +475,7 @@ public abstract class MediaFilesUtilsImpl {
      *
      * @throws FileExceedsMaxSizeException - Thrown if file size exceeds MediaFile.MAX_FILE_SIZE
      */
-    public static void validateFileSize(File file) throws FileExceedsMaxSizeException {
+    public  void validateFileSize(File file) throws FileExceedsMaxSizeException {
 
         long fileSize = file.length();
         if (fileSize >= MAX_FILE_SIZE)
@@ -490,7 +488,7 @@ public abstract class MediaFilesUtilsImpl {
      * @return FileType - The valid file type found
      * @throws FileInvalidFormatException - Thrown if the file is not found in valid file formats lists
      */
-    public static MediaFile.FileType validateFileFormat(String extension) throws FileInvalidFormatException {
+    public  MediaFile.FileType validateFileFormat(String extension) throws FileInvalidFormatException {
 
         if (Arrays.asList(imageFormats).contains(extension))
             return MediaFile.FileType.IMAGE;
@@ -502,12 +500,12 @@ public abstract class MediaFilesUtilsImpl {
         throw new FileInvalidFormatException(extension);
     }
 
-    public static String getNameWithoutExtension(File file) {
+    public  String getNameWithoutExtension(File file) {
 
         return file.getName().split("\\.")[0];
     }
 
-    public static String getNameWithoutExtension(MediaFile mediaFile) {
+    public  String getNameWithoutExtension(MediaFile mediaFile) {
 
         return mediaFile.getFile().getName().split("\\.")[0];
     }
@@ -527,7 +525,7 @@ public abstract class MediaFilesUtilsImpl {
      * @param newDownloadedFileType The type of the files just downloaded and should be created in the source designated folder
      * @param source                The source number of the sender of the file
      */
-    public static void deleteFilesIfNecessary(Context context, String sharedPrefsKey, String folder, String addedFileName, MediaFile.FileType newDownloadedFileType, String source) {
+    public  void deleteFilesIfNecessary(Context context, String sharedPrefsKey, String folder, String addedFileName, MediaFile.FileType newDownloadedFileType, String source) {
 
         File[] files = new File(folder).listFiles();
 
@@ -576,7 +574,7 @@ public abstract class MediaFilesUtilsImpl {
         }
     }
 
-    private static boolean canVideoBePrepared(Context ctx, MediaFile managedFile) {
+    private  boolean canVideoBePrepared(Context ctx, MediaFile managedFile) {
 
         boolean result = true;
         try {
@@ -603,7 +601,7 @@ public abstract class MediaFilesUtilsImpl {
 
     }
 
-    private static boolean canAudioBePrepared(Context ctx, MediaFile managedFile) {
+    private  boolean canAudioBePrepared(Context ctx, MediaFile managedFile) {
 
         boolean result = true;
         try {
@@ -627,7 +625,7 @@ public abstract class MediaFilesUtilsImpl {
 
     }
 
-    private static void checkIfWeCanPrepareSound(Context ctx, Uri audioUri) throws IOException {
+    private  void checkIfWeCanPrepareSound(Context ctx, Uri audioUri) throws IOException {
 
         Crashlytics.log(Log.INFO, TAG, "Checking if Sound Can Be Prepared and work");
         MediaPlayer mMediaPlayer = new MediaPlayer();
@@ -637,7 +635,7 @@ public abstract class MediaFilesUtilsImpl {
         mMediaPlayer.release();
     }
 
-    private static void checkIfWeCanPrepareVideo(Context ctx, Uri videoUri) throws Exception {
+    private  void checkIfWeCanPrepareVideo(Context ctx, Uri videoUri) throws Exception {
 
         Crashlytics.log(Log.INFO, TAG, "Checking if Video Can Be Prepared and work");
         MediaPlayer mMediaPlayer = new MediaPlayer();

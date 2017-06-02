@@ -49,7 +49,7 @@ public abstract class MediaProcessingAsyncTask extends AsyncTask<Bundle, Integer
     protected volatile boolean contCalcProgress = false;
     protected volatile boolean updateThreadNextIterStarted = false;
     protected MediaFileProcessingUtils mediaFileProcessingUtils = new MediaFileProcessingUtils(vk);
-    protected MediaFileUtils mediaFileUtils = UtilityFactory.getUtility(MediaFileUtils.class);
+    protected MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
     public MediaProcessingAsyncTask(int order,
                                     UploadFileFlowListener uploadFileFlow,

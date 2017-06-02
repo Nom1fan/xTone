@@ -13,7 +13,8 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import com.mediacallz.app.R;
-import com.utils.MediaFilesUtilsImpl;
+import com.utils.MediaFileUtils;
+import com.utils.UtilityFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,6 +38,7 @@ public class DownloadFileAsyncTask extends AsyncTask<Void, Integer, File> {
     private InputStream in;
     private PowerManager.WakeLock wakeLock;
     private PostDownloadCallBackListener listener;
+    private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
     public DownloadFileAsyncTask(Context context, String targetUrl, int fileSize) throws IOException {
         this.context=context;
@@ -74,7 +76,7 @@ public class DownloadFileAsyncTask extends AsyncTask<Void, Integer, File> {
 
     @Override
     protected File doInBackground(Void... voids) {
-        String filename = MediaFilesUtilsImpl.getFileNameByUrl(url);
+        String filename = mediaFileUtils.getFileNameByUrl(url);
         return downloadFile(filename);
     }
 
