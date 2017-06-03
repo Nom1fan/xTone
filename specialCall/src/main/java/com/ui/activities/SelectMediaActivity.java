@@ -15,9 +15,10 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.*;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.MotionEventCompat;
 import android.util.Log;
 import android.view.MenuItem;
@@ -31,20 +32,20 @@ import android.widget.Toast;
 
 import com.data.objects.ActivityRequestCodes;
 import com.data.objects.Constants;
+import com.enums.SpecialMediaType;
+import com.files.media.MediaFile;
 import com.handlers.Handler;
 import com.handlers.HandlerFactory;
 import com.ipaulpro.afilechooser.utils.FileUtils;
+import com.mediacallz.app.BuildConfig;
 import com.mediacallz.app.R;
 import com.utils.MediaFileUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
+import com.utils.UtilityFactory;
 
 import java.io.File;
 import java.util.List;
-
-import com.enums.SpecialMediaType;
-import com.files.media.MediaFile;
-import com.utils.UtilityFactory;
 
 import static com.crashlytics.android.Crashlytics.log;
 import static com.utils.MediaFileUtils.MAX_FILE_SIZE;
@@ -434,11 +435,11 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
 
         sdVideoMainDirectory.delete();
 
-        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SELF_VIDEO_IMAGE_URI, Uri.fromFile(sdVideoMainDirectory).toString());
+        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SELF_VIDEO_IMAGE_URI, FileProvider.getUriForFile(SelectMediaActivity.this, BuildConfig.APPLICATION_ID + ".provider",sdVideoMainDirectory).toString());
 
         final Intent videoIntent = new Intent(
                 MediaStore.ACTION_VIDEO_CAPTURE);
-        videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(sdVideoMainDirectory));
+        videoIntent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(SelectMediaActivity.this, BuildConfig.APPLICATION_ID + ".provider",sdVideoMainDirectory));
         videoIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 30); // set video recording interval
         videoIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0); // set the video image quality to low
         videoIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, 15000);
@@ -452,7 +453,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
         String fname = "MyImage_" + System.currentTimeMillis() + ".jpeg";
         File sdImageMainDirectory = new File(Constants.HISTORY_FOLDER, fname);
         sdImageMainDirectory.delete();
-        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SELF_VIDEO_IMAGE_URI, Uri.fromFile(sdImageMainDirectory).toString());
+        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.SELF_VIDEO_IMAGE_URI, FileProvider.getUriForFile(SelectMediaActivity.this, BuildConfig.APPLICATION_ID + ".provider",sdImageMainDirectory).toString());
         // Camera.
         final Intent captureIntent = new Intent(
                 android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
@@ -466,7 +467,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             intent.setComponent(new ComponentName(res.activityInfo.packageName,
                     res.activityInfo.name));
             intent.setPackage(packageName);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(sdImageMainDirectory));
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(SelectMediaActivity.this, BuildConfig.APPLICATION_ID + ".provider",sdImageMainDirectory));
             cameraIntent = intent;
         }
 
