@@ -11,6 +11,7 @@ import com.crashlytics.android.Crashlytics;
 import com.data.objects.Constants;
 import com.data.objects.DefaultMediaData;
 import com.data.objects.PendingDownloadData;
+import com.enums.SpecialMediaType;
 import com.exceptions.FileExceedsMaxSizeException;
 import com.exceptions.FileInvalidFormatException;
 import com.files.media.MediaFile;
@@ -52,7 +53,7 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
             fileIsCorrupted = false;
         else {
             fileIsCorrupted = true;
-            logger.info(TAG, "Video Is Corrupted. Video File Path: " + mediaFilePath);
+            logger.error(TAG, "Video Is Corrupted. Video File Path: " + mediaFilePath);
         }
 
         return fileIsCorrupted;
@@ -68,7 +69,7 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
             fileIsCorrupted = false;
         else {
             fileIsCorrupted = true;
-            logger.info(TAG, "Ringtone Is Corrupted. Ringtone file path: " + mediaFilePath);
+            logger.error(TAG, "Ringtone Is Corrupted. Ringtone file path: " + mediaFilePath);
         }
 
         return fileIsCorrupted;
@@ -150,7 +151,7 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
         return result;
     }
 
-    public  long getFileCreationDateInUnixTime(MediaFile mediaFile) {
+    public long getFileCreationDateInUnixTime(MediaFile mediaFile) {
         long creationDateInUnixTime = 0;
         File file = mediaFile.getFile();
         if (file.exists()) {
@@ -418,17 +419,6 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
         return timeInMilli;
     }
 
-    public  MediaFile createMediaFile(File file) {
-        MediaFile result = null;
-        try {
-            result = new MediaFile(file);
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error(TAG, e.getMessage());
-        }
-        return result;
-    }
-
     public  String getFileNameByUrl(String url) {
         return FilenameUtils.getName(url).replaceAll("%20", " ");
     }
@@ -437,7 +427,8 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
         return FilenameUtils.getBaseName(url).replaceAll("%20", " ");
     }
 
-    public  String resolvePathBySpecialMediaType(PendingDownloadData pendingDownloadData, DefaultMediaData defaultMediaData) {
+    @Override
+    public String resolvePathBySpecialMediaType(PendingDownloadData pendingDownloadData) {
         String filePath;
         String sourceId = pendingDownloadData.getSourceId();
         String extension = pendingDownloadData.getMediaFile().getExtension();
@@ -452,11 +443,22 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
                 filePath = Constants.OUTGOING_FOLDER + sourceId + "/" + fileName;
             }
             break;
+            default:
+                throw new UnsupportedOperationException("Not yet implemented");
+
+        }
+        return filePath;
+    }
+
+    @Override
+    public String resolvePathBySpecialMediaType(String sourceId, SpecialMediaType specialMediaType, DefaultMediaData defaultMediaData) {
+        String filePath;
+        String extension = defaultMediaData.getMediaFile().getExtension();
+        switch (specialMediaType) {
             case DEFAULT_CALLER_MEDIA: {
                 String fileName = defaultMediaData.getDefaultMediaUnixTime() + "_" + sourceId + "." + extension;
                 filePath = Constants.DEFAULT_INCOMING_FOLDER + sourceId + "/" + fileName;
             }
-
             break;
             case DEFAULT_PROFILE_MEDIA: {
                 String fileName = defaultMediaData.getDefaultMediaUnixTime() + "_" + sourceId + "." + extension;
@@ -525,7 +527,7 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
      * @param newDownloadedFileType The type of the files just downloaded and should be created in the source designated folder
      * @param source                The source number of the sender of the file
      */
-    public  void deleteFilesIfNecessary(Context context, String sharedPrefsKey, String folder, String addedFileName, MediaFile.FileType newDownloadedFileType, String source) {
+    public void deleteFilesIfNecessary(Context context, String sharedPrefsKey, String folder, String addedFileName, MediaFile.FileType newDownloadedFileType, String source) {
 
         File[] files = new File(folder).listFiles();
 
@@ -574,7 +576,7 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
         }
     }
 
-    private  boolean canVideoBePrepared(Context ctx, MediaFile managedFile) {
+    private boolean canVideoBePrepared(Context ctx, MediaFile managedFile) {
 
         boolean result = true;
         try {

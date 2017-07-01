@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.app.AppStateManager;
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.data.objects.Constants;
 import com.data.objects.SnackbarData;
 import com.enums.SpecialMediaType;
@@ -12,13 +12,13 @@ import com.event.EventReport;
 import com.event.EventType;
 import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
-import com.mediacallz.app.R;
 import com.model.request.ClearMediaRequest;
 import com.data.objects.AppMeta;
 import com.model.response.Response;
 import com.utils.BroadcastUtils;
 import com.utils.ContactsUtils;
 import com.utils.UI_Utils;
+import com.utils.UtilityFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -41,10 +41,13 @@ public class ClearMediaActionHandler implements ActionHandler {
     private static final Type responseType = new TypeToken<Response<AppMeta>>() {
     }.getType();
 
+    private final ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
+
+
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
         Context ctx = actionBundle.getCtx();
-        ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
+        ConnectionToServerImpl connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
 
         String destId = actionBundle.getIntent().getStringExtra(DESTINATION_ID);
@@ -55,7 +58,7 @@ public class ClearMediaActionHandler implements ActionHandler {
         request.setDestinationId(destId);
         request.setSourceId(Constants.MY_ID(ctx));
         request.setSpecialMediaType(specialMediaType);
-        request.setDestinationContactName(ContactsUtils.getContactName(ctx, destId));
+        request.setDestinationContactName(contactsUtils.getContactName(ctx, destId));
 
         int responseCode = connectionToServer.sendRequest(URL_CLEAR_MEDIA, request);
         if(responseCode == HttpStatus.SC_OK) {

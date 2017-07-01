@@ -2,6 +2,7 @@ package com.converters;
 
 import com.data.objects.DefaultMediaData;
 import com.data.objects.PendingDownloadData;
+import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
 import com.utils.Utility;
 
@@ -11,7 +12,6 @@ import com.utils.Utility;
 
 public interface MediaDataConverter extends Utility {
 
-    PendingDownloadData toPendingDownloadData(DefaultMediaData defaultMediaData);
+    PendingDownloadData toPendingDownloadData(String sourceId, SpecialMediaType specialMediaType, DefaultMediaData defaultMediaData);
 
-    MediaFile toMediaFile(DefaultMediaData defaultMediaData);
 }

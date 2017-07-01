@@ -112,8 +112,9 @@ public class MediaFileProcessingUtils {
         }
 
         MediaFile alreadyCompFile = getAlreadyCompFile(baseFile);
-        if (alreadyCompFile != null)
+        if (alreadyCompFile != null) {
             return alreadyCompFile;
+        }
 
         MediaFile compressedFile = null;
 
@@ -189,7 +190,7 @@ public class MediaFileProcessingUtils {
             rotatedFile = new File(rotatedImageFilepath);
             fos = new FileOutputStream(rotatedFile);
             bmp.compress(Bitmap.CompressFormat.PNG, 100, fos); // PNG is a lossless format, the compression factor (100) is ignored
-            return new MediaFile(rotatedFile);
+            return new MediaFile(rotatedFile, true);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -338,7 +339,7 @@ public class MediaFileProcessingUtils {
 
             // File already has a previously compressed file in compressed folder
             if (potentialCompFile != null) {
-                compressedFile = mediaFileUtils.createMediaFile(potentialCompFile);
+                compressedFile = new MediaFile(potentialCompFile);
             }
         } catch (Exception e) {
             log(Log.WARN, TAG, "Failed to retrieve previously compressed file. Exception:" + e.getMessage());

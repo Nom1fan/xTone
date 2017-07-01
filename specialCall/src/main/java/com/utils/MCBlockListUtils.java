@@ -22,6 +22,8 @@ public abstract class MCBlockListUtils {
 
     private static final String TAG = MCBlockListUtils.class.getSimpleName();
 
+    private static final ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
+
     public static boolean IsMCBlocked(String incomingNumber, Context context) {
         log(Log.INFO,TAG, "check if number blocked: " + incomingNumber);
         //MC Permissions: ALL , Only contacts , Specific Black List Contacts
@@ -52,7 +54,7 @@ public abstract class MCBlockListUtils {
 
                 case CONTACTS_ONLY:
                     // GET ALL CONTACTS
-                    List<Contact> contactsList = ContactsUtils.getAllContacts(context);
+                    List<Contact> contactsList = contactsUtils.getAllContacts(context);
                     List<String> contactPhonenumbers = new ArrayList<>();
 
                     for (int i=0; i<contactsList.size(); i++) {

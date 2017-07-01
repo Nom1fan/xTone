@@ -2,18 +2,23 @@ package com.services;
 
 import android.content.Context;
 
+import com.client.Client;
 import com.client.ClientFactory;
 import com.client.DefaultMediaClient;
+import com.client.UsersClient;
 import com.converters.MediaDataConverter;
 import com.dao.DAOFactory;
 import com.dao.MediaDAO;
 import com.data.objects.Contact;
 import com.data.objects.DefaultMediaData;
+import com.data.objects.DefaultMediaDataContainer;
 import com.data.objects.PendingDownloadData;
+import com.data.objects.User;
 import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
 import com.logger.Logger;
 import com.logger.LoggerFactory;
+import com.utils.ContactsUtils;
 import com.utils.MediaFileUtils;
 import com.utils.UtilityFactory;
 
@@ -39,26 +44,34 @@ public class SyncOnDefaultMediaIntentServiceLogic {
 
     private MediaDAO mediaDAO;
 
-    private List<Contact> allContacts;
-
     private ServerProxy serverProxy;
 
     private MediaDataConverter mediaDataConverter;
 
     private MediaFileUtils mediaFileUtils;
 
+    private ContactsUtils contactsUtils;
+
     public SyncOnDefaultMediaIntentServiceLogic() {
 
     }
 
-    public SyncOnDefaultMediaIntentServiceLogic(Context context, List<Contact> allContacts, ServerProxy serverProxy) {
+    public SyncOnDefaultMediaIntentServiceLogic(Context context, ServerProxy serverProxy) {
         this.context = context;
-        this.allContacts = allContacts;
         this.serverProxy = serverProxy;
         this.mediaDAO = DAOFactory.getDAO(MediaDAO.class);
-        this.defaultMediaClient = ClientFactory.getClient(DefaultMediaClient.class);
+        this.defaultMediaClient = ClientFactory.getInstance().getClient(DefaultMediaClient.class);
         this.mediaDataConverter = UtilityFactory.instance().getUtility(MediaDataConverter.class);
         this.mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
+        this.contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
+    }
+
+    public ContactsUtils getContactsUtils() {
+        return contactsUtils;
+    }
+
+    public void setContactsUtils(ContactsUtils contactsUtils) {
+        this.contactsUtils = contactsUtils;
     }
 
     public void performSyncOnDefaultMedia() {
@@ -72,48 +85,48 @@ public class SyncOnDefaultMediaIntentServiceLogic {
     }
 
     private void syncOnDefaultMedia(SpecialMediaType specialMediaType) throws IOException {
-        for (Contact contact : allContacts) {
-            logger.debug(TAG, "Sync default media for contact:" + contact);
+        List<String> contactsUids = contactsUtils.convertToUids(contactsUtils.getAllContacts(context));
+        List<DefaultMediaDataContainer> defaultMediaDataContainers = defaultMediaClient.getDefaultMediaData(context, contactsUids, specialMediaType);
+        for (DefaultMediaDataContainer defaultMediaDataContainer : defaultMediaDataContainers) {
+            logger.debug(TAG, "Sync default media for contact:" + defaultMediaDataContainer);
 
-            String phoneNumber = contact.getPhoneNumber();
-            List<DefaultMediaData> defaultMediaDataList = defaultMediaClient.getDefaultMediaData(context, phoneNumber, specialMediaType);
+            String phoneNumber = defaultMediaDataContainer.getUid();
+            List<DefaultMediaData> defaultMediaDataList = defaultMediaDataContainer.getDefaultMediaDataList();
             List<MediaFile> mediaFiles = mediaDAO.getMedia(specialMediaType, phoneNumber);
 
             if (defaultMediaDataList == null || defaultMediaDataList.isEmpty()) {
-                logger.debug(TAG, "For contact:" + contact + " Clearing all default media of type:" + specialMediaType);
+                logger.debug(TAG, "For contact:[" + phoneNumber + "] Clearing all default media of type:[" + specialMediaType +"]");
                 mediaDAO.removeMedia(specialMediaType, phoneNumber);
-                return;
             }
-
-            if(mediaFiles == null || mediaFiles.isEmpty()) {
+            else if(mediaFiles == null || mediaFiles.isEmpty()) {
                 // Initial download for contact defaults
                 for (DefaultMediaData defaultMediaData : defaultMediaDataList) {
-                    performInitialDownloadForDefault(defaultMediaData);
+                    downloadDefaultMedia(phoneNumber, specialMediaType, defaultMediaData);
                 }
-                return;
             }
-
-            syncFiles(defaultMediaDataList, mediaFiles);
-            syncNewDefaultMedia(defaultMediaDataList, mediaFiles);
+            else {
+                syncFiles(phoneNumber, specialMediaType ,defaultMediaDataList, mediaFiles);
+                syncNewDefaultMedia(phoneNumber, specialMediaType, defaultMediaDataList, mediaFiles);
+            }
         }
     }
 
-    private void syncNewDefaultMedia(List<DefaultMediaData> defaultMediaDataList, List<MediaFile> mediaFiles) {
+    private void syncNewDefaultMedia(String phoneNumber, SpecialMediaType specialMediaType, List<DefaultMediaData> defaultMediaDataList, List<MediaFile> mediaFiles) {
         for (DefaultMediaData defaultMediaData : defaultMediaDataList) {
             boolean isFound = doesDefaultMediaExistsInFiles(mediaFiles, defaultMediaData);
             if (!isFound) {
-                performInitialDownloadForDefault(defaultMediaData);
+                downloadDefaultMedia(phoneNumber, specialMediaType, defaultMediaData);
             }
         }
     }
 
-    private void syncFiles(List<DefaultMediaData> defaultMediaDataList, List<MediaFile> mediaFiles) {
+    private void syncFiles(String phoneNumber, SpecialMediaType specialMediaType, List<DefaultMediaData> defaultMediaDataList, List<MediaFile> mediaFiles) {
         for (MediaFile mediaFile : mediaFiles) {
-            syncFile(defaultMediaDataList, mediaFile);
+            syncFile(phoneNumber, specialMediaType, defaultMediaDataList, mediaFile);
         }
     }
 
-    private void syncFile(List<DefaultMediaData> defaultMediaDataList, MediaFile mediaFile) {
+    private void syncFile(String phoneNumber, SpecialMediaType specialMediaType, List<DefaultMediaData> defaultMediaDataList, MediaFile mediaFile) {
         boolean wasRemoved = syncRemove(defaultMediaDataList, mediaFile);
         if (wasRemoved) {
             return;
@@ -127,8 +140,7 @@ public class SyncOnDefaultMediaIntentServiceLogic {
 
                 // Need to sync
                 if (latestFileMediaUnixTime > savedFileUnixTime) {
-                    PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(defaultMediaData);
-                    serverProxy.sendActionDownload(context, pendingDownloadData, defaultMediaData);
+                    downloadDefaultMedia(phoneNumber, specialMediaType, defaultMediaData);
                 }
             }
         }
@@ -165,10 +177,10 @@ public class SyncOnDefaultMediaIntentServiceLogic {
         return isFound;
     }
 
-    private void performInitialDownloadForDefault(DefaultMediaData defaultMediaData) {
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(defaultMediaData);
+    private void downloadDefaultMedia(String phoneNumber, SpecialMediaType specialMediaType, DefaultMediaData defaultMediaData) {
+        logger.info(TAG, "Downloading default media for contact:[" + phoneNumber + "]. " + defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, specialMediaType, defaultMediaData);
         serverProxy.sendActionDownload(context, pendingDownloadData, defaultMediaData);
-
     }
 
     //region Getters & Setters
@@ -198,14 +210,6 @@ public class SyncOnDefaultMediaIntentServiceLogic {
 
     public void setMediaDAO(MediaDAO mediaDAO) {
         this.mediaDAO = mediaDAO;
-    }
-
-    public List<Contact> getAllContacts() {
-        return allContacts;
-    }
-
-    public void setAllContacts(List<Contact> allContacts) {
-        this.allContacts = allContacts;
     }
 
     public ServerProxy getServerProxy() {

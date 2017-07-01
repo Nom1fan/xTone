@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.data.objects.Contact;
 import com.data.objects.DefaultMediaData;
+import com.data.objects.DefaultMediaDataContainer;
 import com.enums.SpecialMediaType;
 import com.model.response.Response;
 
@@ -15,5 +16,5 @@ import java.util.List;
 
 public interface DefaultMediaClient extends Client {
 
-    List<DefaultMediaData> getDefaultMediaData(Context context, String phoneNumber, SpecialMediaType specialMediaType);
+    List<DefaultMediaDataContainer> getDefaultMediaData(Context context, List<String> uids, SpecialMediaType specialMediaType);
 }

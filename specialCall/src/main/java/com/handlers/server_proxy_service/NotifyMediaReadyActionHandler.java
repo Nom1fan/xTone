@@ -2,7 +2,7 @@ package com.handlers.server_proxy_service;
 
 import android.util.Log;
 
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.data.objects.PendingDownloadData;
 import com.handlers.ActionHandler;
 import com.model.request.NotifyMediaReadyRequest;
@@ -25,7 +25,7 @@ public class NotifyMediaReadyActionHandler implements ActionHandler {
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
-        ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
+        ConnectionToServerImpl connectionToServer = actionBundle.getConnectionToServer();
 
         PendingDownloadData pendingDownloadData = (PendingDownloadData) actionBundle.getIntent().getSerializableExtra(PENDING_DOWNLOAD_DATA);
         NotifyMediaReadyRequest request = new NotifyMediaReadyRequest(actionBundle.getRequest());

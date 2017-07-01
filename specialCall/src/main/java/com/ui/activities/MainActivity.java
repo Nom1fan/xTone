@@ -82,6 +82,7 @@ import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.CacheUtils;
 import com.utils.ContactsUtils;
+import com.utils.ContactsUtilsImpl;
 import com.utils.InitUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
@@ -148,6 +149,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private BitmapUtils bitmapUtils = UtilityFactory.instance().getUtility(BitmapUtils.class);
     private InitUtils initUtils = UtilityFactory.instance().getUtility(InitUtils.class);
     private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
+    private final ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
+
 
 
     //endregion
@@ -811,7 +814,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_READY);
         syncUIwithAppState();
         String msg = String.format(getApplicationContext().getResources().getString(R.string.user_is_registered),
-                ContactsUtils.getContactNameHtml(getApplicationContext(), destPhoneNumber));
+                contactsUtils.getContactNameHtml(getApplicationContext(), destPhoneNumber));
         CacheUtils.setPhone(getApplicationContext(), destPhoneNumber);
 
         UI_Utils.showSnackBar(msg, Color.GREEN, Snackbar.LENGTH_LONG, false, getApplicationContext());

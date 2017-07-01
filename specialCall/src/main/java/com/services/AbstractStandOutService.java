@@ -33,6 +33,7 @@ import com.files.media.MediaFile;
 import com.mediacallz.app.R;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
+import com.utils.ContactsUtilsImpl;
 import com.utils.MCBlockListUtils;
 import com.utils.MediaCallSessionUtils;
 import com.utils.MediaFileUtils;
@@ -94,7 +95,8 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected String contactName = "";
     protected BitmapUtils bitmapUtils = UtilityFactory.instance().getUtility(BitmapUtils.class);
     protected MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
-    
+    private final ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
+
 
 
     public AbstractStandOutService(String TAG) {
@@ -1026,7 +1028,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
             SharedPrefUtils.setBoolean(context, SharedPrefUtils.SERVICES, SharedPrefUtils.DISABLE_VOLUME_BUTTONS, true);
         }
 
-        contactName = ContactsUtils.getContactName(context, callNumber);
+        contactName = contactsUtils.getContactName(context, callNumber);
         mContactTitleOnWindow = (contactName != null && !contactName.equals("") ? contactName + " " + callNumber : callNumber);
         Random r = new Random();
         int randomWindowId = r.nextInt(Integer.MAX_VALUE);  // fixing a bug: when the same ID the window isn't released good enough so we need to make a different window in the mean time

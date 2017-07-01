@@ -1,9 +1,7 @@
 package com.handlers.background_broadcast_receiver;
 
 import android.content.Context;
-import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.data.objects.Constants;
 import com.data.objects.Contact;
 import com.data.objects.DownloadData;
@@ -14,9 +12,12 @@ import com.event.EventReport;
 import com.exceptions.FailedToSetNewMediaException;
 import com.files.media.MediaFile;
 import com.handlers.Handler;
+import com.logger.Logger;
+import com.logger.LoggerFactory;
 import com.services.ServerProxyService;
 import com.utils.ContactsUtils;
 import com.utils.MediaFileUtils;
+import com.utils.Phone2MediaPathMapperUtils;
 import com.utils.PhoneNumberUtils;
 import com.utils.SettingsUtils;
 import com.utils.SharedPrefUtils;
@@ -44,11 +45,16 @@ public class EventDownloadReceivedHandler implements Handler {
     private String sharedPrefKeyForAudioMedia;
     private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
+    private final ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
+
+
+    private Logger logger = LoggerFactory.getLogger();
+
     @Override
     public void handle(Context ctx, Object... params) {
         EventReport eventReport = (EventReport) params[0];
 
-        Crashlytics.log(Log.INFO, TAG, "In: Download complete");
+        logger.info(TAG, "In: Download complete");
 
         DownloadData downloadData = (DownloadData) eventReport.data();
         preparePathsAndDirs(downloadData);
@@ -61,7 +67,7 @@ public class EventDownloadReceivedHandler implements Handler {
         }
 
         MediaFile.FileType fType = pendingDownloadData.getMediaFile().getFileType();
-        String fFullName = pendingDownloadData.getSourceId() + "." + pendingDownloadData.getMediaFile().getExtension();
+        String fFullName = pendingDownloadData.getMediaFile().getFile().getName();
         String source = pendingDownloadData.getSourceId();
         String md5 = pendingDownloadData.getMediaFile().getMd5();
 
@@ -69,7 +75,7 @@ public class EventDownloadReceivedHandler implements Handler {
 
             switch (fType) {
                 case AUDIO:
-                    setNewRingTone(ctx, source, md5);
+                    setNewAudioMedia(ctx, source, md5);
                     mediaFileUtils.deleteFilesIfNecessary(ctx, sharedPrefKeyForAudioMedia, newFileDir, fFullName, fType, source);
                     break;
 
@@ -80,20 +86,25 @@ public class EventDownloadReceivedHandler implements Handler {
                     break;
             }
 
-            ServerProxyService.notifyMediaReady(ctx, pendingDownloadData);
+            if (shouldNotifyMediaReady(downloadData.getPendingDownloadData().getSpecialMediaType())) {
+                ServerProxyService.notifyMediaReady(ctx, pendingDownloadData);
+            }
 
         } catch (FailedToSetNewMediaException e) {
             //TODO Inform source of failure
         }
     }
 
+    private boolean shouldNotifyMediaReady(SpecialMediaType specialMediaType) {
+        return specialMediaType.equals(SpecialMediaType.CALLER_MEDIA) || specialMediaType.equals(SpecialMediaType.PROFILE_MEDIA);
+    }
 
     private boolean isAuthorizedToLeaveMedia(Context context, String incomingNumber) {
         SaveMediaOption saveMediaOption = SettingsUtils.getSaveMediaOption(context);
         if (saveMediaOption.equals(SaveMediaOption.ALWAYS)) {
             return true;
         } else if (saveMediaOption.equals(SaveMediaOption.CONTACTS_ONLY)) {
-            List<Contact> contactsList = ContactsUtils.getAllContacts(context);
+            List<Contact> contactsList = contactsUtils.getAllContacts(context);
             List<String> contactPhoneNumbers = new ArrayList<>();
 
             for (int i = 0; i < contactsList.size(); i++) {
@@ -105,9 +116,9 @@ public class EventDownloadReceivedHandler implements Handler {
             return false;
     }
 
-    private void setNewRingTone(Context context, String source, String md5) throws FailedToSetNewMediaException {
+    private void setNewAudioMedia(Context context, String source, String md5) throws FailedToSetNewMediaException {
 
-        Crashlytics.log(Log.INFO, TAG, "setNewRingTone with sharedPrefs: " + newFileFullPath);
+        logger.info(TAG, "setNewAudioMedia with key:[" + sharedPrefKeyForAudioMedia + "], number:[" + source + "] and path:[" + newFileFullPath + "]");
 
         if (!mediaFileUtils.isAudioFileCorrupted(newFileFullPath, context)) {
             SharedPrefUtils.setString(context,
@@ -117,23 +128,22 @@ public class EventDownloadReceivedHandler implements Handler {
             SharedPrefUtils.setString(context,
                     sharedPrefKeyForAudioMedia, newFileFullPath, md5);
         } else {
-
-            Crashlytics.log(Log.ERROR, TAG, "CORRUPTED FILE : setNewRingTone with sharedPrefs: " + newFileFullPath);
+            logger.error(TAG, "CORRUPTED FILE : setNewAudioMedia with sharedPrefs: " + newFileFullPath);
             throw new FailedToSetNewMediaException();
         }
     }
 
     private void setNewVisualMedia(Context context, String source, String md5) throws FailedToSetNewMediaException {
 
-        Crashlytics.log(Log.INFO, TAG, "setNewVisualMedia with sharedPrefs: " + newFileFullPath);
+        logger.info(TAG, "setNewVisualMedia with key:[" + sharedPrefKeyForVisualMedia + "], number:[" + source + "] and path:[" + newFileFullPath + "]");
+
         if (!mediaFileUtils.isVideoFileCorrupted(newFileFullPath, context)) {
-            SharedPrefUtils.setString(context,
-                    sharedPrefKeyForVisualMedia, source, newFileFullPath);
+            SharedPrefUtils.setString(context, sharedPrefKeyForVisualMedia, source, newFileFullPath);
 
             // Backing up visual file md5
             SharedPrefUtils.setString(context, sharedPrefKeyForVisualMedia, newFileFullPath, md5);
         } else {
-            Crashlytics.log(Log.ERROR, TAG, "CORRUPTED FILE : setNewVisualMedia with sharedPrefs: " + newFileFullPath);
+            logger.error(TAG, "CORRUPTED FILE : setNewVisualMedia with sharedPrefs: " + newFileFullPath);
             throw new FailedToSetNewMediaException();
         }
     }
@@ -148,28 +158,33 @@ public class EventDownloadReceivedHandler implements Handler {
         switch (specialMediaType) {
             case CALLER_MEDIA:
                 newFileDir = Constants.INCOMING_FOLDER + srcId;
-                sharedPrefKeyForVisualMedia = SharedPrefUtils.CALLER_MEDIA_FILEPATH;
-                sharedPrefKeyForAudioMedia = SharedPrefUtils.RINGTONE_FILEPATH;
+                sharedPrefKeyForVisualMedia = Phone2MediaPathMapperUtils.CALLER_VISUAL_MEDIA;
+                sharedPrefKeyForAudioMedia = Phone2MediaPathMapperUtils.CALLER_AUDIO_MEDIA;
+                newFileFullPath = mediaFileUtils.resolvePathBySpecialMediaType(pendingDownloadData);
                 break;
             case PROFILE_MEDIA:
                 newFileDir = Constants.OUTGOING_FOLDER + srcId;
-                sharedPrefKeyForVisualMedia = SharedPrefUtils.PROFILE_MEDIA_FILEPATH;
-                sharedPrefKeyForAudioMedia = SharedPrefUtils.FUNTONE_FILEPATH;
+                sharedPrefKeyForVisualMedia = Phone2MediaPathMapperUtils.PROFILE_VISUAL_MEDIA;
+                sharedPrefKeyForAudioMedia = Phone2MediaPathMapperUtils.PROFILE_AUDIO_MEDIA;
+                newFileFullPath = mediaFileUtils.resolvePathBySpecialMediaType(pendingDownloadData);
                 break;
             case DEFAULT_CALLER_MEDIA:
                 newFileDir = Constants.DEFAULT_INCOMING_FOLDER + srcId;
-                sharedPrefKeyForVisualMedia = SharedPrefUtils.DEFAULT_CALLER_MEDIA_FILEPATH;
-                sharedPrefKeyForAudioMedia = SharedPrefUtils.DEFAULT_RINGTONE_MEDIA_FILEPATH;
+                sharedPrefKeyForVisualMedia = Phone2MediaPathMapperUtils.DEFAULT_CALLER_VISUAL_MEDIA;
+                sharedPrefKeyForAudioMedia = Phone2MediaPathMapperUtils.DEFAULT_CALLER_AUDIO_MEDIA;
+                newFileFullPath = mediaFileUtils.resolvePathBySpecialMediaType(pendingDownloadData.getSourceId(), specialMediaType, downloadData.getDefaultMediaData());
                 break;
             case DEFAULT_PROFILE_MEDIA:
-                //TODO Implement
+                newFileDir = Constants.DEFAULT_OUTGOING_FOLDER + srcId;
+                sharedPrefKeyForVisualMedia = Phone2MediaPathMapperUtils.DEFAULT_PROFILE_VISUAL_MEDIA;
+                sharedPrefKeyForAudioMedia = Phone2MediaPathMapperUtils.DEFAULT_PROFILE_AUDIO_MEDIA;
+                newFileFullPath = mediaFileUtils.resolvePathBySpecialMediaType(pendingDownloadData.getSourceId(), specialMediaType, downloadData.getDefaultMediaData());
                 break;
 
             default:
                 throw new UnsupportedOperationException("Invalid SpecialMediaType received");
         }
 
-        newFileFullPath = mediaFileUtils.resolvePathBySpecialMediaType(pendingDownloadData, downloadData.getDefaultMediaData());
     }
 
     private void copyToHistoryForGalleryShow(Context context, PendingDownloadData downloadData) {
@@ -181,13 +196,19 @@ public class EventDownloadReceivedHandler implements Handler {
             String md5 = downloadData.getMediaFile().getMd5();
             MediaFile.FileType fileType = downloadData.getMediaFile().getFileType();
 
-            if (mediaFileUtils.doesFileExistInHistoryFolderByMD5(md5, Constants.HISTORY_FOLDER) || mediaFileUtils.doesFileExistInHistoryFolderByMD5(md5, Constants.AUDIO_HISTORY_FOLDER))
+            if (md5 == null || md5.isEmpty()) {
+                md5 = mediaFileUtils.getMD5(downloadData.getMediaFile().getFile().getAbsolutePath());
+            }
+
+            if (mediaFileUtils.doesFileExistInHistoryFolderByMD5(md5, Constants.HISTORY_FOLDER) || mediaFileUtils.doesFileExistInHistoryFolderByMD5(md5, Constants.AUDIO_HISTORY_FOLDER)) {
                 return;
+            }
 
-            String contactName = ContactsUtils.getContactName(context, downloadData.getSourceId());
+            String contactName = contactsUtils.getContactName(context, downloadData.getSourceId());
 
-            if (contactName != null && contactName.isEmpty())
+            if (contactName != null && contactName.isEmpty()) {
                 contactName = downloadData.getSourceId();
+            }
 
             String currentDateTimeString = new SimpleDateFormat("dd_MM_yy_HHmmss").format(new Date());
 
@@ -203,14 +224,14 @@ public class EventDownloadReceivedHandler implements Handler {
             if (!copyToHistoryFile.exists()) // if the file exist don't do any duplicate
             {
                 FileUtils.copyFile(downloadedFile, copyToHistoryFile);
-                Crashlytics.log(Log.INFO, TAG, "Creating a unique md5 file in the History Folder fileName:  " + copyToHistoryFile.getName());
+                logger.info(TAG, "Creating a unique md5 file in the History Folder fileName:  " + copyToHistoryFile.getName());
                 if (fileType == MediaFile.FileType.AUDIO) {
                     return;
                 }
 
                 mediaFileUtils.triggerMediaScanOnFile(context, copyToHistoryFile);
             } else {
-                Crashlytics.log(Log.ERROR, TAG, "File already exist: " + historyFileName);
+                logger.error(TAG, "File already exist: " + historyFileName);
             }
 
         } catch (Exception e) {

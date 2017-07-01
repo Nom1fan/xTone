@@ -2,7 +2,7 @@ package com.handlers.server_proxy_service;
 
 import android.util.Log;
 
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.event.EventReport;
 import com.event.EventType;
 import com.google.gson.reflect.TypeToken;
@@ -31,7 +31,7 @@ public class GetAppRecordActionHandler implements ActionHandler {
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
-        ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
+        ConnectionToServerImpl connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
         actionBundle.getRequest().setLocale(Locale.getDefault().getLanguage());
         int responseCode = connectionToServer.sendRequest(URL_GET_APP_RECORD, actionBundle.getRequest());

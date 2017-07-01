@@ -331,7 +331,7 @@ public class AudioFilesHistoryActivity extends AppCompatActivity implements OnIt
     private MediaFile createManagedFile(String resultFilePath) {
         MediaFile managedFile = null;
         try {
-            managedFile = new MediaFile(new File(resultFilePath));
+            managedFile = new MediaFile(new File(resultFilePath), true);
         } catch (Exception e) {
             e.printStackTrace();
             log(Log.ERROR, TAG, "Failed to create result managed file");

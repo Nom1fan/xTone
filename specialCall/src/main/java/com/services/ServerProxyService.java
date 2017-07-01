@@ -7,7 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.app.AppStateManager;
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.data.objects.DefaultMediaData;
 import com.data.objects.PendingDownloadData;
 import com.data.objects.PushEventKeys;
@@ -21,9 +21,6 @@ import com.model.request.Request;
 import com.utils.BroadcastUtils;
 import com.utils.RequestUtils;
 import com.utils.SharedPrefUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -106,7 +103,7 @@ public class ServerProxyService extends Service implements Runnable {
             log(Log.INFO, TAG, "Action:" + action);
 
             Request request = createDefaultRequest();
-            ConnectionToServer connectionToServer = new ConnectionToServer();
+            ConnectionToServerImpl connectionToServer = new ConnectionToServerImpl();
 
             try {
                 ActionHandler actionHandler = HandlerFactory.getInstance().getActionHandler(action);

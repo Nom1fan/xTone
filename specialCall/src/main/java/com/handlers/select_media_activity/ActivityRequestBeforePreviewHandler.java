@@ -47,7 +47,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
             MediaFile managedFile;
 
-            managedFile = new MediaFile(new File(filepath));
+            managedFile = new MediaFile(new File(filepath), true);
             if (canMediaBePrepared(ctx, managedFile)) {
                 startPreviewActivity(managedFile.getFile().getAbsolutePath());
             } else
@@ -171,7 +171,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
             return;
         }
 
-        MediaFile mediaFile = new MediaFile(new File(filepath));
+        MediaFile mediaFile = new MediaFile(new File(filepath), true);
 
         if (mediaFile.getSize() > MAX_FILE_SIZE) {
             String errMsg = String.format(selectMediaActivity.getResources().getString(R.string.file_over_max_size),

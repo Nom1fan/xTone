@@ -9,9 +9,11 @@ import com.handlers.Handler;
 import com.mediacallz.app.R;
 import com.utils.CacheUtils;
 import com.utils.ContactsUtils;
+import com.utils.ContactsUtilsImpl;
 import com.utils.UI_Utils;
 
 import com.event.EventReport;
+import com.utils.UtilityFactory;
 
 /**
  * Created by Mor on 16/07/2016.
@@ -19,6 +21,9 @@ import com.event.EventReport;
 public class EventUserRegisteredTrueHandler implements Handler {
 
     private static final String TAG = EventUserRegisteredTrueHandler.class.getSimpleName();
+
+    private final ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
+
 
     @Override
     public void handle(Context ctx, Object... params) {
@@ -28,7 +33,7 @@ public class EventUserRegisteredTrueHandler implements Handler {
 
         String destNumber = (String) eventReport.data();
         String msg = String.format(ctx.getResources().getString(R.string.user_is_registered),
-                ContactsUtils.getContactNameHtml(ctx, destNumber));
+                contactsUtils.getContactNameHtml(ctx, destNumber));
         CacheUtils.setPhone(ctx, destNumber);
 
         UI_Utils.showSnackBar(msg, Color.GREEN, Snackbar.LENGTH_LONG, false, ctx);

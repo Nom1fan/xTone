@@ -5,7 +5,9 @@ import com.converters.MediaDataConverterImpl;
 import com.logger.Logger;
 import com.logger.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,6 +31,9 @@ public class UtilityFactory {
             put(AlarmUtils.class, AlarmUtilsImpl.class);
             put(BitmapUtils.class, BitmapUtilsImpl.class);
             put(InitUtils.class, InitUtilsImpl.class);
+            put(PowerManagerUtils.class, PowerManagerUtilsImpl.class);
+            put(Phone2MediaPathMapperUtils.class, Phone2MediaPathMapperUtilsImpl.class);
+            put(ContactsUtils.class, ContactsUtilsImpl.class);
         }};
     }
 

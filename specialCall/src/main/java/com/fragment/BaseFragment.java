@@ -119,7 +119,7 @@ public abstract class BaseFragment extends Fragment implements PostDownloadCallB
     @Override
     public void doCallBack(File file) {
         try {
-            MediaFile managedFile = new MediaFile(file);
+            MediaFile managedFile = new MediaFile(file, true);
             if (mediaFileUtils.canMediaBePrepared(getActivity(), managedFile)) {
                 Intent i = new Intent(getActivity(), PreviewMediaActivity.class);
                 i.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, managedFile);

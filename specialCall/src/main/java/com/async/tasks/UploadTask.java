@@ -12,7 +12,7 @@ import android.support.design.widget.Snackbar;
 import android.util.Log;
 
 import com.app.AppStateManager;
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.client.ProgressListener;
 import com.client.ProgressiveEntity;
 import com.data.objects.Constants;
@@ -51,7 +51,7 @@ import static com.data.objects.KeysForBundle.SPEC_MEDIA_TYPE;
 public class UploadTask extends AsyncTask<Void, Integer, Void> implements ProgressListener {
     private static final String URL_UPLOAD = "http://" + Constants.SERVER_HOST + ":" + Constants.SERVER_PORT + "/v1/UploadFile";
     private final String TAG = UploadTask.class.getSimpleName();
-    private ConnectionToServer connectionToServer;
+    private ConnectionToServerImpl connectionToServer;
     private ProgressDialog progDialog;
     private UploadTask taskInstance;
     private PowerManager.WakeLock wakeLock;
@@ -64,7 +64,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements Progre
         this.context = context;
         fileForUpload = (MediaFile) bundle.get(FILE_FOR_UPLOAD);
         progressiveEntity = prepareProgressiveEntity(bundle);
-        connectionToServer = new ConnectionToServer();
+        connectionToServer = new ConnectionToServerImpl();
         taskInstance = this;
     }
 

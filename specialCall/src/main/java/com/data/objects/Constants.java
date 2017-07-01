@@ -65,8 +65,8 @@ public abstract class Constants {
     //endregion
 
     //region Connection to server
-    public static final String SERVER_HOST = "server.mediacallz.com";
-    public static final int SERVER_PORT = 8080;
+    public static final String SERVER_HOST = "epicall.no-ip.biz";
+    public static final int SERVER_PORT = 8888;
     //endregion
 
     //region Batch
@@ -143,7 +143,7 @@ public abstract class Constants {
     }
 
     private static String getDefaultOutgoingFolder() {
-        String path = ROOT_FOLDER + DEFAULT_INCOMING_FOLDER_NAME + "/";
+        String path = ROOT_FOLDER + DEFAULT_OUTGOING_FOLDER_NAME + "/";
         File defaultIncomingFolder = new File(path);
         defaultIncomingFolder.mkdirs();
         return path;

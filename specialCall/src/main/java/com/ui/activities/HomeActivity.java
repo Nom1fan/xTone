@@ -35,6 +35,7 @@ import com.utils.InitUtils;
 import com.utils.InitUtilsImpl;
 
 import com.files.media.MediaFile;
+import com.utils.MediaFileUtils;
 import com.utils.UtilityFactory;
 
 import java.io.File;
@@ -50,6 +51,8 @@ public class HomeActivity extends Activity {
     private static final String TAG = HomeActivity.class.getSimpleName();
 
     private InitUtils initUtils = UtilityFactory.instance().getUtility(InitUtils.class);
+
+    private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -134,7 +137,7 @@ public class HomeActivity extends Activity {
     private MediaFile createManagedFile(String resultFilePath) {
         MediaFile managedFile = null;
         try {
-            managedFile = new MediaFile(new File(resultFilePath));
+            managedFile = new MediaFile(new File(resultFilePath), true);
         } catch(Exception e) {
             e.printStackTrace();
             log(Log.ERROR, TAG, "Failed to create result managed file");

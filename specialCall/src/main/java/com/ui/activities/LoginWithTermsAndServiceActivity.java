@@ -262,8 +262,6 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
         initUtils.saveAndroidVersion(context);
 
         initUtils.initImageLoader(context);
-
-        initUtils.initSyncDefaultMediaReceiver(context);
     }
 
     private void prepareReadMorebutton() {

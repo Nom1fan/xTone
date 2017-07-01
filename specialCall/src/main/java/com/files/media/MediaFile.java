@@ -33,18 +33,21 @@ public class MediaFile implements Serializable {
 
     }
 
-    public MediaFile(String filePath) {
-        this(new File(filePath));
+    public MediaFile(File file) {
+        this(file, false);
     }
 
-    public MediaFile(File file) {
+    public MediaFile(File file, boolean shouldGenerateMd5) {
         MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
         this.file = file;
         extension = mediaFileUtils.extractExtension(this.file.getAbsolutePath());
         fileType = mediaFileUtils.getFileType(file);
         size = this.file.length();
-        md5 = mediaFileUtils.getMD5(file.getAbsolutePath());
+
+        if(shouldGenerateMd5) {
+            md5 = mediaFileUtils.getMD5(file.getAbsolutePath());
+        }
     }
 
     public static String getTAG() {

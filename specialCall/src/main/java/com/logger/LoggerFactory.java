@@ -6,7 +6,13 @@ package com.logger;
 
 public abstract class LoggerFactory {
 
+    private static Logger logger = new CrashlyticsLogger();
+
+    public static void setLogger(Logger newLogger) {
+        logger = newLogger;
+    }
+
     public static Logger getLogger() {
-        return new CrashlyticsLogger();
+        return logger;
     }
 }
