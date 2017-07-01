@@ -72,15 +72,22 @@ public class InitUtilsImpl implements InitUtils {
     @Override
     public void populateSavedMcFromDiskToSharedPrefs(Context context) {
 
+        //TODO improve code + add default media handling
         try {
             List<File> outgoingDirectories = getDirectories(new File(Constants.OUTGOING_FOLDER));
             List<File> incomingDirectories = getDirectories(new File(Constants.INCOMING_FOLDER));
+//            List<File> outgoingDefaultDirs = getDirectories(new File(Constants.DEFAULT_OUTGOING_FOLDER));
+//            List<File> incomingDefaultDirs = getDirectories(new File(Constants.DEFAULT_INCOMING_FOLDER));
 
             //populating Outgoing SharedPref with existing media files
             populateSharedPrefMedia(context, outgoingDirectories, SpecialMediaType.PROFILE_MEDIA);
 
             //populating Incoming SharedPref with existing media files
             populateSharedPrefMedia(context, incomingDirectories, SpecialMediaType.CALLER_MEDIA);
+
+//            populateSharedPrefMedia(context, outgoingDefaultDirs, SpecialMediaType.DEFAULT_PROFILE_MEDIA);
+//
+//            populateSharedPrefMedia(context, incomingDefaultDirs, SpecialMediaType.DEFAULT_CALLER_MEDIA);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -88,7 +95,6 @@ public class InitUtilsImpl implements InitUtils {
 
     @Override
     public void saveAndroidVersion(Context context) {
-
         Constants.MY_ANDROID_VERSION(context, Build.VERSION.RELEASE);
     }
 

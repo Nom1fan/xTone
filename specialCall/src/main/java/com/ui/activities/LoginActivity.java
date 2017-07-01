@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,23 +22,24 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.app.AppStateManager;
 import com.async.tasks.GetSmsCodeTask;
 import com.batch.android.Batch;
 import com.data.objects.ActivityRequestCodes;
 import com.data.objects.Constants;
+import com.event.Event;
+import com.event.EventReport;
+import com.event.EventType;
 import com.mediacallz.app.R;
 import com.services.GetTokenIntentService;
 import com.services.ServerProxyService;
 import com.utils.BroadcastUtils;
-import com.utils.SharedPrefUtils;
-
-import com.event.Event;
-import com.event.EventReport;
-import com.event.EventType;
+import com.utils.InitUtils;
 import com.utils.PhoneNumberUtils;
+import com.utils.SharedPrefUtils;
+import com.utils.UI_Utils;
+import com.utils.UtilityFactory;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -55,6 +55,8 @@ public class LoginActivity extends AppCompatActivity {
     private static final IntentFilter eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
     private static final int MIN_SMS_CODE = 1000;
     private static final int MAX_SMS_CODE = 9999;
+
+    private InitUtils initUtils = UtilityFactory.instance().getUtility(InitUtils.class);
 
     //region UI elements
     private EditText loginNumberEditText;
@@ -470,6 +472,7 @@ public class LoginActivity extends AppCompatActivity {
 
             case REGISTER_SUCCESS:
                 setInitTextView(getResources().getString(R.string.register_success));
+                initializeAppConfigurations();
                 AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
                 continueToMainActivity();
                 break;
@@ -631,6 +634,26 @@ public class LoginActivity extends AppCompatActivity {
                 stateLoading();
                 break;
         }
+    }
+
+    private void initializeAppConfigurations() {
+        Context context = getApplicationContext();
+
+        //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
+        UI_Utils.makeActionOverflowMenuShown(context);
+
+        // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
+        initUtils.hideMediaFromGalleryScanner();
+
+        //Initialize Default Settings Values
+        initUtils.initializeSettingsDefaultValues(context);
+
+        //Populate SharedprefMEdia in case it's not the first time the app is installed, and you have saved media in the MediaCallz Outgoing/Incoming
+        initUtils.populateSavedMcFromDiskToSharedPrefs(context);
+
+        initUtils.saveAndroidVersion(context);
+
+        initUtils.initImageLoader(context);
     }
 
     //region UI States
