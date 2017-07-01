@@ -374,9 +374,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         if (destTextView != null)
             destTextView.setText("");
 
-        AppStateManager.setAppState(this, TAG, AppStateManager.STATE_IDLE);
-        UI_Utils.refreshUI(this, new SnackbarData(SnackbarStatus.CLOSE));
-        searchView.setVisibility(View.VISIBLE);
+        if (AppStateManager.getAppState(this) != AppStateManager.STATE_IDLE) {
+            AppStateManager.setAppState(this, TAG, AppStateManager.STATE_IDLE);
+            UI_Utils.refreshUI(this, new SnackbarData(SnackbarStatus.CLOSE));
+            searchView.setVisibility(View.VISIBLE);
+        } else
+            this.finish();
 
     }
 

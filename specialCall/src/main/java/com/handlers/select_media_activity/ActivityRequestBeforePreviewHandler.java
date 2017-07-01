@@ -5,27 +5,29 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Environment;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.data.objects.ActivityRequestCodes;
+import com.exceptions.FileDoesNotExistException;
+import com.exceptions.FileExceedsMaxSizeException;
+import com.files.media.MediaFile;
 import com.handlers.Handler;
 import com.ipaulpro.afilechooser.utils.FileUtils;
+import com.mediacallz.app.BuildConfig;
 import com.mediacallz.app.R;
 import com.ui.activities.PreviewMediaActivity;
 import com.ui.activities.SelectMediaActivity;
 import com.utils.MediaFileUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
+import com.utils.UtilityFactory;
 
 import java.io.File;
 import java.io.IOException;
-
-import com.exceptions.FileDoesNotExistException;
-import com.exceptions.FileExceedsMaxSizeException;
-import com.files.media.MediaFile;
-import com.utils.UtilityFactory;
 
 import static com.utils.MediaFileUtils.MAX_FILE_SIZE;
 
@@ -135,7 +137,12 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         }
 
         // Get the File path from the Uri
-        resultPath = FileUtils.getPath(ctx, uri);
+        try {
+            resultPath = FileUtils.getPath(ctx, uri);
+        }catch(Exception e){
+            resultPath = uri.getPath();
+            resultPath = resultPath.replace("/external_files", Environment.getExternalStorageDirectory().toString() );
+        }
         // Alternatively, use FileUtils.getFile(Context, Uri)
         if (resultPath == null) {
             resultPath = uri.getLastPathSegment();
@@ -143,7 +150,7 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
                 throw new FileDoesNotExistException("Path returned from URI was null");
         }
 
-        ctx.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(resultPath))));
+        ctx.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, FileProvider.getUriForFile(ctx, BuildConfig.APPLICATION_ID + ".provider",new File(resultPath))));
 
         if (FileUtils.isLocal(resultPath)) {
 
