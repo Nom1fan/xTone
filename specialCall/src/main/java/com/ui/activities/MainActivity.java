@@ -68,6 +68,7 @@ import com.event.Event;
 import com.event.EventReport;
 import com.files.media.MediaFile;
 import com.flows.UploadFileFlow;
+import com.flows.WaitForTransferSuccessPostUploadFileFlowLogic;
 import com.interfaces.ICallbackListener;
 import com.mediacallz.app.R;
 import com.netcompss.ffmpeg4android.GeneralUtils;
@@ -600,7 +601,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         bundle.putString(KeysForBundle.DEST_NAME, destName);
                         bundle.putSerializable(KeysForBundle.SPEC_MEDIA_TYPE, specialMediaType);
 
-                        uploadFileFlow.executeUploadFileFlow(MainActivity.this, bundle);
+                        uploadFileFlow.executeUploadFileFlow(MainActivity.this, bundle, new WaitForTransferSuccessPostUploadFileFlowLogic());
 
                     }
                 }

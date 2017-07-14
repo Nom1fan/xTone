@@ -35,6 +35,7 @@ import com.enums.SpecialMediaType;
 import com.event.Event;
 import com.event.EventReport;
 import com.files.media.MediaFile;
+import com.flows.NotifySuccessPostUploadFileFlowLogic;
 import com.flows.UploadFileFlow;
 import com.mediacallz.app.R;
 import com.services.AbstractStandOutService;
@@ -123,16 +124,16 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
         AppStateManager.setAppInForeground(getApplicationContext(), true);
 
 
-            prepareEventReceiver();
+        prepareEventReceiver();
 
-            if (!appState.equals(AppStateManager.STATE_LOADING))
-                handleSnackBar(new SnackbarData(SnackbarStatus.CLOSE, 0, 0, null));
+        if (!appState.equals(AppStateManager.STATE_LOADING))
+            handleSnackBar(new SnackbarData(SnackbarStatus.CLOSE, 0, 0, null));
 
 
-            AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_READY);
-            syncUIwithAppState();
+        AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_READY);
+        syncUIwithAppState();
 
-            initUtils.initSyncDefaultMediaReceiver(this);
+        initUtils.initSyncDefaultMediaReceiver(this);
 
     }
 
@@ -207,11 +208,10 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
                         bundle.putString(KeysForBundle.DEST_NAME, destName);
                         bundle.putSerializable(KeysForBundle.SPEC_MEDIA_TYPE, specialMediaType);
 
-                        uploadFileFlow.executeUploadFileFlow(DefaultMediaActivity.this, bundle);
+                        uploadFileFlow.executeUploadFileFlow(DefaultMediaActivity.this, bundle, new NotifySuccessPostUploadFileFlowLogic());
 
                     }
                 }
-
             }
         }
     }
@@ -231,7 +231,6 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
             return true;
         }
-
 
 
         return super.onKeyDown(keyCode, e);
@@ -275,7 +274,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
 
         int id = v.getId();
-        if  (id == R.id.default_selectMediaBtn || id == R.id.default_callerArrow) {
+        if (id == R.id.default_selectMediaBtn || id == R.id.default_callerArrow) {
             if (callerHasMedia || callerHasRingtone)
                 openCallerMediaMenu();
             else
@@ -297,20 +296,26 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
         switch (report.status()) {
 
-            case CLEAR_SENT:
+            case CLEAR_SENT: {
                 if (!SharedPrefUtils.getBoolean(DefaultMediaActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {
                     UI_Utils.showWaitingForTranferSuccussDialog(DefaultMediaActivity.this, "ClearMediaDialog", getResources().getString(R.string.sending_clear_contact), getResources().getString(R.string.waiting_for_clear_transfer_success_dialog_msg));
                 }
+            }
+            break;
 
-                break;
-
-            case REFRESH_UI:
+            case REFRESH_UI: {
                 SnackbarData data = (SnackbarData) report.data();
                 syncUIwithAppState();
 
-                if (data != null)
+                if (data != null) {
                     handleSnackBar(data);
-                break;
+                }
+            }
+            break;
+
+            case UPLOAD_SUCCESS: {
+
+            }
 
 
             default: // Event not meant for MainActivity receiver
@@ -358,7 +363,6 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
         prepareSelectProfileMediaButton();
         prepareDividers();
     }
-
 
 
     //region UI States
@@ -527,7 +531,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
                         break;
                     case R.id.default_clearcallermedia:
-                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.DEFAULT_CALLER_MEDIA,destPhoneNumber );
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.DEFAULT_CALLER_MEDIA, destPhoneNumber);
                         clearDialog.show(getFragmentManager(), TAG);
                         break;
 
@@ -561,7 +565,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
                         break;
                     case R.id.default_clearprofilemedia:
 
-                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.DEFAULT_PROFILE_MEDIA,destPhoneNumber );
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.DEFAULT_PROFILE_MEDIA, destPhoneNumber);
                         clearDialog.show(getFragmentManager(), TAG);
 
                         break;
@@ -572,7 +576,6 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
         popup.show();
     }
-
 
 
     private void disableSelectCallerMediaButton() {

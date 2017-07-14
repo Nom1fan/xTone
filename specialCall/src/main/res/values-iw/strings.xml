@@ -85,6 +85,7 @@
     <string name="upload_took_too_long">אופס! העלאה לקחה זמן רב מדי</string>
 
     <string name="upload_success">המדיה בדרך!</string>
+    <string name="default_media_upload_success">מדית ברירת מחדל הוגדרה בהצלחה!</string>
     <string name="uploading">מעלה…</string>
 
     <string name="disconnected">הא? אין אינטרנט?</string>

@@ -75,6 +75,7 @@
     <string name="processing_image">Processing image…</string>
 
     <string name="upload_success">Media on the way!</string>
+    <string name="default_media_upload_success">Default media set successfully!</string>
     <string name="uploading">Uploading…</string>
     <string name="sent_invitation">Invitation Sent To: </string>
     <string name="share_subject">MediaCallz (Open it in Google Play Store to Download the Application)</string>
