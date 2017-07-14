@@ -14,9 +14,13 @@ public abstract class SharedPrefUtils {
     public static final String SETTINGS                         =   "Settings";
     public static final String SERVICES                         =   "Services";
     public static final String SERVER_PROXY                     =   "AbstractServerProxy";
+    @Deprecated
     public static final String UPLOADED_CALLER_MEDIA_THUMBNAIL  =   "UploadedCallerMediaThumbnail";
+    @Deprecated
     public static final String UPLOADED_PROFILE_MEDIA_THUMBNAIL =   "UploadedProfileMediaThumbnail";
+    @Deprecated
     public static final String UPLOADED_RINGTONE_PATH           =   "UploadedRingTonePath";
+    @Deprecated
     public static final String UPLOADED_FUNTONE_PATH            =   "UploadedFunTonePath";
     public static final String SHOWCASE                         =   "Showcase";
     public static final String TRIMMED_FILES                    =   "TRIMMED_FILES";
