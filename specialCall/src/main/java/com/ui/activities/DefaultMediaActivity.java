@@ -52,7 +52,6 @@ import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 import com.utils.UtilityFactory;
 
-import static com.crashlytics.android.Crashlytics.log;
 import static com.data.objects.SnackbarData.SnackbarStatus;
 
 /**
@@ -514,7 +513,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
         //Creating the instance of PopupMenu
         PopupMenu popup = new PopupMenu(DefaultMediaActivity.this, callerMedia);
         //Inflating the Popup using xml file
-        popup.getMenuInflater().inflate(R.menu.popup_menu_callermedia, popup.getMenu());
+        popup.getMenuInflater().inflate(R.menu.popup_menu_default_callermedia, popup.getMenu());
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
@@ -547,7 +546,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
         //Creating the instance of PopupMenu
         PopupMenu popup = new PopupMenu(DefaultMediaActivity.this, profile);
         //Inflating the Popup using xml file
-        popup.getMenuInflater().inflate(R.menu.popup_menu_profile, popup.getMenu());
+        popup.getMenuInflater().inflate(R.menu.popup_menu_default_profile, popup.getMenu());
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
