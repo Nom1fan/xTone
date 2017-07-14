@@ -29,6 +29,7 @@ import com.batch.android.Batch;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.data.objects.ActivityRequestCodes;
+import com.data.objects.Constants;
 import com.data.objects.KeysForBundle;
 import com.data.objects.SnackbarData;
 import com.enums.SpecialMediaType;
@@ -98,7 +99,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
-
+        destPhoneNumber = Constants.MY_ID(getApplicationContext());
         AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
 
         initializeUI();
@@ -279,14 +280,14 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
             if (callerHasMedia || callerHasRingtone)
                 openCallerMediaMenu();
             else
-                selectMedia(SpecialMediaType.CALLER_MEDIA);
+                selectMedia(SpecialMediaType.DEFAULT_CALLER_MEDIA);
 
         } else if (id == R.id.default_selectProfileMediaBtn || id == R.id.default_profileArrow) {
 
             if (profileHasMedia || profileHasRingtone)
                 openProfileMediaMenu();
             else
-                selectMedia(SpecialMediaType.PROFILE_MEDIA);
+                selectMedia(SpecialMediaType.DEFAULT_PROFILE_MEDIA);
 
         }
     }
@@ -730,7 +731,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
     private void drawSelectMediaButton(boolean enabled) {
 
-        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.CALLER_MEDIA);
+        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.DEFAULT_CALLER_MEDIA);
 
         MediaFile.FileType fType;
 
@@ -760,7 +761,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
     private void drawSelectProfileMediaButton(boolean enabled) {
 
-        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.PROFILE_MEDIA);
+        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.DEFAULT_PROFILE_MEDIA);
 
         if (enabled) {
 
@@ -781,7 +782,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
     private void drawRingToneName() {
 
-        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.CALLER_MEDIA);
+        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.DEFAULT_CALLER_MEDIA);
         String ringToneFilePath = lut_utils.getUploadedTonePerNumber(this, destPhoneNumber);
 
         try {
@@ -803,7 +804,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
     private void drawRingToneNameForProfile() {
 
-        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.PROFILE_MEDIA);
+        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.DEFAULT_PROFILE_MEDIA);
         String ringToneFilePath = lut_utils.getUploadedTonePerNumber(this, destPhoneNumber);
 
         try {
