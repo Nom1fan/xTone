@@ -1,11 +1,16 @@
 package com.ui.activities;
 
+import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.CallLog;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
@@ -39,9 +44,9 @@ import android.widget.TextView;
 import com.app.AppStateManager;
 import com.async.tasks.IsRegisteredTask;
 import com.async.tasks.SendBugEmailAsyncTask;
-import com.data.objects.ContactWrapper;
+import com.data.objects.CallHistoryRecord;
 import com.data.objects.SnackbarData;
-import com.enums.UserStatus;
+import com.enums.CallRecordType;
 import com.event.Event;
 import com.interfaces.ICallbackListener;
 import com.mediacallz.app.R;
@@ -51,12 +56,13 @@ import com.utils.UI_Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static com.crashlytics.android.Crashlytics.log;
 import static com.data.objects.SnackbarData.SnackbarStatus;
 
-public class CallsLogHistory extends AppCompatActivity implements OnClickListener, ICallbackListener {
+public class CallsLogHistory extends AppCompatActivity implements OnClickListener, ICallbackListener,LoaderManager.LoaderCallbacks<Cursor> {
 
     private final String TAG = CallsLogHistory.class.getSimpleName();
 
@@ -65,16 +71,17 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
     private BroadcastReceiver eventReceiver;
     private IntentFilter eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
     private ListView drawerList;
-    private ListView contactsListView;
+    private ListView callListView;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
     private RelativeLayout mainActivityLayout;
     private boolean openDrawer = false;
     private Snackbar snackBar;
-    private List<ContactWrapper> arrayOfUsers;
-    private OnlineContactAdapter adapter;
+    private List<CallHistoryRecord> arrayOfRecords;
+    private CallRecordsAdapter adapter;
     private SearchView searchView;
     private MenuItem backBtn;
+    private static final int URL_LOADER = 1;
     //endregion
 
     //region Activity methods (onCreate(), onPause(), onActivityResult()...)
@@ -82,6 +89,7 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
+        getLoaderManager().initLoader(URL_LOADER, null, CallsLogHistory.this);
         initializeUI();
     }
 
@@ -99,7 +107,7 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
         log(Log.INFO, TAG, "onResume()");
         openDrawer = false;
 
-            mainActivityLayout.setOnTouchListener(new OnSwipeTouchListener(CallsLogHistory.this) {
+            callListView.setOnTouchListener(new OnSwipeTouchListener(CallsLogHistory.this) {
                 @Override
                 public void onSwipeLeft() {
                     Intent toCallHistory = new Intent(getApplicationContext(), MainActivity.class);
@@ -116,8 +124,91 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
 
             });
 
+
+
+
+
+        
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int loaderID, Bundle args) {
+        Log.d(TAG, "onCreateLoader() >> loaderID : " + loaderID);
+
+        switch (loaderID) {
+            case URL_LOADER:
+                // Returns a new CursorLoader
+                return new CursorLoader(
+                        this,   // Parent activity context
+                        CallLog.Calls.CONTENT_URI,        // Table to query
+                        null,     // Projection to return
+                        null,            // No selection clause
+                        null,            // No selection arguments
+                        null             // Default sort order
+                );
+            default:
+                return null;
+        }
+
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor managedCursor) {
+        Log.d(TAG, "onLoadFinished()");
+
+       arrayOfRecords = new ArrayList<>();
+
+        int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
+        int type = managedCursor.getColumnIndex(CallLog.Calls.TYPE);
+        int date = managedCursor.getColumnIndex(CallLog.Calls.DATE);
+        int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
+
+        while (managedCursor.moveToNext()) {
+            String phNumber = managedCursor.getString(number);
+            String callType = managedCursor.getString(type);
+            String callDate = managedCursor.getString(date);
+            Date callDayTime = new Date(Long.valueOf(callDate));
+            String callDuration = managedCursor.getString(duration);
+            CallRecordType dir = null;
+
+            int callTypeCode = Integer.parseInt(callType);
+            switch (callTypeCode) {
+                case CallLog.Calls.OUTGOING_TYPE:
+                    dir = CallRecordType.OUTGOING;
+                    break;
+
+                case CallLog.Calls.INCOMING_TYPE:
+                    dir = CallRecordType.INCOMING;
+                    break;
+
+                case CallLog.Calls.MISSED_TYPE:
+                    dir = CallRecordType.MISSED;
+                    break;
+            }
+
+            CallHistoryRecord record = new CallHistoryRecord(phNumber,dir,callDayTime.toString(),callDuration);
+
+
+            arrayOfRecords.add(record);
+
+        }
+
+        managedCursor.close();
+
+
+        // Create the adapter to convert the array to views
+        adapter = new CallRecordsAdapter(this, arrayOfRecords);
+        // Attach the adapter to a ListView
+        callListView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        Log.d(TAG, "onLoaderReset()");
+        // do nothing
+    }
     @Override
     public void onBackPressed() {
         Log.d("CDA", "onBackPressed Called");
@@ -131,15 +222,13 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
 
     }
 
-    public class OnlineContactAdapter extends ArrayAdapter<ContactWrapper> implements Filterable {
-        private List<ContactWrapper> allContacts;
+    public class CallRecordsAdapter extends ArrayAdapter<CallHistoryRecord> implements Filterable {
+        private List<CallHistoryRecord> allRecords;
+        private List<CallHistoryRecord> dynamicRecords;
 
-        private List<ContactWrapper> dynamicContacts;
-
-
-        OnlineContactAdapter(Context context, List<ContactWrapper> allContacts) {
-            super(context, 0, allContacts);
-            this.allContacts = allContacts;
+        CallRecordsAdapter(Context context, List<CallHistoryRecord> allRecords) {
+            super(context, 0, allRecords);
+            this.allRecords = allRecords;
         }
 
         @NonNull
@@ -152,19 +241,19 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
                     constraint = constraint.toString().toLowerCase();
                     FilterResults result = new FilterResults();
                     if (constraint.toString().length() > 0) {
-                        List<ContactWrapper> found = new ArrayList<>();
-                        dynamicContacts = new ArrayList<>(arrayOfUsers);
-                        for (ContactWrapper contactWrapper : dynamicContacts) {
-                            if (contactWrapper.getContact().getName().toLowerCase().contains(constraint) || contactWrapper.getContact().getPhoneNumber().contains(constraint)) {
-                                found.add(contactWrapper);
+                        List<CallHistoryRecord> found = new ArrayList<>();
+                        dynamicRecords = new ArrayList<>(arrayOfRecords);
+                        for (CallHistoryRecord record : dynamicRecords) {
+                            if (record.getNameOrNumber().toLowerCase().contains(constraint)) {
+                                found.add(record);
                             }
                         }
                         result.values = found;
                         result.count = found.size();
                     } else {
-                        result.values = dynamicContacts;
-                        if (dynamicContacts != null)
-                            result.count = dynamicContacts.size();
+                        result.values = dynamicRecords;
+                        if (dynamicRecords != null)
+                            result.count = dynamicRecords.size();
                     }
                     return result;
                 }
@@ -173,8 +262,8 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
                 protected void publishResults(CharSequence constraint, FilterResults results) {
                     clear();
                     if (results.values != null)
-                        for (ContactWrapper contactWrapper : (List<ContactWrapper>) results.values) {
-                            add(contactWrapper);
+                        for (CallHistoryRecord record : (List<CallHistoryRecord>) results.values) {
+                            add(record);
                         }
                     notifyDataSetChanged();
                 }
@@ -185,25 +274,40 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             // Get the data item for this position
-            ContactWrapper contactWrapper = getItem(position);
+
+            CallHistoryRecord callRecord = new CallHistoryRecord();
+            callRecord = getItem(position);
             // Check if an existing view is being reused, otherwise inflate the view
             if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.online_contact_row, parent, false);
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.call_record_row, parent, false);
             }
             // Lookup view for data population
-            TextView tvName = (TextView) convertView.findViewById(R.id.contact_name);
-            TextView tvPhone = (TextView) convertView.findViewById(R.id.contact_phone);
-            ImageView contactStatusImage = (ImageView) convertView.findViewById(R.id.contact_status);
+            TextView tvNameOrPhone = (TextView) convertView.findViewById(R.id.call_name_or_number);
+            TextView tvDateAndTime = (TextView) convertView.findViewById(R.id.call_record_date_time);
+            TextView tvDuration = (TextView) convertView.findViewById(R.id.call_record_duration);
+            ImageView callRecordDirectionImage = (ImageView) convertView.findViewById(R.id.call_record_direction);
             // Populate the data into the template view using the data object
-            tvName.setText(contactWrapper != null ? contactWrapper.getContact().getName() : null);
-            tvPhone.setText(contactWrapper != null ? contactWrapper.getContact().getPhoneNumber() : null);
+            tvNameOrPhone.setText(callRecord != null ? callRecord.getNameOrNumber() : null);
+            tvDateAndTime.setText(callRecord != null ? callRecord.getDateAndTime() : null);
+            tvDuration.setText(callRecord != null ? callRecord.getDuration() : null);
 
-            if (contactWrapper != null && contactWrapper.getUserStatus().equals(UserStatus.REGISTERED)) {
-                contactStatusImage.setImageResource(android.R.drawable.presence_online);
-                contactStatusImage.setTag("on");
-            } else {
-                contactStatusImage.setImageResource(android.R.drawable.presence_invisible);
-                contactStatusImage.setTag("off");
+            if (callRecord.getCallType() != null){
+                if (callRecord != null && callRecord.getCallType().equals(CallRecordType.INCOMING)) {
+                    callRecordDirectionImage.setImageResource(android.R.drawable.sym_call_incoming);
+                    callRecordDirectionImage.setTag("incoming");
+                } else if (callRecord != null && callRecord.getCallType().equals(CallRecordType.OUTGOING)) {
+                    callRecordDirectionImage.setImageResource(android.R.drawable.sym_call_outgoing);
+                    callRecordDirectionImage.setTag("outgoing");
+                } else if (callRecord != null && callRecord.getCallType().equals(CallRecordType.MISSED)){
+                    callRecordDirectionImage.setImageResource(android.R.drawable.sym_call_missed);
+                    callRecordDirectionImage.setTag("missed");
+                }else {
+                    callRecordDirectionImage.setImageResource(android.R.drawable.ic_menu_help);
+                    callRecordDirectionImage.setTag("UKNOWN");
+                }
+            }else {
+                callRecordDirectionImage.setImageResource(android.R.drawable.ic_menu_help);
+                callRecordDirectionImage.setTag("UKNOWN");
             }
             // Return the completed view to render on screen
             return convertView;
@@ -325,7 +429,7 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
         setContentView(R.layout.calls_log_history);
 
         prepareMainActivityLayout();
-
+        prepareStartingView();
         setCustomActionBar();
         enableHamburgerIconWithSlideMenu();
         prepareFetchUserProgressBar();
@@ -333,7 +437,8 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
 
     private void prepareStartingView() {
 
-        contactsListView = (ListView) findViewById(R.id.calls_log_history_lv);
+        callListView = (ListView) findViewById(R.id.calls_log_history_lv);
+        callListView.setVisibility(View.VISIBLE);
 
     }
 

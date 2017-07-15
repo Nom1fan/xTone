@@ -27,11 +27,13 @@ import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.SearchView;
 import android.text.Html;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -83,7 +85,6 @@ import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.CacheUtils;
 import com.utils.ContactsUtils;
-import com.utils.ContactsUtilsImpl;
 import com.utils.InitUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
@@ -355,6 +356,24 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             testPermissionForSystemOverlay();
             // ifHuaweiAlert();
             initUtils.initSyncDefaultMediaReceiver(this);
+
+            contactsListView.setOnTouchListener(new OnSwipeTouchListener(MainActivity.this) {
+                @Override
+                public void onSwipeLeft() {
+                    Intent toCallHistory = new Intent(getApplicationContext(), CallsLogHistory.class);
+                    toCallHistory.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(toCallHistory);
+                }
+
+                @Override
+                public void onSwipeRight() {
+                    Intent toCallHistory = new Intent(getApplicationContext(), CallsLogHistory.class);
+                    toCallHistory.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(toCallHistory);
+                }
+
+            });
+
         }
     }
 
@@ -1800,4 +1819,58 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     //endregion
+
+    /**
+     * Detects left and right swipes across a view.
+     */
+    public class OnSwipeTouchListener implements View.OnTouchListener {
+
+        private final GestureDetector gestureDetector;
+
+        public OnSwipeTouchListener(Context context) {
+            gestureDetector = new GestureDetector(context, new GestureListener());
+        }
+
+        public void onSwipeLeft() {
+
+        }
+
+
+
+        public void onSwipeRight() {
+
+        }
+
+        public boolean onTouch(View v, MotionEvent event) {
+            return gestureDetector.onTouchEvent(event);
+        }
+
+        private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+            private static final int SWIPE_DISTANCE_THRESHOLD = 100;
+            private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                float distanceX = e2.getX() - e1.getX();
+                float distanceY = e2.getY() - e1.getY();
+                if (Math.abs(distanceX) > Math.abs(distanceY) && Math.abs(distanceX) > SWIPE_DISTANCE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (distanceX > 0)
+                        onSwipeRight();
+                    else
+                        onSwipeLeft();
+                    return true;
+                }
+                return false;
+            }
+        }
+    }
+
+
+
 }
