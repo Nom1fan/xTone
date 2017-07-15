@@ -10,6 +10,8 @@ import com.exceptions.FileException;
 import com.files.media.MediaFile;
 import com.services.ServerProxyService;
 
+import java.io.File;
+
 import static com.crashlytics.android.Crashlytics.log;
 
 /**
@@ -45,7 +47,7 @@ public abstract class MCHistoryUtils {
 
     private static MediaFile prepareMediaFile(Context context, String mediaPath, String sharedPrefsTempMd5Key) {
         String md5 = SharedPrefUtils.getString(context, SharedPrefUtils.SERVICES, sharedPrefsTempMd5Key);
-        MediaFile mediaFile = new MediaFile(mediaPath);
+        MediaFile mediaFile = new MediaFile(new File(mediaPath));
         mediaFile.setMd5(md5);
         return mediaFile;
     }

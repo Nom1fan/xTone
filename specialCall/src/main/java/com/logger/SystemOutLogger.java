@@ -8,7 +8,7 @@ import static com.crashlytics.android.Crashlytics.log;
  * Created by Mor on 31/05/2017.
  */
 
-class SystemOutLogger implements Logger {
+public class SystemOutLogger implements Logger {
     @Override
     public void info(String TAG, String msg) {
         System.out.println("INFO:::" + TAG + ":::" + msg);

@@ -72,8 +72,7 @@ public abstract class MediaProcessingAsyncTask extends AsyncTask<Bundle, Integer
 
     protected String getProcessedFileName(MediaFile baseFile, String action) {
         String nameWithoutExtension = mediaFileUtils.getNameWithoutExtension(baseFile);
-        String procFilePath = baseFile.getMd5() + "_" + nameWithoutExtension + "_" + action + "." + baseFile.getExtension();
-        return procFilePath;
+        return baseFile.getMd5() + "_" + nameWithoutExtension + "_" + action + "." + baseFile.getExtension();
     }
 
     protected void startUpdateProgressThread() {

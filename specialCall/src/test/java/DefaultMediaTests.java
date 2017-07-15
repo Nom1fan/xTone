@@ -7,16 +7,23 @@ import com.converters.MediaDataConverterImpl;
 import com.dao.MediaDAO;
 import com.data.objects.Contact;
 import com.data.objects.DefaultMediaData;
+import com.data.objects.DefaultMediaDataContainer;
 import com.data.objects.PendingDownloadData;
 import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
+import com.logger.Logger;
+import com.logger.LoggerFactory;
+import com.logger.SystemOutLogger;
 import com.services.ServerProxy;
 import com.services.SyncOnDefaultMediaIntentServiceLogic;
+import com.utils.ContactsUtils;
+import com.utils.ContactsUtilsImpl;
 import com.utils.MediaFileUtils;
 import com.utils.UtilityFactory;
 
 import static org.mockito.Mockito.*;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -49,20 +56,32 @@ public class DefaultMediaTests {
     @Mock
     MediaFileUtils mediaFileUtils;
 
+    @Mock
+    ContactsUtils contactsUtils;
+
+    ContactsUtilsImpl realContactsUtils = new ContactsUtilsImpl();
+
+    @Before
+    public void beforeTest() {
+        LoggerFactory.setLogger(new SystemOutLogger());
+    }
+
     @Test
     public void initialSingleDefaultMediaTest() {
+
+
         final String phoneNumber = "0544556543";
         SpecialMediaType specialMediaType = SpecialMediaType.DEFAULT_CALLER_MEDIA;
         String fileName = "MyDefaultCallerMedia.jpg";
-        List<DefaultMediaData> defaultMediaDataList;
-        final DefaultMediaData defaultMediaData = new DefaultMediaData();
-        defaultMediaDataList = prepareDefaultMediaData(phoneNumber, specialMediaType, fileName, defaultMediaData);
 
-        when(defaultMediaClient.getDefaultMediaData(context, phoneNumber, specialMediaType))
-                .thenReturn(defaultMediaDataList);
+        final DefaultMediaData defaultMediaData = new DefaultMediaData();
+        List<DefaultMediaDataContainer> defaultMediaDataContainers = prepareDefaultMediaContainer(phoneNumber, specialMediaType, fileName, defaultMediaData);
+
+        when(defaultMediaClient.getDefaultMediaData(context, specialMediaType))
+                .thenReturn(defaultMediaDataContainers);
 
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
 
         List<Contact> allContacts = prepareContacts(
                 new Contact("Rony Eidlin", "0544556543"),
@@ -75,7 +94,6 @@ public class DefaultMediaTests {
 
         verify(serverProxy, times(1)).sendActionDownload(context, pendingDownloadData, defaultMediaData);
         verify(mediaDAO, times(0)).removeMedia(specialMediaType, defaultMediaData.getMediaFile().getFileType(), phoneNumber);
-
     }
 
     @Test
@@ -84,17 +102,16 @@ public class DefaultMediaTests {
         SpecialMediaType specialMediaType = SpecialMediaType.DEFAULT_CALLER_MEDIA;
         String fileName = "MyDefaultCallerMedia.jpg";
         String audioFileName = "MyDefaultCallerMedia.mp3";
-        List<DefaultMediaData> defaultMediaDataList;
         final DefaultMediaData defaultMediaData = new DefaultMediaData();
-        defaultMediaDataList = prepareDefaultMediaData(phoneNumber, specialMediaType, fileName, defaultMediaData);
-        defaultMediaDataList.addAll(prepareDefaultMediaData(phoneNumber, specialMediaType, audioFileName, defaultMediaData));
+        List<DefaultMediaDataContainer> defaultMediaDataContainers = prepareDefaultMediaContainer(phoneNumber, specialMediaType, fileName, defaultMediaData);
+        defaultMediaDataContainers.addAll(prepareDefaultMediaContainer(phoneNumber, specialMediaType, audioFileName, defaultMediaData));
 
 
-        when(defaultMediaClient.getDefaultMediaData(context, phoneNumber, specialMediaType))
-                .thenReturn(defaultMediaDataList);
+        when(defaultMediaClient.getDefaultMediaData(context, specialMediaType))
+                .thenReturn(defaultMediaDataContainers);
 
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
 
         List<Contact> allContacts = prepareContacts(
                 new Contact("Rony Eidlin", "0544556543"),
@@ -114,19 +131,19 @@ public class DefaultMediaTests {
     public void removeAllDefaultMediaByEmptyListTest() {
         final String phoneNumber = "0544556543";
         SpecialMediaType specialMediaType = SpecialMediaType.DEFAULT_CALLER_MEDIA;
-
-        List<DefaultMediaData> defaultMediaDataList = new ArrayList<>();;
+        ;
         final DefaultMediaData defaultMediaData = new DefaultMediaData();
         List<MediaFile> mediaFiles = prepareMediaFiles();
+        List<DefaultMediaDataContainer> defaultMediaDataContainers = prepareEmptyDefaultMediaDataContainer(phoneNumber, specialMediaType);
 
-        when(defaultMediaClient.getDefaultMediaData(context, phoneNumber, specialMediaType))
-                .thenReturn(defaultMediaDataList);
+        when(defaultMediaClient.getDefaultMediaData(context, specialMediaType))
+                .thenReturn(defaultMediaDataContainers);
 
         when(mediaDAO.getMedia(specialMediaType, phoneNumber))
                 .thenReturn(mediaFiles);
 
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
 
         List<Contact> allContacts = prepareContacts(
                 new Contact("Rony Eidlin", "0544556543"),
@@ -147,10 +164,9 @@ public class DefaultMediaTests {
         SpecialMediaType defaultProfileMedia = SpecialMediaType.DEFAULT_PROFILE_MEDIA;
         String visualFileName = "MyDefaultCallerMedia.jpg";
         String audioFileName = "MyDefaultCallerMedia.mp3";
-        List<DefaultMediaData> defaultMediaDataList;
         final DefaultMediaData defaultMediaData = new DefaultMediaData();
-        defaultMediaDataList = prepareDefaultMediaData(phoneNumber, defaultProfileMedia, visualFileName, defaultMediaData, 123);
-        defaultMediaDataList.addAll(prepareDefaultMediaData(phoneNumber, defaultProfileMedia, audioFileName, defaultMediaData, 123));
+        List<DefaultMediaDataContainer> defaultMediaDataContainers = prepareDefaultMediaContainer(phoneNumber, defaultProfileMedia, visualFileName, defaultMediaData, 123);
+        defaultMediaDataContainers.addAll(prepareDefaultMediaContainer(phoneNumber, defaultProfileMedia, audioFileName, defaultMediaData, 123));
         List<MediaFile> mediaFiles = new ArrayList<>();
         MediaFile visualMediaFile = new MediaFile();
         visualMediaFile.setFileType(MediaFile.FileType.IMAGE);
@@ -162,8 +178,8 @@ public class DefaultMediaTests {
         mediaFiles.add(visualMediaFile);
         mediaFiles.add(audioMediaFile);
 
-        when(defaultMediaClient.getDefaultMediaData(context, phoneNumber, defaultProfileMedia))
-                .thenReturn(defaultMediaDataList);
+        when(defaultMediaClient.getDefaultMediaData(context, defaultProfileMedia))
+                .thenReturn(defaultMediaDataContainers);
 
         when(mediaDAO.getMedia(defaultProfileMedia, phoneNumber)).
                 thenReturn(mediaFiles);
@@ -173,7 +189,7 @@ public class DefaultMediaTests {
                 .thenReturn(123L);
 
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
 
         List<Contact> allContacts = prepareContacts(
                 new Contact("Rony Eidlin", "0544556543"),
@@ -195,10 +211,9 @@ public class DefaultMediaTests {
         SpecialMediaType defaultCallerMedia = SpecialMediaType.DEFAULT_CALLER_MEDIA;
         String visualFileName = "MyDefaultCallerMedia.jpg";
         String audioFileName = "MyDefaultCallerMedia.mp3";
-        List<DefaultMediaData> defaultMediaDataList;
         final DefaultMediaData defaultMediaData = new DefaultMediaData();
-        defaultMediaDataList = prepareDefaultMediaData(phoneNumber, defaultCallerMedia, visualFileName, defaultMediaData, 123);
-        defaultMediaDataList.addAll(prepareDefaultMediaData(phoneNumber, defaultCallerMedia, audioFileName, defaultMediaData, 123));
+        List<DefaultMediaDataContainer> defaultMediaDataContainers = prepareDefaultMediaContainer(phoneNumber, defaultCallerMedia, visualFileName, defaultMediaData, 123);
+        defaultMediaDataContainers.addAll(prepareDefaultMediaContainer(phoneNumber, defaultCallerMedia, audioFileName, defaultMediaData, 123));
         List<MediaFile> mediaFiles = new ArrayList<>();
         MediaFile visualMediaFile = new MediaFile();
         visualMediaFile.setFileType(MediaFile.FileType.IMAGE);
@@ -210,8 +225,8 @@ public class DefaultMediaTests {
         mediaFiles.add(visualMediaFile);
         mediaFiles.add(audioMediaFile);
 
-        when(defaultMediaClient.getDefaultMediaData(context, phoneNumber, defaultCallerMedia))
-                .thenReturn(defaultMediaDataList);
+        when(defaultMediaClient.getDefaultMediaData(context, defaultCallerMedia))
+                .thenReturn(defaultMediaDataContainers);
 
         when(mediaDAO.getMedia(defaultCallerMedia, phoneNumber)).
                 thenReturn(mediaFiles);
@@ -221,7 +236,7 @@ public class DefaultMediaTests {
                 .thenReturn(123L);
 
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
 
         List<Contact> allContacts = prepareContacts(
                 new Contact("Rony Eidlin", "0544556543"),
@@ -242,9 +257,9 @@ public class DefaultMediaTests {
         final String phoneNumber = "0544556543";
         SpecialMediaType defaultCallerMedia = SpecialMediaType.DEFAULT_CALLER_MEDIA;
         String visualFileName = "MyDefaultCallerMedia.jpg";
-        List<DefaultMediaData> defaultMediaDataList;
+
         final DefaultMediaData defaultMediaData = new DefaultMediaData();
-        defaultMediaDataList = prepareDefaultMediaData(phoneNumber, defaultCallerMedia, visualFileName, defaultMediaData, 1234);
+        List<DefaultMediaDataContainer> defaultMediaDataContainers = prepareDefaultMediaContainer(phoneNumber, defaultCallerMedia, visualFileName, defaultMediaData, 1234);
         List<MediaFile> mediaFiles = new ArrayList<>();
         MediaFile visualMediaFile = new MediaFile();
         visualMediaFile.setFileType(MediaFile.FileType.IMAGE);
@@ -256,8 +271,8 @@ public class DefaultMediaTests {
         mediaFiles.add(visualMediaFile);
         mediaFiles.add(audioMediaFile);
 
-        when(defaultMediaClient.getDefaultMediaData(context, phoneNumber, defaultCallerMedia))
-                .thenReturn(defaultMediaDataList);
+        when(defaultMediaClient.getDefaultMediaData(context, defaultCallerMedia))
+                .thenReturn(defaultMediaDataContainers);
 
         when(mediaDAO.getMedia(defaultCallerMedia, phoneNumber)).
                 thenReturn(mediaFiles);
@@ -267,7 +282,7 @@ public class DefaultMediaTests {
                 .thenReturn(123L);
 
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
 
         List<Contact> allContacts = prepareContacts(
                 new Contact("Rony Eidlin", "0544556543"),
@@ -287,9 +302,8 @@ public class DefaultMediaTests {
         final String phoneNumber = "0544556543";
         SpecialMediaType defaultCallerMedia = SpecialMediaType.DEFAULT_CALLER_MEDIA;
         String audioFileName = "MyDefaultCallerMedia.mp3";
-        List<DefaultMediaData> defaultMediaDataList;
         final DefaultMediaData defaultMediaData = new DefaultMediaData();
-        defaultMediaDataList = prepareDefaultMediaData(phoneNumber, defaultCallerMedia, audioFileName, defaultMediaData, 1234);
+        List<DefaultMediaDataContainer> defaultMediaDataContainers = prepareDefaultMediaContainer(phoneNumber, defaultCallerMedia, audioFileName, defaultMediaData, 1234);
         List<MediaFile> mediaFiles = new ArrayList<>();
         MediaFile visualMediaFile = new MediaFile();
         visualMediaFile.setFileType(MediaFile.FileType.IMAGE);
@@ -301,8 +315,15 @@ public class DefaultMediaTests {
         mediaFiles.add(visualMediaFile);
         mediaFiles.add(audioMediaFile);
 
-        when(defaultMediaClient.getDefaultMediaData(context, phoneNumber, defaultCallerMedia))
-                .thenReturn(defaultMediaDataList);
+        List<Contact> allContacts = prepareContacts(
+                new Contact("Rony Eidlin", "0544556543"),
+                new Contact("Hot Girl", "0501111111"),
+                new Contact("Another Hot Girl", "0500000000"));
+
+        realContactsUtils.con
+
+        when(defaultMediaClient.getDefaultMediaData(context, defaultCallerMedia))
+                .thenReturn(defaultMediaDataContainers);
 
         when(mediaDAO.getMedia(defaultCallerMedia, phoneNumber)).
                 thenReturn(mediaFiles);
@@ -312,12 +333,8 @@ public class DefaultMediaTests {
                 .thenReturn(123L);
 
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
 
-        List<Contact> allContacts = prepareContacts(
-                new Contact("Rony Eidlin", "0544556543"),
-                new Contact("Hot Girl", "0501111111"),
-                new Contact("Another Hot Girl", "0500000000"));
 
         SyncOnDefaultMediaIntentServiceLogic logic = prepareLogic(mediaDataConverter, allContacts);
 
@@ -338,15 +355,27 @@ public class DefaultMediaTests {
         return mediaFiles;
     }
 
-    @NonNull
-    protected List<DefaultMediaData> prepareDefaultMediaData(String phoneNumber, SpecialMediaType specialMediaType, String fileName, final DefaultMediaData defaultMediaData) {
-        return prepareDefaultMediaData(phoneNumber, specialMediaType, fileName, defaultMediaData, 12345);
+    private List<DefaultMediaDataContainer> prepareEmptyDefaultMediaDataContainer(String uid, SpecialMediaType specialMediaType) {
+        List<DefaultMediaDataContainer> defaultMediaDataContainers = new ArrayList<>();
+        DefaultMediaDataContainer defaultMediaDataContainer = new DefaultMediaDataContainer();
+        defaultMediaDataContainer.setUid(uid);
+        defaultMediaDataContainer.setSpecialMediaType(specialMediaType);
+        defaultMediaDataContainer.setDefaultMediaDataList(new ArrayList<DefaultMediaData>());
+        defaultMediaDataContainers.add(defaultMediaDataContainer);
+        return defaultMediaDataContainers;
     }
 
     @NonNull
-    protected List<DefaultMediaData> prepareDefaultMediaData(String phoneNumber, SpecialMediaType specialMediaType, String fileName, final DefaultMediaData defaultMediaData, long unixTime) {
+    private List<DefaultMediaDataContainer> prepareDefaultMediaContainer(String phoneNumber, SpecialMediaType specialMediaType, String fileName, final DefaultMediaData defaultMediaData) {
+        return prepareDefaultMediaContainer(phoneNumber, specialMediaType, fileName, defaultMediaData, 12345);
+    }
+
+    @NonNull
+    private List<DefaultMediaDataContainer> prepareDefaultMediaContainer(String phoneNumber, SpecialMediaType specialMediaType, String fileName, final DefaultMediaData defaultMediaData, long unixTime) {
+        final DefaultMediaDataContainer defaultMediaDataContainer = new DefaultMediaDataContainer();
         MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
-        List<DefaultMediaData> defaultMediaDataList;
+        List<DefaultMediaDataContainer> defaultMediaDataContainers;
+        final List<DefaultMediaData> defaultMediaDataList;
         defaultMediaData.setFilePathOnServer("C:\\git\\mediacallz_server\\uploads\\" + phoneNumber + "\\my_default_caller_media\\" + fileName);
         MediaFile mediaFile = new MediaFile();
         mediaFile.setSize(15154);
@@ -355,22 +384,26 @@ public class DefaultMediaTests {
         defaultMediaData.setMediaFile(mediaFile);
         defaultMediaData.setSpecialMediaType(specialMediaType);
         defaultMediaData.setDefaultMediaUnixTime(unixTime);
-        defaultMediaData.setUid(phoneNumber);
         defaultMediaDataList = new ArrayList<DefaultMediaData>() {{
             add(defaultMediaData);
         }};
-        return defaultMediaDataList;
+        defaultMediaDataContainer.setUid(phoneNumber);
+        defaultMediaDataContainer.setSpecialMediaType(specialMediaType);
+        defaultMediaDataContainer.setDefaultMediaDataList(defaultMediaDataList);
+        defaultMediaDataContainers = new ArrayList<DefaultMediaDataContainer>() {{
+            add(defaultMediaDataContainer);
+        }};
+        return defaultMediaDataContainers;
     }
 
-    protected List<Contact> prepareContacts(final Contact... contacts) {
+    private List<Contact> prepareContacts(final Contact... contacts) {
         return Arrays.asList(contacts);
     }
 
     @NonNull
-    protected SyncOnDefaultMediaIntentServiceLogic prepareLogic(MediaDataConverter mediaDataConverter, List<Contact> allContacts) {
+    private SyncOnDefaultMediaIntentServiceLogic prepareLogic(MediaDataConverter mediaDataConverter, List<Contact> allContacts) {
         SyncOnDefaultMediaIntentServiceLogic logic = new SyncOnDefaultMediaIntentServiceLogic();
         logic.setContext(context);
-        logic.setAllContacts(allContacts);
         logic.setServerProxy(serverProxy);
         logic.setDefaultMediaClient(defaultMediaClient);
         logic.setMediaDAO(mediaDAO);

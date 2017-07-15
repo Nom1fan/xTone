@@ -10,8 +10,9 @@ import com.event.EventReport;
 import com.handlers.Handler;
 import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
-import com.utils.LUT_Utils;
+import com.utils.ContactsUtilsImpl;
 import com.utils.UI_Utils;
+import com.utils.UtilityFactory;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -21,6 +22,9 @@ import static com.crashlytics.android.Crashlytics.log;
 public class EventDownloadFailureHandler implements Handler {
 
     private static final String TAG = EventDownloadFailureHandler.class.getSimpleName();
+
+    private final ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
+
 
     @Override
     public void handle(Context ctx, Object... params) {
@@ -33,7 +37,7 @@ public class EventDownloadFailureHandler implements Handler {
 
         UI_Utils.dismissTransferSuccessDialog();
         String msg = String.format(ctx.getResources().getString(R.string.destination_download_failed),
-                ContactsUtils.getContactNameHtml(ctx, destId));
+                contactsUtils.getContactNameHtml(ctx, destId));
         UI_Utils.showSnackBar(msg, Color.RED, Snackbar.LENGTH_LONG, false, ctx);
     }
 }

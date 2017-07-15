@@ -83,7 +83,7 @@ public class MediaDAOImpl implements MediaDAO {
                 incomingMediaFiles = new ArrayList<>();
                 File[] files = folder.listFiles();
                 for (File file : files) {
-                    MediaFile mediaFile = new MediaFile(file);
+                    MediaFile mediaFile = new MediaFile(file, true);
                     incomingMediaFiles.add(mediaFile);
                 }
             }

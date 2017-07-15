@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
@@ -29,18 +28,24 @@ import com.batch.android.Batch;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.data.objects.ActivityRequestCodes;
+import com.data.objects.Constants;
 import com.data.objects.KeysForBundle;
 import com.data.objects.SnackbarData;
 import com.enums.SpecialMediaType;
 import com.event.Event;
 import com.event.EventReport;
+import com.event.EventType;
 import com.files.media.MediaFile;
+import com.flows.NotifySuccessPostUploadFileFlowLogic;
 import com.flows.UploadFileFlow;
+import com.logger.Logger;
+import com.logger.LoggerFactory;
 import com.mediacallz.app.R;
 import com.services.AbstractStandOutService;
 import com.services.PreviewService;
 import com.ui.dialogs.ClearMediaDialog;
 import com.utils.BitmapUtils;
+import com.utils.BroadcastUtils;
 import com.utils.InitUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileUtils;
@@ -48,7 +53,6 @@ import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 import com.utils.UtilityFactory;
 
-import static com.crashlytics.android.Crashlytics.log;
 import static com.data.objects.SnackbarData.SnackbarStatus;
 
 /**
@@ -57,7 +61,9 @@ import static com.data.objects.SnackbarData.SnackbarStatus;
 public class DefaultMediaActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = SelectMediaActivity.class.getSimpleName();
-    private String destPhoneNumber = "";
+    private Logger logger = LoggerFactory.getLogger();
+
+    private String myPhoneNumber = "";
     private String destName = "";
 
     //region UI elements
@@ -98,17 +104,37 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
-
+        myPhoneNumber = Constants.MY_ID(getApplicationContext());
         AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
 
         initializeUI();
-
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            actionBar.setCustomView(R.layout.custom_action_bar);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
+                syncUIwithAppState();
+                this.finish();
+                return true;
+        }
+        return true;
+    }
+
 
     @Override
     protected void onStart() {
         super.onStart();
-        log(Log.INFO, TAG, "onStart()");
+        logger.info(TAG, "onStart()");
 
         prepareEventReceiver();
     }
@@ -116,39 +142,30 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
     @Override
     protected void onResume() {
         super.onResume();
-        log(Log.INFO, TAG, "onResume()");
+        logger.info(TAG, "onResume()");
+        AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_READY);
+        syncUIwithAppState();
+
         String appState = getState();
-        log(Log.INFO, TAG, "App State:" + appState);
+        logger.info(TAG, "App State:" + appState);
 
         AppStateManager.setAppInForeground(getApplicationContext(), true);
 
 
-            prepareEventReceiver();
+        prepareEventReceiver();
 
-            if (!appState.equals(AppStateManager.STATE_LOADING))
-                handleSnackBar(new SnackbarData(SnackbarStatus.CLOSE, 0, 0, null));
-
-
-            AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_READY);
-            syncUIwithAppState();
-
-            initUtils.initSyncDefaultMediaReceiver(this);
-
-    }
-
-
-    public void testPermissionForSystemOverlay() {
-        if (!android.provider.Settings.canDrawOverlays(this)) {
-            Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, 5469);
+        if (!appState.equals(AppStateManager.STATE_LOADING)) {
+            handleSnackBar(new SnackbarData(SnackbarStatus.CLOSE, 0, 0, null));
         }
+
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.REFRESH_UI));
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        log(Log.INFO, TAG, "onPause()");
+        logger.info(TAG, "onPause()");
 
         SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, false);
         AppStateManager.setAppInForeground(this, false);
@@ -157,7 +174,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
             try {
                 unregisterReceiver(eventReceiver);
             } catch (Exception ex) {
-                log(Log.ERROR, TAG, ex.getMessage());
+                logger.error(TAG, ex.getMessage());
             }
         }
 
@@ -167,7 +184,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     protected void onDestroy() {
-        log(Log.INFO, TAG, "onDestroy()");
+        logger.info(TAG, "onDestroy()");
 
         if (AppStateManager.getAppState(this).equals(AppStateManager.STATE_LOADING))
             AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
@@ -203,15 +220,14 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
                         Bundle bundle = new Bundle();
                         bundle.putSerializable(KeysForBundle.FILE_FOR_UPLOAD, fm);
-                        bundle.putString(KeysForBundle.DEST_ID, destPhoneNumber);
+                        bundle.putString(KeysForBundle.DEST_ID, myPhoneNumber);
                         bundle.putString(KeysForBundle.DEST_NAME, destName);
                         bundle.putSerializable(KeysForBundle.SPEC_MEDIA_TYPE, specialMediaType);
 
-                        uploadFileFlow.executeUploadFileFlow(DefaultMediaActivity.this, bundle);
+                        uploadFileFlow.executeUploadFileFlow(DefaultMediaActivity.this, bundle, new NotifySuccessPostUploadFileFlowLogic());
 
                     }
                 }
-
             }
         }
     }
@@ -233,7 +249,6 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
         }
 
 
-
         return super.onKeyDown(keyCode, e);
     }
 
@@ -245,7 +260,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
         AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         SharedPrefUtils.setInt(this, SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, am.getStreamVolume(AudioManager.STREAM_MUSIC));
-        log(Log.INFO, TAG, "PreviewStart MUSIC_VOLUME Original" + String.valueOf(am.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        logger.info(TAG, "PreviewStart MUSIC_VOLUME Original" + String.valueOf(am.getStreamVolume(AudioManager.STREAM_MUSIC)));
 
         // Close previous
         Intent closePrevious = new Intent(this, PreviewService.class);
@@ -255,8 +270,8 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
         LUT_Utils lut_utils = new LUT_Utils(specialMediaType);
         Intent showPreview = new Intent(this, PreviewService.class);
         showPreview.setAction(AbstractStandOutService.ACTION_PREVIEW);
-        showPreview.putExtra(AbstractStandOutService.PREVIEW_AUDIO, lut_utils.getUploadedTonePerNumber(this, destPhoneNumber));
-        showPreview.putExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA, lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber));
+        showPreview.putExtra(AbstractStandOutService.PREVIEW_AUDIO, lut_utils.getUploadedTonePerNumber(this, myPhoneNumber));
+        showPreview.putExtra(AbstractStandOutService.PREVIEW_VISUAL_MEDIA, lut_utils.getUploadedMediaPerNumber(this, myPhoneNumber));
 
         startService(showPreview);
     }
@@ -265,7 +280,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
         Intent mainIntent = new Intent(this, SelectMediaActivity.class);
         mainIntent.putExtra(SelectMediaActivity.SPECIAL_MEDIA_TYPE, specialMediaType);
-        mainIntent.putExtra(SelectMediaActivity.DESTINATION_NUMBER, destPhoneNumber);
+        mainIntent.putExtra(SelectMediaActivity.DESTINATION_NUMBER, myPhoneNumber);
         mainIntent.putExtra(SelectMediaActivity.DESTINATION_NAME, destName);
         startActivityForResult(mainIntent, ActivityRequestCodes.SELECT_MEDIA);
 
@@ -275,18 +290,18 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
 
         int id = v.getId();
-        if  (id == R.id.default_selectMediaBtn || id == R.id.default_callerArrow) {
+        if (id == R.id.default_selectMediaBtn || id == R.id.default_callerArrow) {
             if (callerHasMedia || callerHasRingtone)
                 openCallerMediaMenu();
             else
-                selectMedia(SpecialMediaType.CALLER_MEDIA);
+                selectMedia(SpecialMediaType.DEFAULT_CALLER_MEDIA);
 
         } else if (id == R.id.default_selectProfileMediaBtn || id == R.id.default_profileArrow) {
 
             if (profileHasMedia || profileHasRingtone)
                 openProfileMediaMenu();
             else
-                selectMedia(SpecialMediaType.PROFILE_MEDIA);
+                selectMedia(SpecialMediaType.DEFAULT_PROFILE_MEDIA);
 
         }
     }
@@ -297,21 +312,22 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
         switch (report.status()) {
 
-            case CLEAR_SENT:
+            case CLEAR_SENT: {
                 if (!SharedPrefUtils.getBoolean(DefaultMediaActivity.this, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_CLEAR_DIALOG)) {
                     UI_Utils.showWaitingForTranferSuccussDialog(DefaultMediaActivity.this, "ClearMediaDialog", getResources().getString(R.string.sending_clear_contact), getResources().getString(R.string.waiting_for_clear_transfer_success_dialog_msg));
                 }
+            }
+            break;
 
-                break;
-
-            case REFRESH_UI:
+            case REFRESH_UI: {
                 SnackbarData data = (SnackbarData) report.data();
                 syncUIwithAppState();
 
-                if (data != null)
+                if (data != null) {
                     handleSnackBar(data);
-                break;
-
+                }
+            }
+            break;
 
             default: // Event not meant for MainActivity receiver
         }
@@ -358,7 +374,6 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
         prepareSelectProfileMediaButton();
         prepareDividers();
     }
-
 
 
     //region UI States
@@ -410,7 +425,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
         String appState = getState();
 
-        log(Log.INFO, TAG, "Syncing UI with appState:" + appState);
+        logger.info(TAG, "Syncing UI with appState:" + appState);
 
         switch (appState) {
 
@@ -512,11 +527,11 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
         //Creating the instance of PopupMenu
         PopupMenu popup = new PopupMenu(DefaultMediaActivity.this, callerMedia);
         //Inflating the Popup using xml file
-        popup.getMenuInflater().inflate(R.menu.popup_menu_callermedia, popup.getMenu());
+        popup.getMenuInflater().inflate(R.menu.popup_menu_default_callermedia, popup.getMenu());
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
-                log(Log.INFO, TAG, String.valueOf(item.getItemId()));
+                logger.info(TAG, String.valueOf(item.getItemId()));
                 switch (item.getItemId()) {
                     case R.id.default_selectcallermedia:
                         selectMedia(SpecialMediaType.DEFAULT_CALLER_MEDIA);
@@ -527,7 +542,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
                         break;
                     case R.id.default_clearcallermedia:
-                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.DEFAULT_CALLER_MEDIA,destPhoneNumber );
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.DEFAULT_CALLER_MEDIA, myPhoneNumber);
                         clearDialog.show(getFragmentManager(), TAG);
                         break;
 
@@ -545,12 +560,12 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
         //Creating the instance of PopupMenu
         PopupMenu popup = new PopupMenu(DefaultMediaActivity.this, profile);
         //Inflating the Popup using xml file
-        popup.getMenuInflater().inflate(R.menu.popup_menu_profile, popup.getMenu());
+        popup.getMenuInflater().inflate(R.menu.popup_menu_default_profile, popup.getMenu());
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
 
-                log(Log.INFO, TAG, String.valueOf(item.getItemId()));
+                logger.info(TAG, String.valueOf(item.getItemId()));
 
                 switch (item.getItemId()) {
                     case R.id.default_specificprofile:
@@ -561,7 +576,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
                         break;
                     case R.id.default_clearprofilemedia:
 
-                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.DEFAULT_PROFILE_MEDIA,destPhoneNumber );
+                        ClearMediaDialog clearDialog = new ClearMediaDialog(SpecialMediaType.DEFAULT_PROFILE_MEDIA, myPhoneNumber);
                         clearDialog.show(getFragmentManager(), TAG);
 
                         break;
@@ -572,7 +587,6 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
         popup.show();
     }
-
 
 
     private void disableSelectCallerMediaButton() {
@@ -730,13 +744,13 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
     private void drawSelectMediaButton(boolean enabled) {
 
-        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.CALLER_MEDIA);
+        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.DEFAULT_CALLER_MEDIA);
 
         MediaFile.FileType fType;
 
         if (enabled) {
 
-            String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
+            String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, myPhoneNumber);
             if (!lastUploadedMediaPath.equals("")) {
                 fType = mediaFileUtils.getFileType(lastUploadedMediaPath);
 
@@ -760,11 +774,11 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
     private void drawSelectProfileMediaButton(boolean enabled) {
 
-        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.PROFILE_MEDIA);
+        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.DEFAULT_PROFILE_MEDIA);
 
         if (enabled) {
 
-            String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, destPhoneNumber);
+            String lastUploadedMediaPath = lut_utils.getUploadedMediaPerNumber(this, myPhoneNumber);
             if (!lastUploadedMediaPath.equals("")) {
                 MediaFile.FileType fType = mediaFileUtils.getFileType(lastUploadedMediaPath);
 
@@ -781,8 +795,8 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
     private void drawRingToneName() {
 
-        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.CALLER_MEDIA);
-        String ringToneFilePath = lut_utils.getUploadedTonePerNumber(this, destPhoneNumber);
+        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.DEFAULT_CALLER_MEDIA);
+        String ringToneFilePath = lut_utils.getUploadedTonePerNumber(this, myPhoneNumber);
 
         try {
 
@@ -797,14 +811,14 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
                 disableRingToneStatusArrived();
             }
         } catch (Exception e) {
-            log(Log.ERROR, TAG, "Failed to draw drawRingToneName:" + (e.getMessage() != null ? e.getMessage() : e));
+            logger.error(TAG, "Failed to draw drawRingToneName:" + (e.getMessage() != null ? e.getMessage() : e));
         }
     }
 
     private void drawRingToneNameForProfile() {
 
-        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.PROFILE_MEDIA);
-        String ringToneFilePath = lut_utils.getUploadedTonePerNumber(this, destPhoneNumber);
+        LUT_Utils lut_utils = new LUT_Utils(SpecialMediaType.DEFAULT_PROFILE_MEDIA);
+        String ringToneFilePath = lut_utils.getUploadedTonePerNumber(this, myPhoneNumber);
 
         try {
 
@@ -817,7 +831,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
                 profileHasRingtone = false;
             }
         } catch (Exception e) {
-            log(Log.ERROR, TAG, "Failed to draw drawRingToneNameForProfile:" + (e.getMessage() != null ? e.getMessage() : e));
+            logger.error(TAG, "Failed to draw drawRingToneNameForProfile:" + (e.getMessage() != null ? e.getMessage() : e));
         }
     }
 
@@ -836,7 +850,7 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
     private void writeInfoSnackBar(final SnackbarData snackBarData) {
 
-        log(Log.INFO, TAG, "Snackbar showing:" + snackBarData.getText());
+        logger.info(TAG, "Snackbar showing:" + snackBarData.getText());
 
         int duration = snackBarData.getDuration();
         if (duration == Snackbar.LENGTH_LONG)

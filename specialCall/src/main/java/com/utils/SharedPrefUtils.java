@@ -14,16 +14,14 @@ public abstract class SharedPrefUtils {
     public static final String SETTINGS                         =   "Settings";
     public static final String SERVICES                         =   "Services";
     public static final String SERVER_PROXY                     =   "AbstractServerProxy";
+    @Deprecated
     public static final String UPLOADED_CALLER_MEDIA_THUMBNAIL  =   "UploadedCallerMediaThumbnail";
-    public static final String UPLOADED_RINGTONE_PATH           =   "UploadedRingTonePath";
+    @Deprecated
     public static final String UPLOADED_PROFILE_MEDIA_THUMBNAIL =   "UploadedProfileMediaThumbnail";
+    @Deprecated
+    public static final String UPLOADED_RINGTONE_PATH           =   "UploadedRingTonePath";
+    @Deprecated
     public static final String UPLOADED_FUNTONE_PATH            =   "UploadedFunTonePath";
-    public static final String CALLER_MEDIA_FILEPATH            =   "CallerMediaFilePath";
-    public static final String DEFAULT_CALLER_MEDIA_FILEPATH    =   "DEFAULT_CALLER_MEDIA_FILEPATH";
-    public static final String RINGTONE_FILEPATH                =   "RingToneFilePath";
-    public static final String DEFAULT_RINGTONE_MEDIA_FILEPATH  =   "DEFAULT_RINGTONE_MEDIA_FILEPATH";
-    public static final String PROFILE_MEDIA_FILEPATH           =   "ProfileMediaFilePath";
-    public static final String FUNTONE_FILEPATH                 =   "FunToneFilePath";
     public static final String SHOWCASE                         =   "Showcase";
     public static final String TRIMMED_FILES                    =   "TRIMMED_FILES";
     public static final String CONTENT_STORE                    =   "CONTENT_STORE";
@@ -36,13 +34,6 @@ public abstract class SharedPrefUtils {
             SERVICES,
             SERVER_PROXY,
             UPLOADED_CALLER_MEDIA_THUMBNAIL,
-            UPLOADED_RINGTONE_PATH,
-            UPLOADED_PROFILE_MEDIA_THUMBNAIL,
-            UPLOADED_FUNTONE_PATH,
-            CALLER_MEDIA_FILEPATH,
-            RINGTONE_FILEPATH,
-            PROFILE_MEDIA_FILEPATH,
-            FUNTONE_FILEPATH,
             SHOWCASE,
             TRIMMED_FILES
     ));

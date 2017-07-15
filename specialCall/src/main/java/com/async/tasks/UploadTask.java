@@ -12,7 +12,7 @@ import android.support.design.widget.Snackbar;
 import android.util.Log;
 
 import com.app.AppStateManager;
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.client.ProgressListener;
 import com.client.ProgressiveEntity;
 import com.data.objects.Constants;
@@ -20,6 +20,7 @@ import com.enums.SpecialMediaType;
 import com.event.EventReport;
 import com.event.EventType;
 import com.files.media.MediaFile;
+import com.flows.PostUploadFileFlowLogic;
 import com.google.gson.Gson;
 import com.mediacallz.app.R;
 import com.model.request.UploadFileRequest;
@@ -51,20 +52,24 @@ import static com.data.objects.KeysForBundle.SPEC_MEDIA_TYPE;
 public class UploadTask extends AsyncTask<Void, Integer, Void> implements ProgressListener {
     private static final String URL_UPLOAD = "http://" + Constants.SERVER_HOST + ":" + Constants.SERVER_PORT + "/v1/UploadFile";
     private final String TAG = UploadTask.class.getSimpleName();
-    private ConnectionToServer connectionToServer;
+    private ConnectionToServerImpl connectionToServer;
     private ProgressDialog progDialog;
     private UploadTask taskInstance;
     private PowerManager.WakeLock wakeLock;
     private Context context;
     private MediaFile fileForUpload;
     private ProgressiveEntity progressiveEntity;
+    private PostUploadFileFlowLogic postUploadFileFlowLogic;
+    private Bundle bundle;
     private boolean isOK = true;
 
-    public UploadTask(Context context, Bundle bundle) {
+    public UploadTask(Context context, Bundle bundle, PostUploadFileFlowLogic postUploadFileFlowLogic) {
         this.context = context;
+        this.postUploadFileFlowLogic = postUploadFileFlowLogic;
+        this.bundle = bundle;
         fileForUpload = (MediaFile) bundle.get(FILE_FOR_UPLOAD);
         progressiveEntity = prepareProgressiveEntity(bundle);
-        connectionToServer = new ConnectionToServer();
+        connectionToServer = new ConnectionToServerImpl();
         taskInstance = this;
     }
 
@@ -138,23 +143,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements Progre
 
     @Override
     protected void onPostExecute(Void result) {
-
-        if(isOK) {
-            String msg = context.getResources().getString(R.string.upload_success);
-            // Setting state
-            AppStateManager.setAppState(context, TAG, AppStateManager.STATE_READY);
-
-            // Setting parameters for snackbar message
-            int color = Color.GREEN;
-            int sBarDuration = Snackbar.LENGTH_LONG;
-
-            UI_Utils.showSnackBar(msg, color, sBarDuration, false, context);
-
-            waitingForTransferSuccess();
-        }
-        else {
-            BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.STORAGE_ACTION_FAILURE));
-        }
+        postUploadFileFlowLogic.performPostUploadFlowLogic(this);
     }
 
 
@@ -188,10 +177,15 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements Progre
         return new Gson().toJson(uploadFileRequest);
     }
 
-    private void waitingForTransferSuccess() {
-        if (!SharedPrefUtils.getBoolean(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DONT_SHOW_AGAIN_UPLOAD_DIALOG)) {
-            UI_Utils.showWaitingForTranferSuccussDialog(context, "MainActivity", context.getResources().getString(R.string.sending_to_contact)
-                    , context.getResources().getString(R.string.waiting_for_transfer_sucess_dialog_msg));
-        }
+    public Bundle getBundle() {
+        return bundle;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public boolean isOK() {
+        return isOK;
     }
 }

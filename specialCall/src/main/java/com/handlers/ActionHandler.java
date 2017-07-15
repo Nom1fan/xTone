@@ -3,7 +3,7 @@ package com.handlers;
 import android.content.Context;
 import android.content.Intent;
 
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.data.objects.Constants;
 import com.model.request.Request;
 
@@ -24,7 +24,7 @@ public interface ActionHandler {
         private Context ctx;
         private Intent intent;
         private Request request;
-        private ConnectionToServer connectionToServer;
+        private ConnectionToServerImpl connectionToServer;
 
         public Context getCtx() {
             return ctx;
@@ -53,11 +53,11 @@ public interface ActionHandler {
             return this;
         }
 
-        public ConnectionToServer getConnectionToServer() {
+        public ConnectionToServerImpl getConnectionToServer() {
             return connectionToServer;
         }
 
-        public ActionBundle setConnectionToServer(ConnectionToServer connectionToServer) {
+        public ActionBundle setConnectionToServer(ConnectionToServerImpl connectionToServer) {
             this.connectionToServer = connectionToServer;
             return this;
         }

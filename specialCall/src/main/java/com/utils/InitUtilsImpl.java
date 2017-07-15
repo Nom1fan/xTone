@@ -25,6 +25,8 @@ import com.files.media.MediaFile;
 import com.receivers.SyncDefaultMediaReceiver;
 
 import static com.crashlytics.android.Crashlytics.log;
+import static com.files.media.MediaFile.FileType.IMAGE;
+import static com.files.media.MediaFile.FileType.VIDEO;
 import static com.receivers.SyncDefaultMediaReceiver.SYNC_REPEAT_INTERVAL;
 
 /**
@@ -38,6 +40,7 @@ public class InitUtilsImpl implements InitUtils {
 
     private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
+    private Phone2MediaPathMapperUtils phone2MediaPathMapperUtils = UtilityFactory.instance().getUtility(Phone2MediaPathMapperUtils.class);
 
     @Override
     public void hideMediaFromGalleryScanner() {
@@ -69,15 +72,22 @@ public class InitUtilsImpl implements InitUtils {
     @Override
     public void populateSavedMcFromDiskToSharedPrefs(Context context) {
 
+        //TODO improve code + add default media handling
         try {
             List<File> outgoingDirectories = getDirectories(new File(Constants.OUTGOING_FOLDER));
             List<File> incomingDirectories = getDirectories(new File(Constants.INCOMING_FOLDER));
+//            List<File> outgoingDefaultDirs = getDirectories(new File(Constants.DEFAULT_OUTGOING_FOLDER));
+//            List<File> incomingDefaultDirs = getDirectories(new File(Constants.DEFAULT_INCOMING_FOLDER));
 
             //populating Outgoing SharedPref with existing media files
             populateSharedPrefMedia(context, outgoingDirectories, SpecialMediaType.PROFILE_MEDIA);
 
             //populating Incoming SharedPref with existing media files
             populateSharedPrefMedia(context, incomingDirectories, SpecialMediaType.CALLER_MEDIA);
+
+//            populateSharedPrefMedia(context, outgoingDefaultDirs, SpecialMediaType.DEFAULT_PROFILE_MEDIA);
+//
+//            populateSharedPrefMedia(context, incomingDefaultDirs, SpecialMediaType.DEFAULT_CALLER_MEDIA);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -85,7 +95,6 @@ public class InitUtilsImpl implements InitUtils {
 
     @Override
     public void saveAndroidVersion(Context context) {
-
         Constants.MY_ANDROID_VERSION(context, Build.VERSION.RELEASE);
     }
 
@@ -118,35 +127,32 @@ public class InitUtilsImpl implements InitUtils {
 
             List<File> DirFiles = getSpecificFolderFiles(new File(Directories.get(i).getAbsolutePath()));
 
-            for (int x = 0; x < DirFiles.size(); x++) {
+            for (int j = 0; j < DirFiles.size(); j++) {
                 MediaFile.FileType fType;
-
-
-                String extension = mediaFileUtils.extractExtension(DirFiles.get(x).getAbsolutePath());
+                String extension = mediaFileUtils.extractExtension(DirFiles.get(j).getAbsolutePath());
                 fType = mediaFileUtils.getFileTypeByExtension(extension);
+                String phoneNumber = DirFiles.get(j).getName().split("\\.")[0];
+                String mediaFilePath = DirFiles.get(j).getAbsolutePath();
 
                 if (fType != null)
                     switch (fType) {
-                        case AUDIO:
+                        case AUDIO: {
 
                             if (specialMediaType == SpecialMediaType.PROFILE_MEDIA) {
-                                SharedPrefUtils.setString(context, SharedPrefUtils.FUNTONE_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
-                                log(Log.INFO, TAG, "populateSharedPrefMedia FUNTONE_FILEPATH: " + specialMediaType.toString() + " for: " + DirFiles.get(x).getName().split("\\.")[0] + " file: " + DirFiles.get(x).getAbsolutePath());
+                                phone2MediaPathMapperUtils.setProfileAudioMediaPath(context, phoneNumber, mediaFilePath);
                             } else {
-                                SharedPrefUtils.setString(context, SharedPrefUtils.RINGTONE_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
-                                log(Log.INFO, TAG, "populateSharedPrefMedia RINGTONE_FILEPATH: " + specialMediaType.toString() + " for: " + DirFiles.get(x).getName().split("\\.")[0] + " file: " + DirFiles.get(x).getAbsolutePath());
+                                phone2MediaPathMapperUtils.setCallerAudioMediaPath(context, phoneNumber, mediaFilePath);
                             }
-                            break;
+                        }
+                        break;
 
                         case VIDEO:
                         case IMAGE:
 
                             if (specialMediaType == SpecialMediaType.PROFILE_MEDIA) {
-                                SharedPrefUtils.setString(context, SharedPrefUtils.PROFILE_MEDIA_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
-                                log(Log.INFO, TAG, "populateSharedPrefMedia PROFILE_MEDIA_FILEPATH: " + specialMediaType.toString() + " for: " + DirFiles.get(x).getName().split("\\.")[0] + " file: " + DirFiles.get(x).getAbsolutePath());
+                                phone2MediaPathMapperUtils.setProfileVisualMediaPath(context, phoneNumber, mediaFilePath);
                             } else {
-                                SharedPrefUtils.setString(context, SharedPrefUtils.CALLER_MEDIA_FILEPATH, DirFiles.get(x).getName().split("\\.")[0], DirFiles.get(x).getAbsolutePath());
-                                log(Log.INFO, TAG, "populateSharedPrefMedia CALLER_MEDIA_FILEPATH: " + specialMediaType.toString() + " for: " + DirFiles.get(x).getName().split("\\.")[0] + " file: " + DirFiles.get(x).getAbsolutePath());
+                                phone2MediaPathMapperUtils.setCallerVisualMediaPath(context, phoneNumber, mediaFilePath);
                             }
                             break;
                     }
@@ -165,7 +171,7 @@ public class InitUtilsImpl implements InitUtils {
     }
 
     private List<File> getSpecificFolderFiles(File parentDir) {
-        ArrayList<File> inFiles = new ArrayList<File>();
+        ArrayList<File> inFiles = new ArrayList<>();
         File[] files = parentDir.listFiles();
         for (File file : files) {
             if (!file.isDirectory()) {

@@ -2,7 +2,7 @@ package com.handlers.server_proxy_service;
 
 import android.util.Log;
 
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.data.objects.MediaCall;
 import com.google.gson.reflect.TypeToken;
 import com.handlers.ActionHandler;
@@ -34,7 +34,7 @@ public class InsertMediaCallRecordActionHandler implements ActionHandler {
         InsertMediaCallRecordRequest request = new InsertMediaCallRecordRequest(actionBundle.getRequest());
         request.setMediaCall(mediaCall);
         request.setLocale(Locale.getDefault().getLanguage());
-        ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
+        ConnectionToServerImpl connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
 
         log(Log.INFO, TAG, "Initiating insert call record sequence...");

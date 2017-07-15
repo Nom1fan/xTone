@@ -143,7 +143,7 @@ public abstract class Constants {
     }
 
     private static String getDefaultOutgoingFolder() {
-        String path = ROOT_FOLDER + DEFAULT_INCOMING_FOLDER_NAME + "/";
+        String path = ROOT_FOLDER + DEFAULT_OUTGOING_FOLDER_NAME + "/";
         File defaultIncomingFolder = new File(path);
         defaultIncomingFolder.mkdirs();
         return path;

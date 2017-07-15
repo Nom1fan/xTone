@@ -9,6 +9,7 @@ import android.util.Log;
 import com.data.objects.Constants;
 import com.data.objects.DefaultMediaData;
 import com.data.objects.PendingDownloadData;
+import com.enums.SpecialMediaType;
 import com.exceptions.FileExceedsMaxSizeException;
 import com.exceptions.FileInvalidFormatException;
 import com.files.media.MediaFile;
@@ -31,7 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.crashlytics.android.Crashlytics.log;
 
 /**
  * Created by Mor on 02/06/2017.
@@ -98,16 +98,6 @@ public interface MediaFileUtils extends Utility {
      */
     String getFileSizeFormat(double _fileSize);
 
-
-    /**
-     * Creates a new file on the File System from given bytes array
-     *
-     * @param filePath
-     * @param fileData
-     * @throws IOException
-     */
-    void createNewFile(String filePath, byte[] fileData) throws IOException;
-
     String getFileNameWithExtension(String filePath);
 
     /**
@@ -161,13 +151,13 @@ public interface MediaFileUtils extends Utility {
      */
     long getFileDurationInMilliSeconds(Context context, MediaFile managedFile);
 
-    MediaFile createMediaFile(File file);
-
     String getFileNameByUrl(String url);
 
     String getFileNameWithoutExtensionByUrl(String url);
 
-    String resolvePathBySpecialMediaType(PendingDownloadData pendingDownloadData, DefaultMediaData defaultMediaData);
+    String resolvePathBySpecialMediaType(PendingDownloadData pendingDownloadData);
+
+    String resolvePathBySpecialMediaType(String sourceId, SpecialMediaType specialMediaType, DefaultMediaData defaultMediaData);
 
     /**
      * Validates the the file size does not exceeds MediaFile.MAX_FILE_SIZE

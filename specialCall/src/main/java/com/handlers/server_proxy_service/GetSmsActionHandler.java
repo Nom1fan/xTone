@@ -2,7 +2,7 @@ package com.handlers.server_proxy_service;
 
 import android.util.Log;
 
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.event.EventReport;
 import com.event.EventType;
 import com.handlers.ActionHandler;
@@ -28,7 +28,7 @@ public class GetSmsActionHandler implements ActionHandler {
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
         String interPhoneNumber = actionBundle.getIntent().getStringExtra(INTERNATIONAL_PHONE);
-        ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
+        ConnectionToServerImpl connectionToServer = actionBundle.getConnectionToServer();
         GetSmsRequest getSmsRequest = new GetSmsRequest(actionBundle.getRequest());
         getSmsRequest.setLocale(Locale.getDefault().getLanguage());
         getSmsRequest.setInternationalPhoneNumber(interPhoneNumber);

@@ -24,6 +24,7 @@ import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
 import com.utils.MCBlockListUtils;
 import com.utils.SettingsUtils;
+import com.utils.UtilityFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,14 +45,17 @@ import static com.enums.PermissionBlockListLevel.NO_ONE;
 public class BlockMCContacts extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = BlockMCContacts.class.getSimpleName();
-    private List<String> _namesInListView = new ArrayList<String>();
-    private List<String> _phonesInListView = new ArrayList<String>();
-    private List<String> _allContactsNames = new ArrayList<String>();
-    private List<String> _allContactsPhones = new ArrayList<String>();
+    private List<String> _namesInListView = new ArrayList<>();
+    private List<String> _phonesInListView = new ArrayList<>();
+    private List<String> _allContactsNames = new ArrayList<>();
+    private List<String> _allContactsPhones = new ArrayList<>();
     private TextView blackListTitle;
     private BlackListAdapter _ma;
     private ListView _lv;
     private Set<String> _blockedContactsSet;
+
+    private final ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,8 +184,8 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
     private void prepareListViewData() {
 
         getAllContacts(); // need to get all contacts so we can compare what we have in the sharedpref and pull the name to display in the view
-        _namesInListView = new ArrayList<String>();
-        _phonesInListView = new ArrayList<String>();
+        _namesInListView = new ArrayList<>();
+        _phonesInListView = new ArrayList<>();
         _blockedContactsSet = MCBlockListUtils.getBlockListFromShared(getApplicationContext());
     }
 
@@ -224,7 +228,7 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
     }
 
     public void getAllContacts() {
-        List<Contact> contactsList = ContactsUtils.getAllContacts(getApplicationContext());
+        List<Contact> contactsList = contactsUtils.getAllContacts(getApplicationContext());
 
         for (int i=0; i<contactsList.size(); i++) {
             String name = contactsList.get(i).getName();

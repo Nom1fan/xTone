@@ -2,7 +2,7 @@ package com.handlers.server_proxy_service;
 
 import android.util.Log;
 
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.event.EventReport;
 import com.event.EventType;
 import com.handlers.ActionHandler;
@@ -29,7 +29,7 @@ public class UnregisterActionHandler implements ActionHandler {
         UnRegisterRequest unRegisterRequest = new UnRegisterRequest();
         unRegisterRequest.setLocale(Locale.getDefault().getLanguage());
 
-        ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
+        ConnectionToServerImpl connectionToServer = actionBundle.getConnectionToServer();
 
         log(Log.INFO, TAG, "Initiating insert call record sequence...");
         int responseCode = connectionToServer.sendRequest(URL_UNREGISTER, unRegisterRequest);

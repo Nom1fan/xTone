@@ -170,7 +170,7 @@ public class SelectMediaActivity extends Activity implements View.OnClickListene
             finish();
         }
 
-        MediaFile mediaFile = new MediaFile(file);
+        MediaFile mediaFile = new MediaFile(file, true);
 
         if (mediaFile.getSize() > MAX_FILE_SIZE) {
             String errMsg = String.format(getResources().getString(R.string.file_over_max_size),

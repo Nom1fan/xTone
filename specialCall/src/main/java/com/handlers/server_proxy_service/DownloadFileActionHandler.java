@@ -1,9 +1,10 @@
 package com.handlers.server_proxy_service;
 
+import android.content.Context;
 import android.os.PowerManager;
 import android.support.annotation.NonNull;
 
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.data.objects.DefaultMediaData;
 import com.data.objects.DownloadData;
 import com.data.objects.PendingDownloadData;
@@ -14,16 +15,21 @@ import com.handlers.ActionHandler;
 import com.model.request.DownloadFileRequest;
 import com.utils.BroadcastUtils;
 import com.utils.MediaFileUtils;
+import com.utils.PowerManagerUtils;
 import com.utils.UtilityFactory;
 
+import java.io.File;
 import java.io.IOException;
 
-import static android.content.Context.POWER_SERVICE;
 import static com.crashlytics.android.Crashlytics.log;
 import static com.services.ServerProxyService.*;
 
 /**
  * Created by Mor on 20/12/2016.
+ */
+@Deprecated
+/**
+ * Deprecated - This handler should only know how to download a file given a path to save the file in and a URL to download from
  */
 public class DownloadFileActionHandler implements ActionHandler {
 
@@ -31,26 +37,38 @@ public class DownloadFileActionHandler implements ActionHandler {
 
     private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
+    private PowerManagerUtils powerManagerUtils = UtilityFactory.instance().getUtility(PowerManagerUtils.class);
+
     private static final String URL_DOWNLOAD = ROOT_URL + "/v1/DownloadFile";
+
+    public static final String PHONE = "PHONE";
 
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
-        ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
+        ConnectionToServerImpl connectionToServer = actionBundle.getConnectionToServer();
+        Context context = actionBundle.getCtx();
 
-        PowerManager powerManager = (PowerManager) actionBundle.getCtx().getSystemService(POWER_SERVICE);
-        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG + "_wakeLock");
-        wakeLock.acquire();
         PendingDownloadData pendingDownloadData = (PendingDownloadData) actionBundle.getIntent().getSerializableExtra(PushEventKeys.PUSH_DATA);
         DefaultMediaData defaultMediaData = (DefaultMediaData) actionBundle.getIntent().getSerializableExtra(DEFAULT_MEDIA_DATA);
-        DownloadData downloadData = prepareDownloadData(pendingDownloadData, defaultMediaData);
 
+        String pathToDownload;
+        if (defaultMediaData != null) {
+            String phoneNumber = pendingDownloadData.getSourceId();
+            pathToDownload = mediaFileUtils.resolvePathBySpecialMediaType(phoneNumber, pendingDownloadData.getSpecialMediaType(), defaultMediaData);
+        }
+        else {
+            pathToDownload = mediaFileUtils.resolvePathBySpecialMediaType(pendingDownloadData);
+        }
+        DownloadData downloadData = prepareDownloadData(pendingDownloadData, defaultMediaData, pathToDownload);
+
+        PowerManager.WakeLock wakeLock = powerManagerUtils.getWakeLock(context);
         try {
+            wakeLock.acquire();
             boolean success = requestDownloadFromServer(connectionToServer, downloadData, actionBundle);
-            if(success) {
-                BroadcastUtils.sendEventReportBroadcast(actionBundle.getCtx(), TAG, new EventReport(EventType.DOWNLOAD_SUCCESS, downloadData));
-            }
-            else {
+            if (success) {
+                BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.DOWNLOAD_SUCCESS, downloadData));
+            } else {
                 //TODO send NotifyDownloadFailed
             }
         } finally {
@@ -60,14 +78,13 @@ public class DownloadFileActionHandler implements ActionHandler {
         }
     }
 
-    private boolean requestDownloadFromServer(ConnectionToServer connectionToServer, DownloadData downloadData, ActionBundle actionBundle) {
+    private boolean requestDownloadFromServer(ConnectionToServerImpl connectionToServer, DownloadData downloadData, ActionBundle actionBundle) {
         PendingDownloadData pendingDownloadData = downloadData.getPendingDownloadData();
-        DefaultMediaData defaultMediaData = downloadData.getDefaultMediaData();
+        String pathToDownload = pendingDownloadData.getMediaFile().getFile().getPath();
 
         DownloadFileRequest request = prepareRequest(pendingDownloadData, actionBundle);
 
         long fileSize = pendingDownloadData.getMediaFile().getSize();
-        String pathToDownload = mediaFileUtils.resolvePathBySpecialMediaType(pendingDownloadData, defaultMediaData);
         return connectionToServer.download(URL_DOWNLOAD, pathToDownload, fileSize, request);
     }
 
@@ -85,8 +102,9 @@ public class DownloadFileActionHandler implements ActionHandler {
     }
 
     @NonNull
-    private DownloadData prepareDownloadData(PendingDownloadData pendingDownloadData, DefaultMediaData defaultMediaData) {
+    private DownloadData prepareDownloadData(PendingDownloadData pendingDownloadData, DefaultMediaData defaultMediaData, String pathToDownload) {
         DownloadData downloadData = new DownloadData();
+        pendingDownloadData.getMediaFile().setFile(new File(pathToDownload));
         downloadData.setPendingDownloadData(pendingDownloadData);
         downloadData.setDefaultMediaData(defaultMediaData);
         return downloadData;

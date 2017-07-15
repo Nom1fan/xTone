@@ -95,7 +95,7 @@ public class FFMPEG_Utils {
                 _vk.run(complexCommand, workFolder, context);
             }
 
-            return new MediaFile(compressedFile);
+            return new MediaFile(compressedFile, true);
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -128,7 +128,7 @@ public class FFMPEG_Utils {
                     {"ffmpeg", "-i", baseFile.getFile().getAbsolutePath(), "-vf", "scale=" + (int) width + ":-1", compressedFilePath};
 
             _vk.run(complexCommand, workFolder, context);
-            return new MediaFile(compressedFile);
+            return new MediaFile(compressedFile, true);
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -146,7 +146,7 @@ public class FFMPEG_Utils {
 
             String[] complexCommand = new String[]{"ffmpeg", "-f", "gif", "-i", baseFile.getFile().getAbsolutePath(), "-strict", "experimental", "-r", hz.toString(), compressedFilePath};
             _vk.run(complexCommand, workFolder, context);
-            return new MediaFile(compressedFile);
+            return new MediaFile(compressedFile, true);
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -192,7 +192,7 @@ public class FFMPEG_Utils {
 //                            "copy", trimmedFilepath};
 
             _vk.run(complexCommand, workFolder, context);
-            return new MediaFile(trimmedFile);
+            return new MediaFile(trimmedFile, true);
 
         } catch (Throwable e) {
             e.printStackTrace();
@@ -233,7 +233,7 @@ public class FFMPEG_Utils {
                             trimmedFilepath};
 
             _vk.run(complexCommand, workFolder, context);
-            return new MediaFile(trimmedFile);
+            return new MediaFile(trimmedFile, true);
 
         } catch (Throwable e) {
             e.printStackTrace();

@@ -2,7 +2,7 @@ package com.handlers.server_proxy_service;
 
 import android.util.Log;
 
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.data.objects.ClearMediaData;
 import com.handlers.ActionHandler;
 import com.model.request.NotifyMediaClearedRequest;
@@ -24,7 +24,7 @@ public class NotifyMediaClearedActionHandler implements ActionHandler {
 
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
-        ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
+        ConnectionToServerImpl connectionToServer = actionBundle.getConnectionToServer();
 
         ClearMediaData clearMediaData = (ClearMediaData) actionBundle.getIntent().getSerializableExtra(CLEAR_MEDIA_DATA);
         NotifyMediaClearedRequest request = new NotifyMediaClearedRequest(actionBundle.getRequest());

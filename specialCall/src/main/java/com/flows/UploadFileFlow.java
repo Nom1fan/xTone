@@ -14,6 +14,8 @@ import com.data.objects.KeysForBundle;
 import java.util.LinkedList;
 
 import com.files.media.MediaFile;
+import com.logger.Logger;
+import com.logger.LoggerFactory;
 
 /**
  * Created by Mor on 11/08/2016.
@@ -26,9 +28,13 @@ public class UploadFileFlow implements UploadFileFlowListener {
 
     private static final String TAG = UploadFileFlow.class.getSimpleName();
     private LinkedList<MediaProcessingAsyncTask> mediaProcTasks;
+    private Logger logger = LoggerFactory.getLogger();
+    private PostUploadFileFlowLogic postUploadFileFlowLogic;
 
-    public void executeUploadFileFlow(Context context, Bundle bundle) {
-        Log.i(TAG, "Starting upload file flow...");
+    public void executeUploadFileFlow(Context context, Bundle bundle, PostUploadFileFlowLogic postUploadFileFlowLogic) {
+        logger.info(TAG, "Starting upload file flow...");
+        
+        this.postUploadFileFlowLogic = postUploadFileFlowLogic;
         mediaProcTasks = new LinkedList<>();
         mediaProcTasks.add(new TrimTask(0, this, context));
         mediaProcTasks.add(new CompressTask(1, this, context));
@@ -40,27 +46,27 @@ public class UploadFileFlow implements UploadFileFlowListener {
     @Override
     public void continueUploadFileFlow(Context context, int order, Bundle bundle) {
         if (order == mediaProcTasks.size()) {
-            uploadFile(context, bundle);
+            uploadFile(context, bundle, postUploadFileFlowLogic);
             mediaProcTasks = null;
             return;
         }
 
         MediaProcessingAsyncTask task = mediaProcTasks.get(order);
-        Log.i(TAG, "Handling media processing task: " + task.getClass().getSimpleName());
+        logger.info(TAG, "Handling media processing task: " + task.getClass().getSimpleName());
         order++;
 
         MediaFile fileForUpload = (MediaFile) bundle.get(KeysForBundle.FILE_FOR_UPLOAD);
         if (task.isProcessingNeeded(context, fileForUpload)) {
-            Log.i(TAG, "Processing task: " + task.getClass().getSimpleName() + " is needed. Executing...");
+            logger.info(TAG, "Processing task: " + task.getClass().getSimpleName() + " is needed. Executing...");
             task.execute(bundle);
         } else {
             continueUploadFileFlow(context, order, bundle);
         }
     }
 
-    private void uploadFile(Context context, Bundle bundle) {
+    private void uploadFile(Context context, Bundle bundle, PostUploadFileFlowLogic postUploadFileFlowLogic) {
         if (bundle != null) {
-            UploadTask uploadTask = new UploadTask(context, bundle);
+            UploadTask uploadTask = new UploadTask(context, bundle, postUploadFileFlowLogic);
             uploadTask.execute();
         }
     }

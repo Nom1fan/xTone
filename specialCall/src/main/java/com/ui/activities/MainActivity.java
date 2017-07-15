@@ -68,6 +68,7 @@ import com.event.Event;
 import com.event.EventReport;
 import com.files.media.MediaFile;
 import com.flows.UploadFileFlow;
+import com.flows.WaitForTransferSuccessPostUploadFileFlowLogic;
 import com.interfaces.ICallbackListener;
 import com.mediacallz.app.R;
 import com.netcompss.ffmpeg4android.GeneralUtils;
@@ -82,6 +83,7 @@ import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.BitmapUtils;
 import com.utils.CacheUtils;
 import com.utils.ContactsUtils;
+import com.utils.ContactsUtilsImpl;
 import com.utils.InitUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileProcessingUtils;
@@ -148,6 +150,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private BitmapUtils bitmapUtils = UtilityFactory.instance().getUtility(BitmapUtils.class);
     private InitUtils initUtils = UtilityFactory.instance().getUtility(InitUtils.class);
     private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
+    private final ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
+
 
 
     //endregion
@@ -597,7 +601,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                         bundle.putString(KeysForBundle.DEST_NAME, destName);
                         bundle.putSerializable(KeysForBundle.SPEC_MEDIA_TYPE, specialMediaType);
 
-                        uploadFileFlow.executeUploadFileFlow(MainActivity.this, bundle);
+                        uploadFileFlow.executeUploadFileFlow(MainActivity.this, bundle, new WaitForTransferSuccessPostUploadFileFlowLogic());
 
                     }
                 }
@@ -814,7 +818,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_READY);
         syncUIwithAppState();
         String msg = String.format(getApplicationContext().getResources().getString(R.string.user_is_registered),
-                ContactsUtils.getContactNameHtml(getApplicationContext(), destPhoneNumber));
+                contactsUtils.getContactNameHtml(getApplicationContext(), destPhoneNumber));
         CacheUtils.setPhone(getApplicationContext(), destPhoneNumber);
 
         UI_Utils.showSnackBar(msg, Color.GREEN, Snackbar.LENGTH_LONG, false, getApplicationContext());

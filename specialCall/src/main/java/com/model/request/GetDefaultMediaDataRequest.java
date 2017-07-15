@@ -2,12 +2,14 @@ package com.model.request;
 
 import com.enums.SpecialMediaType;
 
+import java.util.List;
+
 /**
  * Created by Mor on 17/12/2016.
  */
 public class GetDefaultMediaDataRequest extends Request {
 
-    private String phoneNumber;
+    private List<String> contactUids;
 
     private SpecialMediaType specialMediaType;
 
@@ -15,12 +17,12 @@ public class GetDefaultMediaDataRequest extends Request {
         request.copy(this);
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public List<String> getContactUids() {
+        return contactUids;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setContactUids(List<String> contactUids) {
+        this.contactUids = contactUids;
     }
 
     public SpecialMediaType getSpecialMediaType() {

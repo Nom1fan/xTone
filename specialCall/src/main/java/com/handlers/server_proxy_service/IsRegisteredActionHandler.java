@@ -2,7 +2,7 @@ package com.handlers.server_proxy_service;
 
 import android.util.Log;
 
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.enums.UserStatus;
 import com.event.EventReport;
 import com.event.EventType;
@@ -35,7 +35,7 @@ public class IsRegisteredActionHandler implements ActionHandler {
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
         String destinationId = actionBundle.getIntent().getStringExtra(DESTINATION_ID);
-        ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
+        ConnectionToServerImpl connectionToServer = actionBundle.getConnectionToServer();
         connectionToServer.setResponseType(responseType);
         IsRegisteredRequest isRegisteredRequest = new IsRegisteredRequest(actionBundle.getRequest());
         isRegisteredRequest.setDestinationId(destinationId);

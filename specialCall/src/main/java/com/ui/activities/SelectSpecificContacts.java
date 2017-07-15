@@ -2,7 +2,6 @@ package com.ui.activities;
 
 import android.app.Activity;
 import android.app.SearchManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,18 +36,21 @@ import java.util.List;
 import java.util.Set;
 
 import com.utils.PhoneNumberUtils;
+import com.utils.UtilityFactory;
 
 import static com.crashlytics.android.Crashlytics.log;
 
 public class SelectSpecificContacts extends AppCompatActivity implements OnItemClickListener {
 
     private static final String TAG = SelectSpecificContacts.class.getSimpleName();
-    private List<String> _namesInListView = new ArrayList<String>(); // the list that the adapter uses to populate the view
-    private List<String> _phonesInListView = new ArrayList<String>(); // the list that the adapter uses to populate the view
+    private List<String> _namesInListView = new ArrayList<>(); // the list that the adapter uses to populate the view
+    private List<String> _phonesInListView = new ArrayList<>(); // the list that the adapter uses to populate the view
     private BlackListAdapter _ma;
     private ListView _lv;
-    private Set<String> _blockedSet = new HashSet<String>();
+    private Set<String> _blockedSet = new HashSet<>();
     private HashMap<String, String> _allContacts;
+    private final ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,7 +126,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
 
     private void prepareListViewData() {
         _blockedSet = MCBlockListUtils.getBlockListFromShared(getApplicationContext());
-        populateContactsToDisplayFromBlockedList(this.getContentResolver()); // populate all contacts to view with checkboxes
+        populateContactsToDisplayFromBlockedList(); // populate all contacts to view with checkboxes
     }
 
     private void displayListViewWithNewData() {
@@ -224,10 +226,10 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         _ma.toggle(arg2);
     }
 
-    public void populateContactsToDisplayFromBlockedList(ContentResolver cr) {
-        _allContacts = new HashMap<String, String>();
+    public void populateContactsToDisplayFromBlockedList() {
+        _allContacts = new HashMap<>();
 
-        List<Contact> contactsList = ContactsUtils.getAllContacts(getApplicationContext());
+        List<Contact> contactsList = contactsUtils.getAllContacts(getApplicationContext());
 
         for (int x=0; x<contactsList.size(); x++) {
             String name = contactsList.get(x).getName();

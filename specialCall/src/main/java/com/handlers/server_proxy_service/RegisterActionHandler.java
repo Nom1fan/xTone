@@ -2,7 +2,7 @@ package com.handlers.server_proxy_service;
 
 import android.util.Log;
 
-import com.client.ConnectionToServer;
+import com.client.ConnectionToServerImpl;
 import com.event.EventReport;
 import com.event.EventType;
 import com.handlers.ActionHandler;
@@ -27,7 +27,7 @@ public class RegisterActionHandler implements ActionHandler {
     @Override
     public void handleAction(ActionBundle actionBundle) throws IOException {
         int smsCode = actionBundle.getIntent().getIntExtra(SMS_CODE, 0);
-        ConnectionToServer connectionToServer = actionBundle.getConnectionToServer();
+        ConnectionToServerImpl connectionToServer = actionBundle.getConnectionToServer();
         RegisterRequest registerRequest = new RegisterRequest(actionBundle.getRequest());
         log(Log.INFO, TAG, "Initiating actionRegister sequence...");
         registerRequest.setSmsCode(smsCode);
