@@ -90,6 +90,12 @@
         </activity>
 
         <activity
+            android:name="com.ui.activities.CallsLogHistory"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"/>
+
+
+        <activity
             android:name="com.ui.activities.TipActivityDialog"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Holo.Dialog"/>
