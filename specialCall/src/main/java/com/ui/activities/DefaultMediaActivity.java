@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
@@ -35,6 +34,7 @@ import com.data.objects.SnackbarData;
 import com.enums.SpecialMediaType;
 import com.event.Event;
 import com.event.EventReport;
+import com.event.EventType;
 import com.files.media.MediaFile;
 import com.flows.NotifySuccessPostUploadFileFlowLogic;
 import com.flows.UploadFileFlow;
@@ -45,6 +45,7 @@ import com.services.AbstractStandOutService;
 import com.services.PreviewService;
 import com.ui.dialogs.ClearMediaDialog;
 import com.utils.BitmapUtils;
+import com.utils.BroadcastUtils;
 import com.utils.InitUtils;
 import com.utils.LUT_Utils;
 import com.utils.MediaFileUtils;
@@ -107,8 +108,28 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
         AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
 
         initializeUI();
-
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            actionBar.setCustomView(R.layout.custom_action_bar);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
+                syncUIwithAppState();
+                this.finish();
+                return true;
+        }
+        return true;
+    }
+
 
     @Override
     protected void onStart() {
@@ -122,6 +143,9 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
     protected void onResume() {
         super.onResume();
         logger.info(TAG, "onResume()");
+        AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_READY);
+        syncUIwithAppState();
+
         String appState = getState();
         logger.info(TAG, "App State:" + appState);
 
@@ -134,18 +158,8 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
             handleSnackBar(new SnackbarData(SnackbarStatus.CLOSE, 0, 0, null));
         }
 
+        BroadcastUtils.sendEventReportBroadcast(getApplicationContext(), TAG, new EventReport(EventType.REFRESH_UI));
 
-        AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_READY);
-        syncUIwithAppState();
-    }
-
-
-    public void testPermissionForSystemOverlay() {
-        if (!android.provider.Settings.canDrawOverlays(this)) {
-            Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, 5469);
-        }
     }
 
     @Override
