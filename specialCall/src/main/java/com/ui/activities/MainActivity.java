@@ -1,5 +1,6 @@
 package com.ui.activities;
 
+import android.animation.ObjectAnimator;
 import android.app.NotificationManager;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
@@ -153,6 +154,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
     private final ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
 
+    private ImageButton mainTab;
+    private ImageButton callHistoryTab;
+    private ObjectAnimator objectAnimator;
 
 
     //endregion
@@ -357,26 +361,43 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             // ifHuaweiAlert();
             initUtils.initSyncDefaultMediaReceiver(this);
 
+            objectAnimator = ObjectAnimator
+                    .ofInt(contactsListView, "scrollY", contactsListView.getBottom())
+                    .setDuration(3000);
+            objectAnimator.start();
+
             contactsListView.setOnTouchListener(new OnSwipeTouchListener(MainActivity.this) {
                 @Override
                 public void onSwipeLeft() {
-                    Intent toCallHistory = new Intent(getApplicationContext(), CallsLogHistory.class);
-                    toCallHistory.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(toCallHistory);
+                    startCallhistoryActivity();
                 }
 
                 @Override
                 public void onSwipeRight() {
-                    Intent toCallHistory = new Intent(getApplicationContext(), CallsLogHistory.class);
-                    toCallHistory.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(toCallHistory);
+                    startCallhistoryActivity();
+                }
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        objectAnimator.cancel();
+                    }
+                    return false;
                 }
 
             });
 
+
+
+
         }
     }
 
+    public void startCallhistoryActivity(){
+        Intent toCallHistory = new Intent(getApplicationContext(), CallsLogHistory.class);
+        toCallHistory.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(toCallHistory);
+    }
 
     public void testPermissionForSystemOverlay() {
         if (!android.provider.Settings.canDrawOverlays(this)) {
@@ -749,7 +770,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         } else if (id == R.id.tutorial_btn) {
             openMCTutorialMenu();
+        } else if (id == R.id.call_history_main_btn) {
+            startCallhistoryActivity();
         }
+
     }
 
     public void eventReceived(Event event) {
@@ -969,6 +993,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private void prepareStartingView() {
 
         contactsListView = (ListView) findViewById(R.id.online_contacts);
+        mainTab  = (ImageButton) findViewById(R.id.mediacallz_main_btn);
+        callHistoryTab  = (ImageButton) findViewById(R.id.call_history_main_btn);
+
+
 
     }
 
@@ -1029,16 +1057,25 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         contactsListView.setVisibility(View.INVISIBLE);
 
+        disableActivitiyBar();
         if (backBtn != null)
             backBtn.setVisible(true);
 
 
     }
 
+    private void disableActivitiyBar() {
+            mainTab.setVisibility(View.INVISIBLE);
+            callHistoryTab.setVisibility(View.INVISIBLE);
+
+            mainTab.setClickable(false);
+            callHistoryTab.setClickable(false);
+    }
+
     private void enableStartingViews() {
         Log.i(TAG, "enableStartingViews");
         enableContactsListView();
-
+        enableActivityBar();
         if (backBtn != null)
             backBtn.setVisible(false);
 
@@ -1048,6 +1085,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 .playOn(findViewById(R.id.online_contacts));
 
         UI_Utils.showCaseViewCallNumber(getApplicationContext(), MainActivity.this);
+
+    }
+
+    private void enableActivityBar() {
+        mainTab.setVisibility(View.VISIBLE);
+        callHistoryTab.setVisibility(View.VISIBLE);
+
+        callHistoryTab.setClickable(true);
+
+        callHistoryTab.setOnClickListener(this);
 
     }
 

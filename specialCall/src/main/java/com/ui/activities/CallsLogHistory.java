@@ -1,5 +1,6 @@
 package com.ui.activities;
 
+import android.animation.ObjectAnimator;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -35,6 +36,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -82,6 +84,10 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
     private SearchView searchView;
     private MenuItem backBtn;
     private static final int URL_LOADER = 1;
+
+    private ImageButton mainTab;
+    private ImageButton callHistoryTab;
+    private ObjectAnimator objectAnimator;
     //endregion
 
     //region Activity methods (onCreate(), onPause(), onActivityResult()...)
@@ -107,28 +113,30 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
         log(Log.INFO, TAG, "onResume()");
         openDrawer = false;
 
+        objectAnimator = ObjectAnimator
+                .ofInt(callListView, "scrollY", callListView.getBottom())
+                .setDuration(3000);
+        objectAnimator.start();
             callListView.setOnTouchListener(new OnSwipeTouchListener(CallsLogHistory.this) {
                 @Override
                 public void onSwipeLeft() {
-                    Intent toCallHistory = new Intent(getApplicationContext(), MainActivity.class);
-                    toCallHistory.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(toCallHistory);
+                    startMainActivity();
                 }
 
                 @Override
                 public void onSwipeRight() {
-                    Intent toCallHistory = new Intent(getApplicationContext(), MainActivity.class);
-                    toCallHistory.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(toCallHistory);
+                   startMainActivity();
+                }
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        objectAnimator.cancel();
+                    }
+                    return false;
                 }
 
             });
-
-
-
-
-
-        
     }
 
     @Override
@@ -410,8 +418,17 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
 
     public void onClick(View v) {
 
-
         int id = v.getId();
+        if (id == R.id.mediacallz_main_btn) {
+            startMainActivity();
+        }
+
+    }
+
+    private void startMainActivity() {
+        Intent toMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+        toMainActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(toMainActivity);
 
     }
 
@@ -433,6 +450,20 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
         setCustomActionBar();
         enableHamburgerIconWithSlideMenu();
         prepareFetchUserProgressBar();
+        enableActivityBar();
+    }
+
+    private void enableActivityBar() {
+        mainTab  = (ImageButton) findViewById(R.id.mediacallz_main_btn);
+        callHistoryTab  = (ImageButton) findViewById(R.id.call_history_main_btn);
+
+        mainTab.setVisibility(View.VISIBLE);
+        callHistoryTab.setVisibility(View.VISIBLE);
+
+        mainTab.setClickable(true);
+
+        mainTab.setOnClickListener(this);
+
     }
 
     private void prepareStartingView() {
