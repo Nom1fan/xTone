@@ -98,6 +98,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
 
+        <activity
+            android:name="com.ui.activities.ContactMCSelectionActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme"/>
+
 
         <activity
             android:name="com.ui.activities.TipActivityDialog"

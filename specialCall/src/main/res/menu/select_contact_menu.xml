@@ -9,13 +9,4 @@
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="always" />
 
-    <item
-        android:id="@+id/action_back_btn"
-        android:enabled="true"
-        android:icon="@drawable/up_arrow"
-        android:title="back ..."
-        android:visible="true"
-        app:actionViewClass="android.support.v7.widget.ImageView"
-        app:showAsAction="always" />
-
 </menu>

@@ -43,7 +43,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.app.AppStateManager;
 import com.async.tasks.IsRegisteredTask;
 import com.async.tasks.SendBugEmailAsyncTask;
 import com.data.objects.CallHistoryRecord;
@@ -62,7 +61,6 @@ import java.util.Date;
 import java.util.List;
 
 import static com.crashlytics.android.Crashlytics.log;
-import static com.data.objects.SnackbarData.SnackbarStatus;
 
 public class CallsLogHistory extends AppCompatActivity implements OnClickListener, ICallbackListener,LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -216,18 +214,6 @@ public class CallsLogHistory extends AppCompatActivity implements OnClickListene
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.d(TAG, "onLoaderReset()");
         // do nothing
-    }
-    @Override
-    public void onBackPressed() {
-        Log.d("CDA", "onBackPressed Called");
-
-        if (AppStateManager.getAppState(this) != AppStateManager.STATE_IDLE) {
-            AppStateManager.setAppState(this, TAG, AppStateManager.STATE_IDLE);
-            UI_Utils.refreshUI(this, new SnackbarData(SnackbarStatus.CLOSE));
-            searchView.setVisibility(View.VISIBLE);
-        } else
-            this.finish();
-
     }
 
     public class CallRecordsAdapter extends ArrayAdapter<CallHistoryRecord> implements Filterable {

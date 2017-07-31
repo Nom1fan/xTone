@@ -34,7 +34,7 @@
             android:visibility="gone" />
 
 
-        <ListView
+     <!--   <ListView
             android:id="@+id/calls_log_history_lv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -47,7 +47,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="#ffffff"
             android:textSize="50dp"
-            android:visibility="visible" />
+            android:visibility="visible" />-->
 
         <ImageButton
             android:id="@+id/mediacallz_main_btn"
