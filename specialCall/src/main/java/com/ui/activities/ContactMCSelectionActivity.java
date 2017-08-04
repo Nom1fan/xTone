@@ -1,15 +1,19 @@
 package com.ui.activities;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -26,6 +30,7 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.app.AppStateManager;
 import com.async.tasks.IsRegisteredTask;
@@ -64,6 +69,7 @@ import static com.mediacallz.app.R.layout.contact_mc_selection_layout;
 
 public class ContactMCSelectionActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
 
+    private static final int REQUEST_PHONE_CALL = 555;
     private final String TAG = ContactMCSelectionActivity.class.getSimpleName();
     private String destPhoneNumber = "";
     private String destName = "";
@@ -99,7 +105,6 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
     private BitmapUtils bitmapUtils = UtilityFactory.instance().getUtility(BitmapUtils.class);
     private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
     private RelativeLayout ContactMCSelectionLayout;
-
 
     //endregion
 
@@ -339,7 +344,7 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
         int id = v.getId();
         if (id == R.id.CallNow) {
 
-            launchDialer(destPhoneNumber);
+            makeACall(destPhoneNumber);
 
         } else if (id == R.id.selectMediaBtn || id == R.id.callerArrow) {
             if (callerHasMedia || callerHasRingtone)
@@ -613,10 +618,13 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
                 @Override
                 public boolean onLongClick(View v) {
 
+                    makeACall(destPhoneNumber);
+
+                   /*
                     final Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_DIAL);
                     intent.setData(Uri.fromParts("tel", destPhoneNumber, null));
-                    startActivity(Intent.createChooser(intent, ""));
+                    startActivity(Intent.createChooser(intent, ""));*/
 
 
                     return true;
@@ -624,6 +632,29 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
             });
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_PHONE_CALL: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Intent in = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+destPhoneNumber));
+                    try {
+                        startActivity(in);
+                    } catch (android.content.ActivityNotFoundException ex) {
+                        Toast.makeText(getApplicationContext(), "Could not find an activity to place the call.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else
+                {
+
+                }
+                return;
+            }
+        }
+    }
+
 
     private void prepareSelectMediaButton() {
 
@@ -743,9 +774,21 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
         popup.show();
     }
 
-    public void launchDialer(String number) {
-        String numberToDial = "tel:" + number;
-        startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse(numberToDial)));
+    public void makeACall(String number) {
+
+        if (ContextCompat.checkSelfPermission(ContactMCSelectionActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(ContactMCSelectionActivity.this, new String[]{Manifest.permission.CALL_PHONE},REQUEST_PHONE_CALL);
+        }
+        else
+        {
+            Intent in = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+destPhoneNumber));
+            try {
+                startActivity(in);
+            } catch (android.content.ActivityNotFoundException ex) {
+                Toast.makeText(getApplicationContext(), "Could not find an activity to place the call.", Toast.LENGTH_SHORT).show();
+            }
+        }
+
     }
 
     private void disableCallButton() {
