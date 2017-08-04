@@ -2,8 +2,8 @@ package com.ui.activities;
 
 import android.app.LoaderManager;
 import android.app.NotificationManager;
-import android.app.SearchManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
@@ -41,10 +41,8 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 
 import com.app.AppStateManager;
-import com.async.tasks.IsRegisteredTask;
 import com.async.tasks.SendBugEmailAsyncTask;
 import com.batch.android.Batch;
 import com.crashlytics.android.Crashlytics;
@@ -61,7 +59,6 @@ import com.event.EventReport;
 import com.files.media.MediaFile;
 import com.flows.UploadFileFlow;
 import com.flows.WaitForTransferSuccessPostUploadFileFlowLogic;
-import com.interfaces.ICallbackListener;
 import com.mediacallz.app.R;
 import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.services.IncomingService;
@@ -72,18 +69,15 @@ import com.ui.dialogs.MandatoryUpdateDialog;
 import com.utils.CacheUtils;
 import com.utils.InitUtils;
 import com.utils.MediaFileProcessingUtils;
-import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 import com.utils.UtilityFactory;
 import com.widget.CustomPagerAdapter;
-import com.widget.OnlineContactAdapter;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -92,13 +86,12 @@ import static com.crashlytics.android.Crashlytics.setUserIdentifier;
 import static com.data.objects.SnackbarData.SnackbarStatus;
 import static com.mediacallz.app.R.layout.activity_main;
 
-public class MainActivity extends AppCompatActivity implements OnClickListener, ICallbackListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private final String TAG = MainActivity.class.getSimpleName();
     private String destPhoneNumber = "";
     private String destName = "";
     private static final int URL_LOADER = 1;
-    private List<CallHistoryRecord> arrayOfRecords;
     private CustomPagerAdapter customePageAdapter;
 
     //region UI elements
@@ -107,16 +100,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private ListView drawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
-    private RelativeLayout mainActivityLayout;
     private boolean openDrawer = false;
     private Snackbar snackBar;
     private UploadFileFlow uploadFileFlow = new UploadFileFlow();
-    private List<ContactWrapper> arrayOfUsers;
     private SearchView searchView;
+    public static Menu mainActivityMenu;
+    public static ComponentName componentName;
+    public static android.app.FragmentManager fragmanager;
+
     private InitUtils initUtils = UtilityFactory.instance().getUtility(InitUtils.class);
-    private OnlineContactAdapter adapter;
-    private View currentPageView;
-    private ViewPager viewPager;
 
 
     //endregion
@@ -149,12 +141,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             initializeUI();
 
-            viewPager = (ViewPager) findViewById(R.id.viewpager);
+            ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
             customePageAdapter = new CustomPagerAdapter(this);
             viewPager.setAdapter(customePageAdapter);
 
             final ViewPager.OnPageChangeListener mPageChangeListener = new ViewPager.OnPageChangeListener() {
-
                 @Override
                 public void onPageScrollStateChanged(int arg0) {
                     // TODO Auto-generated method stub
@@ -171,41 +162,23 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 @Override
                 public void onPageSelected(int pos) {
                     Log.i(TAG, "onPageSelected");
-                    currentPageView = customePageAdapter.retreiveCurrentPageView(pos);
                     switch (pos) {
                         case 0:
                             searchView.setVisibility(View.VISIBLE);
-                            adapter = customePageAdapter.retreiveOnlineAdapter();
-                            ListView onlineListOfContactsLV = (ListView)currentPageView.findViewById(R.id.online_contacts);
-                            onlineListOfContactsLV.setAdapter(adapter);
-
-                            // Associate searchable configuration with the SearchView
-                            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-                            searchView.setOnQueryTextListener(onQueryTextListener());
-                            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-                            adapter.notifyDataSetChanged();
-
-
                             break;
                         case 1:
                             searchView.setVisibility(View.GONE);
                              InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                              imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
-
-
                             break;
                     }
-
                 }
-
             };
-
             viewPager.addOnPageChangeListener(mPageChangeListener);
-
+            fragmanager = getFragmentManager();
         }
 
     }
-
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle args) {
@@ -232,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     public void onLoadFinished(Loader<Cursor> loader, Cursor managedCursor) {
         Log.d(TAG, "onLoadFinished()");
 
-        arrayOfRecords = new ArrayList<>();
+        List<CallHistoryRecord> arrayOfRecords = new ArrayList<>();
 
         int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
         int type = managedCursor.getColumnIndex(CallLog.Calls.TYPE);
@@ -434,60 +407,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             // ifHuaweiAlert();
             initUtils.initSyncDefaultMediaReceiver(this);
-/*
-            objectAnimator = ObjectAnimator
-                    .ofInt(contactsListView, "scrollY", contactsListView.getBottom())
-                    .setDuration(3000);
-            objectAnimator.start();
-
-            objectAnimator = ObjectAnimator
-                    .ofInt(callListView, "scrollY", callListView.getBottom())
-                    .setDuration(3000);
-            objectAnimator.start();
-
-            contactsListView.performClick();
-
-            contactsListView.setOnTouchListener(new OnSwipeTouchListener(MainActivity.this) {
-                @Override
-                public void onSwipeLeft() {
-                    SwitchToCallHistory();
-                }
-
-                @Override
-                public void onSwipeRight() {
-                    SwitchToCallHistory();
-                }
-
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        objectAnimator.cancel();
-                    }
-                    return false;
-                }
-            });
-
-            callListView.setOnTouchListener(new OnSwipeTouchListener(MainActivity.this) {
-                @Override
-                public void onSwipeLeft() {
-                    SwitchToOnlineContacts();
-                }
-
-                @Override
-                public void onSwipeRight() {
-                    SwitchToOnlineContacts();
-
-                }
-
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        objectAnimator.cancel();
-                    }
-                    return false;
-                }
-
-            });*/
 
         }
     }
@@ -500,33 +419,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         // Inflate menu to add items to action bar if it is present.
         inflater.inflate(R.menu.select_contact_menu, menu);
 
+        mainActivityMenu = menu;
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        componentName = getComponentName();
 
         return true;
-    }
-
-    // pass the search keyword to filter from the adapter
-    private SearchView.OnQueryTextListener onQueryTextListener() {
-        return new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-
-                String ifOnlyPhoneNumber = PhoneNumberUtils.toNumeric(s);
-                if (PhoneNumberUtils.isValidPhoneNumber(ifOnlyPhoneNumber)) {
-
-                    new IsRegisteredTask(ifOnlyPhoneNumber, MainActivity.this).execute(getApplicationContext());
-
-                    return false;
-                }
-                adapter.getFilter().filter(searchView.getQuery());
-                return false;
-            }
-        };
     }
 
     @Override
@@ -665,17 +562,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
-    public void onClick(View v) {
-
-
-        int id = v.getId();
-        if (id == R.id.call_history_main_btn) {
-           // SwitchToCallHistory();
-        }else if (id == R.id.mediacallz_main_btn) {
-            //SwitchToOnlineContacts();
-        }
-
-    }
 
     public void eventReceived(Event event) {
 
@@ -692,7 +578,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             break;
 
             case USER_REGISTERED_FALSE:
-                enableInviteForUnregisteredUserFunctionality("");
+                enableInviteForUnregisteredUserFunctionality("",searchView.getQuery().toString());
                 break;
 
             case USER_REGISTERED_TRUE:
@@ -716,14 +602,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             case GET_REGISTERED_CONTACTS_SUCCESS:
                 // Construct the data source
-
-                // Create the adapter to convert the array to views
-                arrayOfUsers = new ArrayList<>((List<ContactWrapper>) event.report().data());
-
+                List<ContactWrapper> arrayOfUsers = new ArrayList<>((List<ContactWrapper>) event.report().data());
                 CacheUtils.cachedContactList = arrayOfUsers;
-
                 customePageAdapter.notifyDataSetChanged();
-
                 break;
 
             default: // Event not meant for MainActivity receiver
@@ -733,14 +614,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void enableUserRegisterFunctionality() {
         Intent mainIntent = new Intent(this, ContactMCSelectionActivity.class);
-        mainIntent.putExtra(SelectMediaActivity.DESTINATION_NUMBER, destPhoneNumber);
+        mainIntent.putExtra(SelectMediaActivity.DESTINATION_NUMBER, searchView.getQuery());
         mainIntent.putExtra(SelectMediaActivity.DESTINATION_NAME, destName);
         mainIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(mainIntent);
     }
 
-    private void enableInviteForUnregisteredUserFunctionality(String name) {
-        InviteDialog inviteDialog = new InviteDialog(name);
+    private void enableInviteForUnregisteredUserFunctionality(String name,String number) {
+        InviteDialog inviteDialog = new InviteDialog(name,number);
         inviteDialog.show(getFragmentManager(), TAG);
     }
 
@@ -777,7 +658,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         registerReceiver(eventReceiver, eventIntentFilter);
     }
 
-
     //endregion
 
     //region UI methods
@@ -786,7 +666,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         setContentView(activity_main);
 
-        prepareMainActivityLayout();
         setCustomActionBar();
         enableHamburgerIconWithSlideMenu();
     }
@@ -814,11 +693,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         String appState = getState();
 
         log(Log.INFO, TAG, "Syncing UI with appState:" + appState);
-    }
-
-    private void prepareMainActivityLayout() {
-
-        mainActivityLayout = (RelativeLayout) findViewById(R.id.mainActivity);
     }
 
     //endregion
@@ -1004,40 +878,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         MandatoryUpdateDialog mandatoryUpdateDialog = new MandatoryUpdateDialog();
         mandatoryUpdateDialog.show(getSupportFragmentManager(), TAG);
-    }
-
-    //endregion
-
-    //region ICallbackListener methods
-    @Override
-    public void doCallBackAction() {
-
-    }
-
-    @Override
-    public void doCallBackAction(final Object... params) {
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-                String[] sParams = Arrays.copyOf(params, params.length, String[].class);
-                for (int i = 0; i < params.length; ++i) {
-
-                    switch (sParams[i]) {
-
-                        case IsRegisteredTask.DRAW_SELECT_MEDIA_FALSE:
-                          //  drawSelectProfileMediaButton(false);
-                            break;
-
-                        case IsRegisteredTask.ENABLE_FETCH_PROGRESS_BAR:
-                          //  enableUserFetchProgressBar();
-                            break;
-                    }
-                }
-            }
-        });
-
     }
 
     //endregion

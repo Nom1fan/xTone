@@ -1,9 +1,9 @@
 package com.widget;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,27 +13,32 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.async.tasks.IsRegisteredTask;
 import com.enums.ModelObject;
+import com.interfaces.ICallbackListener;
 import com.mediacallz.app.R;
 import com.ui.activities.ContactMCSelectionActivity;
 import com.ui.activities.SelectMediaActivity;
+import com.ui.dialogs.InviteDialog;
 import com.utils.CacheUtils;
+import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 
-import java.util.HashMap;
-import java.util.Map;
+import static com.ui.activities.MainActivity.componentName;
+import static com.ui.activities.MainActivity.fragmanager;
+import static com.ui.activities.MainActivity.mainActivityMenu;
 
-public class CustomPagerAdapter extends PagerAdapter {
+public class CustomPagerAdapter extends PagerAdapter implements ICallbackListener {
 
     private final String TAG = CustomPagerAdapter.class.getSimpleName();
-    private Map<Integer, View> pageMap =  new HashMap<Integer,View>();    //records all the pages in the ViewPager
-    private SearchView searchView;
     private Context mContext;
     private View view=null;
     public CustomPagerAdapter(Context context) {
         mContext = context;
     }
     private OnlineContactAdapter onlineListOfContactsAdapter = null;
+    private SearchView searchView;
+
     @Override
     public Object instantiateItem(ViewGroup collection, int position) {
         ModelObject modelObject = ModelObject.values()[position];
@@ -43,8 +48,11 @@ public class CustomPagerAdapter extends PagerAdapter {
         switch (position) {
             case 0:
 
+                if (mainActivityMenu!=null)
+                    searchView = (SearchView) mainActivityMenu.findItem(R.id.action_search).getActionView();
+
                 Log.i(TAG, " case 0: getLayoutResId:" +modelObject.getLayoutResId()  );
-                view = (ViewGroup) inflater.inflate(modelObject.getLayoutResId(), collection, false);
+                view = inflater.inflate(modelObject.getLayoutResId(), collection, false);
 
                 ListView onlineListOfContactsLV = (ListView)view.findViewById(R.id.online_contacts);
 
@@ -64,23 +72,31 @@ public class CustomPagerAdapter extends PagerAdapter {
                         SharedPrefUtils.setBoolean(view.getContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, true);
 
                         if (status_tag.equals("on")) {
-                           // InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                           // imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
                             enableUserRegisterFunctionality(destPhoneNumber,destName);
                         } else {
-                            enableInviteForUnregisteredUserFunctionality(destName);
+                            enableInviteForUnregisteredUserFunctionality(destName,destPhoneNumber);
                         }
 
                     }
                 });
 
+
+                // Associate searchable configuration with the SearchView
+
+                SearchManager searchManager = (SearchManager) view.getContext().getSystemService(Context.SEARCH_SERVICE);
+                if (searchView!=null) {
+                    searchView.setOnQueryTextListener(onQueryTextListener());
+                    searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName));
+                }
+                onlineListOfContactsAdapter.notifyDataSetChanged();
+
+
+
                 break;
             case 1:
 
-
-
                 Log.i(TAG, " case 1: getLayoutResId:" +modelObject.getLayoutResId()  );
-                view = (ViewGroup) inflater.inflate(modelObject.getLayoutResId(), collection, false);
+                view = inflater.inflate(modelObject.getLayoutResId(), collection, false);
                 ListView historyRecordsLV = (ListView)view.findViewById(R.id.calls_log_history_lv);
 
                 if (CacheUtils.cachedCallHistoryList == null)
@@ -95,7 +111,7 @@ public class CustomPagerAdapter extends PagerAdapter {
 
 
                 Log.i(TAG, " default: getLayoutResId:" +modelObject.getLayoutResId()  );
-                view = (ViewGroup) inflater.inflate(modelObject.getLayoutResId(), collection, false);
+                view = inflater.inflate(modelObject.getLayoutResId(), collection, false);
                 ListView onlineListOfContactsLV1 = (ListView)view.findViewById(R.id.online_contacts);
 
                 if (CacheUtils.cachedContactList == null)
@@ -116,7 +132,7 @@ public class CustomPagerAdapter extends PagerAdapter {
                         if (status_tag.equals("on")) {
                             enableUserRegisterFunctionality(destPhoneNumber,destName);
                         } else {
-                            enableInviteForUnregisteredUserFunctionality(destName);
+                            enableInviteForUnregisteredUserFunctionality(destName,destPhoneNumber);
                         }
 
                     }
@@ -127,12 +143,33 @@ public class CustomPagerAdapter extends PagerAdapter {
         }
 
 
-        ((ViewPager) collection).addView(view, 0);
-        if (view!=null)
-            pageMap.put(position,view);
+        collection.addView(view, 0);
         return view;
     }
 
+    // pass the search keyword to filter from the adapter
+    private SearchView.OnQueryTextListener onQueryTextListener() {
+        return new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+
+                String ifOnlyPhoneNumber = PhoneNumberUtils.toNumeric(s);
+                if (PhoneNumberUtils.isValidPhoneNumber(ifOnlyPhoneNumber)) {
+
+                    new IsRegisteredTask(ifOnlyPhoneNumber, CustomPagerAdapter.this).execute(view.getContext());
+
+                    return false;
+                }
+                onlineListOfContactsAdapter.getFilter().filter(searchView.getQuery());
+                return false;
+            }
+        };
+    }
 
 
     //region MethosPagerAdapter
@@ -163,10 +200,6 @@ public class CustomPagerAdapter extends PagerAdapter {
     }
 //endregion
 
-    public View retreiveCurrentPageView(int position){
-        return pageMap.get(position);
-    }
-
     public OnlineContactAdapter retreiveOnlineAdapter(){
 
         if (onlineListOfContactsAdapter == null)
@@ -183,10 +216,25 @@ public class CustomPagerAdapter extends PagerAdapter {
         view.getContext().startActivity(mainIntent);
     }
 
-    private void enableInviteForUnregisteredUserFunctionality(String name) {
-       // InviteDialog inviteDialog = new InviteDialog(name);
-       // inviteDialog.show(, TAG);
+    private void enableInviteForUnregisteredUserFunctionality(String name,String number) {
+        InviteDialog inviteDialog = new InviteDialog(name,number);
+        inviteDialog.show(fragmanager,TAG);
     }
+
+    //region ICallbackListener methods
+    @Override
+    public void doCallBackAction() {
+
+    }
+
+    @Override
+    public void doCallBackAction(final Object... params) {
+
+
+
+    }
+
+    //endregion
 
 }
 
