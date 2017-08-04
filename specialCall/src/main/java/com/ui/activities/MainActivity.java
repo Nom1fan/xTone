@@ -1,6 +1,5 @@
 package com.ui.activities;
 
-import android.animation.ObjectAnimator;
 import android.app.LoaderManager;
 import android.app.NotificationManager;
 import android.app.SearchManager;
@@ -19,9 +18,9 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.CallLog;
-import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -31,28 +30,18 @@ import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.SearchView;
 import android.text.Html;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
-import android.widget.Filter;
-import android.widget.Filterable;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.app.AppStateManager;
 import com.async.tasks.IsRegisteredTask;
@@ -67,7 +56,6 @@ import com.data.objects.KeysForBundle;
 import com.data.objects.SnackbarData;
 import com.enums.CallRecordType;
 import com.enums.SpecialMediaType;
-import com.enums.UserStatus;
 import com.event.Event;
 import com.event.EventReport;
 import com.files.media.MediaFile;
@@ -81,13 +69,15 @@ import com.services.OutgoingService;
 import com.services.ServerProxyService;
 import com.ui.dialogs.InviteDialog;
 import com.ui.dialogs.MandatoryUpdateDialog;
-import com.utils.ContactsUtils;
+import com.utils.CacheUtils;
 import com.utils.InitUtils;
 import com.utils.MediaFileProcessingUtils;
 import com.utils.PhoneNumberUtils;
 import com.utils.SharedPrefUtils;
 import com.utils.UI_Utils;
 import com.utils.UtilityFactory;
+import com.widget.CustomPagerAdapter;
+import com.widget.OnlineContactAdapter;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -109,14 +99,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private String destName = "";
     private static final int URL_LOADER = 1;
     private List<CallHistoryRecord> arrayOfRecords;
-    private CallRecordsAdapter adapterForCallsRecords;
-    private ListView callListView;
+    private CustomPagerAdapter customePageAdapter;
 
     //region UI elements
     private BroadcastReceiver eventReceiver;
     private IntentFilter eventIntentFilter = new IntentFilter(Event.EVENT_ACTION);
     private ListView drawerList;
-    private ListView contactsListView;
     private ActionBarDrawerToggle mDrawerToggle;
     private DrawerLayout mDrawerLayout;
     private RelativeLayout mainActivityLayout;
@@ -124,14 +112,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     private Snackbar snackBar;
     private UploadFileFlow uploadFileFlow = new UploadFileFlow();
     private List<ContactWrapper> arrayOfUsers;
-    private OnlineContactAdapter adapter;
     private SearchView searchView;
     private InitUtils initUtils = UtilityFactory.instance().getUtility(InitUtils.class);
-    private final ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
-
-    private ImageButton mainTab;
-    private ImageButton callHistoryTab;
-    private ObjectAnimator objectAnimator;
+    private OnlineContactAdapter adapter;
+    private View currentPageView;
+    private ViewPager viewPager;
 
 
     //endregion
@@ -142,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate()");
 
+        //region onCreateBasic
         startLoginActivityIfLoggedOut();
 
         // so we can know who device was crashed, and get it's phone number.
@@ -152,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
             AppStateManager.setDidAppCrash(this, false);
         }
+//endregion
 
         if (AppStateManager.isLoggedIn(this)) { // should always start from idle and registeredContactLV
             AppStateManager.setAppState(getApplicationContext(), TAG, AppStateManager.STATE_IDLE);
@@ -159,7 +146,62 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             getLoaderManager().initLoader(URL_LOADER, null, MainActivity.this);
             ServerProxyService.getRegisteredContacts(getApplicationContext());
+
             initializeUI();
+
+            viewPager = (ViewPager) findViewById(R.id.viewpager);
+            customePageAdapter = new CustomPagerAdapter(this);
+            viewPager.setAdapter(customePageAdapter);
+
+            final ViewPager.OnPageChangeListener mPageChangeListener = new ViewPager.OnPageChangeListener() {
+
+                @Override
+                public void onPageScrollStateChanged(int arg0) {
+                    // TODO Auto-generated method stub
+                    Log.i(TAG, "onPageScrollStateChanged");
+
+                }
+
+                @Override
+                public void onPageScrolled(int arg0, float arg1, int arg2) {
+                    Log.i(TAG, "onPageScrolled");
+
+                }
+
+                @Override
+                public void onPageSelected(int pos) {
+                    Log.i(TAG, "onPageSelected");
+                    currentPageView = customePageAdapter.retreiveCurrentPageView(pos);
+                    switch (pos) {
+                        case 0:
+                            searchView.setVisibility(View.VISIBLE);
+                            adapter = customePageAdapter.retreiveOnlineAdapter();
+                            ListView onlineListOfContactsLV = (ListView)currentPageView.findViewById(R.id.online_contacts);
+                            onlineListOfContactsLV.setAdapter(adapter);
+
+                            // Associate searchable configuration with the SearchView
+                            SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+                            searchView.setOnQueryTextListener(onQueryTextListener());
+                            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+                            adapter.notifyDataSetChanged();
+
+
+                            break;
+                        case 1:
+                            searchView.setVisibility(View.GONE);
+                             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                             imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+
+
+                            break;
+                    }
+
+                }
+
+            };
+
+            viewPager.addOnPageChangeListener(mPageChangeListener);
+
         }
 
     }
@@ -185,7 +227,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
 
     }
-
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor managedCursor) {
@@ -230,12 +271,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         managedCursor.close();
 
-
-        // Create the adapter to convert the array to views
-        adapterForCallsRecords = new CallRecordsAdapter(this, arrayOfRecords);
-        // Attach the adapter to a ListView
-        callListView.setAdapter(adapter);
-        adapterForCallsRecords.notifyDataSetChanged();
+        CacheUtils.cachedCallHistoryList = arrayOfRecords;
+        customePageAdapter.notifyDataSetChanged();
 
     }
 
@@ -244,99 +281,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         Log.d(TAG, "onLoaderReset()");
         // do nothing
     }
-
-    public class CallRecordsAdapter extends ArrayAdapter<CallHistoryRecord> implements Filterable {
-        private List<CallHistoryRecord> allRecords;
-        private List<CallHistoryRecord> dynamicRecords;
-
-        CallRecordsAdapter(Context context, List<CallHistoryRecord> allRecords) {
-            super(context, 0, allRecords);
-            this.allRecords = allRecords;
-        }
-
-        @NonNull
-        @Override
-        public Filter getFilter() {
-            return new Filter() {
-
-                @Override
-                protected FilterResults performFiltering(CharSequence constraint) {
-                    constraint = constraint.toString().toLowerCase();
-                    FilterResults result = new FilterResults();
-                    if (constraint.toString().length() > 0) {
-                        List<CallHistoryRecord> found = new ArrayList<>();
-                        dynamicRecords = new ArrayList<>(arrayOfRecords);
-                        for (CallHistoryRecord record : dynamicRecords) {
-                            if (record.getNameOrNumber().toLowerCase().contains(constraint)) {
-                                found.add(record);
-                            }
-                        }
-                        result.values = found;
-                        result.count = found.size();
-                    } else {
-                        result.values = dynamicRecords;
-                        if (dynamicRecords != null)
-                            result.count = dynamicRecords.size();
-                    }
-                    return result;
-                }
-
-                @Override
-                protected void publishResults(CharSequence constraint, FilterResults results) {
-                    clear();
-                    if (results.values != null)
-                        for (CallHistoryRecord record : (List<CallHistoryRecord>) results.values) {
-                            add(record);
-                        }
-                    notifyDataSetChanged();
-                }
-            };
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            // Get the data item for this position
-
-            CallHistoryRecord callRecord = new CallHistoryRecord();
-            callRecord = getItem(position);
-            // Check if an existing view is being reused, otherwise inflate the view
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.call_record_row, parent, false);
-            }
-            // Lookup view for data population
-            TextView tvNameOrPhone = (TextView) convertView.findViewById(R.id.call_name_or_number);
-            TextView tvDateAndTime = (TextView) convertView.findViewById(R.id.call_record_date_time);
-            TextView tvDuration = (TextView) convertView.findViewById(R.id.call_record_duration);
-            ImageView callRecordDirectionImage = (ImageView) convertView.findViewById(R.id.call_record_direction);
-            // Populate the data into the template view using the data object
-            tvNameOrPhone.setText(callRecord != null ? callRecord.getNameOrNumber() : null);
-            tvDateAndTime.setText(callRecord != null ? callRecord.getDateAndTime() : null);
-            tvDuration.setText(callRecord != null ? callRecord.getDuration() : null);
-
-            if (callRecord.getCallType() != null) {
-                if (callRecord != null && callRecord.getCallType().equals(CallRecordType.INCOMING)) {
-                    callRecordDirectionImage.setImageResource(android.R.drawable.sym_call_incoming);
-                    callRecordDirectionImage.setTag("incoming");
-                } else if (callRecord != null && callRecord.getCallType().equals(CallRecordType.OUTGOING)) {
-                    callRecordDirectionImage.setImageResource(android.R.drawable.sym_call_outgoing);
-                    callRecordDirectionImage.setTag("outgoing");
-                } else if (callRecord != null && callRecord.getCallType().equals(CallRecordType.MISSED)) {
-                    callRecordDirectionImage.setImageResource(android.R.drawable.sym_call_missed);
-                    callRecordDirectionImage.setTag("missed");
-                } else {
-                    callRecordDirectionImage.setImageResource(android.R.drawable.ic_menu_help);
-                    callRecordDirectionImage.setTag("UKNOWN");
-                }
-            } else {
-                callRecordDirectionImage.setImageResource(android.R.drawable.ic_menu_help);
-                callRecordDirectionImage.setTag("UKNOWN");
-            }
-            // Return the completed view to render on screen
-            return convertView;
-        }
-    }
-
 
     //region tryout
     private void ifHuaweiAlert() {
@@ -415,7 +359,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
     //endregion
 
-
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -469,8 +412,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             if (!appState.equals(AppStateManager.STATE_LOADING))
                 handleSnackBar(new SnackbarData(SnackbarStatus.CLOSE, 0, 0, null));
 
-            restoreInstanceState();
-
             getAppRecord();
 
             syncAndroidVersionWithServer();
@@ -493,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             // ifHuaweiAlert();
             initUtils.initSyncDefaultMediaReceiver(this);
-
+/*
             objectAnimator = ObjectAnimator
                     .ofInt(contactsListView, "scrollY", contactsListView.getBottom())
                     .setDuration(3000);
@@ -546,92 +487,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                     return false;
                 }
 
-            });
+            });*/
 
         }
     }
 
     //region NONEED
-
-
-    public class OnlineContactAdapter extends ArrayAdapter<ContactWrapper> implements Filterable {
-        private List<ContactWrapper> allContacts;
-
-        private List<ContactWrapper> dynamicContacts;
-
-
-        OnlineContactAdapter(Context context, List<ContactWrapper> allContacts) {
-            super(context, 0, allContacts);
-            this.allContacts = allContacts;
-        }
-
-        @NonNull
-        @Override
-        public Filter getFilter() {
-            return new Filter() {
-
-                @Override
-                protected FilterResults performFiltering(CharSequence constraint) {
-                    constraint = constraint.toString().toLowerCase();
-                    FilterResults result = new FilterResults();
-                    if (constraint.toString().length() > 0) {
-                        List<ContactWrapper> found = new ArrayList<>();
-                        dynamicContacts = new ArrayList<>(arrayOfUsers);
-                        for (ContactWrapper contactWrapper : dynamicContacts) {
-                            if (contactWrapper.getContact().getName().toLowerCase().contains(constraint) || contactWrapper.getContact().getPhoneNumber().contains(constraint)) {
-                                found.add(contactWrapper);
-                            }
-                        }
-                        result.values = found;
-                        result.count = found.size();
-                    } else {
-                        result.values = dynamicContacts;
-                        if (dynamicContacts != null)
-                            result.count = dynamicContacts.size();
-                    }
-                    return result;
-                }
-
-                @Override
-                protected void publishResults(CharSequence constraint, FilterResults results) {
-                    clear();
-                    if (results.values != null)
-                        for (ContactWrapper contactWrapper : (List<ContactWrapper>) results.values) {
-                            add(contactWrapper);
-                        }
-                    notifyDataSetChanged();
-                }
-            };
-        }
-
-        @NonNull
-        @Override
-        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            // Get the data item for this position
-            ContactWrapper contactWrapper = getItem(position);
-            // Check if an existing view is being reused, otherwise inflate the view
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.online_contact_row, parent, false);
-            }
-            // Lookup view for data population
-            TextView tvName = (TextView) convertView.findViewById(R.id.contact_name);
-            TextView tvPhone = (TextView) convertView.findViewById(R.id.contact_phone);
-            ImageView contactStatusImage = (ImageView) convertView.findViewById(R.id.contact_status);
-            // Populate the data into the template view using the data object
-            tvName.setText(contactWrapper != null ? contactWrapper.getContact().getName() : null);
-            tvPhone.setText(contactWrapper != null ? contactWrapper.getContact().getPhoneNumber() : null);
-
-            if (contactWrapper != null && contactWrapper.getUserStatus().equals(UserStatus.REGISTERED)) {
-                contactStatusImage.setImageResource(android.R.drawable.presence_online);
-                contactStatusImage.setTag("on");
-            } else {
-                contactStatusImage.setImageResource(android.R.drawable.presence_invisible);
-                contactStatusImage.setTag("off");
-            }
-            // Return the completed view to render on screen
-            return convertView;
-        }
-    }
 
     @Override // add search functionality
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -640,9 +501,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         inflater.inflate(R.menu.select_contact_menu, menu);
 
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        searchView.setOnQueryTextListener(onQueryTextListener());
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
         return true;
     }
 
@@ -656,6 +515,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
             @Override
             public boolean onQueryTextChange(String s) {
+
                 String ifOnlyPhoneNumber = PhoneNumberUtils.toNumeric(s);
                 if (PhoneNumberUtils.isValidPhoneNumber(ifOnlyPhoneNumber)) {
 
@@ -683,8 +543,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 log(Log.ERROR, TAG, ex.getMessage());
             }
         }
-        saveInstanceState();
-
         UI_Utils.dismissAllStandOutWindows(getApplicationContext());
 
             /* Apply our splash exit (fade out) and main
@@ -809,14 +667,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     public void onClick(View v) {
 
-        // Saving instance state
-        saveInstanceState();
 
         int id = v.getId();
         if (id == R.id.call_history_main_btn) {
-            SwitchToCallHistory();
+           // SwitchToCallHistory();
         }else if (id == R.id.mediacallz_main_btn) {
-            SwitchToOnlineContacts();
+            //SwitchToOnlineContacts();
         }
 
     }
@@ -863,7 +719,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
                 // Create the adapter to convert the array to views
                 arrayOfUsers = new ArrayList<>((List<ContactWrapper>) event.report().data());
-                PopulateOnlineContactsListView();
+
+                CacheUtils.cachedContactList = arrayOfUsers;
+
+                customePageAdapter.notifyDataSetChanged();
 
                 break;
 
@@ -871,35 +730,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
-    private void PopulateOnlineContactsListView() {
-        adapter = new OnlineContactAdapter(this, arrayOfUsers);
-        // Attach the adapter to a ListView
-        contactsListView.setAdapter(adapter);
-        contactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                destPhoneNumber = ((TextView) view.findViewById(R.id.contact_phone)).getText().toString();
-                String status_tag = String.valueOf(view.findViewById(R.id.contact_status).getTag());
-                destName = ((TextView) view.findViewById(R.id.contact_name)).getText().toString();
-
-                SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, true);
-
-                if (status_tag.equals("on")) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
-                    enableUserRegisterFunctionality();
-                } else {
-                    enableInviteForUnregisteredUserFunctionality(destName);
-                }
-
-            }
-        });
-        // Associate searchable configuration with the SearchView
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        searchView.setOnQueryTextListener(onQueryTextListener());
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        adapter.notifyDataSetChanged();
-    }
 
     private void enableUserRegisterFunctionality() {
         Intent mainIntent = new Intent(this, ContactMCSelectionActivity.class);
@@ -930,18 +760,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         }
     }
 
-    /**
-     * Saving the instance state - to be used from onPause()
-     */
-    private void saveInstanceState() {
-
-
-    }
-
-    private void restoreInstanceState() {
-
-
-    }
 
     private void prepareEventReceiver() {
 
@@ -971,65 +789,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         prepareMainActivityLayout();
         setCustomActionBar();
         enableHamburgerIconWithSlideMenu();
-        prepareStartingView();
     }
 
-    private void prepareStartingView() {
-
-        contactsListView = (ListView) findViewById(R.id.online_contacts);
-        mainTab  = (ImageButton) findViewById(R.id.mediacallz_main_btn);
-        callHistoryTab  = (ImageButton) findViewById(R.id.call_history_main_btn);
-        callListView = (ListView) findViewById(R.id.calls_log_history_lv);
-        enableActivityBar();
-
-    }
-
-    private void SwitchToOnlineContacts(){
-        Log.i(TAG, "StartSwitchToOnlineContacts()");
-
-       // initializeUI();
-        contactsListView.setVisibility(View.VISIBLE);
-        callListView.setVisibility(View.INVISIBLE);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        initializeUI();
-        Log.i(TAG, "SwitchToOnlineContacts(): " + arrayOfUsers.size());
-    }
-
-    private void SwitchToCallHistory(){
-        Log.i(TAG, "StartSwitchToCallHistory()");
-      //  initializeUI();
-        callListView.setVisibility(View.VISIBLE);
-        contactsListView.setVisibility(View.INVISIBLE);
-
-
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        initializeUI();
-        Log.i(TAG, "SwitchToCallHistory(): " + arrayOfRecords.size());
-    }
-
-
-    private void enableActivityBar() {
-        mainTab.setVisibility(View.VISIBLE);
-
-        mainTab.setClickable(true);
-
-        mainTab.setOnClickListener(this);
-
-        callHistoryTab.setVisibility(View.VISIBLE);
-
-        callHistoryTab.setClickable(true);
-
-        callHistoryTab.setOnClickListener(this);
-
-    }
 
     private void stateLoggedOut() {
 
@@ -1167,14 +928,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void defaultMediaActivity() {
 
-        saveInstanceState();
         Intent intent = new Intent();
         intent.setClass(MainActivity.this, DefaultMediaActivity.class);
         startActivity(intent);
     }
 
     private void BlockMCContacts() {
-        saveInstanceState();
         Intent y = new Intent();
         y.setClass(this, BlockMCContacts.class);
         startActivity(y);
@@ -1182,7 +941,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void appSettings() {
 
-        saveInstanceState();
         Intent intent = new Intent();
         intent.setClass(MainActivity.this, SetSettingsActivity.class);
         startActivity(intent);
@@ -1190,7 +948,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
     private void appAboutAndHelp() {
 
-        saveInstanceState();
         Intent intent = new Intent();
         intent.setClass(MainActivity.this, SetAboutHelpActivity.class);
         startActivity(intent);
@@ -1298,58 +1055,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     }
 
     //endregion
-
-    /**
-     * Detects left and right swipes across a view.
-     */
-    public class OnSwipeTouchListener implements View.OnTouchListener {
-
-        private final GestureDetector gestureDetector;
-
-        public OnSwipeTouchListener(Context context) {
-            gestureDetector = new GestureDetector(context, new GestureListener());
-        }
-
-        public void onSwipeLeft() {
-
-        }
-
-
-
-        public void onSwipeRight() {
-
-        }
-
-        public boolean onTouch(View v, MotionEvent event) {
-            return gestureDetector.onTouchEvent(event);
-        }
-
-        private final class GestureListener extends GestureDetector.SimpleOnGestureListener {
-
-            private static final int SWIPE_DISTANCE_THRESHOLD = 100;
-            private static final int SWIPE_VELOCITY_THRESHOLD = 100;
-
-            @Override
-            public boolean onDown(MotionEvent e) {
-                return true;
-            }
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                float distanceX = e2.getX() - e1.getX();
-                float distanceY = e2.getY() - e1.getY();
-                if (Math.abs(distanceX) > Math.abs(distanceY) && Math.abs(distanceX) > SWIPE_DISTANCE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                    if (distanceX > 0)
-                        onSwipeRight();
-                    else
-                        onSwipeLeft();
-                    return true;
-                }
-                return false;
-            }
-        }
-    }
-
 
 
 }

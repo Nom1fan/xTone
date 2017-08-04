@@ -306,5 +306,7 @@
     <string name="buffering">Buffering…</string>
     <string name="downlod_failed">Download failed!</string>
     <string name="download_from_contentstore">Download</string>
+    <string name="contacts_online_page">CONTACTS</string>
+    <string name="call_history_page">RECENTS</string>
 
 </resources>
