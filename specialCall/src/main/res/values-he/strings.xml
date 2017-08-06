@@ -306,6 +306,7 @@
     <string name="downloading">הורדה מתבצעת…</string>
     <string name="contacts_online_page">אנשי קשר</string>
     <string name="call_history_page">היסטוריה</string>
+    <string name="dailer">חייגן</string>
 
 
 </resources>

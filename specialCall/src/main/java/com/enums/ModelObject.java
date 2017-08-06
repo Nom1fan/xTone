@@ -5,7 +5,8 @@ import com.mediacallz.app.R;
 public enum ModelObject {
 
     CONTACTS( R.string.contacts_online_page , R.layout.contacts_layout_page),
-    HISTORY( R.string.call_history_page , R.layout.history_layout_page);
+    HISTORY( R.string.call_history_page , R.layout.history_layout_page),
+    DIALER( R.string.dailer , R.layout.dailer);
 
     private int mTitleResId;
     private int mLayoutResId;

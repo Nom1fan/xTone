@@ -1,8 +1,14 @@
 package com.widget;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -10,8 +16,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.async.tasks.IsRegisteredTask;
 import com.enums.ModelObject;
@@ -30,6 +39,7 @@ import static com.ui.activities.MainActivity.mainActivityMenu;
 
 public class CustomPagerAdapter extends PagerAdapter implements ICallbackListener {
 
+    private static final int REQUEST_PHONE_CALL = 666;
     private final String TAG = CustomPagerAdapter.class.getSimpleName();
     private Context mContext;
     private View view=null;
@@ -38,6 +48,7 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
     }
     private OnlineContactAdapter onlineListOfContactsAdapter = null;
     private SearchView searchView;
+    private EditText EditTextPhoneNumber;
 
     @Override
     public Object instantiateItem(ViewGroup collection, int position) {
@@ -46,6 +57,7 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
 
         Log.i(TAG, "getLayoutResId:" +modelObject.getLayoutResId()  + " POSITION:" + position);
         switch (position) {
+         //region case 0
             case 0:
 
                 if (mainActivityMenu!=null)
@@ -93,6 +105,8 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
 
 
                 break;
+         //endregion
+         //region case 1
             case 1:
 
                 Log.i(TAG, " case 1: getLayoutResId:" +modelObject.getLayoutResId()  );
@@ -105,10 +119,82 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
                 CallRecordsAdapter historyRecordsAdapter = new CallRecordsAdapter(view.getContext(), CacheUtils.cachedCallHistoryList,CacheUtils.cachedCallHistoryList);
                 historyRecordsLV.setAdapter(historyRecordsAdapter);
                 break;
+        //endregion
+         //region case 2
+            case 2:
 
+                Log.i(TAG, " case 1: getLayoutResId:" +modelObject.getLayoutResId()  );
+                view = inflater.inflate(modelObject.getLayoutResId(), collection, false);
+                EditTextPhoneNumber = (EditText) view.findViewById(R.id.EditTextPhoneNumber);
+
+                ImageButton btn1 = (ImageButton) view.findViewById(R.id.Button1);
+                ImageButton btn2 = (ImageButton) view.findViewById(R.id.Button2);
+                ImageButton btn3 = (ImageButton) view.findViewById(R.id.Button3);
+                ImageButton btn4 = (ImageButton) view.findViewById(R.id.Button4);
+                ImageButton btn5 = (ImageButton) view.findViewById(R.id.Button5);
+                ImageButton btn6 = (ImageButton) view.findViewById(R.id.Button6);
+                ImageButton btn7 = (ImageButton) view.findViewById(R.id.Button7);
+                ImageButton btn8 = (ImageButton) view.findViewById(R.id.Button8);
+                ImageButton btn9 = (ImageButton) view.findViewById(R.id.Button9);
+                ImageButton btn0 = (ImageButton) view.findViewById(R.id.Button0);
+                ImageButton btnCall = (ImageButton) view.findViewById(R.id.ButtonCall);
+                ImageButton btnDelete = (ImageButton) view.findViewById(R.id.ButtonDelete);
+                ImageButton btnAsterrisk = (ImageButton) view.findViewById(R.id.ButtonStar);
+                ImageButton btnHash = (ImageButton) view.findViewById(R.id.ButtonHash);
+
+
+                btnHash.setOnClickListener(dialPadClickListener);
+                btnAsterrisk.setOnClickListener(dialPadClickListener);
+                btn1.setOnClickListener(dialPadClickListener);
+                btn2.setOnClickListener(dialPadClickListener);
+                btn3.setOnClickListener(dialPadClickListener);
+                btn4.setOnClickListener(dialPadClickListener);
+                btn5.setOnClickListener(dialPadClickListener);
+                btn6.setOnClickListener(dialPadClickListener);
+                btn7.setOnClickListener(dialPadClickListener);
+                btn8.setOnClickListener(dialPadClickListener);
+                btn9.setOnClickListener(dialPadClickListener);
+                btn0.setOnClickListener(dialPadClickListener);
+                btn0.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        EditTextPhoneNumber.setText(EditTextPhoneNumber.getText() + "+");
+                        return true;
+                    }
+                });
+
+                btnCall.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        if (ContextCompat.checkSelfPermission(view.getContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions((Activity) view.getContext(), new String[]{Manifest.permission.CALL_PHONE},REQUEST_PHONE_CALL);
+                        }
+                        else
+                        {
+                            Intent in = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+EditTextPhoneNumber.getText()));
+                            try {
+                                view.getContext().startActivity(in);
+                            } catch (android.content.ActivityNotFoundException ex) {
+                                Toast.makeText(view.getContext(), "Could not find an activity to place the call.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                    }
+                });
+
+                btnDelete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        EditTextPhoneNumber.setText("");
+                    }
+                });
+
+
+                break;
+            //endregion
+         //region default
             default:
-
-
 
                 Log.i(TAG, " default: getLayoutResId:" +modelObject.getLayoutResId()  );
                 view = inflater.inflate(modelObject.getLayoutResId(), collection, false);
@@ -139,7 +225,7 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
                 });
 
                 break;
-
+//endregion default
         }
 
 
@@ -170,6 +256,16 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
             }
         };
     }
+
+    private View.OnClickListener dialPadClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View arg0) {
+
+            EditTextPhoneNumber.setText(EditTextPhoneNumber.getText() + arg0.getTag().toString());
+
+
+        }
+    };
 
 
     //region MethosPagerAdapter
