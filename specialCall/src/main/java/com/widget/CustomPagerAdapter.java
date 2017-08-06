@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -125,7 +126,35 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
 
                 Log.i(TAG, " case 1: getLayoutResId:" +modelObject.getLayoutResId()  );
                 view = inflater.inflate(modelObject.getLayoutResId(), collection, false);
+
+
+                ListView dailerListView = (ListView)view.findViewById(R.id.dailer_listview);
                 EditTextPhoneNumber = (EditText) view.findViewById(R.id.EditTextPhoneNumber);
+
+                if (CacheUtils.cachedContactList == null)
+                    break;
+
+                retreiveOnlineAdapter();
+                dailerListView.setAdapter(onlineListOfContactsAdapter);
+
+                dailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        String destPhoneNumber = ((TextView) view.findViewById(R.id.contact_phone)).getText().toString();
+                        EditTextPhoneNumber.setText(destPhoneNumber);
+
+                    }
+                });
+
+                onlineListOfContactsAdapter.notifyDataSetChanged();
+
+                EditTextPhoneNumber.setOnKeyListener(new EditText.OnKeyListener() {
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    onlineListOfContactsAdapter.getFilter().filter(EditTextPhoneNumber.getText().toString());
+                    return false;
+                }
+                });
+
 
                 ImageButton btn1 = (ImageButton) view.findViewById(R.id.Button1);
                 ImageButton btn2 = (ImageButton) view.findViewById(R.id.Button2);
@@ -186,46 +215,22 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
                 btnDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                       if (!EditTextPhoneNumber.getText().toString().isEmpty())
+                            EditTextPhoneNumber.setText(EditTextPhoneNumber.getText().toString().substring(0,EditTextPhoneNumber.length()-1));
+                    }
+                });
+
+                btnDelete.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
                         EditTextPhoneNumber.setText("");
+                        return true;
                     }
                 });
 
 
                 break;
             //endregion
-         //region default
-            default:
-
-                Log.i(TAG, " default: getLayoutResId:" +modelObject.getLayoutResId()  );
-                view = inflater.inflate(modelObject.getLayoutResId(), collection, false);
-                ListView onlineListOfContactsLV1 = (ListView)view.findViewById(R.id.online_contacts);
-
-                if (CacheUtils.cachedContactList == null)
-                    break;
-
-                OnlineContactAdapter onlineListOfContactsAdapter1 = new OnlineContactAdapter(view.getContext(), CacheUtils.cachedContactList,CacheUtils.cachedContactList);
-                onlineListOfContactsLV1.setAdapter(onlineListOfContactsAdapter1);
-
-                onlineListOfContactsLV1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        String destPhoneNumber = ((TextView) view.findViewById(R.id.contact_phone)).getText().toString();
-                        String status_tag = String.valueOf(view.findViewById(R.id.contact_status).getTag());
-                        String destName = ((TextView) view.findViewById(R.id.contact_name)).getText().toString();
-
-                        SharedPrefUtils.setBoolean(view.getContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, true);
-
-                        if (status_tag.equals("on")) {
-                            enableUserRegisterFunctionality(destPhoneNumber,destName);
-                        } else {
-                            enableInviteForUnregisteredUserFunctionality(destName,destPhoneNumber);
-                        }
-
-                    }
-                });
-
-                break;
-//endregion default
         }
 
 

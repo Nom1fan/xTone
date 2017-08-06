@@ -4,32 +4,63 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content">
 
-    <EditText
-        android:id="@+id/EditTextPhoneNumber"
-        android_layout_marginBottom="0"
-        android:layout_width="fill_parent"
-        android:layout_height="100dp"
+    <ListView
+        android:id="@+id/dailer_listview"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:background="@drawable/overlay_footer_background"
+        android:layout_above="@+id/row0"
         android:cursorVisible="false"
         android:editable="true"
         android:gravity="fill_vertical|center"
-        android:maxLines="1"
         android:scrollHorizontally="true"
         android:textColor="@color/text_main"
         android:textSize="24.0sp"
         android:textStyle="bold" />
 
+
     <LinearLayout
-        android:id="@+id/Row1"
+        android:id="@+id/row0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/row1"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+
+        >
+
+        <EditText
+            android:id="@+id/EditTextPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@color/edittext_dailer_color"
+            android:cursorVisible="false"
+            android:editable="true"
+            android:gravity="fill_vertical|center"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
+            android:textColor="@color/text_main"
+            android:textSize="24.0sp"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:id="@+id/row1"
         android:background="@android:color/black"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/EditTextPhoneNumber">
+        android:layout_above="@+id/row2">
         <!--  Buttons 1 2 3 -->
         <ImageButton
             android:layout_weight="1"
@@ -65,13 +96,13 @@
 
     <!-- Buttons 4 5 6 -->
     <LinearLayout
-        android:id="@+id/Row2"
+        android:id="@+id/row2"
         android:background="@android:color/black"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/Row1">
+        android:layout_above="@+id/row3">
 
         <ImageButton
             android:layout_weight="1"
@@ -106,13 +137,13 @@
     </LinearLayout>
     <!-- Buttons 7 8 9 -->
     <LinearLayout
-        android:id="@+id/Row3"
+        android:id="@+id/row3"
         android:background="@android:color/black"
         android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/Row2">
+        android:layout_above="@+id/row4">
         <ImageButton
             android:layout_weight="1"
             android:id="@+id/Button7"
@@ -143,13 +174,13 @@
     </LinearLayout>
     <!-- Buttons * 0 # -->
     <LinearLayout
-        android:id="@+id/Row4"
+        android:id="@+id/row4"
         android:background="@android:color/black"
         android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/Row3">
+        android:layout_above="@+id/row5">
 
         <ImageButton
             android:id="@+id/ButtonStar"
@@ -170,6 +201,7 @@
             android:src="@drawable/dial_num_0"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
         <ImageButton
             android:layout_weight="1"
             android:id="@+id/ButtonHash"
@@ -180,23 +212,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
+
     <LinearLayout
-        android:id="@+id/Row5"
+        android:id="@+id/row5"
         android:background="@android:color/black"
         android:layout_height="48.0dip"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/Row4">
+        android:layout_alignParentBottom="true"
+        >
 
         <ImageButton
             android:id="@+id/ButtonCall"
-            android:onClick="onClick"
-            android:src="@drawable/button_call"
-            android:background="@drawable/bg_button"
             android:layout_width="0dip"
             android:layout_height="fill_parent"
-            android:layout_weight="2" />
+            android:layout_weight="2"
+            android:background="@drawable/bg_button"
+            android:onClick="onClick"
+            android:src="@drawable/button_call" />
+
         <ImageButton
             android:id="@+id/ButtonDelete"
             android:onClick="onClick"
@@ -205,5 +240,6 @@
             android:layout_width="0dip"
             android:layout_height="fill_parent"
             android:layout_weight="1" />
+
     </LinearLayout>
 </RelativeLayout>

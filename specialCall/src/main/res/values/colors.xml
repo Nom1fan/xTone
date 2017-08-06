@@ -37,6 +37,7 @@
     <color name="label_8">#ff9644ce</color>
     <!-- pink -->
     <color name="label_9">#fff2aab2</color>
+    <color name="edittext_dailer_color">#68000000</color>
 
 
 </resources>
