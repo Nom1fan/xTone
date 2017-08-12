@@ -87,26 +87,26 @@ public class SyncOnDefaultMediaIntentServiceLogic {
     private void syncOnDefaultMedia(SpecialMediaType specialMediaType) throws IOException {
         List<String> contactsUids = contactsUtils.convertToUids(contactsUtils.getAllContacts(context));
         List<DefaultMediaDataContainer> defaultMediaDataContainers = defaultMediaClient.getDefaultMediaData(context, contactsUids, specialMediaType);
-        for (DefaultMediaDataContainer defaultMediaDataContainer : defaultMediaDataContainers) {
-            logger.debug(TAG, "Sync default media for contact:" + defaultMediaDataContainer);
+        if (defaultMediaDataContainers != null) {
+            for (DefaultMediaDataContainer defaultMediaDataContainer : defaultMediaDataContainers) {
+                logger.debug(TAG, "Sync default media for contact:" + defaultMediaDataContainer);
 
-            String phoneNumber = defaultMediaDataContainer.getUid();
-            List<DefaultMediaData> defaultMediaDataList = defaultMediaDataContainer.getDefaultMediaDataList();
-            List<MediaFile> mediaFiles = mediaDAO.getMedia(specialMediaType, phoneNumber);
+                String phoneNumber = defaultMediaDataContainer.getUid();
+                List<DefaultMediaData> defaultMediaDataList = defaultMediaDataContainer.getDefaultMediaDataList();
+                List<MediaFile> mediaFiles = mediaDAO.getMedia(specialMediaType, phoneNumber);
 
-            if (defaultMediaDataList == null || defaultMediaDataList.isEmpty()) {
-                logger.debug(TAG, "For contact:[" + phoneNumber + "] Clearing all default media of type:[" + specialMediaType +"]");
-                mediaDAO.removeMedia(specialMediaType, phoneNumber);
-            }
-            else if(mediaFiles == null || mediaFiles.isEmpty()) {
-                // Initial download for contact defaults
-                for (DefaultMediaData defaultMediaData : defaultMediaDataList) {
-                    downloadDefaultMedia(phoneNumber, specialMediaType, defaultMediaData);
+                if (defaultMediaDataList == null || defaultMediaDataList.isEmpty()) {
+                    logger.debug(TAG, "For contact:[" + phoneNumber + "] Clearing all default media of type:[" + specialMediaType + "]");
+                    mediaDAO.removeMedia(specialMediaType, phoneNumber);
+                } else if (mediaFiles == null || mediaFiles.isEmpty()) {
+                    // Initial download for contact defaults
+                    for (DefaultMediaData defaultMediaData : defaultMediaDataList) {
+                        downloadDefaultMedia(phoneNumber, specialMediaType, defaultMediaData);
+                    }
+                } else {
+                    syncFiles(phoneNumber, specialMediaType, defaultMediaDataList, mediaFiles);
+                    syncNewDefaultMedia(phoneNumber, specialMediaType, defaultMediaDataList, mediaFiles);
                 }
-            }
-            else {
-                syncFiles(phoneNumber, specialMediaType ,defaultMediaDataList, mediaFiles);
-                syncNewDefaultMedia(phoneNumber, specialMediaType, defaultMediaDataList, mediaFiles);
             }
         }
     }
