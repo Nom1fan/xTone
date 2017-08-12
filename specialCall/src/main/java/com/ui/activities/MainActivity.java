@@ -697,6 +697,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     //endregion
 
+    //region MenuOptions
 
     private void setCustomActionBar() {
 

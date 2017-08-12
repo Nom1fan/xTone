@@ -11,8 +11,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.widget.SearchView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -146,15 +147,30 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
                     }
                 });
 
-                onlineListOfContactsAdapter.notifyDataSetChanged();
+                EditTextPhoneNumber.addTextChangedListener(new TextWatcher() {
 
-                EditTextPhoneNumber.setOnKeyListener(new EditText.OnKeyListener() {
-                public boolean onKey(View v, int keyCode, KeyEvent event) {
-                    onlineListOfContactsAdapter.getFilter().filter(EditTextPhoneNumber.getText().toString());
-                    return false;
-                }
+                    @Override
+                    public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+                        // TODO Auto-generated method stub
+                        onlineListOfContactsAdapter.getFilter().filter(EditTextPhoneNumber.getText().toString());
+                    }
+
+                    @Override
+                    public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                                                  int arg3) {
+                        // TODO Auto-generated method stub
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable arg0) {
+                        // TODO Auto-generated method stub
+
+                    }
                 });
 
+
+                onlineListOfContactsAdapter.notifyDataSetChanged();
 
                 ImageButton btn1 = (ImageButton) view.findViewById(R.id.Button1);
                 ImageButton btn2 = (ImageButton) view.findViewById(R.id.Button2);
@@ -248,12 +264,9 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
 
             @Override
             public boolean onQueryTextChange(String s) {
-
                 String ifOnlyPhoneNumber = PhoneNumberUtils.toNumeric(s);
                 if (PhoneNumberUtils.isValidPhoneNumber(ifOnlyPhoneNumber)) {
-
                     new IsRegisteredTask(ifOnlyPhoneNumber, CustomPagerAdapter.this).execute(view.getContext());
-
                     return false;
                 }
                 onlineListOfContactsAdapter.getFilter().filter(searchView.getQuery());
@@ -265,10 +278,7 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
     private View.OnClickListener dialPadClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View arg0) {
-
             EditTextPhoneNumber.setText(EditTextPhoneNumber.getText() + arg0.getTag().toString());
-
-
         }
     };
 
