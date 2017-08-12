@@ -12,6 +12,7 @@ import com.model.request.GetDefaultMediaDataRequest;
 import com.model.response.Response;
 import com.utils.ContactsUtils;
 import com.utils.RequestUtils;
+import com.utils.RequestUtilsImpl;
 import com.utils.UtilityFactory;
 
 import java.io.IOException;
@@ -34,14 +35,14 @@ public class DefaultMediaClientImpl implements DefaultMediaClient {
 
     private static final Type responseType = new TypeToken<Response<List<DefaultMediaDataContainer>>>() {}.getType();
 
-    private final ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
+    private final RequestUtils requestUtils = UtilityFactory.instance().getUtility(RequestUtils.class);
     
     private Logger logger = LoggerFactory.getLogger();
 
     @Override
     public List<DefaultMediaDataContainer> getDefaultMediaData(Context context, List<String> uids, SpecialMediaType specialMediaType) {
         Response<List<DefaultMediaDataContainer>> response = null;
-        GetDefaultMediaDataRequest request = new GetDefaultMediaDataRequest(RequestUtils.getDefaultRequest(context));
+        GetDefaultMediaDataRequest request = new GetDefaultMediaDataRequest(requestUtils.getDefaultRequest(context));
 
         request.setContactUids(uids);
         request.setSpecialMediaType(specialMediaType);

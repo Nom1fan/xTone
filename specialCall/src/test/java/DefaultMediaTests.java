@@ -11,7 +11,6 @@ import com.data.objects.DefaultMediaDataContainer;
 import com.data.objects.PendingDownloadData;
 import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
-import com.logger.Logger;
 import com.logger.LoggerFactory;
 import com.logger.SystemOutLogger;
 import com.services.ServerProxy;
@@ -27,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
@@ -77,11 +77,14 @@ public class DefaultMediaTests {
         final DefaultMediaData defaultMediaData = new DefaultMediaData();
         List<DefaultMediaDataContainer> defaultMediaDataContainers = prepareDefaultMediaContainer(phoneNumber, specialMediaType, fileName, defaultMediaData);
 
-        when(defaultMediaClient.getDefaultMediaData(context, specialMediaType))
+        when(defaultMediaClient.getDefaultMediaData(context, new ArrayList<String>(){{add(phoneNumber);}}, specialMediaType))
                 .thenReturn(defaultMediaDataContainers);
 
+        when(contactsUtils.convertToUids(Mockito.anyList()))
+                .thenReturn(new ArrayList<String>(){{add(phoneNumber);}});
+
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, specialMediaType, defaultMediaData);
 
         List<Contact> allContacts = prepareContacts(
                 new Contact("Rony Eidlin", "0544556543"),
@@ -90,7 +93,7 @@ public class DefaultMediaTests {
 
         SyncOnDefaultMediaIntentServiceLogic logic = prepareLogic(mediaDataConverter, allContacts);
 
-        logic.performSyncOnDefaultMedia();
+        logic.executeLogic();
 
         verify(serverProxy, times(1)).sendActionDownload(context, pendingDownloadData, defaultMediaData);
         verify(mediaDAO, times(0)).removeMedia(specialMediaType, defaultMediaData.getMediaFile().getFileType(), phoneNumber);
@@ -107,11 +110,14 @@ public class DefaultMediaTests {
         defaultMediaDataContainers.addAll(prepareDefaultMediaContainer(phoneNumber, specialMediaType, audioFileName, defaultMediaData));
 
 
-        when(defaultMediaClient.getDefaultMediaData(context, specialMediaType))
+        when(defaultMediaClient.getDefaultMediaData(context, new ArrayList<String>(){{add(phoneNumber);}}, specialMediaType))
                 .thenReturn(defaultMediaDataContainers);
 
+        when(contactsUtils.convertToUids(Mockito.anyList()))
+                .thenReturn(new ArrayList<String>(){{add(phoneNumber);}});
+
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, specialMediaType, defaultMediaData);
 
         List<Contact> allContacts = prepareContacts(
                 new Contact("Rony Eidlin", "0544556543"),
@@ -120,7 +126,7 @@ public class DefaultMediaTests {
 
         SyncOnDefaultMediaIntentServiceLogic logic = prepareLogic(mediaDataConverter, allContacts);
 
-        logic.performSyncOnDefaultMedia();
+        logic.executeLogic();
 
         verify(serverProxy, times(2)).sendActionDownload(context, pendingDownloadData, defaultMediaData);
         verify(mediaDAO, times(0)).removeMedia(specialMediaType, defaultMediaData.getMediaFile().getFileType(), phoneNumber);
@@ -136,14 +142,17 @@ public class DefaultMediaTests {
         List<MediaFile> mediaFiles = prepareMediaFiles();
         List<DefaultMediaDataContainer> defaultMediaDataContainers = prepareEmptyDefaultMediaDataContainer(phoneNumber, specialMediaType);
 
-        when(defaultMediaClient.getDefaultMediaData(context, specialMediaType))
+        when(defaultMediaClient.getDefaultMediaData(context, new ArrayList<String>(){{add(phoneNumber);}}, specialMediaType))
                 .thenReturn(defaultMediaDataContainers);
 
         when(mediaDAO.getMedia(specialMediaType, phoneNumber))
                 .thenReturn(mediaFiles);
 
+        when(contactsUtils.convertToUids(Mockito.anyList()))
+                .thenReturn(new ArrayList<String>(){{add(phoneNumber);}});
+
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, specialMediaType, defaultMediaData);
 
         List<Contact> allContacts = prepareContacts(
                 new Contact("Rony Eidlin", "0544556543"),
@@ -152,7 +161,7 @@ public class DefaultMediaTests {
 
         SyncOnDefaultMediaIntentServiceLogic logic = prepareLogic(mediaDataConverter, allContacts);
 
-        logic.performSyncOnDefaultMedia();
+        logic.executeLogic();
 
         verify(serverProxy, times(0)).sendActionDownload(context, pendingDownloadData, defaultMediaData);
         verify(mediaDAO, times(1)).removeMedia(specialMediaType, phoneNumber);
@@ -178,7 +187,7 @@ public class DefaultMediaTests {
         mediaFiles.add(visualMediaFile);
         mediaFiles.add(audioMediaFile);
 
-        when(defaultMediaClient.getDefaultMediaData(context, defaultProfileMedia))
+        when(defaultMediaClient.getDefaultMediaData(context, new ArrayList<String>() {{add(phoneNumber);}}, defaultProfileMedia))
                 .thenReturn(defaultMediaDataContainers);
 
         when(mediaDAO.getMedia(defaultProfileMedia, phoneNumber)).
@@ -188,8 +197,11 @@ public class DefaultMediaTests {
         when(mediaFileUtils.getFileCreationDateInUnixTime(audioMediaFile))
                 .thenReturn(123L);
 
+        when(contactsUtils.convertToUids(Mockito.anyList()))
+                .thenReturn(new ArrayList<String>(){{add(phoneNumber);}});
+
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultProfileMedia, defaultMediaData);
 
         List<Contact> allContacts = prepareContacts(
                 new Contact("Rony Eidlin", "0544556543"),
@@ -198,7 +210,7 @@ public class DefaultMediaTests {
 
         SyncOnDefaultMediaIntentServiceLogic logic = prepareLogic(mediaDataConverter, allContacts);
 
-        logic.performSyncOnDefaultMedia();
+        logic.executeLogic();
 
         verify(serverProxy, times(0)).sendActionDownload(context, pendingDownloadData, defaultMediaData);
         verify(mediaDAO, times(0)).removeMedia(defaultProfileMedia, visualMediaFile.getFileType(), phoneNumber);
@@ -225,7 +237,7 @@ public class DefaultMediaTests {
         mediaFiles.add(visualMediaFile);
         mediaFiles.add(audioMediaFile);
 
-        when(defaultMediaClient.getDefaultMediaData(context, defaultCallerMedia))
+        when(defaultMediaClient.getDefaultMediaData(context, new ArrayList<String>() {{add(phoneNumber);}}, defaultCallerMedia))
                 .thenReturn(defaultMediaDataContainers);
 
         when(mediaDAO.getMedia(defaultCallerMedia, phoneNumber)).
@@ -236,7 +248,7 @@ public class DefaultMediaTests {
                 .thenReturn(123L);
 
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultCallerMedia, defaultMediaData);
 
         List<Contact> allContacts = prepareContacts(
                 new Contact("Rony Eidlin", "0544556543"),
@@ -245,7 +257,7 @@ public class DefaultMediaTests {
 
         SyncOnDefaultMediaIntentServiceLogic logic = prepareLogic(mediaDataConverter, allContacts);
 
-        logic.performSyncOnDefaultMedia();
+        logic.executeLogic();
 
         verify(serverProxy, times(0)).sendActionDownload(context, pendingDownloadData, defaultMediaData);
         verify(mediaDAO, times(0)).removeMedia(defaultCallerMedia, visualMediaFile.getFileType(), phoneNumber);
@@ -271,8 +283,11 @@ public class DefaultMediaTests {
         mediaFiles.add(visualMediaFile);
         mediaFiles.add(audioMediaFile);
 
-        when(defaultMediaClient.getDefaultMediaData(context, defaultCallerMedia))
+        when(defaultMediaClient.getDefaultMediaData(context, new ArrayList<String>() {{add(phoneNumber);}}, defaultCallerMedia))
                 .thenReturn(defaultMediaDataContainers);
+
+        when(contactsUtils.convertToUids(Mockito.anyList()))
+                .thenReturn(new ArrayList<String>(){{add(phoneNumber);}});
 
         when(mediaDAO.getMedia(defaultCallerMedia, phoneNumber)).
                 thenReturn(mediaFiles);
@@ -282,7 +297,7 @@ public class DefaultMediaTests {
                 .thenReturn(123L);
 
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultCallerMedia, defaultMediaData);
 
         List<Contact> allContacts = prepareContacts(
                 new Contact("Rony Eidlin", "0544556543"),
@@ -291,7 +306,7 @@ public class DefaultMediaTests {
 
         SyncOnDefaultMediaIntentServiceLogic logic = prepareLogic(mediaDataConverter, allContacts);
 
-        logic.performSyncOnDefaultMedia();
+        logic.executeLogic();
 
         verify(serverProxy, times(1)).sendActionDownload(context, pendingDownloadData, defaultMediaData);
         verify(mediaDAO, times(1)).removeMedia(audioMediaFile);
@@ -320,10 +335,13 @@ public class DefaultMediaTests {
                 new Contact("Hot Girl", "0501111111"),
                 new Contact("Another Hot Girl", "0500000000"));
 
-        realContactsUtils.con
+        List<String> uids = realContactsUtils.convertToUids(allContacts);
 
-        when(defaultMediaClient.getDefaultMediaData(context, defaultCallerMedia))
+        when(defaultMediaClient.getDefaultMediaData(context, uids, defaultCallerMedia))
                 .thenReturn(defaultMediaDataContainers);
+
+        when(contactsUtils.convertToUids(Mockito.anyList()))
+                .thenReturn(uids);
 
         when(mediaDAO.getMedia(defaultCallerMedia, phoneNumber)).
                 thenReturn(mediaFiles);
@@ -333,12 +351,12 @@ public class DefaultMediaTests {
                 .thenReturn(123L);
 
         MediaDataConverter mediaDataConverter = new MediaDataConverterImpl();
-        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultMediaData);
+        PendingDownloadData pendingDownloadData = mediaDataConverter.toPendingDownloadData(phoneNumber, defaultCallerMedia, defaultMediaData);
 
 
         SyncOnDefaultMediaIntentServiceLogic logic = prepareLogic(mediaDataConverter, allContacts);
 
-        logic.performSyncOnDefaultMedia();
+        logic.executeLogic();
 
         verify(serverProxy, times(1)).sendActionDownload(context, pendingDownloadData, defaultMediaData);
         verify(mediaDAO, times(1)).removeMedia(visualMediaFile);
@@ -382,7 +400,6 @@ public class DefaultMediaTests {
         mediaFile.setExtension(mediaFileUtils.extractExtension(fileName));
         mediaFile.setFileType(mediaFileUtils.getFileType(fileName));
         defaultMediaData.setMediaFile(mediaFile);
-        defaultMediaData.setSpecialMediaType(specialMediaType);
         defaultMediaData.setDefaultMediaUnixTime(unixTime);
         defaultMediaDataList = new ArrayList<DefaultMediaData>() {{
             add(defaultMediaData);
@@ -403,6 +420,7 @@ public class DefaultMediaTests {
     @NonNull
     private SyncOnDefaultMediaIntentServiceLogic prepareLogic(MediaDataConverter mediaDataConverter, List<Contact> allContacts) {
         SyncOnDefaultMediaIntentServiceLogic logic = new SyncOnDefaultMediaIntentServiceLogic();
+        logic.setContactsUtils(contactsUtils);
         logic.setContext(context);
         logic.setServerProxy(serverProxy);
         logic.setDefaultMediaClient(defaultMediaClient);

@@ -4,14 +4,11 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 
-import com.app.AppStateManager;
 import com.client.ConnectionToServerImpl;
 import com.client.ProgressListener;
 import com.client.ProgressiveEntity;
@@ -26,8 +23,8 @@ import com.mediacallz.app.R;
 import com.model.request.UploadFileRequest;
 import com.utils.BroadcastUtils;
 import com.utils.RequestUtils;
-import com.utils.SharedPrefUtils;
-import com.utils.UI_Utils;
+import com.utils.RequestUtilsImpl;
+import com.utils.UtilityFactory;
 
 import java.nio.charset.Charset;
 import java.util.Locale;
@@ -55,6 +52,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements Progre
     private ConnectionToServerImpl connectionToServer;
     private ProgressDialog progDialog;
     private UploadTask taskInstance;
+    private RequestUtils requestUtils;
     private PowerManager.WakeLock wakeLock;
     private Context context;
     private MediaFile fileForUpload;
@@ -68,6 +66,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements Progre
         this.postUploadFileFlowLogic = postUploadFileFlowLogic;
         this.bundle = bundle;
         fileForUpload = (MediaFile) bundle.get(FILE_FOR_UPLOAD);
+        requestUtils = UtilityFactory.instance().getUtility(RequestUtils.class);
         progressiveEntity = prepareProgressiveEntity(bundle);
         connectionToServer = new ConnectionToServerImpl();
         taskInstance = this;
@@ -166,7 +165,7 @@ public class UploadTask extends AsyncTask<Void, Integer, Void> implements Progre
     private String prepareDataForUpload(Bundle bundle) {
         String myId = Constants.MY_ID(context);
         UploadFileRequest uploadFileRequest = new UploadFileRequest();
-        RequestUtils.prepareDefaultRequest(context, uploadFileRequest);
+        requestUtils.prepareDefaultRequest(context, uploadFileRequest);
         uploadFileRequest.setSourceId(myId);
         uploadFileRequest.setLocale(Locale.getDefault().getLanguage());
         uploadFileRequest.setDestinationId(bundle.get(DEST_ID).toString());

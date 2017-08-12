@@ -1,31 +1,16 @@
 package com.utils;
 
 import android.content.Context;
-import android.os.Build;
 
-import com.data.objects.Constants;
-import com.data.objects.User;
+
 import com.model.request.Request;
 
 /**
- * Created by Mor on 12/26/2016.
+ * Created by Mor on 12/08/2017.
  */
 
-public abstract class RequestUtils {
-    public static void prepareDefaultRequest(Context context, Request request) {
-        User user = new User();
-        user.setUid(Constants.MY_ID(context));
-        user.setAppVersion(String.valueOf(Constants.APP_VERSION()));
-        user.setToken(Constants.MY_BATCH_TOKEN(context));
-        user.setOs("ANDROID");
-        user.setOsVersion(Build.VERSION.RELEASE);
-        user.setDeviceModel(Constants.MY_DEVICE_MODEL());
-        request.setUser(user);
-    }
+public interface RequestUtils extends Utility {
+    void prepareDefaultRequest(Context context, Request request);
 
-    public static Request getDefaultRequest(Context context) {
-        Request request = new Request();
-        prepareDefaultRequest(context, request);
-        return request;
-    }
+    Request getDefaultRequest(Context context);
 }
