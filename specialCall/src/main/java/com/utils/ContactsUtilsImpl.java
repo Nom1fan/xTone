@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 
+import com.android.volley.Cache;
 import com.data.objects.Contact;
 
 import java.util.ArrayList;
@@ -80,32 +81,35 @@ public class ContactsUtilsImpl implements ContactsUtils {
     @Override
     public List<Contact> getAllContacts(Context context) {
 
-        List<Contact> allContacts = new ArrayList<>();
-        Cursor people = context.getContentResolver().query(CommonDataKinds.Phone.CONTENT_URI, PROJECTION, null, null, null);
+        if (CacheUtils.contactList == null) {
+            List<Contact> allContacts = new ArrayList<>();
+            Cursor people = context.getContentResolver().query(CommonDataKinds.Phone.CONTENT_URI, PROJECTION, null, null, null);
 
-        if (people != null) {
-            try {
-                final int displayNameIndex = people.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
-                final int phonesIndex = people.getColumnIndex(CommonDataKinds.Phone.NUMBER);
+            if (people != null) {
+                try {
+                    final int displayNameIndex = people.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
+                    final int phonesIndex = people.getColumnIndex(CommonDataKinds.Phone.NUMBER);
 
-                String contactName, phoneNumber;
+                    String contactName, phoneNumber;
 
-                while (people.moveToNext()) {
+                    while (people.moveToNext()) {
 
-                    contactName = people.getString(displayNameIndex);
-                    phoneNumber = people.getString(phonesIndex);
-                    phoneNumber = PhoneNumberUtils.toValidLocalPhoneNumber(phoneNumber);
+                        contactName = people.getString(displayNameIndex);
+                        phoneNumber = people.getString(phonesIndex);
+                        phoneNumber = PhoneNumberUtils.toValidLocalPhoneNumber(phoneNumber);
 
-                    Contact contact = new Contact(contactName, phoneNumber);
-                    if(PhoneNumberUtils.isValidPhoneNumber(phoneNumber) && !allContacts.contains(contact)) {
-                        allContacts.add(contact);
+                        Contact contact = new Contact(contactName, phoneNumber);
+                        if (PhoneNumberUtils.isValidPhoneNumber(phoneNumber) && !allContacts.contains(contact)) {
+                            allContacts.add(contact);
+                        }
                     }
+                } finally {
+                    people.close();
                 }
-            } finally {
-                people.close();
             }
+            CacheUtils.contactList = allContacts;
         }
-        return allContacts;
+        return CacheUtils.contactList;
     }
 
     @Override

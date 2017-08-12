@@ -1,461 +1,683 @@
 -- Merging decision tree log ---
 manifest
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:2:1-168:12
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:2:1-365:12
 	package
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:3:5-30
-		INJECTED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml
-		INJECTED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:3:5-33
+		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
+		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
 	android:versionName
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:5:5-30
-		INJECTED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml
-		INJECTED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:5:5-31
+		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
+		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
 	android:versionCode
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:4:5-28
-		INJECTED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml
-		INJECTED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:4:5-29
+		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
+		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
 	xmlns:android
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:2:11-69
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:2:11-69
 uses-sdk
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:7:5-9:41
-MERGED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:18:5-42
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:18:5-42
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.android.support:appcompat-v7:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [SpecialCall:ffmpeg4android_lib:unspecified] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\ffmpeg4android_lib\unspecified\AndroidManifest.xml:7:5-9:41
-MERGED from [SpecialCall:standOut_lib:unspecified] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\standOut_lib\unspecified\AndroidManifest.xml:7:5-9:41
-MERGED from [SpecialCall:aFileChooser:unspecified] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\aFileChooser\unspecified\AndroidManifest.xml:20:5-22:40
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.nispok:snackbar:2.11.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.nispok\snackbar\2.11.0\AndroidManifest.xml:6:5-8:41
-MERGED from [com.android.support:recyclerview-v7:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\recyclerview-v7\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.android.support:design:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\design\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.android.support:appcompat-v7:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.android.support:recyclerview-v7:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\recyclerview-v7\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.google.android.gms:play-services-gcm:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-gcm\8.3.0\AndroidManifest.xml:18:5-42
-MERGED from [com.google.android.gms:play-services-base:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-base\8.3.0\AndroidManifest.xml:18:5-42
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:18:5-42
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:18:5-42
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:18:5-42
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.google.android.gms:play-services-base:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-base\8.3.0\AndroidManifest.xml:18:5-42
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:18:5-42
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.google.android.gms:play-services-ads:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.3.0\AndroidManifest.xml:23:5-42
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:18:5-42
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:20:5-43
-MERGED from [com.batch.android:batch-sdk:1.5.2] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.batch.android\batch-sdk\1.5.2\AndroidManifest.xml:5:5-47
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:7:5-9:41
+MERGED from [SpecialCall_Repository:ffmpeg4android_lib:unspecified] C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\bundles\default\AndroidManifest.xml:7:5-9:41
+MERGED from [SpecialCall_Repository:standOut_lib:unspecified] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\bundles\default\AndroidManifest.xml:7:5-9:41
+MERGED from [SpecialCall_Repository:aFileChooser:unspecified] C:\git\SpecialCall_Repository\aFileChooser\build\intermediates\bundles\default\AndroidManifest.xml:20:5-22:40
+MERGED from [com.android.support:design:25.3.1] C:\Users\Mor\.android\build-cache\f61f2312ae089ab16940ef88f09712c5cbc6f430\output\AndroidManifest.xml:21:5-23:62
+MERGED from [com.android.support:transition:25.3.1] C:\Users\Mor\.android\build-cache\c66e0935c819f7be92571b43dfb788ede7caa50b\output\AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.android\build-cache\3e1055f91add205941ed964e6d2850abb8c32fab\output\AndroidManifest.xml:17:5-43
+MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.android\build-cache\57391dd13a2c93f4cc0db006823fd48e7ab8a8ed\output\AndroidManifest.xml:17:5-43
+MERGED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.android\build-cache\3dd0f09230808c2e35140a454f8b0b3fb497a9a9\output\AndroidManifest.xml:17:5-43
+MERGED from [com.google.android.gms:play-services-tasks:10.2.0] C:\Users\Mor\.android\build-cache\94d8c3900277949c3fa382edf1d25d3c7f1a41db\output\AndroidManifest.xml:3:5-43
+MERGED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.android\build-cache\3cfd66696356caf9f7acedc945e0e54fe92aa255\output\AndroidManifest.xml:17:5-43
+MERGED from [com.batch.android:batch-sdk:1.5.3] C:\Users\Mor\.android\build-cache\9136c15933fd571b3a0a42c31b3b7951d6e769d5\output\AndroidManifest.xml:5:5-47
+MERGED from [com.github.amlcurran.showcaseview:library:5.4.1] C:\Users\Mor\.android\build-cache\c15747541b305c2859234450e17ac84774c5a437\output\AndroidManifest.xml:22:5-24:41
+MERGED from [pl.droidsonroids.gif:android-gif-drawable:1.1.15] C:\Users\Mor\.android\build-cache\7b832146ccebd6df882cffeff8dcf2ffa99cdaad\output\AndroidManifest.xml:7:5-9:41
+MERGED from [com.daimajia.easing:library:1.0.1] C:\Users\Mor\.android\build-cache\8f2b257ba77f90b2d7153b14fe0fea8277d4f1aa\output\AndroidManifest.xml:8:5-10:41
+MERGED from [com.daimajia.androidanimations:library:1.1.3] C:\Users\Mor\.android\build-cache\bb225393cd44aee588c23d2730451bd468a342ab\output\AndroidManifest.xml:8:5-10:41
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.6.0] C:\Users\Mor\.android\build-cache\32dcb521bfb7a369be7909c128a6ff3acbf3b51a\output\AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:beta:1.2.0] C:\Users\Mor\.android\build-cache\c98e02791d1f52a1c7b498b3ce0b32a52fcc69a1\output\AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:crashlytics-ndk:1.1.3] C:\Users\Mor\.android\build-cache\05e926117c08cae7a2e11c698f14ec2613c52aaf\output\AndroidManifest.xml:8:5-43
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.3.10] C:\Users\Mor\.android\build-cache\8b962f295ae8549be2be05d1a2013027d88e0e5d\output\AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:answers:1.3.8] C:\Users\Mor\.android\build-cache\deaa5ff3d500fc346a2456a8fcdc22b0fc2dfcaf\output\AndroidManifest.xml:7:5-43
+MERGED from [io.fabric.sdk.android:fabric:1.3.12] C:\Users\Mor\.android\build-cache\094175f65ba7a8ac42b4e970d6ea08b0f9fef469\output\AndroidManifest.xml:23:5-43
+MERGED from [SpecialCall_Repository:audio_waveform:unspecified] C:\git\SpecialCall_Repository\audio_waveform\build\intermediates\bundles\default\AndroidManifest.xml:7:5-9:41
+MERGED from [SpecialCall_Repository:rangeseekbar:unspecified] C:\git\SpecialCall_Repository\rangeseekbar\build\intermediates\bundles\default\AndroidManifest.xml:7:5-9:41
+MERGED from [com.android.support:appcompat-v7:25.3.1] C:\Users\Mor\.android\build-cache\3d7a38aff6692d59aa5140782042f257f132505f\output\AndroidManifest.xml:21:5-23:78
+MERGED from [com.android.support:support-v4:25.3.1] C:\Users\Mor\.android\build-cache\0ed2904fdcd7f75ccc72827920af19bffd3b789f\output\AndroidManifest.xml:21:5-23:54
+MERGED from [com.android.support:support-fragment:25.3.1] C:\Users\Mor\.android\build-cache\35f580b9465334b0764e8d96ce83782e63c63783\output\AndroidManifest.xml:21:5-23:60
+MERGED from [com.android.support:support-media-compat:25.3.1] C:\Users\Mor\.android\build-cache\26ba4bc14aa602d614ca9232ff4aa32c6163defb\output\AndroidManifest.xml:21:5-23:63
+MERGED from [com.android.support:support-core-utils:25.3.1] C:\Users\Mor\.android\build-cache\0b2e450e25cdc311f2b3e73dbd13a48cbfd5ec0b\output\AndroidManifest.xml:21:5-23:61
+MERGED from [com.android.support:animated-vector-drawable:25.3.1] C:\Users\Mor\.android\build-cache\d17e3dd12477c1945f790f71e3ec249177a5218a\output\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:25.3.1] C:\Users\Mor\.android\build-cache\dce3c3c3b5cfcb5e45e5c63790c3f35cf99dfadd\output\AndroidManifest.xml:20:5-43
+MERGED from [SpecialCall_Repository:library:unspecified] C:\git\SpecialCall_Repository\library\build\intermediates\bundles\default\AndroidManifest.xml:7:5-9:41
+MERGED from [com.felipecsl:gifimageview:2.1.0] C:\Users\Mor\.android\build-cache\447713969acdc84b95032c3e206b0ff0ddca22f5\output\AndroidManifest.xml:8:5-43
+MERGED from [com.android.support:recyclerview-v7:25.3.1] C:\Users\Mor\.android\build-cache\cb5e1d34e86a5c2e9eac7ecfd9b78ff22878e81a\output\AndroidManifest.xml:20:5-43
+MERGED from [com.android.support:support-core-ui:25.3.1] C:\Users\Mor\.android\build-cache\9213c2ff55a8e40cfb412f070d1eb4649cc22365\output\AndroidManifest.xml:21:5-23:58
+MERGED from [com.android.support:support-compat:25.3.1] C:\Users\Mor\.android\build-cache\85bc0d76ec46f6d3afff9529ff8b66f9e720bc31\output\AndroidManifest.xml:21:5-23:58
+MERGED from [com.android.volley:volley:1.0.0] C:\Users\Mor\.android\build-cache\65cedf3cc12e317bf3988c561a0848b072e8ac09\output\AndroidManifest.xml:7:5-43
+	tools:overrideLibrary
+		ADDED from [com.android.support:design:25.3.1] C:\Users\Mor\.android\build-cache\f61f2312ae089ab16940ef88f09712c5cbc6f430\output\AndroidManifest.xml:23:9-59
 	android:targetSdkVersion
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:9:9-38
-		INJECTED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml
-		INJECTED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:9:9-38
+		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
+		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
 	android:minSdkVersion
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:8:9-34
-		INJECTED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml
-		MERGED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:8:9-34
-		INJECTED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml
-uses-permission#android.permission.INTERACT_ACROSS_USERS_FULL
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:11:5-85
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:8:9-34
+		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
+		MERGED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:8:9-34
+		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
+uses-permission#android.permission.RECEIVE_SMS
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:13:5-70
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:11:22-82
-uses-permission#android.permission.CHANGE_CONFIGURATION
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:12:5-79
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:13:22-67
+uses-permission#android.permission.READ_SMS
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:14:5-67
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:12:22-76
-uses-permission#android.permission.MODIFY_AUDIO_SETTINGS
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:13:5-80
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:13:22-77
-uses-permission#android.permission.WRITE_SETTINGS
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:14:5-73
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:14:22-70
-uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:15:5-81
-MERGED from [SpecialCall:ffmpeg4android_lib:unspecified] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\ffmpeg4android_lib\unspecified\AndroidManifest.xml:11:5-81
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:15:22-78
-uses-permission#android.permission.INTERNET
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:16:5-67
-MERGED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:21:5-67
-MERGED from [com.google.android.gms:play-services-gcm:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-gcm\8.3.0\AndroidManifest.xml:22:5-67
-MERGED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:21:5-67
-MERGED from [com.google.android.gms:play-services-ads:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.3.0\AndroidManifest.xml:20:5-66
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:16:22-64
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:14:22-64
 uses-permission#android.permission.READ_CONTACTS
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:18:5-72
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:16:5-72
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:18:22-69
-uses-permission#android.permission.CALL_PHONE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:19:5-69
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:19:22-66
-uses-permission#android.permission.PROCESS_INCOMING_CALLS
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:20:5-81
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:20:22-78
-uses-permission#android.permission.PROCESS_OUTGOING_CALLS
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:21:5-81
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:21:22-78
-uses-permission#android.permission.READ_PHONE_STATE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:22:5-75
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:22:22-72
-uses-permission#android.permission.MODIFY_PHONE_STATE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:23:5-77
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:23:22-74
-uses-permission#android.permission.CALL_PRIVILEGED
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:24:5-74
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:24:22-71
-uses-permission#android.permission.GET_TASKS
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:25:5-68
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:25:22-65
-uses-permission#android.permission.ACCESS_NETWORK_STATE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:26:5-79
-MERGED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:22:5-79
-MERGED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:22:5-79
-MERGED from [com.google.android.gms:play-services-ads:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.3.0\AndroidManifest.xml:21:5-78
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:26:22-76
-uses-permission#android.permission.WAKE_LOCK
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:27:5-68
-MERGED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:24:5-67
-MERGED from [SpecialCall:ffmpeg4android_lib:unspecified] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\ffmpeg4android_lib\unspecified\AndroidManifest.xml:12:5-68
-MERGED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:24:5-67
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:27:22-65
-uses-permission#android.permission.VIBRATE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:28:5-66
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:28:22-63
-uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:29:5-81
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:29:22-78
-uses-permission#android.permission.GET_ACCOUNTS
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:30:5-71
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:30:22-68
-uses-permission#com.google.android.c2dm.permission.RECEIVE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:31:5-82
-MERGED from [com.google.android.gms:play-services-gcm:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-gcm\8.3.0\AndroidManifest.xml:21:5-82
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:31:22-79
-uses-permission#android.permission.SEND_SMS
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:32:5-67
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:32:22-64
-uses-permission#android.permission.RECORD_AUDIO
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:33:5-71
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:33:22-68
-uses-permission#android.permission.DISABLE_KEYGUARD
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:34:5-75
-MERGED from [SpecialCall:standOut_lib:unspecified] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\standOut_lib\unspecified\AndroidManifest.xml:12:5-75
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:34:22-72
-uses-permission#com.android.launcher.permission.INSTALL_SHORTCUT
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:35:5-88
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:35:22-85
-uses-permission#com.android.launcher.permission.UNINSTALL_SHORTCUT
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:36:5-90
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:36:22-87
-permission#com.special.app.permission.C2D_MESSAGE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:37:5-109
-	android:protectionLevel
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:37:71-106
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:37:17-70
-uses-permission#com.special.app.permission.C2D_MESSAGE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:38:5-78
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:38:22-75
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:16:22-69
 uses-permission#android.permission.READ_EXTERNAL_STORAGE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:39:5-80
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:17:5-80
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:39:22-77
-application
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:41:5-166:19
-MERGED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:26:5-46:19
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:20:5-24:19
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.android.support:appcompat-v7:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.nispok:snackbar:2.11.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.nispok\snackbar\2.11.0\AndroidManifest.xml:10:5-20
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.android.support:design:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\design\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.android.support:appcompat-v7:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.google.android.gms:play-services-gcm:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-gcm\8.3.0\AndroidManifest.xml:24:5-20
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:20:5-24:19
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:26:5-46:19
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:20:5-24:19
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:20:5-24:19
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.google.android.gms:play-services-ads:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.3.0\AndroidManifest.xml:24:5-32:19
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:20:5-24:19
-MERGED from [com.android.support:support-v4:23.1.1] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\AndroidManifest.xml:22:5-20
-MERGED from [com.batch.android:batch-sdk:1.5.2] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.batch.android\batch-sdk\1.5.2\AndroidManifest.xml:7:5-20
-	android:label
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:45:9-41
-	android:allowBackup
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:43:9-35
-	android:icon
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:44:9-42
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:17:22-77
+uses-permission#android.permission.READ_CALL_LOG
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:19:5-72
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:42:9-45
-activity#com.ui.activities.MainActivity
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:46:9-59:20
-	android:screenOrientation
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:50:13-49
-	android:label
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:49:13-45
-	android:excludeFromRecents
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:48:13-47
-	android:theme
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:51:13-57
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:19:22-69
+uses-permission#android.permission.WRITE_CALL_LOG
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:20:5-73
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:47:13-58
-category#android.intent.category.LAUNCHER
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:52:13-73
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:20:22-70
+uses-permission#android.permission.CALL_PHONE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:22:5-69
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:52:23-70
-intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:54:13-58:29
-action#android.intent.action.MAIN
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:55:17-69
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:22:22-66
+uses-permission#android.permission.SEND_SMS
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:23:5-67
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:55:25-66
-activity#com.ui.activities.SelectMedia
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:61:9-68:20
-	android:screenOrientation
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:65:13-49
-	android:label
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:64:13-45
-	android:excludeFromRecents
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:63:13-47
-	android:theme
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:66:13-44
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:23:22-64
+uses-permission#android.permission.GET_ACCOUNTS
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:26:5-71
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:62:13-57
-activity#com.ipaulpro.afilechooser.FileChooserActivity
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:70:9-84:20
-	android:enabled
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:72:13-49
-	android:label
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:75:13-48
-	android:exported
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:73:13-36
-	android:icon
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:74:13-48
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:26:22-68
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:27:5-81
+MERGED from [SpecialCall_Repository:ffmpeg4android_lib:unspecified] C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\bundles\default\AndroidManifest.xml:11:5-81
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:71:13-73
-intent-filter#android.intent.action.GET_CONTENT+android.intent.category.DEFAULT+android.intent.category.OPENABLE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:76:13-83:29
-action#android.intent.action.GET_CONTENT
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:77:17-76
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:27:22-78
+uses-permission#android.permission.PROCESS_OUTGOING_CALLS
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:28:5-81
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:77:25-73
-category#android.intent.category.DEFAULT
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:79:17-76
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:28:22-78
+uses-permission#android.permission.READ_PHONE_STATE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:29:5-75
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:79:27-73
-category#android.intent.category.OPENABLE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:80:17-77
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:29:22-72
+uses-permission#android.permission.RECORD_AUDIO
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:30:5-71
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:80:27-74
-data
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:82:17-48
-	android:mimeType
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:82:23-45
-activity#com.ui.activities.Settings
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:86:9-89:20
-	android:theme
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:88:13-57
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:30:22-68
+uses-permission#android.permission.ACCESS_DOWNLOAD_MANAGER
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:31:5-82
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:87:13-54
-activity#com.ui.activities.SelectSpecificContacts
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:91:9-94:20
-	android:theme
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:93:13-55
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:31:22-79
+uses-permission#android.permission.ACCESS_NOTIFICATION_POLICY
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:32:5-85
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:92:13-68
-service#com.services.IncomingService
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:96:9-100:19
-	android:enabled
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:98:13-35
-	android:priority
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:99:13-35
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:32:22-82
+uses-permission#android.permission.CHANGE_CONFIGURATION
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:34:5-79
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:97:13-56
-service#com.services.OutgoingService
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:102:9-106:19
-	android:enabled
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:104:13-35
-	android:priority
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:105:13-35
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:34:22-76
+uses-permission#android.permission.MODIFY_PHONE_STATE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:35:5-77
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:103:13-56
-service#com.services.LogicServerProxyService
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:108:9-112:19
-	android:enabled
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:110:13-35
-	android:priority
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:111:13-35
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:35:22-74
+uses-permission#android.permission.WRITE_SETTINGS
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:36:5-73
 	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:109:13-64
-service#com.services.StorageServerProxyService
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:114:9-118:19
-	android:enabled
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:116:13-35
-	android:priority
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:117:13-35
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:115:13-66
-receiver#com.receivers.ConnectivityBroadcastReceiver
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:120:9-124:20
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:120:19-77
-intent-filter#android.net.conn.CONNECTIVITY_CHANGE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:121:13-123:29
-action#android.net.conn.CONNECTIVITY_CHANGE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:122:17-79
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:122:25-76
-receiver#com.receivers.BackgroundBroadcastReceiver
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:126:9-130:20
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:126:19-75
-intent-filter#com.android.special.specialcall.EVENT_ACTION
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:127:13-129:29
-action#com.android.special.specialcall.EVENT_ACTION
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:128:17-87
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:128:25-84
-receiver#com.receivers.DownloadReceiver
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:132:9-136:20
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:132:19-64
-service#com.batch.android.BatchPushService
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:138:9-70
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:138:18-67
-receiver#com.batch.android.BatchPushReceiver
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:140:9-145:20
-	android:permission
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:140:70-130
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:140:19-69
-intent-filter#com.google.android.c2dm.intent.RECEIVE+com.special.app
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:141:13-144:29
-action#com.google.android.c2dm.intent.RECEIVE
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:142:17-81
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:142:25-78
-category#com.special.app
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:143:17-60
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:143:27-57
-service#com.services.PushService
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:147:9-60
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:147:18-57
-receiver#com.receivers.PushReceiver
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:149:9-154:20
-	android:permission
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:149:61-121
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:149:19-60
-receiver#com.receivers.BootCompletedBroadcastReceiver
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:156:9-160:20
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:156:19-78
-intent-filter#android.intent.action.BOOT_COMPLETED
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:157:13-159:29
-action#android.intent.action.BOOT_COMPLETED
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:158:17-79
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:158:25-76
-service#com.services.GetTokenIntentService
-ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:162:9-165:19
-	android:exported
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:164:13-37
-	android:name
-		ADDED from E:\Workspaces\git_Workspace\SpecialCall\specialCall\src\main\AndroidManifest.xml:163:13-62
-provider#com.google.android.gms.measurement.AppMeasurementContentProvider
-ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:28:7-31:37
-MERGED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:28:7-31:37
-	android:authorities
-		ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:29:11-76
-	android:exported
-		ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:31:11-35
-	android:name
-		ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:30:11-90
-receiver#com.google.android.gms.measurement.AppMeasurementReceiver
-ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:33:7-39:18
-MERGED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:33:7-39:18
-	android:enabled
-		ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:35:11-33
-	android:name
-		ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:34:11-83
-intent-filter#com.google.android.gms.measurement.UPLOAD
-ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:36:9-38:25
-action#com.google.android.gms.measurement.UPLOAD
-ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:37:11-77
-	android:name
-		ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:37:19-75
-service#com.google.android.gms.measurement.AppMeasurementService
-ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:41:7-44:37
-MERGED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:41:7-44:37
-	android:enabled
-		ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:43:11-33
-	android:exported
-		ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:44:11-35
-	android:name
-		ADDED from [com.google.android.gms:play-services-measurement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.3.0\AndroidManifest.xml:42:11-82
-meta-data#com.google.android.gms.version
-ADDED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:21:9-23:69
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:21:9-23:69
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:21:9-23:69
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:21:9-23:69
-MERGED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:21:9-23:69
-	android:value
-		ADDED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:23:13-66
-	android:name
-		ADDED from [com.google.android.gms:play-services-basement:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.3.0\AndroidManifest.xml:22:13-58
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:36:22-70
 uses-permission#android.permission.SYSTEM_ALERT_WINDOW
-ADDED from [SpecialCall:standOut_lib:unspecified] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\standOut_lib\unspecified\AndroidManifest.xml:11:5-78
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:37:5-78
+MERGED from [SpecialCall_Repository:standOut_lib:unspecified] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\bundles\default\AndroidManifest.xml:11:5-78
 	android:name
-		ADDED from [SpecialCall:standOut_lib:unspecified] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\standOut_lib\unspecified\AndroidManifest.xml:11:22-75
-activity#com.google.android.gms.ads.AdActivity
-ADDED from [com.google.android.gms:play-services-ads:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.3.0\AndroidManifest.xml:26:9-29:64
-	android:configChanges
-		ADDED from [com.google.android.gms:play-services-ads:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.3.0\AndroidManifest.xml:28:13-122
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:37:22-75
+uses-permission#android.permission.GET_TASKS
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:43:5-68
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:43:22-65
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:44:5-79
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:44:22-76
+uses-permission#android.permission.ACCESS_WIFI_STATE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:45:5-76
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:45:22-73
+uses-permission#android.permission.INTERNET
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:46:5-67
+MERGED from [SpecialCall_Repository:standOut_lib:unspecified] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\bundles\default\AndroidManifest.xml:13:5-67
+MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.android\build-cache\3e1055f91add205941ed964e6d2850abb8c32fab\output\AndroidManifest.xml:21:5-66
+MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.android\build-cache\57391dd13a2c93f4cc0db006823fd48e7ab8a8ed\output\AndroidManifest.xml:21:5-66
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.6.0] C:\Users\Mor\.android\build-cache\32dcb521bfb7a369be7909c128a6ff3acbf3b51a\output\AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:beta:1.2.0] C:\Users\Mor\.android\build-cache\c98e02791d1f52a1c7b498b3ce0b32a52fcc69a1\output\AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.3.10] C:\Users\Mor\.android\build-cache\8b962f295ae8549be2be05d1a2013027d88e0e5d\output\AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:answers:1.3.8] C:\Users\Mor\.android\build-cache\deaa5ff3d500fc346a2456a8fcdc22b0fc2dfcaf\output\AndroidManifest.xml:9:5-67
+MERGED from [io.fabric.sdk.android:fabric:1.3.12] C:\Users\Mor\.android\build-cache\094175f65ba7a8ac42b4e970d6ea08b0f9fef469\output\AndroidManifest.xml:25:5-67
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:46:22-64
+uses-permission#android.permission.WAKE_LOCK
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:47:5-68
+MERGED from [SpecialCall_Repository:ffmpeg4android_lib:unspecified] C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\bundles\default\AndroidManifest.xml:12:5-68
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:47:22-65
+uses-permission#android.permission.VIBRATE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:48:5-66
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:48:22-63
+uses-permission#android.permission.DISABLE_KEYGUARD
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:49:5-75
+MERGED from [SpecialCall_Repository:standOut_lib:unspecified] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\bundles\default\AndroidManifest.xml:12:5-75
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:49:22-72
+uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:50:5-81
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:50:22-78
+uses-permission#android.permission.MODIFY_AUDIO_SETTINGS
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:51:5-80
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:51:22-77
+uses-permission#com.google.android.c2dm.permission.RECEIVE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:52:5-82
+MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.android\build-cache\3e1055f91add205941ed964e6d2850abb8c32fab\output\AndroidManifest.xml:20:5-81
+MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.android\build-cache\57391dd13a2c93f4cc0db006823fd48e7ab8a8ed\output\AndroidManifest.xml:20:5-81
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:52:22-79
+permission#com.mediacallz.app.permission.C2D_MESSAGE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:53:5-112
+	android:protectionLevel
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:53:74-109
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:53:17-73
+uses-permission#com.mediacallz.app.permission.C2D_MESSAGE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:54:5-81
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:54:22-78
+application
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:57:5-363:19
+MERGED from [com.android.support:design:25.3.1] C:\Users\Mor\.android\build-cache\f61f2312ae089ab16940ef88f09712c5cbc6f430\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:transition:25.3.1] C:\Users\Mor\.android\build-cache\c66e0935c819f7be92571b43dfb788ede7caa50b\output\AndroidManifest.xml:26:5-20
+MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.android\build-cache\3e1055f91add205941ed964e6d2850abb8c32fab\output\AndroidManifest.xml:23:5-19
+MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.android\build-cache\57391dd13a2c93f4cc0db006823fd48e7ab8a8ed\output\AndroidManifest.xml:23:5-19
+MERGED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.android\build-cache\3dd0f09230808c2e35140a454f8b0b3fb497a9a9\output\AndroidManifest.xml:18:5-20:19
+MERGED from [com.google.android.gms:play-services-tasks:10.2.0] C:\Users\Mor\.android\build-cache\94d8c3900277949c3fa382edf1d25d3c7f1a41db\output\AndroidManifest.xml:4:5-19
+MERGED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.android\build-cache\3cfd66696356caf9f7acedc945e0e54fe92aa255\output\AndroidManifest.xml:19:5-21:19
+MERGED from [com.batch.android:batch-sdk:1.5.3] C:\Users\Mor\.android\build-cache\9136c15933fd571b3a0a42c31b3b7951d6e769d5\output\AndroidManifest.xml:7:5-20
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.6.0] C:\Users\Mor\.android\build-cache\32dcb521bfb7a369be7909c128a6ff3acbf3b51a\output\AndroidManifest.xml:11:5-20
+MERGED from [com.crashlytics.sdk.android:beta:1.2.0] C:\Users\Mor\.android\build-cache\c98e02791d1f52a1c7b498b3ce0b32a52fcc69a1\output\AndroidManifest.xml:11:5-20
+MERGED from [com.crashlytics.sdk.android:crashlytics-ndk:1.1.3] C:\Users\Mor\.android\build-cache\05e926117c08cae7a2e11c698f14ec2613c52aaf\output\AndroidManifest.xml:10:5-20
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.3.10] C:\Users\Mor\.android\build-cache\8b962f295ae8549be2be05d1a2013027d88e0e5d\output\AndroidManifest.xml:11:5-20
+MERGED from [com.crashlytics.sdk.android:answers:1.3.8] C:\Users\Mor\.android\build-cache\deaa5ff3d500fc346a2456a8fcdc22b0fc2dfcaf\output\AndroidManifest.xml:11:5-20
+MERGED from [io.fabric.sdk.android:fabric:1.3.12] C:\Users\Mor\.android\build-cache\094175f65ba7a8ac42b4e970d6ea08b0f9fef469\output\AndroidManifest.xml:27:5-20
+MERGED from [com.android.support:appcompat-v7:25.3.1] C:\Users\Mor\.android\build-cache\3d7a38aff6692d59aa5140782042f257f132505f\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-v4:25.3.1] C:\Users\Mor\.android\build-cache\0ed2904fdcd7f75ccc72827920af19bffd3b789f\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-fragment:25.3.1] C:\Users\Mor\.android\build-cache\35f580b9465334b0764e8d96ce83782e63c63783\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-media-compat:25.3.1] C:\Users\Mor\.android\build-cache\26ba4bc14aa602d614ca9232ff4aa32c6163defb\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-core-utils:25.3.1] C:\Users\Mor\.android\build-cache\0b2e450e25cdc311f2b3e73dbd13a48cbfd5ec0b\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:animated-vector-drawable:25.3.1] C:\Users\Mor\.android\build-cache\d17e3dd12477c1945f790f71e3ec249177a5218a\output\AndroidManifest.xml:26:5-20
+MERGED from [com.android.support:support-vector-drawable:25.3.1] C:\Users\Mor\.android\build-cache\dce3c3c3b5cfcb5e45e5c63790c3f35cf99dfadd\output\AndroidManifest.xml:26:5-20
+MERGED from [com.felipecsl:gifimageview:2.1.0] C:\Users\Mor\.android\build-cache\447713969acdc84b95032c3e206b0ff0ddca22f5\output\AndroidManifest.xml:10:5-20
+MERGED from [com.android.support:support-core-ui:25.3.1] C:\Users\Mor\.android\build-cache\9213c2ff55a8e40cfb412f070d1eb4649cc22365\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-compat:25.3.1] C:\Users\Mor\.android\build-cache\85bc0d76ec46f6d3afff9529ff8b66f9e720bc31\output\AndroidManifest.xml:29:5-20
+MERGED from [com.android.volley:volley:1.0.0] C:\Users\Mor\.android\build-cache\65cedf3cc12e317bf3988c561a0848b072e8ac09\output\AndroidManifest.xml:9:5-20
+	android:label
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:61:9-41
+	android:supportsRtl
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:62:9-35
+	android:allowBackup
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:59:9-36
+	android:icon
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:60:9-40
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:58:9-45
+provider#android.support.v4.content.FileProvider
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:65:9-73:20
+	android:authorities
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:67:13-60
+		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
+	android:grantUriPermissions
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:69:13-47
+	android:exported
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:68:13-37
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:66:13-67
+meta-data#android.support.FILE_PROVIDER_PATHS
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:70:13-72:57
+	android:resource
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:72:17-55
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:71:17-67
+activity#com.ui.activities.SplashScreen
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:77:9-86:20
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:79:13-49
 	android:theme
-		ADDED from [com.google.android.gms:play-services-ads:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.3.0\AndroidManifest.xml:29:13-61
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:80:13-47
 	android:name
-		ADDED from [com.google.android.gms:play-services-ads:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.3.0\AndroidManifest.xml:27:13-65
-activity#com.google.android.gms.ads.purchase.InAppPurchaseActivity
-ADDED from [com.google.android.gms:play-services-ads:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.3.0\AndroidManifest.xml:30:9-31:52
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:78:13-58
+intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:81:13-85:29
+action#android.intent.action.MAIN
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:82:17-69
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:82:25-66
+category#android.intent.category.LAUNCHER
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:84:17-77
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:84:27-74
+activity#com.ui.activities.MainActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:88:9-97:20
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:92:13-49
+	android:label
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:91:13-45
+	android:excludeFromRecents
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:90:13-47
 	android:theme
-		ADDED from [com.google.android.gms:play-services-ads:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.3.0\AndroidManifest.xml:31:13-50
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:93:13-44
 	android:name
-		ADDED from [com.google.android.gms:play-services-ads:8.3.0] E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.3.0\AndroidManifest.xml:30:19-91
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:89:13-58
+intent-filter#android.intent.action.SEARCH
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:94:13-96:29
+action#android.intent.action.SEARCH
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:95:17-71
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:95:25-68
+activity#com.ui.activities.CallsLogHistory
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:99:9-102:46
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:101:13-49
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:102:13-44
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:100:13-61
+activity#com.ui.activities.ContactMCSelectionActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:104:9-107:46
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:106:13-49
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:107:13-44
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:105:13-72
+activity#com.ui.activities.TipActivityDialog
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:110:9-113:63
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:112:13-49
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:113:13-61
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:111:13-63
+activity#com.ui.activities.LoginActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:115:9-118:46
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:117:13-49
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:118:13-44
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:116:13-59
+activity#com.ui.activities.LoginWithTermsAndServiceActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:120:9-123:65
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:122:13-49
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:123:13-63
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:121:13-78
+activity#com.ui.activities.SelectMediaActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:125:9-132:20
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:129:13-49
+	android:label
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:128:13-45
+	android:excludeFromRecents
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:127:13-47
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:130:13-44
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:126:13-65
+activity#com.ui.activities.DefaultMediaActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:134:9-141:20
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:138:13-49
+	android:label
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:137:13-45
+	android:excludeFromRecents
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:136:13-47
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:139:13-44
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:135:13-66
+activity#com.ui.activities.PreviewMediaActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:143:9-150:20
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:147:13-49
+	android:label
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:146:13-45
+	android:excludeFromRecents
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:145:13-47
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:148:13-44
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:144:13-66
+activity#com.ui.activities.BlockMCContacts
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:152:9-163:20
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:156:13-49
+	android:label
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:155:13-45
+	android:excludeFromRecents
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:154:13-47
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:157:13-44
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:153:13-61
+activity#com.ui.activities.SelectSpecificContacts
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:165:9-172:20
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:167:13-49
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:168:13-44
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:166:13-68
+activity#com.ui.activities.AudioFilesHistoryActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:173:9-180:20
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:175:13-49
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:176:13-44
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:174:13-71
+activity#com.ui.activities.SetSettingsActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:182:9-189:20
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:184:13-49
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:185:13-44
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:183:13-65
+activity#com.ui.activities.SetAboutHelpActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:191:9-198:20
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:193:13-49
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:194:13-44
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:192:13-66
+activity#com.ui.activities.HomeActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:202:9-211:20
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:204:13-49
+	android:label
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:205:13-45
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:203:13-58
+activity#com.ui.activities.GalleryLauncherFragmentActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:213:9-216:58
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:215:13-49
+	android:label
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:216:13-55
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:214:13-77
+activity#com.ui.activities.ComplexImageActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:218:9-221:55
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:220:13-49
+	android:label
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:221:13-52
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:219:13-66
+activity#com.ipaulpro.afilechooser.FileChooserActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:225:9-239:20
+	android:enabled
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:227:13-49
+	android:label
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:230:13-48
+	android:exported
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:228:13-36
+	android:icon
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:229:13-48
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:226:13-73
+intent-filter#android.intent.action.GET_CONTENT+android.intent.category.DEFAULT+android.intent.category.OPENABLE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:231:13-238:29
+action#android.intent.action.GET_CONTENT
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:232:17-76
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:232:25-73
+category#android.intent.category.DEFAULT
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:234:17-76
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:234:27-73
+category#android.intent.category.OPENABLE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:235:17-77
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:235:27-74
+data
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:237:17-48
+	android:mimeType
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:237:23-45
+service#com.services.IncomingService
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:243:9-246:37
+	android:enabled
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:245:13-35
+	android:priority
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:246:13-35
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:244:13-56
+service#com.services.OutgoingService
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:248:9-251:37
+	android:enabled
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:250:13-35
+	android:priority
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:251:13-35
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:249:13-56
+service#com.services.PreviewService
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:253:9-256:37
+	android:enabled
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:255:13-35
+	android:priority
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:256:13-35
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:254:13-55
+service#com.services.ServerProxyService
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:258:9-261:37
+	android:enabled
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:260:13-35
+	android:priority
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:261:13-35
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:259:13-59
+service#com.services.PushService
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:263:9-60
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:263:18-57
+service#com.services.GetTokenIntentService
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:265:9-267:39
+	android:exported
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:267:13-37
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:266:13-62
+service#com.services.ClearMediaIntentService
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:269:9-271:39
+	android:exported
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:271:13-37
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:270:13-64
+service#com.services.SyncOnDefaultMediaIntentService
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:273:9-275:40
+	android:exported
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:275:13-37
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:274:13-72
+service#com.services.SyncContactsIntentService
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:277:9-279:40
+	android:exported
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:279:13-37
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:278:13-66
+service#com.batch.android.BatchPushService
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:283:9-70
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:283:18-67
+receiver#com.receivers.BootCompletedBroadcastReceiver
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:287:9-291:20
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:287:19-78
+intent-filter#android.intent.action.BOOT_COMPLETED
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:288:13-290:29
+action#android.intent.action.BOOT_COMPLETED
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:289:17-79
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:289:25-76
+receiver#com.ui.activities.LoginActivity$IncomingSms
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:293:9-297:20
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:293:19-77
+intent-filter#android.provider.Telephony.SMS_RECEIVED
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:294:13-296:29
+action#android.provider.Telephony.SMS_RECEIVED
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:295:17-82
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:295:25-79
+receiver#com.receivers.SyncDefaultMediaReceiver
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:299:9-303:20
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:299:19-72
+intent-filter#com.android.mediacallz.SYNC_DEFULAT_MEDIA_ACTION
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:300:13-302:29
+action#com.android.mediacallz.SYNC_DEFULAT_MEDIA_ACTION
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:301:17-91
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:301:25-88
+receiver#com.receivers.StartStandOutServicesFallBackReceiver
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:305:9-313:20
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:305:19-85
+intent-filter#android.intent.action.NEW_OUTGOING_CALL+android.intent.action.PHONE_STATE+android.net.conn.CONNECTIVITY_CHANGE+com.android.mediacallz.ALARM_ACTION+com.android.mediacallz.EVENT_ACTION
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:306:13-312:29
+action#android.intent.action.NEW_OUTGOING_CALL
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:307:17-82
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:307:25-79
+action#android.intent.action.PHONE_STATE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:308:17-76
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:308:25-73
+action#com.android.mediacallz.EVENT_ACTION
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:309:17-78
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:309:25-75
+action#android.net.conn.CONNECTIVITY_CHANGE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:310:17-79
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:310:25-76
+action#com.android.mediacallz.ALARM_ACTION
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:311:17-78
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:311:25-75
+receiver#com.receivers.ConnectivityBroadcastReceiver
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:315:9-320:20
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:315:19-77
+intent-filter#android.net.conn.CONNECTIVITY_CHANGE+android.net.wifi.STATE_CHANGE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:316:13-319:29
+action#android.net.wifi.STATE_CHANGE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:317:17-72
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:317:25-69
+receiver#com.receivers.BackgroundBroadcastReceiver
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:322:9-326:20
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:322:19-75
+intent-filter#com.android.mediacallz.EVENT_ACTION
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:323:13-325:29
+receiver#com.receivers.PushReceiver
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:328:9-335:20
+	android:permission
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:330:13-73
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:329:13-54
+intent-filter#com.google.android.c2dm.intent.RECEIVE+com.mediacallz.app
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:331:13-334:29
+action#com.google.android.c2dm.intent.RECEIVE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:332:17-81
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:332:25-78
+category#com.mediacallz.app
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:333:17-63
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:333:27-60
+receiver#com.batch.android.BatchPushReceiver
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:339:9-346:20
+	android:permission
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:341:13-73
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:340:13-63
+receiver#com.widget.UILWidgetProvider
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:350:9-358:20
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:350:19-62
+meta-data#android.appwidget.provider
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:351:13-353:59
+	android:resource
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:353:17-56
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:352:17-58
+intent-filter#android.appwidget.action.APPWIDGET_UPDATE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:355:13-357:29
+action#android.appwidget.action.APPWIDGET_UPDATE
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:356:17-84
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:356:25-81
+meta-data#io.fabric.ApiKey
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:360:9-362:72
+MERGED from [SpecialCall_Repository:standOut_lib:unspecified] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\bundles\default\AndroidManifest.xml:15:5-17:68
+MERGED from [SpecialCall_Repository:aFileChooser:unspecified] C:\git\SpecialCall_Repository\aFileChooser\build\intermediates\bundles\default\AndroidManifest.xml:24:5-26:68
+	android:value
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:362:13-69
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:361:13-44
+meta-data#android.support.VERSION
+ADDED from [com.android.support:design:25.3.1] C:\Users\Mor\.android\build-cache\f61f2312ae089ab16940ef88f09712c5cbc6f430\output\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:transition:25.3.1] C:\Users\Mor\.android\build-cache\c66e0935c819f7be92571b43dfb788ede7caa50b\output\AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:appcompat-v7:25.3.1] C:\Users\Mor\.android\build-cache\3d7a38aff6692d59aa5140782042f257f132505f\output\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-v4:25.3.1] C:\Users\Mor\.android\build-cache\0ed2904fdcd7f75ccc72827920af19bffd3b789f\output\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-fragment:25.3.1] C:\Users\Mor\.android\build-cache\35f580b9465334b0764e8d96ce83782e63c63783\output\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-media-compat:25.3.1] C:\Users\Mor\.android\build-cache\26ba4bc14aa602d614ca9232ff4aa32c6163defb\output\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-core-utils:25.3.1] C:\Users\Mor\.android\build-cache\0b2e450e25cdc311f2b3e73dbd13a48cbfd5ec0b\output\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:animated-vector-drawable:25.3.1] C:\Users\Mor\.android\build-cache\d17e3dd12477c1945f790f71e3ec249177a5218a\output\AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:support-vector-drawable:25.3.1] C:\Users\Mor\.android\build-cache\dce3c3c3b5cfcb5e45e5c63790c3f35cf99dfadd\output\AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:recyclerview-v7:25.3.1] C:\Users\Mor\.android\build-cache\cb5e1d34e86a5c2e9eac7ecfd9b78ff22878e81a\output\AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:support-core-ui:25.3.1] C:\Users\Mor\.android\build-cache\9213c2ff55a8e40cfb412f070d1eb4649cc22365\output\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-compat:25.3.1] C:\Users\Mor\.android\build-cache\85bc0d76ec46f6d3afff9529ff8b66f9e720bc31\output\AndroidManifest.xml:25:5-27:34
+	android:value
+		ADDED from [com.android.support:design:25.3.1] C:\Users\Mor\.android\build-cache\f61f2312ae089ab16940ef88f09712c5cbc6f430\output\AndroidManifest.xml:27:9-31
+	android:name
+		ADDED from [com.android.support:design:25.3.1] C:\Users\Mor\.android\build-cache\f61f2312ae089ab16940ef88f09712c5cbc6f430\output\AndroidManifest.xml:26:9-47
+activity#com.google.android.gms.common.api.GoogleApiActivity
+ADDED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.android\build-cache\3dd0f09230808c2e35140a454f8b0b3fb497a9a9\output\AndroidManifest.xml:19:9-172
+	android:exported
+		ADDED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.android\build-cache\3dd0f09230808c2e35140a454f8b0b3fb497a9a9\output\AndroidManifest.xml:19:146-170
+	android:theme
+		ADDED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.android\build-cache\3dd0f09230808c2e35140a454f8b0b3fb497a9a9\output\AndroidManifest.xml:19:86-145
+	android:name
+		ADDED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.android\build-cache\3dd0f09230808c2e35140a454f8b0b3fb497a9a9\output\AndroidManifest.xml:19:19-85
+meta-data#com.google.android.gms.version
+ADDED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.android\build-cache\3cfd66696356caf9f7acedc945e0e54fe92aa255\output\AndroidManifest.xml:20:9-121
+	android:value
+		ADDED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.android\build-cache\3cfd66696356caf9f7acedc945e0e54fe92aa255\output\AndroidManifest.xml:20:66-119
+	android:name
+		ADDED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.android\build-cache\3cfd66696356caf9f7acedc945e0e54fe92aa255\output\AndroidManifest.xml:20:20-65

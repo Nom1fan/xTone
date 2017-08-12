@@ -47,7 +47,7 @@ public class OnlineContactAdapter extends ArrayAdapter<ContactWrapper> implement
                     List<ContactWrapper> found = new ArrayList<>();
                     dynamicContacts = new ArrayList<>(arrayOfUsers);
                     for (ContactWrapper contactWrapper : dynamicContacts) {
-                        if (contactWrapper.getContact().getName().toLowerCase().contains(constraint) || contactWrapper.getContact().getPhoneNumber().contains(constraint)) {
+                        if (contactWrapper.getContact().getContactName().toLowerCase().contains(constraint) || contactWrapper.getContact().getPhoneNumber().contains(constraint)) {
                             found.add(contactWrapper);
                         }
                     }
@@ -87,7 +87,7 @@ public class OnlineContactAdapter extends ArrayAdapter<ContactWrapper> implement
         TextView tvPhone = (TextView) convertView.findViewById(R.id.contact_phone);
         ImageView contactStatusImage = (ImageView) convertView.findViewById(R.id.contact_status);
         // Populate the data into the template view using the data object
-        tvName.setText(contactWrapper != null ? contactWrapper.getContact().getName() : null);
+        tvName.setText(contactWrapper != null ? contactWrapper.getContact().getContactName() : null);
         tvPhone.setText(contactWrapper != null ? contactWrapper.getContact().getPhoneNumber() : null);
 
         if (contactWrapper != null && contactWrapper.getUserStatus().equals(UserStatus.REGISTERED)) {

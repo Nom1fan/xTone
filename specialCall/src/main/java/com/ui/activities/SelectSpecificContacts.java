@@ -232,7 +232,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         List<Contact> contactsList = contactsUtils.getAllContacts(getApplicationContext());
 
         for (int x=0; x<contactsList.size(); x++) {
-            String name = contactsList.get(x).getName();
+            String name = contactsList.get(x).getContactName();
             String phoneNumber = contactsList.get(x).getPhoneNumber();
 
             if (!_phonesInListView.contains(phoneNumber) && PhoneNumberUtils.isValidPhoneNumber(phoneNumber)) // so there won't be any phone duplicates

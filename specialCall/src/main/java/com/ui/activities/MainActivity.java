@@ -59,6 +59,8 @@ import com.event.EventReport;
 import com.files.media.MediaFile;
 import com.flows.UploadFileFlow;
 import com.flows.WaitForTransferSuccessPostUploadFileFlowLogic;
+import com.logger.Logger;
+import com.logger.LoggerFactory;
 import com.mediacallz.app.R;
 import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.services.IncomingService;
@@ -110,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private InitUtils initUtils = UtilityFactory.instance().getUtility(InitUtils.class);
 
+    private Logger logger = LoggerFactory.getLogger();
 
     //endregion
 
@@ -117,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "onCreate()");
+        logger.info(TAG, "onCreate()");
 
         //region onCreateBasic
         startLoginActivityIfLoggedOut();
@@ -149,19 +152,19 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 @Override
                 public void onPageScrollStateChanged(int arg0) {
                     // TODO Auto-generated method stub
-                    Log.i(TAG, "onPageScrollStateChanged");
+                    logger.info(TAG, "onPageScrollStateChanged");
 
                 }
 
                 @Override
                 public void onPageScrolled(int arg0, float arg1, int arg2) {
-                    Log.i(TAG, "onPageScrolled");
+                    logger.info(TAG, "onPageScrolled");
 
                 }
 
                 @Override
                 public void onPageSelected(int pos) {
-                    Log.i(TAG, "onPageSelected");
+                    logger.info(TAG, "onPageSelected");
                     switch (pos) {
                         case 0:
                             searchView.setVisibility(View.VISIBLE);
@@ -176,6 +179,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             };
             viewPager.addOnPageChangeListener(mPageChangeListener);
             fragmanager = getFragmentManager();
+
+            initUtils.initSyncDefaultMediaReceiver(this);
+            initUtils.syncContacts(this);
         }
 
     }
@@ -406,8 +412,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
             // ifHuaweiAlert();
-            initUtils.initSyncDefaultMediaReceiver(this);
-
         }
     }
 
@@ -603,7 +607,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             case GET_REGISTERED_CONTACTS_SUCCESS:
                 // Construct the data source
                 List<ContactWrapper> arrayOfUsers = new ArrayList<>((List<ContactWrapper>) event.report().data());
-                CacheUtils.cachedContactList = arrayOfUsers;
+                CacheUtils.contactWrappers = arrayOfUsers;
                 customePageAdapter.notifyDataSetChanged();
                 break;
 

@@ -1,12 +1,15 @@
 package com.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Point;
 import android.os.Build;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.client.ClientFactory;
+import com.client.UsersClient;
 import com.crashlytics.android.Crashlytics;
 import com.data.objects.Constants;
 import com.enums.SaveMediaOption;
@@ -23,6 +26,7 @@ import java.util.List;
 import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
 import com.receivers.SyncDefaultMediaReceiver;
+import com.services.SyncContactsIntentService;
 
 import static com.crashlytics.android.Crashlytics.log;
 import static com.files.media.MediaFile.FileType.IMAGE;
@@ -41,6 +45,10 @@ public class InitUtilsImpl implements InitUtils {
     private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
     private Phone2MediaPathMapperUtils phone2MediaPathMapperUtils = UtilityFactory.instance().getUtility(Phone2MediaPathMapperUtils.class);
+
+    private UsersClient usersClient = ClientFactory.getInstance().getClient(UsersClient.class);
+
+    private ContactsUtils contactsUtils = UtilityFactory.instance().getUtility(ContactsUtils.class);
 
     @Override
     public void hideMediaFromGalleryScanner() {
@@ -119,6 +127,12 @@ public class InitUtilsImpl implements InitUtils {
     @Override
     public void initSyncDefaultMediaReceiver(Context context) {
         alarmUtils.setAlarm(context, SyncDefaultMediaReceiver.class, SYNC_REPEAT_INTERVAL, SyncDefaultMediaReceiver.SYNC_ACTION);
+    }
+
+    @Override
+    public void syncContacts(Context context) {
+        Intent intent = new Intent(context, SyncContactsIntentService.class);
+        context.startService(intent);
     }
 
     private void populateSharedPrefMedia(Context context, List<File> Directories, SpecialMediaType specialMediaType) {

@@ -231,7 +231,7 @@ public class BlockMCContacts extends AppCompatActivity implements View.OnClickLi
         List<Contact> contactsList = contactsUtils.getAllContacts(getApplicationContext());
 
         for (int i=0; i<contactsList.size(); i++) {
-            String name = contactsList.get(i).getName();
+            String name = contactsList.get(i).getContactName();
             String phoneNumber = contactsList.get(i).getPhoneNumber();
 
             if (!_phonesInListView.contains(phoneNumber) && (phoneNumber.length() == 10)) {
