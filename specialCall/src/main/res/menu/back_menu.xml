@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ContactMCSelectionActivity">
+
+    <item
+        android:id="@+id/action_back_btn"
+        android:enabled="true"
+        android:icon="@drawable/up_arrow"
+        android:title="back ..."
+        android:visible="true"
+        app:showAsAction="always" />
+
+</menu>

@@ -1,31 +1,35 @@
 package com.ui.dialogs;
 
+import android.Manifest;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
+import android.telephony.SmsManager;
 import android.util.Log;
-import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mediacallz.app.R;
-import com.utils.SharedPrefUtils;
 
 import static com.crashlytics.android.Crashlytics.log;
 
-
-public class InviteDialog extends android.app.DialogFragment {
+public class InviteDialog extends DialogFragment {
 
     private static final String TAG  = InviteDialog.class.getSimpleName();
     private String name = "";
+    private String number = "";
 
-    public InviteDialog(String name){
+    public InviteDialog(String name,String number){
         this.name = name;
+        this.number = number;
 
     }
 
@@ -49,13 +53,8 @@ public class InviteDialog extends android.app.DialogFragment {
 
                         try {
 
-                            Intent intent = new Intent(Intent.ACTION_SENDTO,
-                                    Uri.fromParts("sms", SharedPrefUtils.getString(context,SharedPrefUtils.GENERAL,SharedPrefUtils.DESTINATION_NUMBER), null));
-                            intent.putExtra("sms_body", getResources().getString(R.string.invite));
-                            startActivity(intent);
+                            sendSMS(context,number,getResources().getString(R.string.invite));
 
-                            SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.DESTINATION_NUMBER,"");
-                            SharedPrefUtils.setString(context,SharedPrefUtils.GENERAL,SharedPrefUtils.DESTINATION_NAME,"");
                             getDialog().dismiss();
 
                         } catch (Exception ex) {
@@ -74,6 +73,34 @@ public class InviteDialog extends android.app.DialogFragment {
                 });
 
         return builder.create();
+    }
+
+
+    public void sendSMS(Context context,String phoneNo, String msg) {
+
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED)
+        {
+            try {
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(phoneNo, null, msg, null, null);
+                Toast.makeText(context, "Message Sent",
+                        Toast.LENGTH_LONG).show();
+            } catch (Exception ex) {
+                Toast.makeText(context,ex.getMessage().toString(),
+                        Toast.LENGTH_LONG).show();
+                ex.printStackTrace();
+            }
+        }
+        else
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            {
+                requestPermissions(new String[]{Manifest.permission.SEND_SMS}, 10);
+            }
+        }
+
+
     }
 
 }

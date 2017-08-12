@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/clh_drawer_layout"
+    android:theme="@style/DrawerArrowStyle"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#004559">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/callsLogHistoryActivity"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#004559"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        android:padding="15dip"
+        android:visibility="visible">
+
+
+        <ProgressBar
+            android:id="@+id/clh_fetchuserprogress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/selectProfileMediaBtn"
+            android:layout_alignEnd="@+id/selectContactBtn"
+            android:layout_alignLeft="@+id/selectContactBtn"
+            android:layout_alignRight="@+id/selectContactBtn"
+            android:layout_alignStart="@+id/selectContactBtn"
+            android:layout_alignTop="@+id/selectContactBtn"
+            android:layout_toLeftOf="@+id/selectContactBtn"
+            android:visibility="gone" />
+
+
+     <!--   <ListView
+            android:id="@+id/calls_log_history_lv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:fontFamily="sans-serif-light"
+            android:textAlignment="center"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="#ffffff"
+            android:textSize="50dp"
+            android:visibility="visible" />-->
+
+        <ImageButton
+            android:id="@+id/mediacallz_main_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="false"
+            android:enabled="true"
+            android:src="@drawable/color_mc_anim"
+            android:text="MC"
+            android:visibility="invisible" />
+
+        <ImageButton
+            android:id="@+id/call_history_main_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentRight="false"
+            android:layout_alignParentStart="true"
+            android:layout_alignTop="@+id/mediacallz_main_btn"
+            android:layout_toRightOf="@+id/mediacallz_main_btn"
+            android:enabled="true"
+            android:src="@android:drawable/ic_menu_recent_history"
+            android:text="CallHistory"
+            android:visibility="invisible" />
+
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/clh_left_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        android:background="#cccccc"/>
+
+
+
+</android.support.v4.widget.DrawerLayout>
