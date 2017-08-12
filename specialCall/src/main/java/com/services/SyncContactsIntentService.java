@@ -17,30 +17,27 @@ import static com.crashlytics.android.Crashlytics.log;
  * Created by Mor on 25/05/2017.
  */
 
-public class SyncOnDefaultMediaIntentService extends IntentService {
+public class SyncContactsIntentService extends IntentService {
 
-    private static final String TAG = SyncOnDefaultMediaIntentService.class.getSimpleName();
+    private static final String TAG = SyncContactsIntentService.class.getSimpleName();
 
     private final Logger logger = LoggerFactory.getLogger();
 
-
-    public SyncOnDefaultMediaIntentService() {
+    public SyncContactsIntentService() {
         super(TAG);
     }
 
-    public SyncOnDefaultMediaIntentService(String name) {
+    public SyncContactsIntentService(String name) {
         super(name);
     }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-       logger.debug(TAG, "Initiating default media sync process...");
+        logger.info(TAG, "Inside SyncContactsIntentService");
 
-        if(intent != null) {
-            SyncOnDefaultMediaIntentServiceLogic logic = new SyncOnDefaultMediaIntentServiceLogic(this, new ServerProxyAccess());
-
+        if (intent != null) {
+            SyncContactsLogic logic = new SyncContactsLogic(getApplicationContext());
             logic.executeLogic();
-            SyncDefaultMediaReceiver.completeWakefulIntent(intent);
         }
     }
 }

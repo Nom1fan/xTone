@@ -23,6 +23,8 @@ interface ConnectionToServer {
 
     <T> Response<T> readResponse() throws IOException;
 
+    <T> Response<T> readResponse(Class<T> aClass) throws IOException;
+
     int sendMultipartToServer(String url, ProgressiveEntity progressiveEntity);
 
     boolean download(String url, String pathToDownload, long fileSize, DownloadFileRequest request);

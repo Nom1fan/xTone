@@ -40,7 +40,7 @@ public class ClientFactory {
         return instance;
     }
 
-    public <T extends Client> T getClient(Class<? extends Client> interfaceClass) {
+    public <T extends Client> T getClient(Class<T> interfaceClass) {
         T result = null;
         try {
             Class<? extends Client> clientClass = class2ObjectMap.get(interfaceClass);

@@ -4,6 +4,7 @@ import com.converters.MediaDataConverter;
 import com.converters.MediaDataConverterImpl;
 import com.logger.Logger;
 import com.logger.LoggerFactory;
+import com.model.request.Request;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ public class UtilityFactory {
             put(PowerManagerUtils.class, PowerManagerUtilsImpl.class);
             put(Phone2MediaPathMapperUtils.class, Phone2MediaPathMapperUtilsImpl.class);
             put(ContactsUtils.class, ContactsUtilsImpl.class);
+            put(RequestUtils.class, RequestUtilsImpl.class);
         }};
     }
 
@@ -44,7 +46,7 @@ public class UtilityFactory {
         return instance;
     }
 
-    public <T extends Utility> T getUtility(Class<? extends Utility> interfaceClass) {
+    public <T extends Utility> T getUtility(Class<T> interfaceClass) {
         T result = null;
         try {
             Class<? extends Utility> utilityClass = class2ObjectMap.get(interfaceClass);

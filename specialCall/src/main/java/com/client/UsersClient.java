@@ -19,8 +19,10 @@ import java.util.List;
 public interface UsersClient extends Client {
 
     String URL_GET_REGISTERED_CONTACTS = ROOT_URL + "/v1/GetRegisteredContacts";
-    Type responseType = new TypeToken<Response<List<User>>>() {
-    }.getType();
+
+    String URL_SYNC_CONTACTS = ROOT_URL + "/v1/SyncContacts";
 
     List<User> getRegisteredUsers(Context context, List<String> uids);
+
+    void syncContacts(Context context, List<Contact> contacts);
 }

@@ -18,6 +18,7 @@ import com.enums.SpecialMediaType;
 import com.files.media.MediaFile;
 import com.logger.Logger;
 import com.logger.LoggerFactory;
+import com.logic.Logic;
 import com.utils.ContactsUtils;
 import com.utils.MediaFileUtils;
 import com.utils.UtilityFactory;
@@ -32,7 +33,7 @@ import static com.enums.SpecialMediaType.DEFAULT_PROFILE_MEDIA;
  * Created by Mor on 25/05/2017.
  */
 
-public class SyncOnDefaultMediaIntentServiceLogic {
+public class SyncOnDefaultMediaIntentServiceLogic implements Logic {
 
     private static final String TAG = SyncOnDefaultMediaIntentServiceLogic.class.getSimpleName();
 
@@ -74,7 +75,8 @@ public class SyncOnDefaultMediaIntentServiceLogic {
         this.contactsUtils = contactsUtils;
     }
 
-    public void performSyncOnDefaultMedia() {
+    @Override
+    public void executeLogic() {
 
         try {
             syncOnDefaultMedia(DEFAULT_CALLER_MEDIA);

@@ -74,6 +74,14 @@ public class ConnectionToServerImpl implements ConnectionToServer  {
     }
 
     @Override
+    public <T> Response<T> readResponse(Class<T> aClass) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+        String responseBody = br.readLine();
+        responseType = aClass;
+        return extractResponse(responseBody);
+    }
+
+    @Override
     public int sendMultipartToServer(String url, ProgressiveEntity progressiveEntity) {
         HttpPost post = null;
         int responseCode = -1;

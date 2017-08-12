@@ -16,11 +16,15 @@ import com.event.EventReport;
 import com.event.EventType;
 import com.handlers.ActionHandler;
 import com.handlers.HandlerFactory;
+import com.logger.Logger;
+import com.logger.LoggerFactory;
 import com.mediacallz.app.R;
 import com.model.request.Request;
 import com.utils.BroadcastUtils;
 import com.utils.RequestUtils;
+import com.utils.RequestUtilsImpl;
 import com.utils.SharedPrefUtils;
+import com.utils.UtilityFactory;
 
 import static com.crashlytics.android.Crashlytics.log;
 
@@ -30,6 +34,8 @@ import static com.crashlytics.android.Crashlytics.log;
 public class ServerProxyService extends Service implements Runnable {
 
     private static final String TAG = ServerProxyService.class.getSimpleName();
+
+    private final Logger logger = LoggerFactory.getLogger();
 
     //region Service actions
     public static final String ACTION_REGISTER = "com.services.ServerProxyService.REGISTER";
@@ -57,6 +63,8 @@ public class ServerProxyService extends Service implements Runnable {
     public static final String DEFAULT_MEDIA_DATA = "DEFAULT_MEDIA_DATA";
     //endregion
 
+    private final RequestUtils requestUtils = UtilityFactory.instance().getUtility(RequestUtils.class);
+
     private Intent intent;
     private int flags;
     private int startId;
@@ -65,7 +73,7 @@ public class ServerProxyService extends Service implements Runnable {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        log(Log.INFO, TAG, "ServerProxyService started");
+        logger.info(TAG, "ServerProxyService started");
 
         this.intent = intent;
         this.flags = flags;
@@ -82,12 +90,12 @@ public class ServerProxyService extends Service implements Runnable {
 
     @Override
     public void onCreate() {
-        log(Log.INFO, TAG, "Created");
+        logger.info(TAG, "Created");
     }
 
     @Override
     public void onDestroy() {
-        log(Log.ERROR, TAG, "Being destroyed");
+        logger.error(TAG, "Being destroyed");
     }
 
     @Override
@@ -100,7 +108,7 @@ public class ServerProxyService extends Service implements Runnable {
     public void run() {
         if (intent != null) {
             String action = intent.getAction();
-            log(Log.INFO, TAG, "Action:" + action);
+            logger.info(TAG, "Action:" + action);
 
             Request request = createDefaultRequest();
             ConnectionToServerImpl connectionToServer = new ConnectionToServerImpl();
@@ -121,7 +129,7 @@ public class ServerProxyService extends Service implements Runnable {
                 e.printStackTrace();
                 String errMsg = "Action failed:" + action + " Exception:" + e.getMessage();
                 handleActionFailure();
-                log(Log.ERROR, TAG, errMsg);
+                logger.error(TAG, errMsg);
             } finally {
                 connectionToServer.disconnect();
             }
@@ -133,7 +141,7 @@ public class ServerProxyService extends Service implements Runnable {
 
     //region Internal handling methods
     private void setMidAction(boolean bool) {
-        log(Log.INFO, TAG, "Setting midAction=" + bool);
+        logger.info( TAG, "Setting midAction=" + bool);
         SharedPrefUtils.setBoolean(this, SharedPrefUtils.SERVER_PROXY, SharedPrefUtils.WAS_MID_ACTION, bool);
     }
 
@@ -146,7 +154,7 @@ public class ServerProxyService extends Service implements Runnable {
         boolean shouldStop = false;
         // If crash restart occurred but was not mid-action we should do nothing
         if ((flags & START_FLAG_REDELIVERY) != 0 && !wasMidAction()) {
-            log(Log.INFO, TAG, "Crash restart occurred but was not mid-action (wasMidAction()=" + wasMidAction() + ". Exiting service.");
+            logger.info( TAG, "Crash restart occurred but was not mid-action (wasMidAction()=" + wasMidAction() + ". Exiting service.");
             stopSelf(startId);
             shouldStop = true;
         }
@@ -162,7 +170,7 @@ public class ServerProxyService extends Service implements Runnable {
 
     private Request createDefaultRequest() {
         Request request = new Request();
-        RequestUtils.prepareDefaultRequest(getApplicationContext(), request);
+        requestUtils.prepareDefaultRequest(getApplicationContext(), request);
         return request;
     }
 
