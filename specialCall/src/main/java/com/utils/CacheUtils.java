@@ -3,6 +3,7 @@ package com.utils;
 import android.content.Context;
 
 import com.data.objects.CallHistoryRecord;
+import com.data.objects.Contact;
 import com.data.objects.ContactWrapper;
 
 import java.util.List;
@@ -14,7 +15,9 @@ public abstract class CacheUtils {
 
     public static List<CallHistoryRecord> cachedCallHistoryList;
 
-    public static List<ContactWrapper> cachedContactList;
+    public static List<ContactWrapper> contactWrappers;
+
+    public static List<Contact> contactList;
 
     public static boolean isPhoneInCache(Context context, String destPhone) {
 

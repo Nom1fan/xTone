@@ -20,4 +20,6 @@ public interface InitUtils extends Utility {
     void initImageLoader(Context context);
 
     void initSyncDefaultMediaReceiver(Context context);
+
+    void syncContacts(Context context);
 }

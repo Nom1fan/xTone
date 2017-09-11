@@ -12,14 +12,13 @@ import com.model.request.Request;
 import com.model.request.SyncContactsRequest;
 import com.model.response.Response;
 import com.utils.RequestUtils;
-import com.utils.RequestUtilsImpl;
 import com.utils.UtilityFactory;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -64,6 +63,7 @@ public class UsersClientImpl implements UsersClient {
         ConnectionToServerImpl connectionToServer = new ConnectionToServerImpl();
         Request defaultRequest = requestUtils.getDefaultRequest(context);
         SyncContactsRequest syncContactsRequest = new SyncContactsRequest(defaultRequest);
+        syncContactsRequest.setContacts(new HashSet<>(contacts));
         try {
             logger.info(TAG, "Initiating syncContacts sequence...");
             int responseCode = connectionToServer.sendRequest(URL_SYNC_CONTACTS, syncContactsRequest);

@@ -70,7 +70,7 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
 
                 ListView onlineListOfContactsLV = (ListView)view.findViewById(R.id.online_contacts);
 
-                if (CacheUtils.cachedContactList == null)
+                if (CacheUtils.contactWrappers == null)
                     break;
 
                 retreiveOnlineAdapter();
@@ -132,7 +132,7 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
                 ListView dailerListView = (ListView)view.findViewById(R.id.dailer_listview);
                 EditTextPhoneNumber = (EditText) view.findViewById(R.id.EditTextPhoneNumber);
 
-                if (CacheUtils.cachedContactList == null)
+                if (CacheUtils.contactWrappers == null)
                     break;
 
                 retreiveOnlineAdapter();
@@ -314,7 +314,7 @@ public class CustomPagerAdapter extends PagerAdapter implements ICallbackListene
     public OnlineContactAdapter retreiveOnlineAdapter(){
 
         if (onlineListOfContactsAdapter == null)
-            onlineListOfContactsAdapter = new OnlineContactAdapter(view.getContext(), CacheUtils.cachedContactList,CacheUtils.cachedContactList);;
+            onlineListOfContactsAdapter = new OnlineContactAdapter(view.getContext(), CacheUtils.contactWrappers,CacheUtils.contactWrappers);;
 
         return onlineListOfContactsAdapter;
     }

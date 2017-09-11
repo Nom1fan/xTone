@@ -269,6 +269,10 @@
             android:name="com.services.SyncOnDefaultMediaIntentService"
             android:exported="false" />
 
+        <service
+            android:name="com.services.SyncContactsIntentService"
+            android:exported="false" />
+
         <!-- Batch Service -->
 
         <service android:name="com.batch.android.BatchPushService" />

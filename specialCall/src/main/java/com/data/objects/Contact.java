@@ -5,20 +5,20 @@ package com.data.objects;
  */
 public class Contact extends AbstractDataObject{
 
-    private String name;
-    private String phoneNumber;
+    private String contactName;
+    private String contactUid;
 
-    public Contact(String name, String phoneNumber) {
-        this.name = name;
-        this.phoneNumber = phoneNumber;
+    public Contact(String contactName, String contactUid) {
+        this.contactName = contactName;
+        this.contactUid = contactUid;
     }
 
-    public String getName() {
-        return name;
+    public String getContactName() {
+        return contactName;
     }
 
     public String getPhoneNumber() {
-        return phoneNumber;
+        return contactUid;
     }
 
     @Override
@@ -28,20 +28,20 @@ public class Contact extends AbstractDataObject{
 
         Contact contact = (Contact) o;
 
-        return phoneNumber.equals(contact.phoneNumber);
+        return contactUid.equals(contact.contactUid);
 
     }
 
     @Override
     public int hashCode() {
-        return phoneNumber.hashCode();
+        return contactUid.hashCode();
     }
 
     @Override
     public String toString() {
         return "Contact{" +
-                "name='" + name + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
+                "contactName='" + contactName + '\'' +
+                ", phoneNumber='" + contactUid + '\'' +
                 '}';
     }
 }
