@@ -3,7 +3,6 @@ package com.ui.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -24,7 +23,6 @@ import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.services.ServerProxyService;
 import com.utils.InitUtils;
-import com.utils.UI_Utils;
 import com.utils.UtilityFactory;
 
 import java.util.HashMap;
@@ -78,6 +76,7 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        PermissionForSystemOverlay();
         log(Log.INFO,TAG, "OnResume()");
     }
     //endregion
@@ -132,10 +131,23 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
                     }
                     else
                         registering();
+
+
+
                 }
             });
         }
     }
+
+
+    public void PermissionForSystemOverlay() {
+        if (!android.provider.Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, 5469);
+        }
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
