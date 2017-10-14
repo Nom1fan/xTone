@@ -27,11 +27,14 @@
         android:layout_height="35dip"
         android:layout_above="@+id/row1"
         android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@+id/ButtonDelete"
+        android:layout_toStartOf="@+id/ButtonDelete"
         android:background="@color/edittext_dailer_color"
         android:cursorVisible="false"
         android:editable="true"
         android:maxLines="1"
         android:textColor="@color/text_main"
+        android:textDirection="ltr"
         android:textSize="24.0sp"
         android:textStyle="bold" />
 
@@ -43,7 +46,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignTop="@+id/EditTextPhoneNumber"
         android:layout_weight="1"
-        android:background="@drawable/bg_button"
+        android:background="@color/edittext_dailer_color"
         android:onClick="onClick"
         android:src="@drawable/button_backspace" />
 

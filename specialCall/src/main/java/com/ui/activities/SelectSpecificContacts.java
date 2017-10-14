@@ -300,7 +300,7 @@ public class SelectSpecificContacts extends AppCompatActivity implements OnItemC
         public View getView(final int position, View convertView, ViewGroup parent) {
             View vi = convertView;
             if (vi == null)
-                vi = LayoutInflater.from(getApplicationContext()).inflate(R.layout.row, null);  // vi = mInflater.inflate(R.layout.row, null);
+                vi = LayoutInflater.from(getApplicationContext()).inflate(R.layout.my_row, null);  // vi = mInflater.inflate(R.layout.my_row, null);
 
             tv = (TextView) vi.findViewById(R.id.textView1);
             tv1 = (TextView) vi.findViewById(R.id.textView2);

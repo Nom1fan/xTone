@@ -3,6 +3,7 @@
     android:id="@+id/loginScreen"
     android:layout_width="match_parent"
     android:background="#004559"
+    android:layoutDirection="ltr"
     android:layout_height="match_parent" >
 
     <ImageButton
@@ -58,25 +59,27 @@
         android:id="@+id/LoginNumber"
         android:layout_width="match_parent"
         android:layout_height="40dp"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentStart="false"
+        android:layout_alignStart="@+id/sign_in"
+        android:layout_below="@+id/sign_in"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="20dp"
+        android:layout_toLeftOf="@+id/login_phone_clear"
+        android:layout_toRightOf="@+id/login_phone_clear"
+        android:layout_toStartOf="@+id/login_phone_clear"
+        android:background="#01789b"
         android:ems="10"
-        android:maxLength="10"
+        android:fontFamily="sans-serif-light"
         android:hint="@string/your_phone"
         android:inputType="number"
+        android:layoutDirection="ltr"
+        android:maxLength="10"
         android:phoneNumber="true"
         android:singleLine="true"
-        android:background="#01789b"
-        android:textColorHint="#ffffff"
         android:textColor="#ffffff"
-        android:textSize="25dp"
-        android:fontFamily="sans-serif-light"
-        android:layout_below="@+id/sign_in"
-        android:layout_marginTop="20dp"
-        android:layout_toRightOf="@+id/login_phone_clear"
-        android:layout_alignParentStart="false"
-        android:layout_alignParentLeft="false"
-        android:layout_alignStart="@+id/sign_in"
-        android:layout_toLeftOf="@+id/login_phone_clear"
-        android:layout_toStartOf="@+id/login_phone_clear">
+        android:textColorHint="#ffffff"
+        android:textSize="25dp">
 
         <requestFocus />
     </EditText>
@@ -130,6 +133,7 @@
         android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:id="@+id/login_phone_clear"
+        android:layoutDirection="ltr"
         android:clickable="true"
         android:src="@drawable/clear_btn_anim"
         android:scaleType="fitXY"
@@ -177,5 +181,22 @@
         android:layout_marginTop="10dp"
         android:textColor="#ffffff"
         android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/country_dial_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/receive_sms_textview"
+        android:layout_alignParentLeft="false"
+        android:layout_alignTop="@+id/LoginNumber"
+        android:layout_centerHorizontal="false"
+        android:layout_centerInParent="false"
+        android:layout_centerVertical="false"
+        android:layout_toLeftOf="@+id/LoginNumber"
+        android:background="#01789b"
+        android:gravity="center_vertical"
+        android:text="000"
+        android:textColor="@color/common_google_signin_btn_text_dark_default"
+        android:textSize="20sp" />
 
 </RelativeLayout>

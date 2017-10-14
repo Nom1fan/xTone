@@ -32,6 +32,9 @@ import com.event.Event;
 import com.event.EventReport;
 import com.event.EventType;
 import com.mediacallz.app.R;
+import com.mukesh.countrypicker.Country;
+import com.mukesh.countrypicker.CountryPicker;
+import com.mukesh.countrypicker.CountryPickerListener;
 import com.services.GetTokenIntentService;
 import com.services.ServerProxyService;
 import com.utils.BroadcastUtils;
@@ -70,6 +73,8 @@ public class LoginActivity extends AppCompatActivity {
     private static boolean sentFromReceiver = false;
     private ImageButton clearLoginPhoneText;
     private ImageButton clearLoginSmsText;
+    private TextView countryPickerTV;
+    private CountryPicker picker;
     private  String[] smsPermissions = {Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS };
     //endregion
 
@@ -143,12 +148,56 @@ public class LoginActivity extends AppCompatActivity {
         prepareInitTextView();
         prepareInitProgressBar();
         prepareGetSmsCodeButton();
+        prepareCountryPicker();
+
+
+
+
+
 
         if (10 == SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER).length()) {
             visibleSmsButtons();
         }
 
     }
+
+    private void prepareCountryPicker() {
+
+        countryPickerTV = (TextView) findViewById(R.id.country_dial_code);
+        countryPickerTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startCountryDialCodePicker();
+            }
+        });
+
+        Country country = Country.getCountryFromSIM(getApplicationContext());
+        countryPickerTV.setText(country.getDialCode());
+
+    }
+
+    private void startCountryDialCodePicker() {
+
+
+        picker = CountryPicker.newInstance("Select Country");  // dialog title
+        picker.setListener(new CountryPickerListener() {
+            @Override
+            public void onSelectCountry(String name, String code, String dialCode, int flagDrawableResID) {
+                //Toast.makeText(LoginActivity.this, "name: " +name+ " Code: " +code+ " dialcode: " +dialCode, Toast.LENGTH_SHORT).show();
+                countryPickerTV.setText(dialCode);
+                picker.dismiss();
+
+
+            }
+        });
+        picker.show(getSupportFragmentManager(), "COUNTRY_PICKER");
+
+
+
+    }
+
+
+
 
     private void visibleSmsButtons() {
         loginBtn.setVisibility(View.VISIBLE);

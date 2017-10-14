@@ -55,6 +55,7 @@ repositories {
     mavenCentral()
     maven { url "http://maven.batch.com/release" }
     maven { url 'https://maven.fabric.io/public' }
+    maven { url "https://jitpack.io" }
 }
 
 
@@ -63,6 +64,10 @@ dependencies {
     compile project(':ffmpeg4android_lib')
     compile project(':standOut_lib')
     compile project(':aFileChooser')
+
+    //compile 'com.github.joielechong:CountryCodePicker:6b6bc0ba27'
+    compile 'com.github.mukeshsolanki:country-picker-android:1.1.9'
+
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'commons-lang:commons-lang:2.6'
