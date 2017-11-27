@@ -28,7 +28,6 @@ import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.AlarmUtils;
 import com.utils.ContactsUtils;
-import com.utils.ContactsUtilsImpl;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
 import com.utils.MediaCallSessionUtils;
@@ -46,7 +45,6 @@ import java.util.Random;
 
 import wei.mark.standout.StandOutWindow;
 
-import static com.crashlytics.android.Crashlytics.log;
 import static com.enums.PermissionBlockListLevel.CONTACTS_ONLY;
 import static com.enums.PermissionBlockListLevel.NO_ONE;
 
@@ -172,7 +170,7 @@ public class IncomingService extends AbstractStandOutService {
     protected synchronized void syncOnCallStateChange(int state, String incomingNumber) {
 
         Context context = getApplicationContext();
-        incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
+       // incomingNumber = PhoneNumberUtils.toValidLocalPhoneNumber(incomingNumber);
         boolean inRingingSession = MediaCallSessionUtils.isIncomingRingingInSession(context);
         logger.info(TAG, "Inside syncOnCallStateChange, incoming phone number : " + incomingNumber);
         mIncomingOutgoingNumber = incomingNumber;
@@ -273,6 +271,8 @@ public class IncomingService extends AbstractStandOutService {
 
     @NonNull
     private MediaCallData prepareMediaCallData(String incomingNumber) {
+
+        incomingNumber = incomingNumber.substring(incomingNumber.length()-6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
         Context context = getApplicationContext();
         String mediaFilePath = phone2MediaPathMapperUtils.getCallerVisualMediaPath(context, incomingNumber);
         String ringtonePath = phone2MediaPathMapperUtils.getCallerAudioMediaPath(context, incomingNumber);

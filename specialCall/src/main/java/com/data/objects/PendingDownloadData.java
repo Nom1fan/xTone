@@ -24,7 +24,10 @@ public class PendingDownloadData extends AbstractPushData {
     }
 
     public void setSourceId(String sourceId) {
-        this.sourceId = sourceId;
+        if (sourceId.length()>6)
+            this.sourceId = sourceId.substring(sourceId.length()-6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
+        else
+            this.sourceId = sourceId;
     }
 
     public String getSourceLocale() {

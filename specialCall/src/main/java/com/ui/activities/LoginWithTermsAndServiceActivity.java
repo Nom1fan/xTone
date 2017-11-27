@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.app.AppStateManager;
 import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.services.ServerProxyService;
@@ -243,10 +244,32 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
     }
 
     private void registering() {
+
+
         Constants.MY_ID(getApplicationContext(), loginNumber);
+
+
+        continueToMainActivity(); /// TO DO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
         ServerProxyService.register(getApplicationContext(), Integer.parseInt(smsVerificationCode));
 
         setResult(Activity.RESULT_OK);
+        finish();
+    }
+
+    private void continueToMainActivity() {
+        int millisToWait = 1500;
+        log(Log.INFO, TAG, String.format("Waiting %d milliseconds before continuing to MainActivity", millisToWait));
+
+        try {
+            Thread.sleep(millisToWait);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        log(Log.INFO, TAG, "Continuing to MainActivity");
+        AppStateManager.setIsLoggedIn(this, true);
+        final Intent i = new Intent(this, MainActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
         finish();
     }
 

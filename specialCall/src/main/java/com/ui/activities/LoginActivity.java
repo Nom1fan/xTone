@@ -5,11 +5,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsMessage;
@@ -75,7 +73,7 @@ public class LoginActivity extends AppCompatActivity {
     private ImageButton clearLoginSmsText;
     private TextView countryPickerTV;
     private CountryPicker picker;
-    private  String[] smsPermissions = {Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS };
+    private String[] smsPermissions = {Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS};
     //endregion
 
     //region Activity methods (onCreate(), onPause(), ...)
@@ -151,14 +149,7 @@ public class LoginActivity extends AppCompatActivity {
         prepareCountryPicker();
 
 
-
-
-
-
-        if (10 == SharedPrefUtils.getString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER).length()) {
-            visibleSmsButtons();
-        }
-
+        visibleSmsButtons();
     }
 
     private void prepareCountryPicker() {
@@ -192,17 +183,13 @@ public class LoginActivity extends AppCompatActivity {
         });
         picker.show(getSupportFragmentManager(), "COUNTRY_PICKER");
 
-
-
     }
-
-
 
 
     private void visibleSmsButtons() {
         loginBtn.setVisibility(View.VISIBLE);
-        smsCodeVerEditText.setVisibility(View.VISIBLE);
-        clearLoginSmsText.setVisibility(View.VISIBLE);
+        //smsCodeVerEditText.setVisibility(View.VISIBLE);
+       // clearLoginSmsText.setVisibility(View.VISIBLE);
     }
 
     private void prepareLoginLogo() {
@@ -255,20 +242,18 @@ public class LoginActivity extends AppCompatActivity {
                 else
                     clearLoginPhoneText.setImageResource(R.drawable.clear_btn_anim);
 
-                if (10 == s.length()) {
 
-                    if (PhoneNumberUtils.isValidPhoneNumber(s.toString())) {
+                if (PhoneNumberUtils.isValidPhoneNumber(s.toString())) {
 
-                        String token = Constants.MY_BATCH_TOKEN(getApplicationContext());
-                        if (token != null && !token.equals("")) {
-                            enableGetSmsCodeButton();
-                            enableSmsCodeEditText();
+                    String token = Constants.MY_BATCH_TOKEN(getApplicationContext());
+                    if (token != null && !token.equals("")) {
+                        enableGetSmsCodeButton();
+                        enableSmsCodeEditText();
 
-                            if (4 == smsCodeVerEditText.getText().toString().length()) {
-                                enableLoginButton();
-                                visibleSmsButtons();
+                        if (4 == smsCodeVerEditText.getText().toString().length()) {
+                            enableLoginButton();
+                            visibleSmsButtons();
 
-                            }
                         }
                     }
                 } else {
@@ -287,7 +272,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void invisibleSmsButtons() {
-        loginBtn.setVisibility(View.INVISIBLE);
+        loginBtn.setVisibility(View.VISIBLE);
         smsCodeVerEditText.setVisibility(View.INVISIBLE);
         clearLoginSmsText.setVisibility(View.INVISIBLE);
     }
@@ -296,12 +281,12 @@ public class LoginActivity extends AppCompatActivity {
 
         loginBtn = (ImageButton) findViewById(R.id.login_btn);
         if (loginBtn != null) {
-            loginBtn.setEnabled(false);
+            loginBtn.setEnabled(true);
             loginBtn.setImageResource(R.drawable.login_btn_anim);
             loginBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                        confirmLogin();
+                    confirmLogin();
                 }
             });
         }
@@ -312,15 +297,16 @@ public class LoginActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case Constants.MY_PERMISSIONS_SMS_PERMISSION: {
-                    sendSMSConfirm();
-            break;
+                sendSMSConfirm();
+                break;
             }
         }
     }
 
-    private void confirmLogin(){
-        String smsVerificationCode = smsCodeVerEditText.getText().toString();
+    private void confirmLogin() {
+        String smsVerificationCode = "0000";//smsCodeVerEditText.getText().toString();
         String loginNumber = loginNumberEditText.getText().toString();
+
 
         Intent intent = new Intent(LoginActivity.this, LoginWithTermsAndServiceActivity.class);
         intent.putExtra(LoginWithTermsAndServiceActivity.SMS_CODE, smsVerificationCode);
@@ -331,7 +317,8 @@ public class LoginActivity extends AppCompatActivity {
             getSmsCodeTask.cancel(true);
 
     }
-    private void sendSMSConfirm(){
+
+    private void sendSMSConfirm() {
 
         String timeoutMsg = getResources().getString(R.string.sms_code_failed);
         String loadingMsg = getResources().getString(R.string.please_wait);
@@ -347,7 +334,8 @@ public class LoginActivity extends AppCompatActivity {
     private void prepareGetSmsCodeButton() {
 
         getSmsCodeBtn = (ImageButton) findViewById(R.id.getSmsCode_btn);
-        if (getSmsCodeBtn != null) {
+        getSmsCodeBtn.setVisibility(View.INVISIBLE);
+        /*if (getSmsCodeBtn != null) {
             getSmsCodeBtn.setEnabled(false);
             getSmsCodeBtn.setImageResource(R.drawable.send_sms_icon_disabled);
             getSmsCodeBtn.setOnClickListener(new View.OnClickListener() {
@@ -360,13 +348,17 @@ public class LoginActivity extends AppCompatActivity {
                         sendSMSConfirm();
                 }
             });
-        }
+        }*/
         disableGetSmsCodeButton();
     }
 
     private void prepareSmsCodeVerificationEditText() {
         smsCodeVerEditText = (EditText) findViewById(R.id.SMSCodeEditText);
         clearLoginSmsText = (ImageButton) findViewById(R.id.sms_phone_clear);
+        smsCodeVerEditText.setVisibility(View.INVISIBLE);
+        clearLoginSmsText.setVisibility(View.INVISIBLE);
+/*
+
         clearLoginSmsText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -399,6 +391,7 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+*/
 
         disableSmsCodeEditText();
     }
@@ -438,8 +431,8 @@ public class LoginActivity extends AppCompatActivity {
 
         Log.d(TAG, "Disabling LoginButton");
 
-        loginBtn.setEnabled(false);
-        loginBtn.setImageResource(R.drawable.login_icon_disabled);
+        loginBtn.setEnabled(true);
+        loginBtn.setImageResource(R.drawable.login_btn_anim);
     }
 
     private void enableLoginEditText() {
@@ -461,20 +454,20 @@ public class LoginActivity extends AppCompatActivity {
     private void enableSmsCodeEditText() {
         Log.d(TAG, "Enabling SmsCodeEditText");
 
-        smsCodeVerEditText.setEnabled(true);
-        smsCodeVerEditText.setTextColor(ContextCompat.getColor(this, R.color.white));
+       // smsCodeVerEditText.setEnabled(true);
+       // smsCodeVerEditText.setTextColor(ContextCompat.getColor(this, R.color.white));
         clearLoginSmsText.setEnabled(true);
     }
 
     private void disableSmsCodeEditText() {
         Log.d(TAG, "Disabling SmsCodeEditText");
 
-        smsCodeVerEditText.setEnabled(false);
+      //  smsCodeVerEditText.setEnabled(false);
         clearLoginSmsText.setEnabled(false);
     }
 
     private void enableGetSmsCodeButton() {
-        Log.d(TAG, "Enabling getSmsButton");
+     /*   Log.d(TAG, "Enabling getSmsButton");
 
         boolean shouldEnable = true;
 
@@ -484,7 +477,7 @@ public class LoginActivity extends AppCompatActivity {
         if (shouldEnable) {
             getSmsCodeBtn.setEnabled(true);
             getSmsCodeBtn.setImageResource(R.drawable.send_sms_anim);
-        }
+        }*/
     }
 
     private void disableGetSmsCodeButton() {
@@ -538,7 +531,7 @@ public class LoginActivity extends AppCompatActivity {
                 syncUIwithAppState();
                 saveInstanceState();
                 restoreInstanceState();
-                if (isLoginNumberValid() && isSmsCodeValid() && sentFromReceiver) {
+                if (isSmsCodeValid() && sentFromReceiver) {
                     visibleSmsButtons();
                     loginBtn.performClick();
                     sentFromReceiver = false;
@@ -594,16 +587,12 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean isSmsCodeValid() {
         String sSmsCode = smsCodeVerEditText.getText().toString();
-        if(sSmsCode.isEmpty()) {
+        if (sSmsCode.isEmpty()) {
             return false;
         }
 
         Integer smsCode = Integer.valueOf(sSmsCode);
         return 4 == smsCodeVerEditText.getText().length() && smsCode >= MIN_SMS_CODE && smsCode <= MAX_SMS_CODE;
-    }
-
-    private boolean isLoginNumberValid() {
-        return 10 == loginNumberEditText.getText().length();
     }
 
 
@@ -613,7 +602,19 @@ public class LoginActivity extends AppCompatActivity {
     private void saveInstanceState() {
         // Saving login number
         String loginNumber = loginNumberEditText.getText().toString();
+
+
+        String pickerNumber = countryPickerTV.getText().toString();
+
+        String FullNumber = pickerNumber + loginNumber;
+
+
         SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER, loginNumber);
+
+        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.COUNTRY_CODE, pickerNumber);
+
+        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.FULL_NUMBER, FullNumber);
+
 
         // Saving sms code
         String smsCode;
@@ -710,13 +711,11 @@ public class LoginActivity extends AppCompatActivity {
         disableProgressBar();
         enableLoginEditText();
 
-        if (isLoginNumberValid()) {
-            enableSmsCodeEditText();
-            enableGetSmsCodeButton();
+        enableSmsCodeEditText();
+        enableGetSmsCodeButton();
 
-            if (isSmsCodeValid()) {
-                enableLoginButton();
-            }
+        if (isSmsCodeValid()) {
+            enableLoginButton();
         }
     }
 

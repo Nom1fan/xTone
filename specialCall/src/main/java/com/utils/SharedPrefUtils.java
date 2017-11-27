@@ -66,6 +66,10 @@ public abstract class SharedPrefUtils {
     public static final String AUDIO_VIDEO_END_TRIM_IN_MILISEC      =   "AudioVideoEndTrimInMiliSec";
     public static final String AUDIO_HISTORY_EXIST                  =   "AUDIO_HISTORY_EXIST";
     public static final String HIDE_RESIZE_WINDOW_FOR_STANDOUT =   "dontShowfirstresizeWindow";
+
+    public static final String COUNTRY_CODE                            =   "CountryCodenumber";
+    public static final String FULL_NUMBER                            =   "MyFullPhoneNumber";
+
     //endregion
 
     //region Shared pref keys under CONTENT_STORE

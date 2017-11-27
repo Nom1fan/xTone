@@ -22,7 +22,6 @@ import com.logger.LoggerFactory;
 import com.mediacallz.app.R;
 import com.receivers.StartStandOutServicesFallBackReceiver;
 import com.utils.ContactsUtils;
-import com.utils.ContactsUtilsImpl;
 import com.utils.MCBlockListUtils;
 import com.utils.MCHistoryUtils;
 import com.utils.MediaCallSessionUtils;
@@ -300,6 +299,7 @@ public class OutgoingService extends AbstractStandOutService {
     @NonNull
     protected MediaCallData prepareMediaCallData(String outgoingCallNumber) {
         Context context = getApplicationContext();
+        outgoingCallNumber = outgoingCallNumber.substring(outgoingCallNumber.length()-6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
         String visualMediaFilePath = phone2MediaPathMapperUtils.getProfileVisualMediaPath(context, outgoingCallNumber);
         String audioMediaFilePath = phone2MediaPathMapperUtils.getProfileAudioMediaPath(context, outgoingCallNumber);
         boolean visualMediaExists = new File(visualMediaFilePath).exists() && !mediaFileUtils.isVideoFileCorrupted(visualMediaFilePath, context);

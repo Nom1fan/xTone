@@ -36,7 +36,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ListView;
@@ -145,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             customePageAdapter = new CustomPagerAdapter(this);
             viewPager.setAdapter(customePageAdapter);
 
-            final ViewPager.OnPageChangeListener mPageChangeListener = new ViewPager.OnPageChangeListener() {
+           /* final ViewPager.OnPageChangeListener mPageChangeListener = new ViewPager.OnPageChangeListener() {
                 @Override
                 public void onPageScrollStateChanged(int arg0) {
                     // TODO Auto-generated method stub
@@ -174,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                     }
                 }
             };
-            viewPager.addOnPageChangeListener(mPageChangeListener);
+            viewPager.addOnPageChangeListener(mPageChangeListener);*/
             fragmanager = getFragmentManager();
         }
 

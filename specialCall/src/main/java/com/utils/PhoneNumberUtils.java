@@ -68,11 +68,11 @@ public abstract class PhoneNumberUtils {
     public static boolean isValidPhoneNumber(String destPhone) {
 
         if (destPhone != null) { // if it's null it's a Private Number (incoming calls)
-            boolean lengthOK = 10 == destPhone.length();
+            boolean lengthOK = 6 < destPhone.length();
             boolean isNumeric = isNumeric(destPhone);
-            boolean isValidPrefix = destPhone.startsWith("0"); //TODO deal with other countries
+             //TODO deal with other countries
 
-            return lengthOK && isNumeric && isValidPrefix;
+            return lengthOK && isNumeric;
         } else
             return false;
     }
