@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.mediacallz.app"
         minSdkVersion 16
@@ -68,11 +68,12 @@ dependencies {
     //compile 'com.github.joielechong:CountryCodePicker:6b6bc0ba27'
     compile 'com.github.mukeshsolanki:country-picker-android:1.1.9'
 
-    compile 'com.android.support:support-v4:25.3.1'
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    //noinspection GradleCompatible,GradleCompatible
+    compile 'com.android.support:support-v4:25.4.0'
+    compile 'com.android.support:appcompat-v7:25.4.0'
     compile 'commons-lang:commons-lang:2.6'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.google.android.gms:play-services-gcm:10.2.0'
+    compile 'com.android.support:design:25.4.0'
+    compile 'com.google.android.gms:play-services-gcm:11.6.2'
     compile 'com.batch.android:batch-sdk:1.5.3'
     compile 'com.github.amlcurran.showcaseview:library:5.4.1'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.15'
@@ -93,7 +94,7 @@ dependencies {
     compile 'com.felipecsl:gifimageview:2.1.0'
 
     // RecyclerView
-    compile 'com.android.support:recyclerview-v7:25.3.1'
+    compile 'com.android.support:recyclerview-v7:25.4.0'
 
     // volley
     compile 'com.android.volley:volley:1.0.0'
@@ -101,13 +102,12 @@ dependencies {
     // glide
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'org.jsoup:jsoup:1.9.2'
-    compile group: 'org.apache.httpcomponents', name: 'httpclient-android', version: '4.3.5'
     compile group: 'cz.msebera.android', name: 'httpclient', version: '4.4.1.2'
     compile 'org.apache.httpcomponents:httpmime:4.3.5'
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
 
     // gson
-    compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.0'
 
     // Required -- JUnit 4 framework
     testCompile 'junit:junit:4.12'

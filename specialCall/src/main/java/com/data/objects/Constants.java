@@ -65,7 +65,7 @@ public abstract class Constants {
     //endregion
 
     //region Connection to server
-    public static final String SERVER_HOST = "server.mediacallz.com";
+    public static final String SERVER_HOST = "linux.mediacallz.com";
     public static final int SERVER_PORT = 8080;
     //endregion
 
@@ -109,7 +109,7 @@ public abstract class Constants {
     //endregion
 
     //region Content Store
-    public static final String STORE_URL = "http://server.mediacallz.com/ContentStore/files/";
+    public static final String STORE_URL = "http://" + SERVER_HOST + "/ContentStore/files/";
     public static final String IMAGE_LIB_URL = STORE_URL + "Image/";
     public static final String GIF_LIB_URL = STORE_URL + "Gif/";
     public static final String AUDIO_LIB_URL = STORE_URL + "Audio/";
