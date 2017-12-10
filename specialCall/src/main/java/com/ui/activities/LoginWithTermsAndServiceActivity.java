@@ -248,9 +248,9 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
 
         Constants.MY_ID(getApplicationContext(), loginNumber);
 
-
+        ServerProxyService.register(getApplicationContext(),0);
         continueToMainActivity(); /// TO DO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
-        ServerProxyService.register(getApplicationContext(), Integer.parseInt(smsVerificationCode));
+
 
         setResult(Activity.RESULT_OK);
         finish();
