@@ -5,7 +5,7 @@ android {
     compileSdkVersion 25
     buildToolsVersion '26.0.2'
     defaultConfig {
-        applicationId "com.mediacallz.app"
+        applicationId "com_international.mediacallz.app"
         minSdkVersion 16
         targetSdkVersion 25
         ndk {

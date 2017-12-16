@@ -8,10 +8,10 @@
     {
       "client_info": {
         "mobilesdk_app_id": "1:817954308887:android:9cd6b282568a5b75",
-        "client_id": "android:com.mediacallz.app",
+        "client_id": "android:com_international.mediacallz.app",
         "client_type": 1,
         "android_client_info": {
-          "package_name": "com.mediacallz.app",
+          "package_name": "com_international.mediacallz.app",
           "certificate_hash": []
         }
       },

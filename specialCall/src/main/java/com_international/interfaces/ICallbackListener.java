@@ -1,0 +1,10 @@
+package com_international.interfaces;
+
+/**
+ * Created by mor on 27/12/2015.
+ */
+public interface ICallbackListener {
+
+    void doCallBackAction();
+    void doCallBackAction(Object ... params);
+}

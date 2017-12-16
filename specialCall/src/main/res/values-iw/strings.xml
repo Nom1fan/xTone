@@ -18,7 +18,7 @@
     <string name="select_profile_media_title">מדיה כשמתקשרים אלייך</string>
     <string name="drawer_open">פתח מגירה</string>
     <string name="drawer_close">סגור מגירה</string>
-    <string name="invite">You are Invited to MediaCallz https://play.google.com/store/apps/details?id=com.mediacallz.app</string>
+    <string name="invite">You are Invited to MediaCallz https://play.google.com/store/apps/details?id=com_international.mediacallz.app</string>
     <string name="upload_ticker">קובץ בהעלאה</string>
     <string name="content_title">קובץ עלה בהצלחה</string>
     <string name="sms_code_failed">אופס! קבלת מסרון קוד נכשלה. אנא נסה שוב…</string>
