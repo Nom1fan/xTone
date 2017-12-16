@@ -2,14 +2,14 @@ package com.data.objects;
 
 import com.enums.SpecialMediaType;
 
-import static com.crashlytics.android.Crashlytics.log;
-
 /**
  * Created by Mor on 10/03/2016.
  */
 public class MediaCallData extends AbstractDataObject {
 
-   private String phoneNumber;
+    public String FullphoneNumber;
+
+    private String phoneNumber;
 
     private String visualMediaFilePath;
 

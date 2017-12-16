@@ -272,6 +272,7 @@ public class IncomingService extends AbstractStandOutService {
     @NonNull
     private MediaCallData prepareMediaCallData(String incomingNumber) {
 
+        String fullnumber = incomingNumber;
         incomingNumber = incomingNumber.substring(incomingNumber.length()-6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
         Context context = getApplicationContext();
         String mediaFilePath = phone2MediaPathMapperUtils.getCallerVisualMediaPath(context, incomingNumber);
@@ -289,13 +290,14 @@ public class IncomingService extends AbstractStandOutService {
             mediaCallData.setDoesVisualMediaExist(visualMediaExists);
             mediaCallData.setShouldMuteRing(shouldMuteRing);
             mediaCallData.setPhoneNumber(incomingNumber);
+            mediaCallData.FullphoneNumber = fullnumber;
         } else {
-            prepareDefaultMediaCallData(mediaCallData, incomingNumber);
+            prepareDefaultMediaCallData(mediaCallData, incomingNumber,fullnumber);
         }
         return mediaCallData;
     }
 
-    private void prepareDefaultMediaCallData(MediaCallData mediaCallData, String incomingNumber) {
+    private void prepareDefaultMediaCallData(MediaCallData mediaCallData, String incomingNumber, String fullnumber) {
         Context context = getApplicationContext();
         String mediaFilePath = phone2MediaPathMapperUtils.getDefaultCallerVisualMediaPath(context, incomingNumber);
         String ringtonePath = phone2MediaPathMapperUtils.getDefaultCallerAudioMediaPath(context, incomingNumber);
@@ -310,6 +312,7 @@ public class IncomingService extends AbstractStandOutService {
         mediaCallData.setDoesVisualMediaExist(visualMediaExists);
         mediaCallData.setShouldMuteRing(shouldMuteRing);
         mediaCallData.setPhoneNumber(incomingNumber);
+        mediaCallData.FullphoneNumber = fullnumber;
     }
 
     private void runMediaCall(MediaCallData mediaCallData) {
@@ -372,7 +375,7 @@ public class IncomingService extends AbstractStandOutService {
     }
 
     private void runAskBeforeShowMedia(MediaCallData mediaCallData) {
-        String incomingNumber = mediaCallData.getPhoneNumber();
+        String incomingNumber = mediaCallData.FullphoneNumber;
         SharedPrefUtils.setBoolean(getApplicationContext(), SharedPrefUtils.SERVICES, SharedPrefUtils.ASK_BEFORE_MEDIA_SHOW_FOR_STANDOUT, true);
         setDisableVolButtons(getApplicationContext(), true);
         logger.info(TAG, "Run Ask Before Show Media");

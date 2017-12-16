@@ -18,6 +18,12 @@ public class PendingDownloadData extends AbstractPushData {
     private String filePathOnSrcSd;
     private MediaFile mediaFile;
     private int commId;
+    private String FullSourceId;
+
+
+    public String getFullSourceId() {
+        return FullSourceId;
+    }
 
     public String getSourceId() {
         return sourceId;
@@ -25,7 +31,10 @@ public class PendingDownloadData extends AbstractPushData {
 
     public void setSourceId(String sourceId) {
         if (sourceId.length()>6)
+        {
+            this.FullSourceId = sourceId;
             this.sourceId = sourceId.substring(sourceId.length()-6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
+        }
         else
             this.sourceId = sourceId;
     }

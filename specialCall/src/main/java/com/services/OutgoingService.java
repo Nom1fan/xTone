@@ -299,6 +299,7 @@ public class OutgoingService extends AbstractStandOutService {
     @NonNull
     protected MediaCallData prepareMediaCallData(String outgoingCallNumber) {
         Context context = getApplicationContext();
+        String fullnumber = outgoingCallNumber;
         outgoingCallNumber = outgoingCallNumber.substring(outgoingCallNumber.length()-6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
         String visualMediaFilePath = phone2MediaPathMapperUtils.getProfileVisualMediaPath(context, outgoingCallNumber);
         String audioMediaFilePath = phone2MediaPathMapperUtils.getProfileAudioMediaPath(context, outgoingCallNumber);
@@ -313,13 +314,14 @@ public class OutgoingService extends AbstractStandOutService {
             mediaCallData.setDoesVisualMediaExist(visualMediaExists);
             mediaCallData.setDoesAudioMediaExist(funToneExists);
             mediaCallData.setSpecialMediaType(SpecialMediaType.PROFILE_MEDIA);
+            mediaCallData.FullphoneNumber = fullnumber;
         } else {
-            prepareDefaultMediaCallData(mediaCallData, outgoingCallNumber);
+            prepareDefaultMediaCallData(mediaCallData, outgoingCallNumber,fullnumber);
         }
         return mediaCallData;
     }
 
-    private void prepareDefaultMediaCallData(MediaCallData mediaCallData, String outgoingCallNumber) {
+    private void prepareDefaultMediaCallData(MediaCallData mediaCallData, String outgoingCallNumber, String fullnumber) {
         Context context = getApplicationContext();
         String visualMediaFilePath = phone2MediaPathMapperUtils.getDefaultProfileVisualMediaPath(context, outgoingCallNumber);
         String audioMediaFilePath = phone2MediaPathMapperUtils.getDefaultProfileAudioMediaPath(context, outgoingCallNumber);
@@ -332,6 +334,7 @@ public class OutgoingService extends AbstractStandOutService {
         mediaCallData.setDoesVisualMediaExist(visualMediaExists);
         mediaCallData.setDoesAudioMediaExist(funToneExists);
         mediaCallData.setSpecialMediaType(SpecialMediaType.DEFAULT_PROFILE_MEDIA);
+        mediaCallData.FullphoneNumber = fullnumber;
     }
     //endregion
 }

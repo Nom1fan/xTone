@@ -33,7 +33,6 @@ import com.files.media.MediaFile;
 import com.mediacallz.app.R;
 import com.utils.BitmapUtils;
 import com.utils.ContactsUtils;
-import com.utils.ContactsUtilsImpl;
 import com.utils.MCBlockListUtils;
 import com.utils.MediaCallSessionUtils;
 import com.utils.MediaFileUtils;
@@ -1019,7 +1018,7 @@ public abstract class AbstractStandOutService extends StandOutWindow {
     protected void startVisualMediaMC(MediaCallData mediaCallData) {
         log(Log.INFO, TAG, "startVisualMediaMC visualMediaFilePath:" + mediaCallData.getVisualMediaFilePath());
         Context context = getApplicationContext();
-        String callNumber = mediaCallData.getPhoneNumber();
+        String callNumber = mediaCallData.FullphoneNumber;
         boolean attachDefaultView = mediaCallData.doesAudioMediaExist();
 
         if (attachDefaultView) {
