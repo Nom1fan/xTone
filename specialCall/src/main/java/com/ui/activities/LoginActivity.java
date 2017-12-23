@@ -25,11 +25,9 @@ import android.widget.TextView;
 
 import com.app.AppStateManager;
 import com.async.tasks.GetSmsCodeTask;
-import com.batch.android.Batch;
 import com.data.objects.ActivityRequestCodes;
 import com.data.objects.Constants;
 import com.mediacallz.app.R;
-import com.services.GetTokenIntentService;
 import com.services.ServerProxyService;
 import com.utils.BroadcastUtils;
 import com.utils.SharedPrefUtils;
@@ -83,8 +81,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
 
         log(Log.INFO, TAG, "OnStart()");
-
-        Batch.onStart(this);
     }
 
     @Override
@@ -110,12 +106,6 @@ public class LoginActivity extends AppCompatActivity {
 
         restoreInstanceState();
         prepareEventReceiver();
-
-        if (Constants.MY_FIREBASE_TOKEN(this).equals("")) {
-            Intent i = new Intent(this, GetTokenIntentService.class);
-            i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
-            startService(i);
-        }
 
         syncUIwithAppState();
     }

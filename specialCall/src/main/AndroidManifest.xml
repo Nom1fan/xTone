@@ -222,12 +222,6 @@
             android:enabled="true"
             android:priority="998"/>
 
-        <service android:name="com.services.PushService" />
-
-        <service
-            android:name="com.services.GetTokenIntentService"
-            android:exported="false"/>
-
         <service
             android:name="com.services.GetFireBaseTokenService">
             <intent-filter>
@@ -242,13 +236,11 @@
         <!-- Batch Service -->
 
         <service
-            android:name="com.services.GetFireBaseTokenService">
+            android:name="com.services.FireBasePushService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
-
-        <service android:name="com.batch.android.BatchPushService" />
 
         <!-- MediaCallz Broadcast Receivers -->
 
@@ -284,15 +276,6 @@
         <receiver android:name="com.receivers.BackgroundBroadcastReceiver">
             <intent-filter>
                 <action android:name="com.android.mediacallz.EVENT_ACTION" />
-            </intent-filter>
-        </receiver>
-
-        <receiver
-            android:name="com.receivers.PushReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="com.mediacallz.app" />
             </intent-filter>
         </receiver>
 

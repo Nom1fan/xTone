@@ -2,20 +2,10 @@ package com.app;
 
 import android.app.Application;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.Log;
 
-import com.batch.android.Batch;
-import com.batch.android.Config;
 import com.crashlytics.android.Crashlytics;
-import com.data.objects.Constants;
-import com.mediacallz.app.R;
-import com.utils.BitmapUtils;
-import com.utils.InitUtils;
 import com.utils.UI_Utils;
 
 import io.fabric.sdk.android.Fabric;
@@ -41,18 +31,6 @@ public class MediaCallzApp extends Application {
         // this must be after the setupHandlerForUncaughtExceptions so it will send the exceptions before it kill process
         Fabric.with(this, new Crashlytics());
 
-        // Initializing Batch for push notifications
-        Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
-        Batch.Push.setManualDisplay(true);
-        Batch.setConfig(new Config(Constants.LIVE_API_KEY));
-
-        Drawable d = getResources().getDrawable(R.drawable.color_mc);
-        int h = d.getIntrinsicHeight();
-        int w = d.getIntrinsicWidth();
-
-        Bitmap largeIcon = BitmapUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.color_mc,w,h);
-        Batch.Push.setLargeIcon(largeIcon);
-
         try {
 
             // Initializing app state
@@ -65,8 +43,6 @@ public class MediaCallzApp extends Application {
         } catch (Exception e) {
             String errMsg = "Failed to initialize. Please try to install again. Error:" + (e.getMessage()!=null ? e.getMessage() : e);
             UI_Utils.callToast(errMsg, Color.RED, getApplicationContext());
-        } finally {
-            context = null;
         }
 
     }
@@ -91,10 +67,4 @@ public class MediaCallzApp extends Application {
 //        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
-    private boolean isNetworkAvailable() {
-
-        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
-        return activeNetwork!=null && activeNetwork.isConnected();
-    }
 }
