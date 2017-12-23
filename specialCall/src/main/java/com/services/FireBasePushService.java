@@ -1,17 +1,13 @@
 package com.services;
 
-import android.app.IntentService;
-import android.content.Intent;
 import android.util.Log;
 
-import com.batch.android.Batch;
 import com.data.objects.PushEventKeys;
 import com.exceptions.PushDataEmptyException;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.handlers.HandlerFactory;
 import com.handlers.PushHandler;
-import com.receivers.PushReceiver;
 
 import java.util.Map;
 
@@ -38,7 +34,6 @@ public class FireBasePushService extends FirebaseMessagingService {
 
         Log.d(TAG, "Message pushData payload: " + pushData);
         String eventActionCode = pushData.get(PushEventKeys.PUSH_EVENT_ACTION);
-
         log(Log.INFO, TAG, "PushEventActionCode:" + eventActionCode);
 
         PushHandler pushHandler = HandlerFactory.getInstance().getPushHandler(eventActionCode);

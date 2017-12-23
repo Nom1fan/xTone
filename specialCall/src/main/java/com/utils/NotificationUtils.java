@@ -13,17 +13,14 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.app.AppStateManager;
-import com.batch.android.Batch;
-import com.crashlytics.android.Crashlytics;
 import com.data.objects.PushNotificationData;
 import com.event.EventReport;
 import com.event.EventType;
 import com.google.firebase.messaging.RemoteMessage;
 import com.mediacallz.app.R;
 import com.ui.activities.MainActivity;
-import com.ui.components.NotificationHelper;
 
-import static com.crashlytics.android.Crashlytics.*;
+import static com.crashlytics.android.Crashlytics.log;
 
 /**
  * Created by mor on 18/10/2015.
@@ -48,28 +45,6 @@ public abstract class NotificationUtils {
         return builder.build();
     }
 
-    public static void displayNotificationInBgOnly(Context context, Intent intent) {
-
-        log(Log.INFO, TAG, "In: displayNotificationInBgOnly");
-        boolean isAppInForeground = AppStateManager.isAppInForeground(context);
-        String appState = AppStateManager.getAppState(context);
-
-        log(Log.INFO, TAG, String.format("[isAppInForeground]: %1$b, [App state]: %2$s", isAppInForeground, appState));
-
-        if (isAppInForeground && AppStateManager.isLoggedIn(context)) {
-            try {
-                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                Ringtone r = RingtoneManager.getRingtone(context, notification);
-                r.play();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (AppStateManager.isLoggedIn(context)) {
-
-            Batch.Push.displayNotification(context, intent);
-        }
-    }
-
     public static void displayNotificationInBgOnly(Context context, RemoteMessage.Notification notification) {
 
         log(Log.INFO, TAG, "In: displayNotificationInBgOnly");
@@ -88,22 +63,6 @@ public abstract class NotificationUtils {
             }
         } else if (AppStateManager.isLoggedIn(context)) {
             sendNotification(context, notification);
-        }
-    }
-
-    public static void displayNotification(Context ctx, PushNotificationData pushNotificationData, Intent intent, EventType eventType) {
-        boolean isAppInForeground = AppStateManager.isAppInForeground(ctx);
-        String appState = AppStateManager.getAppState(ctx);
-
-        log(Log.INFO, TAG, String.format("[isAppInForeground]: %1$b, [App state]: %2$s", isAppInForeground, appState));
-
-        if (isAppInForeground && AppStateManager.isLoggedIn(ctx)) {
-            playNotificationSound(ctx);
-            String msg = pushNotificationData.getHtmlString();
-            EventReport eventReport = new EventReport(eventType, msg);
-            BroadcastUtils.sendEventReportBroadcast(ctx, TAG, eventReport);
-        } else {
-            Batch.Push.displayNotification(ctx, intent);
         }
     }
 
