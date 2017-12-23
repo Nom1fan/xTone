@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.mediacallz.app"
         minSdkVersion 16
@@ -60,6 +60,7 @@ repositories {
 
 
 dependencies {
+    implementation 'com.google.firebase:firebase-messaging:11.8.0'
     compile project(':ffmpeg4android_lib')
     compile project(':standOut_lib')
     compile project(':aFileChooser')
@@ -67,7 +68,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'commons-lang:commons-lang:2.6'
     compile 'com.android.support:design:25.3.1'
-    compile 'com.google.android.gms:play-services-gcm:10.2.0'
+    compile 'com.google.android.gms:play-services-gcm:11.8.0'
     compile 'com.batch.android:batch-sdk:1.5.3'
     compile 'com.github.amlcurran.showcaseview:library:5.4.1'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.15'

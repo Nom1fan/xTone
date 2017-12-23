@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,7 +22,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.app.AppStateManager;
 import com.async.tasks.GetSmsCodeTask;
@@ -113,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
         restoreInstanceState();
         prepareEventReceiver();
 
-        if (Constants.MY_BATCH_TOKEN(this).equals("")) {
+        if (Constants.MY_FIREBASE_TOKEN(this).equals("")) {
             Intent i = new Intent(this, GetTokenIntentService.class);
             i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
             startService(i);
@@ -208,7 +206,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     if (PhoneNumberUtils.isValidPhoneNumber(s.toString())) {
 
-                        String token = Constants.MY_BATCH_TOKEN(getApplicationContext());
+                        String token = Constants.MY_FIREBASE_TOKEN(getApplicationContext());
                         if (token != null && !token.equals("")) {
                             enableGetSmsCodeButton();
                             enableSmsCodeEditText();

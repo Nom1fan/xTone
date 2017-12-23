@@ -58,7 +58,7 @@ public abstract class SharedPrefUtils {
     public static final String APP_STATE                            =   "AppState";
     public static final String APP_PREV_STATE                       =   "AppPrevState";
     public static final String LOADING_MESSAGE                      =   "LoadingMessage";
-    public static final String MY_DEVICE_BATCH_TOKEN                =   "MyDeviceBatchToken";
+    public static final String MY_DEVICE_FIREBASE_TOKEN =   "MyDeviceBatchToken";
     public static final String LAST_CHECKED_NUMBER_CACHE            =   "LastCheckedNumberCache";
     public static final String STRICT_MEMORY_MANAGER_DEVICES        =   "StrictMemoryManagerDevices";
     public static final String STRICT_RINGING_CAPABILITIES_DEVICES  =   "StrictRingingCapabilitiesDevices";

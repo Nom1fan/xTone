@@ -16,7 +16,7 @@ public abstract class RequestUtils {
         User user = new User();
         user.setUid(Constants.MY_ID(context));
         user.setAppVersion(String.valueOf(Constants.APP_VERSION()));
-        user.setToken(Constants.MY_BATCH_TOKEN(context));
+        user.setToken(Constants.MY_FIREBASE_TOKEN(context));
         user.setOs("ANDROID");
         user.setOsVersion(Build.VERSION.RELEASE);
         user.setDeviceModel(Constants.MY_DEVICE_MODEL());
