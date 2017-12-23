@@ -58,7 +58,7 @@ public class GetTokenIntentService extends IntentService {
 
                 //token = Batch.Push.getLastKnownPushToken();
                 token = Batch.User.getInstallationID();
-                Constants.MY_BATCH_TOKEN(context, token);
+                Constants.MY_FIREBASE_TOKEN(context, token);
 
                 try {
                     Thread.sleep(TOKEN_RETRY_SLEEP);
@@ -66,9 +66,9 @@ public class GetTokenIntentService extends IntentService {
                     e1.printStackTrace();
                 }
             }
-            while ((retries < TOKEN_RETRIEVE_RETRIES) && Constants.MY_BATCH_TOKEN(context).equals(""));
+            while ((retries < TOKEN_RETRIEVE_RETRIES) && Constants.MY_FIREBASE_TOKEN(context).equals(""));
 
-            if (Constants.MY_BATCH_TOKEN(context).equals("")) {
+            if (Constants.MY_FIREBASE_TOKEN(context).equals("")) {
                 String errMsg = "Oops! \n Check your connection and restart MediaCallz...";
                 log(Log.ERROR,TAG, errMsg);
                 BroadcastUtils.sendEventReportBroadcast(context, TAG, new EventReport(EventType.TOKEN_RETRIEVAL_FAILED, errMsg, null));

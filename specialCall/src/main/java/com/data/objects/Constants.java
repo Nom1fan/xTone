@@ -58,8 +58,8 @@ public abstract class Constants {
     public static final String LIVE_API_KEY = "56B47A2D7AF8834E6D36C9CBC3F32E";
     public static final String DEV_API_KEY = "DEV56B47A2D7D7E553A410B64C489D";
 
-    public static String MY_BATCH_TOKEN(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN); }
-    public static void MY_BATCH_TOKEN(Context context, String token) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_BATCH_TOKEN, token); }
+    public static String MY_FIREBASE_TOKEN(Context context) { return SharedPrefUtils.getString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_FIREBASE_TOKEN); }
+    public static void MY_FIREBASE_TOKEN(Context context, String token) { SharedPrefUtils.setString(context, SharedPrefUtils.GENERAL, SharedPrefUtils.MY_DEVICE_FIREBASE_TOKEN, token); }
     //endregion
 
     //region Website

@@ -223,10 +223,24 @@
             android:exported="false"/>
 
         <service
+            android:name="com.services.GetFireBaseTokenService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <service
             android:name="com.services.ClearMediaIntentService"
             android:exported="false"/>
 
         <!-- Batch Service -->
+
+        <service
+            android:name="com.services.GetFireBaseTokenService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
 
         <service android:name="com.batch.android.BatchPushService" />
 

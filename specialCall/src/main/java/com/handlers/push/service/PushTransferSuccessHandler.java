@@ -6,6 +6,7 @@ import android.content.Intent;
 import com.data.objects.PendingDownloadData;
 import com.event.EventReport;
 import com.event.EventType;
+import com.google.firebase.messaging.RemoteMessage;
 import com.handlers.AbstractPushHandler;
 import com.utils.BroadcastUtils;
 import com.utils.NotificationUtils;
@@ -23,9 +24,9 @@ public class PushTransferSuccessHandler extends AbstractPushHandler {
     @Override
     public void handlePush(Context ctx, String pushData, Object... extraParams) {
         PendingDownloadData pendingDownloadData = gson.fromJson(pushData, PendingDownloadData.class);
-        Intent intent = (Intent) extraParams[0];
+        RemoteMessage remoteMessage = (RemoteMessage) extraParams[0];
 
         BroadcastUtils.sendEventReportBroadcast(ctx, TAG, new EventReport(EventType.DESTINATION_DOWNLOAD_COMPLETE, pendingDownloadData));
-        NotificationUtils.displayNotificationInBgOnly(ctx, intent);
+        NotificationUtils.displayNotificationInBgOnly(ctx, remoteMessage.getNotification());
     }
 }

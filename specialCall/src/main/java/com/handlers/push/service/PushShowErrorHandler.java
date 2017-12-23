@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.data.objects.PushNotificationData;
 import com.event.EventType;
+import com.google.firebase.messaging.RemoteMessage;
 import com.handlers.AbstractPushHandler;
 import com.utils.NotificationUtils;
 
@@ -21,9 +22,9 @@ public class PushShowErrorHandler extends AbstractPushHandler {
 
     @Override
     public void handlePush(Context ctx, String pushData, Object... extraParams) {
-        Intent intent = (Intent) extraParams[0];
+        RemoteMessage remoteMessage = (RemoteMessage) extraParams[0];
         PushNotificationData pushNotificationData = gson.fromJson(pushData, PushNotificationData.class);
         log(Log.INFO, TAG, "Handling show error");
-        NotificationUtils.displayNotification(ctx, pushNotificationData, intent, EventType.DISPLAY_ERROR);
+        NotificationUtils.displayNotification(ctx, pushNotificationData, remoteMessage.getNotification(), EventType.DISPLAY_ERROR);
     }
 }

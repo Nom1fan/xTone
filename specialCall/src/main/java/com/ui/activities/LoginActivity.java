@@ -107,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
         restoreInstanceState();
         prepareEventReceiver();
 
-        if (Constants.MY_BATCH_TOKEN(this).equals("")) {
+        if (Constants.MY_FIREBASE_TOKEN(this).equals("")) {
             Intent i = new Intent(this, GetTokenIntentService.class);
             i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
             startService(i);
@@ -202,7 +202,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     if (PhoneNumberUtils.isValidPhoneNumber(s.toString())) {
 
-                        String token = Constants.MY_BATCH_TOKEN(getApplicationContext());
+                        String token = Constants.MY_FIREBASE_TOKEN(getApplicationContext());
                         if (token != null && !token.equals("")) {
                             enableGetSmsCodeButton();
                             enableSmsCodeEditText();
