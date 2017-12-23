@@ -36,7 +36,7 @@ public class GetFireBaseTokenService extends FirebaseInstanceIdService {
             int retries = 0;
             do {
                 retries++;
-                String infoMsg = "Attempt " + (retries + 1) + "/" + TOKEN_RETRIEVE_RETRIES + " to retrieve firebase token";
+                String infoMsg = "Attempt " + retries + "/" + TOKEN_RETRIEVE_RETRIES + " to retrieve firebase token";
                 log(Log.INFO, TAG, infoMsg);
 
                 Thread.sleep(TOKEN_RETRY_SLEEP);
