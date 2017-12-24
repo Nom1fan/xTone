@@ -69,7 +69,6 @@ dependencies {
     compile 'commons-lang:commons-lang:2.6'
     compile 'com.android.support:design:25.3.1'
     compile 'com.google.android.gms:play-services-gcm:11.8.0'
-    compile 'com.batch.android:batch-sdk:1.5.3'
     compile 'com.github.amlcurran.showcaseview:library:5.4.1'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.15'
     compile 'com.nineoldandroids:library:2.4.0'
@@ -84,7 +83,6 @@ dependencies {
     compile project(path: ':audio_waveform')
     compile project(':rangeseekbar')
     compile project(':library')
-    compile 'org.jsoup:jsoup:1.9.2'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'com.felipecsl:gifimageview:2.1.0'
 

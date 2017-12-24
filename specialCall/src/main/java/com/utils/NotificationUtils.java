@@ -107,6 +107,7 @@ public abstract class NotificationUtils {
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(context)
+                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.color_mc))
                         .setSmallIcon(R.drawable.color_mc)
                         .setContentTitle(notification.getTitle())
                         .setContentText(notification.getBody())
