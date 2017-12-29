@@ -49,14 +49,14 @@ public class PreviewMediaActivity extends AppCompatActivity {
     private MediaFile _managedFile;
     private float _oldPosition =0;
     private int _moveLength = 0;
-    private boolean isPreviewDisplaying = false;
+    private static boolean isPreviewDisplaying = false;
     private ImageButton previewThumbnail;
-    private ImageButton _previewVideoTrimFile;
+    private static ImageButton _previewVideoTrimFile;
     private ImageButton _imageButton;
     private MediaFile.FileType fType;
     private final int MIN_MILISECS_FOR_AUDIO_EDIT = 3000;
-    protected int startInMili;
-    protected int endInMili;
+    protected static int startInMili;
+    protected static int endInMili;
     private Timer timer;
     private boolean isActive;
     private VideoView trimVideoView;
@@ -185,7 +185,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
                 SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_START_TRIM_IN_MILISEC, 0);
                 SharedPrefUtils.setInt(getApplicationContext(), SharedPrefUtils.GENERAL,SharedPrefUtils.AUDIO_VIDEO_END_TRIM_IN_MILISEC, 0);
 
-               // previewThumbnail.setVisibility(View.INVISIBLE);
+                // previewThumbnail.setVisibility(View.INVISIBLE);
                 previewThumbnail.setClickable(false);
                 _previewVideoTrimFile = (ImageButton) findViewById(R.id.playVideoTrimPreview);
                 _previewVideoTrimFile.setVisibility(View.VISIBLE);
@@ -312,7 +312,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
                         if(trimVideoView.getCurrentPosition() >= stopAtMsec) {
                             trimVideoView.pause();
                             cancelProgressPooling();
-                           // Toast.makeText(getApplicationContext(), "Video has PAUSED at: " + trimVideoView.getCurrentPosition(), Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(getApplicationContext(), "Video has PAUSED at: " + trimVideoView.getCurrentPosition(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -463,7 +463,7 @@ public class PreviewMediaActivity extends AppCompatActivity {
         startService(closePrevious);
     }
 
-    public class CustomWaveformFragment extends WaveformFragment {
+    public static class CustomWaveformFragment extends WaveformFragment {
         String _filePath;
         Context _Context;
 
