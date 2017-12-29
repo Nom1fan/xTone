@@ -1,0 +1,107 @@
+package com.app;
+
+import android.app.Application;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.util.Log;
+
+import com.batch.android.Batch;
+import com.batch.android.Config;
+import com.crashlytics.android.Crashlytics;
+import com.data.objects.Constants;
+import com.mediacallz.app.R;
+import com.utils.BitmapUtils;
+import com.utils.BitmapUtilsImpl;
+import com.utils.UI_Utils;
+import com.utils.UtilityFactory;
+
+import org.florescu.android.util.BitmapUtil;
+
+import io.fabric.sdk.android.Fabric;
+
+import static com.crashlytics.android.Crashlytics.log;
+
+/**
+ * Created by mor on 10/09/2015.
+ */
+public class MediaCallzApp extends Application {
+
+    private static final String TAG = MediaCallzApp.class.getSimpleName();
+
+    private BitmapUtils bitmapUtils;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        bitmapUtils = new BitmapUtilsImpl();
+
+        android.os.Process.setThreadPriority(-20);
+        Context context = getApplicationContext();
+
+        setupHandlerForUncaughtExceptions(context);
+
+        // this must be after the setupHandlerForUncaughtExceptions so it will send the exceptions before it kill process
+        Fabric.with(this, new Crashlytics());
+
+        // Initializing Batch for push notifications
+        Batch.Push.setGCMSenderId(Constants.GCM_SENDER_ID);
+        Batch.Push.setManualDisplay(true);
+        Batch.setConfig(new Config(Constants.LIVE_API_KEY));
+
+        Drawable d = getResources().getDrawable(R.drawable.color_mc);
+        int h = d.getIntrinsicHeight();
+        int w = d.getIntrinsicWidth();
+
+        Bitmap largeIcon = bitmapUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.color_mc,w,h);
+        Batch.Push.setLargeIcon(largeIcon);
+
+        try {
+
+            // Initializing app state
+            if (AppStateManager.getAppState(context).equals("")) {
+
+                AppStateManager.setIsLoggedIn(this, false);
+                AppStateManager.setAppState(context, TAG, AppStateManager.STATE_IDLE);
+
+            }
+        } catch (Exception e) {
+            String errMsg = "Failed to initialize. Please try to install again. Error:" + (e.getMessage()!=null ? e.getMessage() : e);
+            UI_Utils.callToast(errMsg, Color.RED, getApplicationContext());
+        } finally {
+            context = null;
+        }
+
+    }
+
+    private void setupHandlerForUncaughtExceptions(final Context context) {
+        // Setup handler for uncaught exceptions.
+        Thread.setDefaultUncaughtExceptionHandler (new Thread.UncaughtExceptionHandler()
+        {
+            @Override
+            public void uncaughtException (Thread thread, Throwable e)
+            {
+                handleUncaughtException(context, e);
+            }
+        });
+    }
+
+    private void handleUncaughtException(Context context, Throwable e) {
+        AppStateManager.setDidAppCrash(context, true);
+
+        log(Log.INFO, TAG, "Process you failed me! DIE PROCESS DIE !!!!");
+        e.printStackTrace();
+//        android.os.Process.killProcess(android.os.Process.myPid());
+    }
+
+    private boolean isNetworkAvailable() {
+
+        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
+        return activeNetwork!=null && activeNetwork.isConnected();
+    }
+}

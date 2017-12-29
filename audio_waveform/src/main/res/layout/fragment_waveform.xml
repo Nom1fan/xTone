@@ -13,22 +13,19 @@
             android:paddingTop="40dip"
         android:background="#004559">
 
-        <com_international.semantive.waveformandroid.waveform.view.WaveformView
-            android:id="@+id/waveform"
+        <com.semantive.waveformandroid.waveform.view.WaveformView android:id="@+id/waveform"
                                              android:layout_width="match_parent"
                                              android:layout_height="match_parent"
             android:background="#004559" />
 
-        <com_international.semantive.waveformandroid.waveform.view.MarkerView
-            android:id="@+id/startmarker"
+        <com.semantive.waveformandroid.waveform.view.MarkerView android:id="@+id/startmarker"
                                              android:nextFocusDown="@+id/endmarker"
                                              android:layout_width="wrap_content"
                                              android:layout_height="wrap_content"
                                              android:src="@drawable/marker_left"
                                              android:contentDescription="@string/start_marker" />
 
-        <com_international.semantive.waveformandroid.waveform.view.MarkerView
-            android:id="@+id/endmarker"
+        <com.semantive.waveformandroid.waveform.view.MarkerView android:id="@+id/endmarker"
                                              android:nextFocusUp="@+id/startmarker"
                                              android:nextFocusDown="@+id/info"
                                              android:layout_width="wrap_content"

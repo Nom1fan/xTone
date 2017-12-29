@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:padding="1dip"
     android:background="#004559">
-    <com_international.fragment.CustomVideoView
+    <com.fragment.CustomVideoView
         android:id="@+id/videoView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"

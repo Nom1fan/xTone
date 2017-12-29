@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com_international.mediacallz.app"
+    package="com.mediacallz.app"
     android:versionCode="57"
     android:versionName="1.64">
 
@@ -50,12 +50,12 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <permission android:name="com_international.mediacallz.app.permission.C2D_MESSAGE" android:protectionLevel="signature" />
-    <uses-permission android:name="com_international.mediacallz.app.permission.C2D_MESSAGE" />
+    <permission android:name="com.mediacallz.app.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+    <uses-permission android:name="com.mediacallz.app.permission.C2D_MESSAGE" />
     <!-- ***********************************************************************************-->
 
     <application
-        android:name="com_international.app.MediaCallzApp"
+        android:name="com.app.MediaCallzApp"
         android:allowBackup="false"
         android:icon="@mipmap/color_mc"
         android:label="@string/app_name"
@@ -75,7 +75,7 @@
         <!-- MediaCallz Activities -->
 
         <activity
-            android:name="com_international.ui.activities.SplashScreen"
+            android:name="com.ui.activities.SplashScreen"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -86,7 +86,7 @@
         </activity>
 
         <activity
-            android:name="com_international.ui.activities.MainActivity"
+            android:name="com.ui.activities.MainActivity"
             android:excludeFromRecents="false"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
@@ -97,33 +97,33 @@
         </activity>
 
         <activity
-            android:name="com_international.ui.activities.CallsLogHistory"
+            android:name="com.ui.activities.CallsLogHistory"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
 
         <activity
-            android:name="com_international.ui.activities.ContactMCSelectionActivity"
+            android:name="com.ui.activities.ContactMCSelectionActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
 
 
         <activity
-            android:name="com_international.ui.activities.TipActivityDialog"
+            android:name="com.ui.activities.TipActivityDialog"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Holo.Dialog"/>
 
         <activity
-            android:name="com_international.ui.activities.LoginActivity"
+            android:name="com.ui.activities.LoginActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme"/>
 
         <activity
-            android:name="com_international.ui.activities.LoginWithTermsAndServiceActivity"
+            android:name="com.ui.activities.LoginWithTermsAndServiceActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Translucent"/>
 
         <activity
-            android:name="com_international.ui.activities.SelectMediaActivity"
+            android:name="com.ui.activities.SelectMediaActivity"
             android:excludeFromRecents="false"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
@@ -132,7 +132,7 @@
         </activity>
 
         <activity
-            android:name="com_international.ui.activities.DefaultMediaActivity"
+            android:name="com.ui.activities.DefaultMediaActivity"
             android:excludeFromRecents="false"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
@@ -141,7 +141,7 @@
         </activity>
 
         <activity
-            android:name="com_international.ui.activities.PreviewMediaActivity"
+            android:name="com.ui.activities.PreviewMediaActivity"
             android:excludeFromRecents="false"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
@@ -150,7 +150,7 @@
         </activity>
 
         <activity
-            android:name="com_international.ui.activities.BlockMCContacts"
+            android:name="com.ui.activities.BlockMCContacts"
             android:excludeFromRecents="false"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
@@ -163,7 +163,7 @@
         </activity>
 
         <activity
-            android:name="com_international.ui.activities.SelectSpecificContacts"
+            android:name="com.ui.activities.SelectSpecificContacts"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -171,16 +171,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com_international.ui.activities.AudioFilesHistoryActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="com_international.ui.activities.SetSettingsActivity"
+            android:name="com.ui.activities.AudioFilesHistoryActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -189,7 +180,16 @@
         </activity>
 
         <activity
-            android:name="com_international.ui.activities.SetAboutHelpActivity"
+            android:name="com.ui.activities.SetSettingsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.ui.activities.SetAboutHelpActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
             <intent-filter>
@@ -200,7 +200,7 @@
         <!-- Content Store Activities  -->
 
         <activity
-            android:name="com_international.ui.activities.HomeActivity"
+            android:name="com.ui.activities.HomeActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name">
             <!--<intent-filter>-->
@@ -211,19 +211,19 @@
         </activity>
 
         <activity
-            android:name="com_international.ui.activities.GalleryLauncherFragmentActivity"
+            android:name="com.ui.activities.GalleryLauncherFragmentActivity"
             android:screenOrientation="portrait"
             android:label="@string/ac_name_image_list" />
 
         <activity
-            android:name="com_international.ui.activities.ComplexImageActivity"
+            android:name="com.ui.activities.ComplexImageActivity"
             android:screenOrientation="portrait"
             android:label="@string/ac_name_complex" />
 
         <!-- File Chooser Activities -->
 
         <activity
-            android:name="com_international.ipaulpro.afilechooser.FileChooserActivity"
+            android:name="com.ipaulpro.afilechooser.FileChooserActivity"
             android:enabled="@bool/use_activity"
             android:exported="true"
             android:icon="@drawable/ic_chooser"
@@ -241,37 +241,37 @@
         <!-- MediaCallz Services -->
 
         <service
-            android:name="com_international.services.IncomingService"
+            android:name="com.services.IncomingService"
             android:enabled="true"
             android:priority="999"/>
 
         <service
-            android:name="com_international.services.OutgoingService"
+            android:name="com.services.OutgoingService"
             android:enabled="true"
             android:priority="999"/>
 
         <service
-            android:name="com_international.services.PreviewService"
+            android:name="com.services.PreviewService"
             android:enabled="true"
             android:priority="999"/>
 
         <service
-            android:name="com_international.services.ServerProxyService"
+            android:name="com.services.ServerProxyService"
             android:enabled="true"
             android:priority="998"/>
 
-        <service android:name="com_international.services.PushService" />
+        <service android:name="com.services.PushService" />
 
         <service
-            android:name="com_international.services.GetTokenIntentService"
+            android:name="com.services.GetTokenIntentService"
             android:exported="false"/>
 
         <service
-            android:name="com_international.services.ClearMediaIntentService"
+            android:name="com.services.ClearMediaIntentService"
             android:exported="false"/>
 
         <service
-            android:name="com_international.services.SyncOnDefaultMediaIntentService"
+            android:name="com.services.SyncOnDefaultMediaIntentService"
             android:exported="false" />
 
         <!-- Batch Service -->
@@ -280,25 +280,25 @@
 
         <!-- MediaCallz Broadcast Receivers -->
 
-        <receiver android:name="com_international.receivers.BootCompletedBroadcastReceiver">
+        <receiver android:name="com.receivers.BootCompletedBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com_international.ui.activities.LoginActivity$IncomingSms">
+        <receiver android:name="com.ui.activities.LoginActivity$IncomingSms">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com_international.receivers.SyncDefaultMediaReceiver">
+        <receiver android:name="com.receivers.SyncDefaultMediaReceiver">
             <intent-filter>
                 <action android:name="com.android.mediacallz.SYNC_DEFULAT_MEDIA_ACTION" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com_international.receivers.StartStandOutServicesFallBackReceiver">
+        <receiver android:name="com.receivers.StartStandOutServicesFallBackReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
                 <action android:name="android.intent.action.PHONE_STATE" />
@@ -308,25 +308,25 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com_international.receivers.ConnectivityBroadcastReceiver">
+        <receiver android:name="com.receivers.ConnectivityBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.net.wifi.STATE_CHANGE" />
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com_international.receivers.BackgroundBroadcastReceiver">
+        <receiver android:name="com.receivers.BackgroundBroadcastReceiver">
             <intent-filter>
                 <action android:name="com.android.mediacallz.EVENT_ACTION" />
             </intent-filter>
         </receiver>
 
         <receiver
-            android:name="com_international.receivers.PushReceiver"
+            android:name="com.receivers.PushReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="com_international.mediacallz.app" />
+                <category android:name="com.mediacallz.app" />
             </intent-filter>
         </receiver>
 
@@ -337,13 +337,13 @@
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="com_international.mediacallz.app" />
+                <category android:name="com.mediacallz.app" />
             </intent-filter>
         </receiver>
 
         <!-- Content Store Receiver -->
 
-        <receiver android:name="com_international.widget.UILWidgetProvider">
+        <receiver android:name="com.widget.UILWidgetProvider">
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_provider" />
