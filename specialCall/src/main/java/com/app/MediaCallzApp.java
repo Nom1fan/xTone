@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.utils.InitUtils;
 import com.utils.UI_Utils;
 
 import io.fabric.sdk.android.Fabric;
