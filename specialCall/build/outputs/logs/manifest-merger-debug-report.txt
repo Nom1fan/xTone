@@ -1,6 +1,59 @@
 -- Merging decision tree log ---
+provider#android.support.v4.content.FileProvider
+INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:65:9-73:20
+	android:grantUriPermissions
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:69:13-47
+	android:authorities
+		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:67:13-60
+	android:exported
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:68:13-37
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:66:13-67
 manifest
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:2:1-365:12
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:2:1-360:12
+INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:2:1-360:12
+INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:2:1-360:12
+INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:2:1-360:12
+MERGED from [:ffmpeg4android_lib] C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:2:1-18:12
+MERGED from [:standOut_lib] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:2:1-19:12
+MERGED from [:aFileChooser] C:\git\SpecialCall_Repository\aFileChooser\build\intermediates\manifests\full\debug\AndroidManifest.xml:17:1-28:12
+MERGED from [com.android.support:design:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\design-25.3.1.aar\ed2e520a02ba91a987dd2638bcf44f50\AndroidManifest.xml:17:1-31:12
+MERGED from [com.github.amlcurran.showcaseview:library:5.4.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\library-5.4.1.aar\d797141b6587ecf974d48650ae8c6d78\AndroidManifest.xml:17:1-26:12
+MERGED from [com.android.support:transition:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\transition-25.3.1.aar\74ed6d3d50b56ffb45cc6fb4e68dfd9a\AndroidManifest.xml:17:1-28:12
+MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-gcm-10.2.0.aar\92cc01166b82c9d9938fecfec67fe937\AndroidManifest.xml:16:1-24:12
+MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-iid-10.2.0.aar\7df540e77b2d2039af3e94e2b49c602f\AndroidManifest.xml:16:1-24:12
+MERGED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-base-10.2.0.aar\63feb9c0309169f8346c8793e0e75255\AndroidManifest.xml:16:1-21:12
+MERGED from [com.google.android.gms:play-services-tasks:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-tasks-10.2.0.aar\0d7047c0090de12952d5218959757ba3\AndroidManifest.xml:2:1-5:12
+MERGED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-basement-10.2.0.aar\bec294e1474b8b92b52e7971e07d5953\AndroidManifest.xml:16:1-23:12
+MERGED from [:audio_waveform] C:\git\SpecialCall_Repository\audio_waveform\build\intermediates\manifests\full\debug\AndroidManifest.xml:2:1-11:12
+MERGED from [:rangeseekbar] C:\git\SpecialCall_Repository\rangeseekbar\build\intermediates\manifests\full\debug\AndroidManifest.xml:2:1-11:12
+MERGED from [com.android.support:appcompat-v7:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\appcompat-v7-25.3.1.aar\c3863abe179bb30be8682dc0d7430072\AndroidManifest.xml:17:1-31:12
+MERGED from [com.android.support:support-v4:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-v4-25.3.1.aar\dfb8387fd8f4fd1ab11b34842b8a631f\AndroidManifest.xml:17:1-31:12
+MERGED from [com.batch.android:batch-sdk:1.5.3] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\batch-sdk-1.5.3.aar\f8d7ad713cb6f52bdc05c09e98dfe7f3\AndroidManifest.xml:2:1-9:12
+MERGED from [pl.droidsonroids.gif:android-gif-drawable:1.1.15] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\android-gif-drawable-1.1.15.aar\65fe4706ba6912aabcf3e3327dd5fcb9\AndroidManifest.xml:2:1-11:12
+MERGED from [com.daimajia.easing:library:1.0.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\library-1.0.1.aar\bf3bcb5bfe92146d57002e908dedc1a7\AndroidManifest.xml:2:1-12:12
+MERGED from [com.daimajia.androidanimations:library:1.1.3] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\library-1.1.3.aar\eed305b0097fe00cd036f653fe1bec22\AndroidManifest.xml:2:1-12:12
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.6.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-2.6.0.aar\8f0118644351cec42d636c109ce477ec\AndroidManifest.xml:2:1-13:12
+MERGED from [com.crashlytics.sdk.android:crashlytics-ndk:1.1.3] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-ndk-1.1.3.aar\76821889ce686482043bddb424e86bcf\AndroidManifest.xml:2:1-12:12
+MERGED from [:library] C:\git\SpecialCall_Repository\library\build\intermediates\manifests\full\debug\AndroidManifest.xml:2:1-11:12
+MERGED from [com.felipecsl:gifimageview:2.1.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\gifimageview-2.1.0.aar\820a1bf4df2e23ed45d3c9797dd0487f\AndroidManifest.xml:2:1-12:12
+MERGED from [com.android.support:recyclerview-v7:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\recyclerview-v7-25.3.1.aar\5dd00d30b8889d22da93bda3c9fd7206\AndroidManifest.xml:17:1-26:12
+MERGED from [com.android.volley:volley:1.0.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\volley-1.0.0.aar\71c3499a2c89fbb313d51dd87acec498\AndroidManifest.xml:2:1-11:12
+MERGED from [com.android.support:support-fragment:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-fragment-25.3.1.aar\3156c2650356e53ed92277485e5c8498\AndroidManifest.xml:17:1-31:12
+MERGED from [com.android.support:support-core-ui:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-ui-25.3.1.aar\a0e5d0327944de20ffd3f1e3f4febf14\AndroidManifest.xml:17:1-31:12
+MERGED from [com.android.support:animated-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\animated-vector-drawable-25.3.1.aar\e0fca057f19b7e256dc4f8a7529b4192\AndroidManifest.xml:17:1-28:12
+MERGED from [com.android.support:support-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-vector-drawable-25.3.1.aar\8ca76c36ed2b3bd384d1f09faf8f815f\AndroidManifest.xml:17:1-28:12
+MERGED from [com.android.support:support-media-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-media-compat-25.3.1.aar\d25a25f10754ecd257aaa741c0b8047f\AndroidManifest.xml:17:1-31:12
+MERGED from [com.android.support:support-core-utils:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-utils-25.3.1.aar\3c7d489ea44ad7c5e503139c99af07a4\AndroidManifest.xml:17:1-31:12
+MERGED from [com.android.support:support-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-compat-25.3.1.aar\e35217d2811951a02aa8ffa5c7ddc294\AndroidManifest.xml:17:1-31:12
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.3.10] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-core-2.3.10.aar\1f37cc76687d0a2f81255ff90c3492a2\AndroidManifest.xml:2:1-13:12
+MERGED from [com.crashlytics.sdk.android:beta:1.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\beta-1.2.0.aar\b7e1575e41091ce7a2606845900f23bb\AndroidManifest.xml:2:1-13:12
+MERGED from [com.crashlytics.sdk.android:answers:1.3.8] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\answers-1.3.8.aar\a1e24b58aa3490563e4b366b2b6e3456\AndroidManifest.xml:2:1-13:12
+MERGED from [io.fabric.sdk.android:fabric:1.3.12] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\fabric-1.3.12.aar\c8e8579efc81817aeea47cf4c3ddd0c9\AndroidManifest.xml:18:1-29:12
+INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:2:1-360:12
+INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:2:1-360:12
+INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:2:1-360:12
 	package
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:3:5-33
 		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
@@ -9,52 +62,92 @@ ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xm
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:5:5-31
 		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
 		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:2:11-69
 	android:versionCode
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:4:5-29
 		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
 		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
-	xmlns:android
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:2:11-69
 uses-sdk
 ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:7:5-9:41
-MERGED from [SpecialCall_Repository:ffmpeg4android_lib:unspecified] C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\bundles\default\AndroidManifest.xml:7:5-9:41
-MERGED from [SpecialCall_Repository:standOut_lib:unspecified] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\bundles\default\AndroidManifest.xml:7:5-9:41
-MERGED from [SpecialCall_Repository:aFileChooser:unspecified] C:\git\SpecialCall_Repository\aFileChooser\build\intermediates\bundles\default\AndroidManifest.xml:20:5-22:40
-MERGED from [com.android.support:design:25.3.1] C:\Users\Mor\.android\build-cache\f61f2312ae089ab16940ef88f09712c5cbc6f430\output\AndroidManifest.xml:21:5-23:62
-MERGED from [com.android.support:transition:25.3.1] C:\Users\Mor\.android\build-cache\c66e0935c819f7be92571b43dfb788ede7caa50b\output\AndroidManifest.xml:20:5-44
-MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.android\build-cache\3e1055f91add205941ed964e6d2850abb8c32fab\output\AndroidManifest.xml:17:5-43
-MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.android\build-cache\57391dd13a2c93f4cc0db006823fd48e7ab8a8ed\output\AndroidManifest.xml:17:5-43
-MERGED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.android\build-cache\3dd0f09230808c2e35140a454f8b0b3fb497a9a9\output\AndroidManifest.xml:17:5-43
-MERGED from [com.google.android.gms:play-services-tasks:10.2.0] C:\Users\Mor\.android\build-cache\94d8c3900277949c3fa382edf1d25d3c7f1a41db\output\AndroidManifest.xml:3:5-43
-MERGED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.android\build-cache\3cfd66696356caf9f7acedc945e0e54fe92aa255\output\AndroidManifest.xml:17:5-43
-MERGED from [com.batch.android:batch-sdk:1.5.3] C:\Users\Mor\.android\build-cache\9136c15933fd571b3a0a42c31b3b7951d6e769d5\output\AndroidManifest.xml:5:5-47
-MERGED from [com.github.amlcurran.showcaseview:library:5.4.1] C:\Users\Mor\.android\build-cache\c15747541b305c2859234450e17ac84774c5a437\output\AndroidManifest.xml:22:5-24:41
-MERGED from [pl.droidsonroids.gif:android-gif-drawable:1.1.15] C:\Users\Mor\.android\build-cache\7b832146ccebd6df882cffeff8dcf2ffa99cdaad\output\AndroidManifest.xml:7:5-9:41
-MERGED from [com.daimajia.easing:library:1.0.1] C:\Users\Mor\.android\build-cache\8f2b257ba77f90b2d7153b14fe0fea8277d4f1aa\output\AndroidManifest.xml:8:5-10:41
-MERGED from [com.daimajia.androidanimations:library:1.1.3] C:\Users\Mor\.android\build-cache\bb225393cd44aee588c23d2730451bd468a342ab\output\AndroidManifest.xml:8:5-10:41
-MERGED from [com.crashlytics.sdk.android:crashlytics:2.6.0] C:\Users\Mor\.android\build-cache\32dcb521bfb7a369be7909c128a6ff3acbf3b51a\output\AndroidManifest.xml:7:5-43
-MERGED from [com.crashlytics.sdk.android:beta:1.2.0] C:\Users\Mor\.android\build-cache\c98e02791d1f52a1c7b498b3ce0b32a52fcc69a1\output\AndroidManifest.xml:7:5-43
-MERGED from [com.crashlytics.sdk.android:crashlytics-ndk:1.1.3] C:\Users\Mor\.android\build-cache\05e926117c08cae7a2e11c698f14ec2613c52aaf\output\AndroidManifest.xml:8:5-43
-MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.3.10] C:\Users\Mor\.android\build-cache\8b962f295ae8549be2be05d1a2013027d88e0e5d\output\AndroidManifest.xml:7:5-43
-MERGED from [com.crashlytics.sdk.android:answers:1.3.8] C:\Users\Mor\.android\build-cache\deaa5ff3d500fc346a2456a8fcdc22b0fc2dfcaf\output\AndroidManifest.xml:7:5-43
-MERGED from [io.fabric.sdk.android:fabric:1.3.12] C:\Users\Mor\.android\build-cache\094175f65ba7a8ac42b4e970d6ea08b0f9fef469\output\AndroidManifest.xml:23:5-43
-MERGED from [SpecialCall_Repository:audio_waveform:unspecified] C:\git\SpecialCall_Repository\audio_waveform\build\intermediates\bundles\default\AndroidManifest.xml:7:5-9:41
-MERGED from [SpecialCall_Repository:rangeseekbar:unspecified] C:\git\SpecialCall_Repository\rangeseekbar\build\intermediates\bundles\default\AndroidManifest.xml:7:5-9:41
-MERGED from [com.android.support:appcompat-v7:25.3.1] C:\Users\Mor\.android\build-cache\3d7a38aff6692d59aa5140782042f257f132505f\output\AndroidManifest.xml:21:5-23:78
-MERGED from [com.android.support:support-v4:25.3.1] C:\Users\Mor\.android\build-cache\0ed2904fdcd7f75ccc72827920af19bffd3b789f\output\AndroidManifest.xml:21:5-23:54
-MERGED from [com.android.support:support-fragment:25.3.1] C:\Users\Mor\.android\build-cache\35f580b9465334b0764e8d96ce83782e63c63783\output\AndroidManifest.xml:21:5-23:60
-MERGED from [com.android.support:support-media-compat:25.3.1] C:\Users\Mor\.android\build-cache\26ba4bc14aa602d614ca9232ff4aa32c6163defb\output\AndroidManifest.xml:21:5-23:63
-MERGED from [com.android.support:support-core-utils:25.3.1] C:\Users\Mor\.android\build-cache\0b2e450e25cdc311f2b3e73dbd13a48cbfd5ec0b\output\AndroidManifest.xml:21:5-23:61
-MERGED from [com.android.support:animated-vector-drawable:25.3.1] C:\Users\Mor\.android\build-cache\d17e3dd12477c1945f790f71e3ec249177a5218a\output\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:support-vector-drawable:25.3.1] C:\Users\Mor\.android\build-cache\dce3c3c3b5cfcb5e45e5c63790c3f35cf99dfadd\output\AndroidManifest.xml:20:5-43
-MERGED from [SpecialCall_Repository:library:unspecified] C:\git\SpecialCall_Repository\library\build\intermediates\bundles\default\AndroidManifest.xml:7:5-9:41
-MERGED from [com.felipecsl:gifimageview:2.1.0] C:\Users\Mor\.android\build-cache\447713969acdc84b95032c3e206b0ff0ddca22f5\output\AndroidManifest.xml:8:5-43
-MERGED from [com.android.support:recyclerview-v7:25.3.1] C:\Users\Mor\.android\build-cache\cb5e1d34e86a5c2e9eac7ecfd9b78ff22878e81a\output\AndroidManifest.xml:20:5-43
-MERGED from [com.android.support:support-core-ui:25.3.1] C:\Users\Mor\.android\build-cache\9213c2ff55a8e40cfb412f070d1eb4649cc22365\output\AndroidManifest.xml:21:5-23:58
-MERGED from [com.android.support:support-compat:25.3.1] C:\Users\Mor\.android\build-cache\85bc0d76ec46f6d3afff9529ff8b66f9e720bc31\output\AndroidManifest.xml:21:5-23:58
-MERGED from [com.android.volley:volley:1.0.0] C:\Users\Mor\.android\build-cache\65cedf3cc12e317bf3988c561a0848b072e8ac09\output\AndroidManifest.xml:7:5-43
+INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:7:5-9:41
+INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:7:5-9:41
+MERGED from [:ffmpeg4android_lib] C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:7:5-9:41
+MERGED from [:ffmpeg4android_lib] C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:7:5-9:41
+MERGED from [:standOut_lib] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:7:5-9:41
+MERGED from [:standOut_lib] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:7:5-9:41
+MERGED from [:aFileChooser] C:\git\SpecialCall_Repository\aFileChooser\build\intermediates\manifests\full\debug\AndroidManifest.xml:20:5-22:40
+MERGED from [:aFileChooser] C:\git\SpecialCall_Repository\aFileChooser\build\intermediates\manifests\full\debug\AndroidManifest.xml:20:5-22:40
+MERGED from [com.android.support:design:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\design-25.3.1.aar\ed2e520a02ba91a987dd2638bcf44f50\AndroidManifest.xml:21:5-23:62
+MERGED from [com.android.support:design:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\design-25.3.1.aar\ed2e520a02ba91a987dd2638bcf44f50\AndroidManifest.xml:21:5-23:62
+MERGED from [com.github.amlcurran.showcaseview:library:5.4.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\library-5.4.1.aar\d797141b6587ecf974d48650ae8c6d78\AndroidManifest.xml:22:5-24:41
+MERGED from [com.github.amlcurran.showcaseview:library:5.4.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\library-5.4.1.aar\d797141b6587ecf974d48650ae8c6d78\AndroidManifest.xml:22:5-24:41
+MERGED from [com.android.support:transition:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\transition-25.3.1.aar\74ed6d3d50b56ffb45cc6fb4e68dfd9a\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:transition:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\transition-25.3.1.aar\74ed6d3d50b56ffb45cc6fb4e68dfd9a\AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-gcm-10.2.0.aar\92cc01166b82c9d9938fecfec67fe937\AndroidManifest.xml:17:5-43
+MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-gcm-10.2.0.aar\92cc01166b82c9d9938fecfec67fe937\AndroidManifest.xml:17:5-43
+MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-iid-10.2.0.aar\7df540e77b2d2039af3e94e2b49c602f\AndroidManifest.xml:17:5-43
+MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-iid-10.2.0.aar\7df540e77b2d2039af3e94e2b49c602f\AndroidManifest.xml:17:5-43
+MERGED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-base-10.2.0.aar\63feb9c0309169f8346c8793e0e75255\AndroidManifest.xml:17:5-43
+MERGED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-base-10.2.0.aar\63feb9c0309169f8346c8793e0e75255\AndroidManifest.xml:17:5-43
+MERGED from [com.google.android.gms:play-services-tasks:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-tasks-10.2.0.aar\0d7047c0090de12952d5218959757ba3\AndroidManifest.xml:3:5-43
+MERGED from [com.google.android.gms:play-services-tasks:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-tasks-10.2.0.aar\0d7047c0090de12952d5218959757ba3\AndroidManifest.xml:3:5-43
+MERGED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-basement-10.2.0.aar\bec294e1474b8b92b52e7971e07d5953\AndroidManifest.xml:17:5-43
+MERGED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-basement-10.2.0.aar\bec294e1474b8b92b52e7971e07d5953\AndroidManifest.xml:17:5-43
+MERGED from [:audio_waveform] C:\git\SpecialCall_Repository\audio_waveform\build\intermediates\manifests\full\debug\AndroidManifest.xml:7:5-9:41
+MERGED from [:audio_waveform] C:\git\SpecialCall_Repository\audio_waveform\build\intermediates\manifests\full\debug\AndroidManifest.xml:7:5-9:41
+MERGED from [:rangeseekbar] C:\git\SpecialCall_Repository\rangeseekbar\build\intermediates\manifests\full\debug\AndroidManifest.xml:7:5-9:41
+MERGED from [:rangeseekbar] C:\git\SpecialCall_Repository\rangeseekbar\build\intermediates\manifests\full\debug\AndroidManifest.xml:7:5-9:41
+MERGED from [com.android.support:appcompat-v7:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\appcompat-v7-25.3.1.aar\c3863abe179bb30be8682dc0d7430072\AndroidManifest.xml:21:5-23:78
+MERGED from [com.android.support:appcompat-v7:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\appcompat-v7-25.3.1.aar\c3863abe179bb30be8682dc0d7430072\AndroidManifest.xml:21:5-23:78
+MERGED from [com.android.support:support-v4:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-v4-25.3.1.aar\dfb8387fd8f4fd1ab11b34842b8a631f\AndroidManifest.xml:21:5-23:54
+MERGED from [com.android.support:support-v4:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-v4-25.3.1.aar\dfb8387fd8f4fd1ab11b34842b8a631f\AndroidManifest.xml:21:5-23:54
+MERGED from [com.batch.android:batch-sdk:1.5.3] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\batch-sdk-1.5.3.aar\f8d7ad713cb6f52bdc05c09e98dfe7f3\AndroidManifest.xml:5:5-47
+MERGED from [com.batch.android:batch-sdk:1.5.3] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\batch-sdk-1.5.3.aar\f8d7ad713cb6f52bdc05c09e98dfe7f3\AndroidManifest.xml:5:5-47
+MERGED from [pl.droidsonroids.gif:android-gif-drawable:1.1.15] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\android-gif-drawable-1.1.15.aar\65fe4706ba6912aabcf3e3327dd5fcb9\AndroidManifest.xml:7:5-9:41
+MERGED from [pl.droidsonroids.gif:android-gif-drawable:1.1.15] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\android-gif-drawable-1.1.15.aar\65fe4706ba6912aabcf3e3327dd5fcb9\AndroidManifest.xml:7:5-9:41
+MERGED from [com.daimajia.easing:library:1.0.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\library-1.0.1.aar\bf3bcb5bfe92146d57002e908dedc1a7\AndroidManifest.xml:8:5-10:41
+MERGED from [com.daimajia.easing:library:1.0.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\library-1.0.1.aar\bf3bcb5bfe92146d57002e908dedc1a7\AndroidManifest.xml:8:5-10:41
+MERGED from [com.daimajia.androidanimations:library:1.1.3] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\library-1.1.3.aar\eed305b0097fe00cd036f653fe1bec22\AndroidManifest.xml:8:5-10:41
+MERGED from [com.daimajia.androidanimations:library:1.1.3] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\library-1.1.3.aar\eed305b0097fe00cd036f653fe1bec22\AndroidManifest.xml:8:5-10:41
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.6.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-2.6.0.aar\8f0118644351cec42d636c109ce477ec\AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.6.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-2.6.0.aar\8f0118644351cec42d636c109ce477ec\AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:crashlytics-ndk:1.1.3] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-ndk-1.1.3.aar\76821889ce686482043bddb424e86bcf\AndroidManifest.xml:8:5-43
+MERGED from [com.crashlytics.sdk.android:crashlytics-ndk:1.1.3] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-ndk-1.1.3.aar\76821889ce686482043bddb424e86bcf\AndroidManifest.xml:8:5-43
+MERGED from [:library] C:\git\SpecialCall_Repository\library\build\intermediates\manifests\full\debug\AndroidManifest.xml:7:5-9:41
+MERGED from [:library] C:\git\SpecialCall_Repository\library\build\intermediates\manifests\full\debug\AndroidManifest.xml:7:5-9:41
+MERGED from [com.felipecsl:gifimageview:2.1.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\gifimageview-2.1.0.aar\820a1bf4df2e23ed45d3c9797dd0487f\AndroidManifest.xml:8:5-43
+MERGED from [com.felipecsl:gifimageview:2.1.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\gifimageview-2.1.0.aar\820a1bf4df2e23ed45d3c9797dd0487f\AndroidManifest.xml:8:5-43
+MERGED from [com.android.support:recyclerview-v7:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\recyclerview-v7-25.3.1.aar\5dd00d30b8889d22da93bda3c9fd7206\AndroidManifest.xml:20:5-43
+MERGED from [com.android.support:recyclerview-v7:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\recyclerview-v7-25.3.1.aar\5dd00d30b8889d22da93bda3c9fd7206\AndroidManifest.xml:20:5-43
+MERGED from [com.android.volley:volley:1.0.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\volley-1.0.0.aar\71c3499a2c89fbb313d51dd87acec498\AndroidManifest.xml:7:5-43
+MERGED from [com.android.volley:volley:1.0.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\volley-1.0.0.aar\71c3499a2c89fbb313d51dd87acec498\AndroidManifest.xml:7:5-43
+MERGED from [com.android.support:support-fragment:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-fragment-25.3.1.aar\3156c2650356e53ed92277485e5c8498\AndroidManifest.xml:21:5-23:60
+MERGED from [com.android.support:support-fragment:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-fragment-25.3.1.aar\3156c2650356e53ed92277485e5c8498\AndroidManifest.xml:21:5-23:60
+MERGED from [com.android.support:support-core-ui:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-ui-25.3.1.aar\a0e5d0327944de20ffd3f1e3f4febf14\AndroidManifest.xml:21:5-23:58
+MERGED from [com.android.support:support-core-ui:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-ui-25.3.1.aar\a0e5d0327944de20ffd3f1e3f4febf14\AndroidManifest.xml:21:5-23:58
+MERGED from [com.android.support:animated-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\animated-vector-drawable-25.3.1.aar\e0fca057f19b7e256dc4f8a7529b4192\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:animated-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\animated-vector-drawable-25.3.1.aar\e0fca057f19b7e256dc4f8a7529b4192\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-vector-drawable-25.3.1.aar\8ca76c36ed2b3bd384d1f09faf8f815f\AndroidManifest.xml:20:5-43
+MERGED from [com.android.support:support-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-vector-drawable-25.3.1.aar\8ca76c36ed2b3bd384d1f09faf8f815f\AndroidManifest.xml:20:5-43
+MERGED from [com.android.support:support-media-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-media-compat-25.3.1.aar\d25a25f10754ecd257aaa741c0b8047f\AndroidManifest.xml:21:5-23:63
+MERGED from [com.android.support:support-media-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-media-compat-25.3.1.aar\d25a25f10754ecd257aaa741c0b8047f\AndroidManifest.xml:21:5-23:63
+MERGED from [com.android.support:support-core-utils:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-utils-25.3.1.aar\3c7d489ea44ad7c5e503139c99af07a4\AndroidManifest.xml:21:5-23:61
+MERGED from [com.android.support:support-core-utils:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-utils-25.3.1.aar\3c7d489ea44ad7c5e503139c99af07a4\AndroidManifest.xml:21:5-23:61
+MERGED from [com.android.support:support-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-compat-25.3.1.aar\e35217d2811951a02aa8ffa5c7ddc294\AndroidManifest.xml:21:5-23:58
+MERGED from [com.android.support:support-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-compat-25.3.1.aar\e35217d2811951a02aa8ffa5c7ddc294\AndroidManifest.xml:21:5-23:58
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.3.10] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-core-2.3.10.aar\1f37cc76687d0a2f81255ff90c3492a2\AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.3.10] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-core-2.3.10.aar\1f37cc76687d0a2f81255ff90c3492a2\AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:beta:1.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\beta-1.2.0.aar\b7e1575e41091ce7a2606845900f23bb\AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:beta:1.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\beta-1.2.0.aar\b7e1575e41091ce7a2606845900f23bb\AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:answers:1.3.8] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\answers-1.3.8.aar\a1e24b58aa3490563e4b366b2b6e3456\AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:answers:1.3.8] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\answers-1.3.8.aar\a1e24b58aa3490563e4b366b2b6e3456\AndroidManifest.xml:7:5-43
+MERGED from [io.fabric.sdk.android:fabric:1.3.12] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\fabric-1.3.12.aar\c8e8579efc81817aeea47cf4c3ddd0c9\AndroidManifest.xml:23:5-43
+MERGED from [io.fabric.sdk.android:fabric:1.3.12] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\fabric-1.3.12.aar\c8e8579efc81817aeea47cf4c3ddd0c9\AndroidManifest.xml:23:5-43
+INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:7:5-9:41
+INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:7:5-9:41
 	tools:overrideLibrary
-		ADDED from [com.android.support:design:25.3.1] C:\Users\Mor\.android\build-cache\f61f2312ae089ab16940ef88f09712c5cbc6f430\output\AndroidManifest.xml:23:9-59
+		ADDED from [com.android.support:design:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\design-25.3.1.aar\ed2e520a02ba91a987dd2638bcf44f50\AndroidManifest.xml:23:9-59
 	android:targetSdkVersion
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:9:9-38
 		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
@@ -102,7 +195,8 @@ ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xm
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:26:22-68
 uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
 ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:27:5-81
-MERGED from [SpecialCall_Repository:ffmpeg4android_lib:unspecified] C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\bundles\default\AndroidManifest.xml:11:5-81
+MERGED from [:ffmpeg4android_lib] C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:11:5-81
+MERGED from [:ffmpeg4android_lib] C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:11:5-81
 	android:name
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:27:22-78
 uses-permission#android.permission.PROCESS_OUTGOING_CALLS
@@ -139,7 +233,8 @@ ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xm
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:36:22-70
 uses-permission#android.permission.SYSTEM_ALERT_WINDOW
 ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:37:5-78
-MERGED from [SpecialCall_Repository:standOut_lib:unspecified] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\bundles\default\AndroidManifest.xml:11:5-78
+MERGED from [:standOut_lib] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:11:5-78
+MERGED from [:standOut_lib] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:11:5-78
 	android:name
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:37:22-75
 uses-permission#android.permission.GET_TASKS
@@ -156,19 +251,28 @@ ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xm
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:45:22-73
 uses-permission#android.permission.INTERNET
 ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:46:5-67
-MERGED from [SpecialCall_Repository:standOut_lib:unspecified] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\bundles\default\AndroidManifest.xml:13:5-67
-MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.android\build-cache\3e1055f91add205941ed964e6d2850abb8c32fab\output\AndroidManifest.xml:21:5-66
-MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.android\build-cache\57391dd13a2c93f4cc0db006823fd48e7ab8a8ed\output\AndroidManifest.xml:21:5-66
-MERGED from [com.crashlytics.sdk.android:crashlytics:2.6.0] C:\Users\Mor\.android\build-cache\32dcb521bfb7a369be7909c128a6ff3acbf3b51a\output\AndroidManifest.xml:9:5-67
-MERGED from [com.crashlytics.sdk.android:beta:1.2.0] C:\Users\Mor\.android\build-cache\c98e02791d1f52a1c7b498b3ce0b32a52fcc69a1\output\AndroidManifest.xml:9:5-67
-MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.3.10] C:\Users\Mor\.android\build-cache\8b962f295ae8549be2be05d1a2013027d88e0e5d\output\AndroidManifest.xml:9:5-67
-MERGED from [com.crashlytics.sdk.android:answers:1.3.8] C:\Users\Mor\.android\build-cache\deaa5ff3d500fc346a2456a8fcdc22b0fc2dfcaf\output\AndroidManifest.xml:9:5-67
-MERGED from [io.fabric.sdk.android:fabric:1.3.12] C:\Users\Mor\.android\build-cache\094175f65ba7a8ac42b4e970d6ea08b0f9fef469\output\AndroidManifest.xml:25:5-67
+MERGED from [:standOut_lib] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:13:5-67
+MERGED from [:standOut_lib] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:13:5-67
+MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-gcm-10.2.0.aar\92cc01166b82c9d9938fecfec67fe937\AndroidManifest.xml:21:5-66
+MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-gcm-10.2.0.aar\92cc01166b82c9d9938fecfec67fe937\AndroidManifest.xml:21:5-66
+MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-iid-10.2.0.aar\7df540e77b2d2039af3e94e2b49c602f\AndroidManifest.xml:21:5-66
+MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-iid-10.2.0.aar\7df540e77b2d2039af3e94e2b49c602f\AndroidManifest.xml:21:5-66
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.6.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-2.6.0.aar\8f0118644351cec42d636c109ce477ec\AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.6.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-2.6.0.aar\8f0118644351cec42d636c109ce477ec\AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.3.10] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-core-2.3.10.aar\1f37cc76687d0a2f81255ff90c3492a2\AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.3.10] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-core-2.3.10.aar\1f37cc76687d0a2f81255ff90c3492a2\AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:beta:1.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\beta-1.2.0.aar\b7e1575e41091ce7a2606845900f23bb\AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:beta:1.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\beta-1.2.0.aar\b7e1575e41091ce7a2606845900f23bb\AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:answers:1.3.8] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\answers-1.3.8.aar\a1e24b58aa3490563e4b366b2b6e3456\AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:answers:1.3.8] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\answers-1.3.8.aar\a1e24b58aa3490563e4b366b2b6e3456\AndroidManifest.xml:9:5-67
+MERGED from [io.fabric.sdk.android:fabric:1.3.12] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\fabric-1.3.12.aar\c8e8579efc81817aeea47cf4c3ddd0c9\AndroidManifest.xml:25:5-67
+MERGED from [io.fabric.sdk.android:fabric:1.3.12] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\fabric-1.3.12.aar\c8e8579efc81817aeea47cf4c3ddd0c9\AndroidManifest.xml:25:5-67
 	android:name
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:46:22-64
 uses-permission#android.permission.WAKE_LOCK
 ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:47:5-68
-MERGED from [SpecialCall_Repository:ffmpeg4android_lib:unspecified] C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\bundles\default\AndroidManifest.xml:12:5-68
+MERGED from [:ffmpeg4android_lib] C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:12:5-68
+MERGED from [:ffmpeg4android_lib] C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:12:5-68
 	android:name
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:47:22-65
 uses-permission#android.permission.VIBRATE
@@ -177,7 +281,8 @@ ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xm
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:48:22-63
 uses-permission#android.permission.DISABLE_KEYGUARD
 ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:49:5-75
-MERGED from [SpecialCall_Repository:standOut_lib:unspecified] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\bundles\default\AndroidManifest.xml:12:5-75
+MERGED from [:standOut_lib] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:12:5-75
+MERGED from [:standOut_lib] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:12:5-75
 	android:name
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:49:22-72
 uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
@@ -190,8 +295,10 @@ ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xm
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:51:22-77
 uses-permission#com.google.android.c2dm.permission.RECEIVE
 ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:52:5-82
-MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.android\build-cache\3e1055f91add205941ed964e6d2850abb8c32fab\output\AndroidManifest.xml:20:5-81
-MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.android\build-cache\57391dd13a2c93f4cc0db006823fd48e7ab8a8ed\output\AndroidManifest.xml:20:5-81
+MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-gcm-10.2.0.aar\92cc01166b82c9d9938fecfec67fe937\AndroidManifest.xml:20:5-81
+MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-gcm-10.2.0.aar\92cc01166b82c9d9938fecfec67fe937\AndroidManifest.xml:20:5-81
+MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-iid-10.2.0.aar\7df540e77b2d2039af3e94e2b49c602f\AndroidManifest.xml:20:5-81
+MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-iid-10.2.0.aar\7df540e77b2d2039af3e94e2b49c602f\AndroidManifest.xml:20:5-81
 	android:name
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:52:22-79
 permission#com.mediacallz.app.permission.C2D_MESSAGE
@@ -205,59 +312,67 @@ ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xm
 	android:name
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:54:22-78
 application
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:57:5-363:19
-MERGED from [com.android.support:design:25.3.1] C:\Users\Mor\.android\build-cache\f61f2312ae089ab16940ef88f09712c5cbc6f430\output\AndroidManifest.xml:29:5-20
-MERGED from [com.android.support:transition:25.3.1] C:\Users\Mor\.android\build-cache\c66e0935c819f7be92571b43dfb788ede7caa50b\output\AndroidManifest.xml:26:5-20
-MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.android\build-cache\3e1055f91add205941ed964e6d2850abb8c32fab\output\AndroidManifest.xml:23:5-19
-MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.android\build-cache\57391dd13a2c93f4cc0db006823fd48e7ab8a8ed\output\AndroidManifest.xml:23:5-19
-MERGED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.android\build-cache\3dd0f09230808c2e35140a454f8b0b3fb497a9a9\output\AndroidManifest.xml:18:5-20:19
-MERGED from [com.google.android.gms:play-services-tasks:10.2.0] C:\Users\Mor\.android\build-cache\94d8c3900277949c3fa382edf1d25d3c7f1a41db\output\AndroidManifest.xml:4:5-19
-MERGED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.android\build-cache\3cfd66696356caf9f7acedc945e0e54fe92aa255\output\AndroidManifest.xml:19:5-21:19
-MERGED from [com.batch.android:batch-sdk:1.5.3] C:\Users\Mor\.android\build-cache\9136c15933fd571b3a0a42c31b3b7951d6e769d5\output\AndroidManifest.xml:7:5-20
-MERGED from [com.crashlytics.sdk.android:crashlytics:2.6.0] C:\Users\Mor\.android\build-cache\32dcb521bfb7a369be7909c128a6ff3acbf3b51a\output\AndroidManifest.xml:11:5-20
-MERGED from [com.crashlytics.sdk.android:beta:1.2.0] C:\Users\Mor\.android\build-cache\c98e02791d1f52a1c7b498b3ce0b32a52fcc69a1\output\AndroidManifest.xml:11:5-20
-MERGED from [com.crashlytics.sdk.android:crashlytics-ndk:1.1.3] C:\Users\Mor\.android\build-cache\05e926117c08cae7a2e11c698f14ec2613c52aaf\output\AndroidManifest.xml:10:5-20
-MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.3.10] C:\Users\Mor\.android\build-cache\8b962f295ae8549be2be05d1a2013027d88e0e5d\output\AndroidManifest.xml:11:5-20
-MERGED from [com.crashlytics.sdk.android:answers:1.3.8] C:\Users\Mor\.android\build-cache\deaa5ff3d500fc346a2456a8fcdc22b0fc2dfcaf\output\AndroidManifest.xml:11:5-20
-MERGED from [io.fabric.sdk.android:fabric:1.3.12] C:\Users\Mor\.android\build-cache\094175f65ba7a8ac42b4e970d6ea08b0f9fef469\output\AndroidManifest.xml:27:5-20
-MERGED from [com.android.support:appcompat-v7:25.3.1] C:\Users\Mor\.android\build-cache\3d7a38aff6692d59aa5140782042f257f132505f\output\AndroidManifest.xml:29:5-20
-MERGED from [com.android.support:support-v4:25.3.1] C:\Users\Mor\.android\build-cache\0ed2904fdcd7f75ccc72827920af19bffd3b789f\output\AndroidManifest.xml:29:5-20
-MERGED from [com.android.support:support-fragment:25.3.1] C:\Users\Mor\.android\build-cache\35f580b9465334b0764e8d96ce83782e63c63783\output\AndroidManifest.xml:29:5-20
-MERGED from [com.android.support:support-media-compat:25.3.1] C:\Users\Mor\.android\build-cache\26ba4bc14aa602d614ca9232ff4aa32c6163defb\output\AndroidManifest.xml:29:5-20
-MERGED from [com.android.support:support-core-utils:25.3.1] C:\Users\Mor\.android\build-cache\0b2e450e25cdc311f2b3e73dbd13a48cbfd5ec0b\output\AndroidManifest.xml:29:5-20
-MERGED from [com.android.support:animated-vector-drawable:25.3.1] C:\Users\Mor\.android\build-cache\d17e3dd12477c1945f790f71e3ec249177a5218a\output\AndroidManifest.xml:26:5-20
-MERGED from [com.android.support:support-vector-drawable:25.3.1] C:\Users\Mor\.android\build-cache\dce3c3c3b5cfcb5e45e5c63790c3f35cf99dfadd\output\AndroidManifest.xml:26:5-20
-MERGED from [com.felipecsl:gifimageview:2.1.0] C:\Users\Mor\.android\build-cache\447713969acdc84b95032c3e206b0ff0ddca22f5\output\AndroidManifest.xml:10:5-20
-MERGED from [com.android.support:support-core-ui:25.3.1] C:\Users\Mor\.android\build-cache\9213c2ff55a8e40cfb412f070d1eb4649cc22365\output\AndroidManifest.xml:29:5-20
-MERGED from [com.android.support:support-compat:25.3.1] C:\Users\Mor\.android\build-cache\85bc0d76ec46f6d3afff9529ff8b66f9e720bc31\output\AndroidManifest.xml:29:5-20
-MERGED from [com.android.volley:volley:1.0.0] C:\Users\Mor\.android\build-cache\65cedf3cc12e317bf3988c561a0848b072e8ac09\output\AndroidManifest.xml:9:5-20
-	android:label
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:61:9-41
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:57:5-358:19
+MERGED from [com.android.support:design:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\design-25.3.1.aar\ed2e520a02ba91a987dd2638bcf44f50\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:design:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\design-25.3.1.aar\ed2e520a02ba91a987dd2638bcf44f50\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:transition:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\transition-25.3.1.aar\74ed6d3d50b56ffb45cc6fb4e68dfd9a\AndroidManifest.xml:26:5-20
+MERGED from [com.android.support:transition:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\transition-25.3.1.aar\74ed6d3d50b56ffb45cc6fb4e68dfd9a\AndroidManifest.xml:26:5-20
+MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-gcm-10.2.0.aar\92cc01166b82c9d9938fecfec67fe937\AndroidManifest.xml:23:5-19
+MERGED from [com.google.android.gms:play-services-gcm:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-gcm-10.2.0.aar\92cc01166b82c9d9938fecfec67fe937\AndroidManifest.xml:23:5-19
+MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-iid-10.2.0.aar\7df540e77b2d2039af3e94e2b49c602f\AndroidManifest.xml:23:5-19
+MERGED from [com.google.android.gms:play-services-iid:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-iid-10.2.0.aar\7df540e77b2d2039af3e94e2b49c602f\AndroidManifest.xml:23:5-19
+MERGED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-base-10.2.0.aar\63feb9c0309169f8346c8793e0e75255\AndroidManifest.xml:18:5-20:19
+MERGED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-base-10.2.0.aar\63feb9c0309169f8346c8793e0e75255\AndroidManifest.xml:18:5-20:19
+MERGED from [com.google.android.gms:play-services-tasks:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-tasks-10.2.0.aar\0d7047c0090de12952d5218959757ba3\AndroidManifest.xml:4:5-19
+MERGED from [com.google.android.gms:play-services-tasks:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-tasks-10.2.0.aar\0d7047c0090de12952d5218959757ba3\AndroidManifest.xml:4:5-19
+MERGED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-basement-10.2.0.aar\bec294e1474b8b92b52e7971e07d5953\AndroidManifest.xml:19:5-21:19
+MERGED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-basement-10.2.0.aar\bec294e1474b8b92b52e7971e07d5953\AndroidManifest.xml:19:5-21:19
+MERGED from [com.android.support:appcompat-v7:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\appcompat-v7-25.3.1.aar\c3863abe179bb30be8682dc0d7430072\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:appcompat-v7:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\appcompat-v7-25.3.1.aar\c3863abe179bb30be8682dc0d7430072\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-v4:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-v4-25.3.1.aar\dfb8387fd8f4fd1ab11b34842b8a631f\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-v4:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-v4-25.3.1.aar\dfb8387fd8f4fd1ab11b34842b8a631f\AndroidManifest.xml:29:5-20
+MERGED from [com.batch.android:batch-sdk:1.5.3] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\batch-sdk-1.5.3.aar\f8d7ad713cb6f52bdc05c09e98dfe7f3\AndroidManifest.xml:7:5-20
+MERGED from [com.batch.android:batch-sdk:1.5.3] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\batch-sdk-1.5.3.aar\f8d7ad713cb6f52bdc05c09e98dfe7f3\AndroidManifest.xml:7:5-20
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.6.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-2.6.0.aar\8f0118644351cec42d636c109ce477ec\AndroidManifest.xml:11:5-20
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.6.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-2.6.0.aar\8f0118644351cec42d636c109ce477ec\AndroidManifest.xml:11:5-20
+MERGED from [com.crashlytics.sdk.android:crashlytics-ndk:1.1.3] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-ndk-1.1.3.aar\76821889ce686482043bddb424e86bcf\AndroidManifest.xml:10:5-20
+MERGED from [com.crashlytics.sdk.android:crashlytics-ndk:1.1.3] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-ndk-1.1.3.aar\76821889ce686482043bddb424e86bcf\AndroidManifest.xml:10:5-20
+MERGED from [com.felipecsl:gifimageview:2.1.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\gifimageview-2.1.0.aar\820a1bf4df2e23ed45d3c9797dd0487f\AndroidManifest.xml:10:5-20
+MERGED from [com.felipecsl:gifimageview:2.1.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\gifimageview-2.1.0.aar\820a1bf4df2e23ed45d3c9797dd0487f\AndroidManifest.xml:10:5-20
+MERGED from [com.android.volley:volley:1.0.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\volley-1.0.0.aar\71c3499a2c89fbb313d51dd87acec498\AndroidManifest.xml:9:5-20
+MERGED from [com.android.volley:volley:1.0.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\volley-1.0.0.aar\71c3499a2c89fbb313d51dd87acec498\AndroidManifest.xml:9:5-20
+MERGED from [com.android.support:support-fragment:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-fragment-25.3.1.aar\3156c2650356e53ed92277485e5c8498\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-fragment:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-fragment-25.3.1.aar\3156c2650356e53ed92277485e5c8498\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-core-ui:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-ui-25.3.1.aar\a0e5d0327944de20ffd3f1e3f4febf14\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-core-ui:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-ui-25.3.1.aar\a0e5d0327944de20ffd3f1e3f4febf14\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:animated-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\animated-vector-drawable-25.3.1.aar\e0fca057f19b7e256dc4f8a7529b4192\AndroidManifest.xml:26:5-20
+MERGED from [com.android.support:animated-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\animated-vector-drawable-25.3.1.aar\e0fca057f19b7e256dc4f8a7529b4192\AndroidManifest.xml:26:5-20
+MERGED from [com.android.support:support-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-vector-drawable-25.3.1.aar\8ca76c36ed2b3bd384d1f09faf8f815f\AndroidManifest.xml:26:5-20
+MERGED from [com.android.support:support-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-vector-drawable-25.3.1.aar\8ca76c36ed2b3bd384d1f09faf8f815f\AndroidManifest.xml:26:5-20
+MERGED from [com.android.support:support-media-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-media-compat-25.3.1.aar\d25a25f10754ecd257aaa741c0b8047f\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-media-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-media-compat-25.3.1.aar\d25a25f10754ecd257aaa741c0b8047f\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-core-utils:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-utils-25.3.1.aar\3c7d489ea44ad7c5e503139c99af07a4\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-core-utils:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-utils-25.3.1.aar\3c7d489ea44ad7c5e503139c99af07a4\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-compat-25.3.1.aar\e35217d2811951a02aa8ffa5c7ddc294\AndroidManifest.xml:29:5-20
+MERGED from [com.android.support:support-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-compat-25.3.1.aar\e35217d2811951a02aa8ffa5c7ddc294\AndroidManifest.xml:29:5-20
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.3.10] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-core-2.3.10.aar\1f37cc76687d0a2f81255ff90c3492a2\AndroidManifest.xml:11:5-20
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.3.10] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-core-2.3.10.aar\1f37cc76687d0a2f81255ff90c3492a2\AndroidManifest.xml:11:5-20
+MERGED from [com.crashlytics.sdk.android:beta:1.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\beta-1.2.0.aar\b7e1575e41091ce7a2606845900f23bb\AndroidManifest.xml:11:5-20
+MERGED from [com.crashlytics.sdk.android:beta:1.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\beta-1.2.0.aar\b7e1575e41091ce7a2606845900f23bb\AndroidManifest.xml:11:5-20
+MERGED from [com.crashlytics.sdk.android:answers:1.3.8] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\answers-1.3.8.aar\a1e24b58aa3490563e4b366b2b6e3456\AndroidManifest.xml:11:5-20
+MERGED from [com.crashlytics.sdk.android:answers:1.3.8] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\answers-1.3.8.aar\a1e24b58aa3490563e4b366b2b6e3456\AndroidManifest.xml:11:5-20
+MERGED from [io.fabric.sdk.android:fabric:1.3.12] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\fabric-1.3.12.aar\c8e8579efc81817aeea47cf4c3ddd0c9\AndroidManifest.xml:27:5-20
+MERGED from [io.fabric.sdk.android:fabric:1.3.12] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\fabric-1.3.12.aar\c8e8579efc81817aeea47cf4c3ddd0c9\AndroidManifest.xml:27:5-20
 	android:supportsRtl
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:62:9-35
-	android:allowBackup
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:59:9-36
+	android:label
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:61:9-41
 	android:icon
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:60:9-40
+	android:allowBackup
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:59:9-36
 	android:name
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:58:9-45
-provider#android.support.v4.content.FileProvider
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:65:9-73:20
-	android:authorities
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:67:13-60
-		INJECTED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml
-	android:grantUriPermissions
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:69:13-47
-	android:exported
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:68:13-37
-	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:66:13-67
-meta-data#android.support.FILE_PROVIDER_PATHS
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:70:13-72:57
-	android:resource
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:72:17-55
-	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:71:17-67
 activity#com.ui.activities.SplashScreen
 ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:77:9-86:20
 	android:screenOrientation
@@ -294,181 +409,181 @@ action#android.intent.action.SEARCH
 ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:95:17-71
 	android:name
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:95:25-68
-activity#com.ui.activities.CallsLogHistory
+activity#com.ui.activities.ContactMCSelectionActivity
 ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:99:9-102:46
 	android:screenOrientation
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:101:13-49
 	android:theme
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:102:13-44
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:100:13-61
-activity#com.ui.activities.ContactMCSelectionActivity
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:104:9-107:46
-	android:screenOrientation
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:106:13-49
-	android:theme
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:107:13-44
-	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:105:13-72
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:100:13-72
 activity#com.ui.activities.TipActivityDialog
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:110:9-113:63
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:105:9-108:63
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:107:13-49
+	android:theme
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:108:13-61
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:106:13-63
+activity#com.ui.activities.LoginActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:110:9-113:46
 	android:screenOrientation
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:112:13-49
 	android:theme
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:113:13-61
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:113:13-44
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:111:13-63
-activity#com.ui.activities.LoginActivity
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:115:9-118:46
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:111:13-59
+activity#com.ui.activities.LoginWithTermsAndServiceActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:115:9-118:65
 	android:screenOrientation
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:117:13-49
 	android:theme
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:118:13-44
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:118:13-63
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:116:13-59
-activity#com.ui.activities.LoginWithTermsAndServiceActivity
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:120:9-123:65
-	android:screenOrientation
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:122:13-49
-	android:theme
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:123:13-63
-	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:121:13-78
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:116:13-78
 activity#com.ui.activities.SelectMediaActivity
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:125:9-132:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:120:9-127:20
 	android:screenOrientation
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:129:13-49
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:124:13-49
 	android:label
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:128:13-45
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:123:13-45
 	android:excludeFromRecents
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:127:13-47
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:122:13-47
 	android:theme
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:130:13-44
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:125:13-44
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:126:13-65
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:121:13-65
 activity#com.ui.activities.DefaultMediaActivity
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:134:9-141:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:129:9-136:20
 	android:screenOrientation
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:138:13-49
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:133:13-49
 	android:label
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:137:13-45
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:132:13-45
 	android:excludeFromRecents
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:136:13-47
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:131:13-47
 	android:theme
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:139:13-44
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:134:13-44
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:135:13-66
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:130:13-66
 activity#com.ui.activities.PreviewMediaActivity
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:143:9-150:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:138:9-145:20
 	android:screenOrientation
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:147:13-49
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:142:13-49
 	android:label
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:146:13-45
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:141:13-45
 	android:excludeFromRecents
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:145:13-47
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:140:13-47
 	android:theme
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:148:13-44
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:143:13-44
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:144:13-66
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:139:13-66
 activity#com.ui.activities.BlockMCContacts
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:152:9-163:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:147:9-158:20
 	android:screenOrientation
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:156:13-49
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:151:13-49
 	android:label
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:155:13-45
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:150:13-45
 	android:excludeFromRecents
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:154:13-47
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:149:13-47
 	android:theme
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:157:13-44
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:152:13-44
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:153:13-61
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:148:13-61
 activity#com.ui.activities.SelectSpecificContacts
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:165:9-172:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:160:9-167:20
 	android:screenOrientation
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:167:13-49
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:162:13-49
 	android:theme
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:168:13-44
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:163:13-44
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:166:13-68
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:161:13-68
 activity#com.ui.activities.AudioFilesHistoryActivity
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:173:9-180:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:168:9-175:20
 	android:screenOrientation
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:175:13-49
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:170:13-49
 	android:theme
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:176:13-44
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:171:13-44
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:174:13-71
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:169:13-71
 activity#com.ui.activities.SetSettingsActivity
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:182:9-189:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:177:9-184:20
 	android:screenOrientation
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:184:13-49
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:179:13-49
 	android:theme
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:185:13-44
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:180:13-44
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:183:13-65
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:178:13-65
 activity#com.ui.activities.SetAboutHelpActivity
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:191:9-198:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:186:9-193:20
 	android:screenOrientation
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:193:13-49
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:188:13-49
 	android:theme
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:194:13-44
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:189:13-44
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:192:13-66
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:187:13-66
 activity#com.ui.activities.HomeActivity
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:202:9-211:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:197:9-206:20
 	android:screenOrientation
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:204:13-49
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:199:13-49
 	android:label
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:205:13-45
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:200:13-45
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:203:13-58
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:198:13-58
 activity#com.ui.activities.GalleryLauncherFragmentActivity
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:213:9-216:58
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:208:9-211:58
+	android:screenOrientation
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:210:13-49
+	android:label
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:211:13-55
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:209:13-77
+activity#com.ui.activities.ComplexImageActivity
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:213:9-216:55
 	android:screenOrientation
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:215:13-49
 	android:label
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:216:13-55
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:216:13-52
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:214:13-77
-activity#com.ui.activities.ComplexImageActivity
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:218:9-221:55
-	android:screenOrientation
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:220:13-49
-	android:label
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:221:13-52
-	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:219:13-66
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:214:13-66
 activity#com.ipaulpro.afilechooser.FileChooserActivity
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:225:9-239:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:220:9-234:20
 	android:enabled
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:227:13-49
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:222:13-49
 	android:label
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:230:13-48
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:225:13-48
 	android:exported
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:228:13-36
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:223:13-36
 	android:icon
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:229:13-48
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:224:13-48
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:226:13-73
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:221:13-73
 intent-filter#android.intent.action.GET_CONTENT+android.intent.category.DEFAULT+android.intent.category.OPENABLE
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:231:13-238:29
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:226:13-233:29
 action#android.intent.action.GET_CONTENT
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:232:17-76
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:227:17-76
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:232:25-73
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:227:25-73
 category#android.intent.category.DEFAULT
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:234:17-76
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:229:17-76
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:234:27-73
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:229:27-73
 category#android.intent.category.OPENABLE
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:235:17-77
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:230:17-77
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:235:27-74
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:230:27-74
 data
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:237:17-48
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:232:17-48
 	android:mimeType
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:237:23-45
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:232:23-45
 service#com.services.IncomingService
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:238:9-241:37
+	android:enabled
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:240:13-35
+	android:priority
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:241:13-35
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:239:13-56
+service#com.services.OutgoingService
 ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:243:9-246:37
 	android:enabled
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:245:13-35
@@ -476,208 +591,219 @@ ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xm
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:246:13-35
 	android:name
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:244:13-56
-service#com.services.OutgoingService
+service#com.services.PreviewService
 ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:248:9-251:37
 	android:enabled
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:250:13-35
 	android:priority
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:251:13-35
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:249:13-56
-service#com.services.PreviewService
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:249:13-55
+service#com.services.ServerProxyService
 ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:253:9-256:37
 	android:enabled
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:255:13-35
 	android:priority
 		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:256:13-35
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:254:13-55
-service#com.services.ServerProxyService
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:258:9-261:37
-	android:enabled
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:260:13-35
-	android:priority
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:261:13-35
-	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:259:13-59
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:254:13-59
 service#com.services.PushService
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:263:9-60
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:258:9-60
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:263:18-57
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:258:18-57
 service#com.services.GetTokenIntentService
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:265:9-267:39
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:260:9-262:39
 	android:exported
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:267:13-37
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:262:13-37
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:266:13-62
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:261:13-62
 service#com.services.ClearMediaIntentService
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:269:9-271:39
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:264:9-266:39
 	android:exported
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:271:13-37
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:266:13-37
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:270:13-64
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:265:13-64
 service#com.services.SyncOnDefaultMediaIntentService
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:273:9-275:40
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:268:9-270:40
 	android:exported
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:275:13-37
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:270:13-37
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:274:13-72
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:269:13-72
 service#com.services.SyncContactsIntentService
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:277:9-279:40
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:272:9-274:40
 	android:exported
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:279:13-37
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:274:13-37
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:278:13-66
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:273:13-66
 service#com.batch.android.BatchPushService
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:283:9-70
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:278:9-70
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:283:18-67
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:278:18-67
 receiver#com.receivers.BootCompletedBroadcastReceiver
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:287:9-291:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:282:9-286:20
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:287:19-78
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:282:19-78
 intent-filter#android.intent.action.BOOT_COMPLETED
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:288:13-290:29
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:283:13-285:29
 action#android.intent.action.BOOT_COMPLETED
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:289:17-79
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:284:17-79
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:289:25-76
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:284:25-76
 receiver#com.ui.activities.LoginActivity$IncomingSms
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:293:9-297:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:288:9-292:20
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:293:19-77
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:288:19-77
 intent-filter#android.provider.Telephony.SMS_RECEIVED
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:294:13-296:29
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:289:13-291:29
 action#android.provider.Telephony.SMS_RECEIVED
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:295:17-82
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:290:17-82
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:295:25-79
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:290:25-79
 receiver#com.receivers.SyncDefaultMediaReceiver
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:299:9-303:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:294:9-298:20
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:299:19-72
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:294:19-72
 intent-filter#com.android.mediacallz.SYNC_DEFULAT_MEDIA_ACTION
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:300:13-302:29
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:295:13-297:29
 action#com.android.mediacallz.SYNC_DEFULAT_MEDIA_ACTION
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:301:17-91
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:296:17-91
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:301:25-88
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:296:25-88
 receiver#com.receivers.StartStandOutServicesFallBackReceiver
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:305:9-313:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:300:9-308:20
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:305:19-85
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:300:19-85
 intent-filter#android.intent.action.NEW_OUTGOING_CALL+android.intent.action.PHONE_STATE+android.net.conn.CONNECTIVITY_CHANGE+com.android.mediacallz.ALARM_ACTION+com.android.mediacallz.EVENT_ACTION
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:306:13-312:29
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:301:13-307:29
 action#android.intent.action.NEW_OUTGOING_CALL
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:307:17-82
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:302:17-82
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:307:25-79
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:302:25-79
 action#android.intent.action.PHONE_STATE
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:308:17-76
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:303:17-76
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:308:25-73
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:303:25-73
 action#com.android.mediacallz.EVENT_ACTION
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:309:17-78
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:304:17-78
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:309:25-75
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:304:25-75
 action#android.net.conn.CONNECTIVITY_CHANGE
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:310:17-79
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:305:17-79
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:310:25-76
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:305:25-76
 action#com.android.mediacallz.ALARM_ACTION
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:311:17-78
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:306:17-78
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:311:25-75
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:306:25-75
 receiver#com.receivers.ConnectivityBroadcastReceiver
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:315:9-320:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:310:9-315:20
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:315:19-77
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:310:19-77
 intent-filter#android.net.conn.CONNECTIVITY_CHANGE+android.net.wifi.STATE_CHANGE
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:316:13-319:29
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:311:13-314:29
 action#android.net.wifi.STATE_CHANGE
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:317:17-72
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:312:17-72
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:317:25-69
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:312:25-69
 receiver#com.receivers.BackgroundBroadcastReceiver
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:322:9-326:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:317:9-321:20
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:322:19-75
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:317:19-75
 intent-filter#com.android.mediacallz.EVENT_ACTION
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:323:13-325:29
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:318:13-320:29
 receiver#com.receivers.PushReceiver
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:328:9-335:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:323:9-330:20
 	android:permission
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:330:13-73
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:325:13-73
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:329:13-54
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:324:13-54
 intent-filter#com.google.android.c2dm.intent.RECEIVE+com.mediacallz.app
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:331:13-334:29
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:326:13-329:29
 action#com.google.android.c2dm.intent.RECEIVE
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:332:17-81
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:327:17-81
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:332:25-78
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:327:25-78
 category#com.mediacallz.app
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:333:17-63
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:328:17-63
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:333:27-60
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:328:27-60
 receiver#com.batch.android.BatchPushReceiver
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:339:9-346:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:334:9-341:20
 	android:permission
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:341:13-73
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:336:13-73
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:340:13-63
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:335:13-63
 receiver#com.widget.UILWidgetProvider
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:350:9-358:20
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:345:9-353:20
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:350:19-62
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:345:19-62
 meta-data#android.appwidget.provider
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:351:13-353:59
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:346:13-348:59
 	android:resource
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:353:17-56
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:348:17-56
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:352:17-58
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:347:17-58
 intent-filter#android.appwidget.action.APPWIDGET_UPDATE
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:355:13-357:29
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:350:13-352:29
 action#android.appwidget.action.APPWIDGET_UPDATE
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:356:17-84
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:351:17-84
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:356:25-81
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:351:25-81
 meta-data#io.fabric.ApiKey
-ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:360:9-362:72
-MERGED from [SpecialCall_Repository:standOut_lib:unspecified] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\bundles\default\AndroidManifest.xml:15:5-17:68
-MERGED from [SpecialCall_Repository:aFileChooser:unspecified] C:\git\SpecialCall_Repository\aFileChooser\build\intermediates\bundles\default\AndroidManifest.xml:24:5-26:68
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:355:9-357:72
+MERGED from [:standOut_lib] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:15:5-17:68
+MERGED from [:standOut_lib] C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\manifests\full\debug\AndroidManifest.xml:15:5-17:68
+MERGED from [:aFileChooser] C:\git\SpecialCall_Repository\aFileChooser\build\intermediates\manifests\full\debug\AndroidManifest.xml:24:5-26:68
+MERGED from [:aFileChooser] C:\git\SpecialCall_Repository\aFileChooser\build\intermediates\manifests\full\debug\AndroidManifest.xml:24:5-26:68
 	android:value
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:362:13-69
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:357:13-69
 	android:name
-		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:361:13-44
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:356:13-44
+meta-data#android.support.FILE_PROVIDER_PATHS
+ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:70:13-72:57
+	android:resource
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:72:17-55
+	android:name
+		ADDED from C:\git\SpecialCall_Repository\specialCall\src\main\AndroidManifest.xml:71:17-67
 meta-data#android.support.VERSION
-ADDED from [com.android.support:design:25.3.1] C:\Users\Mor\.android\build-cache\f61f2312ae089ab16940ef88f09712c5cbc6f430\output\AndroidManifest.xml:25:5-27:34
-MERGED from [com.android.support:transition:25.3.1] C:\Users\Mor\.android\build-cache\c66e0935c819f7be92571b43dfb788ede7caa50b\output\AndroidManifest.xml:22:5-24:34
-MERGED from [com.android.support:appcompat-v7:25.3.1] C:\Users\Mor\.android\build-cache\3d7a38aff6692d59aa5140782042f257f132505f\output\AndroidManifest.xml:25:5-27:34
-MERGED from [com.android.support:support-v4:25.3.1] C:\Users\Mor\.android\build-cache\0ed2904fdcd7f75ccc72827920af19bffd3b789f\output\AndroidManifest.xml:25:5-27:34
-MERGED from [com.android.support:support-fragment:25.3.1] C:\Users\Mor\.android\build-cache\35f580b9465334b0764e8d96ce83782e63c63783\output\AndroidManifest.xml:25:5-27:34
-MERGED from [com.android.support:support-media-compat:25.3.1] C:\Users\Mor\.android\build-cache\26ba4bc14aa602d614ca9232ff4aa32c6163defb\output\AndroidManifest.xml:25:5-27:34
-MERGED from [com.android.support:support-core-utils:25.3.1] C:\Users\Mor\.android\build-cache\0b2e450e25cdc311f2b3e73dbd13a48cbfd5ec0b\output\AndroidManifest.xml:25:5-27:34
-MERGED from [com.android.support:animated-vector-drawable:25.3.1] C:\Users\Mor\.android\build-cache\d17e3dd12477c1945f790f71e3ec249177a5218a\output\AndroidManifest.xml:22:5-24:34
-MERGED from [com.android.support:support-vector-drawable:25.3.1] C:\Users\Mor\.android\build-cache\dce3c3c3b5cfcb5e45e5c63790c3f35cf99dfadd\output\AndroidManifest.xml:22:5-24:34
-MERGED from [com.android.support:recyclerview-v7:25.3.1] C:\Users\Mor\.android\build-cache\cb5e1d34e86a5c2e9eac7ecfd9b78ff22878e81a\output\AndroidManifest.xml:22:5-24:34
-MERGED from [com.android.support:support-core-ui:25.3.1] C:\Users\Mor\.android\build-cache\9213c2ff55a8e40cfb412f070d1eb4649cc22365\output\AndroidManifest.xml:25:5-27:34
-MERGED from [com.android.support:support-compat:25.3.1] C:\Users\Mor\.android\build-cache\85bc0d76ec46f6d3afff9529ff8b66f9e720bc31\output\AndroidManifest.xml:25:5-27:34
+ADDED from [com.android.support:design:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\design-25.3.1.aar\ed2e520a02ba91a987dd2638bcf44f50\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:transition:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\transition-25.3.1.aar\74ed6d3d50b56ffb45cc6fb4e68dfd9a\AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:transition:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\transition-25.3.1.aar\74ed6d3d50b56ffb45cc6fb4e68dfd9a\AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:appcompat-v7:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\appcompat-v7-25.3.1.aar\c3863abe179bb30be8682dc0d7430072\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:appcompat-v7:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\appcompat-v7-25.3.1.aar\c3863abe179bb30be8682dc0d7430072\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-v4:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-v4-25.3.1.aar\dfb8387fd8f4fd1ab11b34842b8a631f\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-v4:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-v4-25.3.1.aar\dfb8387fd8f4fd1ab11b34842b8a631f\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:recyclerview-v7:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\recyclerview-v7-25.3.1.aar\5dd00d30b8889d22da93bda3c9fd7206\AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:recyclerview-v7:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\recyclerview-v7-25.3.1.aar\5dd00d30b8889d22da93bda3c9fd7206\AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:support-fragment:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-fragment-25.3.1.aar\3156c2650356e53ed92277485e5c8498\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-fragment:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-fragment-25.3.1.aar\3156c2650356e53ed92277485e5c8498\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-core-ui:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-ui-25.3.1.aar\a0e5d0327944de20ffd3f1e3f4febf14\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-core-ui:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-ui-25.3.1.aar\a0e5d0327944de20ffd3f1e3f4febf14\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:animated-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\animated-vector-drawable-25.3.1.aar\e0fca057f19b7e256dc4f8a7529b4192\AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:animated-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\animated-vector-drawable-25.3.1.aar\e0fca057f19b7e256dc4f8a7529b4192\AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:support-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-vector-drawable-25.3.1.aar\8ca76c36ed2b3bd384d1f09faf8f815f\AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:support-vector-drawable:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-vector-drawable-25.3.1.aar\8ca76c36ed2b3bd384d1f09faf8f815f\AndroidManifest.xml:22:5-24:34
+MERGED from [com.android.support:support-media-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-media-compat-25.3.1.aar\d25a25f10754ecd257aaa741c0b8047f\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-media-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-media-compat-25.3.1.aar\d25a25f10754ecd257aaa741c0b8047f\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-core-utils:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-utils-25.3.1.aar\3c7d489ea44ad7c5e503139c99af07a4\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-core-utils:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-utils-25.3.1.aar\3c7d489ea44ad7c5e503139c99af07a4\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-compat-25.3.1.aar\e35217d2811951a02aa8ffa5c7ddc294\AndroidManifest.xml:25:5-27:34
+MERGED from [com.android.support:support-compat:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-compat-25.3.1.aar\e35217d2811951a02aa8ffa5c7ddc294\AndroidManifest.xml:25:5-27:34
 	android:value
-		ADDED from [com.android.support:design:25.3.1] C:\Users\Mor\.android\build-cache\f61f2312ae089ab16940ef88f09712c5cbc6f430\output\AndroidManifest.xml:27:9-31
+		ADDED from [com.android.support:design:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\design-25.3.1.aar\ed2e520a02ba91a987dd2638bcf44f50\AndroidManifest.xml:27:9-31
 	android:name
-		ADDED from [com.android.support:design:25.3.1] C:\Users\Mor\.android\build-cache\f61f2312ae089ab16940ef88f09712c5cbc6f430\output\AndroidManifest.xml:26:9-47
+		ADDED from [com.android.support:design:25.3.1] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\design-25.3.1.aar\ed2e520a02ba91a987dd2638bcf44f50\AndroidManifest.xml:26:9-47
 activity#com.google.android.gms.common.api.GoogleApiActivity
-ADDED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.android\build-cache\3dd0f09230808c2e35140a454f8b0b3fb497a9a9\output\AndroidManifest.xml:19:9-172
+ADDED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-base-10.2.0.aar\63feb9c0309169f8346c8793e0e75255\AndroidManifest.xml:19:9-172
 	android:exported
-		ADDED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.android\build-cache\3dd0f09230808c2e35140a454f8b0b3fb497a9a9\output\AndroidManifest.xml:19:146-170
+		ADDED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-base-10.2.0.aar\63feb9c0309169f8346c8793e0e75255\AndroidManifest.xml:19:146-170
 	android:theme
-		ADDED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.android\build-cache\3dd0f09230808c2e35140a454f8b0b3fb497a9a9\output\AndroidManifest.xml:19:86-145
+		ADDED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-base-10.2.0.aar\63feb9c0309169f8346c8793e0e75255\AndroidManifest.xml:19:86-145
 	android:name
-		ADDED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.android\build-cache\3dd0f09230808c2e35140a454f8b0b3fb497a9a9\output\AndroidManifest.xml:19:19-85
+		ADDED from [com.google.android.gms:play-services-base:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-base-10.2.0.aar\63feb9c0309169f8346c8793e0e75255\AndroidManifest.xml:19:19-85
 meta-data#com.google.android.gms.version
-ADDED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.android\build-cache\3cfd66696356caf9f7acedc945e0e54fe92aa255\output\AndroidManifest.xml:20:9-121
+ADDED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-basement-10.2.0.aar\bec294e1474b8b92b52e7971e07d5953\AndroidManifest.xml:20:9-121
 	android:value
-		ADDED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.android\build-cache\3cfd66696356caf9f7acedc945e0e54fe92aa255\output\AndroidManifest.xml:20:66-119
+		ADDED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-basement-10.2.0.aar\bec294e1474b8b92b52e7971e07d5953\AndroidManifest.xml:20:66-119
 	android:name
-		ADDED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.android\build-cache\3cfd66696356caf9f7acedc945e0e54fe92aa255\output\AndroidManifest.xml:20:20-65
+		ADDED from [com.google.android.gms:play-services-basement:10.2.0] C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-basement-10.2.0.aar\bec294e1474b8b92b52e7971e07d5953\AndroidManifest.xml:20:20-65

@@ -1,9 +1,0 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
-
-    <item
-        android:id="@+id/action_about"
-        android:title="About"
-        android:showAsAction="never" />
-
-</menu>
-<!-- From: file:/C:/Git_Projects/SpecialCall_Repository/ffmpeg4android_lib/src/main/res/menu/main.xml --><!-- From: file:/C:/Git_Projects/SpecialCall_Repository/specialCall/build/intermediates/exploded-aar/SpecialCall_Repository/ffmpeg4android_lib/unspecified/res/menu/main.xml -->
