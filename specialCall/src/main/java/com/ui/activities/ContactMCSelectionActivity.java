@@ -34,7 +34,6 @@ import android.widget.Toast;
 
 import com.app.AppStateManager;
 import com.async.tasks.IsRegisteredTask;
-import com.batch.android.Batch;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.data.objects.ActivityRequestCodes;
@@ -229,7 +228,6 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
     @Override
     protected void onStop() {
         log(Log.INFO, TAG, "onStop()");
-        Batch.onStop(this);
 
         super.onStop();
     }
@@ -241,15 +239,12 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
         if (AppStateManager.getAppState(this).equals(AppStateManager.STATE_LOADING))
             AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
 
-        Batch.onDestroy(this);
         super.onDestroy();
 
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Batch.onNewIntent(this, intent);
-
         super.onNewIntent(intent);
     }
 
@@ -646,11 +641,6 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
                         Toast.makeText(getApplicationContext(), "Could not find an activity to place the call.", Toast.LENGTH_SHORT).show();
                     }
                 }
-                else
-                {
-
-                }
-                return;
             }
         }
     }

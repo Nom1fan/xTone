@@ -24,7 +24,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.app.AppStateManager;
-import com.batch.android.Batch;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.data.objects.ActivityRequestCodes;
@@ -83,7 +82,6 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
     private ImageView caller_arrow;
     private View divider1;
     private View divider2;
-    private RelativeLayout mainActivityLayout;
     private ImageView ringtoneStatus;
     private TextView destTextView;
     private boolean profileHasMedia = false;
@@ -93,7 +91,6 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
     private Snackbar snackBar;
     private UploadFileFlow uploadFileFlow = new UploadFileFlow();
     private BitmapUtils bitmapUtils = UtilityFactory.instance().getUtility(BitmapUtils.class);
-    private InitUtils initUtils = UtilityFactory.instance().getUtility(InitUtils.class);
     private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
 
@@ -195,7 +192,6 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Batch.onNewIntent(this, intent);
 
         super.onNewIntent(intent);
     }
@@ -362,8 +358,6 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
 
         setContentView(R.layout.default_media_select_layout);
 
-        prepareMainActivityLayout();
-
         setCustomActionBar();
         prepareTVDestinationName();
         prepareRingtoneStatus();
@@ -448,11 +442,6 @@ public class DefaultMediaActivity extends AppCompatActivity implements View.OnCl
     private void prepareRingtoneStatus() {
 
         ringtoneStatus = (ImageView) findViewById(R.id.default_ringtoneStatusArrived);
-    }
-
-    private void prepareMainActivityLayout() {
-
-        mainActivityLayout = (RelativeLayout) findViewById(R.id.default_mainActivity);
     }
 
     private void prepareFetchUserProgressBar() {
