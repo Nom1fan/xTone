@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/loginScreen"
     android:layout_width="match_parent"
     android:background="#004559"
@@ -188,17 +189,15 @@
         android:id="@+id/country_dial_code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/receive_sms_textview"
-        android:layout_alignParentLeft="false"
         android:layout_alignTop="@+id/LoginNumber"
-        android:layout_centerHorizontal="false"
         android:layout_centerInParent="false"
-        android:layout_centerVertical="false"
+        android:layout_toEndOf="@+id/LoginNumber"
         android:layout_toLeftOf="@+id/LoginNumber"
         android:background="#01789b"
         android:gravity="center_vertical"
         android:text="000"
         android:textColor="@color/common_google_signin_btn_text_dark_default"
-        android:textSize="20sp" />
+        android:textSize="20sp"
+        android:visibility="gone" />
 
 </RelativeLayout>
