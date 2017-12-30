@@ -402,7 +402,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
             // ifHuaweiAlert();
-            initUtils.initSyncDefaultMediaReceiver(this);
+//            initUtils.initSyncDefaultMediaReceiver(this);
 
         }
     }
