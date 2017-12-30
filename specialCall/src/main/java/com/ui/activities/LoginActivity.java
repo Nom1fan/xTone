@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,7 +24,6 @@ import android.widget.TextView;
 
 import com.app.AppStateManager;
 import com.async.tasks.GetSmsCodeTask;
-import com.batch.android.Batch;
 import com.data.objects.ActivityRequestCodes;
 import com.data.objects.Constants;
 import com.event.Event;
@@ -33,7 +33,6 @@ import com.mediacallz.app.R;
 import com.mukesh.countrypicker.Country;
 import com.mukesh.countrypicker.CountryPicker;
 import com.mukesh.countrypicker.CountryPickerListener;
-import com.services.GetTokenIntentService;
 import com.services.ServerProxyService;
 import com.utils.BroadcastUtils;
 import com.utils.InitUtils;
@@ -90,8 +89,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
 
         log(Log.INFO, TAG, "OnStart()");
-
-        Batch.onStart(this);
     }
 
     @Override
@@ -117,12 +114,6 @@ public class LoginActivity extends AppCompatActivity {
 
         restoreInstanceState();
         prepareEventReceiver();
-
-        if (Constants.MY_BATCH_TOKEN(this).equals("")) {
-            Intent i = new Intent(this, GetTokenIntentService.class);
-            i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
-            startService(i);
-        }
 
         syncUIwithAppState();
     }
@@ -244,16 +235,14 @@ public class LoginActivity extends AppCompatActivity {
 
 
                 if (PhoneNumberUtils.isValidPhoneNumber(s.toString())) {
-
-                    String token = Constants.MY_BATCH_TOKEN(getApplicationContext());
-                    if (token != null && !token.equals("")) {
-                        enableGetSmsCodeButton();
-                        enableSmsCodeEditText();
+                        String token = Constants.MY_FIREBASE_TOKEN(getApplicationContext());
+                        if (token != null && !token.equals("")) {
+                            enableGetSmsCodeButton();
+                            enableSmsCodeEditText();
 
                         if (4 == smsCodeVerEditText.getText().toString().length()) {
                             enableLoginButton();
                             visibleSmsButtons();
-
                         }
                     }
                 } else {

@@ -100,7 +100,7 @@ public class SendBugEmailAsyncTask extends AsyncTask<Void,Void,String> {
         if (activity != null) {
             emailIntent.putExtra(Intent.EXTRA_TEXT,
                     "\n MY_ID: " + Constants.MY_ID(activity)
-                            + "\n BATCH_INSTALLATION_ID: " + Constants.MY_BATCH_TOKEN(activity)
+                            + "\n BATCH_INSTALLATION_ID: " + Constants.MY_FIREBASE_TOKEN(activity)
                             + "\n GOOGLE_AD_ID: " + GAID
                             + "\n Device Model: " + SpecialDevicesUtils.getDeviceName()
                             + "\n MY_ANDROID_VERSION: " + Constants.MY_ANDROID_VERSION(activity)

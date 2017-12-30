@@ -1,6 +1,14 @@
 
 lint.xml
+
+
+# Gradle files
 build/
+
 /libs
+
 fabric.properties
+
+# Local iml files
 *.iml
+

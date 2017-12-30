@@ -1,6 +1,7 @@
 package com.utils;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -12,16 +13,14 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.app.AppStateManager;
-import com.batch.android.Batch;
-import com.crashlytics.android.Crashlytics;
 import com.data.objects.PushNotificationData;
 import com.event.EventReport;
 import com.event.EventType;
+import com.google.firebase.messaging.RemoteMessage;
 import com.mediacallz.app.R;
 import com.ui.activities.MainActivity;
-import com.ui.components.NotificationHelper;
 
-import static com.crashlytics.android.Crashlytics.*;
+import static com.crashlytics.android.Crashlytics.log;
 
 /**
  * Created by mor on 18/10/2015.
@@ -29,30 +28,7 @@ import static com.crashlytics.android.Crashlytics.*;
 public abstract class NotificationUtils {
 
     private static final String TAG = NotificationUtils.class.getSimpleName();
-    private static final int MAX_NOTIF_NUM = 5;
-    public static int NUM_OF_NOTIF = -1;
-    private static NotificationHelper[] mNotificationHelpersArr = new NotificationHelper[MAX_NOTIF_NUM];
     public static final int FOREGROUND_NOTIFICATION_ID = 666;
-
-    public static void createHelper(Context context, String initialMsg) {
-
-        NUM_OF_NOTIF = (NUM_OF_NOTIF + 1) % MAX_NOTIF_NUM;
-        log(Log.INFO, TAG, "NUM_OF_NOTIF=" + NUM_OF_NOTIF);
-        mNotificationHelpersArr[NUM_OF_NOTIF] = new NotificationHelper(NUM_OF_NOTIF);
-
-        mNotificationHelpersArr[NUM_OF_NOTIF].createUploadNotification(context, initialMsg);
-    }
-
-    public static NotificationHelper getNextHelper() {
-
-        return mNotificationHelpersArr[NUM_OF_NOTIF];
-    }
-
-    public static void freeHelperSpace() {
-
-        mNotificationHelpersArr[NUM_OF_NOTIF] = null;
-        NUM_OF_NOTIF--;
-    }
 
     public static Notification getCompatNotification(Context context) {
 
@@ -66,11 +42,10 @@ public abstract class NotificationUtils {
         Intent StartIntent = new Intent(context, MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(context, FOREGROUND_NOTIFICATION_ID, StartIntent, 0);
         builder.setContentIntent(contentIntent);
-        Notification notification = builder.build();
-        return notification;
+        return builder.build();
     }
 
-    public static void displayNotificationInBgOnly(Context context, Intent intent) {
+    public static void displayNotificationInBgOnly(Context context, RemoteMessage.Notification notification) {
 
         log(Log.INFO, TAG, "In: displayNotificationInBgOnly");
         boolean isAppInForeground = AppStateManager.isAppInForeground(context);
@@ -80,17 +55,18 @@ public abstract class NotificationUtils {
 
         if (isAppInForeground && AppStateManager.isLoggedIn(context)) {
             try {
-                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                Ringtone r = RingtoneManager.getRingtone(context, notification);
+                Uri ring = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                Ringtone r = RingtoneManager.getRingtone(context, ring);
                 r.play();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if (AppStateManager.isLoggedIn(context))
-            Batch.Push.displayNotification(context, intent);
+        } else if (AppStateManager.isLoggedIn(context)) {
+            sendNotification(context, notification);
+        }
     }
 
-    public static void displayNotification(Context ctx, PushNotificationData pushNotificationData, Intent intent, EventType eventType) {
+    public static void displayNotification(Context ctx, PushNotificationData pushNotificationData, RemoteMessage.Notification notification, EventType eventType) {
         boolean isAppInForeground = AppStateManager.isAppInForeground(ctx);
         String appState = AppStateManager.getAppState(ctx);
 
@@ -102,7 +78,7 @@ public abstract class NotificationUtils {
             EventReport eventReport = new EventReport(eventType, msg);
             BroadcastUtils.sendEventReportBroadcast(ctx, TAG, eventReport);
         } else {
-            Batch.Push.displayNotification(ctx, intent);
+            sendNotification(ctx, notification);
         }
     }
 
@@ -115,5 +91,35 @@ public abstract class NotificationUtils {
             log(Log.WARN, TAG, "Could not play push notification sound");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Create and show a simple notification containing the received FCM message.
+     *
+     * @param notification FCM message notification
+     */
+    public static void sendNotification(Context context, RemoteMessage.Notification notification) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, intent,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder =
+                (NotificationCompat.Builder) new NotificationCompat.Builder(context)
+                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.color_mc))
+                        .setSmallIcon(R.drawable.color_mc)
+                        .setContentTitle(notification.getTitle())
+                        .setContentText(notification.getBody())
+                        .setAutoCancel(true)
+                        .setSound(defaultSoundUri)
+                        .setContentIntent(pendingIntent);
+
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        assert  notificationManager != null;
+
+        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
     }
 }
