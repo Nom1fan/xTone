@@ -192,10 +192,4 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         previewIntentActivity.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, mediaFile);
         selectMediaActivity.startActivityForResult(previewIntentActivity, ActivityRequestCodes.PREVIEW_MEDIA);
     }
-
-
-    @Override
-    public void handle(Context ctx, Object... params) {
-
-    }
 }
