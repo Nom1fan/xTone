@@ -71,10 +71,9 @@ public class EventDownloadReceivedHandler implements Handler {
         String source = pendingDownloadData.getSourceId();
         String md5 = pendingDownloadData.getMediaFile().getMd5();
         String source6Digit = source;
-        if (source.length()>6)
-            source6Digit = source.substring(source.length()-6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
-
-
+        if (source.length()>6) {
+            source6Digit = source.substring(source.length() - 6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
+        }
 
         try {
 
