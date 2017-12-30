@@ -127,23 +127,11 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
     protected String getFilePathFromIntent(Context ctx, Intent intent, boolean isCamera) throws Exception {
 
         String resultPath;
-        Uri uri;
 
-
-        if (isCamera) {
-            uri = Uri.parse(SharedPrefUtils.getString(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.SELF_VIDEO_IMAGE_URI));
-        } else {
-            uri = intent.getData();
-        }
-
-        // Get the File path from the Uri
+        Uri uri = getUri(ctx, intent, isCamera);
         resultPath = FileUtils.getPath(ctx, uri);
 
-        try {
-            ctx.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, FileProvider.getUriForFile(ctx, BuildConfig.APPLICATION_ID + ".provider", new File(resultPath))));
-        } catch (Exception e) {
-            ctx.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(resultPath))));
-        }
+        refreshMediaScanner(ctx, resultPath);
 
         if (FileUtils.isLocal(resultPath)) {
 
@@ -159,6 +147,24 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         }
 
         return resultPath;
+    }
+
+    private Uri getUri(Context ctx, Intent intent, boolean isCamera) {
+        Uri uri;
+        if (isCamera) {
+            uri = Uri.parse(SharedPrefUtils.getString(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.SELF_VIDEO_IMAGE_URI));
+        } else {
+            uri = intent.getData();
+        }
+        return uri;
+    }
+
+    private void refreshMediaScanner(Context ctx, String resultPath) {
+        try {
+            ctx.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, FileProvider.getUriForFile(ctx, BuildConfig.APPLICATION_ID + ".provider", new File(resultPath))));
+        } catch (Exception e) {
+            ctx.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(resultPath))));
+        }
     }
 
     private void startPreviewActivity(String filepath) {
