@@ -28,21 +28,17 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import com.crashlytics.android.Crashlytics;
 import com.ianhanniballake.localstorage.LocalStorageProvider;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.text.DecimalFormat;
 import java.util.Comparator;
 
-import static com.crashlytics.android.Crashlytics.*;
+import static com.crashlytics.android.Crashlytics.log;
 
 /**
  * @author Peli
@@ -309,6 +305,91 @@ public class FileUtils {
         return resultPath;
     }
 
+    public static String getPathForSamsungDevice(final Context context, final Uri uri) {
+
+        if (DEBUG)
+            Log.d(TAG + " File -",
+                    "Authority: " + uri.getAuthority() +
+                            ", Fragment: " + uri.getFragment() +
+                            ", Port: " + uri.getPort() +
+                            ", Query: " + uri.getQuery() +
+                            ", Scheme: " + uri.getScheme() +
+                            ", Host: " + uri.getHost() +
+                            ", Segments: " + uri.getPathSegments().toString()
+            );
+
+        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+
+        // DocumentProvider
+        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+            // LocalStorageProvider
+            if (isLocalStorageDocument(uri)) {
+                // The path is the id
+                return DocumentsContract.getDocumentId(uri);
+            }
+            // ExternalStorageProvider
+            else if (isExternalStorageDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                if ("primary".equalsIgnoreCase(type)) {
+                    return Environment.getExternalStorageDirectory() + "/" + split[1];
+                }
+
+                // TODO handle non-primary volumes
+            }
+            // DownloadsProvider
+            else if (isDownloadsDocument(uri)) {
+
+                final String id = DocumentsContract.getDocumentId(uri);
+                final Uri contentUri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+
+                return getDataColumn(context, contentUri, null, null);
+            }
+            // MediaProvider
+            else if (isMediaDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+
+                Uri contentUri = null;
+                if ("image".equals(type)) {
+                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                } else if ("video".equals(type)) {
+                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                } else if ("audio".equals(type)) {
+                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                }
+
+                final String selection = "_id=?";
+                final String[] selectionArgs = new String[] {
+                        split[1]
+                };
+
+                return getDataColumn(context, contentUri, selection, selectionArgs);
+            }
+        }
+        // MediaStore (and general)
+        else if ("content".equalsIgnoreCase(uri.getScheme())) {
+
+            // Return the remote address
+            if (isGooglePhotosUri(uri))
+                return uri.getLastPathSegment();
+
+            return getDataColumn(context, uri, null, null);
+        }
+        // File
+        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+
+        return null;
+    }
+
+
+
     private static String getPathByAllMeans(Context context, Uri uri) {
         String resultPath;
         resultPath = getPathFromExternalStorage(uri);
@@ -338,7 +419,7 @@ public class FileUtils {
     private static String getPathFromDownloadsDocument(Context context, Uri uri) {
         String resultPath = null;
         final String id = DocumentsContract.getDocumentId(uri);
-        if (StringUtils.isNumeric(id)) {
+        if (isNumeric(id)) {
             final Uri contentUri = ContentUris.withAppendedId(
                     Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
             resultPath = getDataColumn(context, contentUri, null, null);
@@ -605,5 +686,19 @@ public class FileUtils {
         // Only return URIs that can be opened with ContentResolver
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         return intent;
+    }
+
+    //TODO Perhaps change this since it is performance heavy
+    private static boolean isNumeric(String str)
+    {
+        try
+        {
+            double d = Double.parseDouble(str);
+        }
+        catch(NumberFormatException nfe)
+        {
+            return false;
+        }
+        return true;
     }
 }

@@ -5,14 +5,12 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.data.objects.ActivityRequestCodes;
-import com.exceptions.FileDoesNotExistException;
 import com.exceptions.FileExceedsMaxSizeException;
 import com.files.media.MediaFile;
 import com.handlers.Handler;
@@ -50,6 +48,15 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
             MediaFile managedFile;
 
             managedFile = new MediaFile(new File(filepath), true);
+
+            if (!canMediaBePrepared(ctx, managedFile)){
+
+                filepath = getFilePathFromIntentForSamsung(ctx, data, isCamera);
+                managedFile = new MediaFile(new File(filepath), true);
+            }
+
+
+
             if (canMediaBePrepared(ctx, managedFile)) {
                 startPreviewActivity(managedFile.getFile().getAbsolutePath());
             } else
@@ -148,6 +155,33 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
 
         return resultPath;
     }
+
+    protected String getFilePathFromIntentForSamsung(Context ctx, Intent intent, boolean isCamera) throws Exception {
+
+        String resultPath;
+
+        Uri uri = getUri(ctx, intent, isCamera);
+        resultPath = FileUtils.getPathForSamsungDevice(ctx, uri);
+
+        refreshMediaScanner(ctx, resultPath);
+
+        if (FileUtils.isLocal(resultPath)) {
+
+            if (isCamera) {
+                File file = new File(resultPath);
+                String extension = mediaFileUtils.extractExtension(resultPath);
+                Crashlytics.log(Log.INFO, TAG, "isCamera True, Extension saved in camera: " + extension);
+                if (extension == null) {
+                    Crashlytics.log(Log.WARN, TAG, "Missing Extension! Adding .jpeg as it is likely to be image file from camera");
+                    file.renameTo(new File(resultPath += ".jpeg"));
+                }
+            }
+        }
+
+        return resultPath;
+    }
+
+
 
     private Uri getUri(Context ctx, Intent intent, boolean isCamera) {
         Uri uri;
