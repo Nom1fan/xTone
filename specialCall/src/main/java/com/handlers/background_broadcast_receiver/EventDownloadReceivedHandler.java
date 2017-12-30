@@ -204,7 +204,7 @@ public class EventDownloadReceivedHandler implements Handler {
                 return;
             }
 
-            String contactName = contactsUtils.getContactName(context, downloadData.getSourceId());
+            String contactName = contactsUtils.getContactName(context, downloadData.getFullSourceId());
 
             if (contactName != null && contactName.isEmpty()) {
                 contactName = downloadData.getSourceId();
