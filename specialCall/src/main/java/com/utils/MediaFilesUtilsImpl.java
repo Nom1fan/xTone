@@ -431,6 +431,10 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
     public String resolvePathBySpecialMediaType(PendingDownloadData pendingDownloadData) {
         String filePath;
         String sourceId = pendingDownloadData.getSourceId();
+
+        if (sourceId.length()>6)
+             sourceId = sourceId.substring(sourceId.length()-6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
+
         String extension = pendingDownloadData.getMediaFile().getExtension();
         switch (pendingDownloadData.getSpecialMediaType()) {
             case CALLER_MEDIA: {
