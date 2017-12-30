@@ -137,20 +137,13 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         }
 
         // Get the File path from the Uri
-        try {
-            resultPath = FileUtils.getPath(ctx, uri);
-        }catch(Exception e){
-            resultPath = uri.getPath();
-            resultPath = resultPath.replace("/external_files", Environment.getExternalStorageDirectory().toString() );
-        }
-        // Alternatively, use FileUtils.getFile(Context, Uri)
-        if (resultPath == null) {
-            resultPath = uri.getLastPathSegment();
-            if (resultPath == null)
-                throw new FileDoesNotExistException("Path returned from URI was null");
-        }
+        resultPath = FileUtils.getPath(ctx, uri);
 
-        ctx.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, FileProvider.getUriForFile(ctx, BuildConfig.APPLICATION_ID + ".provider",new File(resultPath))));
+        try {
+            ctx.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, FileProvider.getUriForFile(ctx, BuildConfig.APPLICATION_ID + ".provider", new File(resultPath))));
+        } catch (Exception e) {
+            ctx.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(resultPath))));
+        }
 
         if (FileUtils.isLocal(resultPath)) {
 
