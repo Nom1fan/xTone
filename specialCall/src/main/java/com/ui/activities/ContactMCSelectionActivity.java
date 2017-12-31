@@ -104,7 +104,7 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
 
     private BitmapUtils bitmapUtils = UtilityFactory.instance().getUtility(BitmapUtils.class);
     private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
-    private RelativeLayout ContactMCSelectionLayout;
+    private RelativeLayout contactMCSelectionLayout;
 
     //endregion
 
@@ -171,7 +171,6 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
         log(Log.INFO, TAG, "App State:" + appState);
 
         AppStateManager.setAppInForeground(getApplicationContext(), true);
-        syncUIwithAppState();
 
         prepareEventReceiver();
 
@@ -449,11 +448,11 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
 
         if (destTextView != null) {
 
-            if (destName != null && !destName.isEmpty())
+            if (destName != null && !destName.isEmpty()) {
                 destTextView.setText(destName);
+            }
             else {
                 disableDestinationTextView();
-                return;
             }
 
         }
@@ -519,10 +518,9 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
         disableUserFetchProgressBar();
         enableDividers();
         enableCallButton();
-        if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION))
+        if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION)) {
             SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, false);
-
-
+        }
     }
 
 
@@ -583,7 +581,13 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
 
     private void prepareMainActivityLayout() {
 
-        ContactMCSelectionLayout = (RelativeLayout) findViewById(R.id.mainActivity);
+        contactMCSelectionLayout = (RelativeLayout) findViewById(R.id.mainActivity);
+        contactMCSelectionLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                syncUIwithAppState();
+            }
+        });
     }
 
     private void prepareFetchUserProgressBar() {
