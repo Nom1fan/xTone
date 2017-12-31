@@ -67,8 +67,8 @@ public abstract class Constants {
     //region Connection to server
 //    public static final String SERVER_HOST = "server.mediacallz.com";
 //    public static final int SERVER_PORT = 8080;
-    public static final String SERVER_HOST = "epicall.no-ip.biz";
-    public static final int SERVER_PORT = 8888;
+    public static final String SERVER_HOST = "server.int.mediacallz.com";
+    public static final int SERVER_PORT = 8080;
     //endregion
 
     //region Push
