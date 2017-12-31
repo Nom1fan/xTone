@@ -11,6 +11,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -140,7 +141,7 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
                     switch (item.getItemId()) {
                         case R.id.action_back_btn:
 
-                           finish();
+                            finish();
                             break;
                     }
 
@@ -170,19 +171,20 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
         log(Log.INFO, TAG, "App State:" + appState);
 
         AppStateManager.setAppInForeground(getApplicationContext(), true);
-            syncUIwithAppState();
+        syncUIwithAppState();
 
-            prepareEventReceiver();
+        prepareEventReceiver();
 
-            if (!appState.equals(AppStateManager.STATE_LOADING))
-                handleSnackBar(new SnackbarData(SnackbarStatus.CLOSE, 0, 0, null));
+        if (!appState.equals(AppStateManager.STATE_LOADING)) {
+            handleSnackBar(new SnackbarData(SnackbarStatus.CLOSE, 0, 0, null));
+        }
 
-            restoreInstanceState();
+        restoreInstanceState();
 
-            getAppRecord();
+        getAppRecord();
 
-            syncAndroidVersionWithServer();
-            testPermissionForSystemOverlay();
+        syncAndroidVersionWithServer();
+        testPermissionForSystemOverlay();
     }
 
     //region NONEED
@@ -199,7 +201,7 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
     public void onBackPressed() {
         Log.d("CDA", "onBackPressed Called");
 
-            this.finish();
+        this.finish();
 
     }
 
@@ -504,20 +506,19 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
     //region UI States
     public void stateIdle() {
 
-       this.finish();
+        this.finish();
 
     }
 
     public void stateReady() {
 
         enableSelectMediaButton();
+        enableSelectProfileMediaButton();
         drawRingToneName();
         drawRingToneNameForProfile();
         disableUserFetchProgressBar();
-        enableSelectProfileMediaButton();
         enableDividers();
         enableCallButton();
-        enableSelectMediaButton();
         if (SharedPrefUtils.getBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION))
             SharedPrefUtils.setBoolean(this, SharedPrefUtils.GENERAL, SharedPrefUtils.ENABLE_UI_ELEMENTS_ANIMATION, false);
 
@@ -549,8 +550,9 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
 
     private void syncUIwithAppState() {
 
-        if (!AppStateManager.isLoggedIn(this))
+        if (!AppStateManager.isLoggedIn(this)) {
             stateLoggedOut();
+        }
 
         String appState = getState();
 
@@ -630,11 +632,11 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_PHONE_CALL: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Intent in = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+destPhoneNumber));
+                    Intent in = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + destPhoneNumber));
                     try {
                         startActivity(in);
                     } catch (android.content.ActivityNotFoundException ex) {
@@ -649,15 +651,17 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
     private void prepareSelectMediaButton() {
 
         selectMediaBtn = (ImageButton) findViewById(R.id.selectMediaBtn);
-        if (selectMediaBtn != null)
+        if (selectMediaBtn != null) {
             selectMediaBtn.setOnClickListener(this);
+        }
 
         selectMediaBtn_textview = (TextView) findViewById(R.id.media_textview);
         selectMediaBtn_textview2 = (TextView) findViewById(R.id.caller_textview2);
 
         caller_arrow = (ImageView) findViewById(R.id.callerArrow);
-        if (caller_arrow != null)
+        if (caller_arrow != null) {
             caller_arrow.setOnClickListener(this);
+        }
 
     }
 
@@ -730,7 +734,6 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
     }
 
 
-
     private void openProfileMediaMenu() {
         ImageButton profile = (ImageButton) findViewById(R.id.selectProfileMediaBtn);
         //Creating the instance of PopupMenu
@@ -767,11 +770,9 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
     public void makeACall(String number) {
 
         if (ContextCompat.checkSelfPermission(ContactMCSelectionActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(ContactMCSelectionActivity.this, new String[]{Manifest.permission.CALL_PHONE},REQUEST_PHONE_CALL);
-        }
-        else
-        {
-            Intent in = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+destPhoneNumber));
+            ActivityCompat.requestPermissions(ContactMCSelectionActivity.this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_PHONE_CALL);
+        } else {
+            Intent in = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + destPhoneNumber));
             try {
                 startActivity(in);
             } catch (android.content.ActivityNotFoundException ex) {
