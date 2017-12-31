@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -30,9 +29,6 @@ import com.event.Event;
 import com.event.EventReport;
 import com.event.EventType;
 import com.mediacallz.app.R;
-import com.mukesh.countrypicker.Country;
-import com.mukesh.countrypicker.CountryPicker;
-import com.mukesh.countrypicker.CountryPickerListener;
 import com.services.ServerProxyService;
 import com.utils.BroadcastUtils;
 import com.utils.InitUtils;
@@ -71,7 +67,6 @@ public class LoginActivity extends AppCompatActivity {
     private ImageButton clearLoginPhoneText;
     private ImageButton clearLoginSmsText;
     private TextView countryPickerTV;
-    private CountryPicker picker;
     private String[] smsPermissions = {Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS};
     //endregion
 
@@ -137,43 +132,9 @@ public class LoginActivity extends AppCompatActivity {
         prepareInitTextView();
         prepareInitProgressBar();
         prepareGetSmsCodeButton();
-        prepareCountryPicker();
 
 
         visibleSmsButtons();
-    }
-
-    private void prepareCountryPicker() {
-
-        countryPickerTV = (TextView) findViewById(R.id.country_dial_code);
-        countryPickerTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startCountryDialCodePicker();
-            }
-        });
-
-        Country country = Country.getCountryFromSIM(getApplicationContext());
-        countryPickerTV.setText(country.getDialCode());
-
-    }
-
-    private void startCountryDialCodePicker() {
-
-
-        picker = CountryPicker.newInstance("Select Country");  // dialog title
-        picker.setListener(new CountryPickerListener() {
-            @Override
-            public void onSelectCountry(String name, String code, String dialCode, int flagDrawableResID) {
-                //Toast.makeText(LoginActivity.this, "name: " +name+ " Code: " +code+ " dialcode: " +dialCode, Toast.LENGTH_SHORT).show();
-                countryPickerTV.setText(dialCode);
-                picker.dismiss();
-
-
-            }
-        });
-        picker.show(getSupportFragmentManager(), "COUNTRY_PICKER");
-
     }
 
 
@@ -592,15 +553,9 @@ public class LoginActivity extends AppCompatActivity {
         // Saving login number
         String loginNumber = loginNumberEditText.getText().toString();
 
-
-        String pickerNumber = countryPickerTV.getText().toString();
-
-        String FullNumber = pickerNumber + loginNumber;
-
+        String FullNumber =  loginNumber;
 
         SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER, loginNumber);
-
-        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.COUNTRY_CODE, pickerNumber);
 
         SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.FULL_NUMBER, FullNumber);
 

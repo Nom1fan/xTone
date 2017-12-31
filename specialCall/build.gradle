@@ -66,9 +66,6 @@ dependencies {
     compile project(':standOut_lib')
     compile project(':aFileChooser')
 
-    //compile 'com.github.joielechong:CountryCodePicker:6b6bc0ba27'
-    compile 'com.github.mukeshsolanki:country-picker-android:1.1.9'
-
     //noinspection GradleCompatible,GradleCompatible
     compile 'com.android.support:support-v4:25.4.0'
     compile 'com.android.support:appcompat-v7:25.4.0'
