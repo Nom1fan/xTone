@@ -1,10 +1,5 @@
 package com.netcompss.ffmpeg4android;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
-import android.util.Log;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,9 +10,18 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 
-import static com.crashlytics.android.Crashlytics.log;
-
 //import com.examples.ffmpeg4android_demo_native.R;
+
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
+import android.util.Log;
+import android.widget.Toast;
 
 
 public class GeneralUtils {
@@ -61,6 +65,16 @@ public class GeneralUtils {
 	//  "-strict","experimental","-s", "160x120","-r","25", "-vcodec", "mpeg4",
 	//  "-b", "150k", "-ab","48000", "-ac", "2", "-ar", "22050", "/sdcard/videokit/out.mp4"};
 	public static boolean isValidCommand(String[] args) {
+		
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("libx264") || args[i].equals("-preset")) {
+				Log.w(Prefs.TAG, "Command validation detected libx264 use");
+				Log.w(Prefs.TAG, "Make sure you use the extra libs that support libx264");
+				Log.w(Prefs.TAG, "Note that you will have to target api 22 or below in your Manifest when using libx264");
+				break;
+			}
+		}
+		
 		// find the input files path
 		ArrayList<Integer> inputFilesArrLocation = new ArrayList<Integer>();
 		for (int i = 0; i < args.length; i++) {
@@ -73,8 +87,8 @@ public class GeneralUtils {
 		for (int i = 0; i < inputFilesArrLocation.size(); i++) {
 			String path = args[inputFilesArrLocation.get(i)];
 			if (!(okFlag = checkIfFileExistAndNotEmpty(path))) {
-				log(Log.ERROR,Prefs.TAG, "Command validation failed.");
-				log(Log.ERROR,Prefs.TAG, "Check if input file exists: " + path);
+				Log.e(Prefs.TAG, "Command validation failed.");
+				Log.e(Prefs.TAG, "Check if input file exists: " + path);
 				return okFlag;
 			}
 		}
@@ -82,21 +96,21 @@ public class GeneralUtils {
 		
 		String outputPath = args[args.length -1];
 		if (isStream(outputPath)){
-			log(Log.INFO,Prefs.TAG, "output is a stream");
+			Log.i(Prefs.TAG, "output is a stream");
 			return okFlag;
 		}
 		
 		// verify output folder exists
 		int indexOfLastSlash = outputPath.lastIndexOf("/");
 		if (indexOfLastSlash == -1) {
-			log(Log.ERROR,Prefs.TAG, "Command validation failed.");
-			log(Log.ERROR,Prefs.TAG, "No slashes in output path looks like the : " + outputPath + " is not valid.");
+			Log.e(Prefs.TAG, "Command validation failed.");
+			Log.e(Prefs.TAG, "No slashes in output path looks like the : " + outputPath + " is not valid.");
 			return false;
 		}
 		String outputFolder = outputPath.substring(0, indexOfLastSlash);
 		if (!(okFlag = checkIfFolderExists(outputFolder))) {
-			log(Log.ERROR,Prefs.TAG, "Command validation failed.");
-			log(Log.ERROR,Prefs.TAG, "Check if output folder exists: " + outputFolder);
+			Log.e(Prefs.TAG, "Command validation failed.");
+			Log.e(Prefs.TAG, "Check if output folder exists: " + outputFolder);
 		}
 		
 		return okFlag;
@@ -105,11 +119,66 @@ public class GeneralUtils {
 	public static boolean isStream(String filePath) {
 		// handling streaming case e.g: udp://
 		if (filePath.startsWith("udp://")) {
-			log(Log.INFO,Prefs.TAG,"mached stream");
+			Log.i(Prefs.TAG,"mached stream");
 			return true;
 		}
 		else return false;
 	}
+	
+	@TargetApi(23) 
+	public static void checkForPermissionsMAndAbove(Activity act, boolean isBlocking) {
+		Log.i(Prefs.TAG, "checkForPermissions() called");
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			// Here, thisActivity is the current activity
+			if (	act.checkSelfPermission(
+						Manifest.permission.WRITE_EXTERNAL_STORAGE)
+						!= PackageManager.PERMISSION_GRANTED ||
+
+					act.checkSelfPermission(
+							Manifest.permission.INTERNET)
+							!= PackageManager.PERMISSION_GRANTED
+				)
+
+			{
+
+
+				// No explanation needed, we can request the permission.
+				act.requestPermissions(
+						new String[]{
+								Manifest.permission.WRITE_EXTERNAL_STORAGE,
+								Manifest.permission.INTERNET
+						},
+						0);
+				if (isBlocking) {
+					while (true) {
+						if (act.checkSelfPermission(
+								Manifest.permission.WRITE_EXTERNAL_STORAGE)
+								== PackageManager.PERMISSION_GRANTED) {
+
+							Log.i(Prefs.TAG, "Got permissions, exiting block loop");
+							break;
+						}
+						Log.i(Prefs.TAG, "Sleeping, waiting for permissions");
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+
+			}
+			// permission already granted
+			else {
+				Log.i(Prefs.TAG, "permission already granted");
+			}
+		}
+		else {
+			Log.i(Prefs.TAG, "Below M, permissions not via code");
+		}
+
+    }
+    
 	
 	public static long getVKLogSizeRandomAccess(String vkLogpath) {
 		RandomAccessFile f = null;
@@ -119,10 +188,10 @@ public class GeneralUtils {
 			ret = f.length();
 			f.close();
 		} catch (FileNotFoundException e) {
-			log(Log.INFO,Prefs.TAG,"waiting for file to be created: " + e.getMessage());
+			Log.i(Prefs.TAG,"waiting for file to be created: " + e.getMessage());
 
 		} catch (IOException e) {
-			log(Log.INFO,Prefs.TAG,"waiting for file to be created: " + e.getMessage());
+			Log.i(Prefs.TAG,"waiting for file to be created: " + e.getMessage());
 		}
 		
 		return ret;
@@ -133,17 +202,23 @@ public class GeneralUtils {
 		int endIndex = fileName.lastIndexOf(".");
 		String ext = fileName.substring(endIndex + 1);
 		ext = ext.toLowerCase();
-        return (ext.toLowerCase().equals("jpg")) ||
-                (ext.toLowerCase().equals("bmp")) ||
-                (ext.toLowerCase().equals("png")) ||
-                (ext.toLowerCase().equals("jpeg"));
+		if (    (ext.toLowerCase().equals("jpg") ) ||
+				(ext.toLowerCase().equals("bmp") ) ||
+				(ext.toLowerCase().equals("png") ) ||
+				(ext.toLowerCase().equals("jpeg") ) 
+				) {
+			return true;
+		}
+		else {
+			return false;
+		}
 
 	}
 
 	public static boolean checkIfFileExistAndNotEmpty(String fullFileName) {
 		// the case of input images with %d: /sdcard/videokit/pic%03d.jpg
 		if (fullFileName.contains("%") && isValidPicExtension(fullFileName)) {
-			log(Log.INFO,Prefs.TAG,"mached picture array input");
+			Log.i(Prefs.TAG,"mached picture array input");
 			return true;
 		}
 	
@@ -153,7 +228,11 @@ public class GeneralUtils {
 		File f = new File(fullFileName);
 		long lengthInBytes = f.length();
 		Log.d(Prefs.TAG, fullFileName + " length in bytes: " + lengthInBytes);
-        return lengthInBytes > 100;
+		if (lengthInBytes > 100)
+			return true;
+		else {
+			return false;
+		}
 
 	}
 	
@@ -163,10 +242,11 @@ public class GeneralUtils {
 		return isdeleted;
 	}
 
-	public static void deleteFileUtil(String fullFileName) {
+	public static boolean deleteFileUtil(String fullFileName) {
 		File f = new File(fullFileName);
 		boolean isdeleted = f.delete();
-		Log.d(Prefs.TAG, "deleteing: " + fullFileName + " isdeleted: " + isdeleted);
+		return isdeleted;
+		//Log.d(Prefs.TAG, "deleteing: " + fullFileName + " isdeleted: " + isdeleted);
 	}
 
 	public static String getReturnCodeFromLog(String filePath)  {
@@ -201,7 +281,7 @@ public class GeneralUtils {
 			}
 			f.close();
 		} catch (Exception e) {
-			log(Log.ERROR,Prefs.TAG, e.getMessage());
+			Log.e(Prefs.TAG, e.getMessage());
 		}
 
 		return status;
@@ -231,10 +311,10 @@ public class GeneralUtils {
 			}
 			f.close();
 		} catch (FileNotFoundException e) {
-			log(Log.INFO,Prefs.TAG,"waiting for file to be created: " + e.getMessage());
+			Log.i(Prefs.TAG,"waiting for file to be created: " + e.getMessage());
 
 		} catch (IOException e) {
-			log(Log.INFO,Prefs.TAG,"waiting for file to be created: " + e.getMessage());
+			Log.i(Prefs.TAG,"waiting for file to be created: " + e.getMessage());
 		}
 		return duration;
 	}
@@ -242,7 +322,7 @@ public class GeneralUtils {
 	public static String readLastTimeFromVKLogUsingRandomAccess(String vkLogPath) {
 		String timeStr = "00:00:00.00";
 		try {
-			// TODO elih 26.9.2013 changed to vk from ffmpeg log
+
 			RandomAccessFile f = null;
 			f = new RandomAccessFile(vkLogPath, "r");
 			String line;
@@ -255,27 +335,28 @@ public class GeneralUtils {
 			//Log.d(Prefs.TAG, "Starting while loop seekLocation: " + seekLocation);
 
 			while ((line = f.readLine()) != null){ 
-				log(Log.INFO,"line", line);
+				Log.i("line", line);
 				int i1 = line.indexOf("time=");
 				int i2 = line.indexOf("bitrate=");
 				if (i1 != -1 && i2 != -1) {
 					timeStr = line.substring(i1 + 5, i2 - 1);
+					Log.d(Prefs.TAG, "Found timeStr: " + timeStr);
 				}
 				else if (line.startsWith("ffmpeg4android: 0")) {
 					timeStr = "exit";
 				}
 				else if (line.startsWith("ffmpeg4android: 1") ) {
-						log(Log.WARN,Prefs.TAG, "error line: " + line);
-						log(Log.WARN,Prefs.TAG, "Looks like error in the log");
+						Log.w(Prefs.TAG, "error line: " + line);
+						Log.w(Prefs.TAG, "Looks like error in the log");
 						timeStr = "error";
 				}
 			}
 			f.close();
 		} catch (FileNotFoundException e) {
-			log(Log.INFO,Prefs.TAG,"waiting for file to be created: " + e.getMessage());
+			Log.i(Prefs.TAG,"waiting for file to be created: " + e.getMessage());
 
 		} catch (IOException e) {
-			log(Log.INFO,Prefs.TAG,"waiting for file to be created: " + e.getMessage());
+			Log.i(Prefs.TAG,"waiting for file to be created: " + e.getMessage());
 		}
 		return timeStr.trim();
 		
@@ -289,13 +370,13 @@ public class GeneralUtils {
 		try {
 			is = act.getApplication().getAssets().open("ffmpeglicense.lic");
 		} catch (Exception e) {
-			log(Log.INFO,Prefs.TAG, "License file does not exist in the assets.");
+			Log.i(Prefs.TAG, "License file does not exist in the assets.");
 			copyLic = false;
 		}
 
 		if (copyLic) {
 			destLic = new File(destinationFolderPath + "ffmpeglicense.lic");
-			log(Log.INFO,Prefs.TAG, "Adding lic file at " + destLic.getAbsolutePath());
+			//Log.i(Prefs.TAG, "Adding lic file at " + destLic.getAbsolutePath());
 
 			o = null;
 			try {
@@ -305,24 +386,24 @@ public class GeneralUtils {
 				while ((read = is.read(buff)) > -1) { 
 					o.write(buff, 0, read);
 				}
-				log(Log.INFO,Prefs.TAG, "Copy " + destLic.getAbsolutePath() + " from assets to SDCARD finished succesfully");
+				//Log.i(Prefs.TAG, "Copy " + destLic.getAbsolutePath() + " from assets to SDCARD finished succesfully");
 			}
 			catch (Exception e) {
-				log(Log.ERROR,Prefs.TAG, "Error when coping license file from assets to working folder: " + e.getMessage());
+				Log.e(Prefs.TAG, "Error when coping license file from assets to working folder: " + e.getMessage());
 			}
 			finally {
 				try {
 					is.close();
 					if (o != null) o.close();
 				} catch (IOException e) {
-					log(Log.WARN,Prefs.TAG, "Error when closing license file io: " + e.getMessage());
+					Log.w(Prefs.TAG, "Error when closing license file io: " + e.getMessage());
 				}  
 
 			}
 
 		}
 		else {
-			log(Log.INFO,Prefs.TAG, "Not coping license");
+			Log.i(Prefs.TAG, "Not coping license");
 		}
 	
 	}
@@ -339,7 +420,7 @@ public class GeneralUtils {
 	}
 	
 	public static String copyFileToFolder(String filePath, String folderPath) {
-		log(Log.INFO,Prefs.TAG, "Coping file: " + filePath + " to: " + folderPath);
+		//Log.i(Prefs.TAG, "Coping file: " + filePath + " to: " + folderPath);
 		String validFilePathStr = filePath;
 		try {
 			FileInputStream is = new FileInputStream(filePath); 
@@ -360,9 +441,9 @@ public class GeneralUtils {
 
 			}
 		} catch (FileNotFoundException e) {
-			log(Log.WARN,Prefs.TAG, e.getMessage());
+			Log.w(Prefs.TAG, e.getMessage());
 		} catch (IOException e) {
-			log(Log.WARN,Prefs.TAG, e.getMessage());
+			Log.w(Prefs.TAG, e.getMessage());
 		}
 		return validFilePathStr;
 	}
@@ -370,8 +451,13 @@ public class GeneralUtils {
 	public static boolean checkIfFolderExists(String fullFileName) {
 		File f = new File(fullFileName);
 		//Log.d(Prefs.TAG,"Checking if : " +  fullFileName + " exists" );
-        //Log.d(Prefs.TAG,"Direcory: " +  fullFileName + " exists" );
-        return f.exists() && f.isDirectory();
+		if (f.exists() && f.isDirectory()) {
+			//Log.d(Prefs.TAG,"Direcory: " +  fullFileName + " exists" );
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	public static boolean createFolder(String folderPath) {
@@ -385,10 +471,10 @@ public class GeneralUtils {
 			if (!GeneralUtils.checkIfFolderExists(destinationFolderPath)) {
 
 				boolean isFolderCreated = GeneralUtils.createFolder(destinationFolderPath);
-				log(Log.INFO,Prefs.TAG, destinationFolderPath + " created? " + isFolderCreated);
+				Log.i(Prefs.TAG, destinationFolderPath + " created? " + isFolderCreated);
 				if (isFolderCreated) {
 					destVid = new File(destinationFolderPath + "in.mp4");
-					log(Log.INFO,Prefs.TAG, "Adding vid file at " + destVid.getAbsolutePath());
+					Log.i(Prefs.TAG, "Adding vid file at " + destVid.getAbsolutePath());
 					InputStream is = act.getAssets().open("in.mp4");
 					BufferedOutputStream o = null;
 					try {
@@ -398,10 +484,10 @@ public class GeneralUtils {
 						while ((read = is.read(buff)) > -1) { 
 							o.write(buff, 0, read);
 						}
-						log(Log.INFO,Prefs.TAG, "Copy " + destVid.getAbsolutePath() + " from assets to SDCARD finished succesfully");
+						Log.i(Prefs.TAG, "Copy " + destVid.getAbsolutePath() + " from assets to SDCARD finished succesfully");
 					} 
 					catch (Exception e) {
-						log(Log.WARN,Prefs.TAG, "Failed copying: " + destVid.getAbsolutePath());
+						Log.w(Prefs.TAG, "Failed copying: " + destVid.getAbsolutePath());
 					}
 					finally {
 						is.close();
@@ -411,7 +497,7 @@ public class GeneralUtils {
 
 				}
 				else {
-					log(Log.WARN,Prefs.TAG, "Demo videos folder was not created.");
+					Log.w(Prefs.TAG, "Demo videos folder was not created.");
 				}
 
 			}
@@ -421,9 +507,9 @@ public class GeneralUtils {
 			}
 
 		} catch (FileNotFoundException e) {
-			log(Log.ERROR,Prefs.TAG, e.getMessage());
+			Log.e(Prefs.TAG, e.getMessage());
 		} catch (IOException e) {
-			log(Log.ERROR,Prefs.TAG, e.getMessage());
+			Log.e(Prefs.TAG, e.getMessage());
 		}
 	}
 	
@@ -433,7 +519,7 @@ public class GeneralUtils {
 		try {
 			versionName = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName;
 		} catch (NameNotFoundException e) {
-			Crashlytics.log(Log.WARN,Prefs.TAG, "No version code found, returning -1");
+			Log.w(Prefs.TAG, "No version code found, returning -1");
 		}
 		
 		return versionName;
@@ -456,11 +542,11 @@ public class GeneralUtils {
 		  }
 		  else if (rc < 0) {
 			  if (rc == -1)
-				  log(Log.ERROR,Prefs.TAG, "Trial Expired. contact support.");
+				  Toast.makeText(ctx, "Trail Expired. contact support.", Toast.LENGTH_LONG).show();
 			  else if (rc == -2) 
-				  log(Log.ERROR,Prefs.TAG, "License invalid. contact support.");
-			  else
-				  log(Log.ERROR,Prefs.TAG, "License check failed. contact support.");
+				  Toast.makeText(ctx, "License invalid contact support", Toast.LENGTH_LONG).show();
+			  else 
+				  Toast.makeText(ctx, "License check failed. contact support." + rc, Toast.LENGTH_LONG).show();
 		  }
 		  return rc;
 	}
