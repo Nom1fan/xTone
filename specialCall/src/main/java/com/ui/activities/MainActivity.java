@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
             AppStateManager.setDidAppCrash(this, false);
         }
+        GeneralUtils.checkForPermissionsMAndAbove(MainActivity.this, false);
 //endregion
 
         if (AppStateManager.isLoggedIn(this)) { // should always start from idle and registeredContactLV
