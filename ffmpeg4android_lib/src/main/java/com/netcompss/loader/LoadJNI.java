@@ -1,14 +1,13 @@
 package com.netcompss.loader;
 
-import android.content.Context;
-import android.util.Log;
+import java.io.File;
 
-import com.crashlytics.android.Crashlytics;
 import com.netcompss.ffmpeg4android.CommandValidationException;
 import com.netcompss.ffmpeg4android.GeneralUtils;
 import com.netcompss.ffmpeg4android.Prefs;
 
-import static com.crashlytics.android.Crashlytics.*;
+import android.content.Context;
+import android.util.Log;
 
 public final class LoadJNI {
 
@@ -25,11 +24,14 @@ public final class LoadJNI {
 	 * @throws CommandValidationException
 	 */
 	public void run(String[] args, String workFolder, Context ctx, boolean isValidate) throws CommandValidationException {
-		log(Log.INFO,Prefs.TAG, "running ffmpeg4android_lib: " + Prefs.version);
+		Log.i(Prefs.TAG, "running ffmpeg4android_lib: " + Prefs.version);
 		// delete previous log: this is essential for correct progress calculation
 		String vkLogPath = workFolder + "vk.log";
 		GeneralUtils.deleteFileUtil(vkLogPath);
 		GeneralUtils.printCommand(args);
+		
+		//printInternalDirStructure(ctx);
+		
 		if (isValidate) {
 			if (GeneralUtils.isValidCommand(args))
 				load(args, workFolder, getVideokitLibPath(ctx), true);
@@ -39,12 +41,13 @@ public final class LoadJNI {
 		else {
 			load(args, workFolder, getVideokitLibPath(ctx), true);
 		}
+		
 	}
 	
 	/**
 	 * 
 	 * @param args ffmpeg command
-	 * @param videokitSdcardPath working directory 
+	 * @param workFolder working directory
 	 * @param ctx Android context
 	 * @throws CommandValidationException
 	 */
@@ -52,8 +55,76 @@ public final class LoadJNI {
 		run(args, workFolder, ctx, true);
 	}
 	
+	
+	private static void printInternalDirStructure(Context ctx) {
+		Log.d(Prefs.TAG, "=printInternalDirStructure=");
+		Log.d(Prefs.TAG, "==============================");
+		File file = new File(ctx.getFilesDir().getParent());
+		analyzeDir(file);
+		Log.d(Prefs.TAG, "==============================");
+	}
+	
+	private static void analyzeDir(File path) {
+		if (path.isDirectory()) {
+			Log.d(Prefs.TAG, "Scanning dir: " + path.getAbsolutePath());
+			File[] files1 = path.listFiles();
+			for (int i = 0; i < files1.length; i++) {
+				analyzeDir(files1[i]);
+			}
+			Log.d(Prefs.TAG, "==========");
+		}
+		else {
+			Log.w(Prefs.TAG, path.getAbsolutePath() + " not a dir.");
+
+		}
+	}
+	
 	private static String getVideokitLibPath(Context ctx) {
+		
+		//File file1 = new File(ctx.getFilesDir().getParent() + "/lib/");
+		//File file1 = new File(ctx.getFilesDir().getParent());
+		//analyzeDir(file1);
+		
 		String videokitLibPath = ctx.getFilesDir().getParent()  + "/lib/libvideokit.so";
+		
+		File file = new File(videokitLibPath);
+		if(file.exists())  {     
+		  Log.i(Prefs.TAG, "videokitLibPath exits");
+			Log.i(Prefs.TAG, videokitLibPath);
+		}
+		else {
+			Log.w(Prefs.TAG, "videokitLibPath not exits: " + videokitLibPath);
+			videokitLibPath = ctx.getFilesDir().getParent()  + "/lib/arm64/libvideokit.so";
+			Log.i(Prefs.TAG, "trying videokitLibPath: " + videokitLibPath);
+			file = new File(videokitLibPath);
+			if(file.exists())  {
+				Log.i(Prefs.TAG, "videokitLibPath exits: " + videokitLibPath);
+			}
+			else {
+				Log.w(Prefs.TAG, "videokitLibPath not exits: " + videokitLibPath);
+				videokitLibPath = "/data/app/com.examples.ffmpeg4android_demo-1/lib/arm64/libvideokit.so";
+				Log.i(Prefs.TAG, "trying videokitLibPath: " + videokitLibPath);
+				file = new File(videokitLibPath);
+				if(file.exists())  {
+					Log.i(Prefs.TAG, "videokitLibPath exits: " + videokitLibPath);
+				}
+				else {
+					Log.w(Prefs.TAG, "videokitLibPath not exits: " + videokitLibPath);
+					videokitLibPath = "/data/app/com.examples.ffmpeg4android_demo-2/lib/arm64/libvideokit.so";
+					Log.i(Prefs.TAG, "trying videokitLibPath: " + videokitLibPath);
+					if(file.exists())  {
+						Log.i(Prefs.TAG, "videokitLibPath exits: " + videokitLibPath);
+					}
+					else {
+						Log.e(Prefs.TAG, "can't find path of lib");
+					}
+				}
+			}
+		}
+		
+		
+		
+		
 		
 		//String videokitLibPath = ctx.getFilesDir().getParent()  + "/lib/arm64/libvideokit.so";
 		
@@ -61,10 +132,12 @@ public final class LoadJNI {
 		//String videokitLibPath = "/data/app/com.examples.ffmpeg4android_demo-1/lib/arm64/libvideokit.so";
 		
 		
-		log(Log.INFO,Prefs.TAG, "videokitLibPath: " + videokitLibPath);
+		//Log.i(Prefs.TAG, "videokitLibPath: " + videokitLibPath);
 		return videokitLibPath;
 		
 	}
+	
+	
 	
 	public void fExit( Context ctx) {
 		fexit(getVideokitLibPath(ctx));

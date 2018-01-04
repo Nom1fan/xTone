@@ -5,14 +5,12 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.data.objects.ActivityRequestCodes;
-import com.exceptions.FileDoesNotExistException;
 import com.exceptions.FileExceedsMaxSizeException;
 import com.files.media.MediaFile;
 import com.handlers.Handler;
@@ -50,6 +48,15 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
             MediaFile managedFile;
 
             managedFile = new MediaFile(new File(filepath), true);
+
+            if (!canMediaBePrepared(ctx, managedFile)){
+
+                filepath = getFilePathFromIntentForSamsung(ctx, data, isCamera);
+                managedFile = new MediaFile(new File(filepath), true);
+            }
+
+
+
             if (canMediaBePrepared(ctx, managedFile)) {
                 startPreviewActivity(managedFile.getFile().getAbsolutePath());
             } else
@@ -127,30 +134,11 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
     protected String getFilePathFromIntent(Context ctx, Intent intent, boolean isCamera) throws Exception {
 
         String resultPath;
-        Uri uri;
 
+        Uri uri = getUri(ctx, intent, isCamera);
+        resultPath = FileUtils.getPath(ctx, uri);
 
-        if (isCamera) {
-            uri = Uri.parse(SharedPrefUtils.getString(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.SELF_VIDEO_IMAGE_URI));
-        } else {
-            uri = intent.getData();
-        }
-
-        // Get the File path from the Uri
-        try {
-            resultPath = FileUtils.getPath(ctx, uri);
-        }catch(Exception e){
-            resultPath = uri.getPath();
-            resultPath = resultPath.replace("/external_files", Environment.getExternalStorageDirectory().toString() );
-        }
-        // Alternatively, use FileUtils.getFile(Context, Uri)
-        if (resultPath == null) {
-            resultPath = uri.getLastPathSegment();
-            if (resultPath == null)
-                throw new FileDoesNotExistException("Path returned from URI was null");
-        }
-
-        ctx.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, FileProvider.getUriForFile(ctx, BuildConfig.APPLICATION_ID + ".provider",new File(resultPath))));
+        refreshMediaScanner(ctx, resultPath);
 
         if (FileUtils.isLocal(resultPath)) {
 
@@ -166,6 +154,51 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         }
 
         return resultPath;
+    }
+
+    protected String getFilePathFromIntentForSamsung(Context ctx, Intent intent, boolean isCamera) throws Exception {
+
+        String resultPath;
+
+        Uri uri = getUri(ctx, intent, isCamera);
+        resultPath = FileUtils.getPathForSamsungDevice(ctx, uri);
+
+        refreshMediaScanner(ctx, resultPath);
+
+        if (FileUtils.isLocal(resultPath)) {
+
+            if (isCamera) {
+                File file = new File(resultPath);
+                String extension = mediaFileUtils.extractExtension(resultPath);
+                Crashlytics.log(Log.INFO, TAG, "isCamera True, Extension saved in camera: " + extension);
+                if (extension == null) {
+                    Crashlytics.log(Log.WARN, TAG, "Missing Extension! Adding .jpeg as it is likely to be image file from camera");
+                    file.renameTo(new File(resultPath += ".jpeg"));
+                }
+            }
+        }
+
+        return resultPath;
+    }
+
+
+
+    private Uri getUri(Context ctx, Intent intent, boolean isCamera) {
+        Uri uri;
+        if (isCamera) {
+            uri = Uri.parse(SharedPrefUtils.getString(ctx, SharedPrefUtils.GENERAL, SharedPrefUtils.SELF_VIDEO_IMAGE_URI));
+        } else {
+            uri = intent.getData();
+        }
+        return uri;
+    }
+
+    private void refreshMediaScanner(Context ctx, String resultPath) {
+        try {
+            ctx.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, FileProvider.getUriForFile(ctx, BuildConfig.APPLICATION_ID + ".provider", new File(resultPath))));
+        } catch (Exception e) {
+            ctx.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(resultPath))));
+        }
     }
 
     private void startPreviewActivity(String filepath) {
@@ -192,11 +225,5 @@ public abstract class ActivityRequestBeforePreviewHandler implements Handler {
         Intent previewIntentActivity = new Intent(selectMediaActivity, PreviewMediaActivity.class);
         previewIntentActivity.putExtra(PreviewMediaActivity.MANAGED_MEDIA_FILE, mediaFile);
         selectMediaActivity.startActivityForResult(previewIntentActivity, ActivityRequestCodes.PREVIEW_MEDIA);
-    }
-
-
-    @Override
-    public void handle(Context ctx, Object... params) {
-
     }
 }

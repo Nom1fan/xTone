@@ -49,8 +49,9 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
         boolean fileIsCorrupted;
 
         MediaFile managedFile = new MediaFile(new File(mediaFilePath));
-        if (canVideoBePrepared(context, managedFile))
+        if (canVideoBePrepared(context, managedFile)) {
             fileIsCorrupted = false;
+        }
         else {
             fileIsCorrupted = true;
             logger.error(TAG, "Video Is Corrupted. Video File Path: " + mediaFilePath);
@@ -65,8 +66,9 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
 
         MediaFile managedFile = new MediaFile(new File(mediaFilePath));
 
-        if (canAudioBePrepared(context, managedFile))
+        if (canAudioBePrepared(context, managedFile)) {
             fileIsCorrupted = false;
+        }
         else {
             fileIsCorrupted = true;
             logger.error(TAG, "Ringtone Is Corrupted. Ringtone file path: " + mediaFilePath);
@@ -431,6 +433,11 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
     public String resolvePathBySpecialMediaType(PendingDownloadData pendingDownloadData) {
         String filePath;
         String sourceId = pendingDownloadData.getSourceId();
+
+        if (sourceId.length()>6) {
+            sourceId = sourceId.substring(sourceId.length() - 6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
+        }
+
         String extension = pendingDownloadData.getMediaFile().getExtension();
         switch (pendingDownloadData.getSpecialMediaType()) {
             case CALLER_MEDIA: {

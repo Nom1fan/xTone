@@ -23,17 +23,12 @@ import android.widget.TextView;
 
 import com.app.AppStateManager;
 import com.async.tasks.GetSmsCodeTask;
-import com.batch.android.Batch;
 import com.data.objects.ActivityRequestCodes;
 import com.data.objects.Constants;
 import com.event.Event;
 import com.event.EventReport;
 import com.event.EventType;
 import com.mediacallz.app.R;
-import com.mukesh.countrypicker.Country;
-import com.mukesh.countrypicker.CountryPicker;
-import com.mukesh.countrypicker.CountryPickerListener;
-import com.services.GetTokenIntentService;
 import com.services.ServerProxyService;
 import com.utils.BroadcastUtils;
 import com.utils.InitUtils;
@@ -72,7 +67,6 @@ public class LoginActivity extends AppCompatActivity {
     private ImageButton clearLoginPhoneText;
     private ImageButton clearLoginSmsText;
     private TextView countryPickerTV;
-    private CountryPicker picker;
     private String[] smsPermissions = {Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS};
     //endregion
 
@@ -90,8 +84,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onStart();
 
         log(Log.INFO, TAG, "OnStart()");
-
-        Batch.onStart(this);
     }
 
     @Override
@@ -118,12 +110,6 @@ public class LoginActivity extends AppCompatActivity {
         restoreInstanceState();
         prepareEventReceiver();
 
-        if (Constants.MY_BATCH_TOKEN(this).equals("")) {
-            Intent i = new Intent(this, GetTokenIntentService.class);
-            i.setAction(GetTokenIntentService.ACTION_GET_BATCH_TOKEN);
-            startService(i);
-        }
-
         syncUIwithAppState();
     }
 
@@ -146,43 +132,9 @@ public class LoginActivity extends AppCompatActivity {
         prepareInitTextView();
         prepareInitProgressBar();
         prepareGetSmsCodeButton();
-        prepareCountryPicker();
 
 
         visibleSmsButtons();
-    }
-
-    private void prepareCountryPicker() {
-
-        countryPickerTV = (TextView) findViewById(R.id.country_dial_code);
-        countryPickerTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startCountryDialCodePicker();
-            }
-        });
-
-        Country country = Country.getCountryFromSIM(getApplicationContext());
-        countryPickerTV.setText(country.getDialCode());
-
-    }
-
-    private void startCountryDialCodePicker() {
-
-
-        picker = CountryPicker.newInstance("Select Country");  // dialog title
-        picker.setListener(new CountryPickerListener() {
-            @Override
-            public void onSelectCountry(String name, String code, String dialCode, int flagDrawableResID) {
-                //Toast.makeText(LoginActivity.this, "name: " +name+ " Code: " +code+ " dialcode: " +dialCode, Toast.LENGTH_SHORT).show();
-                countryPickerTV.setText(dialCode);
-                picker.dismiss();
-
-
-            }
-        });
-        picker.show(getSupportFragmentManager(), "COUNTRY_PICKER");
-
     }
 
 
@@ -244,16 +196,14 @@ public class LoginActivity extends AppCompatActivity {
 
 
                 if (PhoneNumberUtils.isValidPhoneNumber(s.toString())) {
-
-                    String token = Constants.MY_BATCH_TOKEN(getApplicationContext());
-                    if (token != null && !token.equals("")) {
-                        enableGetSmsCodeButton();
-                        enableSmsCodeEditText();
+                        String token = Constants.MY_FIREBASE_TOKEN(getApplicationContext());
+                        if (token != null && !token.equals("")) {
+                            enableGetSmsCodeButton();
+                            enableSmsCodeEditText();
 
                         if (4 == smsCodeVerEditText.getText().toString().length()) {
                             enableLoginButton();
                             visibleSmsButtons();
-
                         }
                     }
                 } else {
@@ -603,15 +553,9 @@ public class LoginActivity extends AppCompatActivity {
         // Saving login number
         String loginNumber = loginNumberEditText.getText().toString();
 
-
-        String pickerNumber = countryPickerTV.getText().toString();
-
-        String FullNumber = pickerNumber + loginNumber;
-
+        String FullNumber =  loginNumber;
 
         SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.LOGIN_NUMBER, loginNumber);
-
-        SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.COUNTRY_CODE, pickerNumber);
 
         SharedPrefUtils.setString(getApplicationContext(), SharedPrefUtils.GENERAL, SharedPrefUtils.FULL_NUMBER, FullNumber);
 

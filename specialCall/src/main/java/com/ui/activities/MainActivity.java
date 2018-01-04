@@ -43,7 +43,6 @@ import android.widget.ProgressBar;
 
 import com.app.AppStateManager;
 import com.async.tasks.SendBugEmailAsyncTask;
-import com.batch.android.Batch;
 import com.crashlytics.android.Crashlytics;
 import com.data.objects.ActivityRequestCodes;
 import com.data.objects.CallHistoryRecord;
@@ -129,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
             AppStateManager.setDidAppCrash(this, false);
         }
+        GeneralUtils.checkForPermissionsMAndAbove(MainActivity.this, false);
 //endregion
 
         if (AppStateManager.isLoggedIn(this)) { // should always start from idle and registeredContactLV
@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private String getUserSerial() {
         //noinspection ResourceType
-        Object userManager = getSystemService("user");
+        Object userManager = getSystemService(Context.USER_SERVICE);
         if (null == userManager) return "";
 
         try {
@@ -342,8 +342,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onStart() {
         super.onStart();
         log(Log.INFO, TAG, "onStart()");
-
-        Batch.onStart(this);
 
         //Copying FFMPEG license if necessary
         GeneralUtils.copyLicenseFromAssetsToSDIfNeeded(this, MediaFileProcessingUtils.workFolder);
@@ -405,7 +403,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
             // ifHuaweiAlert();
-            initUtils.initSyncDefaultMediaReceiver(this);
+//            initUtils.initSyncDefaultMediaReceiver(this);
 
         }
     }
@@ -451,7 +449,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     protected void onStop() {
         log(Log.INFO, TAG, "onStop()");
-        Batch.onStop(this);
 
         super.onStop();
     }
@@ -463,15 +460,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         if (AppStateManager.getAppState(this).equals(AppStateManager.STATE_LOADING))
             AppStateManager.setAppState(this, TAG, AppStateManager.getAppPrevState(this));
 
-        Batch.onDestroy(this);
         super.onDestroy();
-
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Batch.onNewIntent(this, intent);
-
         super.onNewIntent(intent);
     }
 

@@ -47,38 +47,38 @@ public class LUT_Utils {
 
     public void saveUploadedMediaPerNumber(Context context, String destPhoneNumber, String mediaPath) {
         Log.d(TAG, "saveUploadedMediaPerNumber(): _SharedPrefKeyForVisualMedia=" + _SharedPrefKeyForVisualMedia
-                + " destPhoneNumber=" + destPhoneNumber + "path=" + mediaPath);
-        SharedPrefUtils.setString(context, _SharedPrefKeyForVisualMedia, destPhoneNumber, mediaPath);
+                + " destPhoneNumber=" + destPhoneNumber.substring(destPhoneNumber.length()-6) + "path=" + mediaPath);
+        SharedPrefUtils.setString(context, _SharedPrefKeyForVisualMedia, destPhoneNumber.substring(destPhoneNumber.length()-6), mediaPath);
     }
 
     public String getUploadedMediaPerNumber(Context context, String destPhoneNumber) {
         Log.d(TAG, "getUploadedMediaPerNumber(): _SharedPrefKeyForVisualMedia=" + _SharedPrefKeyForVisualMedia
-                + " destPhoneNumber=" + destPhoneNumber);
-        return SharedPrefUtils.getString(context, _SharedPrefKeyForVisualMedia, destPhoneNumber);
+                + " destPhoneNumber=" + destPhoneNumber.substring(destPhoneNumber.length()-6));
+        return SharedPrefUtils.getString(context, _SharedPrefKeyForVisualMedia, destPhoneNumber.substring(destPhoneNumber.length()-6));
     }
 
     public void removeUploadedMediaPerNumber(Context context, String destPhoneNumber) {
         Log.d(TAG, "removeUploadedMediaPerNumber(): _SharedPrefKeyForVisualMedia=" + _SharedPrefKeyForVisualMedia
-                + " destPhoneNumber=" + destPhoneNumber);
-        SharedPrefUtils.remove(context, _SharedPrefKeyForVisualMedia, destPhoneNumber);
+                + " destPhoneNumber=" + destPhoneNumber.substring(destPhoneNumber.length()-6));
+        SharedPrefUtils.remove(context, _SharedPrefKeyForVisualMedia, destPhoneNumber.substring(destPhoneNumber.length()-6));
     }
 
     public void saveUploadedTonePerNumber(Context context, String destPhoneNumber, String mediaPath) {
         Log.d(TAG, "saveUploadedTonePerNumber(): _SharedPrefKeyForAudioMedia=" + _SharedPrefKeyForAudioMedia
-                + " destPhoneNumber=" + destPhoneNumber + "path=" + mediaPath);
-        SharedPrefUtils.setString(context, _SharedPrefKeyForAudioMedia, destPhoneNumber, mediaPath);
+                + " destPhoneNumber=" + destPhoneNumber.substring(destPhoneNumber.length()-6) + "path=" + mediaPath);
+        SharedPrefUtils.setString(context, _SharedPrefKeyForAudioMedia, destPhoneNumber.substring(destPhoneNumber.length()-6), mediaPath);
     }
 
     public String getUploadedTonePerNumber(Context context, String destPhoneNumber) {
         Log.d(TAG, "getUploadedTonePerNumber(): _SharedPrefKeyForAudioMedia=" + _SharedPrefKeyForAudioMedia
-                + " destPhoneNumber=" + destPhoneNumber);
-        return SharedPrefUtils.getString(context, _SharedPrefKeyForAudioMedia, destPhoneNumber);
+                + " destPhoneNumber=" + destPhoneNumber.substring(destPhoneNumber.length()-6));
+        return SharedPrefUtils.getString(context, _SharedPrefKeyForAudioMedia, destPhoneNumber.substring(destPhoneNumber.length()-6));
     }
 
     public void removeUploadedTonePerNumber(Context context, String destPhoneNumber) {
         Log.d(TAG, "removeUploadedTonePerNumber(): _SharedPrefKeyForAudioMedia=" + _SharedPrefKeyForAudioMedia
-                + " destPhoneNumber=" + destPhoneNumber);
-        SharedPrefUtils.remove(context, _SharedPrefKeyForAudioMedia, destPhoneNumber);
+                + " destPhoneNumber=" + destPhoneNumber.substring(destPhoneNumber.length()-6));
+        SharedPrefUtils.remove(context, _SharedPrefKeyForAudioMedia, destPhoneNumber.substring(destPhoneNumber.length()-6));
     }
 
     public void saveUploadedPerNumber(Context context, String phoneNumber, String mediaPath) {

@@ -70,19 +70,23 @@ public class EventDownloadReceivedHandler implements Handler {
         String fFullName = pendingDownloadData.getMediaFile().getFile().getName();
         String source = pendingDownloadData.getSourceId();
         String md5 = pendingDownloadData.getMediaFile().getMd5();
+        String source6Digit = source;
+        if (source.length()>6) {
+            source6Digit = source.substring(source.length() - 6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
+        }
 
         try {
 
             switch (fType) {
                 case AUDIO:
-                    setNewAudioMedia(ctx, source, md5);
-                    mediaFileUtils.deleteFilesIfNecessary(ctx, sharedPrefKeyForAudioMedia, newFileDir, fFullName, fType, source);
+                    setNewAudioMedia(ctx, source6Digit, md5);
+                    mediaFileUtils.deleteFilesIfNecessary(ctx, sharedPrefKeyForAudioMedia, newFileDir, fFullName, fType, source6Digit);
                     break;
 
                 case VIDEO:
                 case IMAGE:
-                    setNewVisualMedia(ctx, source, md5);
-                    mediaFileUtils.deleteFilesIfNecessary(ctx, sharedPrefKeyForVisualMedia, newFileDir, fFullName, fType, source);
+                    setNewVisualMedia(ctx, source6Digit, md5);
+                    mediaFileUtils.deleteFilesIfNecessary(ctx, sharedPrefKeyForVisualMedia, newFileDir, fFullName, fType, source6Digit);
                     break;
             }
 

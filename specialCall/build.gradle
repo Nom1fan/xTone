@@ -61,20 +61,17 @@ repositories {
 
 
 dependencies {
+    implementation 'com.google.firebase:firebase-messaging:11.8.0'
     compile project(':ffmpeg4android_lib')
     compile project(':standOut_lib')
     compile project(':aFileChooser')
-
-    //compile 'com.github.joielechong:CountryCodePicker:6b6bc0ba27'
-    compile 'com.github.mukeshsolanki:country-picker-android:1.1.9'
 
     //noinspection GradleCompatible,GradleCompatible
     compile 'com.android.support:support-v4:25.4.0'
     compile 'com.android.support:appcompat-v7:25.4.0'
     compile 'commons-lang:commons-lang:2.6'
     compile 'com.android.support:design:25.4.0'
-    compile 'com.google.android.gms:play-services-gcm:11.6.2'
-    compile 'com.batch.android:batch-sdk:1.5.3'
+    compile 'com.google.android.gms:play-services-gcm:11.8.0'
     compile 'com.github.amlcurran.showcaseview:library:5.4.1'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.15'
     compile 'com.nineoldandroids:library:2.4.0'
@@ -89,7 +86,6 @@ dependencies {
     compile project(path: ':audio_waveform')
     compile project(':rangeseekbar')
     compile project(':library')
-    compile 'org.jsoup:jsoup:1.9.2'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
     compile 'com.felipecsl:gifimageview:2.1.0'
 
