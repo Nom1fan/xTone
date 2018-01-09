@@ -2,130 +2,504 @@
 <items version="2" >
 
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\design\23.1.1\jars\classes.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\volley-1.0.0.aar\908c19600f451037d4b1a7eedc869e97\jars\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="379471b2bd17d9737c050345c08e8c7d16589784">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-f42eee3f01d05193ef1be03e2591a7f161f8fa98.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="2cd4b982617e544728de0782d718a58ce1b06e3f">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\27.jar" />
     </item>
     <item
-        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\com.google.code.gson\gson\2.3\5fc52c41ef0239d1093a1eb7c3697036183677ce\gson-2.3.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\cz.msebera.android\httpclient\4.4.1.2\64950d33e2d3095cc831b414063bea45524103d4\httpclient-4.4.1.2.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="5fc52c41ef0239d1093a1eb7c3697036183677ce">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\gson-2.3-1f0975c4ea960954f666feeb6f730345bb668ba1.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="64950d33e2d3095cc831b414063bea45524103d4">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\30.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-gcm\7.5.0\jars\classes.jar"
+        is-multidex="false"
+        jar="C:\git\SpecialCall_Repository\rangeseekbar\build\intermediates\intermediate-jars\release\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="8d736fefa22d896e84a268354b3ed48a42663150">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-3b587ff624109ce850ff6a933ded4196428fd3c9.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="0edf777917ecba03193696ba7e77bdf68c0c89d3">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\61.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.github.amlcurran.showcaseview\library\5.4.1\jars\classes.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\com.android.support\support-annotations\25.4.0\f6a2fc748ae3769633dea050563e1613e93c135e\support-annotations-25.4.0.jar"
         jumboMode="false"
-        revision="22.0.1"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="f6a2fc748ae3769633dea050563e1613e93c135e">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\40.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\library-5.4.1.aar\d01da94cb0c92087b12eed624f02a8a3\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
         sha1="ebc00058bde4597b48ab5c3358a7676e942902f2">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-a614544e38a1d1dc8b61649da742ae2fa0460378.jar" />
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\2.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.batch.android\batch-sdk\1.5.2\jars\classes.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-basement-11.8.0.aar\b529924b9a79f98e74429b750a5de96d\jars\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="cf38c2163b87cf7dcc457df08856244fd7d5dfad">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-fbaaa552a9ddf6fdfb0b736c6fae817fbac391c2.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="5ad3911825107d8dd4b017fdecebfd23c08048dd">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\14.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.batch.android\batch-sdk\1.5.2\jars\libs\batch.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\firebase-common-11.8.0.aar\0194f533dff1fd0070b5955ee657be92\jars\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="d4e414296f7a8ce0a874fedfbb17e8cdb7ee2211">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\batch-7bf5770a0f4e31c825a987f7cd0cf19c06b98f49.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="e6aeff19a2ce1eb896557be73cb9ceb56f8d1cf3">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\12.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\recyclerview-v7\23.1.1\jars\classes.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\firebase-messaging-11.8.0.aar\5be0c7afb56c850d9268cdf4aac185d6\jars\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="09c5e804bc67fc0580360043dff067df574a60d4">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-df09aee06d5720000d787d7cb4f8988ef2b8b3a5.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="c44026185adf61f12630db36ac6781481f559e7c">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\5.jar" />
     </item>
     <item
-        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\org.jbundle.util.osgi.wrapped\org.jbundle.util.osgi.wrapped.org.apache.http.client\4.1.2\98c86e42679fe7ac066f6c242e0d14f0bce0bb7c\org.jbundle.util.osgi.wrapped.org.apache.http.client-4.1.2.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\firebase-analytics-impl-11.8.0.aar\5ed18554c83f515d25230c3c171d9a16\jars\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="98c86e42679fe7ac066f6c242e0d14f0bce0bb7c">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\org.jbundle.util.osgi.wrapped.org.apache.http.client-4.1.2-de79446292087d081bfe71831ce4c82b85a21f60.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="122de0d704f76d2bb5cb9db66e00fe90a0a41e78">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\10.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\ffmpeg4android_lib\unspecified\jars\classes.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-gcm-11.8.0.aar\865f67767972d796ea05436ac758311e\jars\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="1e9e419ff2bc9e87ee228ec07db610bd48eea22a">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-d623cdc01563de79e5dd1d3fe7ea4942377978e5.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="4b7dbd963f54ff7b600c647d14ca381f110d9c9a">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\4.jar" />
     </item>
     <item
-        jar="E:\Program Files\Eclipse Android SDK\adt-bundle-windows-x86_64-20140702\sdk\extras\android\m2repository\com\android\support\support-annotations\23.1.1\support-annotations-23.1.1.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\library-1.0.1.aar\3bb5b582d2663d3239ae34bb6481a036\jars\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="8d680ba5a623724d1fb0e81c36a790f023a6cede">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\support-annotations-23.1.1-8a4c08462d4a1d9a45cbab87e4c4f4c4ca1b8a51.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="d7e947f993bf32a00fcb3078cdda8bb11c930afb">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\20.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\shared\build\libs\shared-1.0.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-2.6.0.aar\32ca4a21fbffe561df7e3110705f867c\jars\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="32a6d7a24699489cefc6a89c7df30854aa8d77ce">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\release\shared-1.0-6eb2c0f83cc0d769cf46a66965c834bd7e45e6ec.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="32246804c761c812b32f01ea7ec7343622d0d91c">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\22.jar" />
     </item>
     <item
-        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\commons-io\commons-io\2.4\b1b6ea3b7e4aa4f492509a4952029cd8e48019ad\commons-io-2.4.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\com.nineoldandroids\library\2.4.0\e9b63380f3a242dbdbf103a2355ad7e43bad17cb\library-2.4.0.jar"
         jumboMode="false"
-        revision="22.0.1"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="e9b63380f3a242dbdbf103a2355ad7e43bad17cb">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\19.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\animated-vector-drawable-25.4.0.aar\faa0286a2c4ebecf0bf0be3a53074d6c\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="4961be1437163ab598620a3c907c0f3432936f51">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\34.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-utils-25.4.0.aar\8699935a6dfa45db79d574ecac3a9c3d\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="e04f28ac2dd9bbe48ced6fc87fedf46c2586f5d6">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\37.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-core-ui-25.4.0.aar\b2472fdfc1ab1e89750f2fa849aefb63\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="c2deeac83ffa1304264bc755c2ddb84e7a7fa239">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\35.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\git\SpecialCall_Repository\aFileChooser\build\intermediates\intermediate-jars\release\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="c6c28f7bece12a3680dd4ce18822e6a0bef27844">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\59.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-compat-25.4.0.aar\6715c933c8c523a8cfd956dbc0748e38\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="a64026daf4819a589aea776f5deb19b257a104d1">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\39.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\git\SpecialCall_Repository\audio_waveform\build\intermediates\intermediate-jars\release\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="706736b942241252258fd3d27f100177dcdcd506">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\60.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-v4-25.4.0.aar\0f6401755f0635ddf626e7eeedd54dde\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="d7c42c80f6509b9ea4db28ca7859ffae08ec5741">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\16.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\library-1.1.3.aar\1f7be9dd80df5d5dbfb8160042b52ee1\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="8cec50fc9cc847bad0d6ed7d93814f4b34744521">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\21.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\commons-lang\commons-lang\2.6\ce1edb914c94ebc388f086c6827e8bdeec71ac2\commons-lang-2.6.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="0ce1edb914c94ebc388f086c6827e8bdeec71ac2">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\17.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\git\SpecialCall_Repository\standOut_lib\build\intermediates\intermediate-jars\release\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="5ea7ce5fffd8fb1c15eafe3d2fffa6bbf62338a9">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\58.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-media-compat-25.4.0.aar\45c225b07e0f941485517761a5741904\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="05e3d15c623cd98f0eb43c8249fb6151fae0786c">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\36.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\com.github.bumptech.glide\glide\3.7.0\9e9eeaf9948ee4d6c3ab354e8dc14368f16994a4\glide-3.7.0.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="9e9eeaf9948ee4d6c3ab354e8dc14368f16994a4">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\28.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\git\SpecialCall_Repository\ffmpeg4android_lib\build\intermediates\intermediate-jars\release\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="81d047a0b51dc11e936227622e236e4e109f43a0">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\57.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\beta-1.2.0.aar\f682131937fa46e84b488d851879b4eb\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="35584aa0ef1d87109a997cfed2662801f304a3c0">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\43.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\firebase-analytics-11.8.0.aar\2d8b4b548741ea2df013f1993b2f22ed\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="42c9659c973e311ffdb645ed057e5053e0ab5c78">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\9.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\appcompat-v7-25.4.0.aar\5a8a04822b01184bea8e359107d61e49\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="a7a0aa678c3bbadb67fb41df9e107f7ee9087902">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\15.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\com.squareup.okhttp\okhttp\2.4.0\40340c0748190fe897baf7bffbc1b282734294e5\okhttp-2.4.0.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="40340c0748190fe897baf7bffbc1b282734294e5">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\24.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-vector-drawable-25.4.0.aar\f4587843120ec366e9221317a68642c2\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="b77e50b3c31d0fc64148530f7077f79ec114b5b9">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\38.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\com.google.code.gson\gson\2.8.0\c4ba5371a29ac9b2ad6129b1d39ea38750043eff\gson-2.8.0.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="c4ba5371a29ac9b2ad6129b1d39ea38750043eff">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\32.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\git\SpecialCall_Repository\library\build\intermediates\intermediate-jars\release\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="b8d96786bfb44fb7fa47816d92fbab75b526841e">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\62.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-tasks-11.8.0.aar\a21c518204ea1f03c8fc0a4943b922c6\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="d2af2ef4d987d753f2e8ee2d1480ab964d5c7273">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\13.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\recyclerview-v7-25.4.0.aar\332c1d5c9ea8b859cffda783c17a8dbe\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="b1e0cd070d7cf659ece90e919bff76e7ddc32532">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\26.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\android-gif-drawable-1.1.15.aar\35c66c71f0090ed8b661da92d5d4c86d\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="65067ef43929b76e5425aa6752d73fa4d4a80ed7">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\18.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\transition-25.4.0.aar\394a2811c34304fa3d0f5f2d4fd02ae2\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="40a6b8f05124eb9e6012e18b80a6dbd13440e283">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\3.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\design-25.4.0.aar\5fa22f01f7a7a7e5a550092018392d75\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="cad1364721fc716a39bdc351d3637edb634c9aa5">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\1.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\org.jsoup\jsoup\1.9.2\5e3bda828a80c7a21dfbe2308d1755759c2fd7b4\jsoup-1.9.2.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="5e3bda828a80c7a21dfbe2308d1755759c2fd7b4">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\29.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-iid-11.8.0.aar\b4a99362853b79353f277e4523ba35ec\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="fe3a72bee9f9eda45a5940a278fd9c1979b14a37">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\6.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\fabric-1.3.12.aar\6850eda0d2cd3bdafdfab9a8c6034f55\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="3575e73a22dce98f0bdbcdb475ef55a84606a9a6">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\45.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\support-fragment-25.4.0.aar\0e7f736c95c42f208d785649d02262de\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="d29e451fd5bcc265989bf80afd4f149d95d72e7d">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\33.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-core-2.3.10.aar\b44252b6bd9015a9f5ea9fca3c4e3e49\jars\classes.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="2f9a9b21b70965cde70f6eb8f2ee68794fb482e6">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\42.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Program Files\Android\Android Studio\gradle\m2repository\commons-io\commons-io\2.4\commons-io-2.4.jar"
+        jumboMode="false"
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
         sha1="b1b6ea3b7e4aa4f492509a4952029cd8e48019ad">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\commons-io-2.4-33c13aea5c53c83b92841ff9d1ed0cfef8a1c915.jar" />
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\47.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\standOut_lib\unspecified\jars\classes.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\crashlytics-ndk-1.1.3.aar\c76d7f6eb40193181db8381c36989484\jars\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="09d2bcfd0078cf7ce57bf70a417b27f87ac7159c">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-42012df5daf93f1e64d4f6d785a2cf664f43159a.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="be909cd878e2e1fb9e8f103e830199d06fd72e92">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\23.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.google.android.gms\play-services-base\7.5.0\jars\classes.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\gifimageview-2.1.0.aar\8515eb45d66566b4bd943051dc86f9fb\jars\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="a78183f30e769a98ab4820794f597763088d3065">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-326c97896afe9177ce92c107c70295b5b1afb13e.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="e5553c3597d5f766a8364a49925fcbb304bb091b">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\25.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.1.1\jars\classes.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\modules-2\files-2.1\com.squareup.okio\okio\1.4.0\5b72bf48563ea8410e650de14aa33ff69a3e8c35\okio-1.4.0.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="5c5699834e9722f1c288fea2de82725d078ba127">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-09cdc0d95bdc5639e362580b935f9a50579aa7c5.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="5b72bf48563ea8410e650de14aa33ff69a3e8c35">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\46.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\jars\classes.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\play-services-base-11.8.0.aar\a55a39eab6dc7c6071dec0f62fa0072a\jars\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="6cbc7773921fcfedbe55657578f0cbfe614778dc">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-a0c20a7fb5c1e9a1ffa8f2dab723c27bd9a66771.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="233d88c6f961d2a84758dfe27b7af61318190c7b">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\7.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\jars\libs\internal_impl-23.1.1.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\answers-1.3.8.aar\75466a4f5d93aaf6a2414e15ba883461\jars\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="a4de9c81ae239414e1ed0f86441b02abaf29bca9">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\internal_impl-23.1.1-3c4cea9cd6a19b5705db3ea95a391e565caf5fd1.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="0c46a5a897439810b6c437ce188bd07d9d8dffb0">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\44.jar" />
     </item>
     <item
-        jar="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\exploded-aar\SpecialCall\aFileChooser\unspecified\jars\classes.jar"
+        is-multidex="false"
+        jar="C:\Users\Mor\.gradle\caches\transforms-1\files-1.1\firebase-iid-11.8.0.aar\afb60a8acdae017fdc0d4ee0d1e1235b\jars\classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="c858f5a53183a48d76854d2b808bf017bc0b09b3">
-        <dex dex="E:\Workspaces\git_Workspace\SpecialCall\specialCall\build\intermediates\pre-dexed\debug\classes-18aa68fe3ea061fc8c4af0ef4729bbcbb57fed22.jar" />
+        min-sdk-version="16"
+        optimize="true"
+        revision="26.0.2"
+        sha1="264ad23f9752aabecfa41115c52a25a023a08839">
+        <dex dex="C:\git\SpecialCall_Repository\specialCall\build\intermediates\transforms\preDex\release\11.jar" />
     </item>
 
 </items>
