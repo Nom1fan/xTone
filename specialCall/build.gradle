@@ -16,6 +16,7 @@ android {
             sourceCompatibility JavaVersion.VERSION_1_7
             targetCompatibility JavaVersion.VERSION_1_7
         }
+//        useLibrary 'org.apache.http.legacy'
     }
 
 
@@ -99,7 +100,7 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'org.jsoup:jsoup:1.9.2'
     compile group: 'cz.msebera.android', name: 'httpclient', version: '4.4.1.2'
-    compile 'org.apache.httpcomponents:httpmime:4.3.5'
+//    compile 'org.apache.httpcomponents:httpmime:4.3.5'
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
 
     // gson
