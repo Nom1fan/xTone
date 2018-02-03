@@ -188,11 +188,13 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
 
     //region NONEED
     public void testPermissionForSystemOverlay() {
-        if (!android.provider.Settings.canDrawOverlays(this)) {
-            Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, 5469);
-            //testPermissionForSystemOverlay();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!android.provider.Settings.canDrawOverlays(this)) {
+                Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, 5469);
+                //testPermissionForSystemOverlay();
+            }
         }
     }
 
@@ -450,8 +452,7 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
 
             if (destName != null && !destName.isEmpty()) {
                 destTextView.setText(destName);
-            }
-            else {
+            } else {
                 disableDestinationTextView();
             }
 

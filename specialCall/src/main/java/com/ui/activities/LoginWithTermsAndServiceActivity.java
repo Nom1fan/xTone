@@ -139,10 +139,12 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
 
 
     public void PermissionForSystemOverlay() {
-        if (!android.provider.Settings.canDrawOverlays(this)) {
-            Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, 5469);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!android.provider.Settings.canDrawOverlays(this)) {
+                Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, 5469);
+            }
         }
     }
 
