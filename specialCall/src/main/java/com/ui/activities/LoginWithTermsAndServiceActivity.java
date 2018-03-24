@@ -3,6 +3,7 @@ package com.ui.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -24,6 +25,7 @@ import com.data.objects.Constants;
 import com.mediacallz.app.R;
 import com.services.ServerProxyService;
 import com.utils.InitUtils;
+import com.utils.UI_Utils;
 import com.utils.UtilityFactory;
 
 import java.util.HashMap;
@@ -251,11 +253,35 @@ public class LoginWithTermsAndServiceActivity extends AppCompatActivity {
         Constants.MY_ID(getApplicationContext(), loginNumber);
 
         ServerProxyService.register(getApplicationContext(),0);
+
+        initializeAppConfigurations();
+
+
         continueToMainActivity(); /// TO DO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
 
 
         setResult(Activity.RESULT_OK);
         finish();
+    }
+
+    private void initializeAppConfigurations() {
+        Context context = getApplicationContext();
+
+        //make sure TitleBar Menu Appears in all devices (don't matter if they have HARD menu button or not)
+        UI_Utils.makeActionOverflowMenuShown(context);
+
+        // This will prevent Android's media scanner from reading your media files and including them in apps like Gallery or Music.
+        initUtils.hideMediaFromGalleryScanner();
+
+        //Initialize Default Settings Values
+        initUtils.initializeSettingsDefaultValues(context);
+
+        //Populate SharedprefMEdia in case it's not the first time the app is installed, and you have saved media in the MediaCallz Outgoing/Incoming
+        initUtils.populateSavedMcFromDiskToSharedPrefs(context);
+
+        initUtils.saveAndroidVersion(context);
+
+        initUtils.initImageLoader(context);
     }
 
     private void continueToMainActivity() {
