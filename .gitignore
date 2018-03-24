@@ -8,3 +8,5 @@ import-summary.txt
 local.properties
 settings.gradle
 /*.iml
+specialCall/debug/
+specialCall/release
