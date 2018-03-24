@@ -6,6 +6,7 @@ package com.ui.activities;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.data.objects.Constants;
 import com.mediacallz.app.R;
 
 import java.util.List;
@@ -73,7 +75,10 @@ public class CustomDrawerAdapter extends ArrayAdapter<DrawerItem> {
             drawerHolder.icon.setLayoutParams(layoutParams);
         }else
         {
-            drawerHolder.ItemName.setText(getContext().getResources().getString(R.string.side_menu));
+
+            String menu = String.format((getContext().getResources().getString(R.string.side_menu)), Constants.MY_ID(getContext()));
+
+            drawerHolder.ItemName.setText(menu);
             drawerHolder.ItemName.setTypeface(null, Typeface.BOLD);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,WindowManager.LayoutParams.WRAP_CONTENT);
             layoutParams.gravity = Gravity.CENTER;
