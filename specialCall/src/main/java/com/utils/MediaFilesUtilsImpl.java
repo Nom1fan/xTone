@@ -552,7 +552,7 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
                             (fileType == MediaFile.FileType.VIDEO ||
                                     fileType == MediaFile.FileType.AUDIO)) {
                         delete(file);
-                        SharedPrefUtils.remove(context, sharedPrefsKey, source);
+//                        SharedPrefUtils.remove(context, sharedPrefsKey, source);
                     }
                 }
                 break;
@@ -576,7 +576,7 @@ public class MediaFilesUtilsImpl implements MediaFileUtils {
                     String fileName = file.getName(); // This includes extension
                     if (!fileName.equals(addedFileName)) {
                         delete(file);
-                        SharedPrefUtils.remove(context, sharedPrefsKey, source);
+//                        SharedPrefUtils.remove(context, sharedPrefsKey, source);
                     }
                 }
                 break;
