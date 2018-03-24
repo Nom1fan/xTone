@@ -3,24 +3,19 @@ package com.services;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import com.data.objects.ClearMediaData;
 import com.data.objects.Constants;
+import com.enums.SpecialMediaType;
 import com.logger.Logger;
 import com.logger.LoggerFactory;
-import com.utils.MediaFileUtils;
 import com.utils.Phone2MediaPathMapperUtils;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-
-import com.enums.SpecialMediaType;
 import com.utils.UtilityFactory;
 
 import org.apache.commons.io.FileUtils;
 
-import static com.crashlytics.android.Crashlytics.log;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * Created by Mor on 18/02/2016.
@@ -59,7 +54,7 @@ public class ClearMediaIntentService extends IntentService {
             ClearMediaData data = (ClearMediaData) intent.getSerializableExtra(CLEAR_MEDIA_DATA);
             SpecialMediaType specialMediaType = data.getSpecialMediaType();
             String phoneNumber = data.getSourceId();
-
+            phoneNumber = phoneNumber.substring(phoneNumber.length() - 6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
             try {
                 String folderPath = null;
                 switch (specialMediaType) {

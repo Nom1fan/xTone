@@ -10,23 +10,20 @@ import android.view.WindowManager;
 import com.crashlytics.android.Crashlytics;
 import com.data.objects.Constants;
 import com.enums.SaveMediaOption;
+import com.enums.SpecialMediaType;
+import com.files.media.MediaFile;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.receivers.SyncDefaultMediaReceiver;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.enums.SpecialMediaType;
-import com.files.media.MediaFile;
-import com.receivers.SyncDefaultMediaReceiver;
-
 import static com.crashlytics.android.Crashlytics.log;
-import static com.files.media.MediaFile.FileType.IMAGE;
-import static com.files.media.MediaFile.FileType.VIDEO;
 import static com.receivers.SyncDefaultMediaReceiver.SYNC_REPEAT_INTERVAL;
 
 /**
@@ -132,6 +129,9 @@ public class InitUtilsImpl implements InitUtils {
                 String extension = mediaFileUtils.extractExtension(DirFiles.get(j).getAbsolutePath());
                 fType = mediaFileUtils.getFileTypeByExtension(extension);
                 String phoneNumber = DirFiles.get(j).getName().split("\\.")[0];
+
+                phoneNumber = phoneNumber.substring(phoneNumber.length() - 6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
+
                 String mediaFilePath = DirFiles.get(j).getAbsolutePath();
 
                 if (fType != null)

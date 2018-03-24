@@ -158,6 +158,10 @@ public class EventDownloadReceivedHandler implements Handler {
         SpecialMediaType specialMediaType = pendingDownloadData.getSpecialMediaType();
         String srcId = pendingDownloadData.getSourceId();
 
+
+        srcId = srcId.substring(srcId.length() - 6); /// TODO:  ADDED THIS FOR INTERNATIONAL OPTIONS (HACKED)
+
+
         // Preparing for appropriate special media type
         switch (specialMediaType) {
             case CALLER_MEDIA:
