@@ -10,7 +10,6 @@ import com.event.EventReport;
 import com.handlers.Handler;
 import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
-import com.utils.ContactsUtilsImpl;
 import com.utils.UI_Utils;
 import com.utils.UtilityFactory;
 
@@ -35,7 +34,7 @@ public class EventDownloadFailureHandler implements Handler {
         PendingDownloadData data = (PendingDownloadData) eventReport.data();
         String destId = data.getDestinationId();
 
-        UI_Utils.dismissTransferSuccessDialog();
+        UI_Utils.dismissWaitingForTransferSuccessDialog();
         String msg = String.format(ctx.getResources().getString(R.string.destination_download_failed),
                 contactsUtils.getContactNameHtml(ctx, destId));
         UI_Utils.showSnackBar(msg, Color.RED, Snackbar.LENGTH_LONG, false, ctx);
