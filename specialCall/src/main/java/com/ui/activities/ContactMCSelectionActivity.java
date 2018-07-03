@@ -67,6 +67,7 @@ import static com.crashlytics.android.Crashlytics.log;
 import static com.data.objects.SnackbarData.SnackbarStatus;
 import static com.mediacallz.app.R.layout.contact_mc_selection_layout;
 
+@SuppressWarnings("ALL")
 public class ContactMCSelectionActivity extends AppCompatActivity implements OnClickListener, ICallbackListener {
 
     private static final int REQUEST_PHONE_CALL = 555;
@@ -184,6 +185,8 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
 
         syncAndroidVersionWithServer();
         testPermissionForSystemOverlay();
+
+        syncUIwithAppState();
     }
 
     //region NONEED
@@ -306,9 +309,11 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
 
     private void startPreviewStandoutWindow(SpecialMediaType specialMediaType) {
 
-        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        SharedPrefUtils.setInt(this, SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, am.getStreamVolume(AudioManager.STREAM_MUSIC));
-        log(Log.INFO, TAG, "PreviewStart MUSIC_VOLUME Original" + String.valueOf(am.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager != null) {
+            SharedPrefUtils.setInt(this, SharedPrefUtils.SERVICES, SharedPrefUtils.MUSIC_VOLUME, audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
+            log(Log.INFO, TAG, "PreviewStart MUSIC_VOLUME Original" + String.valueOf(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)));
+        }
 
         // Close previous
         Intent closePrevious = new Intent(this, PreviewService.class);
@@ -342,7 +347,7 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
         int id = v.getId();
         if (id == R.id.CallNow) {
 
-            makeACall(destPhoneNumber);
+            makeACall();
 
         } else if (id == R.id.selectMediaBtn || id == R.id.callerArrow) {
             if (callerHasMedia || callerHasRingtone)
@@ -386,8 +391,9 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
                 SnackbarData data = (SnackbarData) report.data();
                 syncUIwithAppState();
 
-                if (data != null)
+                if (data != null) {
                     handleSnackBar(data);
+                }
                 break;
 
             default: // Event not meant for MainActivity receiver
@@ -620,7 +626,7 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
                 @Override
                 public boolean onLongClick(View v) {
 
-                    makeACall(destPhoneNumber);
+                    makeACall();
 
                    /*
                     final Intent intent = new Intent();
@@ -643,6 +649,16 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Intent in = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + destPhoneNumber));
                     try {
+                        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                            // TODO: Consider calling
+                            //    ActivityCompat#requestPermissions
+                            // here to request the missing permissions, and then overriding
+                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                            //                                          int[] grantResults)
+                            // to handle the case where the user grants the permission. See the documentation
+                            // for ActivityCompat#requestPermissions for more details.
+                            return;
+                        }
                         startActivity(in);
                     } catch (android.content.ActivityNotFoundException ex) {
                         Toast.makeText(getApplicationContext(), "Could not find an activity to place the call.", Toast.LENGTH_SHORT).show();
@@ -772,7 +788,7 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
         popup.show();
     }
 
-    public void makeACall(String number) {
+    public void makeACall() {
 
         if (ContextCompat.checkSelfPermission(ContactMCSelectionActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(ContactMCSelectionActivity.this, new String[]{Manifest.permission.CALL_PHONE}, REQUEST_PHONE_CALL);
@@ -1066,18 +1082,6 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
         }
     }
 
-    private void disableRingToneName() {
-
-        ringToneNameTextView.setVisibility(View.INVISIBLE);
-        disableRingToneStatusArrived();
-    }
-
-    private void disableRingToneNameForProfile() {
-
-        ringToneNameForProfileTextView.setVisibility(View.INVISIBLE);
-
-    }
-
 
     private void writeInfoSnackBar(final SnackbarData snackBarData) {
 
@@ -1124,10 +1128,6 @@ public class ContactMCSelectionActivity extends AppCompatActivity implements OnC
                     writeInfoSnackBar(snackbarData);
                 break;
         }
-    }
-
-    private void disableSnackbar() {
-        handleSnackBar(new SnackbarData(SnackbarStatus.CLOSE));
     }
 
     private void showMandatoryUpdateDialog() {

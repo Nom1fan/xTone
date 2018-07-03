@@ -21,17 +21,18 @@ public class LUT_Utils {
     private String _SharedPrefKeyForAudioMedia;
     private MediaFileUtils mediaFileUtils = UtilityFactory.instance().getUtility(MediaFileUtils.class);
 
+
     public LUT_Utils(SpecialMediaType specialMediaType) {
 
         Log.d(TAG, "Constructing with specialMediaType=" + specialMediaType);
         if (specialMediaType == SpecialMediaType.CALLER_MEDIA) {
 
-            _SharedPrefKeyForVisualMedia = SharedPrefUtils.UPLOADED_CALLER_MEDIA_THUMBNAIL;
-            _SharedPrefKeyForAudioMedia = SharedPrefUtils.UPLOADED_RINGTONE_PATH;
+            _SharedPrefKeyForVisualMedia = Phone2MediaPathMapperUtils.UPLOADED_CALLER_MEDIA_THUMBNAIL;
+            _SharedPrefKeyForAudioMedia = Phone2MediaPathMapperUtils.UPLOADED_RINGTONE_PATH;
         } else if (specialMediaType == SpecialMediaType.PROFILE_MEDIA) {
 
-            _SharedPrefKeyForVisualMedia = SharedPrefUtils.UPLOADED_PROFILE_MEDIA_THUMBNAIL;
-            _SharedPrefKeyForAudioMedia = SharedPrefUtils.UPLOADED_FUNTONE_PATH;
+            _SharedPrefKeyForVisualMedia = Phone2MediaPathMapperUtils.UPLOADED_PROFILE_MEDIA_THUMBNAIL;
+            _SharedPrefKeyForAudioMedia = Phone2MediaPathMapperUtils.UPLOADED_FUNTONE_PATH;
         } else if(specialMediaType == SpecialMediaType.DEFAULT_CALLER_MEDIA) {
             _SharedPrefKeyForVisualMedia = Phone2MediaPathMapperUtils.DEFAULT_CALLER_VISUAL_MEDIA;
             _SharedPrefKeyForAudioMedia = Phone2MediaPathMapperUtils.DEFAULT_CALLER_AUDIO_MEDIA;

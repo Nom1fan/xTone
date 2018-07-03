@@ -8,7 +8,6 @@ import com.data.objects.ClearSuccessData;
 import com.handlers.Handler;
 import com.mediacallz.app.R;
 import com.utils.ContactsUtils;
-import com.utils.ContactsUtilsImpl;
 import com.utils.LUT_Utils;
 import com.utils.UI_Utils;
 
@@ -38,7 +37,7 @@ public class EventClearSuccessHandler implements Handler {
         String msg = String.format(ctx.getResources().getString(R.string.destination_media_cleared),
                 contactsUtils.getContactNameHtml(ctx, destId));
 
-        UI_Utils.dismissTransferSuccessDialog();
+        UI_Utils.dismissWaitingForTransferSuccessDialog();
         UI_Utils.showSnackBar(msg, Color.GREEN, Snackbar.LENGTH_LONG, false, ctx);
     }
 }

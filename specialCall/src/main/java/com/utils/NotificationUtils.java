@@ -94,11 +94,9 @@ public abstract class NotificationUtils {
     }
 
     /**
-     * Create and show a simple notification containing the received FCM message.
-     *
-     * @param notification FCM message notification
+     * Create and show a simple notification with title and message
      */
-    public static void sendNotification(Context context, RemoteMessage.Notification notification) {
+    public static void sendNotification(Context context, String title, String msg) {
         Intent intent = new Intent(context, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, intent,
@@ -109,8 +107,8 @@ public abstract class NotificationUtils {
                 (NotificationCompat.Builder) new NotificationCompat.Builder(context)
                         .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.color_mc))
                         .setSmallIcon(R.drawable.color_mc)
-                        .setContentTitle(notification.getTitle())
-                        .setContentText(notification.getBody())
+                        .setContentTitle(title)
+                        .setContentText(msg)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent);
@@ -121,5 +119,9 @@ public abstract class NotificationUtils {
         assert  notificationManager != null;
 
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+    }
+
+    public static void sendNotification(Context context, RemoteMessage.Notification notification) {
+        sendNotification(context, notification.getTitle(), notification.getBody());
     }
 }
