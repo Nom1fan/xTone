@@ -16,7 +16,6 @@ public class Phone2MediaPathMapperUtilsImpl implements Phone2MediaPathMapperUtil
     private static Logger logger = LoggerFactory.getLogger();
 
     // Caller media methods
-
     //region Getters
     @Override
     public String getCallerVisualMediaPath(Context context, String phoneNumber) {
@@ -92,7 +91,6 @@ public class Phone2MediaPathMapperUtilsImpl implements Phone2MediaPathMapperUtil
     //endregion
 
     // Profile media methods
-
     //region Getters
     @Override
     public String getProfileVisualMediaPath(Context context, String phoneNumber) {
@@ -164,6 +162,73 @@ public class Phone2MediaPathMapperUtilsImpl implements Phone2MediaPathMapperUtil
     public void removeDefaultProfileAudioMediaPath(Context context, String phoneNumber) {
         logger.debug(TAG, "Removing default profile audio media path for:[" + phoneNumber + "]");
         SharedPrefUtils.remove(context, DEFAULT_PROFILE_AUDIO_MEDIA, phoneNumber);
+    }
+    //endregion
+
+    // Uploaded media methods
+    //region Getters
+    @Override
+    public String getUploadedCallerVisualMediaPath(Context context, String phoneNumber) {
+        return SharedPrefUtils.getString(context, UPLOADED_CALLER_MEDIA_THUMBNAIL, phoneNumber);
+    }
+
+    @Override
+    public String getUploadedProfileVisualMediaPath(Context context, String phoneNumber) {
+        return SharedPrefUtils.getString(context, UPLOADED_PROFILE_MEDIA_THUMBNAIL, phoneNumber);
+    }
+
+    @Override
+    public String getUploadedFuntoneMediaPath(Context context, String phoneNumber) {
+        return SharedPrefUtils.getString(context, UPLOADED_FUNTONE_PATH, phoneNumber);
+    }
+
+    @Override
+    public String getUploadedRingtoneMediaPath(Context context, String phoneNumber) {
+        return SharedPrefUtils.getString(context, UPLOADED_RINGTONE_PATH, phoneNumber);
+    }
+    //endregion
+
+    //region Setters
+    @Override
+    public void setUploadedCallerVisualMediaPath(Context context, String phoneNumber, String mediaPath) {
+        SharedPrefUtils.setString(context, UPLOADED_CALLER_MEDIA_THUMBNAIL, phoneNumber, mediaPath);
+    }
+
+    @Override
+    public void setUploadedProfileVisualMediaPath(Context context, String phoneNumber, String mediaPath) {
+        SharedPrefUtils.setString(context, UPLOADED_PROFILE_MEDIA_THUMBNAIL, phoneNumber, mediaPath);
+    }
+
+    @Override
+    public void setUploadedFuntoneMediaPath(Context context, String phoneNumber, String mediaPath) {
+        SharedPrefUtils.setString(context, UPLOADED_FUNTONE_PATH, phoneNumber, mediaPath);
+    }
+
+    @Override
+    public void setUploadedRingtoneMediaPath(Context context, String phoneNumber, String mediaPath) {
+        SharedPrefUtils.setString(context, UPLOADED_RINGTONE_PATH, phoneNumber, mediaPath);
+    }
+    //endregion
+
+    //region Removers
+    @Override
+    public void removeUploadedCallerVisualMediaPath(Context context, String phoneNumber) {
+        SharedPrefUtils.remove(context, UPLOADED_CALLER_MEDIA_THUMBNAIL, phoneNumber);
+    }
+
+    @Override
+    public void removeUploadedProfileVisualMediaPath(Context context, String phoneNumber) {
+        SharedPrefUtils.remove(context, UPLOADED_PROFILE_MEDIA_THUMBNAIL, phoneNumber);
+    }
+
+    @Override
+    public void removeUploadedFuntoneMediaPath(Context context, String phoneNumber) {
+        SharedPrefUtils.remove(context, UPLOADED_FUNTONE_PATH, phoneNumber);
+    }
+
+    @Override
+    public void removeUploadedRingtoneMediaPath(Context context, String phoneNumber) {
+        SharedPrefUtils.remove(context, UPLOADED_RINGTONE_PATH, phoneNumber);
     }
     //endregion
 }
