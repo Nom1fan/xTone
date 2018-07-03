@@ -1,5 +1,24 @@
 package wei.mark.standout.ui;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Point;
+import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
+
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -8,21 +27,6 @@ import wei.mark.standout.StandOutWindow;
 import wei.mark.standout.StandOutWindow.StandOutLayoutParams;
 import wei.mark.standout.Utils;
 import wei.mark.standout.constants.StandOutFlags;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.PopupWindow;
-import android.widget.TextView;
 
 /**
  * Special view that represents a floating window.
@@ -382,6 +386,19 @@ public class Window extends FrameLayout {
 
 					if (!prefs.getBoolean("DontBotherIncomingCallPopUp", false)) {
 						params.y = prefs.getInt("DeviceScreenHeighet",1000) * 20 / 100;  // TODO so it won't bother the incoming call pop up in the top of the screen
+
+
+
+						WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+						Display display = wm.getDefaultDisplay();
+						Point size = new Point();
+						display.getSize(size);
+
+
+						//(original height / original width) x new width = new heigh
+						params.width =  size.x * 50 / 100;
+						params.height =  (size.y / size.x) * params.width;  //prefs.getInt("DeviceScreenHeighet",1000) * 20 / 100;
+
                         Log.i(TAG, "DontBotherIncomingCallPopUp got into it...width: "+params.width+" heighet: "+params.height+" X: "+params.x+" Y: " + params.y);
 					}
 

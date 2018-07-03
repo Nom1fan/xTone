@@ -53,6 +53,8 @@ public class InitUtilsImpl implements InitUtils {
         SettingsUtils.setDownloadOnlyOnWifi(context, false);
         SettingsUtils.setSaveMediaOption(context, SaveMediaOption.ALWAYS);
         SettingsUtils.setStrictRingingCapabilitiesDevice(context, true);
+        SettingsUtils.setAskBeforeShowingMedia(context, true);
+
 
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
