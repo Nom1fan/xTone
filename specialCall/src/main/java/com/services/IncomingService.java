@@ -404,11 +404,11 @@ public class IncomingService extends AbstractStandOutService {
         //     ((ImageView)mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_XY); STRECTH IMAGE ON FULL SCREEN <<< NOT SURE IT's GOOD !!!!!
         ((ImageView) mSpecialCallView).setScaleType(ImageView.ScaleType.FIT_CENTER); // <<  just place the image Center of Window and fit it with ratio
 
-        if (!isHideResizeWindowForStandOut()) {
+    //    if (!isHideResizeWindowForStandOut()) {
             ((ImageView) mSpecialCallView).setImageResource(R.drawable.first_show_window);
 
-        } else
-            ((ImageView) mSpecialCallView).setImageResource(R.drawable.profile_media_anim);
+   //     } else
+   //         ((ImageView) mSpecialCallView).setImageResource(R.drawable.profile_media_anim);
 
         mSpecialCallView.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {

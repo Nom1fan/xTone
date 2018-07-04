@@ -321,7 +321,7 @@ public abstract class UI_Utils {
         log(Log.INFO, TAG, "waitingForTransferSuccessDialog.show();");
     }
 
-    public static void dismissTransferSuccessDialog() {
+    public static void dismissWaitingForTransferSuccessDialog() {
         if (_waitingForTransferSuccessDialog != null) {
             ct.cancel();
             _waitingForTransferSuccessDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();

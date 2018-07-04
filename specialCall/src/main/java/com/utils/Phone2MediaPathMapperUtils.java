@@ -22,6 +22,12 @@ public interface Phone2MediaPathMapperUtils extends Utility {
     String PROFILE_AUDIO_MEDIA = "PROFILE_AUDIO_MEDIA";
     String DEFAULT_PROFILE_AUDIO_MEDIA = "DEFAULT_PROFILE_AUDIO_MEDIA";
 
+    // Uploaded media keys
+    String UPLOADED_CALLER_MEDIA_THUMBNAIL = "UploadedCallerMediaThumbnail";
+    String UPLOADED_PROFILE_MEDIA_THUMBNAIL = "UploadedProfileMediaThumbnail";
+    String UPLOADED_RINGTONE_PATH = "UploadedRingTonePath";
+    String UPLOADED_FUNTONE_PATH = "UploadedFunTonePath";
+
 
     // Caller media methods
     String getCallerVisualMediaPath(Context context, String phoneNumber);
@@ -74,13 +80,30 @@ public interface Phone2MediaPathMapperUtils extends Utility {
 
     void removeDefaultProfileAudioMediaPath(Context context, String phoneNumber);
 
+    // Uploaded media methods
+    String getUploadedCallerVisualMediaPath(Context context, String phoneNumber);
 
+    String getUploadedProfileVisualMediaPath(Context context, String phoneNumber);
 
+    String getUploadedFuntoneMediaPath(Context context, String phoneNumber);
 
+    String getUploadedRingtoneMediaPath(Context context, String phoneNumber);
 
+    void setUploadedCallerVisualMediaPath(Context context, String phoneNumber, String mediaPath);
 
+    void setUploadedProfileVisualMediaPath(Context context, String phoneNumber, String mediaPath);
 
+    void setUploadedFuntoneMediaPath(Context context, String phoneNumber, String mediaPath);
 
+    void setUploadedRingtoneMediaPath(Context context, String phoneNumber, String mediaPath);
+
+    void removeUploadedCallerVisualMediaPath(Context context, String phoneNumber);
+
+    void removeUploadedProfileVisualMediaPath(Context context, String phoneNumber);
+
+    void removeUploadedFuntoneMediaPath(Context context, String phoneNumber);
+
+    void removeUploadedRingtoneMediaPath(Context context, String phoneNumber);
 
 
 }
