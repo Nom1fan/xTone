@@ -1,46 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mediacallz.app"
-    android:versionCode="66"
-    android:versionName="1.73">
+    package="com.xtone.app"
+    android:versionCode="1"
+    android:versionName="1.0.0">
 
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="22" />
 
-    <!-- ***********************************************************************************-->
-    <!-- EXTREME Permissions !!!!!  permissions NEED TO BE GRANTED !!!! -->
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
-
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
-
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.SEND_SMS" />
-
-
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.access_notification_policy" />
 
     <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
     <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <!--<uses-permission android:name="android.permission.PROCESS_INCOMING_CALLS" /> -->
-    <!--<uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />-->
-    <!-- ***********************************************************************************-->
-    <!-- ***********************************************************************************-->
-    <!-- NORMAL Permissions !!!!!  permissions who doesn't need to be manually granted !!!! -->
-    <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -49,299 +36,86 @@
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <permission android:name="com.mediacallz.app.permission.C2D_MESSAGE" android:protectionLevel="signature" />
-    <uses-permission android:name="com.mediacallz.app.permission.C2D_MESSAGE" />
-    <!-- ***********************************************************************************-->
+
 
     <application
-        android:name="com.app.MediaCallzApp"
+        android:name=".xToneApp"
         android:allowBackup="false"
-        android:icon="@mipmap/color_mc"
         android:label="@string/app_name"
         android:supportsRtl="true">
 
 
-        <provider
-            android:name="android.support.v4.content.FileProvider"
-            android:authorities="${applicationId}.provider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
-        </provider>
+        <!--<provider-->
+            <!--android:name="android.support.v4.content.FileProvider"-->
+            <!--android:authorities="${applicationId}.provider"-->
+            <!--android:exported="false"-->
+            <!--android:grantUriPermissions="true">-->
+            <!--<meta-data-->
+                <!--android:name="android.support.FILE_PROVIDER_PATHS"-->
+                <!--android:resource="@xml/provider_paths"/>-->
+        <!--</provider>-->
 
         <!-- MediaCallz Activities -->
 
-        <activity
-            android:name="com.ui.activities.SplashScreen"
-            android:screenOrientation="portrait"
-            android:theme="@style/SplashTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="com.ui.activities.MainActivity"
-            android:excludeFromRecents="false"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="com.ui.activities.CallsLogHistory"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"/>
-
-        <activity
-            android:name="com.ui.activities.ContactMCSelectionActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"/>
-
-
-        <activity
-            android:name="com.ui.activities.TipActivityDialog"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Holo.Dialog"/>
-
-        <activity
-            android:name="com.ui.activities.LoginActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme"/>
-
-        <activity
-            android:name="com.ui.activities.LoginWithTermsAndServiceActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Translucent"/>
-
-        <activity
-            android:name="com.ui.activities.SelectMediaActivity"
-            android:excludeFromRecents="false"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-
-        </activity>
-
-        <activity
-            android:name="com.ui.activities.DefaultMediaActivity"
-            android:excludeFromRecents="false"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-
-        </activity>
-
-        <activity
-            android:name="com.ui.activities.PreviewMediaActivity"
-            android:excludeFromRecents="false"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-
-        </activity>
-
-        <activity
-            android:name="com.ui.activities.BlockMCContacts"
-            android:excludeFromRecents="false"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-
-        </activity>
-
-        <activity
-            android:name="com.ui.activities.SelectSpecificContacts"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="com.ui.activities.AudioFilesHistoryActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="com.ui.activities.SetSettingsActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="com.ui.activities.SetAboutHelpActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-        </activity>
-
-        <!-- Content Store Activities  -->
-
-        <activity
-            android:name="com.ui.activities.HomeActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/app_name">
+        <!--<activity-->
+            <!--android:name="com.xtone.ui.activities.SplashScreen"-->
+            <!--android:screenOrientation="portrait"-->
+            <!--android:theme="@style/SplashTheme">-->
             <!--<intent-filter>-->
-            <!--<action android:name="android.intent.action.MAIN" />-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
 
-            <!--<category android:name="android.intent.category.LAUNCHER" />-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
             <!--</intent-filter>-->
-        </activity>
+        <!--</activity>-->
 
-        <activity
-            android:name="com.ui.activities.GalleryLauncherFragmentActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/ac_name_image_list" />
+        <!--<activity-->
+            <!--android:name="com.xtone.ui.activities.MainActivity"-->
+            <!--android:excludeFromRecents="false"-->
+            <!--android:label="@string/app_name"-->
+            <!--android:screenOrientation="portrait"-->
+            <!--android:theme="@style/AppTheme">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.SEARCH" />-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
 
-        <activity
-            android:name="com.ui.activities.ComplexImageActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/ac_name_complex" />
 
-        <!-- File Chooser Activities -->
-
-        <activity
-            android:name="com.ipaulpro.afilechooser.FileChooserActivity"
-            android:enabled="@bool/use_activity"
-            android:exported="true"
-            android:icon="@drawable/ic_chooser"
-            android:label="@string/choose_file">
-            <intent-filter>
-                <action android:name="android.intent.action.GET_CONTENT" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.OPENABLE" />
-
-                <data android:mimeType="*/*" />
-            </intent-filter>
-        </activity>
-
-        <!-- MediaCallz Services -->
+        <!-- Services -->
 
         <service
-            android:name="com.services.IncomingService"
+            android:name="com.xtone.service.IncomingService"
             android:enabled="true"
-            android:priority="999"/>
+            android:priority="999">
+        </service>
 
         <service
-            android:name="com.services.OutgoingService"
+            android:name="com.xtone.service.PreviewService"
             android:enabled="true"
-            android:priority="999"/>
+            android:priority="999">
+        </service>
 
         <service
-            android:name="com.services.PreviewService"
-            android:enabled="true"
-            android:priority="999"/>
-
-        <service
-            android:name="com.services.ServerProxyService"
-            android:enabled="true"
-            android:priority="998"/>
-
-        <service
-            android:name="com.services.GetFireBaseTokenService">
+            android:name="com.xtone.service.GetFireBaseTokenService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>
 
         <service
-            android:name="com.services.ClearMediaIntentService"
-            android:exported="false"/>
-
-        <service
-            android:name="com.services.FireBasePushService">
+            android:name="com.xtone.service.FireBasePushService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
 
-        <service
-            android:name="com.services.SyncOnDefaultMediaIntentService"
-            android:exported="false" />
+        <!-- Broadcast Receivers -->
 
-        <!-- Batch Service -->
-
-        <!-- MediaCallz Broadcast Receivers -->
-
-        <receiver android:name="com.receivers.BootCompletedBroadcastReceiver">
+        <receiver android:name="com.xtone.receiver.BootCompletedBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.ui.activities.LoginActivity$IncomingSms">
-            <intent-filter>
-                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name="com.receivers.SyncDefaultMediaReceiver">
-            <intent-filter>
-                <action android:name="com.android.mediacallz.SYNC_DEFULAT_MEDIA_ACTION" />
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name="com.receivers.StartStandOutServicesFallBackReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
-                <action android:name="android.intent.action.PHONE_STATE" />
-                <action android:name="com.android.mediacallz.EVENT_ACTION" />
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-                <action android:name="com.android.mediacallz.ALARM_ACTION" />
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name="com.receivers.ConnectivityBroadcastReceiver">
-            <intent-filter>
-                <action android:name="android.net.wifi.STATE_CHANGE" />
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name="com.receivers.BackgroundBroadcastReceiver">
-            <intent-filter>
-                <action android:name="com.android.mediacallz.EVENT_ACTION" />
-            </intent-filter>
-        </receiver>
-
-        <!-- Content Store Receiver -->
-
-        <receiver android:name="com.widget.UILWidgetProvider">
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_provider" />
-
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-        </receiver>
-
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="5cb30ed7fed8c27f43357829ce0865ab76c4aa2b" />
     </application>
 
 </manifest>

@@ -1,11 +1,11 @@
 package com.netcompss.ffmpeg4android;
 
+import android.util.Log;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-import android.util.Log;
 
 public class ProgressCalculator {
 	
@@ -21,7 +21,7 @@ public class ProgressCalculator {
 	
 	public ProgressCalculator(String vkLogPathIn) {
 		vkLogPath = vkLogPathIn;
-		_simpleDateFormat = new SimpleDateFormat("HH:mm:ss.SS");
+		_simpleDateFormat = new SimpleDateFormat("HH:mm:ss.SS", Locale.getDefault());
 		try {
 			Date ref = _simpleDateFormat.parse("00:00:00.00");
 			ref.setYear(112);
