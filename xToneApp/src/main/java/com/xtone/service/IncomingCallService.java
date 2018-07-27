@@ -32,6 +32,13 @@ public class IncomingCallService extends Service {
 
     private CallOffHookLogic callOffHookLogic;
 
+    public IncomingCallService(CallIdleLogic callIdleLogic, CallRingingLogic callRingingLogic, CallOffHookLogic callOffHookLogic, Logger log) {
+        this.callIdleLogic = callIdleLogic;
+        this.callRingingLogic = callRingingLogic;
+        this.callOffHookLogic = callOffHookLogic;
+        this.log = log;
+    }
+
     public IncomingCallService() {
         callIdleLogic = new CallIdleLogicImpl();
         callRingingLogic = new CallRingingLogicImpl();
@@ -110,22 +117,6 @@ public class IncomingCallService extends Service {
             action = intent.getAction();
         if (action != null)
             log.info(TAG, "Action:" + action);
-    }
-
-    public void setCallIdleLogic(CallIdleLogic callIdleLogic) {
-        this.callIdleLogic = callIdleLogic;
-    }
-
-    public void setCallRingingLogic(CallRingingLogic callRingingLogic) {
-        this.callRingingLogic = callRingingLogic;
-    }
-
-    public void setCallOffHookLogic(CallOffHookLogic callOffHookLogic) {
-        this.callOffHookLogic = callOffHookLogic;
-    }
-
-    public void setLog(Logger log) {
-        this.log = log;
     }
 
     //    private void actionThread(Intent intent) {
