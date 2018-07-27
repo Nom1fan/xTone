@@ -1,11 +1,11 @@
 apply plugin: 'com.android.library'
 apply plugin: 'io.fabric'
 android {
-    compileSdkVersion 28
+    compileSdkVersion 26
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 28
+        targetSdkVersion 26
     }
 
     buildTypes {
@@ -20,11 +20,11 @@ android {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        compile 'com.android.support:support-v4:26.1.0'
-        compile('com.crashlytics.sdk.android:crashlytics:2.6.0@aar') {
+        implementation 'com.android.support:support-v4:26.1.0'
+        implementation('com.crashlytics.sdk.android:crashlytics:2.6.0@aar') {
             transitive = true;
         }
-        compile('com.crashlytics.sdk.android:crashlytics-ndk:1.1.3@aar') {
+        implementation('com.crashlytics.sdk.android:crashlytics-ndk:1.1.3@aar') {
             transitive = true;
         }
     }
