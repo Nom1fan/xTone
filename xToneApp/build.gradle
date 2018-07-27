@@ -58,9 +58,9 @@ repositories {
 
 dependencies {
 
-    compile project(':ffmpeg4android_lib')
-    compile project(':standOut_lib')
-    compile project(':aFileChooser')
+    implementation project(':ffmpeg4android_lib')
+    implementation project(':standOut_lib')
+    implementation project(':aFileChooser')
 
     implementation 'com.google.firebase:firebase-core:16.0.1'
     implementation 'com.google.firebase:firebase-messaging:17.1.0'
