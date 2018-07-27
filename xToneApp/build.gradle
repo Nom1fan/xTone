@@ -87,8 +87,8 @@ dependencies {
 
 crashlytics {
     enableNdk true
-    androidNdkOut 'src/specialCall/libs'
-    androidNdkLibsOut 'src/specialCall/libs'
+    androidNdkOut 'src/xToneApp/libs'
+    androidNdkLibsOut 'src/xToneApp/libs'
 }
 
 apply plugin: 'com.google.gms.google-services'
