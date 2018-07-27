@@ -23,6 +23,8 @@ public class xToneApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
+        log.info(TAG, "onCreate()");
 
         android.os.Process.setThreadPriority(-20);
         Context context = getApplicationContext();
@@ -30,7 +32,6 @@ public class xToneApp extends Application {
         setupHandlerForUncaughtExceptions(context);
 
         // this must be after the setupHandlerForUncaughtExceptions so it will send the exceptions before it kill process
-        Fabric.with(this, new Crashlytics());
     }
 
     private void setupHandlerForUncaughtExceptions(final Context context) {

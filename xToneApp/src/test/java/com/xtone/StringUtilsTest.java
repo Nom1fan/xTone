@@ -1,22 +1,14 @@
+package com.xtone;
+
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 
 import com.xtone.utils.StringUtils;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class StringUtilsTest {
 

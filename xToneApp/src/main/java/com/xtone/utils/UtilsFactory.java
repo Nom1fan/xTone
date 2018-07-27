@@ -16,16 +16,16 @@ public class UtilsFactory {
 
     private static final Logger log = LoggerFactory.getLogger();
 
-    private Map<Class<? extends Utility>, Utility> class2ObjectMap;
+    private Map<Class<? extends Utility>, Class<? extends Utility>> class2ImplMap;
 
     private static UtilsFactory instance;
 
     private UtilsFactory() {
-        class2ObjectMap = new HashMap<Class<? extends Utility>, Utility>() {{
-            put(BitmapUtils.class, new BitmapUtilsImpl());
-            put(ContactsUtils.class, new ContactsUtilsImpl());
-            put(StringUtils.class, new StringUtils());
-            put(BroadcastUtils.class, new BroadcastUtils());
+        class2ImplMap = new HashMap<Class<? extends Utility>, Class<? extends Utility>>() {{
+            put(BitmapUtils.class, BitmapUtilsImpl.class);
+            put(ContactsUtils.class, ContactsUtilsImpl.class);
+            put(StringUtils.class, StringUtils.class);
+            put(BroadcastUtils.class, BroadcastUtils.class);
         }};
     }
 
@@ -37,13 +37,18 @@ public class UtilsFactory {
     }
 
     public <T extends Utility> T getUtility(Class<? extends Utility> interfaceClass) {
+        try {
 
-        Utility utility = class2ObjectMap.get(interfaceClass);
-        if (utility == null) {
-            log.warn(TAG, String.format("Unable to find utility for of interface:%s", interfaceClass));
+            Class<? extends Utility> utilClass = class2ImplMap.get(interfaceClass);
+            if (utilClass == null) {
+                log.warn(TAG, String.format("Unable to find utility for of interface:%s", interfaceClass));
+                return null;
+            }
+
+            return (T) utilClass.newInstance();
+        } catch (Exception e) {
+            log.error(TAG, String.format("Failed to instantiate util class:[%s]", interfaceClass));
             return null;
         }
-
-        return (T) utility;
     }
 }
