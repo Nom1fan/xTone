@@ -61,12 +61,6 @@
 
         <!-- Services -->
 
-
-        <service
-            android:name="com.xtone.service.IncomingCallService"
-            android:enabled="true"
-            android:priority="999" />
-
         <!-- <service -->
         <!-- android:name="com.xtone.service.PreviewService" -->
         <!-- android:enabled="true" -->

@@ -1,8 +1,5 @@
 package com.xtone.activity;
 
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -12,9 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.xtone.app.R;
-import com.xtone.service.IncomingCallService;
 import com.xtone.utils.PermissionsUtils;
-import com.xtone.utils.Utility;
 import com.xtone.utils.UtilsFactory;
 
 import static com.xtone.utils.PermissionsUtils.PERMISSIONS;
@@ -45,9 +40,6 @@ public class MainActivity extends AppCompatActivity {
             requestPermissions(PERMISSIONS, PERMISSION_REQUEST);
         }
 
-//        Intent i = new Intent();
-//        i.setClass(this, IncomingCallService.class);
-//        startService(i);
     }
 
     @Override
