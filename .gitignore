@@ -8,3 +8,7 @@ import-summary.txt
 local.properties
 settings.gradle
 /*.iml
+aFileChooser/.gitignore~HEAD
+aFileChooser/.gitignore~origin_develop
+ffmpeg4android_lib/.gitignore~HEAD
+ffmpeg4android_lib/.gitignore~origin_develop

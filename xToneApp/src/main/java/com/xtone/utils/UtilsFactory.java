@@ -41,7 +41,7 @@ public class UtilsFactory {
 
             Class<? extends Utility> utilClass = class2ImplMap.get(interfaceClass);
             if (utilClass == null) {
-                log.warn(TAG, String.format("Unable to find utility for of interface:%s", interfaceClass));
+                log.warn(TAG, String.format("Unable to find utility for of:[%s]", interfaceClass));
                 return null;
             }
 
