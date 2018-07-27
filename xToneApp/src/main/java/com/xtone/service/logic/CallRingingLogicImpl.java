@@ -16,15 +16,18 @@ public class CallRingingLogicImpl implements CallRingingLogic {
 
     private static final String TAG = CallRingingLogicImpl.class.getSimpleName();
 
-    private Phone2MediaUtils phone2MediaUtils = UtilsFactory.instance().getUtility(Phone2MediaUtils.class);
+    private Phone2MediaUtils phone2MediaUtils;
 
-    private StandOutWindowUtils standOutWindowUtils = UtilsFactory.instance().getUtility(StandOutWindowUtils.class);
+    private StandOutWindowUtils standOutWindowUtils;
 
-    private CallSessionUtils callSessionUtils = UtilsFactory.instance().getUtility(CallSessionUtils.class);
+    private CallSessionUtils callSessionUtils;
 
     private Logger log = LoggerFactory.getLogger();
 
     public CallRingingLogicImpl() {
+        phone2MediaUtils = UtilsFactory.instance().getUtility(Phone2MediaUtils.class);
+        standOutWindowUtils = UtilsFactory.instance().getUtility(StandOutWindowUtils.class);
+        callSessionUtils = UtilsFactory.instance().getUtility(CallSessionUtils.class);
     }
 
     public CallRingingLogicImpl(Phone2MediaUtils phone2MediaUtils, StandOutWindowUtils standOutWindowUtils, CallSessionUtils callSessionUtils, Logger log) {
@@ -48,7 +51,7 @@ public class CallRingingLogicImpl implements CallRingingLogic {
         MediaFile mediaFile = phone2MediaUtils.getMediaFile(context, incomingNumber);
         if (mediaFile != null) {
             log.info(TAG, "Found media. Starting StandOut window...");
-           standOutWindowUtils.startStandOutWindow(context, incomingNumber, mediaFile);
+            standOutWindowUtils.startStandOutWindow(context, incomingNumber, mediaFile);
         }
     }
 }

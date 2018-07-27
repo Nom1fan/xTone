@@ -29,6 +29,8 @@ public class UtilsFactory {
             put(SharedPrefUtils.class, SharedPrefUtils.class);
             put(CallSessionUtils.class, CallSessionUtilsImpl.class);
             put(Phone2MediaUtils.class, Phone2MediaUtilsImpl.class);
+            put(PermissionsUtils.class, PermissionsUtils.class);
+            put(StandOutWindowUtils.class, StandOutWindowUtilsImpl.class);
         }};
     }
 

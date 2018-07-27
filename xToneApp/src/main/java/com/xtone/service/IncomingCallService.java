@@ -49,7 +49,6 @@ public class IncomingCallService extends Service {
     public void onCreate() {
         log.info(TAG, "onCreate()");
         prepareCallStateListener();
-        super.onCreate();
     }
 
     @Override

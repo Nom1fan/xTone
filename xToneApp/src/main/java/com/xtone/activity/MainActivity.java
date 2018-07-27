@@ -1,7 +1,10 @@
 package com.xtone.activity;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,8 +13,16 @@ import android.view.View;
 
 import com.xtone.app.R;
 import com.xtone.service.IncomingCallService;
+import com.xtone.utils.PermissionsUtils;
+import com.xtone.utils.Utility;
+import com.xtone.utils.UtilsFactory;
+
+import static com.xtone.utils.PermissionsUtils.PERMISSIONS;
+import static com.xtone.utils.PermissionsUtils.PERMISSION_REQUEST;
 
 public class MainActivity extends AppCompatActivity {
+
+    private PermissionsUtils permissionsUtils = UtilsFactory.instance().getUtility(PermissionsUtils.class);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,9 +40,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Intent i = new Intent();
-        i.setClass(this, IncomingCallService.class);
-        startService(i);
+        boolean permissionsSatisfied = permissionsUtils.checkPermissions(this);
+        if (!permissionsSatisfied) {
+            requestPermissions(PERMISSIONS, PERMISSION_REQUEST);
+        }
+
+//        Intent i = new Intent();
+//        i.setClass(this, IncomingCallService.class);
+//        startService(i);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST) {
+            boolean permissionGranted = permissionsUtils.isPermissionGranted(grantResults);
+            if (!permissionGranted) {
+                permissionsUtils.alertAndFinish(this);
+            }
+        }
+    }
+
+
 }
+

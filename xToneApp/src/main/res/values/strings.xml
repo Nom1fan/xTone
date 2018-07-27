@@ -3,4 +3,5 @@
     <string name="app_name">xTone</string>
     <string name="notification_title">xTone Notification</string>
     <string name="title_activity_main">xTone</string>
+    <string name="permissions_denial">Permission denied</string>
 </resources>

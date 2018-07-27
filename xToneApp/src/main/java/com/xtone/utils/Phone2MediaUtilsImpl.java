@@ -17,8 +17,9 @@ public class Phone2MediaUtilsImpl implements Phone2MediaUtils {
 
     @Override
     public MediaFile getMediaFile(Context context, String phoneNumber) {
-        String mediaFileJson = sharedPrefUtils.getString(context, "PHONE_2_MEDIA", phoneNumber);
-        return gson.fromJson(mediaFileJson, MediaFile.class);
+//        String mediaFileJson = sharedPrefUtils.getString(context, "PHONE_2_MEDIA", phoneNumber);
+//        return gson.fromJson(mediaFileJson, MediaFile.class);
+        return new MediaFile();
     }
 
     @Override
