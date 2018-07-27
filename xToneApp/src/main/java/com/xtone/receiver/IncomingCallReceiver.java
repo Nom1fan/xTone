@@ -3,21 +3,16 @@ package com.xtone.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
 import com.xtone.logging.Logger;
 import com.xtone.logging.LoggerFactory;
-import com.xtone.service.IncomingCallService;
 import com.xtone.service.logic.CallIdleLogic;
 import com.xtone.service.logic.CallIdleLogicImpl;
 import com.xtone.service.logic.CallOffHookLogic;
 import com.xtone.service.logic.CallOffHookLogicImpl;
 import com.xtone.service.logic.CallRingingLogic;
 import com.xtone.service.logic.CallRingingLogicImpl;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static android.telephony.TelephonyManager.ACTION_PHONE_STATE_CHANGED;
 import static android.telephony.TelephonyManager.EXTRA_INCOMING_NUMBER;
@@ -65,6 +60,7 @@ public class IncomingCallReceiver extends BroadcastReceiver {
         String incomingNumber = getIncomingNumber(intent);
 
         if (incomingNumber == null) {
+            log.warn(TAG, "IncomingNumber from EXTRA_INCOMING_NUMBER returned null");
             return;
         }
 

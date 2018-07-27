@@ -4,7 +4,7 @@ import android.content.Context;
 import android.telephony.TelephonyManager;
 
 import com.xtone.logging.Logger;
-import com.xtone.service.IncomingCallService;
+import com.xtone.receiver.IncomingCallReceiver;
 import com.xtone.service.logic.CallIdleLogic;
 import com.xtone.service.logic.CallOffHookLogic;
 import com.xtone.service.logic.CallRingingLogic;
@@ -19,10 +19,10 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class IncomingCallServiceTest {
+public class IncomingCallReceiverTest {
 
     @InjectMocks
-    private IncomingCallService incomingCallService;
+    private IncomingCallReceiver incomingCallService;
 
     @Mock
     private CallRingingLogic callRingingLogic;
@@ -36,6 +36,9 @@ public class IncomingCallServiceTest {
     @Mock
     private Logger log;
 
+    @Mock
+    private Context context;
+
     @Before
     public void before() {
         MockitoAnnotations.initMocks(this);
@@ -44,7 +47,7 @@ public class IncomingCallServiceTest {
     @Test
     public void callRingingReceived_onlyCallRingingLogicCalled() {
 
-        incomingCallService.syncOnCallStateChange(TelephonyManager.CALL_STATE_RINGING, "0500000000");
+        incomingCallService.syncOnCallStateChange(context, TelephonyManager.CALL_STATE_RINGING, "0500000000");
 
         verify(callRingingLogic, times(1)).handle(any(Context.class), any(String.class));
         verify(callOffHookLogic, times(0)).handle(any(Context.class), any(String.class));
@@ -54,7 +57,7 @@ public class IncomingCallServiceTest {
     @Test
     public void callOffHookReceived_onlyCallOffHookLogicCalled() {
 
-        incomingCallService.syncOnCallStateChange(TelephonyManager.CALL_STATE_OFFHOOK, "0500000000");
+        incomingCallService.syncOnCallStateChange(context, TelephonyManager.CALL_STATE_OFFHOOK, "0500000000");
 
         verify(callRingingLogic, times(0)).handle(any(Context.class), any(String.class));
         verify(callOffHookLogic, times(1)).handle(any(Context.class), any(String.class));
@@ -64,7 +67,7 @@ public class IncomingCallServiceTest {
     @Test
     public void callIdleReceived_onlyCallidleLogicCalled() {
 
-        incomingCallService.syncOnCallStateChange(TelephonyManager.CALL_STATE_IDLE, "0500000000");
+        incomingCallService.syncOnCallStateChange(context, TelephonyManager.CALL_STATE_IDLE, "0500000000");
 
         verify(callRingingLogic, times(0)).handle(any(Context.class), any(String.class));
         verify(callOffHookLogic, times(0)).handle(any(Context.class), any(String.class));
