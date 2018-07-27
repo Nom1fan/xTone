@@ -10,6 +10,9 @@ public class MediaFile {
 
     private MediaFileType mediaFileType;
 
+    public MediaFile() {
+    }
+
     public MediaFile(File file, File thumbnailFile, MediaFileType mediaFileType) {
         this.file = file;
         this.thumbnailFile = thumbnailFile;
