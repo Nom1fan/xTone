@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">xTone</string>
     <string name="notification_title">xTone Notification</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>

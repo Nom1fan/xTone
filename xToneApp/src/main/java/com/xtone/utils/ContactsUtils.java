@@ -4,7 +4,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.provider.ContactsContract;
 
-import com.xtone.data.objects.Contact;
+
+import com.xtone.model.Contact;
 
 import java.util.List;
 
