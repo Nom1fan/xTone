@@ -1,0 +1,330 @@
+
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/mainActivity"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        android:background="#004559"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:padding="15dip" >
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:id="@+id/divider1"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="100dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_alignParentStart="false"
+            android:id="@+id/divider2"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="false"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp"
+            android:layout_below="@+id/profile_textview2" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:id="@+id/center_divider3"
+            android:layout_centerInParent="true"
+            android:visibility="invisible" />
+
+        <ImageButton
+            android:id="@+id/selectProfileMediaBtn"
+            android:clickable="true"
+            android:src="@drawable/mc_caller_media_anim"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:layout_below="@+id/divider1"
+            android:layout_above="@+id/center_divider3"
+            android:layout_marginTop="15dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignRight="@+id/profile_textview2"
+            android:layout_alignLeft="@+id/profile_textview2"
+            android:scaleType="fitCenter" />
+
+        <TextView
+            android:id="@+id/profile_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignRight="@+id/destName"
+            android:layout_below="@+id/selectProfileMediaBtn"
+            android:layout_marginTop="5dp"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center_horizontal"
+            android:text="@string/media_the_contact_will_see"
+            android:textColor="#ffffff"
+            android:textSize="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_textview"
+            android:id="@+id/profile_textview2"
+            android:fontFamily="sans-serif-light"
+            android:textSize="16dp"
+            android:textColor="#ff8400"
+            android:gravity="center_horizontal"
+            android:layout_alignParentEnd="false"
+            android:layout_below="@+id/profile_textview"
+            android:layout_centerHorizontal="true" />
+
+        <ImageButton
+            android:id="@+id/selectMediaBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:layout_alignParentStart="false"
+            android:cropToPadding="false"
+            android:layout_above="@+id/media_textview"
+            android:layout_below="@+id/profile_textview2"
+            android:layout_marginTop="15dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/profile_media_anim"
+            android:background="@android:color/transparent"
+            android:layout_alignRight="@+id/caller_textview2"
+            android:layout_centerHorizontal="true"
+            android:layout_alignLeft="@+id/caller_textview2" />
+
+        <TextView
+            android:id="@+id/media_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/caller_textview2"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentLeft="true"
+            android:layout_alignRight="@+id/destName"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:text="@string/media_the_contact_will_see"
+            android:textColor="#ffffff"
+            android:textSize="16dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/caller_textview"
+            android:fontFamily="sans-serif-light"
+            android:id="@+id/caller_textview2"
+            android:textSize="16dp"
+            android:textColor="#ff8400"
+            android:gravity="center_horizontal"
+            android:layout_alignParentLeft="false"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="20dp"
+            android:layout_centerHorizontal="true" />
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/callerArrow"
+            android:layout_alignTop="@+id/selectMediaBtn"
+            android:layout_alignBottom="@+id/selectMediaBtn"
+            android:src="@drawable/caller_arrow_anim"
+            android:layout_alignLeft="@+id/profileArrow"
+            android:layout_alignRight="@+id/profileArrow"
+            android:layout_toLeftOf="@+id/selectMediaBtn"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp" />
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/profileArrow"
+            android:layout_alignTop="@+id/selectProfileMediaBtn"
+            android:layout_alignBottom="@+id/selectProfileMediaBtn"
+            android:src="@drawable/profile_arrow_anim"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/selectProfileMediaBtn"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp" />
+
+        <ImageButton
+            android:id="@+id/CallNow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/call_btn_anim"
+            android:enabled="true"
+            android:scaleType="fitCenter"
+            android:background="#00ffffff"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/fetchuserprogress"
+            android:layout_alignBottom="@+id/selectProfileMediaBtn"
+            android:layout_toLeftOf="@+id/selectContactBtn"
+            android:layout_alignTop="@+id/selectContactBtn"
+            android:layout_alignRight="@+id/selectContactBtn"
+            android:layout_alignEnd="@+id/selectContactBtn"
+            android:layout_alignLeft="@+id/selectContactBtn"
+            android:layout_alignStart="@+id/selectContactBtn"
+            android:visibility="gone" />
+
+        <ImageView
+            android:layout_width="14sp"
+            android:layout_height="14sp"
+            android:id="@+id/mediaStatusArrived"
+            android:visibility="invisible"
+            android:src="@drawable/doublepositive"
+            android:layout_above="@+id/ringtoneName"
+            android:layout_alignRight="@+id/selectMediaBtn"
+            android:layout_alignEnd="@+id/selectMediaBtn" />
+
+        <ImageView
+            android:layout_width="14sp"
+            android:layout_height="14sp"
+            android:id="@+id/ringtoneStatusArrived"
+            android:visibility="invisible"
+            android:src="@drawable/doublepositive"
+            android:layout_alignBottom="@+id/selectMediaBtn"
+            android:layout_alignLeft="@+id/mediaStatusArrived"
+            android:layout_alignStart="@+id/mediaStatusArrived" />
+
+
+        <TextView
+            android:id="@+id/destName"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentStart="false"
+            android:layout_marginTop="11dp"
+            android:completionThreshold="1"
+            android:ems="10"
+            android:enabled="true"
+            android:fontFamily="sans-serif-light"
+            android:singleLine="false"
+            android:textAlignment="center"
+            android:textColor="#ffffff"
+            android:textColorHint="#ffffff"
+            android:textSize="40sp"></TextView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="RingTone Name "
+            android:id="@+id/ringtoneNameForProfile"
+            android:visibility="invisible"
+            android:background="#b000a0d1"
+            android:textColor="@android:color/black"
+            android:singleLine="true"
+            android:hint="No Ringtone Was Chosen !"
+            android:layout_alignBottom="@+id/selectProfileMediaBtn"
+            android:layout_alignLeft="@+id/selectProfileMediaBtn"
+            android:layout_alignStart="@+id/selectProfileMediaBtn"
+            android:layout_alignRight="@+id/selectProfileMediaBtn"
+            android:layout_alignEnd="@+id/selectProfileMediaBtn"
+            android:textSize="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="RingTone Name "
+            android:id="@+id/ringtoneName"
+            android:visibility="invisible"
+            android:background="#b000a0d1"
+            android:textColor="@android:color/black"
+            android:singleLine="true"
+            android:hint="No Ringtone Was Chosen !"
+            android:layout_alignBottom="@+id/selectMediaBtn"
+            android:textIsSelectable="false"
+            android:textSize="10dp"
+            android:layout_alignTop="@+id/ringtoneStatusArrived"
+            android:layout_alignLeft="@+id/selectMediaBtn"
+            android:layout_alignStart="@+id/selectMediaBtn"
+            android:layout_toLeftOf="@+id/mediaStatusArrived"
+            android:layout_toStartOf="@+id/mediaStatusArrived" />
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:id="@+id/tutorial_btn"
+            android:src="@drawable/about_help"
+            android:scaleType="fitCenter"
+            android:background="#00ffffff"
+            android:layout_alignParentTop="true"
+            android:layout_alignLeft="@+id/selectContactBtn"
+            android:layout_alignStart="@+id/selectContactBtn"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="5dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tutorial_text"
+            android:id="@+id/tutorial_textview"
+            android:fontFamily="sans-serif-light"
+            android:gravity="center"
+            android:layout_below="@+id/tutorial_btn"
+            android:textSize="10dp"
+            android:textColor="@color/white"
+            android:singleLine="true"
+            android:layout_alignRight="@+id/textView4"
+            android:layout_alignEnd="@+id/textView4"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tutorial_text1"
+            android:id="@+id/textView4"
+            android:fontFamily="sans-serif-light"
+            android:layout_below="@+id/tutorial_textview"
+            android:gravity="center"
+            android:textSize="10dp"
+            android:textColor="@color/white"
+            android:singleLine="true"
+            android:layout_alignRight="@+id/selectContactBtn"
+            android:layout_alignEnd="@+id/selectContactBtn"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:visibility="gone" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/showcase_callermedia"
+            android:layout_below="@+id/divider2"
+            android:layout_above="@+id/caller_textview2"
+            android:layout_toRightOf="@+id/callerArrow"
+            android:layout_alignRight="@+id/profile_textview2"
+            android:layout_centerHorizontal="true" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/showcase_profilemedia"
+            android:layout_below="@+id/divider1"
+            android:layout_above="@+id/profile_textview2"
+            android:layout_toRightOf="@+id/profileArrow"
+            android:layout_alignRight="@+id/profile_textview2"
+            android:layout_centerHorizontal="true"
+            android:scaleType="fitCenter" />
+
+    </RelativeLayout>
+
