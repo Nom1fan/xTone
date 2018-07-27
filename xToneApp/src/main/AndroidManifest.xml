@@ -82,17 +82,17 @@
 
         <!-- Services -->
 
-        <service
-            android:name="com.xtone.service.IncomingService"
-            android:enabled="true"
-            android:priority="999">
-        </service>
+        <!--<service-->
+            <!--android:name="com.xtone.service.IncomingService"-->
+            <!--android:enabled="true"-->
+            <!--android:priority="999">-->
+        <!--</service>-->
 
-        <service
-            android:name="com.xtone.service.PreviewService"
-            android:enabled="true"
-            android:priority="999">
-        </service>
+        <!--<service-->
+            <!--android:name="com.xtone.service.PreviewService"-->
+            <!--android:enabled="true"-->
+            <!--android:priority="999">-->
+        <!--</service>-->
 
         <service
             android:name="com.xtone.service.GetFireBaseTokenService">
@@ -110,11 +110,11 @@
 
         <!-- Broadcast Receivers -->
 
-        <receiver android:name="com.xtone.receiver.BootCompletedBroadcastReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
+        <!--<receiver android:name="com.xtone.receiver.BootCompletedBroadcastReceiver">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.BOOT_COMPLETED" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
 
     </application>
 

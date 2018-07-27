@@ -1,1 +1,1 @@
-include ':aFileChooser', ':specialCall', ':standOut_lib', ':ffmpeg4android_lib'
+include ':aFileChooser', ':xToneApp', ':standOut_lib', ':ffmpeg4android_lib'
