@@ -26,6 +26,11 @@ public class UtilsFactory {
             put(ContactsUtils.class, ContactsUtilsImpl.class);
             put(StringUtils.class, StringUtils.class);
             put(BroadcastUtils.class, BroadcastUtils.class);
+            put(SharedPrefUtils.class, SharedPrefUtils.class);
+            put(CallSessionUtils.class, CallSessionUtilsImpl.class);
+            put(Phone2MediaUtils.class, Phone2MediaUtilsImpl.class);
+            put(PermissionsUtils.class, PermissionsUtils.class);
+            put(StandOutWindowUtils.class, StandOutWindowUtilsImpl.class);
         }};
     }
 
@@ -41,7 +46,7 @@ public class UtilsFactory {
 
             Class<? extends Utility> utilClass = class2ImplMap.get(interfaceClass);
             if (utilClass == null) {
-                log.warn(TAG, String.format("Unable to find utility for of interface:%s", interfaceClass));
+                log.warn(TAG, String.format("Unable to find utility for of:[%s]", interfaceClass));
                 return null;
             }
 
