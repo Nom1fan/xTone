@@ -42,15 +42,19 @@ public class CallRingingLogicImpl implements CallRingingLogic {
         log.info(TAG, "Received: CALL_STATE_RINGING");
 
         if (callSessionUtils.getCallState(context) == TelephonyManager.CALL_STATE_RINGING) {
-            log.warn(TAG, "Already in call state ringing. Doing nothing");
+            log.warn(TAG, "Already in call state ringing. Doing nothing.");
             return;
         }
 
         callSessionUtils.setCallState(context, TelephonyManager.CALL_STATE_RINGING);
 
         MediaFile mediaFile = phone2MediaUtils.getMediaFile(context, incomingNumber);
+        if (mediaFile == null) {
+            log.info(TAG, "No media found. Doing nothing.");
+        }
+
         if (mediaFile != null) {
-            log.info(TAG, "Found media. Starting StandOut window...");
+            log.info(TAG, "Media found!");
             standOutWindowUtils.startStandOutWindow(context, incomingNumber, mediaFile);
         }
     }

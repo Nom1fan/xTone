@@ -15,11 +15,13 @@ public class StandOutWindowUtilsImpl implements StandOutWindowUtils {
 
     @Override
     public void startStandOutWindow(Context context, String phoneNumber, MediaFile mediaFile) {
+        log.info(TAG, "Showing StandOutwindow...");
         Toast.makeText(context, "Showing StandOutwindow...", Toast.LENGTH_LONG);
     }
 
     @Override
     public void stopStandOutWindow(Context context) {
+        log.info(TAG, "Closing StandOutwindow...");
         Toast.makeText(context, "Closing StandOutwindow...", Toast.LENGTH_LONG);
     }
 }
