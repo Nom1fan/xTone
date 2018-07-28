@@ -34,7 +34,7 @@ public class CallIdleLogicImpl implements CallIdleLogic {
 
     @Override
     public void handle(Context context, String incomingNumber) {
-        log.info(TAG, "Received: CALL_STATE_IDLE");
+        log.info(TAG, "Received:[CALL_STATE_IDLE]");
 
         int callState = callSessionUtils.getCallState(context);
 

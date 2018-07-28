@@ -39,7 +39,7 @@ public class CallRingingLogicImpl implements CallRingingLogic {
 
     @Override
     public void handle(Context context, String incomingNumber) {
-        log.info(TAG, "Received: CALL_STATE_RINGING");
+        log.info(TAG, "Received:[CALL_STATE_RINGING]");
 
         if (callSessionUtils.getCallState(context) == TelephonyManager.CALL_STATE_RINGING) {
             log.warn(TAG, "Already in call state ringing. Doing nothing.");
