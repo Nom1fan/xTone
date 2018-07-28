@@ -60,6 +60,7 @@ public class CallRingingLogicTest {
 
         callRingingLogic.handle(context, incomingNumber);
 
+        verify(callSessionUtils, times(1)).getCallState(eq(context));
         verify(callSessionUtils, times(0)).setCallState(eq(context), any(Integer.class));
         verify(phone2MediaUtils, times(0)).getMediaFile(eq(context), eq(incomingNumber));
         verify(standOutWindowUtils, times(0)).startStandOutWindow(eq(context), eq(incomingNumber), any(MediaFile.class));
@@ -74,6 +75,7 @@ public class CallRingingLogicTest {
 
         callRingingLogic.handle(context, incomingNumber);
 
+        verify(callSessionUtils, times(1)).getCallState(eq(context));
         verify(callSessionUtils, times(1)).setCallState(eq(context), eq(TelephonyManager.CALL_STATE_RINGING));
         verify(phone2MediaUtils, times(1)).getMediaFile(eq(context), eq(incomingNumber));
         verify(standOutWindowUtils, times(0)).startStandOutWindow(eq(context), eq(incomingNumber), any(MediaFile.class));
@@ -89,6 +91,7 @@ public class CallRingingLogicTest {
 
         callRingingLogic.handle(context, incomingNumber);
 
+        verify(callSessionUtils, times(1)).getCallState(eq(context));
         verify(callSessionUtils, times(1)).setCallState(eq(context), eq(TelephonyManager.CALL_STATE_RINGING));
         verify(phone2MediaUtils, times(1)).getMediaFile(eq(context), eq(incomingNumber));
         verify(standOutWindowUtils, times(1)).startStandOutWindow(eq(context), eq(incomingNumber), eq(mediaFile));

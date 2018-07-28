@@ -33,7 +33,7 @@ public class CallOffHookLogicImpl implements CallOffHookLogic {
 
     @Override
     public void handle(Context context, String incomingNumber) {
-        log.info(TAG, "Received: CALL_STATE_OFF_HOOK");
+        log.info(TAG, "Received:[CALL_STATE_OFF_HOOK]");
 
         callSessionUtils.setCallState(context, TelephonyManager.CALL_STATE_OFFHOOK);
         standOutWindowUtils.stopStandOutWindow(context);
