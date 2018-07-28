@@ -46,7 +46,7 @@ public class CallOffHookLogicTest {
     }
 
     @Test
-    public void stateAlreadyRinging_doNothing() {
+    public void callOffHookReceived_setSessionStateAndStopStandOutWindow() {
         String incomingNumber = "050000000";
 
         callOffHookLogic.handle(context, incomingNumber);
