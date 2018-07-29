@@ -1039,10 +1039,9 @@ public abstract class StandOutWindow extends Service {
 
         try {
 
-            // TODO MEdiaCallz: Removing window just in case the previous one got stuck, make sure this doesn't create problems
+            // TODO Rony: Removing window just in case the previous one got stuck, make sure this doesn't create problems
             try {
-                if (window != null)
-                    mWindowManager.removeView(window);
+                mWindowManager.removeView(window);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -1059,39 +1058,6 @@ public abstract class StandOutWindow extends Service {
 
         // add view to internal map
         sWindowCache.putCache(id, getClass(), window);
-
-        // TODO MediaCallz\SpecialCall : maybe it can helps to be foreground service so the services won't be killed . so maybe notification is important here! INVESTIGATE
-        // get the persistent notification
-        /*Notification notification = getPersistentNotification(id);
-
-		// show the notification
-		if (notification != null) {
-			notification.flags = notification.flags	| Notification.FLAG_NO_CLEAR;
-
-			// only show notification if not shown before
-			if (!startedForeground) {
-				// tell Android system to show notification
-				startForeground(
-						getClass().hashCode() + ONGOING_NOTIFICATION_ID,
-						notification);
-				startedForeground = true;
-			} else {
-				// update notification if shown before
-				mNotificationManager.notify(getClass().hashCode()
-						+ ONGOING_NOTIFICATION_ID, notification);
-			}
-		} else {
-			// notification can only be null if it was provided before
-			if (!startedForeground) {
-				throw new RuntimeException("Your StandOutWindow service must"
-						+ "provide a persistent notification."
-						+ "The notification prevents Android"
-						+ "from killing your service in low"
-						+ "memory situations.");
-			}
-		}*/
-        //focus(id);   /// window shouldn't be focused when first show
-
         return window;
     }
 
@@ -1758,7 +1724,7 @@ public abstract class StandOutWindow extends Service {
             gravity = Gravity.TOP | Gravity.LEFT;
 
             threshold = 10;
-            minWidth = minHeight = 500;  // TODO Decided what is the right minimum size of the window.
+            minWidth = minHeight = 500;  // TODO Rony: Decided what is the right minimum size of the window.
             maxWidth = maxHeight = Integer.MAX_VALUE;
         }
 

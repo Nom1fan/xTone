@@ -13,7 +13,7 @@ public class WindowCache {
 	public Map<Class<? extends StandOutWindow>, SparseArray<Window>> sWindows;
 
 	public WindowCache() {
-		sWindows = new HashMap<Class<? extends StandOutWindow>, SparseArray<Window>>();
+		sWindows = new HashMap<>();
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class WindowCache {
 	public void putCache(int id, Class<? extends StandOutWindow> cls, Window window) {
 		SparseArray<Window> l2 = sWindows.get(cls);
 		if (l2 == null) {
-			l2 = new SparseArray<Window>();
+			l2 = new SparseArray<>();
 			sWindows.put(cls, l2);
 		}
 
@@ -117,7 +117,7 @@ public class WindowCache {
 	public Set<Integer> getCacheIds(Class<? extends StandOutWindow> cls) {
 		SparseArray<Window> l2 = sWindows.get(cls);
 		if (l2 == null) {
-			return new HashSet<Integer>();
+			return new HashSet<>();
 		}
 
 		Set<Integer> keys = new HashSet<Integer>();
