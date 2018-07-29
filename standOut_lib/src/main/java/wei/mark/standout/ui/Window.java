@@ -385,7 +385,7 @@ public class Window extends FrameLayout {
 
 
 					if (!prefs.getBoolean("DontBotherIncomingCallPopUp", false)) {
-						params.y = prefs.getInt("DeviceScreenHeighet",1000) * 20 / 100;  // TODO so it won't bother the incoming call pop up in the top of the screen
+						params.y = prefs.getInt("DeviceScreenHeighet",1000) * 20 / 100;  // TODO Rony: so it won't bother the incoming call pop up in the top of the screen
 
 
 
@@ -406,7 +406,7 @@ public class Window extends FrameLayout {
 
 						params.width = prefs.getInt("DeviceScreenWidth",500) * 25 / 100;
 						params.height = prefs.getInt("DeviceScreenHeighet",1000) * 20 / 100;
-						params.y = prefs.getInt("DeviceScreenHeighet",1000) * 20 / 100;  // TODO so it won't bother the incoming call pop up in the top of the screen
+						params.y = prefs.getInt("DeviceScreenHeighet",1000) * 20 / 100;  TODO Rony: so it won't bother the incoming call pop up in the top of the screen
 						params.x = 0;
                         Log.i(TAG, "AskBeforeMediaShowForStandOut got into it...width: "+params.width+" heighet: "+params.height+" X: "+params.x+" Y: " + params.y);
 					}*/
@@ -494,7 +494,7 @@ public class Window extends FrameLayout {
 							.getInt(WindowDataKeys.X_BEFORE_MAXIMIZE, -1);
 					int oldY = data
 							.getInt(WindowDataKeys.Y_BEFORE_MAXIMIZE, -1);*/
-					edit().setSize(startingWidth, startingWidth).setPosition(startingX, startingY)
+					edit().setSize(startingWidth, startingHeighet).setPosition(startingX, startingY)
 							.commit();
 				} else {
 					data.putBoolean(WindowDataKeys.IS_MAXIMIZED, true);
